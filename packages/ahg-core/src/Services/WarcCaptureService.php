@@ -69,9 +69,19 @@
  * schema change (no ALTER): it is written into the existing error_message column as a
  * short note for successful captures and surfaced in the admin list + result message.
  *
- * Honest remaining gap: same-host subresources are now captured, but OFF-HOST assets
- * (third-party CDNs / fonts) are deliberately NOT fetched, and there is still no replay
- * (Wayback / pywb) surface. Off-host capture and replay remain open under heratio#1244 /
+ * Off-host assets (OPT-IN): by default OFF-HOST assets (third-party CDNs / fonts) are NOT
+ * fetched - the same-host filter above drops them. An OPT-IN $includeOffHost flag on
+ * capture() (default FALSE, behaviour unchanged) relaxes ONLY the host-equality constraint
+ * of the subresource crawl so off-host http/https assets are captured too. It keeps EVERY
+ * existing SSRF protection (http/https-only, no embedded credentials, no alternate port,
+ * and the loopback / link-local / cloud-metadata / private-range host rejection) and EVERY
+ * existing bound (asset count, per-asset size, total-capture budget, per-asset timeout,
+ * de-dup, depth-1) - see assertFetchableSubresourceUrl(). No schema change: the subresource
+ * count note is still written into the existing error_message column.
+ *
+ * Honest remaining gap: there is still no replay (Wayback / pywb) surface beyond the
+ * in-app WARC replay, and the off-host opt-in is not yet surfaced through the CLI url-mode
+ * command (url mode is single-page by design). These remain open under heratio#1244 /
  * the digital-preservation roadmap.
  *
  * Copyright (C) 2026 Johan Pieterse
@@ -316,9 +326,19 @@ class WarcCaptureService
      * row (when the table exists) and returns ok=false with a clean message - never
      * throws to the caller.
      *
+     * OPT-IN off-host assets: $includeOffHost defaults to FALSE so behaviour is
+     * unchanged (same-host subresources only). When set TRUE the depth-1 subresource
+     * crawl ALSO fetches off-host (third-party CDN / font / image) assets, but every
+     * existing SSRF protection is still enforced - the relaxed filter is host-equality
+     * ONLY; http/https-only, no embedded credentials, and the loopback / link-local /
+     * cloud-metadata / private-range host rejection all still apply (see
+     * assertFetchableSubresourceUrl() + isBlockedHostLiteral()), and every bound (asset
+     * count, per-asset size, total-capture budget, per-asset timeout, de-dup, depth-1)
+     * is identical to the same-host path.
+     *
      * @return array{ok:bool, id:?int, status:string, message:?string, target_uri:?string, byte_size:?int, sha256:?string}
      */
-    public function capture(int $informationObjectId, ?int $userId = null): array
+    public function capture(int $informationObjectId, ?int $userId = null, bool $includeOffHost = false): array
     {
         $record = $this->resolvePublishedRecord($informationObjectId);
         if ($record === null) {
@@ -357,7 +377,8 @@ class WarcCaptureService
             $targetUri,
             (string) ($fetch['body'] ?? ''),
             (string) ($fetch['content_type'] ?? ''),
-            strlen((string) ($fetch['response_block'] ?? ''))
+            strlen((string) ($fetch['response_block'] ?? '')),
+            $includeOffHost
         );
 
         // Build the WARC 1.1 bytes (page records + N subresource record pairs).
@@ -399,7 +420,7 @@ class WarcCaptureService
                 'sha256' => $written['sha256'],
                 'http_status' => $fetch['http_status'] ?: null,
                 'status' => self::STATUS_CAPTURED,
-                'error_message' => $this->subresourceNote($subCount),
+                'error_message' => $this->subresourceNote($subCount, $includeOffHost),
                 'captured_by' => $userId && $userId > 0 ? $userId : null,
                 'captured_at' => $now,
                 'created_at' => $now,
@@ -597,9 +618,14 @@ class WarcCaptureService
      * per-asset timeout, de-dup). Resilient: any single asset failure is skipped and a
      * total failure here returns an empty list so the page-only WARC still succeeds.
      *
+     * When $includeOffHost is TRUE the discovery filter is relaxed to allow off-host
+     * assets, but every SSRF protection and bound is preserved (see discoverSubresources()
+     * + assertFetchableSubresourceUrl()). Default FALSE keeps the original same-host-only
+     * behaviour.
+     *
      * @return array<int, array{target_uri:string, request_block:string, response_block:string}>
      */
-    private function captureSubresources(string $pageUrl, string $body, string $contentType, int $pageBlockBytes): array
+    private function captureSubresources(string $pageUrl, string $body, string $contentType, int $pageBlockBytes, bool $includeOffHost = false): array
     {
         try {
             // Only parse subresources out of an HTML page.
@@ -610,7 +636,7 @@ class WarcCaptureService
                 return [];
             }
 
-            $urls = $this->discoverSubresources($body, $pageUrl);
+            $urls = $this->discoverSubresources($body, $pageUrl, $includeOffHost);
             if ($urls === []) {
                 return [];
             }
@@ -651,10 +677,20 @@ class WarcCaptureService
      * capture, stored in the existing error_message column (no schema change). The admin
      * list parses this back into a count for display.
      */
-    private function subresourceNote(int $count): ?string
+    private function subresourceNote(int $count, bool $includeOffHost = false): ?string
     {
         if ($count <= 0) {
-            return __('Page only; no same-host subresources captured.');
+            return $includeOffHost
+                ? __('Page only; no subresources captured.')
+                : __('Page only; no same-host subresources captured.');
+        }
+
+        if ($includeOffHost) {
+            return trans_choice(
+                '{1}:count subresource captured (same-host + off-host).|[2,*]:count subresources captured (same-host + off-host).',
+                $count,
+                ['count' => $count]
+            );
         }
 
         return trans_choice(
@@ -906,12 +942,16 @@ class WarcCaptureService
      *   - <img src> and <img srcset> / <source srcset>
      *   - url(...) inside inline <style> blocks   (CSS images / @font-face)
      *
-     * Off-host references are dropped here (never fetched). Nested @import inside fetched
-     * CSS is intentionally NOT recursed (depth-1 only).
+     * Off-host references are dropped here (never fetched) UNLESS $includeOffHost is TRUE
+     * (the opt-in path), in which case off-host http/https assets are kept too - but they
+     * still pass the full SSRF guard (no credentials, no loopback / link-local /
+     * cloud-metadata / private-range host; see assertFetchableSubresourceUrl()). Nested
+     * @import inside fetched CSS is intentionally NOT recursed (depth-1 only) in either
+     * mode. Default $includeOffHost = FALSE keeps the original same-host-only behaviour.
      *
      * @return array<int, string>
      */
-    public function discoverSubresources(string $html, string $pageUrl): array
+    public function discoverSubresources(string $html, string $pageUrl, bool $includeOffHost = false): array
     {
         if (trim($html) === '') {
             return [];
@@ -982,8 +1022,8 @@ class WarcCaptureService
             if ($abs === null) {
                 continue;
             }
-            if (! $this->assertSameHostUrl($abs, $pageUrl)) {
-                continue; // off-host / loopback / metadata / ported / credentialed -> dropped
+            if (! $this->assertFetchableSubresourceUrl($abs, $pageUrl, $includeOffHost)) {
+                continue; // loopback / metadata / ported / credentialed (+ off-host when not opted-in) -> dropped
             }
             if (isset($seen[$abs])) {
                 continue;
@@ -1045,6 +1085,61 @@ class WarcCaptureService
         // Reject literal loopback / link-local / cloud-metadata hosts as a belt-and-braces
         // guard even though the host-equality check above already constrains us.
         if ($this->isBlockedHostLiteral($aHost)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Subresource fetch gate that honours the OPT-IN off-host flag.
+     *
+     * - $includeOffHost === FALSE (default): delegates verbatim to assertSameHostUrl() -
+     *   identical behaviour to before this change (same-host only).
+     * - $includeOffHost === TRUE: relaxes ONLY the host-equality constraint, so an off-host
+     *   asset is allowed; EVERY OTHER guard is preserved exactly as in assertSameHostUrl():
+     *   http/https-only scheme, no embedded credentials, no alternate port, and the
+     *   loopback / link-local / cloud-metadata / private-range host rejection
+     *   (isBlockedHostLiteral()). This is the same host-literal guard isPublicHttpUrl()
+     *   uses for operator-submitted URLs, applied here to crawled off-host assets. cURL is
+     *   still pinned to http/https at fetch time (fetchSubresource()).
+     */
+    public function assertFetchableSubresourceUrl(string $url, string $pageUrl, bool $includeOffHost = false): bool
+    {
+        // Default path: unchanged same-host-only guard.
+        if (! $includeOffHost) {
+            return $this->assertSameHostUrl($url, $pageUrl);
+        }
+
+        $a = parse_url($url);
+        $p = parse_url($pageUrl);
+        if (! is_array($a) || ! is_array($p)) {
+            return false;
+        }
+
+        // Scheme must be http/https and identical to the page scheme (no downgrade) -
+        // unchanged from assertSameHostUrl().
+        $aScheme = strtolower((string) ($a['scheme'] ?? ''));
+        $pScheme = strtolower((string) ($p['scheme'] ?? ''));
+        if (! in_array($aScheme, ['http', 'https'], true) || $aScheme !== $pScheme) {
+            return false;
+        }
+
+        // No embedded credentials - unchanged.
+        if (isset($a['user']) || isset($a['pass'])) {
+            return false;
+        }
+
+        // Host-equality is RELAXED here (off-host allowed), but the host must still exist
+        // and must NOT be a loopback / link-local / cloud-metadata / private-range literal.
+        $aHost = strtolower((string) ($a['host'] ?? ''));
+        if ($aHost === '' || $this->isBlockedHostLiteral($aHost)) {
+            return false;
+        }
+
+        // No alternate port - unchanged from assertSameHostUrl() (the canonical page URL
+        // carries no explicit port; an off-host asset that needs a custom port is refused).
+        if (isset($a['port'])) {
             return false;
         }
 

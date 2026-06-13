@@ -121,6 +121,17 @@
                   {{ __('The record must be published. Only that record\'s own page on this host is fetched, plus its same-host subresources.') }}
                 </div>
               </div>
+              <div class="form-check mb-3">
+                <input type="hidden" name="include_off_host" value="0">
+                <input type="checkbox" class="form-check-input" id="include_off_host"
+                       name="include_off_host" value="1" {{ old('include_off_host') ? 'checked' : '' }}>
+                <label class="form-check-label small" for="include_off_host">
+                  {{ __('Also capture off-host assets (third-party CDN / font / image)') }}
+                </label>
+                <div class="form-text small">
+                  {{ __('Opt-in. Off-host assets still pass the same SSRF guards and size / count limits; loopback, link-local, cloud-metadata and private-range hosts are always refused.') }}
+                </div>
+              </div>
               <button type="submit" class="btn btn-sm btn-success w-100">
                 <i class="fas fa-download me-1"></i>{{ __('Capture snapshot') }}
               </button>

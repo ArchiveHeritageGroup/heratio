@@ -130,9 +130,15 @@ class WebArchiveController extends Controller
 
         $validated = $request->validate([
             'information_object_id' => ['required', 'integer', 'min:2'],
+            'include_off_host' => ['nullable', 'boolean'],
         ]);
 
-        $result = $this->capture->capture((int) $validated['information_object_id'], Auth::id());
+        // OPT-IN: capture off-host (third-party CDN / font) assets too. Defaults to FALSE
+        // (same-host only) so the behaviour is unchanged unless the operator ticks the box.
+        // The engine still enforces all SSRF guards + bounds on off-host assets.
+        $includeOffHost = $request->boolean('include_off_host');
+
+        $result = $this->capture->capture((int) $validated['information_object_id'], Auth::id(), $includeOffHost);
 
         if (! empty($result['ok'])) {
             $subCount = (int) ($result['subresource_count'] ?? 0);
