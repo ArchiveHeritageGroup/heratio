@@ -72,4 +72,26 @@ class EloquentUserProvisioner implements UserProvisionerInterface
     {
         return DB::table('user')->where('email', $email)->first();
     }
+
+    public function isInGroup(int $userId, int $groupId): bool
+    {
+        return DB::table('acl_user_group')
+            ->where('user_id', $userId)
+            ->where('group_id', $groupId)
+            ->exists();
+    }
+
+    public function setPassword(int $userId, string $password): bool
+    {
+        // Same scheme as createUser(): per-user salt, sha1 pre-hash, argon2.
+        $salt = md5(rand(100000, 999999) . $userId . microtime());
+        $sha1Hash = sha1($salt . $password);
+        $passwordHash = password_hash($sha1Hash, PASSWORD_ARGON2I);
+
+        return DB::table('user')->where('id', $userId)->update([
+            'password_hash' => $passwordHash,
+            'salt' => $salt,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]) > 0;
+    }
 }

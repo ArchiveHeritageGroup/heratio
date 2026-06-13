@@ -64,4 +64,39 @@ class ResearchUserProvisionerTest extends TestCase
         $row2 = DB::table('user')->where('id', $userId)->first();
         $this->assertEquals(0, (int) $row2->active);
     }
+
+    /**
+     * isInGroup reflects membership after addToGroup.
+     */
+    public function test_is_in_group()
+    {
+        $provisioner = app(\AhgResearch\Contracts\UserProvisionerInterface::class);
+
+        $username = 'testuser_' . Str::random(6);
+        $userId = $provisioner->createUser($username, $username . '@example.test', 'Password123!');
+
+        $this->assertFalse($provisioner->isInGroup($userId, 100));
+        $provisioner->addToGroup($userId, 100);
+        $this->assertTrue($provisioner->isInGroup($userId, 100));
+    }
+
+    /**
+     * setPassword writes a salt + argon2 hash that verifies against the
+     * canonical scheme (salt + sha1 pre-hash), matching login.
+     */
+    public function test_set_password_uses_canonical_scheme()
+    {
+        $provisioner = app(\AhgResearch\Contracts\UserProvisionerInterface::class);
+
+        $username = 'testuser_' . Str::random(6);
+        $userId = $provisioner->createUser($username, $username . '@example.test', 'initial');
+
+        $newPassword = 'Rotated123!';
+        $this->assertTrue($provisioner->setPassword($userId, $newPassword));
+
+        $row = DB::table('user')->where('id', $userId)->first();
+        $this->assertNotEmpty($row->salt);
+        // Login verifies password_hash(sha1(salt . password)) against the stored argon2 hash.
+        $this->assertTrue(password_verify(sha1($row->salt . $newPassword), $row->password_hash));
+    }
 }

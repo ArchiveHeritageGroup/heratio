@@ -48,4 +48,23 @@ interface UserProvisionerInterface
      * @return object|null
      */
     public function findByEmail(string $email): ?object;
+
+    /**
+     * Whether the user is a member of the given ACL group.
+     *
+     * @param int $userId
+     * @param int $groupId
+     * @return bool
+     */
+    public function isInGroup(int $userId, int $groupId): bool;
+
+    /**
+     * Reset a user's password using the canonical auth scheme (salt + sha1 +
+     * argon2), so callers never hand-roll hashing. Returns true on success.
+     *
+     * @param int $userId
+     * @param string $password plaintext
+     * @return bool
+     */
+    public function setPassword(int $userId, string $password): bool;
 }

@@ -82,10 +82,9 @@ class OdrlPolicyMiddleware
 
     private function isAdmin(int $userId): bool
     {
-        return DB::table('acl_user_group')
-            ->where('user_id', $userId)
-            ->where('group_id', 100) // Administrator group
-            ->exists();
+        // Administrator group (id 100), checked via the central provisioner.
+        return app(\AhgResearch\Contracts\UserProvisionerInterface::class)
+            ->isInGroup($userId, 100);
     }
 
     private function getResearcherId($user): ?int

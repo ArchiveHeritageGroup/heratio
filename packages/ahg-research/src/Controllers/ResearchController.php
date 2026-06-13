@@ -273,14 +273,12 @@ class ResearchController extends Controller
                         ->exists();
 
                 if ($wasRejected) {
-                    $salt = md5(rand(100000, 999999) . $email);
-                    $sha1Hash = sha1($salt . $password);
-                    $passwordHash = password_hash($sha1Hash, PASSWORD_ARGON2I);
-
-                    DB::table('user')->where('id', $existingUser->id)->update([
+                    // Re-activation of a previously rejected account: route all
+                    // core-user writes through the provisioner (no raw hashing here).
+                    $provisioner = app(\AhgResearch\Contracts\UserProvisionerInterface::class);
+                    $provisioner->setPassword($existingUser->id, $password);
+                    $provisioner->updateUser($existingUser->id, [
                         'username' => $username,
-                        'password_hash' => $passwordHash,
-                        'salt' => $salt,
                         'active' => 0,
                     ]);
                     $userId = $existingUser->id;
@@ -328,44 +326,10 @@ class ResearchController extends Controller
 
     protected function createAtomUser(string $username, string $email, string $password): int
     {
-        $salt = md5(rand(100000, 999999) . $email);
-        $sha1Hash = sha1($salt . $password);
-        $passwordHash = password_hash($sha1Hash, PASSWORD_ARGON2I);
-        $now = date('Y-m-d H:i:s');
-
-        $objectId = DB::table('object')->insertGetId([
-            'class_name' => 'QubitUser',
-            'created_at' => $now,
-            'updated_at' => $now,
-            'serial_number' => 0,
-        ]);
-
-        DB::table('actor')->insert([
-            'id' => $objectId,
-            'corporate_body_identifiers' => null,
-            'entity_type_id' => null,
-            'description_status_id' => null,
-            'description_detail_id' => null,
-            'description_identifier' => null,
-            'source_standard' => null,
-            'source_culture' => 'en',
-        ]);
-
-        DB::table('user')->insert([
-            'id' => $objectId,
-            'username' => $username,
-            'email' => $email,
-            'password_hash' => $passwordHash,
-            'salt' => $salt,
-            'active' => 0,
-        ]);
-
-        DB::table('slug')->insert([
-            'object_id' => $objectId,
-            'slug' => preg_replace('/[^a-zA-Z0-9-]/', '-', $username),
-        ]);
-
-        return $objectId;
+        // Delegates to the central provisioner so all core-user creation goes
+        // through one place (this method is retained for backward compatibility).
+        return app(\AhgResearch\Contracts\UserProvisionerInterface::class)
+            ->createUser($username, $email, $password);
     }
 
     // =========================================================================
@@ -467,12 +431,15 @@ class ResearchController extends Controller
 
         if ($request->isMethod('post')) {
             $action = $request->input('booking_action');
+            $provisioner = app(\AhgResearch\Contracts\UserProvisionerInterface::class);
             if ($action === 'approve') {
                 $this->service->approveResearcher($id, Auth::id());
-                DB::table('user')->where('id', $researcher->user_id)->update(['active' => 1]);
+                $provisioner->updateUser($researcher->user_id, ['active' => 1]);
                 return redirect()->route('research.viewResearcher', $id)->with('success', 'Approved');
             } elseif ($action === 'suspend') {
                 DB::table('research_researcher')->where('id', $id)->update(['status' => 'suspended']);
+                // Also deactivate the linked account, consistent with suspendResearcher().
+                $provisioner->deactivateUser($researcher->user_id);
                 return redirect()->route('research.viewResearcher', $id)->with('success', 'Suspended');
             }
         }
@@ -3411,12 +3378,13 @@ class ResearchController extends Controller
         if (!$researcher) abort(404);
 
         $newPassword = \Illuminate\Support\Str::random(12);
-        DB::table('user')->where('id', $researcher->user_id)->update([
-            'password_hash' => bcrypt($newPassword),
-        ]);
+        // Use the provisioner so the password uses the canonical auth scheme
+        // (salt + sha1 + argon2), not a one-off bcrypt that login cannot verify.
+        app(\AhgResearch\Contracts\UserProvisionerInterface::class)
+            ->setPassword($researcher->user_id, $newPassword);
 
         return redirect()->route('research.viewResearcher', $id)
-            ->with('success', 'Password reset. New password: <strong>' . e($newPassword) . '</strong> — share this with the researcher securely.');
+            ->with('success', 'Password reset. New password: <strong>' . e($newPassword) . '</strong> - share this with the researcher securely.');
     }
 
     public function suspendResearcher(int $id)
