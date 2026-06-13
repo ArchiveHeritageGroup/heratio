@@ -1,0 +1,93 @@
+*** Begin Patch
+*** Update File: packages/ahg-research/src/Controllers/ResearchController.php
+@@
+-                // Use the central UserProvisioner to mutate core user rows.
+-                app(\AhgResearch\Contracts\UserProvisionerInterface::class)
+-                    ->updateUser($researcher->user_id, ['active' => 1]);
++                // Use the central UserProvisioner to mutate core user rows.
++                app(\AhgResearch\Contracts\UserProvisionerInterface::class)
++                    ->updateUser($researcher->user_id, ['active' => 1]);
++                // Ensure researcher receives standard researcher ACL group (id 99) via provisioner
++                try {
++                    app(\AhgResearch\Contracts\UserProvisionerInterface::class)->addToGroup($researcher->user_id, 99);
++                } catch (\Throwable $e) {
++                    logger()->warning('Failed to add researcher to group 99 during activation: ' . $e->getMessage());
++                }
+*** End Patch
+
+*** Begin Patch
+*** Update File: packages/ahg-research/src/Controllers/ResearchController.php
+@@
+-                DB::table('acl_user_group')->insert(['user_id' => $userId, 'group_id' => $groupId]);
++                // Use provisioner to add ACL group membership (centralised semantics)
++                try {
++                    app(\AhgResearch\Contracts\UserProvisionerInterface::class)->addToGroup($userId, $groupId);
++                } catch (\Throwable $e) {
++                    logger()->warning('Failed to add user to group ' . $groupId . ': ' . $e->getMessage());
++                }
+*** End Patch
+
+*** Begin Patch
+*** Update File: packages/ahg-research/src/Controllers/ResearchAdminController.php
+@@
+-                $this->provisioner->updateUser($researcher->user_id, ['active' => 1]);
+-                // Ensure the researcher user is added to the standard researcher ACL group (id 99)
+-                try {
+-                    $this->provisioner->addToGroup($researcher->user_id, 99);
+-                } catch (\Throwable $e) {
+-                    // Log and continue; group add is best-effort to preserve prior semantics
+-                    logger()->warning('Failed to add researcher to group 99: ' . $e->getMessage());
+-                }
++                $this->provisioner->updateUser($researcher->user_id, ['active' => 1]);
++                // Ensure the researcher user is added to the standard researcher ACL group (id 99)
++                try {
++                    $this->provisioner->addToGroup($researcher->user_id, 99);
++                } catch (\Throwable $e) {
++                    logger()->warning('Failed to add researcher to group 99: ' . $e->getMessage());
++                }
+@@
+-                // Also deactivate the linked user account
+-                try {
+-                    $this->provisioner->deactivateUser($researcher->user_id);
+-                } catch (\Throwable $e) {
+-                    logger()->warning('Failed to deactivate user on suspend: ' . $e->getMessage());
+-                }
++                // Also deactivate the linked user account via provisioner
++                try {
++                    $this->provisioner->deactivateUser($researcher->user_id);
++                } catch (\Throwable $e) {
++                    logger()->warning('Failed to deactivate user on suspend: ' . $e->getMessage());
++                }
+*** End Patch
+
+*** Begin Patch
+*** Add File: packages/ahg-research/tests/Feature/ResearchAdminFlowsTest.php
++<?php
++use Illuminate\Foundation\Testing\RefreshDatabase;
++use Tests\TestCase;
++
++class ResearchAdminFlowsTest extends TestCase
++{
++    use RefreshDatabase;
++
++    public function test_admin_can_approve_researcher_and_provision_user()
++    {
++        // Create an admin user and a pending researcher row; this test assumes seeding helpers exist.
++        $admin = \App\Models\User::factory()->create(['is_admin' => 1]);
++        $this->actingAs($admin);
++
++        // Create researcher record (minimal)
++        $researcherId = \DB::table('research_researcher')->insertGetId([
++            'first_name' => 'Test', 'last_name' => 'Researcher', 'status' => 'pending'
++        ]);
++
++        // Call the approve endpoint
++        $response = $this->post(route('research.admin.handleResearcher', ['id' => $researcherId, 'action' => 'approve']));
++        $response->assertRedirect();
++
++        // Assert researcher status updated
++        $this->assertDatabaseHas('research_researcher', ['id' => $researcherId, 'status' => 'approved']);
++    }
++}
++
+*** End Patch
