@@ -3,11 +3,17 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 class ResearchUserProvisionerTest extends TestCase
 {
+    // Runs against the pre-built heratio_test DB (core SQL + install.sql) and
+    // rolls back each test. NOT RefreshDatabase - that drops the ~995 base
+    // tables (object/actor/slug/user) this provisioner writes to. See #1136.
+    use DatabaseTransactions;
+
     /**
      * A basic test to check the UserProvisioner create/add/find flows.
      */
