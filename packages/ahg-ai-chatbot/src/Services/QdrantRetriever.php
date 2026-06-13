@@ -13,6 +13,7 @@
 namespace AhgAiChatbot\Services;
 
 use AhgAiServices\Support\AiServicesSettings;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -26,8 +27,40 @@ class QdrantRetriever
     {
         // Default: KM host as a proxy to Qdrant. Operator can override.
         $this->url       = rtrim(env('QDRANT_URL', 'http://localhost:6333'), '/');
-        $this->collection = config('ahg-ai-chatbot.qdrant_collection', 'heratio-io');
+        $this->collection = $this->resolveCollection();
         $this->topK      = (int) config('ahg-ai-chatbot.max_context_records', 5);
+    }
+
+    /**
+     * Resolve the Qdrant collection to query (#1245).
+     *
+     * The retriever MUST query the collection the indexer actually populated,
+     * otherwise vector search silently returns nothing against a missing
+     * collection. Resolution order:
+     *   1. AiServicesSettings::qdrantCollection() (ahg_ner_settings.qdrant_collection)
+     *   2. The indexer's own setting (ahg_settings.semantic_qdrant_collection),
+     *      read the same way QdrantIndexCommand does.
+     *   3. Final default 'anc_records' (the live, populated collection).
+     */
+    private function resolveCollection(): string
+    {
+        $collection = AiServicesSettings::qdrantCollection();
+        if (!empty($collection)) {
+            return $collection;
+        }
+
+        try {
+            $indexed = DB::table('ahg_settings')
+                ->where('setting_key', 'semantic_qdrant_collection')
+                ->value('setting_value');
+            if ($indexed !== null && $indexed !== '') {
+                return (string) $indexed;
+            }
+        } catch (\Throwable $e) {
+            // ahg_settings absent on a fresh install - fall through to default.
+        }
+
+        return 'anc_records';
     }
 
     /**
@@ -99,7 +132,7 @@ class QdrantRetriever
     private function embedQuery(string $query): ?array
     {
         $base    = rtrim(AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1', '/');
-        $key     = AiServicesSettings::apiKey();
+        $key     = $this->resolveApiKey();
         $model   = AiServicesSettings::qdrantModel();
         $timeout = AiServicesSettings::apiTimeout();
 
@@ -125,6 +158,40 @@ class QdrantRetriever
             Log::warning('[chatbot] embedQuery failed: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Resolve the gateway API key the same way NER/HTR do (#1245).
+     *
+     * AiServicesSettings::apiKey() reads ahg_ner_settings.ai_services_api_key,
+     * which is empty on this deployment - the working ahg_live_* key the rest
+     * of the AI services authenticate with lives under setting_key 'api_key'
+     * (ahg_ner_settings, then ahg_ai_settings feature='general'). Mirror that
+     * lookup so the embed call is authenticated, then fall back to the
+     * AiServicesSettings accessor if a deployment populates that instead.
+     */
+    private function resolveApiKey(): ?string
+    {
+        try {
+            $key = DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+
+            $key = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+        } catch (\Throwable $e) {
+            // settings tables absent during boot - fall through.
+        }
+
+        return AiServicesSettings::apiKey();
     }
 
     /**
