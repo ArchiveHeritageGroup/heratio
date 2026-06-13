@@ -1,5 +1,18 @@
 {{-- Research Plugin Sidebar Navigation - Migrated from AtoM: _researchSidebar.php --}}
-@php $active = $sidebarActive ?? ''; $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id()); $expLevel = $experienceLevel ?? 'intermediate'; @endphp
+@php
+    $active = $sidebarActive ?? '';
+    $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id());
+    $expLevel = $experienceLevel ?? 'intermediate';
+    // Research mode curates the sidebar: Beginning shows the core essentials,
+    // Intermediate adds the working tools, Advanced reveals everything.
+    $lvlRank = ['beginning' => 1, 'intermediate' => 2, 'advanced' => 3];
+    $lvlCur = $lvlRank[$expLevel] ?? 2;
+    $atLeast = fn ($n) => $lvlCur >= $n;
+    // Administration is collapsed by default - an admin is often here as a
+    // researcher, not to administer. Auto-expand only when on an admin page.
+    $adminActives = ['researchers', 'bookings', 'rooms', 'seats', 'equipment', 'retrievalQueue', 'walkIn', 'adminTypes', 'adminStatistics', 'institutions', 'activities'];
+    $adminOpen = in_array($active, $adminActives, true);
+@endphp
 
 <div class="list-group mb-4">
     <span class="list-group-item bg-light fw-bold text-uppercase small d-flex justify-content-between align-items-center">
@@ -26,24 +39,29 @@
        class="list-group-item list-group-item-action {{ $active === 'projects' ? 'active' : '' }}">
         <i class="fas fa-project-diagram me-2"></i>{{ __('My Projects') }}
     </a>
-    @if(\Illuminate\Support\Facades\Route::has('research.inbox.index'))
+    @if($atLeast(2) && \Illuminate\Support\Facades\Route::has('research.inbox.index'))
     <a href="{{ route('research.inbox.index') }}"
        class="list-group-item list-group-item-action {{ $active === 'inbox' ? 'active' : '' }}">
         <i class="fas fa-inbox me-2"></i>{{ __('Quick Capture Inbox') }}
     </a>
     @endif
+    @if($atLeast(2))
     <a href="{{ route('research.workspaces') }}"
        class="list-group-item list-group-item-action {{ $active === 'workspaces' ? 'active' : '' }}">
         <i class="fas fa-users me-2"></i>{{ __('Team Workspaces') }}
     </a>
+    @endif
     <a href="{{ route('research.collections') }}"
        class="list-group-item list-group-item-action {{ $active === 'collections' ? 'active' : '' }}">
         <i class="fas fa-layer-group me-2"></i>{{ __('Evidence Sets') }}
     </a>
+    @if($atLeast(2))
     <a href="{{ route('research.journal') }}"
        class="list-group-item list-group-item-action {{ $active === 'journal' ? 'active' : '' }}">
         <i class="fas fa-journal-whills me-2"></i>{{ __('Research Journal') }}
     </a>
+    @endif
+    @if($atLeast(3))
     <a href="{{ route('research.journal-builder.index') }}"
        class="list-group-item list-group-item-action {{ $active === 'journals' ? 'active' : '' }}">
         <i class="fas fa-newspaper me-2"></i>{{ __('Journals') }}
@@ -56,6 +74,7 @@
        class="list-group-item list-group-item-action {{ $active === 'target-journals' ? 'active' : '' }}">
         <i class="fas fa-bullseye me-2"></i>{{ __('Where to Publish') }}
     </a>
+    @endif
     <a href="{{ route('research.training.index') }}"
        class="list-group-item list-group-item-action {{ $active === 'training' ? 'active' : '' }}">
         <i class="fas fa-user-graduate me-2"></i>{{ __('Training') }}
@@ -68,6 +87,7 @@
        class="list-group-item list-group-item-action {{ $active === 'notebooks' ? 'active' : '' }}">
         <i class="fas fa-sticky-note me-2"></i>{{ __('Notebooks') }}
     </a>
+    @if($atLeast(3))
     <a href="{{ route('research.crossFondsQuery') }}"
        class="list-group-item list-group-item-action {{ $active === 'crossFonds' ? 'active' : '' }}">
         <i class="fas fa-network-wired me-2"></i>{{ __('Cross-fonds Query') }}
@@ -76,6 +96,8 @@
        class="list-group-item list-group-item-action {{ $active === 'analytics' ? 'active' : '' }}">
         <i class="fas fa-chart-line me-2"></i>{{ __('Analytics') }}
     </a>
+    @endif
+    @if($atLeast(2))
     <a href="{{ route('research.orcid') }}"
        class="list-group-item list-group-item-action {{ $active === 'orcid' ? 'active' : '' }}">
         <i class="fas fa-id-badge me-2 text-success"></i>{{ __('ORCID Link') }}
@@ -88,6 +110,7 @@
        class="list-group-item list-group-item-action {{ ($active ?? '') === 'assessments' ? 'active' : '' }}">
         <i class="fas fa-clipboard-check me-2"></i>{{ __('Source Assessments') }}
     </a>
+    @endif
     <a href="{{ url('/favorites/browse') }}"
        class="list-group-item list-group-item-action {{ $active === 'favorites' ? 'active' : '' }}">
         <i class="fas fa-heart me-2"></i>{{ __('My Favorites') }}
@@ -100,10 +123,13 @@
        class="list-group-item list-group-item-action {{ $active === 'savedSearches' ? 'active' : '' }}">
         <i class="fas fa-search me-2"></i>{{ __('Saved Searches') }}
     </a>
+    @if($atLeast(2))
     <a href="{{ route('research.annotations') }}"
        class="list-group-item list-group-item-action {{ $active === 'annotations' ? 'active' : '' }}">
         <i class="fas fa-highlighter me-2"></i>{{ __('Annotation Studio') }}
     </a>
+    @endif
+    @if($atLeast(3))
     <a href="{{ route('research.validationQueue') }}"
        class="list-group-item list-group-item-action {{ $active === 'validationQueue' ? 'active' : '' }}">
         <i class="fas fa-check-double me-2"></i>{{ __('Validation Queue') }}
@@ -116,18 +142,23 @@
        class="list-group-item list-group-item-action {{ $active === 'odrlPolicies' ? 'active' : '' }}">
         <i class="fas fa-balance-scale me-2"></i>{{ __('ODRL Policies') }}
     </a>
+    @endif
+    @if($atLeast(2))
     <a href="{{ route('research.documentTemplates') }}"
        class="list-group-item list-group-item-action {{ $active === 'documentTemplates' ? 'active' : '' }}">
         <i class="fas fa-file-alt me-2"></i>{{ __('Document Templates') }}
     </a>
+    @endif
 </div>
 
 <div class="list-group mb-4">
     <span class="list-group-item bg-light fw-bold text-uppercase small">{{ __('Services') }}</span>
+    @if($atLeast(2))
     <a href="{{ route('research.reproductions') }}"
        class="list-group-item list-group-item-action {{ $active === 'reproductions' ? 'active' : '' }}">
         <i class="fas fa-copy me-2"></i>{{ __('Reproduction Requests') }}
     </a>
+    @endif
     <a href="{{ route('research.book') }}"
        class="list-group-item list-group-item-action {{ $active === 'book' ? 'active' : '' }}">
         <i class="fas fa-calendar-plus me-2"></i>{{ __('Book Reading Room') }}
@@ -151,7 +182,14 @@
 
 @if($isAdmin)
 <div class="list-group mb-4">
-    <span class="list-group-item bg-light fw-bold text-uppercase small">{{ __('Administration') }}</span>
+    <button type="button"
+            class="list-group-item list-group-item-action bg-light fw-bold text-uppercase small d-flex justify-content-between align-items-center"
+            data-bs-toggle="collapse" data-bs-target="#research-admin-nav"
+            aria-expanded="{{ $adminOpen ? 'true' : 'false' }}" aria-controls="research-admin-nav">
+        <span><i class="fas fa-user-shield me-2"></i>{{ __('Administration') }}</span>
+        <i class="fas fa-chevron-{{ $adminOpen ? 'up' : 'down' }} small"></i>
+    </button>
+    <div class="collapse {{ $adminOpen ? 'show' : '' }}" id="research-admin-nav">
     <a href="{{ route('research.researchers') }}"
        class="list-group-item list-group-item-action {{ $active === 'researchers' ? 'active' : '' }}">
         <i class="fas fa-user-check me-2"></i>{{ __('Manage Researchers') }}
@@ -196,6 +234,7 @@
        class="list-group-item list-group-item-action {{ $active === 'activities' ? 'active' : '' }}">
         <i class="fas fa-stream me-2"></i>{{ __('Activity Log') }}
     </a>
+    </div>{{-- /#research-admin-nav --}}
 </div>
 @endif
 
