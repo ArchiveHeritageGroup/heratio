@@ -3,7 +3,7 @@
     $isEdit = !empty($def);
 @endphp
 
-<form id="cf-definition-form" method="post" action="{{ route('customFields.save') }}">
+<form id="cf-definition-form" method="post" action="{{ route('customFields.save') }}" autocomplete="off">
     @csrf
     @if($isEdit)
         <input type="hidden" name="id" value="{{ $def->id }}">
@@ -14,6 +14,7 @@
             <div class="mb-3">
                 <label for="cf-field-label" class="form-label">Field Label <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <input type="text" class="form-control" id="cf-field-label" name="field_label"
+                       autocomplete="off"
                        value="{{ $def->field_label ?? old('field_label', '') }}" required>
             </div>
 

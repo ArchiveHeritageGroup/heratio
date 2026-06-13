@@ -150,6 +150,12 @@ class ImageSearchStrategy implements SearchStrategyInterface
         return (string) $this->setting('ahg_discovery_image_collection', 'archive_images');
     }
 
+    /** True when a URL points at a raw GPU node rather than the gateway. */
+    protected static function looksLikeNode(string $url): bool
+    {
+        return (bool) preg_match('~:11434|://(?:127\.0\.0\.1|localhost|192\.168\.|10\.|172\.(?:1[6-9]|2\d|3[01])\.)~i', $url);
+    }
+
     /**
      * Call the image-embedding endpoint with raw image bytes.
      * Expects an Ollama-compatible /api/embeddings endpoint that accepts a base64 image.
@@ -163,10 +169,13 @@ class ImageSearchStrategy implements SearchStrategyInterface
         // and the request/response shape stay unchanged - only host+path+auth
         // differ. Default is the gateway base; an explicit ahg_settings
         // 'ahg_discovery_image_embed_url' override is still honoured.
-        $base = rtrim((string) $this->setting(
-            'ahg_discovery_image_embed_url',
-            (AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1')
-        ), '/');
+        // Honour the override only if it is not a raw node URL; a stale node
+        // value is ignored so it can neither bypass the gateway nor break the
+        // /ollama passthrough.
+        $override = (string) $this->setting('ahg_discovery_image_embed_url', '');
+        $base = ($override !== '' && !self::looksLikeNode($override))
+            ? rtrim($override, '/')
+            : rtrim((AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1'), '/');
         $url = $base.'/ollama/api/embeddings';
         $model = (string) $this->setting('ahg_discovery_image_embed_model', 'clip-vit-b-32');
         $timeout = (int) $this->setting('semantic_timeout_ms', '5000');

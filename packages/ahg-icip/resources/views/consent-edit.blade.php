@@ -43,7 +43,7 @@
     </div>
   @endif
 
-  <form method="post" class="needs-validation" novalidate>
+  <form method="post" class="needs-validation" novalidate autocomplete="off">
     @csrf
     @if($id)<input type="hidden" name="id" value="{{ $id }}">@endif
     <div class="row">

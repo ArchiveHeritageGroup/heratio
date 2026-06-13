@@ -30,11 +30,11 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="post">
+            <form method="post" autocomplete="off">
                 @csrf
                 <div class="mb-3">
                     <label class="form-label">{{ __('Template Name *') }}</label>
-                    <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., ISAD-G Standard Form') }}">
+                    <input type="text" name="name" class="form-control" required autocomplete="off" placeholder="{{ __('e.g., ISAD-G Standard Form') }}">
                 </div>
 
                 <div class="mb-3">

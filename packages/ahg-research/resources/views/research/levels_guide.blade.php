@@ -89,7 +89,7 @@
         <ul class="small mb-0">
             <li>{{ __('Share notebooks for collaborative drafting in Intermediate mode.') }}</li>
             <li>{{ __('Use AI Drafts as proposals only - always review before accepting.') }}</li>
-            <li>{{ __('Keep provenance: every AI suggestion is logged to the ai_provenance table.') }}</li>
+            <li>{{ __('Keep provenance: detected AI use is gathered for your project AI-use disclosure statement, and you can record any other AI assistance in the disclosure log (research_ai_disclosure_log).') }}</li>
         </ul>
     </div>
 </div>

@@ -25,7 +25,7 @@
     </div>
   @endif
 
-  <form method="POST" action="{{ route('admin.3d-models.edit', $model->id) }}">
+  <form method="POST" action="{{ route('admin.3d-models.edit', $model->id) }}" autocomplete="off">
     @csrf
     <div class="row">
       <div class="col-md-8">
@@ -61,6 +61,7 @@
             <div class="mb-3">
               <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="title" name="title"
+                     autocomplete="off"
                      value="{{ old('title', $model->model_title ?? '') }}">
             </div>
             <div class="mb-3">

@@ -6,7 +6,8 @@
  *
  * For each row:
  *   1. Build a text representation: title + scope_and_content (+ creator names).
- *   2. Send the text to the embedding service (Ollama by default) for a vector.
+ *   2. Send the text to the embedding service via the AHG AI gateway (#1247)
+ *      for a vector - never a direct GPU node port.
  *   3. Upsert the vector + payload (slug, title, parent_id, has_scope, etc.)
  *      into the configured Qdrant collection.
  *
@@ -24,6 +25,7 @@
 
 namespace AhgAiServices\Commands;
 
+use AhgAiServices\Support\AiServicesSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -51,7 +53,13 @@ class QdrantIndexCommand extends Command
         $batchSize    = max(1, (int) $this->option('batch'));
         $dryRun       = (bool) $this->option('dry-run');
 
-        $embeddingUrl   = $this->setting('semantic_embedding_url',   'http://192.168.0.78:11434');
+        // #1247: embeddings route through the AHG AI gateway, never a direct
+        // GPU node port. The gateway proxies Ollama transparently at
+        // {base}/ollama/{path}, preserving the /api/embeddings request +
+        // 'embedding' response shape. KEEP the model + collection unchanged so
+        // index-side and query-side stay aligned (anc_records = 384-dim all-minilm).
+        $embeddingBase  = $this->gatewayBase();
+        $embeddingKey   = $this->resolveApiKey();
         $embeddingModel = $this->setting('semantic_embedding_model', 'all-minilm');
         $qdrantUrl      = $this->setting('semantic_qdrant_url',      'http://localhost:6333');
         $cultureDefault = 'en';
@@ -59,13 +67,13 @@ class QdrantIndexCommand extends Command
         $this->info("Qdrant index rebuild");
         $this->line("  source DB:     {$sourceDb}");
         $this->line("  collection:    {$collection}");
-        $this->line("  embedding:     {$embeddingUrl} ({$embeddingModel})");
+        $this->line("  embedding:     {$embeddingBase} ({$embeddingModel}) [gateway]");
         $this->line("  qdrant:        {$qdrantUrl}");
         $this->line("  batch / dry?:  {$batchSize} / " . ($dryRun ? 'YES' : 'no'));
 
-        // Pre-flight — confirm both backends are reachable.
-        if (! $this->ping($embeddingUrl . '/api/version', 2000)) {
-            $this->error('Embedding service unreachable: ' . $embeddingUrl);
+        // Pre-flight — confirm both backends are reachable (embedding via gateway).
+        if (! $this->ping($embeddingBase . '/ollama/api/version', 2000, $embeddingKey)) {
+            $this->error('Embedding gateway unreachable: ' . $embeddingBase);
             return self::FAILURE;
         }
         if (! $this->ping($qdrantUrl . '/collections', 2000)) {
@@ -74,7 +82,7 @@ class QdrantIndexCommand extends Command
         }
 
         // Determine vector size by embedding a probe string.
-        $probe = $this->embed($embeddingUrl, $embeddingModel, 'probe');
+        $probe = $this->embed($embeddingBase, $embeddingModel, 'probe', $embeddingKey);
         if ($probe === null) {
             $this->error('Probe embedding failed — check the embedding model is pulled.');
             return self::FAILURE;
@@ -148,7 +156,7 @@ class QdrantIndexCommand extends Command
                     continue;
                 }
 
-                $vec = $this->embed($embeddingUrl, $embeddingModel, $text);
+                $vec = $this->embed($embeddingBase, $embeddingModel, $text, $embeddingKey);
                 if ($vec === null) {
                     $errors++;
                     $bar->advance();
@@ -243,31 +251,89 @@ class QdrantIndexCommand extends Command
         return ($resp['status'] ?? '') === 'ok' || ! empty($resp['result']);
     }
 
-    protected function embed(string $baseUrl, string $model, string $text): ?array
+    protected function embed(string $base, string $model, string $text, ?string $key = null): ?array
     {
-        $resp = $this->httpJson('POST', rtrim($baseUrl, '/') . '/api/embeddings', [
+        // #1247: transparent Ollama passthrough on the gateway preserves the
+        // /api/embeddings request + 'embedding' response shape.
+        $resp = $this->httpJson('POST', rtrim($base, '/') . '/ollama/api/embeddings', [
             'model'  => $model,
             'prompt' => $text,
-        ], 30000);
+        ], 30000, $key);
         if (! is_array($resp) || empty($resp['embedding']) || ! is_array($resp['embedding'])) {
             return null;
         }
         return array_map('floatval', $resp['embedding']);
     }
 
-    protected function ping(string $url, int $timeoutMs): bool
+    protected function ping(string $url, int $timeoutMs, ?string $key = null): bool
     {
-        return $this->httpJson('GET', $url, null, $timeoutMs) !== null;
+        return $this->httpJson('GET', $url, null, $timeoutMs, $key) !== null;
     }
 
-    protected function httpJson(string $method, string $url, ?array $body = null, int $timeoutMs = 30000): ?array
+    /**
+     * Resolve the AI gateway base URL (#1247).
+     *
+     * Gateway is the default and canonical embedding door. A stale
+     * semantic_embedding_url pointing at a :11434 node port is IGNORED so it
+     * cannot re-introduce the bypass this issue closes.
+     */
+    protected function gatewayBase(): string
     {
+        $gateway = rtrim(AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1', '/');
+
+        $override = $this->setting('semantic_embedding_url', '');
+        if ($override !== '') {
+            $override = rtrim($override, '/');
+            $isNode = str_contains($override, ':11434')
+                || preg_match('~//192\.168\.~', $override)
+                || preg_match('~/api/embeddings?$~', $override);
+            if (! $isNode) {
+                return $override;
+            }
+        }
+
+        return $gateway;
+    }
+
+    /**
+     * Resolve the gateway API key the same way QdrantRetriever / NER / HTR do.
+     */
+    protected function resolveApiKey(): ?string
+    {
+        try {
+            $key = DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+
+            $key = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+        } catch (Throwable $e) {
+            // settings tables absent during boot - fall through.
+        }
+
+        return AiServicesSettings::apiKey();
+    }
+
+    protected function httpJson(string $method, string $url, ?array $body = null, int $timeoutMs = 30000, ?string $key = null): ?array
+    {
+        $headers = ['Content-Type: application/json', 'Accept: application/json'];
+        if ($key !== null && $key !== '') {
+            $headers[] = 'Authorization: Bearer ' . $key;
+        }
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT_MS     => max(500, $timeoutMs),
             CURLOPT_CONNECTTIMEOUT_MS => max(500, min(3000, $timeoutMs)),
-            CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Accept: application/json'],
+            CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_CUSTOMREQUEST  => $method,
         ]);
         if ($body !== null) {

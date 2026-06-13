@@ -25,7 +25,7 @@
   <div class="col-md-8">
     <h1>{{ __('New Exhibition') }}</h1>
 
-    <form method="post" action="{{ route('exhibition.add') }}">
+    <form method="post" action="{{ route('exhibition.add') }}" autocomplete="off">
       @csrf
       <div class="card mb-4">
         <div class="card-header">
@@ -34,7 +34,7 @@
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Title <span class="text-danger">*</span></label>
-            <input type="text" name="title" class="form-control" required value="{{ $data->title ?? '' }}">
+            <input type="text" name="title" class="form-control" autocomplete="off" required value="{{ $data->title ?? '' }}">
           </div>
 
           <div class="mb-3">

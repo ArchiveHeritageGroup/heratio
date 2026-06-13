@@ -29,7 +29,7 @@
     {{ $id ? 'Edit Community' : 'Add Community' }}
   </h1>
 
-  <form method="post" class="needs-validation" novalidate>
+  <form method="post" class="needs-validation" novalidate autocomplete="off">
     @csrf
     @if($id)<input type="hidden" name="id" value="{{ $id }}">@endif
     <div class="row">
@@ -39,7 +39,7 @@
           <div class="card-body">
             <div class="mb-3">
               <label class="form-label">Community Name <span class="text-danger">*</span></label>
-              <input type="text" name="name" class="form-control" required value="{{ $community->name ?? '' }}">
+              <input type="text" name="name" class="form-control" required autocomplete="off" value="{{ $community->name ?? '' }}">
               <div class="form-text">Official name of the community</div>
             </div>
 

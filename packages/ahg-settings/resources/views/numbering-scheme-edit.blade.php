@@ -11,7 +11,7 @@
 @endsection
 
 @section('content')
-    <form method="post" action="{{ route('settings.numbering-scheme-edit', ['id' => $schemeId ?? null]) }}">
+    <form method="post" action="{{ route('settings.numbering-scheme-edit', ['id' => $schemeId ?? null]) }}" autocomplete="off">
       @csrf
       <div class="row">
         <div class="col-md-8">
@@ -22,7 +22,7 @@
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label class="form-label">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                    <input type="text" name="name" class="form-control" value="{{ $scheme->name ?? '' }}" required>
+                    <input type="text" name="name" class="form-control" autocomplete="off" value="{{ $scheme->name ?? '' }}" required>
                   </div>
                 </div>
                 <div class="col-md-6">

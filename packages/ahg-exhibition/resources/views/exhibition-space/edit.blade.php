@@ -15,13 +15,14 @@
 
   <form method="POST"
         action="{{ $isNew ? route('exhibition-space.store') : route('exhibition-space.update', ['slug' => $space->slug]) }}"
-        class="mt-3" style="max-width: 56rem;">
+        class="mt-3" style="max-width: 56rem;" autocomplete="off">
     @csrf
 
     <div class="row g-3">
       <div class="col-md-8">
         <label for="es_name" class="form-label fw-semibold">{{ __('Name') }} <span class="text-danger">*</span></label>
         <input type="text" id="es_name" name="name" class="form-control" required maxlength="255"
+               autocomplete="off"
                value="{{ old('name', $space->name ?? '') }}">
       </div>
       <div class="col-md-4">

@@ -28,7 +28,7 @@
 
   <form method="POST"
         action="{{ $function ? route('function.update', $function->slug) : route('function.store') }}"
-        id="editForm">
+        id="editForm" autocomplete="off">
     @csrf
 
     <div class="accordion mb-3">
@@ -62,6 +62,7 @@
                 Authorized form of name
                 <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
+                     autocomplete="off"
                      value="{{ old('authorized_form_of_name', $function->authorized_form_of_name ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&quot;Record the authorised name of the function being described. In cases where the name is not enough, add qualifiers to make it unique such as the territorial or administrative scope, or the name of the institution which performs it. This element is to be used in conjunction with the Function description identifier element (5.4.1).&quot; (ISDF 5.1.2)"><i class="fas fa-question-circle"></i></button>
             </div>

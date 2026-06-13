@@ -34,7 +34,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="POST" action="{{ route('union.members.save') }}">
+            <form method="POST" action="{{ route('union.members.save') }}" autocomplete="off">
                 @csrf
                 @if ($member)
                     <input type="hidden" name="id" value="{{ $member->id }}">
@@ -43,6 +43,7 @@
                 <div class="mb-3">
                     <label for="name" class="form-label">{{ __('Institution name') }} <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="name" name="name" required
+                           autocomplete="off"
                            value="{{ old('name', $member->name ?? '') }}">
                 </div>
 

@@ -38,8 +38,13 @@ class OllamaPageIndexClient
     public function __construct(array $config = [])
     {
         // Default to the AHG AI gateway base (#1248); never a direct :11434 node.
-        // An explicit per-install 'endpoint' override in ahg_settings is honoured.
-        $base = $config['endpoint'] ?? (AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1');
+        // A per-install 'endpoint' override is honoured ONLY if it is not a raw
+        // node URL - a stale node value (e.g. an old ahg_settings row) is ignored
+        // so it can neither bypass the gateway nor break the /ollama passthrough.
+        $override = $config['endpoint'] ?? null;
+        $base = (is_string($override) && $override !== '' && !self::looksLikeNode($override))
+            ? $override
+            : (AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1');
         $this->endpoint = rtrim($base, '/');
         $this->apiKey = $config['api_key'] ?? self::resolveApiKey();
         // Default switched from llama3.1:8b (not pulled locally as of 2026-04-28)
@@ -448,6 +453,12 @@ PROMPT;
     /**
      * Make HTTP request to Ollama API.
      */
+    /** True when a URL points at a raw GPU node rather than the gateway. */
+    private static function looksLikeNode(string $url): bool
+    {
+        return (bool) preg_match('~:11434|://(?:127\.0\.0\.1|localhost|192\.168\.|10\.|172\.(?:1[6-9]|2\d|3[01])\.)~i', $url);
+    }
+
     private function request(string $method, string $endpoint, ?array $data = null, ?int $timeout = null): ?array
     {
         $ch = curl_init();

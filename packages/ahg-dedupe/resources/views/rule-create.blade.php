@@ -17,7 +17,7 @@
     </div>
   </div>
 
-  <form method="post" action="{{ route('dedupe.rule.store') }}">
+  <form method="post" action="{{ route('dedupe.rule.store') }}" autocomplete="off">
     @csrf
     <div class="row">
       <div class="col-lg-8">
@@ -29,6 +29,7 @@
             <div class="mb-3">
               <label for="name" class="form-label">Rule Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" class="form-control" id="name" name="name" required
+                     autocomplete="off"
                      placeholder="{{ __('e.g., Title Similarity Check') }}" value="{{ old('name') }}">
             </div>
 

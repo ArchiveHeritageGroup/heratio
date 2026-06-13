@@ -48,11 +48,11 @@
           <h5 class="mb-0"><i class="fas fa-id-card me-2"></i> {{ __('Profile') }}</h5>
         </div>
         <div class="card-body">
-          <form action="{{ route('acl.edit-group', ['id' => $group->id]) }}" method="POST">
+          <form action="{{ route('acl.edit-group', ['id' => $group->id]) }}" method="POST" autocomplete="off">
             @csrf
             <div class="mb-3">
               <label for="name" class="form-label">{{ __('Name') }}</label>
-              <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $group->name) }}">
+              <input type="text" name="name" id="name" class="form-control" autocomplete="off" value="{{ old('name', $group->name) }}">
             </div>
             <div class="mb-3">
               <label for="description" class="form-label">{{ __('Description') }}</label>

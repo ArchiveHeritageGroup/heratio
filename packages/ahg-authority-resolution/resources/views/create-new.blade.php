@@ -83,7 +83,8 @@
                     </p>
 
                     <form method="POST"
-                          action="{{ route('auth-res.review.createNew', ['mention' => $mention->id]) }}">
+                          action="{{ route('auth-res.review.createNew', ['mention' => $mention->id]) }}"
+                          autocomplete="off">
                         @csrf
 
                         @if($isPlace)

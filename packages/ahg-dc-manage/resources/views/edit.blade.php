@@ -53,7 +53,7 @@
   </div>
 @endif
 
-<form method="post" action="{{ route('ahgdcmanage.edit', ['slug' => $io->slug ?? '']) }}">
+<form method="post" action="{{ route('ahgdcmanage.edit', ['slug' => $io->slug ?? '']) }}" autocomplete="off">
   @csrf
 
   <div class="accordion mb-3" id="dc-accordion">
@@ -66,7 +66,7 @@
         <div class="accordion-body">
           <div class="mb-3">
             <label class="form-label">dc:identifier</label>
-            <input type="text" name="identifier" class="form-control" value="{{ old('identifier', $io->identifier ?? '') }}">
+            <input type="text" name="identifier" class="form-control" autocomplete="off" value="{{ old('identifier', $io->identifier ?? '') }}">
           </div>
           <div class="mb-3">
             <label class="form-label">dc:title <span class="text-danger">*</span></label>

@@ -37,7 +37,7 @@
     </div>
   @endif
 
-  <form method="post" class="needs-validation" novalidate>
+  <form method="post" class="needs-validation" novalidate autocomplete="off">
     @csrf
     @if($id)<input type="hidden" name="id" value="{{ $id }}">@endif
     <div class="row">
@@ -80,7 +80,7 @@
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">{{ __('Location') }}</label>
-                <input type="text" name="location" class="form-control" value="{{ $consultation->location ?? '' }}">
+                <input type="text" name="location" class="form-control" autocomplete="off" value="{{ $consultation->location ?? '' }}">
               </div>
             </div>
 

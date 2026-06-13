@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <form method="post" class="row g-4">
+    <form method="post" class="row g-4" autocomplete="off">
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
@@ -39,6 +39,7 @@
                         <div class="col-md-6">
                             <label class="form-label">License Number <span class="text-danger">*</span></label>
                             <input type="text" name="license_number" class="form-control"
+                                   autocomplete="off"
                                    value="{{ $license->license_number ?? '' }}" required>
                         </div>
                         <div class="col-md-6">

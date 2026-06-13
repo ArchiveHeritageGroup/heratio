@@ -1,6 +1,7 @@
 <?php
 
 use AhgResearch\Controllers\ResearchController;
+use AhgResearch\Controllers\ResearchReproductionsController;
 use AhgResearch\Controllers\ResearchCopilotController;
 use AhgResearch\Controllers\AuditController;
 use AhgResearch\Controllers\ResearchJournalController;
@@ -300,13 +301,13 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::get('/assessments', [ResearchController::class, 'assessments'])->name('assessments');
 
     // Reports
-    Route::match(['get', 'post'], '/viewReproduction/{id}', [ResearchController::class, 'viewReproduction'])->name('viewReproduction')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/viewReproduction/{id}', [ResearchReproductionsController::class, 'viewReproduction'])->name('viewReproduction')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/reports', [ResearchController::class, 'reports'])->name('reports');
     Route::match(['get', 'post'], '/report-templates', [ResearchController::class, 'reportTemplates'])->name('reportTemplates');
     Route::match(['get', 'post'], '/viewReport/{id}', [ResearchController::class, 'viewReport'])->name('viewReport')->where('id', '[0-9]+');
 
     // Reproductions
-    Route::match(['get', 'post'], '/reproductions', [ResearchController::class, 'reproductions'])->name('reproductions');
+    Route::match(['get', 'post'], '/reproductions', [ResearchReproductionsController::class, 'reproductions'])->name('reproductions');
 
     // Bookings
     Route::get('/book', [ResearchController::class, 'book'])->name('book');

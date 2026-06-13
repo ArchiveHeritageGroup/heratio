@@ -10,7 +10,7 @@
   <div class="col-md-9">
     <h1><i class="fas fa-list me-2"></i>{{ isset($dropdown) && $dropdown->id ? 'Edit' : 'Add' }} Dropdown</h1>
 
-    <form method="post" action="{{ route('settings.dropdown.store', ['id' => $dropdown->id ?? null]) }}">
+    <form method="post" action="{{ route('settings.dropdown.store', ['id' => $dropdown->id ?? null]) }}" autocomplete="off">
       @csrf
 
       <div class="card mb-4">
@@ -18,7 +18,7 @@
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-            <input type="text" name="name" class="form-control" value="{{ $dropdown->name ?? '' }}" required>
+            <input type="text" name="name" class="form-control" autocomplete="off" value="{{ $dropdown->name ?? '' }}" required>
           </div>
           <div class="mb-3">
             <label class="form-label">Slug <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

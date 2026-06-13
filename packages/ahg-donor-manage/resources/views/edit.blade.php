@@ -22,7 +22,7 @@
     </div>
   @endif
 
-  <form method="POST" action="{{ $donor ? route('donor.update', $donor->slug) : route('donor.store') }}" id="editForm">
+  <form method="POST" action="{{ $donor ? route('donor.update', $donor->slug) : route('donor.store') }}" id="editForm" autocomplete="off">
     @csrf
 
     <div class="accordion mb-3">
@@ -42,6 +42,7 @@
                 <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
               </label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
+                     autocomplete="off"
                      value="{{ old('authorized_form_of_name', $donor->authorized_form_of_name ?? '') }}">
             </div>
           </div>

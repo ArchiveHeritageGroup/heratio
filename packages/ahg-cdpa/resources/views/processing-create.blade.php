@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <form method="post" class="row g-4">
+    <form method="post" class="row g-4" autocomplete="off">
         @csrf
         <div class="col-lg-8">
             <div class="card mb-4">
@@ -38,7 +38,7 @@
                     <div class="row g-3">
                         <div class="col-md-8">
                             <label class="form-label">Activity Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" required>
+                            <input type="text" name="name" class="form-control" autocomplete="off" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Category') }}</label>

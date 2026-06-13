@@ -5,13 +5,18 @@
  *
  * Two-step pipeline:
  *
- *   1. Ask the embedding service (Ollama by default) for a vector representation
- *      of the user's query string.
+ *   1. Ask the embedding service (via the AHG AI gateway) for a vector
+ *      representation of the user's query string.
  *   2. Send that vector to Qdrant /collections/{name}/points/search and return
  *      the top-N nearest neighbours with score + payload (slug, title, etc).
  *
+ * #1247: embeddings route through the gateway (AiServicesSettings::apiUrl() ?:
+ * https://ai.theahg.co.za/ai/v1) at {base}/ollama/api/embeddings - never a
+ * direct GPU node port. A stale semantic_embedding_url pointing at a :11434
+ * node is ignored so it cannot re-introduce the bypass.
+ *
  * All endpoints + model + collection are configurable via ahg_settings:
- *   semantic_embedding_url       (default http://192.168.0.78:11434)
+ *   semantic_embedding_url       (gateway override; node-port values ignored)
  *   semantic_embedding_model     (default all-minilm — 384-dim, matches anc_records)
  *   semantic_qdrant_url          (default http://localhost:6333)
  *   semantic_qdrant_collection   (default anc_records)
@@ -26,6 +31,7 @@
 
 namespace AhgSearch\Services;
 
+use AhgAiServices\Support\AiServicesSettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -130,12 +136,19 @@ class VectorSearchService
      */
     public function embedQuery(string $text): ?array
     {
-        $url = rtrim($this->setting('semantic_embedding_url', 'http://192.168.0.78:11434'), '/');
+        // #1247: embeddings MUST route through the AHG AI gateway, never a
+        // direct GPU node port. The gateway exposes Ollama transparently at
+        // {base}/ollama/{path}, so the legacy /api/embeddings request +
+        // 'embedding' response shape is preserved end-to-end.
+        $base = $this->gatewayBase();
+        $key  = $this->resolveApiKey();
+        // KEEP the model exactly as currently resolved - anc_records is a
+        // 384-dim all-minilm collection; a model change would force a re-index.
         $model = $this->setting('semantic_embedding_model', 'all-minilm');
         $timeout = (int) $this->setting('semantic_timeout_ms', 5000);
 
         $payload = json_encode(['model' => $model, 'prompt' => $text]);
-        $resp = $this->httpPost($url.'/api/embeddings', $payload, $timeout);
+        $resp = $this->httpPost($base.'/ollama/api/embeddings', $payload, $timeout, $key);
         if ($resp === null) {
             return null;
         }
@@ -145,6 +158,64 @@ class VectorSearchService
         }
 
         return array_map('floatval', $decoded['embedding']);
+    }
+
+    /**
+     * Resolve the AI gateway base URL (#1247).
+     *
+     * The gateway is the default and the canonical embedding door. The legacy
+     * 'semantic_embedding_url' setting is still honoured as an override, but a
+     * stale row pointing at a :11434 node port is IGNORED so it cannot
+     * re-introduce the bypass this issue closes.
+     */
+    protected function gatewayBase(): string
+    {
+        $gateway = rtrim(AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1', '/');
+
+        $override = $this->setting('semantic_embedding_url');
+        if ($override !== null && $override !== '') {
+            $override = rtrim($override, '/');
+            // Skip any direct node-port URL (:11434 Ollama, LAN host, raw IP)
+            // so a stale DB row can't bypass the gateway.
+            $isNode = str_contains($override, ':11434')
+                || preg_match('~//192\.168\.~', $override)
+                || preg_match('~/api/embeddings?$~', $override);
+            if (! $isNode) {
+                return $override;
+            }
+        }
+
+        return $gateway;
+    }
+
+    /**
+     * Resolve the gateway API key the same way QdrantRetriever / NER / HTR do.
+     *
+     * setting_key 'api_key' on ahg_ner_settings, then ahg_ai_settings
+     * feature='general', then the AiServicesSettings accessor.
+     */
+    protected function resolveApiKey(): ?string
+    {
+        try {
+            $key = DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+
+            $key = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+        } catch (Throwable $e) {
+            // settings tables absent during boot - fall through.
+        }
+
+        return AiServicesSettings::apiKey();
     }
 
     /* ====================================================================
@@ -226,10 +297,13 @@ class VectorSearchService
 
     protected function embeddingHealth(): array
     {
-        $url = rtrim($this->setting('semantic_embedding_url', 'http://192.168.0.78:11434'), '/');
-        $resp = $this->httpGet($url.'/api/version', [], 2000);
+        // #1247: probe the gateway, not a node port. The gateway proxies
+        // Ollama's /api/version transparently at {base}/ollama/api/version.
+        $base = $this->gatewayBase();
+        $key  = $this->resolveApiKey();
+        $resp = $this->httpGet($base.'/ollama/api/version', [], 2000, $key);
 
-        return ['ok' => $resp !== null, 'url' => $url];
+        return ['ok' => $resp !== null, 'url' => $base];
     }
 
     protected function qdrantHealth(): array
@@ -280,28 +354,32 @@ class VectorSearchService
         return $default;
     }
 
-    protected function httpGet(string $url, array $query, int $timeoutMs): ?string
+    protected function httpGet(string $url, array $query, int $timeoutMs, ?string $key = null): ?string
     {
         if (! empty($query)) {
             $url .= (str_contains($url, '?') ? '&' : '?').http_build_query($query);
         }
 
-        return $this->curl('GET', $url, null, $timeoutMs);
+        return $this->curl('GET', $url, null, $timeoutMs, $key);
     }
 
-    protected function httpPost(string $url, string $body, int $timeoutMs): ?string
+    protected function httpPost(string $url, string $body, int $timeoutMs, ?string $key = null): ?string
     {
-        return $this->curl('POST', $url, $body, $timeoutMs);
+        return $this->curl('POST', $url, $body, $timeoutMs, $key);
     }
 
-    protected function curl(string $method, string $url, ?string $body, int $timeoutMs): ?string
+    protected function curl(string $method, string $url, ?string $body, int $timeoutMs, ?string $key = null): ?string
     {
+        $headers = ['Content-Type: application/json', 'Accept: application/json'];
+        if ($key !== null && $key !== '') {
+            $headers[] = 'Authorization: Bearer '.$key;
+        }
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT_MS => max(500, $timeoutMs),
             CURLOPT_CONNECTTIMEOUT_MS => max(500, min(2000, $timeoutMs)),
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json'],
+            CURLOPT_HTTPHEADER => $headers,
             CURLOPT_CUSTOMREQUEST => $method,
         ]);
         if ($body !== null) {
