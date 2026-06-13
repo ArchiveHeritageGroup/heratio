@@ -19,13 +19,14 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <form method="POST" action="{{ route('library.notice-templates.update', $template->id) }}" id="notice-form">
+            <form method="POST" action="{{ route('library.notice-templates.update', $template->id) }}" id="notice-form" autocomplete="off">
                 @csrf
                 @method('PUT')
 
                 <div class="mb-3">
                     <label for="subject" class="form-label">{{ __('Subject') }}</label>
                     <input type="text" name="subject" id="subject" class="form-control"
+                           autocomplete="off"
                            maxlength="255" required value="{{ old('subject', $template->subject) }}">
                 </div>
 

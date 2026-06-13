@@ -28,7 +28,7 @@
     </div>
   @endif
 
-  <form method="POST" action="{{ route('gallery.artists.store') }}">
+  <form method="POST" action="{{ route('gallery.artists.store') }}" autocomplete="off">
     @csrf
 
     {{-- ===== Identity ===== --}}
@@ -37,7 +37,7 @@
 
       <div class="mb-3">
         <label for="display_name" class="form-label">Display name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-        <input type="text" class="form-control @error('display_name') is-invalid @enderror" id="display_name" name="display_name"
+        <input type="text" class="form-control @error('display_name') is-invalid @enderror" id="display_name" name="display_name" autocomplete="off"
                value="{{ old('display_name') }}" required>
         @error('display_name')
           <div class="invalid-feedback">{{ $message }}</div>

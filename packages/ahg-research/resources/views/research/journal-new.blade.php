@@ -7,9 +7,9 @@
 <div class="row"><div class="col-md-8">
 <div class="card"><div class="card-header"><h5 class="mb-0"><i class="fas fa-book me-2"></i>{{ __('New Journal Entry') }}</h5></div>
 <div class="card-body">
-    <form method="POST" id="entryForm">@csrf <input type="hidden" name="content" id="entryContentHidden" value="">
+    <form method="POST" id="entryForm" autocomplete="off">@csrf <input type="hidden" name="content" id="entryContentHidden" value="">
         <div class="row mb-3">
-            <div class="col-md-8"><label class="form-label">Title <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="title" class="form-control" placeholder="{{ __('Entry title...') }}" required></div>
+            <div class="col-md-8"><label class="form-label">Title <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="title" class="form-control" placeholder="{{ __('Entry title...') }}" required autocomplete="off"></div>
             <div class="col-md-4"><label class="form-label">Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="entry_date" class="form-control" value="{{ date('Y-m-d') }}"></div>
         </div>
         <div class="mb-3"><label class="form-label">Project <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="project_id" class="form-select"><option value="">-- No project --</option>

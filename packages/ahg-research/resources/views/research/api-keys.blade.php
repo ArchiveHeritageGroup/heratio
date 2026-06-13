@@ -131,12 +131,12 @@
 
 {{-- Generate New Key Modal --}}
 <div class="modal fade" id="generateKeyModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <form method="POST">@csrf<input type="hidden" name="form_action" value="generate">
+    <form method="POST" autocomplete="off">@csrf<input type="hidden" name="form_action" value="generate">
     <div class="modal-header"><h5 class="modal-title">{{ __('Generate New API Key') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
         <div class="mb-3">
             <label class="form-label">Key Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-            <input type="text" class="form-control" name="name" required placeholder="{{ __('e.g. My Research App') }}">
+            <input type="text" class="form-control" name="name" required placeholder="{{ __('e.g. My Research App') }}" autocomplete="off">
             <div class="form-text">A descriptive name to identify this key.</div>
         </div>
         <div class="mb-3">

@@ -17,7 +17,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('library.marc-authority.update', $record->id ?? 0) }}">
+    <form method="POST" action="{{ route('library.marc-authority.update', $record->id ?? 0) }}" autocomplete="off">
         @csrf
         @method('PUT')
         <div class="row g-4">
@@ -30,6 +30,7 @@
                         <div class="mb-3">
                             <label for="lc_label" class="form-label small fw-semibold">{{ __('LC Label') }}</label>
                             <input type="text" name="lc_label" id="lc_label" class="form-control"
+                                   autocomplete="off"
                                    value="{{ old('lc_label', $record->lc_label ?? '') }}" maxlength="500">
                             @error('lc_label') <div class="text-danger small">{{ $message }}</div> @enderror
                         </div>

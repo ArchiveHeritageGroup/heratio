@@ -20,11 +20,11 @@
   </div>
   @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
-  <form method="post" action="{{ route('research.training.assessment-save', $course['id']) }}">
+  <form method="post" action="{{ route('research.training.assessment-save', $course['id']) }}" autocomplete="off">
     @csrf
     <div class="row mb-3">
       <div class="col-md-8"><label class="form-label">{{ __('Assessment title') }}</label>
-        <input name="title" class="form-control" value="{{ $assessment['title'] ?? __('Course assessment') }}"></div>
+        <input name="title" class="form-control" value="{{ $assessment['title'] ?? __('Course assessment') }}" autocomplete="off"></div>
       <div class="col-md-4"><label class="form-label">{{ __('Pass mark % (blank = course default :p%)', ['p' => $course['pass_mark']]) }}</label>
         <input type="number" name="pass_mark" class="form-control" min="0" max="100" value="{{ $assessment['pass_mark'] ?? '' }}"></div>
     </div>

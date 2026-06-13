@@ -7,7 +7,7 @@
 
   <form method="POST"
         action="{{ $item ? route('library.update', $item->slug) : route('library.store') }}"
-        id="library-form">
+        id="library-form" autocomplete="off">
     @csrf
     @if($item)
       @method('PUT')
@@ -30,6 +30,7 @@
             <div class="mb-3">
               <label for="title" class="form-label required">Title <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
+                     autocomplete="off"
                      value="{{ old('title', $item->title ?? '') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
               <div class="form-text">The title of the library item, as it appears on the title page or equivalent.</div>

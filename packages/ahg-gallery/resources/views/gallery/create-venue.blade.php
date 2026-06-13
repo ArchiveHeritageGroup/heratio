@@ -3,10 +3,10 @@
 @section('body-class', 'gallery create-venue')
 @section('title-block')<h1 class="mb-0">{{ __('Create Venue') }}</h1>@endsection
 @section('content')
-<form method="post" action="{{ route('gallery.venues.store') }}">@csrf
+<form method="post" action="{{ route('gallery.venues.store') }}" autocomplete="off">@csrf
 <div class="card mb-4"><div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Venue Details') }}</h5></div>
 <div class="card-body"><div class="row">
-  <div class="col-md-6 mb-3"><label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" id="name" class="form-control" required></div>
+  <div class="col-md-6 mb-3"><label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" id="name" class="form-control" autocomplete="off" required></div>
   <div class="col-md-6 mb-3"><label for="venue_type" class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="venue_type" id="venue_type" class="form-select"><option value="gallery">{{ __('Gallery') }}</option><option value="museum">{{ __('Museum') }}</option><option value="university">{{ __('University') }}</option><option value="private">{{ __('Private') }}</option><option value="other">{{ __('Other') }}</option></select></div>
   <div class="col-md-6 mb-3"><label for="address" class="form-label">Address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="address" id="address" class="form-control"></div>
   <div class="col-md-6 mb-3"><label for="city" class="form-label">City <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="city" id="city" class="form-control"></div>

@@ -25,7 +25,7 @@
 
 @section('content')
 <div class="iiif-collection-form">
-    <form method="POST" action="{{ route('iiif-collection.update', $collection->id) }}">
+    <form method="POST" action="{{ route('iiif-collection.update', $collection->id) }}" autocomplete="off">
         @csrf
         @method('PUT')
 
@@ -38,7 +38,7 @@
                     <div class="col-md-8">
                         <div class="mb-3">
                             <label class="form-label" for="name">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ e($collection->name) }}" required>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ e($collection->name) }}" autocomplete="off" required>
                         </div>
                     </div>
                     <div class="col-md-4">

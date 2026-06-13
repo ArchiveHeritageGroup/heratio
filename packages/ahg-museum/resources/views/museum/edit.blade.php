@@ -84,7 +84,7 @@
     </div>
   @endif
 
-  <form method="POST" id="editForm" class="cco-cataloguing-form"
+  <form method="POST" id="editForm" class="cco-cataloguing-form" autocomplete="off"
         action="{{ $isNew ? route('museum.store') : route('museum.update', $museum->slug) }}">
     @csrf
     @if(!$isNew)

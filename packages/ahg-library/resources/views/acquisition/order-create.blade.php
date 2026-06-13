@@ -9,8 +9,8 @@
 <div class="container py-4">
 <h1 class="mb-3"><i class="fas fa-plus me-2"></i>{{ __('New Purchase Order') }}</h1>
 @if($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
-<div class="card"><div class="card-body"><form method="post" action="{{ route('library.acquisition-order-store') }}">@csrf
-<div class="row"><div class="col-md-4 mb-3"><label class="form-label">{{ __('Order Number') }} <span class="badge bg-secondary ms-1">{{ __('Auto if blank') }}</span></label><input type="text" name="order_number" class="form-control" value="{{ old('order_number') }}"></div>
+<div class="card"><div class="card-body"><form method="post" action="{{ route('library.acquisition-order-store') }}" autocomplete="off">@csrf
+<div class="row"><div class="col-md-4 mb-3"><label class="form-label">{{ __('Order Number') }} <span class="badge bg-secondary ms-1">{{ __('Auto if blank') }}</span></label><input type="text" name="order_number" autocomplete="off" class="form-control" value="{{ old('order_number') }}"></div>
 <div class="col-md-4 mb-3"><label class="form-label">{{ __('Order Date') }}</label><input type="date" name="order_date" class="form-control" value="{{ old('order_date', date('Y-m-d')) }}"></div>
 <div class="col-md-4 mb-3"><label class="form-label">{{ __('Expected Date') }}</label><input type="date" name="expected_date" class="form-control" value="{{ old('expected_date') }}"></div></div>
 <div class="row"><div class="col-md-6 mb-3"><label class="form-label">{{ __('Vendor (registered)') }}</label><select name="vendor_id" class="form-select"><option value="">{{ __('-- none / free text --') }}</option>@foreach($vendors as $v)<option value="{{ $v->id }}" {{ old('vendor_id')==$v->id?'selected':'' }}>{{ e($v->name) }}</option>@endforeach</select></div>

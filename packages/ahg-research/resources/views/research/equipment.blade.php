@@ -108,14 +108,14 @@
 
 {{-- Add/Edit Equipment Modal --}}
 <div class="modal fade" id="addEquipmentModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-    <form method="POST" id="equipmentForm">@csrf
+    <form method="POST" id="equipmentForm" autocomplete="off">@csrf
         <input type="hidden" name="form_action" id="equipmentAction" value="create">
         <input type="hidden" name="equipment_id" id="equipmentId">
         <input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
         <div class="modal-header"><h5 class="modal-title" id="equipmentModalTitle">{{ __('Add Equipment') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
             <div class="row">
-                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" id="eqName" class="form-control" required></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" id="eqName" class="form-control" required autocomplete="off"></div></div>
                 <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Code/ID') }}</label><input type="text" name="code" id="eqCode" class="form-control" placeholder="{{ __('e.g. MF-001') }}"></div></div>
             </div>
             <div class="row">

@@ -28,7 +28,7 @@
 
   <form method="POST"
         action="{{ $actor ? route('actor.update', $actor->slug) : route('actor.store') }}"
-        id="editForm">
+        id="editForm" autocomplete="off">
     @csrf
 
     <div class="accordion mb-3">
@@ -60,7 +60,7 @@
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
                 <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-              <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
+              <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" autocomplete="off" required
                      value="{{ old('authorized_form_of_name', $actor->authorized_form_of_name ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the standardized form of name for the entity being described in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record. Use dates, place, jurisdiction, occupation, epithet and other qualifiers as appropriate to distinguish the authorized form of name from those of other entities with similar names.&ldquo; (ISAAR 5.1.2)"><i class="fas fa-question-circle"></i></button>
             </div>

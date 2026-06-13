@@ -6,13 +6,13 @@
     <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm">Back</a>
   </div>
 
-  <form method="POST" action="{{ route('library.trading-partners.update', $partner->id) }}">
+  <form method="POST" action="{{ route('library.trading-partners.update', $partner->id) }}" autocomplete="off">
     @csrf @method('PATCH')
 
     <div class="row g-3">
       <div class="col-md-6">
         <label class="form-label">{{ __('EDI Partner Code *') }}</label>
-        <input name="edi_partner_code" value="{{ old('edi_partner_code', $partner->edi_partner_code) }}" class="form-control" maxlength="20" required>
+        <input name="edi_partner_code" autocomplete="off" value="{{ old('edi_partner_code', $partner->edi_partner_code) }}" class="form-control" maxlength="20" required>
         @error('edi_partner_code') <div class="text-danger small">{{ $message }}</div> @enderror
       </div>
       <div class="col-md-6">

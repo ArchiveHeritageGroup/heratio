@@ -33,7 +33,7 @@
     </div>
   @endif
 
-  <form method="post" action="{{ route('library.opac-ill-store') }}">
+  <form method="post" action="{{ route('library.opac-ill-store') }}" autocomplete="off">
     @csrf
 
     {{-- Item details ─────────────────────────────────────────────────── --}}
@@ -45,6 +45,7 @@
         <div class="mb-3">
           <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
           <input type="text" name="title" value="{{ old('title') }}"
+                 autocomplete="off"
                  class="form-control" required maxlength="500"
                  placeholder="{{ __('Full title of the book or article') }}">
         </div>

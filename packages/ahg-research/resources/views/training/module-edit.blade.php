@@ -15,10 +15,10 @@
   </div>
   @if ($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
 
-  <form method="post" action="{{ route('research.training.module-update', $module['id']) }}">
+  <form method="post" action="{{ route('research.training.module-update', $module['id']) }}" autocomplete="off">
     @csrf @method('PUT')
     <div class="mb-3"><label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
-      <input name="title" class="form-control" required value="{{ old('title', $module['title']) }}"></div>
+      <input name="title" class="form-control" required value="{{ old('title', $module['title']) }}" autocomplete="off"></div>
     <div class="mb-3"><label class="form-label">{{ __('Curriculum lecture (content source)') }}</label>
       <select name="lecture_id" class="form-select"><option value="">{{ __('— none / use content below —') }}</option>
         @foreach ($lectures as $l)<option value="{{ $l['id'] }}" @selected((string)old('lecture_id', $module['lecture_id'] ?? '') === (string)$l['id'])>{{ $l['title'] }}</option>@endforeach

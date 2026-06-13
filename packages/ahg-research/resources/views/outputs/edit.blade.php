@@ -28,7 +28,7 @@
     <a href="{{ route('research.outputs.index', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 
-<form method="POST" action="{{ $isEdit ? route('research.outputs.update', [$project->id ?? 0, $output['id']]) : route('research.outputs.store', $project->id ?? 0) }}">
+<form method="POST" action="{{ $isEdit ? route('research.outputs.update', [$project->id ?? 0, $output['id']]) : route('research.outputs.store', $project->id ?? 0) }}" autocomplete="off">
     @csrf
     @if($isEdit)@method('PUT')@endif
 
@@ -38,7 +38,7 @@
             <div class="row g-3">
                 <div class="col-md-8">
                     <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
-                    <input type="text" name="title" class="form-control" maxlength="512" required value="{{ old('title', $output['title'] ?? '') }}">
+                    <input type="text" name="title" class="form-control" maxlength="512" required value="{{ old('title', $output['title'] ?? '') }}" autocomplete="off">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">{{ __('Type') }} <span class="text-danger">*</span></label>

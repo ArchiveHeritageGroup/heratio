@@ -49,7 +49,7 @@
     </div>
 </div>
 
-<form method="POST" action="{{ route('research.dmp.update', [$project->id ?? 0, $plan['id']]) }}">
+<form method="POST" action="{{ route('research.dmp.update', [$project->id ?? 0, $plan['id']]) }}" autocomplete="off">
     @csrf
     @method('PUT')
 
@@ -60,7 +60,7 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
-                    <input type="text" name="title" class="form-control" maxlength="255" required value="{{ old('title', $plan['title']) }}">
+                    <input type="text" name="title" class="form-control" maxlength="255" required value="{{ old('title', $plan['title']) }}" autocomplete="off">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">{{ __('Status') }}</label>

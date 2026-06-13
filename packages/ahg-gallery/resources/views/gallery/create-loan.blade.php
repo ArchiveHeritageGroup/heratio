@@ -3,10 +3,10 @@
 @section('body-class', 'gallery create-loan')
 @section('title-block')<h1 class="mb-0">{{ __('Create Loan') }}</h1>@endsection
 @section('content')
-<form method="post" action="{{ route('gallery.loans.store') }}">@csrf
+<form method="post" action="{{ route('gallery.loans.store') }}" autocomplete="off">@csrf
 <div class="card mb-4"><div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Loan Details') }}</h5></div>
 <div class="card-body"><div class="row">
-  <div class="col-md-6 mb-3"><label for="title" class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="title" id="title" class="form-control" required></div>
+  <div class="col-md-6 mb-3"><label for="title" class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="title" id="title" class="form-control" autocomplete="off" required></div>
   <div class="col-md-6 mb-3"><label for="loan_type" class="form-label">Loan Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="loan_type" id="loan_type" class="form-select"><option value="incoming">{{ __('Incoming') }}</option><option value="outgoing">{{ __('Outgoing') }}</option></select></div>
   <div class="col-md-6 mb-3"><label for="borrower_name" class="form-label">Borrower/Lender <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="borrower_name" id="borrower_name" class="form-control"></div>
   <div class="col-md-3 mb-3"><label for="start_date" class="form-label">Start Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="start_date" id="start_date" class="form-control"></div>

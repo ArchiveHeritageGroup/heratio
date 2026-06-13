@@ -75,7 +75,7 @@
         <div class="card">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>{{ __('Register Walk-in Visitor') }}</h5></div>
             <div class="card-body">
-                <form method="POST">
+                <form method="POST" autocomplete="off">
                     @csrf
                     <input type="hidden" name="form_action" value="register">
                     <input type="hidden" name="room_id" value="{{ $roomId }}">
@@ -83,7 +83,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">First Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                            <input type="text" class="form-control" name="first_name" required>
+                            <input type="text" class="form-control" name="first_name" required autocomplete="off">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Last Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>

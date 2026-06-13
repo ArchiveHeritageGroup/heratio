@@ -294,7 +294,7 @@
 <div class="modal fade" id="newCollectionModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form method="post">
+      <form method="post" autocomplete="off">
         @csrf
         <input type="hidden" name="booking_action" value="create_collection">
         <div class="modal-header">
@@ -304,7 +304,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">{{ __('Evidence Set Name *') }}</label>
-            <input type="text" name="collection_name" class="form-control" required placeholder="{{ __('e.g., My Research Project') }}">
+            <input type="text" name="collection_name" class="form-control" required placeholder="{{ __('e.g., My Research Project') }}" autocomplete="off">
           </div>
           <div class="mb-3">
             <label class="form-label">{{ __('Description') }}</label>

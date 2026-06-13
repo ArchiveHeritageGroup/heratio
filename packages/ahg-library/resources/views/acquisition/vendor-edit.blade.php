@@ -10,8 +10,8 @@
 <div class="container py-4">
 <h1 class="mb-3"><i class="fas fa-truck me-2"></i>{{ $editing ? __('Edit Vendor') : __('New Vendor') }}</h1>
 @if($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
-<div class="card"><div class="card-body"><form method="post" action="{{ $action }}">@csrf @if($editing)@method('PUT')@endif
-<div class="row"><div class="col-md-6 mb-3"><label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" value="{{ e($v('name')) }}" required></div>
+<div class="card"><div class="card-body"><form method="post" action="{{ $action }}" autocomplete="off">@csrf @if($editing)@method('PUT')@endif
+<div class="row"><div class="col-md-6 mb-3"><label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label><input type="text" name="name" autocomplete="off" class="form-control" value="{{ e($v('name')) }}" required></div>
 <div class="col-md-3 mb-3"><label class="form-label">{{ __('Vendor Code') }}</label><input type="text" name="vendor_code" class="form-control" value="{{ e($v('vendor_code')) }}"></div>
 <div class="col-md-3 mb-3"><label class="form-label">{{ __('Type') }}</label><select name="vendor_type" class="form-select">@foreach($types as $t)<option value="{{ $t->code }}" {{ $v('vendor_type')===$t->code?'selected':'' }}>{{ $t->label }}</option>@endforeach</select></div></div>
 <div class="row"><div class="col-md-4 mb-3"><label class="form-label">{{ __('Contact Name') }}</label><input type="text" name="contact_name" class="form-control" value="{{ e($v('contact_name')) }}"></div>

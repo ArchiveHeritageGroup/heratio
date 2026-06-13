@@ -31,7 +31,7 @@
     <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
 @endif
 
-<form method="POST" action="{{ route('research.grant.update', [$project->id ?? 0, $draft['id']]) }}" id="grantDraftForm">
+<form method="POST" action="{{ route('research.grant.update', [$project->id ?? 0, $draft['id']]) }}" id="grantDraftForm" autocomplete="off">
     @csrf
     @method('PUT')
 
@@ -55,7 +55,7 @@
             <div class="row g-3">
                 <div class="col-md-8">
                     <label class="form-label">{{ __('Draft title') }} <span class="text-danger">*</span></label>
-                    <input type="text" name="title" class="form-control" maxlength="255" required value="{{ e($draft['title'] ?? '') }}">
+                    <input type="text" name="title" class="form-control" maxlength="255" required value="{{ e($draft['title'] ?? '') }}" autocomplete="off">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">{{ __('Status') }}</label>

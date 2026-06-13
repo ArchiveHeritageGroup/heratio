@@ -26,7 +26,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('library.marc-update', $formData['library_item_id'] ?? 0) }}">
+    <form method="POST" action="{{ route('library.marc-update', $formData['library_item_id'] ?? 0) }}" autocomplete="off">
         @csrf
         @method('PUT')
         <input type="hidden" name="info_object_id" value="{{ $formData['info_object_id'] ?? 0 }}">
@@ -165,6 +165,7 @@
                             <div class="col-md-4">
                                 <label class="form-label small">\$020\$a ISBN</label>
                                 <input type="text" class="form-control"
+                                       autocomplete="off"
                                        name="identifier_fields[020][a]"
                                        value="{{ $f020['a'] ?? '' }}"
                                        placeholder="978-0-123-45678-9">

@@ -48,7 +48,7 @@
     <form method="POST"
           action="{{ $isNew
               ? route('research.decisions.store', $project->id)
-              : route('research.decisions.update', ['projectId' => $project->id, 'id' => $entry->id]) }}">
+              : route('research.decisions.update', ['projectId' => $project->id, 'id' => $entry->id]) }}" autocomplete="off">
       @csrf
       @unless($isNew)@method('PUT')@endunless
 
@@ -71,7 +71,7 @@
         <label class="form-label">{{ __('Summary') }} <span class="text-danger">*</span></label>
         <input type="text" name="summary" class="form-control" maxlength="500" required
                value="{{ old('summary', $entry->summary ?? '') }}"
-               placeholder="{{ __('e.g. Excluded oral-history interviews from the corpus') }}">
+               placeholder="{{ __('e.g. Excluded oral-history interviews from the corpus') }}" autocomplete="off">
         <div class="form-text">{{ __('A one-line statement of what was decided.') }}</div>
       </div>
 

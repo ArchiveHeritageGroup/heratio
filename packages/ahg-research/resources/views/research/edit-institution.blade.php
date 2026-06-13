@@ -7,10 +7,10 @@
 <h1 class="h2 mb-4"><i class="fas fa-university text-primary me-2"></i>{{ ($isNew ?? true) ? 'Add Institution' : 'Edit Institution' }}</h1>
 <div class="card">
     <div class="card-body">
-        <form method="POST">
+        <form method="POST" autocomplete="off">
             @csrf
             <div class="row mb-3">
-                <div class="col-md-8"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required value="{{ e($institution->name ?? '') }}"></div>
+                <div class="col-md-8"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required value="{{ e($institution->name ?? '') }}" autocomplete="off"></div>
                 <div class="col-md-4"><label class="form-label">Code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="code" class="form-control" value="{{ e($institution->code ?? '') }}"></div>
             </div>
             <div class="row mb-3">

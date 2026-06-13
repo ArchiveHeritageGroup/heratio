@@ -21,12 +21,13 @@
 
     <div class="card shadow-sm" style="max-width:640px">
         <div class="card-body">
-            <form method="POST" action="{{ route('library.authority-store') }}">
+            <form method="POST" action="{{ route('library.authority-store') }}" autocomplete="off">
                 @csrf
 
                 <div class="mb-3">
                     <label for="heading" class="form-label">Heading <span class="text-danger">*</span></label>
                     <input type="text" name="heading" id="heading" class="form-control"
+                           autocomplete="off"
                            value="{{ old('heading') }}" required maxlength="500">
                     @error('heading')
                         <div class="text-danger small mt-1">{{ $message }}</div>

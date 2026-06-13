@@ -7,10 +7,10 @@
 <h1 class="h2 mb-4"><i class="fas fa-project-diagram text-primary me-2"></i>{{ ($isNew ?? false) ? 'New Project' : 'Edit Project' }}</h1>
 <div class="card">
     <div class="card-body">
-        <form method="POST">
+        <form method="POST" autocomplete="off">
             @csrf
             <div class="row mb-3">
-                <div class="col-md-8"><label class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="title" class="form-control" required value="{{ e($project->title ?? '') }}"></div>
+                <div class="col-md-8"><label class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="title" class="form-control" required value="{{ e($project->title ?? '') }}" autocomplete="off"></div>
                 <div class="col-md-4"><label class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <select name="project_type" class="form-select">
                         @foreach(['genealogical','historical','academic','personal','institutional','other'] as $t)

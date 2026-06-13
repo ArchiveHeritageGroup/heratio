@@ -46,7 +46,7 @@
     <form method="POST"
           action="{{ $isNew
               ? route('research.memory.store', $project->id)
-              : route('research.memory.update', ['projectId' => $project->id, 'id' => $item->id]) }}">
+              : route('research.memory.update', ['projectId' => $project->id, 'id' => $item->id]) }}" autocomplete="off">
       @csrf
       @unless($isNew)@method('PUT')@endunless
 
@@ -73,7 +73,7 @@
         <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
         <input type="text" name="title" class="form-control" maxlength="500" required
                value="{{ old('title', $item->title ?? '') }}"
-               placeholder="{{ __('e.g. Whether the 1923 boundary dispute affected later land claims') }}">
+               placeholder="{{ __('e.g. Whether the 1923 boundary dispute affected later land claims') }}" autocomplete="off">
         <div class="form-text">{{ __('A one-line statement of the question, idea, source or lead.') }}</div>
       </div>
 

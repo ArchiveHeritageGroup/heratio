@@ -28,7 +28,7 @@
     <a href="{{ route('research.ethics.index', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 
-<form method="POST" action="{{ $isEdit ? route('research.ethics.update', [$project->id ?? 0, $record['id']]) : route('research.ethics.store', $project->id ?? 0) }}">
+<form method="POST" action="{{ $isEdit ? route('research.ethics.update', [$project->id ?? 0, $record['id']]) : route('research.ethics.store', $project->id ?? 0) }}" autocomplete="off">
     @csrf
     @if($isEdit)@method('PUT')@endif
 
@@ -38,7 +38,7 @@
             <div class="row g-3">
                 <div class="col-md-8">
                     <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
-                    <input type="text" name="title" class="form-control" maxlength="512" required value="{{ old('title', $record['title'] ?? '') }}" placeholder="{{ __('e.g. Interview study - participant consent') }}">
+                    <input type="text" name="title" class="form-control" maxlength="512" required value="{{ old('title', $record['title'] ?? '') }}" placeholder="{{ __('e.g. Interview study - participant consent') }}" autocomplete="off">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">{{ __('Approval type') }} <span class="text-danger">*</span></label>

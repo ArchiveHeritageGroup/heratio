@@ -14,7 +14,7 @@
 <form method="post" action="{{ $isNew
     ? route('ext-rights.store', $resource->slug)
     : route('ext-rights.update', [$resource->slug, $right->id]) }}"
-    id="rightsEditForm">
+    id="rightsEditForm" autocomplete="off">
     @csrf
 
     <div class="accordion mb-3" id="rightsAccordion">

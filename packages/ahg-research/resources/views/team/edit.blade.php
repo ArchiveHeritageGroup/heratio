@@ -28,7 +28,7 @@
     <a href="{{ route('research.team.index', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
 </div>
 
-<form method="POST" action="{{ $isEdit ? route('research.team.update', [$project->id ?? 0, $member['id']]) : route('research.team.store', $project->id ?? 0) }}">
+<form method="POST" action="{{ $isEdit ? route('research.team.update', [$project->id ?? 0, $member['id']]) : route('research.team.store', $project->id ?? 0) }}" autocomplete="off">
     @csrf
     @if($isEdit)@method('PUT')@endif
 
@@ -38,7 +38,7 @@
             <div class="row g-3">
                 <div class="col-md-8">
                     <label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>
-                    <input type="text" name="person_name" class="form-control" maxlength="512" required value="{{ old('person_name', $member['person_name'] ?? '') }}" placeholder="{{ __('full name of the contributor') }}">
+                    <input type="text" name="person_name" class="form-control" maxlength="512" required value="{{ old('person_name', $member['person_name'] ?? '') }}" placeholder="{{ __('full name of the contributor') }}" autocomplete="off">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">{{ __('Role') }} <span class="text-danger">*</span></label>

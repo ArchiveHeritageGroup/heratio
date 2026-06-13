@@ -19,7 +19,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('library.serial-store') }}">
+    <form method="POST" action="{{ route('library.serial-store') }}" autocomplete="off">
         @csrf
         <div class="card shadow-sm mb-4">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">
@@ -29,6 +29,7 @@
                 <div class="mb-3">
                     <label for="title" class="form-label required">Title <span class="badge bg-danger ms-1">Required</span></label>
                     <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
+                           autocomplete="off"
                            value="{{ old('title') }}" required>
                     @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>

@@ -16,10 +16,10 @@
 
   @if ($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
 
-  <form method="post" action="{{ route('research.lecture-builder.section-update', $section['id']) }}">
+  <form method="post" action="{{ route('research.lecture-builder.section-update', $section['id']) }}" autocomplete="off">
     @csrf @method('PUT')
     <div class="mb-3"><label class="form-label">{{ __('Heading') }}</label>
-      <input name="heading" class="form-control" value="{{ old('heading', $section['heading'] ?? '') }}"></div>
+      <input name="heading" class="form-control" value="{{ old('heading', $section['heading'] ?? '') }}" autocomplete="off"></div>
     <div class="mb-3"><label class="form-label">{{ __('Body (Markdown)') }}</label>
       <textarea name="body_markdown" rows="12" class="form-control font-monospace">{{ old('body_markdown', $section['body_markdown'] ?? '') }}</textarea></div>
     <div class="row">

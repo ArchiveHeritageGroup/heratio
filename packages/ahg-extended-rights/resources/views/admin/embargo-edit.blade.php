@@ -15,7 +15,7 @@
 @endsection
 
 @section('content')
-  <form method="post" action="{{ isset($embargo) ? route('ext-rights-admin.embargo-update', $embargo->id) : route('ext-rights-admin.embargo-create') }}">
+  <form method="post" action="{{ isset($embargo) ? route('ext-rights-admin.embargo-update', $embargo->id) : route('ext-rights-admin.embargo-create') }}" autocomplete="off">
     @csrf
     <div class="row">
       <div class="col-lg-8">

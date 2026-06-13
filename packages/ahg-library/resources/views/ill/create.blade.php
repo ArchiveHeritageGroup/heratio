@@ -19,7 +19,7 @@
     </div>
   @endif
 
-  <form method="post" action="{{ route('library.ill-store') }}">
+  <form method="post" action="{{ route('library.ill-store') }}" autocomplete="off">
     @csrf
 
     <div class="row">
@@ -40,7 +40,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
-              <input type="text" name="title" value="{{ old('title') }}" class="form-control" required maxlength="500">
+              <input type="text" name="title" value="{{ old('title') }}" autocomplete="off" class="form-control" required maxlength="500">
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">

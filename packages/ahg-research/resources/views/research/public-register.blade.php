@@ -26,7 +26,7 @@
     </div>
   @endif
 
-  <form action="{{ route('research.publicRegister.store') }}" method="POST">
+  <form action="{{ route('research.publicRegister.store') }}" method="POST" autocomplete="off">
     @csrf
 
     {{-- Account Creation --}}
@@ -36,7 +36,7 @@
         <div class="row">
           <div class="col-md-6 mb-3">
             <label for="username" class="form-label">Username <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-            <input type="text" name="username" id="username" class="form-control" value="{{ old('username') }}" required>
+            <input type="text" name="username" id="username" class="form-control" value="{{ old('username') }}" required autocomplete="off">
           </div>
           <div class="col-md-6 mb-3">
             <label for="email" class="form-label">Email <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>

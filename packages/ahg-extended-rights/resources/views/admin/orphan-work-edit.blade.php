@@ -18,7 +18,7 @@
   <div class="row">
     <div class="col-lg-8">
       {{-- Main Form --}}
-      <form method="post" action="{{ isset($orphanWork) ? route('ext-rights-admin.orphan-work-update', $orphanWork->id) : route('ext-rights-admin.orphan-work-create') }}">
+      <form method="post" action="{{ isset($orphanWork) ? route('ext-rights-admin.orphan-work-update', $orphanWork->id) : route('ext-rights-admin.orphan-work-create') }}" autocomplete="off">
         @csrf
         <div class="card mb-4">
           <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">

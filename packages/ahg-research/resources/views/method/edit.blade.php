@@ -39,7 +39,7 @@
     <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
 @endif
 
-<form method="POST" action="{{ route('research.method.update', [$project->id ?? 0, $protocol['id']]) }}">
+<form method="POST" action="{{ route('research.method.update', [$project->id ?? 0, $protocol['id']]) }}" autocomplete="off">
     @csrf
     @method('PUT')
 
@@ -63,7 +63,7 @@
             <div class="row g-3">
                 <div class="col-md-8">
                     <label class="form-label">{{ __('Protocol title') }} <span class="text-danger">*</span></label>
-                    <input type="text" name="title" class="form-control" maxlength="255" required value="{{ e($protocol['title'] ?? '') }}">
+                    <input type="text" name="title" class="form-control" maxlength="255" required value="{{ e($protocol['title'] ?? '') }}" autocomplete="off">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">{{ __('Status') }}</label>

@@ -24,7 +24,7 @@
         <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}</div>
     @endif
 
-    <form method="post" action="{{ route('federation.savePeer') }}">
+    <form method="post" action="{{ route('federation.savePeer') }}" autocomplete="off">
         @csrf
         @if(!$isNew)
             <input type="hidden" name="id" value="{{ $peer->id }}">
@@ -39,7 +39,7 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                            <input type="text" class="form-control" id="name" name="name"
+                            <input type="text" class="form-control" id="name" name="name" autocomplete="off"
                                    value="{{ $peer->name ?? old('name', '') }}" required>
                             <div class="form-text">A descriptive name for this peer repository</div>
                         </div>

@@ -7,10 +7,10 @@
 <h1 class="h2 mb-4"><i class="fas fa-user-tag text-primary me-2"></i>{{ ($isNew ?? true) ? 'Add Researcher Type' : 'Edit Researcher Type' }}</h1>
 <div class="card">
     <div class="card-body">
-        <form method="POST">
+        <form method="POST" autocomplete="off">
             @csrf
             <div class="row mb-3">
-                <div class="col-md-6"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required value="{{ e($type->name ?? '') }}"></div>
+                <div class="col-md-6"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required value="{{ e($type->name ?? '') }}" autocomplete="off"></div>
                 <div class="col-md-3"><label class="form-label">Code <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="code" class="form-control" required value="{{ e($type->code ?? '') }}"></div>
                 <div class="col-md-3"><label class="form-label">Sort Order <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" name="sort_order" class="form-control" value="{{ $type->sort_order ?? 0 }}"></div>
             </div>

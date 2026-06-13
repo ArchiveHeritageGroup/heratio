@@ -15,7 +15,7 @@
 
 <div class="card">
   <div class="card-body">
-    <form method="POST">
+    <form method="POST" autocomplete="off">
       @csrf
       @if(!$isNew)<input type="hidden" name="id" value="{{ $room->id }}">@endif
 
@@ -26,7 +26,7 @@
 
           <div class="mb-3">
             <label class="form-label">{{ __('Room Name *') }}</label>
-            <input type="text" name="name" class="form-control" required value="{{ e($room->name ?? '') }}">
+            <input type="text" name="name" class="form-control" required value="{{ e($room->name ?? '') }}" autocomplete="off">
           </div>
 
           <div class="row mb-3">

@@ -40,12 +40,12 @@
         <div class="card">
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-plus me-2"></i>{{ __('New notebook') }}</h6></div>
             <div class="card-body">
-                <form method="post" action="{{ route('research.notebooks') }}">
+                <form method="post" action="{{ route('research.notebooks') }}" autocomplete="off">
                     @csrf
                     <input type="hidden" name="form_action" value="create">
                     <div class="mb-3">
                         <label class="form-label">{{ __('Title') }}</label>
-                        <input type="text" name="title" class="form-control" required maxlength="255">
+                        <input type="text" name="title" class="form-control" required maxlength="255" autocomplete="off">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Summary') }}</label>

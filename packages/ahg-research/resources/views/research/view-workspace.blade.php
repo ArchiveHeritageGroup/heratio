@@ -286,13 +286,13 @@
 {{-- New Discussion Modal --}}
 <div class="modal fade" id="newDiscussionModal" tabindex="-1">
     <div class="modal-dialog">
-        <form method="post">
+        <form method="post" autocomplete="off">
             @csrf
             <input type="hidden" name="form_action" value="create_discussion">
             <div class="modal-content">
                 <div class="modal-header"><h5 class="modal-title">{{ __('New Discussion') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" class="form-control" required autocomplete="off"></div>
                     <div class="mb-3"><label class="form-label">{{ __('Content *') }}</label><textarea name="content" class="form-control" rows="4" required></textarea></div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Create Discussion') }}</button></div>
@@ -304,14 +304,14 @@
 {{-- Edit Discussion Modal --}}
 <div class="modal fade" id="editDiscussionModal" tabindex="-1">
     <div class="modal-dialog">
-        <form method="post">
+        <form method="post" autocomplete="off">
             @csrf
             <input type="hidden" name="form_action" value="edit_discussion">
             <input type="hidden" name="discussion_id" id="editDiscId">
             <div class="modal-content">
                 <div class="modal-header"><h5 class="modal-title">{{ __('Edit Discussion') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" id="editDiscTitle" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" id="editDiscTitle" class="form-control" required autocomplete="off"></div>
                     <div class="mb-3"><label class="form-label">{{ __('Content *') }}</label><textarea name="content" id="editDiscContent" class="form-control" rows="4" required></textarea></div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button></div>
@@ -323,13 +323,13 @@
 {{-- Edit Workspace Modal --}}
 <div class="modal fade" id="editWorkspaceModal" tabindex="-1">
     <div class="modal-dialog">
-        <form method="post">
+        <form method="post" autocomplete="off">
             @csrf
             <input type="hidden" name="form_action" value="edit_workspace">
             <div class="modal-content">
                 <div class="modal-header"><h5 class="modal-title">{{ __('Edit Workspace') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" class="form-control" value="{{ e($workspace->name) }}" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Name *') }}</label><input type="text" name="name" class="form-control" value="{{ e($workspace->name) }}" required autocomplete="off"></div>
                     <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="3">{{ e($workspace->description ?? '') }}</textarea></div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Visibility') }}</label>
@@ -352,7 +352,7 @@
 @endpush
 <div class="modal fade" id="inviteModal" tabindex="-1">
     <div class="modal-dialog">
-        <form method="post">
+        <form method="post" autocomplete="off">
             @csrf
             <input type="hidden" name="form_action" value="invite">
             <input type="hidden" name="email" id="inviteEmailHidden" value="">
@@ -382,7 +382,7 @@
 {{-- Add Resource Modal --}}
 <div class="modal fade" id="addResourceModal" tabindex="-1">
     <div class="modal-dialog">
-        <form method="post">
+        <form method="post" autocomplete="off">
             @csrf
             <input type="hidden" name="form_action" value="add_resource">
             <input type="hidden" name="resource_id" id="resourceIdHidden" value="">
@@ -399,7 +399,7 @@
                             <option value="external_link">{{ __('External Link') }}</option>
                         </select>
                     </div>
-                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" id="resourceTitleInput" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" id="resourceTitleInput" class="form-control" required autocomplete="off"></div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('External URL') }}</label>
                         <input type="url" name="external_url" id="externalUrlInput" class="form-control" placeholder="{{ __('https://') }}">
@@ -419,14 +419,14 @@
 {{-- Edit Resource Modal --}}
 <div class="modal fade" id="editResourceModal" tabindex="-1">
     <div class="modal-dialog">
-        <form method="post">
+        <form method="post" autocomplete="off">
             @csrf
             <input type="hidden" name="form_action" value="edit_resource">
             <input type="hidden" name="resource_id" id="editResId">
             <div class="modal-content">
                 <div class="modal-header"><h5 class="modal-title">{{ __('Edit Resource') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" id="editResTitle" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" id="editResTitle" class="form-control" required autocomplete="off"></div>
                     <div class="mb-3">
                         <label class="form-label">{{ __('Type') }}</label>
                         <select name="resource_type" id="editResType" class="form-select">

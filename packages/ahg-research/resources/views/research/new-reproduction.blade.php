@@ -6,8 +6,8 @@
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.reproductions') }}">Reproductions</a></li><li class="breadcrumb-item active">New Request</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-copy text-primary me-2"></i>{{ __('New Reproduction Request') }}</h1>
 <div class="card"><div class="card-body">
-    <form method="POST">@csrf
-        <div class="mb-3"><label class="form-label">Item Reference <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="item_reference" class="form-control" required placeholder="{{ __('Enter item identifier or title') }}"></div>
+    <form method="POST" autocomplete="off">@csrf
+        <div class="mb-3"><label class="form-label">Item Reference <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="item_reference" class="form-control" required placeholder="{{ __('Enter item identifier or title') }}" autocomplete="off"></div>
         <div class="row mb-3">
             <div class="col-md-6"><label class="form-label">Reproduction Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><select name="reproduction_type" class="form-select" required>
                 <option value="photocopy">{{ __('Photocopy') }}</option><option value="digital_scan">{{ __('Digital Scan') }}</option><option value="photograph">{{ __('Photograph') }}</option><option value="microfilm">{{ __('Microfilm') }}</option><option value="certified_copy">{{ __('Certified Copy') }}</option>

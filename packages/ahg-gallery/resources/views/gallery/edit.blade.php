@@ -64,7 +64,7 @@
     </div>
   @endif
 
-  <form method="POST" id="editForm" class="gallery-cataloguing-form"
+  <form method="POST" id="editForm" class="gallery-cataloguing-form" autocomplete="off"
         action="{{ $isNew ? route('gallery.store') : route('gallery.update', $artwork->slug) }}">
     @csrf
     @if(!$isNew)

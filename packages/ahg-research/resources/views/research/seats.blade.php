@@ -159,14 +159,14 @@
 
 {{-- Add/Edit Seat Modal --}}
 <div class="modal fade" id="addSeatModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <form method="POST" id="seatForm">@csrf
+    <form method="POST" id="seatForm" autocomplete="off">@csrf
         <input type="hidden" name="form_action" id="seatAction" value="create">
         <input type="hidden" name="seat_id" id="seatId">
         <input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
         <div class="modal-header"><h5 class="modal-title" id="seatModalTitle">{{ __('Add Seat') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
             <div class="row">
-                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Seat Number *') }}</label><input type="text" name="seat_number" id="seatNumber" class="form-control" required></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Seat Number *') }}</label><input type="text" name="seat_number" id="seatNumber" class="form-control" required autocomplete="off"></div></div>
                 <div class="col-6"><div class="mb-3"><label class="form-label">{{ __('Label') }}</label><input type="text" name="seat_label" id="seatLabel" class="form-control"></div></div>
             </div>
             <div class="row">

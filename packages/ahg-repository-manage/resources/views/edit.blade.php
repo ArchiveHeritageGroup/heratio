@@ -28,7 +28,7 @@
 
   <form method="POST"
         action="{{ $repository ? route('repository.update', $repository->slug) : route('repository.store') }}"
-        id="editForm">
+        id="editForm" autocomplete="off">
     @csrf
 
     <div class="accordion mb-3">
@@ -46,7 +46,7 @@
               <label for="identifier" class="form-label">
                 Identifier
                 <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-              <input type="text" name="identifier" id="identifier" class="form-control"
+              <input type="text" name="identifier" id="identifier" class="form-control" autocomplete="off"
                      value="{{ old('identifier', $repository->identifier ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&quot;Record the numeric or alpha-numeric code identifying the institution in accordance with the relevant international and national standards.&quot; (ISDIAH 5.1.1)"><i class="fas fa-question-circle"></i></button>
             </div>

@@ -33,12 +33,12 @@
 @endif
 
 {{-- Document header / meta --}}
-<form method="POST" action="{{ route('research.writing.update', [$project->id, $doc->id]) }}" class="mb-3">
+<form method="POST" action="{{ route('research.writing.update', [$project->id, $doc->id]) }}" class="mb-3" autocomplete="off">
     @csrf
     <div class="row g-2 align-items-end">
         <div class="col-md-6">
             <label class="form-label small fw-bold">{{ __('Title') }}</label>
-            <input type="text" name="title" class="form-control" maxlength="500" required value="{{ e($doc->title ?? '') }}">
+            <input type="text" name="title" class="form-control" maxlength="500" required value="{{ e($doc->title ?? '') }}" autocomplete="off">
         </div>
         <div class="col-md-3">
             <label class="form-label small fw-bold">{{ __('Type') }}</label>

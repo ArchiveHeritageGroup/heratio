@@ -74,7 +74,7 @@
 <div class="modal fade" id="createWorkspaceModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" action="{{ url('/research/workspaces') }}">
+            <form method="post" action="{{ url('/research/workspaces') }}" autocomplete="off">
                 @csrf
                 <input type="hidden" name="form_action" value="create">
                 <div class="modal-header">
@@ -84,7 +84,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Name * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                        <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Thesis Research Group') }}">
+                        <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Thesis Research Group') }}" autocomplete="off">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

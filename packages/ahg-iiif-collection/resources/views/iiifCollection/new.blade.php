@@ -3,10 +3,10 @@
 @section('body-class', 'iiif-collection new')
 @section('title-block')<h1 class="mb-0">{{ __('New Collection') }}</h1>@endsection
 @section('content')
-<form method="post" action="{{ route('iiif-collection.store') }}">@csrf
+<form method="post" action="{{ route('iiif-collection.store') }}" autocomplete="off">@csrf
 <div class="card mb-4"><div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Collection Details') }}</h5></div>
 <div class="card-body"><div class="row">
-  <div class="col-md-8 mb-3"><label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" id="name" class="form-control" required></div>
+  <div class="col-md-8 mb-3"><label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" id="name" class="form-control" autocomplete="off" required></div>
   <div class="col-md-4 mb-3"><label for="viewing_hint" class="form-label">Viewing Hint <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="viewing_hint" id="viewing_hint" class="form-select"><option value="individuals">{{ __('Individuals') }}</option><option value="paged">{{ __('Paged') }}</option><option value="continuous">{{ __('Continuous') }}</option></select></div>
   <div class="col-12 mb-3"><label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" id="description" class="form-control" rows="3"></textarea></div>
   <div class="col-md-6 mb-3"><label for="attribution" class="form-label">Attribution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="attribution" id="attribution" class="form-control"></div>

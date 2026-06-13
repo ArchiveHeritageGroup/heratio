@@ -11,7 +11,7 @@
 @endsection
 
 @section('content')
-<form method="post" action="{{ route('ext-rights.store-embargo', $resource->slug) }}">
+<form method="post" action="{{ route('ext-rights.store-embargo', $resource->slug) }}" autocomplete="off">
   @csrf
   <div class="card mb-4">
     <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">

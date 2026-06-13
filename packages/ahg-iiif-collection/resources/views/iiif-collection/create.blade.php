@@ -21,7 +21,7 @@
 
 @section('content')
 <div class="iiif-collection-form">
-    <form method="POST" action="{{ route('iiif-collection.store') }}">
+    <form method="POST" action="{{ route('iiif-collection.store') }}" autocomplete="off">
         @csrf
 
         <div class="card mb-4">
@@ -33,7 +33,7 @@
                     <div class="col-md-8">
                         <div class="mb-3">
                             <label class="form-label" for="name">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" autocomplete="off" required>
                         </div>
                     </div>
                     <div class="col-md-4">

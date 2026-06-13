@@ -16,7 +16,7 @@
 
   <form method="POST"
         action="{{ $asset ? route('dam.update', $asset->slug) : route('dam.store') }}"
-        id="editForm">
+        id="editForm" autocomplete="off">
     @csrf
     @if($asset)
       @method('PUT')
@@ -36,7 +36,7 @@
             <label for="title" class="form-label">
               Title
               <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-            <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
+            <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" autocomplete="off"
                    value="{{ old('title', $asset->title ?? '') }}">
             @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
             <div class="form-text text-muted small">The title of the digital asset.</div>
