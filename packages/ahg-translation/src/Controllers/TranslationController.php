@@ -622,14 +622,23 @@ class TranslationController extends Controller
         $endpoint = $this->getSetting('mt.endpoint', 'https://ai.theahg.co.za/ai/v1/translate');
         $apiKey = $this->getSetting('mt.api_key', '<set in ahg_settings>');
 
+        // #1250 - same Bearer-key fallback as translateText() so the health
+        // probe authenticates against the AHG AI gateway instead of getting a
+        // misleading 401. Header is only added when a key resolves.
+        $headers = [
+            'Content-Type: application/json',
+            'X-API-Key: ' . $apiKey,
+        ];
+        $bearerKey = $this->resolveMtBearerKey($apiKey);
+        if ($bearerKey !== '') {
+            $headers[] = 'Authorization: Bearer ' . $bearerKey;
+        }
+
         $ch = curl_init($endpoint);
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'X-API-Key: ' . $apiKey,
-            ],
+            CURLOPT_HTTPHEADER => $headers,
             CURLOPT_POSTFIELDS => json_encode(['source' => 'af', 'target' => 'en', 'text' => 'toets']),
             CURLOPT_TIMEOUT => 5,
         ]);
@@ -766,14 +775,28 @@ class TranslationController extends Controller
 
         $t0 = microtime(true);
 
+        // #1250 - the MT endpoint can be the AHG AI gateway, which authenticates
+        // via a Bearer key (returns 401 "Missing API key" without one). Prefer
+        // the operator-set mt.api_key; when that is empty fall back to the
+        // shared gateway key (ahg_ner_settings.api_key, then ahg_ai_settings
+        // feature='general' api_key) the way QdrantRetriever resolves it. Only
+        // attach the Bearer header when a key is present so a legacy
+        // direct-adapter endpoint still works keyless. The existing X-API-Key
+        // header is preserved for any adapter that reads it.
+        $headers = [
+            'Content-Type: application/json',
+            'X-API-Key: ' . $apiKey,
+        ];
+        $bearerKey = $this->resolveMtBearerKey($apiKey);
+        if ($bearerKey !== '') {
+            $headers[] = 'Authorization: Bearer ' . $bearerKey;
+        }
+
         $ch = curl_init($endpoint);
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'X-API-Key: ' . $apiKey,
-            ],
+            CURLOPT_HTTPHEADER => $headers,
             CURLOPT_POSTFIELDS => $payload,
             CURLOPT_TIMEOUT => $timeout,
         ]);
@@ -982,6 +1005,44 @@ class TranslationController extends Controller
         } catch (\Exception $e) {
             // Table may not exist yet
         }
+    }
+
+    /**
+     * Resolve the Bearer key for the MT endpoint (#1250).
+     *
+     * Prefers the operator-set mt.api_key. When that is empty (or still the
+     * "<set in ahg_settings>" placeholder), falls back to the shared AHG AI
+     * gateway key the same way QdrantRetriever does: ahg_ner_settings.api_key,
+     * then ahg_ai_settings feature='general' api_key. Returns '' when nothing
+     * is configured so a legacy direct-adapter endpoint is still called keyless.
+     */
+    private function resolveMtBearerKey(?string $mtApiKey): string
+    {
+        $mtApiKey = trim((string) $mtApiKey);
+        if ($mtApiKey !== '' && $mtApiKey !== '<set in ahg_settings>') {
+            return $mtApiKey;
+        }
+
+        try {
+            $key = DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+
+            $key = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+        } catch (\Throwable $e) {
+            // Settings tables absent on a fresh install - fall through.
+        }
+
+        return '';
     }
 
     /**

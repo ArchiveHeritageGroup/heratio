@@ -777,8 +777,19 @@ class LlmService
         $mtEp = $aiSet ? $aiSet::mtEndpoint() : null;
         if ($mode === 'mt' && $mtEp) {
             try {
-                $resp = \Illuminate\Support\Facades\Http::timeout($aiSet::mtTimeout())
-                    ->asJson()
+                // #1250 - the MT endpoint can be the AHG AI gateway, which
+                // requires a Bearer key. Reuse the same gateway-key resolution
+                // the rest of the AI services use (ahg_ner_settings.api_key,
+                // then ahg_ai_settings feature='general' api_key) via the
+                // existing getAiSetting() helper. Only attach when non-empty so
+                // a legacy direct-adapter MT endpoint still works keyless.
+                $mtKey = (string) ($this->getAiSetting('general', 'api_key', '') ?? '');
+                $req = \Illuminate\Support\Facades\Http::timeout($aiSet::mtTimeout())
+                    ->asJson();
+                if ($mtKey !== '') {
+                    $req = $req->withToken($mtKey);
+                }
+                $resp = $req
                     ->post(rtrim($mtEp, '/') . '/translate', [
                         'text'   => $text,
                         'target' => $targetLang,

@@ -239,11 +239,24 @@ class TranslationMtBatchCommand extends Command
     private function mtCall(string $endpoint, string $source, string $target, string $text, int $timeout): ?string
     {
         $payload = json_encode(['source' => $source, 'target' => $target, 'text' => $text]);
+
+        // #1250 - the MT endpoint can be the AHG AI gateway, which rejects
+        // unauthenticated calls (401 "Missing API key"). Send the gateway key
+        // as a Bearer token. Resolution order mirrors QdrantRetriever: the
+        // ahg_live_* key lives under ahg_ner_settings.api_key, then falls back
+        // to ahg_ai_settings feature='general' api_key. Only attach when
+        // non-empty so a legacy direct-adapter endpoint still works keyless.
+        $headers = ['Content-Type: application/json'];
+        $apiKey = $this->resolveGatewayKey();
+        if ($apiKey !== '') {
+            $headers[] = 'Authorization: Bearer ' . $apiKey;
+        }
+
         $ch = curl_init($endpoint);
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_HTTPHEADER => $headers,
             CURLOPT_POSTFIELDS => $payload,
             CURLOPT_TIMEOUT => $timeout,
         ]);
@@ -275,6 +288,38 @@ class TranslationMtBatchCommand extends Command
         }
 
         return (string) ($data['translatedText'] ?? $data['translation'] ?? '') ?: null;
+    }
+
+    /**
+     * Resolve the AHG AI gateway Bearer key (#1250).
+     *
+     * Mirrors QdrantRetriever::resolveApiKey(): the working ahg_live_* key
+     * lives under ahg_ner_settings.api_key, with a fallback to
+     * ahg_ai_settings feature='general' api_key. Returns '' when neither is
+     * set so a legacy direct-adapter endpoint is still called keyless.
+     */
+    private function resolveGatewayKey(): string
+    {
+        try {
+            $key = DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+
+            $key = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+        } catch (\Throwable $e) {
+            // Settings tables absent on a fresh install - fall through.
+        }
+
+        return '';
     }
 
     /** Scan AtoM XLIFF dir for the union of all source keys. Used to detect Heratio-only keys. */
