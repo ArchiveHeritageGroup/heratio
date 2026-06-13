@@ -1,0 +1,30 @@
+*** Begin Patch
+*** Update File: packages/ahg-research/src/Controllers/ResearchAdminController.php
+@@
+     public function viewResearcher(Request $request, int $id)
+     {
+@@
+             if ($action === 'approve') {
+                 $this->service->approveResearcher($id, Auth::id());
+-                $this->provisioner->updateUser($researcher->user_id, ['active' => 1]);
++                $this->provisioner->updateUser($researcher->user_id, ['active' => 1]);
++                // Ensure the researcher user is added to the standard researcher ACL group (id 99)
++                try {
++                    $this->provisioner->addToGroup($researcher->user_id, 99);
++                } catch (\Throwable $e) {
++                    // Log and continue; group add is best-effort to preserve prior semantics
++                    logger()->warning('Failed to add researcher to group 99: ' . $e->getMessage());
++                }
+                 return redirect()->route('research.viewResearcher', $id)->with('success', 'Approved');
+             } elseif ($action === 'suspend') {
+-                \Illuminate\Support\Facades\DB::table('research_researcher')->where('id', $id)->update(['status' => 'suspended']);
++                \Illuminate\Support\Facades\DB::table('research_researcher')->where('id', $id)->update(['status' => 'suspended']);
++                // Also deactivate the linked user account
++                try {
++                    $this->provisioner->deactivateUser($researcher->user_id);
++                } catch (\Throwable $e) {
++                    logger()->warning('Failed to deactivate user on suspend: ' . $e->getMessage());
++                }
+                 return redirect()->route('research.viewResearcher', $id)->with('success', 'Suspended');
+             }
+*** End Patch
