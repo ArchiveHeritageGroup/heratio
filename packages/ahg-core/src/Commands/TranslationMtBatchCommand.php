@@ -287,7 +287,7 @@ class TranslationMtBatchCommand extends Command
             return null;
         }
 
-        return (string) ($data['translatedText'] ?? $data['translation'] ?? '') ?: null;
+        return (string) ($data['translated'] ?? $data['translatedText'] ?? $data['translation'] ?? '') ?: null;
     }
 
     /**

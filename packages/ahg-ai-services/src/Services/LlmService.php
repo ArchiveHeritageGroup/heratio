@@ -796,11 +796,14 @@ class LlmService
                     ]);
                 if ($resp->ok()) {
                     $body = $resp->json();
-                    if (is_array($body) && isset($body['translation']) && is_string($body['translation'])) {
+                    // Local MT adapter returns `translation`; the gateway
+                    // /ai/v1/translate route returns `translated` (opus-mt).
+                    $mt = is_array($body) ? ($body['translation'] ?? $body['translated'] ?? $body['translatedText'] ?? null) : null;
+                    if (is_string($mt) && $mt !== '') {
                         if ($tm !== null) {
-                            try { $tm->store($text, $sourceLang, $targetLang, $body['translation'], 'mt', null); } catch (\Throwable) {}
+                            try { $tm->store($text, $sourceLang, $targetLang, $mt, 'mt', null); } catch (\Throwable) {}
                         }
-                        return $body['translation'];
+                        return $mt;
                     }
                 }
                 Log::warning('[ahg-ai] MT endpoint failed; falling back to LLM round-trip', [

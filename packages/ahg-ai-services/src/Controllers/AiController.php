@@ -312,10 +312,14 @@ class AiController extends Controller
 
                 if ($response->successful()) {
                     $body = $response->json();
-                    if (!empty($body['success']) && !empty($body['translation'])) {
+                    // Accept either response shape: the local MT adapter returns
+                    // `translation`; the gateway /ai/v1/translate route returns
+                    // `translated` (opus-mt). Prefer whichever is present.
+                    $mt = $body['translation'] ?? $body['translated'] ?? $body['translatedText'] ?? null;
+                    if (!empty($body['success']) && !empty($mt)) {
                         return response()->json([
                             'success'     => true,
-                            'translation' => $body['translation'],
+                            'translation' => $mt,
                             'source'      => 'api',
                         ]);
                     }
