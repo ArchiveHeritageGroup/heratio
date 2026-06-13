@@ -2,7 +2,19 @@
 @php
     $active = $sidebarActive ?? '';
     $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id());
-    $expLevel = $experienceLevel ?? 'intermediate';
+    // Resolve the researcher's mode here so the sidebar is correct on EVERY
+    // research page, not only the few controllers that pass experienceLevel.
+    // Falls back to the controller-supplied value, then a self lookup, then default.
+    $expLevel = $experienceLevel ?? null;
+    if (empty($expLevel) && Auth::check()) {
+        try {
+            $expLevel = \Illuminate\Support\Facades\DB::table('research_researcher')
+                ->where('user_id', Auth::id())->value('experience_level');
+        } catch (\Throwable $e) {
+            $expLevel = null;
+        }
+    }
+    $expLevel = $expLevel ?: 'intermediate';
     // Research mode curates the sidebar: Beginning shows the core essentials,
     // Intermediate adds the working tools, Advanced reveals everything.
     $lvlRank = ['beginning' => 1, 'intermediate' => 2, 'advanced' => 3];
@@ -255,7 +267,14 @@
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'X-Requested-With': 'XMLHttpRequest' },
             body: JSON.stringify({ level: sel.value })
         }).then(function (r) { return r.json(); }).then(function (d) {
-            note(d && d.ok ? '{{ __('Saved') }}' : '{{ __('Could not save') }}');
+            if (d && d.ok) {
+                // The sidebar curation is rendered server-side, so reload to
+                // apply the new mode's link set immediately.
+                note('{{ __('Saving...') }}');
+                window.location.reload();
+            } else {
+                note('{{ __('Could not save') }}');
+            }
         }).catch(function () { note('{{ __('Could not save') }}'); });
     });
 })();

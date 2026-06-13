@@ -83,7 +83,6 @@
               <p class="text-muted mb-0">{{ e($researcher->institution ?? 'Independent Researcher') }}</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
-              <a href="{{ route('research.book') }}" class="btn atom-btn-white"><i class="fas fa-calendar-plus me-2"></i>{{ __('Book Visit') }}</a>
               <a href="{{ route('research.profile') }}" class="btn atom-btn-white"><i class="fas fa-user me-2"></i>{{ __('My Profile') }}</a>
             </div>
           </div>

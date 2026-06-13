@@ -12,6 +12,7 @@
 
 namespace AhgAiChatbot\Services;
 
+use AhgAiServices\Support\AiServicesSettings;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -85,22 +86,32 @@ class QdrantRetriever
     }
 
     /**
-     * Embed a query string via a local Ollama embedding model.
-     * Returns null when no embedding model is configured.
+     * Embed a query string via the AHG AI gateway (#1245).
+     *
+     * Routes through ai.theahg.co.za/ai/v1/ollama/api/embed - never a direct
+     * node port. The gateway exposes Ollama transparently at /ollama/{path}.
+     * Uses the same embedding model the Qdrant collection was indexed with
+     * (AiServicesSettings::qdrantModel()), otherwise vector search returns
+     * nothing. Returns null on any failure.
      *
      * @return float[]|null
      */
     private function embedQuery(string $query): ?array
     {
-        $host = config('ahg-ai-chatbot.ollama_embed_host', 'http://localhost:11434');
-        $model = config('ahg-ai-chatbot.ollama_embed_model', 'nomic-embed-text');
+        $base    = rtrim(AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1', '/');
+        $key     = AiServicesSettings::apiKey();
+        $model   = AiServicesSettings::qdrantModel();
+        $timeout = AiServicesSettings::apiTimeout();
 
         try {
-            $resp = Http::timeout(30)->asJson()
-                ->post(rtrim($host, '/') . '/api/embed', [
-                    'model' => $model,
-                    'input' => $query,
-                ]);
+            $req = Http::timeout($timeout)->asJson();
+            if (!empty($key)) {
+                $req = $req->withToken($key);
+            }
+            $resp = $req->post($base . '/ollama/api/embed', [
+                'model' => $model,
+                'input' => $query,
+            ]);
 
             if (!$resp->successful()) {
                 return null;

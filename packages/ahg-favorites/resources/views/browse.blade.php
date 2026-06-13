@@ -1,6 +1,10 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Favorites')
 @section('body-class', 'favorites')
+
+@section('sidebar')
+  @include('research::research._sidebar', ['sidebarActive' => 'favorites'])
+@endsection
 
 @php
   /**
