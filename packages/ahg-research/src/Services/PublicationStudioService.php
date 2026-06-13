@@ -613,9 +613,10 @@ class PublicationStudioService
                 ->where('project_id', $projectId)
                 ->where('id', $submissionId)
                 ->update([
-                    'ai_model'   => $this->resolveAiModel(),
-                    'ai_at'      => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
+                    'ai_model'    => $this->resolveAiModel(),
+                    'ai_at'       => date('Y-m-d H:i:s'),
+                    'ai_decision' => 'pending', // #1252 awaits accept/reject
+                    'updated_at'  => date('Y-m-d H:i:s'),
                 ]);
         } catch (\Throwable $e) {
             // best-effort disclosure marker only.

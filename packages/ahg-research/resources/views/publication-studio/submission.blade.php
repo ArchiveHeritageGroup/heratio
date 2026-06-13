@@ -179,6 +179,11 @@
                         </button>
                         <div id="aiFitOut" class="small mt-2"></div>
                         <div class="text-muted small mt-1"><i class="fas fa-robot me-1"></i>{{ __('AI-generated guidance via the AHG gateway. Verify before relying on it.') }}</div>
+                        @if(!empty($submission['ai_at']))
+                            <div class="mt-2">
+                                @include('research::research._ai-decision', ['slice' => 'publication', 'id' => $submission['id'], 'decision' => $submission['ai_decision'] ?? null])
+                            </div>
+                        @endif
                     @endif
                 @else
                     <div class="text-muted small mt-1">{{ __('Free-text venue (not linked to a directory journal).') }}</div>

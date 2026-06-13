@@ -566,9 +566,17 @@ class WritingStudioService
             return [];
         }
         try {
+            // #1252 - include the AI disclosure columns so the version list can
+            // surface the Accept/Reject control next to AI-drafted snapshots.
+            // Guarded: older installs may not have these columns yet.
+            $cols = ['id', 'version_no', 'note', 'created_by', 'created_at'];
+            if (Schema::hasColumn('research_writing_version', 'ai_at')) {
+                $cols = array_merge($cols, ['ai_model', 'ai_at', 'ai_decision']);
+            }
+
             return DB::table('research_writing_version')
                 ->where('doc_id', $docId)
-                ->select('id', 'version_no', 'note', 'created_by', 'created_at')
+                ->select($cols)
                 ->orderBy('version_no', 'desc')
                 ->get()->all();
         } catch (\Throwable $e) {
@@ -765,8 +773,9 @@ class WritingStudioService
                 'note'       => $this->trimTo('AI draft generated for "' . $heading . '" (review required before use)', 1000),
                 'created_by' => null,
                 'created_at' => now(),
-                'ai_model'   => $this->resolveAiModel(),
-                'ai_at'      => now(),
+                'ai_model'    => $this->resolveAiModel(),
+                'ai_at'       => now(),
+                'ai_decision' => 'pending', // #1252 awaits researcher accept/reject
             ]);
         } catch (\Throwable $e) {
             // best-effort disclosure marker only.

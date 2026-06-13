@@ -74,6 +74,23 @@ class AiDisclosureService
     public const GATEWAY_LABEL = 'AHG AI gateway';
 
     /**
+     * #1252 Accept/Reject. Hardcoded slice-key -> table allowlist. Table names
+     * NEVER come from request input - the controller validates the slice key
+     * against this exact set and we look the table up here. Argument Builder has
+     * no AI write path today, so it is intentionally not an accept/reject target.
+     *
+     * @var array<string,string>
+     */
+    public const DECISION_TABLES = [
+        'writing'     => 'research_writing_version',
+        'question'    => 'research_question_brief',
+        'analysis'    => 'research_analysis_result',
+        'grant'       => 'research_grant_draft',
+        'publication' => 'research_submission',
+        'copilot'     => 'research_copilot_answer',
+    ];
+
+    /**
      * Resolve the linked actor id for a Research-OS project id.
      *
      * The slice tables (review run, triage, contradiction) key on `project_id`,
@@ -155,6 +172,7 @@ class AiDisclosureService
                 'tool'    => self::GATEWAY_LABEL,
                 'model'   => $this->nullableStr($r->model ?? null),
                 'when'    => $this->nullableStr($r->created_at ?? null),
+                'decision' => null,
                 'source'  => 'detected',
             ];
         }
@@ -189,6 +207,7 @@ class AiDisclosureService
                 'tool'    => self::GATEWAY_LABEL,
                 'model'   => null,
                 'when'    => $this->nullableStr($r->ai_preview_at ?? null),
+                'decision' => null,
                 'source'  => 'detected',
             ];
         }
@@ -223,6 +242,7 @@ class AiDisclosureService
                 'tool'    => self::GATEWAY_LABEL,
                 'model'   => null,
                 'when'    => $this->nullableStr($r->created_at ?? null),
+                'decision' => null,
                 'source'  => 'detected',
             ];
         }
@@ -262,6 +282,7 @@ class AiDisclosureService
                 'tool'    => self::GATEWAY_LABEL,
                 'model'   => $this->nullableStr($r->model ?? null),
                 'when'    => $this->nullableStr($r->created_at ?? null),
+                'decision' => null,
                 'source'  => 'detected',
             ];
         }
@@ -290,19 +311,21 @@ class AiDisclosureService
             ->whereNotNull('v.ai_at')
             ->orderByDesc('v.ai_at')
             ->limit(1000)
-            ->get(['d.title as doc_title', 'v.note', 'v.ai_model', 'v.ai_at']);
+            ->get(['d.title as doc_title', 'v.note', 'v.ai_model', 'v.ai_at',
+                ...$this->decisionCols('research_writing_version', 'v')]);
 
         $out = [];
         foreach ($rows as $r) {
             $docTitle = trim((string) ($r->doc_title ?? ''));
             $out[] = [
-                'slice'   => 'Writing Studio',
-                'purpose' => 'AI-drafted prose for a document section'
+                'slice'    => 'Writing Studio',
+                'purpose'  => 'AI-drafted prose for a document section'
                     .($docTitle !== '' ? ' (document "'.$docTitle.'")' : ''),
-                'tool'    => self::GATEWAY_LABEL,
-                'model'   => $this->nullableStr($r->ai_model ?? null),
-                'when'    => $this->nullableStr($r->ai_at ?? null),
-                'source'  => 'detected',
+                'tool'     => self::GATEWAY_LABEL,
+                'model'    => $this->nullableStr($r->ai_model ?? null),
+                'when'     => $this->nullableStr($r->ai_at ?? null),
+                'decision' => $this->nullableStr($r->ai_decision ?? null),
+                'source'   => 'detected',
             ];
         }
         return $out;
@@ -327,17 +350,18 @@ class AiDisclosureService
             ->whereNotNull('ai_at')
             ->orderByDesc('ai_at')
             ->limit(500)
-            ->get(['ai_model', 'ai_at']);
+            ->get(['ai_model', 'ai_at', ...$this->decisionCols('research_question_brief')]);
 
         $out = [];
         foreach ($rows as $r) {
             $out[] = [
-                'slice'   => 'Question Builder',
-                'purpose' => 'AI-assisted diagnosis of the research design brief',
-                'tool'    => self::GATEWAY_LABEL,
-                'model'   => $this->nullableStr($r->ai_model ?? null),
-                'when'    => $this->nullableStr($r->ai_at ?? null),
-                'source'  => 'detected',
+                'slice'    => 'Question Builder',
+                'purpose'  => 'AI-assisted diagnosis of the research design brief',
+                'tool'     => self::GATEWAY_LABEL,
+                'model'    => $this->nullableStr($r->ai_model ?? null),
+                'when'     => $this->nullableStr($r->ai_at ?? null),
+                'decision' => $this->nullableStr($r->ai_decision ?? null),
+                'source'   => 'detected',
             ];
         }
         return $out;
@@ -362,19 +386,20 @@ class AiDisclosureService
             ->whereNotNull('ai_at')
             ->orderByDesc('ai_at')
             ->limit(1000)
-            ->get(['title', 'ai_model', 'ai_at']);
+            ->get(['title', 'ai_model', 'ai_at', ...$this->decisionCols('research_analysis_result')]);
 
         $out = [];
         foreach ($rows as $r) {
             $title = trim((string) ($r->title ?? ''));
             $out[] = [
-                'slice'   => 'Analysis Bridge',
-                'purpose' => 'AI-suggested plain-language caption for an analysis result'
+                'slice'    => 'Analysis Bridge',
+                'purpose'  => 'AI-suggested plain-language caption for an analysis result'
                     .($title !== '' ? ' ("'.$title.'")' : ''),
-                'tool'    => self::GATEWAY_LABEL,
-                'model'   => $this->nullableStr($r->ai_model ?? null),
-                'when'    => $this->nullableStr($r->ai_at ?? null),
-                'source'  => 'detected',
+                'tool'     => self::GATEWAY_LABEL,
+                'model'    => $this->nullableStr($r->ai_model ?? null),
+                'when'     => $this->nullableStr($r->ai_at ?? null),
+                'decision' => $this->nullableStr($r->ai_decision ?? null),
+                'source'   => 'detected',
             ];
         }
         return $out;
@@ -398,19 +423,20 @@ class AiDisclosureService
             ->whereNotNull('ai_at')
             ->orderByDesc('ai_at')
             ->limit(1000)
-            ->get(['title', 'ai_model', 'ai_at']);
+            ->get(['title', 'ai_model', 'ai_at', ...$this->decisionCols('research_grant_draft')]);
 
         $out = [];
         foreach ($rows as $r) {
             $title = trim((string) ($r->title ?? ''));
             $out[] = [
-                'slice'   => 'Grant Engine',
-                'purpose' => 'AI-drafted grant-application section'
+                'slice'    => 'Grant Engine',
+                'purpose'  => 'AI-drafted grant-application section'
                     .($title !== '' ? ' (draft "'.$title.'")' : ''),
-                'tool'    => self::GATEWAY_LABEL,
-                'model'   => $this->nullableStr($r->ai_model ?? null),
-                'when'    => $this->nullableStr($r->ai_at ?? null),
-                'source'  => 'detected',
+                'tool'     => self::GATEWAY_LABEL,
+                'model'    => $this->nullableStr($r->ai_model ?? null),
+                'when'     => $this->nullableStr($r->ai_at ?? null),
+                'decision' => $this->nullableStr($r->ai_decision ?? null),
+                'source'   => 'detected',
             ];
         }
         return $out;
@@ -436,19 +462,20 @@ class AiDisclosureService
             ->whereNotNull('ai_at')
             ->orderByDesc('ai_at')
             ->limit(500)
-            ->get(['title', 'ai_model', 'ai_at']);
+            ->get(['title', 'ai_model', 'ai_at', ...$this->decisionCols('research_argument')]);
 
         $out = [];
         foreach ($rows as $r) {
             $title = trim((string) ($r->title ?? ''));
             $out[] = [
-                'slice'   => 'Argument Builder',
-                'purpose' => 'AI assistance applied to the argument canvas'
+                'slice'    => 'Argument Builder',
+                'purpose'  => 'AI assistance applied to the argument canvas'
                     .($title !== '' ? ' ("'.$title.'")' : ''),
-                'tool'    => self::GATEWAY_LABEL,
-                'model'   => $this->nullableStr($r->ai_model ?? null),
-                'when'    => $this->nullableStr($r->ai_at ?? null),
-                'source'  => 'detected',
+                'tool'     => self::GATEWAY_LABEL,
+                'model'    => $this->nullableStr($r->ai_model ?? null),
+                'when'     => $this->nullableStr($r->ai_at ?? null),
+                'decision' => $this->nullableStr($r->ai_decision ?? null),
+                'source'   => 'detected',
             ];
         }
         return $out;
@@ -473,19 +500,20 @@ class AiDisclosureService
             ->whereNotNull('ai_at')
             ->orderByDesc('ai_at')
             ->limit(1000)
-            ->get(['venue_name', 'ai_model', 'ai_at']);
+            ->get(['venue_name', 'ai_model', 'ai_at', ...$this->decisionCols('research_submission')]);
 
         $out = [];
         foreach ($rows as $r) {
             $venue = trim((string) ($r->venue_name ?? ''));
             $out[] = [
-                'slice'   => 'Publication Studio',
-                'purpose' => 'AI venue-fit assessment for a submission'
+                'slice'    => 'Publication Studio',
+                'purpose'  => 'AI venue-fit assessment for a submission'
                     .($venue !== '' ? ' (venue: '.$venue.')' : ''),
-                'tool'    => self::GATEWAY_LABEL,
-                'model'   => $this->nullableStr($r->ai_model ?? null),
-                'when'    => $this->nullableStr($r->ai_at ?? null),
-                'source'  => 'detected',
+                'tool'     => self::GATEWAY_LABEL,
+                'model'    => $this->nullableStr($r->ai_model ?? null),
+                'when'     => $this->nullableStr($r->ai_at ?? null),
+                'decision' => $this->nullableStr($r->ai_decision ?? null),
+                'source'   => 'detected',
             ];
         }
         return $out;
@@ -512,19 +540,20 @@ class AiDisclosureService
             ->whereNotNull('ai_at')
             ->orderByDesc('ai_at')
             ->limit(1000)
-            ->get(['question', 'ai_model', 'ai_at']);
+            ->get(['question', 'ai_model', 'ai_at', ...$this->decisionCols('research_copilot_answer')]);
 
         $out = [];
         foreach ($rows as $r) {
             $q = trim((string) ($r->question ?? ''));
             $out[] = [
-                'slice'   => 'Research Copilot',
-                'purpose' => 'AI-generated, source-cited answer to a research question'
+                'slice'    => 'Research Copilot',
+                'purpose'  => 'AI-generated, source-cited answer to a research question'
                     .($q !== '' ? ' ("'.mb_substr($q, 0, 120).'")' : ''),
-                'tool'    => self::GATEWAY_LABEL,
-                'model'   => $this->nullableStr($r->ai_model ?? null),
-                'when'    => $this->nullableStr($r->ai_at ?? null),
-                'source'  => 'detected',
+                'tool'     => self::GATEWAY_LABEL,
+                'model'    => $this->nullableStr($r->ai_model ?? null),
+                'when'     => $this->nullableStr($r->ai_at ?? null),
+                'decision' => $this->nullableStr($r->ai_decision ?? null),
+                'source'   => 'detected',
             ];
         }
         return $out;
@@ -560,6 +589,7 @@ class AiDisclosureService
                 'tool'    => trim((string) ($r->tool ?? '')) !== '' ? (string) $r->tool : self::GATEWAY_LABEL,
                 'model'   => $this->nullableStr($r->model ?? null),
                 'when'    => $this->nullableStr($r->created_at ?? null),
+                'decision' => null,
                 'source'  => 'logged',
             ];
         }
@@ -612,6 +642,74 @@ class AiDisclosureService
             Log::warning('[ahg-research] ai-disclosure log delete failed: '.$e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * #1252 Record a researcher's Accept/Reject of an AI-produced row.
+     *
+     * Maps a slice key to its table via the hardcoded DECISION_TABLES allowlist
+     * (never a dynamic table name from input), validates the decision, and stamps
+     * ai_decision / ai_decided_at / ai_decided_by on the matching row. Only rows
+     * that are actually AI-produced (ai_decision currently set, i.e. not NULL) are
+     * eligible, so a manual row can never be flipped into an AI disclosure.
+     *
+     * @param string $slice    One of the DECISION_TABLES keys.
+     * @param int    $id        Primary-key id of the row in that table.
+     * @param string $decision 'accepted' or 'rejected'.
+     * @param int    $userId    The acting user's id.
+     */
+    public function recordAiDecision(string $slice, int $id, string $decision, int $userId): bool
+    {
+        if (! isset(self::DECISION_TABLES[$slice])) {
+            return false;
+        }
+        if (! in_array($decision, ['accepted', 'rejected'], true)) {
+            return false;
+        }
+
+        $table = self::DECISION_TABLES[$slice];
+
+        try {
+            if (! Schema::hasTable($table)
+                || ! Schema::hasColumn($table, 'ai_decision')) {
+                return false;
+            }
+
+            $affected = DB::table($table)
+                ->where('id', $id)
+                ->whereNotNull('ai_decision') // only AI-produced rows are decidable
+                ->update([
+                    'ai_decision'   => $decision,
+                    'ai_decided_at' => now(),
+                    'ai_decided_by' => $userId,
+                ]);
+
+            return $affected > 0;
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-research] ai-decision update failed: '.$e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Build the SELECT column list for a per-row detector, adding `ai_decision`
+     * only when the table actually has the #1252 column (back-compat: a DB that
+     * has ai_at but not yet ai_decision still works, decision comes back null).
+     *
+     * @param string  $table  The table to probe.
+     * @param ?string $alias  Optional query alias prefix (e.g. 'v' for joins).
+     * @return array<int,string>
+     */
+    private function decisionCols(string $table, ?string $alias = null): array
+    {
+        try {
+            if (Schema::hasColumn($table, 'ai_decision')) {
+                return [($alias !== null ? $alias.'.' : '').'ai_decision'];
+            }
+        } catch (\Throwable $e) {
+            // table missing / DB not ready - omit the column.
+        }
+        return [];
     }
 
     /**

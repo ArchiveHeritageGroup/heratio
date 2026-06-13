@@ -29,6 +29,12 @@
 @endif
 <p class="small text-muted">{{ __('Saved') }}: {{ $version->created_at ? \Illuminate\Support\Carbon::parse($version->created_at)->format('Y-m-d H:i') : '' }}</p>
 
+@if(!empty($version->ai_at))
+    <div class="mb-3">
+        @include('research::research._ai-decision', ['slice' => 'writing', 'id' => $version->id, 'decision' => $version->ai_decision ?? null])
+    </div>
+@endif
+
 <div class="card">
     <div class="card-body">
         @php $snap = (string) ($version->snapshot ?? ''); @endphp

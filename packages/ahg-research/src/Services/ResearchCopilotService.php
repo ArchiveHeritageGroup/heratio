@@ -101,8 +101,9 @@ class ResearchCopilotService
         try {
             if (\Illuminate\Support\Facades\Schema::hasColumn('research_copilot_answer', 'ai_at')) {
                 $row['project_id'] = ($projectId !== null && $projectId > 0) ? $projectId : null;
-                $row['ai_model']   = $this->resolveAiModel();
-                $row['ai_at']      = now();
+                $row['ai_model']    = $this->resolveAiModel();
+                $row['ai_at']       = now();
+                $row['ai_decision'] = 'pending'; // #1252 awaits accept/reject
             }
         } catch (\Throwable $e) {
             // columns not present yet - save without the marker.

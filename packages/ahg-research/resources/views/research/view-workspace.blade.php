@@ -101,6 +101,11 @@
                             {{ date('M j, Y H:i', strtotime($ans->created_at)) }}
                         @endif
                     </small>
+                    @if(!empty($ans->ai_at))
+                        <div class="mt-2">
+                            @include('research::research._ai-decision', ['slice' => 'copilot', 'id' => $ans->id, 'decision' => $ans->ai_decision ?? null])
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>

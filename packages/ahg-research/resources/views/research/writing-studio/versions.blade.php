@@ -58,7 +58,14 @@
                 @foreach($versionList as $v)
                     <tr>
                         <td class="text-center"><span class="badge bg-primary">v{{ $v->version_no }}</span></td>
-                        <td>{{ e($v->note ?? '') ?: '—' }}</td>
+                        <td>
+                            {{ e($v->note ?? '') ?: '-' }}
+                            @if(!empty($v->ai_at))
+                                <div class="mt-1">
+                                    @include('research::research._ai-decision', ['slice' => 'writing', 'id' => $v->id, 'decision' => $v->ai_decision ?? null])
+                                </div>
+                            @endif
+                        </td>
                         <td class="small text-muted">{{ $v->created_at ? \Illuminate\Support\Carbon::parse($v->created_at)->format('Y-m-d H:i') : '' }}</td>
                         <td class="text-end">
                             <a href="{{ route('research.writing.versions.show', [$project->id, $doc->id, $v->id]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye me-1"></i>{{ __('View') }}</a>

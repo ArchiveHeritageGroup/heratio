@@ -25,6 +25,11 @@
             @if(!empty($template['funder']))<span class="text-muted small ms-1">{{ e($template['funder']) }}</span>@endif
         @endif
         <span class="badge bg-secondary ms-1">{{ e(ucfirst(str_replace('_',' ', $draft['status'] ?? 'draft'))) }}</span>
+        @if(!empty($draft['ai_at']))
+            <div class="mt-2">
+                @include('research::research._ai-decision', ['slice' => 'grant', 'id' => $draft['id'], 'decision' => $draft['ai_decision'] ?? null])
+            </div>
+        @endif
     </div>
     <div class="d-flex gap-2">
         <a href="{{ route('research.grant.edit', [$project->id ?? 0, $draft['id']]) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-pen me-1"></i>{{ __('Edit') }}</a>

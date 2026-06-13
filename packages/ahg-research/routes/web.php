@@ -3,6 +3,7 @@
 use AhgResearch\Controllers\ResearchController;
 use AhgResearch\Controllers\ResearchReproductionsController;
 use AhgResearch\Controllers\ResearchCopilotController;
+use AhgResearch\Controllers\ResearchAiDecisionController;
 use AhgResearch\Controllers\AuditController;
 use AhgResearch\Controllers\ResearchJournalController;
 use AhgResearch\Controllers\ResearchLectureController;
@@ -41,6 +42,10 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::post('/copilot/ask', [ResearchCopilotController::class, 'askAjax'])->name('copilot.ask');
     Route::post('/copilot/save', [ResearchCopilotController::class, 'saveAjax'])->name('copilot.save');
     Route::get('/copilot/answers', [ResearchCopilotController::class, 'answersAjax'])->name('copilot.answers');
+
+    // heratio#1252 - Accept/Reject an AI suggestion. Thin JSON endpoint posted to
+    // by the <x-research::ai-decision> component. Full name: research.ai.decision.
+    Route::post('/ai/decision', [ResearchAiDecisionController::class, 'decision'])->name('ai.decision');
 
     // AJAX autocomplete endpoints (JSON)
     Route::get('/researcher-autocomplete', [ResearchController::class, 'researcherAutocomplete'])->name('researcherAutocomplete');

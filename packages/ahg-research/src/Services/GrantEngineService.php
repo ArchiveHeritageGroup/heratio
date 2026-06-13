@@ -210,6 +210,10 @@ class GrantEngineService
                 'created_by'      => $row->created_by !== null ? (int) $row->created_by : null,
                 'created_at'      => (string) ($row->created_at ?? ''),
                 'updated_at'      => (string) ($row->updated_at ?? ''),
+                // #1252 - AI disclosure so the draft view can show the Accept/Reject control.
+                'ai_model'        => $row->ai_model ?? null,
+                'ai_at'           => $row->ai_at ?? null,
+                'ai_decision'     => $row->ai_decision ?? null,
             ];
         } catch (\Throwable $e) {
             return null;
@@ -715,9 +719,10 @@ class GrantEngineService
                 ->where('id', $draftId)
                 ->where('project_id', $projectId)
                 ->update([
-                    'ai_model'   => $this->resolveAiModel(),
-                    'ai_at'      => now(),
-                    'updated_at' => now(),
+                    'ai_model'    => $this->resolveAiModel(),
+                    'ai_at'       => now(),
+                    'ai_decision' => 'pending', // #1252 awaits accept/reject
+                    'updated_at'  => now(),
                 ]);
         } catch (\Throwable $e) {
             // best-effort disclosure marker only.

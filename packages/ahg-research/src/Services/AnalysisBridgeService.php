@@ -574,9 +574,10 @@ class AnalysisBridgeService
             DB::table('research_analysis_result')
                 ->where('id', $resultId)
                 ->update([
-                    'ai_model'   => $this->resolveAiModel($llm),
-                    'ai_at'      => now(),
-                    'updated_at' => now(),
+                    'ai_model'    => $this->resolveAiModel($llm),
+                    'ai_at'       => now(),
+                    'ai_decision' => 'pending', // #1252 awaits accept/reject
+                    'updated_at'  => now(),
                 ]);
         } catch (\Throwable $e) {
             // best-effort disclosure marker only.

@@ -147,6 +147,31 @@ class AhgResearchServiceProvider extends ServiceProvider
                 ['research_copilot_answer', 'project_id', "ADD COLUMN `project_id` INT NULL"],
                 ['research_copilot_answer', 'ai_model', "ADD COLUMN `ai_model` VARCHAR(120) NULL"],
                 ['research_copilot_answer', 'ai_at',    "ADD COLUMN `ai_at` DATETIME NULL"],
+                // #1252 Accept/Reject of AI suggestions. ai_decision values:
+                // pending | accepted | rejected. NULL = not an AI row. Same seven
+                // tables as the ai_model/ai_at markers above. ai_decided_by is the
+                // user id that accepted/rejected; ai_decided_at the moment they did.
+                ['research_writing_version', 'ai_decision',    "ADD COLUMN `ai_decision` VARCHAR(12) NULL"],
+                ['research_writing_version', 'ai_decided_at',  "ADD COLUMN `ai_decided_at` DATETIME NULL"],
+                ['research_writing_version', 'ai_decided_by',  "ADD COLUMN `ai_decided_by` INT NULL"],
+                ['research_question_brief', 'ai_decision',    "ADD COLUMN `ai_decision` VARCHAR(12) NULL"],
+                ['research_question_brief', 'ai_decided_at',  "ADD COLUMN `ai_decided_at` DATETIME NULL"],
+                ['research_question_brief', 'ai_decided_by',  "ADD COLUMN `ai_decided_by` INT NULL"],
+                ['research_analysis_result', 'ai_decision',    "ADD COLUMN `ai_decision` VARCHAR(12) NULL"],
+                ['research_analysis_result', 'ai_decided_at',  "ADD COLUMN `ai_decided_at` DATETIME NULL"],
+                ['research_analysis_result', 'ai_decided_by',  "ADD COLUMN `ai_decided_by` INT NULL"],
+                ['research_grant_draft', 'ai_decision',    "ADD COLUMN `ai_decision` VARCHAR(12) NULL"],
+                ['research_grant_draft', 'ai_decided_at',  "ADD COLUMN `ai_decided_at` DATETIME NULL"],
+                ['research_grant_draft', 'ai_decided_by',  "ADD COLUMN `ai_decided_by` INT NULL"],
+                ['research_argument', 'ai_decision',    "ADD COLUMN `ai_decision` VARCHAR(12) NULL"],
+                ['research_argument', 'ai_decided_at',  "ADD COLUMN `ai_decided_at` DATETIME NULL"],
+                ['research_argument', 'ai_decided_by',  "ADD COLUMN `ai_decided_by` INT NULL"],
+                ['research_submission', 'ai_decision',    "ADD COLUMN `ai_decision` VARCHAR(12) NULL"],
+                ['research_submission', 'ai_decided_at',  "ADD COLUMN `ai_decided_at` DATETIME NULL"],
+                ['research_submission', 'ai_decided_by',  "ADD COLUMN `ai_decided_by` INT NULL"],
+                ['research_copilot_answer', 'ai_decision',    "ADD COLUMN `ai_decision` VARCHAR(12) NULL"],
+                ['research_copilot_answer', 'ai_decided_at',  "ADD COLUMN `ai_decided_at` DATETIME NULL"],
+                ['research_copilot_answer', 'ai_decided_by',  "ADD COLUMN `ai_decided_by` INT NULL"],
             ];
             foreach ($aiMarkers as [$table, $column, $definition]) {
                 try {
@@ -247,5 +272,14 @@ class AhgResearchServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\Route::group([], __DIR__ . '/../../routes/' . $rosRoute . '.php');
         }
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'research');
+
+        // #1252 Register the `research` anonymous-component namespace so the
+        // Accept/Reject control renders as <x-research::ai-decision .../> from any
+        // view. loadViewsFrom auto-registers this in recent Laravel, but we make
+        // it explicit so the component invocation is unambiguous regardless of
+        // version. Maps <x-research::foo> -> research::components.foo.
+        \Illuminate\Support\Facades\Blade::anonymousComponentNamespace(
+            'components', 'research'
+        );
     }
 }

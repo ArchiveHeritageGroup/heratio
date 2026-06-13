@@ -383,12 +383,13 @@ class QuestionBuilderService
                     'updated_at'      => $now,
                     'ai_model'        => $model,
                     'ai_at'           => $now,
+                    'ai_decision'     => 'pending', // #1252 awaits accept/reject
                 ]);
                 return;
             }
             DB::table('research_question_brief')
                 ->where('id', (int) $brief->id)
-                ->update(['ai_model' => $model, 'ai_at' => $now, 'updated_at' => $now]);
+                ->update(['ai_model' => $model, 'ai_at' => $now, 'ai_decision' => 'pending', 'updated_at' => $now]);
         } catch (\Throwable $e) {
             // best-effort disclosure marker only.
         }

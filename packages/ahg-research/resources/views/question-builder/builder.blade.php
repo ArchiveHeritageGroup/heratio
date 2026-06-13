@@ -50,6 +50,12 @@
     </a>
 </div>
 
+@if(!empty($brief) && !empty($brief->ai_at))
+    <div class="mb-3">
+        @include('research::research._ai-decision', ['slice' => 'question', 'id' => $brief->id, 'decision' => $brief->ai_decision ?? null])
+    </div>
+@endif
+
 <div class="row">
     {{-- ============================ FORM ============================= --}}
     <div class="col-lg-7">

@@ -85,6 +85,13 @@
 
             <dt class="col-sm-3">{{ __('Registered') }}</dt>
             <dd class="col-sm-9 text-muted">{{ $result->created_at ? \Illuminate\Support\Carbon::parse($result->created_at)->format('Y-m-d H:i') : '-' }}</dd>
+
+            @if(!empty($result->ai_at))
+                <dt class="col-sm-3">{{ __('AI decision') }}</dt>
+                <dd class="col-sm-9">
+                    @include('research::research._ai-decision', ['slice' => 'analysis', 'id' => $result->id, 'decision' => $result->ai_decision ?? null])
+                </dd>
+            @endif
         </dl>
     </div>
 </div>
