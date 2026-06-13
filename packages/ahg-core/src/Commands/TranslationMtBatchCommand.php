@@ -90,7 +90,7 @@ class TranslationMtBatchCommand extends Command
 
         // MT endpoint
         $endpoint = DB::table('ahg_translation_settings')->where('setting_key', 'mt.endpoint')->value('setting_value')
-            ?? 'http://127.0.0.1:5004/ai/v1/translate';
+            ?? 'https://ai.theahg.co.za/ai/v1/translate';
         $timeout = (int) (DB::table('ahg_translation_settings')->where('setting_key', 'mt.timeout_seconds')->value('setting_value') ?? 30);
 
         $this->info("MT endpoint: {$endpoint}  (timeout={$timeout}s)");

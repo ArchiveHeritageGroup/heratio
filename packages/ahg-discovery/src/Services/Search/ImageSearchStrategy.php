@@ -15,7 +15,7 @@
  *   ahg_discovery_image_min_score     (float 0..1, default 0.30)
  *   ahg_discovery_image_pool_size     (int, default 50)
  *   ahg_discovery_image_collection    (default archive_images)
- *   ahg_discovery_image_embed_url     (default http://192.168.0.78:11434)
+ *   ahg_discovery_image_embed_url     (default https://ai.theahg.co.za/ai/v1, the AHG AI gateway base; #1248)
  *   ahg_discovery_image_embed_model   (default clip-vit-b-32)
  *   semantic_timeout_ms               (default 5000)
  *
@@ -31,6 +31,7 @@
 
 namespace AhgDiscovery\Services\Search;
 
+use AhgAiServices\Support\AiServicesSettings;
 use AhgSearch\Services\VectorSearchService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -157,9 +158,19 @@ class ImageSearchStrategy implements SearchStrategyInterface
      */
     protected function embedImage(string $imagePath): ?array
     {
-        $url = rtrim((string) $this->setting('ahg_discovery_image_embed_url', 'http://192.168.0.78:11434'), '/');
+        // Route through the AHG AI gateway (#1248). The gateway proxies Ollama
+        // transparently at /ollama/{path}, so the legacy /api/embeddings path
+        // and the request/response shape stay unchanged - only host+path+auth
+        // differ. Default is the gateway base; an explicit ahg_settings
+        // 'ahg_discovery_image_embed_url' override is still honoured.
+        $base = rtrim((string) $this->setting(
+            'ahg_discovery_image_embed_url',
+            (AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1')
+        ), '/');
+        $url = $base.'/ollama/api/embeddings';
         $model = (string) $this->setting('ahg_discovery_image_embed_model', 'clip-vit-b-32');
         $timeout = (int) $this->setting('semantic_timeout_ms', '5000');
+        $key = $this->resolveApiKey();
 
         $bytes = @file_get_contents($imagePath);
         if ($bytes === false) {
@@ -171,11 +182,16 @@ class ImageSearchStrategy implements SearchStrategyInterface
             'images' => [base64_encode($bytes)],
         ]);
 
-        $ch = curl_init($url.'/api/embeddings');
+        $headers = ['Content-Type: application/json', 'Accept: application/json'];
+        if (! empty($key)) {
+            $headers[] = 'Authorization: Bearer '.$key;
+        }
+
+        $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json'],
+            CURLOPT_HTTPHEADER => $headers,
             CURLOPT_TIMEOUT_MS => max(1000, $timeout * 4),
             CURLOPT_CONNECTTIMEOUT_MS => max(500, min(2000, $timeout)),
             CURLOPT_CUSTOMREQUEST => 'POST',
@@ -194,6 +210,37 @@ class ImageSearchStrategy implements SearchStrategyInterface
         }
 
         return array_map('floatval', $decoded['embedding']);
+    }
+
+    /**
+     * Resolve the gateway API key the same way NER/HTR/QdrantRetriever do (#1248).
+     *
+     * ahg_ner_settings.api_key holds the working ahg_live_* key; fall back to
+     * ahg_ai_settings feature='general' 'api_key', then the AiServicesSettings
+     * accessor.
+     */
+    protected function resolveApiKey(): ?string
+    {
+        try {
+            $key = DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+
+            $key = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+        } catch (Throwable $e) {
+            // settings tables absent - fall through.
+        }
+
+        return AiServicesSettings::apiKey();
     }
 
     protected function setting(string $key, ?string $default = null): ?string

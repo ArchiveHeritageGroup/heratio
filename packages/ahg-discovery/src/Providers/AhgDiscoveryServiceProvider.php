@@ -73,7 +73,9 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
                 'ahg_discovery_image_min_score' => '0.30',
                 'ahg_discovery_image_pool_size' => '50',
                 'ahg_discovery_image_collection' => 'archive_images',
-                'ahg_discovery_image_embed_url' => 'http://192.168.0.78:11434',
+                // Route image embeds through the AHG AI gateway (#1248), never a
+                // direct :11434 node. The gateway proxies Ollama at /ollama/{path}.
+                'ahg_discovery_image_embed_url' => 'https://ai.theahg.co.za/ai/v1',
                 'ahg_discovery_image_embed_model' => 'clip-vit-b-32',
                 // Logging — always on; turn off via this flag if too chatty
                 'ahg_discovery_log_queries' => '1',

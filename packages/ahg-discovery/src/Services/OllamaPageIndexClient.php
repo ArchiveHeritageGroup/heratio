@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AhgDiscovery\Services;
 
+use AhgAiServices\Support\AiServicesSettings;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -13,14 +14,18 @@ use Illuminate\Support\Facades\DB;
  *   1. Tree construction — analyse document structure, return JSON tree
  *   2. Retrieval reasoning — given tree + query, return ranked node_ids
  *
- * Uses Ollama chat endpoint at http://192.168.0.112:11434/api/chat
- * Model: llama3.1:8b (configurable)
+ * Routes through the AHG AI gateway (ai.theahg.co.za/ai/v1) which proxies
+ * Ollama transparently at /ollama/{path} (#1248). The Ollama chat/generate
+ * request and response shapes are unchanged — only host+path+auth differ.
+ * Model: qwen3:8b (configurable per-install via ahg_settings group='pageindex').
  *
  * @author The Archive and Heritage Group
  */
 class OllamaPageIndexClient
 {
     private string $endpoint;
+
+    private ?string $apiKey;
 
     private string $model;
 
@@ -32,7 +37,11 @@ class OllamaPageIndexClient
 
     public function __construct(array $config = [])
     {
-        $this->endpoint = rtrim($config['endpoint'] ?? 'http://192.168.0.112:11434', '/');
+        // Default to the AHG AI gateway base (#1248); never a direct :11434 node.
+        // An explicit per-install 'endpoint' override in ahg_settings is honoured.
+        $base = $config['endpoint'] ?? (AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1');
+        $this->endpoint = rtrim($base, '/');
+        $this->apiKey = $config['api_key'] ?? self::resolveApiKey();
         // Default switched from llama3.1:8b (not pulled locally as of 2026-04-28)
         // to qwen3:8b which is on disk; configurable per-install via ahg_settings
         // setting_group='pageindex'. Issue #12.
@@ -62,6 +71,37 @@ class OllamaPageIndexClient
         }
 
         return new self($config);
+    }
+
+    /**
+     * Resolve the gateway API key the same way NER/HTR/QdrantRetriever do (#1248).
+     *
+     * Reads ahg_ner_settings.api_key first (the working ahg_live_* key the rest
+     * of the AI services authenticate with), then ahg_ai_settings feature='general'
+     * 'api_key', then falls back to the AiServicesSettings accessor.
+     */
+    private static function resolveApiKey(): ?string
+    {
+        try {
+            $key = DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+
+            $key = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+        } catch (\Throwable $e) {
+            // settings tables absent during boot - fall through.
+        }
+
+        return AiServicesSettings::apiKey();
     }
 
     // =========================================================================
@@ -411,14 +451,22 @@ PROMPT;
     private function request(string $method, string $endpoint, ?array $data = null, ?int $timeout = null): ?array
     {
         $ch = curl_init();
-        $url = $this->endpoint.$endpoint;
+        // The gateway proxies Ollama transparently at /ollama/{path} (#1248).
+        // Ollama API paths (/api/chat, /api/generate, /api/tags) are remapped
+        // to {base}/ollama/api/... so request/response shapes stay unchanged.
+        $url = $this->endpoint.'/ollama'.$endpoint;
+
+        $headers = ['Content-Type: application/json'];
+        if (! empty($this->apiKey)) {
+            $headers[] = 'Authorization: Bearer '.$this->apiKey;
+        }
 
         $options = [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => $timeout ?? $this->timeout,
             CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_HTTPHEADER => $headers,
         ];
 
         if ($method === 'POST' && $data !== null) {

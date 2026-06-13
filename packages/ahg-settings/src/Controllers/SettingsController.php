@@ -2683,7 +2683,7 @@ class SettingsController extends Controller
             'translation_enabled' => '1',
             'processing_mode' => 'job',
             'summary_field' => 'scopeAndContent',
-            'api_url' => 'http://192.168.0.112:5004/ai/v1',
+            'api_url' => 'https://ai.theahg.co.za/ai/v1',
             'api_key' => '<set in ahg_settings>',
             'api_timeout' => '60',
             'auto_extract_on_upload' => '0',
@@ -2692,7 +2692,7 @@ class SettingsController extends Controller
             'summarizer_min_length' => '100',
             'spellcheck_language' => 'en_ZA',
             'spellcheck_fields' => '["title","scopeAndContent"]',
-            'mt_endpoint' => 'http://127.0.0.1:5100/translate',
+            'mt_endpoint' => 'https://ai.theahg.co.za/ai/v1/translate',
             'mt_timeout' => '30',
             'translation_source_lang' => 'en',
             'translation_target_lang' => 'af',
@@ -2926,7 +2926,7 @@ class SettingsController extends Controller
                 try {
                     DB::table('ahg_translation_settings')->updateOrInsert(
                         ['setting_key' => 'mt.endpoint'],
-                        ['setting_value' => $request->input('mt_endpoint', 'http://127.0.0.1:5100/translate')]
+                        ['setting_value' => $request->input('mt_endpoint', 'https://ai.theahg.co.za/ai/v1/translate')]
                     );
                     DB::table('ahg_translation_settings')->updateOrInsert(
                         ['setting_key' => 'mt.timeout_seconds'],

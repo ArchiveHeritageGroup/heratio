@@ -25,6 +25,7 @@
 
 namespace AhgCore\Services;
 
+use AhgAiServices\Support\AiServicesSettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -165,19 +166,15 @@ class VoiceLLMService
         $model = (string) ($settings['voice_local_llm_model'] ?? 'llava:7b');
         $timeout = (int) ($settings['voice_local_llm_timeout'] ?? 30);
 
-        // GPU pool: ask AhgGpuPoolService for a current endpoint that
-        // supports this model + has enough vRAM. Falls back to the
-        // legacy voice_local_llm_url setting when the pool returns
-        // null (empty pool / all-down / no host meets vRAM floor) so
-        // operators on pre-pool installs see no behaviour change. This
-        // is the swap mechanism: ops add a row for the new GPU
-        // (.115/24GB next week), bump its priority, the next call
-        // routes there - zero code changes.
-        $minVram = $this->vramFloorForModel($model);
-        $pooled = \AhgCore\Services\AhgGpuPoolService::pickEndpoint($model, $minVram);
-        $url = $pooled !== null
-            ? $pooled
-            : rtrim((string) ($settings['voice_local_llm_url'] ?? 'http://localhost:11434'), '/');
+        // Route the inference dispatch through the AHG AI gateway (#1249),
+        // never a raw node port. The gateway exposes Ollama transparently at
+        // {base}/ollama/{path} (identical request/response shapes) and already
+        // does DB-driven node selection + failover, so we no longer pick the
+        // host ourselves. AhgGpuPoolService / vramFloorForModel are kept for
+        // diagnostics and operator tooling; they no longer choose the POST URL.
+        $base = rtrim(AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1', '/');
+        $url = $base . '/ollama';
+        $key = $this->resolveGatewayKey();
 
         $body = [
             'model' => $model,
@@ -192,9 +189,12 @@ class VoiceLLMService
         }
 
         try {
-            $response = Http::timeout($timeout)
-                ->connectTimeout(min(5, $timeout))
-                ->post($url.'/api/generate', $body);
+            $request = Http::timeout($timeout)
+                ->connectTimeout(min(5, $timeout));
+            if (! empty($key)) {
+                $request = $request->withToken($key);
+            }
+            $response = $request->post($url.'/api/generate', $body);
             $status = $response->status();
             $json = $response->json();
             if (! $response->successful()) {
@@ -425,6 +425,39 @@ class VoiceLLMService
     }
 
     // ─── helpers ───────────────────────────────────────────────────
+
+    /**
+     * Resolve the gateway API key the same way NER/HTR/chatbot do (#1249).
+     *
+     * AiServicesSettings::apiKey() reads ahg_ner_settings.ai_services_api_key,
+     * which is empty on this deployment - the working ahg_live_* key the rest
+     * of the AI services authenticate with lives under setting_key 'api_key'
+     * (ahg_ner_settings, then ahg_ai_settings feature='general'). Mirror that
+     * lookup, then fall back to the AiServicesSettings accessor.
+     */
+    private function resolveGatewayKey(): ?string
+    {
+        try {
+            $key = DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+
+            $key = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+        } catch (\Throwable $e) {
+            // settings tables absent during boot - fall through.
+        }
+
+        return AiServicesSettings::apiKey();
+    }
 
     private function loadSettings(): array
     {
