@@ -7,6 +7,7 @@ use AhgResearch\Controllers\ResearchJournalController;
 use AhgResearch\Controllers\ResearchLectureController;
 use AhgResearch\Controllers\ResearchTargetJournalController;
 use AhgResearch\Controllers\ResearchTrainingController;
+use AhgResearch\Controllers\ResearchWorkspaceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -144,6 +145,9 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
     // Workspace (personal)
     Route::match(['get', 'post'], '/workspace', [ResearchController::class, 'workspace'])->name('workspace');
+    // Persist the self-declared research mode (beginning/intermediate/advanced)
+    // chosen from the sidebar selector. JSON endpoint, hit via fetch().
+    Route::post('/experience-level', [ResearchWorkspaceController::class, 'saveExperienceLevel'])->name('saveExperienceLevel');
     Route::get('/viewWorkspace', function (\Illuminate\Http\Request $r) {
         $id = $r->input('id') ?: $r->getQueryString();
         return redirect('/research/workspaces/' . (int) $id, 301);

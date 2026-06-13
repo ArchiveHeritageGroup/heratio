@@ -163,7 +163,7 @@ class ResearchWorkspaceController extends Controller
     {
         if (!Auth::check()) return response()->json(['error' => 'unauthenticated'], 401);
         $level = $request->input('level');
-        if (!in_array($level, ['beginner', 'intermediate', 'advanced'])) {
+        if (!in_array($level, ['beginning', 'intermediate', 'advanced'], true)) {
             return response()->json(['error' => 'invalid_level'], 400);
         }
 

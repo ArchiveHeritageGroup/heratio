@@ -214,6 +214,18 @@
           <label for="current_project" class="form-label">Current Project <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea name="current_project" id="current_project" class="form-control" rows="4">{{ old('current_project', $researcher->current_project ?? '') }}</textarea>
         </div>
+        <div class="mb-3">
+          @php $expLevel = old('experience_level', $researcher->experience_level ?? 'intermediate'); @endphp
+          <label for="experience_level" class="form-label">{{ __('Research mode') }}
+            <a href="{{ route('research.projects') }}#research-modes" class="text-decoration-none ms-1" title="{{ __('What do these modes mean?') }}"><i class="fas fa-circle-question"></i></a>
+          </label>
+          <select name="experience_level" id="experience_level" class="form-select">
+            <option value="beginning" {{ $expLevel === 'beginning' ? 'selected' : '' }}>{{ __('Beginning') }}</option>
+            <option value="intermediate" {{ $expLevel === 'intermediate' ? 'selected' : '' }}>{{ __('Intermediate') }}</option>
+            <option value="advanced" {{ $expLevel === 'advanced' ? 'selected' : '' }}>{{ __('Advanced') }}</option>
+          </select>
+          <small class="text-muted">{{ __('Sets the suggested workflow shown in your sidebar. You can change this any time.') }}</small>
+        </div>
       </div>
     </div>
 

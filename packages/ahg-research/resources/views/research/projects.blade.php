@@ -20,6 +20,9 @@
     </button>
   </div>
 
+  {{-- Research mode guide (inline wizard-style overview) --}}
+  @include('research::research.levels_guide')
+
   {{-- Status Filter --}}
   <div class="btn-group mb-3" role="group">
     <a href="{{ route('research.projects', ['status' => 'all']) }}" class="btn atom-btn-white {{ ($status ?? 'all') === 'all' ? 'active' : '' }}">All</a>
@@ -124,7 +127,5 @@
       </div>
     </div>
   </div>
-
-@include('research::research.levels_guide')
 
 @endsection

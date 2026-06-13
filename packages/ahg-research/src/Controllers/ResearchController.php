@@ -67,6 +67,7 @@ class ResearchController extends Controller
     protected function getSidebarData(string $active): array
     {
         $unreadNotifications = 0;
+        $experienceLevel = 'intermediate';
         if (Auth::check()) {
             $researcher = $this->service->getResearcherByUserId(Auth::id());
             if ($researcher) {
@@ -78,11 +79,15 @@ class ResearchController extends Controller
                 } catch (\Exception $e) {
                     // Table may not exist yet
                 }
+                if (!empty($researcher->experience_level)) {
+                    $experienceLevel = $researcher->experience_level;
+                }
             }
         }
         return [
             'sidebarActive' => $active,
             'unreadNotifications' => $unreadNotifications,
+            'experienceLevel' => $experienceLevel,
         ];
     }
 
@@ -388,6 +393,14 @@ class ResearchController extends Controller
                 'orcid_id' => $request->input('orcid_id'),
                 'student_id' => $request->input('student_id'),
             ];
+
+            // Self-declared research mode (drives the sidebar + guide). Only
+            // accept the three canonical values; anything else is ignored so a
+            // tampered POST cannot write a junk level.
+            $level = $request->input('experience_level');
+            if (in_array($level, ['beginning', 'intermediate', 'advanced'], true)) {
+                $data['experience_level'] = $level;
+            }
 
             // Admins can always edit ID fields. Researchers may set each ID
             // field once while it is still empty; once populated it is locked

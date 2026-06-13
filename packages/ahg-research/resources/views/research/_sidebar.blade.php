@@ -1,5 +1,20 @@
 {{-- Research Plugin Sidebar Navigation - Migrated from AtoM: _researchSidebar.php --}}
-@php $active = $sidebarActive ?? ''; $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id()); @endphp
+@php $active = $sidebarActive ?? ''; $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id()); $expLevel = $experienceLevel ?? 'intermediate'; @endphp
+
+<div class="list-group mb-4">
+    <span class="list-group-item bg-light fw-bold text-uppercase small d-flex justify-content-between align-items-center">
+        <span>{{ __('Research mode') }}</span>
+        <a href="{{ route('research.projects') }}#research-modes" title="{{ __('What do these modes mean?') }}" class="text-decoration-none"><i class="fas fa-circle-question"></i></a>
+    </span>
+    <div class="list-group-item">
+        <select id="research-experience-level" class="form-select form-select-sm" data-url="{{ route('research.saveExperienceLevel') }}" aria-label="{{ __('Research mode') }}">
+            <option value="beginning" {{ $expLevel === 'beginning' ? 'selected' : '' }}>{{ __('Beginning') }}</option>
+            <option value="intermediate" {{ $expLevel === 'intermediate' ? 'selected' : '' }}>{{ __('Intermediate') }}</option>
+            <option value="advanced" {{ $expLevel === 'advanced' ? 'selected' : '' }}>{{ __('Advanced') }}</option>
+        </select>
+        <small id="research-experience-level-status" class="text-muted d-block mt-1" aria-live="polite"></small>
+    </div>
+</div>
 
 <div class="list-group mb-4">
     <span class="list-group-item bg-light fw-bold text-uppercase small">{{ __('My Research Journey') }}</span>
@@ -183,3 +198,27 @@
     </a>
 </div>
 @endif
+
+@once
+<script>
+(function () {
+    var sel = document.getElementById('research-experience-level');
+    if (!sel || sel.dataset.bound) return;
+    sel.dataset.bound = '1';
+    var status = document.getElementById('research-experience-level-status');
+    function note(msg) { if (status) { status.textContent = msg; if (msg) setTimeout(function () { status.textContent = ''; }, 2000); } }
+    sel.addEventListener('change', function () {
+        var meta = document.querySelector('meta[name="csrf-token"]');
+        var token = meta ? meta.getAttribute('content') : '{{ csrf_token() }}';
+        note('{{ __('Saving...') }}');
+        fetch(sel.dataset.url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify({ level: sel.value })
+        }).then(function (r) { return r.json(); }).then(function (d) {
+            note(d && d.ok ? '{{ __('Saved') }}' : '{{ __('Could not save') }}');
+        }).catch(function () { note('{{ __('Could not save') }}'); });
+    });
+})();
+</script>
+@endonce

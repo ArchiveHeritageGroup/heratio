@@ -95,3 +95,6 @@ docs/READVERTISEMENT*.pdf
 /public/pointclouds
 /public/vendor/potree
 /public/splats
+
+# Scratch / working files (patches, debug scripts, audit dumps)
+tmp/

@@ -12,7 +12,7 @@ This article explains the three research modes available in the Research UI: Beg
 
 ### Beginning
 1. Create a Project with a concise title and abstract.
-2. Import 3–5 references into Bibliography.
+2. Import 3-5 references into Bibliography.
 3. Upload a couple of sources and save them in a Collection.
 4. Capture quick notes in a Notebook entry.
 5. Export your bibliography and start drafting an outline.

@@ -104,6 +104,24 @@ class AhgResearchServiceProvider extends ServiceProvider
             }
         });
 
+        // Self-declared research mode (experience_level) on the researcher row.
+        // research_researcher is this package's own sidecar table, not an AtoM
+        // base table, so adding a column is safe. Added idempotently here
+        // because this package provisions schema at boot, not via artisan
+        // migrate (the matching migration file covers the Docker migrate path).
+        $this->app->booted(function () {
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('research_researcher')
+                    && ! \Illuminate\Support\Facades\Schema::hasColumn('research_researcher', 'experience_level')) {
+                    \Illuminate\Support\Facades\DB::statement(
+                        "ALTER TABLE `research_researcher` ADD COLUMN `experience_level` VARCHAR(20) NOT NULL DEFAULT 'intermediate'"
+                    );
+                }
+            } catch (\Throwable $e) {
+                // DB not ready / column already present - retries next boot.
+            }
+        });
+
         // Research OS (epic #1222) - auto-install per-slice sidecar/new tables.
         // Idempotent; one outer try per reference_ci_schema_hastable. Existing
         // tables are NEVER altered. Extend this map as ROS slices land.
