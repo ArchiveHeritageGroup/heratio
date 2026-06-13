@@ -3528,5 +3528,16 @@
     "— a signed agreement is generated for the buyer on payment": "— a signed agreement is generated for the buyer on payment",
     "— select an artist from your roster to apply markup pricing": "— select an artist from your roster to apply markup pricing",
     "— select —": "— select —",
-    "— template applied to new agreements; existing buyer agreements keep the terms they were issued under": "— template applied to new agreements; existing buyer agreements keep the terms they were issued under"
+    "— template applied to new agreements; existing buyer agreements keep the terms they were issued under": "— template applied to new agreements; existing buyer agreements keep the terms they were issued under",
+    "Research mode": "Research mode",
+    "What do these modes mean?": "What do these modes mean?",
+    "Beginning": "Beginning",
+    "Intermediate": "Intermediate",
+    "Advanced": "Advanced",
+    "Your mode": "Your mode",
+    "Full guide": "Full guide",
+    "Research mode guide": "Research mode guide",
+    "Saving...": "Saving...",
+    "Saved": "Saved",
+    "Could not save": "Could not save"
 }
