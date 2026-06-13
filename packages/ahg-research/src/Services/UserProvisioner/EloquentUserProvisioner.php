@@ -51,7 +51,8 @@ class EloquentUserProvisioner implements UserProvisionerInterface
 
     public function updateUser(int $userId, array $data): bool
     {
-        $data['updated_at'] = date('Y-m-d H:i:s');
+        // NB: the AtoM `user` table has no `updated_at` column (timestamps live
+        // on `object`), so we must not inject one - doing so 1054-errors.
         return DB::table('user')->where('id', $userId)->update($data) > 0;
     }
 
@@ -91,7 +92,6 @@ class EloquentUserProvisioner implements UserProvisionerInterface
         return DB::table('user')->where('id', $userId)->update([
             'password_hash' => $passwordHash,
             'salt' => $salt,
-            'updated_at' => date('Y-m-d H:i:s'),
         ]) > 0;
     }
 }

@@ -10,19 +10,32 @@
 
 set -euo pipefail
 
+cd /usr/share/nginx/heratio
+
 SOURCE_DB="archive"
 TARGET_DB="heratio_test"
+
+# /root/.my.cnf on this host carries a stale password that shadows a plain
+# `mysql -u root`, so read the working credentials from .env and bypass any
+# defaults file. (See the mysql-defaults-file host note.)
+strip_quotes() { sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'\$//"; }
+DB_USER=$(sed -n 's/^DB_USERNAME=//p' .env | head -1 | strip_quotes)
+DB_PASS=$(sed -n 's/^DB_PASSWORD=//p' .env | head -1 | strip_quotes)
+DB_USER="${DB_USER:-root}"
+export MYSQL_PWD="$DB_PASS"
+MYSQL=(mysql --defaults-file=/dev/null -u "$DB_USER")
+MYSQLDUMP=(mysqldump --defaults-file=/dev/null -u "$DB_USER")
 
 echo "Resetting ${TARGET_DB} from ${SOURCE_DB}..."
 
 # Drop and recreate the test database
-mysql -u root -e "DROP DATABASE IF EXISTS ${TARGET_DB}; CREATE DATABASE ${TARGET_DB};"
+"${MYSQL[@]}" -e "DROP DATABASE IF EXISTS ${TARGET_DB}; CREATE DATABASE ${TARGET_DB};"
 
 # Clone schema + data with FK checks disabled
-echo "SET FOREIGN_KEY_CHECKS=0; SET UNIQUE_CHECKS=0;" | cat - <(mysqldump -u root "${SOURCE_DB}") <(echo "SET FOREIGN_KEY_CHECKS=1; SET UNIQUE_CHECKS=1;") | mysql -u root "${TARGET_DB}"
+{ echo "SET FOREIGN_KEY_CHECKS=0; SET UNIQUE_CHECKS=0;"; "${MYSQLDUMP[@]}" "${SOURCE_DB}"; echo "SET FOREIGN_KEY_CHECKS=1; SET UNIQUE_CHECKS=1;"; } | "${MYSQL[@]}" "${TARGET_DB}"
 
-# Run Laravel framework migrations (users, cache, jobs, settings, cron)
-cd /usr/share/nginx/heratio
-php artisan migrate --database=mysql --force --env=testing
+# Run Laravel framework migrations (users, cache, jobs, settings, cron).
+# Run as www-data so the bootstrap log files are not created root-owned.
+sudo -u www-data php artisan migrate --database=mysql --force --env=testing
 
 echo "Done. ${TARGET_DB} is ready for testing."
