@@ -280,12 +280,15 @@ class ResearchController extends Controller
                     ]);
                     $userId = $existingUser->id;
                 } else {
-                    $userId = $this->createAtomUser($username, $email, $password);
+                    // Use the provisioner contract to create users so the research
+                    // package does not write directly to core auth tables.
+                    $provisioner = app(\AhgResearch\Contracts\UserProvisionerInterface::class);
+                    $userId = $provisioner->createUser($username, $email, $password);
                 }
 
-                if (!DB::table('acl_user_group')->where('user_id', $userId)->where('group_id', 99)->exists()) {
-                    DB::table('acl_user_group')->insert(['user_id' => $userId, 'group_id' => 99]);
-                }
+                // Add to the 'researcher' seat (group id 99) using the provisioner
+                $provisioner = app(\AhgResearch\Contracts\UserProvisionerInterface::class);
+                $provisioner->addToGroup($userId, 99);
 
                 $this->service->registerResearcher([
                     'user_id' => $userId,
@@ -500,7 +503,7 @@ class ResearchController extends Controller
         if (!$researcher) abort(404);
 
         $this->service->approveResearcher($id, Auth::id());
-        DB::table('user')->where('id', $researcher->user_id)->update(['active' => 1]);
+        app(\AhgResearch\Contracts\UserProvisionerInterface::class)->updateUser($researcher->user_id, ['active' => 1]);
 
         return redirect()->route('research.viewResearcher', $id)
             ->with('success', 'Researcher approved and account activated');
@@ -568,7 +571,7 @@ class ResearchController extends Controller
         ]);
 
         DB::table('research_researcher')->where('id', $id)->delete();
-        DB::table('user')->where('id', $researcher->user_id)->update(['active' => 0]);
+        app(\AhgResearch\Contracts\UserProvisionerInterface::class)->deactivateUser($researcher->user_id);
 
         return redirect()->route('research.researchers')
             ->with('success', 'Researcher registration rejected and archived');
@@ -3413,7 +3416,7 @@ class ResearchController extends Controller
             'status' => 'suspended',
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
-        DB::table('user')->where('id', $researcher->user_id)->update(['active' => 0]);
+        app(\AhgResearch\Contracts\UserProvisionerInterface::class)->deactivateUser($researcher->user_id);
 
         return redirect()->route('research.viewResearcher', $id)
             ->with('success', 'Researcher suspended');
