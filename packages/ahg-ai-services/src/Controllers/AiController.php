@@ -291,11 +291,23 @@ class AiController extends Controller
                     $payload['provider'] = $mtProvider;
                 }
 
+                // #1250 - when $translationEndpoint is the AHG AI gateway it
+                // authenticates via a Bearer key (X-API-Key alone returns 401).
+                // Prefer the operator-set mt.api_key; else fall back to the
+                // shared gateway key (getAiSetting('general','api_key') resolves
+                // the live ahg_live_* key from ahg_ner_settings.api_key). Keep
+                // X-API-Key for any legacy adapter that reads it.
+                $mtHeaders = [
+                    'Content-Type' => 'application/json',
+                    'X-API-Key'    => $mtApiKey,
+                ];
+                $mtBearer = $mtApiKey !== '' ? $mtApiKey : (string) $this->llmService->getAiSetting('general', 'api_key', '');
+                if ($mtBearer !== '') {
+                    $mtHeaders['Authorization'] = 'Bearer ' . $mtBearer;
+                }
+
                 $response = \Illuminate\Support\Facades\Http::timeout($mtTimeout)
-                    ->withHeaders([
-                        'Content-Type' => 'application/json',
-                        'X-API-Key'    => $mtApiKey,
-                    ])
+                    ->withHeaders($mtHeaders)
                     ->post($translationEndpoint, $payload);
 
                 if ($response->successful()) {
