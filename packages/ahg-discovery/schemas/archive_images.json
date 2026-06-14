@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://heratio.theahg.co.za/schemas/qdrant/archive_images.json",
   "title": "Qdrant payload — archive_images",
-  "description": "CLIP image-embedding index of digital_object thumbnails. One point per image; vector is a 512-dim CLIP ViT-B/32 image embedding. Hosted at http://localhost:6333/collections/archive_images. Issue #23.",
+  "description": "Multimodal image-embedding index of digital_object images. One point per image; vector is a 768-dim nomic-embed-vision-v1.5 image embedding. Hosted at http://localhost:6333/collections/archive_images. Issue #23, repointed to nomic-embed-vision-v1.5 in #1272. Point id = digital_object.id.",
   "type": "object",
   "additionalProperties": false,
   "required": ["database", "object_id", "title", "slug", "mime_type"],
@@ -36,20 +36,26 @@
   },
   "x-collection": {
     "name": "archive_images",
-    "vector_dim": 512,
+    "vector_dim": 768,
     "distance": "Cosine",
-    "embedding_model": "clip-vit-b-32",
+    "embedding_model": "nomic-embed-vision-v1.5",
+    "embed_contract": {
+      "request": "POST {embed_url}/embed/image  body { \"model\": \"nomic-embed-vision-v1.5\", \"image\": \"<base64-bytes>\" }  header Authorization: Bearer <ahg_live key>",
+      "response": "{ \"embedding\": [768 floats] }",
+      "notes": "Routed through the AHG AI gateway (ai.theahg.co.za/ai/v1), never a direct GPU node port. The gateway route (B) and the GPU service (C) honour this exact contract (#1272)."
+    },
     "settings_keys": {
-      "embed_url": "ahg_settings.ahg_discovery_image_embed_url (default http://192.168.0.78:11434)",
-      "embed_model": "ahg_settings.ahg_discovery_image_embed_model (default 'clip-vit-b-32')",
+      "embed_url": "ahg_settings.ahg_discovery_image_embed_url (default https://ai.theahg.co.za/ai/v1, the gateway base)",
+      "embed_model": "ahg_settings.ahg_discovery_image_embed_model (default 'nomic-embed-vision-v1.5')",
       "collection": "ahg_settings.ahg_discovery_image_collection (default 'archive_images')",
       "min_score": "ahg_settings.ahg_discovery_image_min_score (default 0.30)",
       "pool_size": "ahg_settings.ahg_discovery_image_pool_size (default 50)"
     },
+    "indexer": "php artisan ahg:qdrant-image-index [--collection=] [--limit=] [--batch=] [--offset=] [--recreate]",
     "consumers": [
       "AhgDiscovery\\Services\\Search\\ImageSearchStrategy::searchByExistingObject()",
       "AhgDiscovery\\Services\\Search\\ImageSearchStrategy::searchByVector()"
     ],
-    "notes": "Currently 279 points; population is ad-hoc (no scheduled index job). Text-to-image (CLIP-text encoded query) is planned under #26 once 192.168.0.78 returns."
+    "notes": "Repointed from 512-dim clip-vit-b-32 to 768-dim nomic-embed-vision-v1.5 in #1272. Population is via the ahg:qdrant-image-index command; --recreate sets 768/Cosine. Text-to-image query encoding is planned separately."
   }
 }

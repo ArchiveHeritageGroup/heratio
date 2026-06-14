@@ -4,8 +4,8 @@
  * ImageSearchStrategy — image similarity via Qdrant CLIP collection.
  *
  * Two query modes:
- *   1. By uploaded image bytes — the controller hashes + sends to a CLIP embed
- *      endpoint, then calls {@see searchByVector()}.
+ *   1. By uploaded image bytes — the controller sends them to the multimodal
+ *      embed endpoint (nomic-embed-vision-v1.5, #1272), then calls {@see searchByVector()}.
  *   2. By an existing IO with a known representative image — call
  *      {@see searchByExistingObject()} which fetches that point's vector from
  *      Qdrant and finds nearest neighbours.
@@ -15,8 +15,8 @@
  *   ahg_discovery_image_min_score     (float 0..1, default 0.30)
  *   ahg_discovery_image_pool_size     (int, default 50)
  *   ahg_discovery_image_collection    (default archive_images)
- *   ahg_discovery_image_embed_url     (default https://ai.theahg.co.za/ai/v1, the AHG AI gateway base; #1248)
- *   ahg_discovery_image_embed_model   (default clip-vit-b-32)
+ *   ahg_discovery_image_embed_url     (default https://ai.theahg.co.za/ai/v1, the AHG AI gateway base; #1248/#1272)
+ *   ahg_discovery_image_embed_model   (default nomic-embed-vision-v1.5)
  *   semantic_timeout_ms               (default 5000)
  *
  * Graceful when image embed endpoint is offline. Implements
@@ -157,27 +157,28 @@ class ImageSearchStrategy implements SearchStrategyInterface
     }
 
     /**
-     * Call the image-embedding endpoint with raw image bytes.
-     * Expects an Ollama-compatible /api/embeddings endpoint that accepts a base64 image.
+     * Call the multimodal image-embedding endpoint with raw image bytes.
+     *
+     * #1272 embed contract:
+     *   POST {base}/embed/image  { "model": ..., "image": "<base64-bytes>" }
+     *   Authorization: Bearer <ahg_live key>
+     *   -> { "embedding": [768 floats] }
      *
      * @return array<int, float>|null
      */
     protected function embedImage(string $imagePath): ?array
     {
-        // Route through the AHG AI gateway (#1248). The gateway proxies Ollama
-        // transparently at /ollama/{path}, so the legacy /api/embeddings path
-        // and the request/response shape stay unchanged - only host+path+auth
-        // differ. Default is the gateway base; an explicit ahg_settings
-        // 'ahg_discovery_image_embed_url' override is still honoured.
-        // Honour the override only if it is not a raw node URL; a stale node
-        // value is ignored so it can neither bypass the gateway nor break the
-        // /ollama passthrough.
+        // Route through the AHG AI gateway (#1248/#1272). The multimodal embedder
+        // is reached at {base}/embed/image. Default is the gateway base; an
+        // explicit ahg_settings 'ahg_discovery_image_embed_url' override is
+        // honoured only if it is not a raw GPU node URL, so a stale node value
+        // can neither bypass the gateway nor be wired direct to a node port.
         $override = (string) $this->setting('ahg_discovery_image_embed_url', '');
         $base = ($override !== '' && !self::looksLikeNode($override))
             ? rtrim($override, '/')
             : rtrim((AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1'), '/');
-        $url = $base.'/ollama/api/embeddings';
-        $model = (string) $this->setting('ahg_discovery_image_embed_model', 'clip-vit-b-32');
+        $url = $base.'/embed/image';
+        $model = (string) $this->setting('ahg_discovery_image_embed_model', 'nomic-embed-vision-v1.5');
         $timeout = (int) $this->setting('semantic_timeout_ms', '5000');
         $key = $this->resolveApiKey();
 
@@ -187,8 +188,7 @@ class ImageSearchStrategy implements SearchStrategyInterface
         }
         $payload = json_encode([
             'model' => $model,
-            'prompt' => '',
-            'images' => [base64_encode($bytes)],
+            'image' => base64_encode($bytes),
         ]);
 
         $headers = ['Content-Type: application/json', 'Accept: application/json'];

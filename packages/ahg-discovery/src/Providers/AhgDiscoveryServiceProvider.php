@@ -73,10 +73,11 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
                 'ahg_discovery_image_min_score' => '0.30',
                 'ahg_discovery_image_pool_size' => '50',
                 'ahg_discovery_image_collection' => 'archive_images',
-                // Route image embeds through the AHG AI gateway (#1248), never a
-                // direct :11434 node. The gateway proxies Ollama at /ollama/{path}.
+                // Route image embeds through the AHG AI gateway (#1248/#1272),
+                // never a direct :11434 node. The multimodal embedder is reached
+                // at {base}/embed/image per the #1272 contract.
                 'ahg_discovery_image_embed_url' => 'https://ai.theahg.co.za/ai/v1',
-                'ahg_discovery_image_embed_model' => 'clip-vit-b-32',
+                'ahg_discovery_image_embed_model' => 'nomic-embed-vision-v1.5',
                 // Logging — always on; turn off via this flag if too chatty
                 'ahg_discovery_log_queries' => '1',
                 // Retention for ahg_discovery_log; consumed by `php artisan ahg:discovery-prune` (#19)
@@ -93,6 +94,15 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
                 'ahg_discovery_multi_source_bonus' => '0.10',
                 'ahg_discovery_rrf_k' => '60',
             ];
+
+            // #1272: repoint any already-seeded install from the old CLIP model
+            // to the multimodal nomic-embed-vision-v1.5 default. Idempotent and
+            // narrow: only touch the row if it still holds the legacy value so a
+            // deliberate operator override is preserved.
+            DB::table('ahg_settings')
+                ->where('setting_key', 'ahg_discovery_image_embed_model')
+                ->where('setting_value', 'clip-vit-b-32')
+                ->update(['setting_value' => 'nomic-embed-vision-v1.5']);
 
             $existingKeys = DB::table('ahg_settings')
                 ->whereIn('setting_key', array_keys($defaults))
