@@ -1132,6 +1132,17 @@ class ExhibitionSpaceService
         $stairs = $space->stairs_json ?? null;
         if (is_string($stairs)) { $stairs = json_decode($stairs, true); }
 
+        // heratio#1217: building-scale hints. A big building streams its rooms in the
+        // walkthrough (build-on-approach + dispose-on-leave) so it stays performant;
+        // small buildings keep the instant build-everything-up-front behaviour unchanged.
+        $roomCount = count($out);
+        $objectCount = 0;
+        foreach ($out as $rm) {
+            $objectCount += is_array($rm['stops'] ?? null) ? count($rm['stops']) : 0;
+        }
+        $lazy = $roomCount > (int) config('heratio.exhibition_lazy_room_threshold', 12)
+            || $objectCount > (int) config('heratio.exhibition_lazy_object_threshold', 120);
+
         return [
             'rooms' => $out, 'plan_mode' => $planMode,
             'corridor' => $this->getBuildingCorridorObjects($space),
@@ -1140,6 +1151,9 @@ class ExhibitionSpaceService
             'floor_height' => max(4.5, $maxH + 0.5),           // heratio#1169 metres between floors (clears the tallest walls so floors stack)
             'has_outdoor' => $hasOutdoor,                       // heratio#1170 sky + sun when true
             'stairs' => is_array($stairs) ? $stairs : [],       // heratio#1169 [{x,z,from_floor,to_floor}]
+            'room_count' => $roomCount,                         // heratio#1217 building-scale hint
+            'object_count' => $objectCount,                     // heratio#1217 building-scale hint
+            'lazy' => $lazy,                                    // heratio#1217 stream rooms when true (big building)
         ];
     }
 

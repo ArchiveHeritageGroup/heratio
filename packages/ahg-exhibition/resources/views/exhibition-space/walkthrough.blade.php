@@ -1486,7 +1486,11 @@
 
     // Objects (pickables already declared before the room loop)
     var pedestalMat = new THREE.MeshStandardMaterial({ color: 0x3a3f47, roughness: 0.8 });
-    var pending = STOPS.length + CORRIDOR.length;
+    // #1217: corridors are counted up-front; each object adds itself to the in-flight
+    // count when it is actually built (buildStop -> pending++), so build-on-approach in a
+    // lazy building keeps the loading indicator correct. For a non-lazy building every
+    // object is built immediately, so the peak count equals the old STOPS+CORRIDOR total.
+    var pending = CORRIDOR.length;
     function doneOne() { pending--; if (pending <= 0) loading.style.display = 'none'; }
 
     function worldPos(s) {
@@ -1679,7 +1683,10 @@
       }).catch(function () { if (onErr) onErr(); });
     }
 
-    STOPS.forEach(function (s) {
+    function buildStop(s) {
+      if (s._built) return;   // #1217 build-on-approach: each object's heavy content is built once
+      s._built = true;
+      pending++;              // count this object as in-flight (balanced by its doneOne)
       var wp = worldPos(s);
       // #1193 Object-scale splats render in-room; scene-scale captures (big bounding radius)
       // fall through to a thumbnail card that opens the standalone framed viewer. >15 = scene.
@@ -1735,7 +1742,39 @@
         var ph3 = addPedestal(wp.x, wp.z, 0.4, s._room);
         addPlaceholder(wp, s, ph3); doneOne();
       }
-    });
+    }
+
+    // #1217 build-on-approach: in a big (lazy) building, each object's heavy content
+    // (3D models, textures, splats) is built only when the visitor nears its room. Small
+    // buildings (lazy=false) build everything up-front, exactly as before. Room shells
+    // (walls = colliders) are always built up-front, so collision, teleport and wayfinding
+    // are unaffected; objects just stream in as you approach. Rooms are never disposed in
+    // this first slice (dispose-on-leave + instancing is follow-up #1276).
+    var LAZY_STOPS = !!(typeof BUILDING !== 'undefined' && BUILDING && BUILDING.lazy);
+    var STOP_BUILD_R2 = 70 * 70;   // build a room's objects when its centre is within this (m^2); > the 52 m visibility cull
+    function buildRoomStops(rm) {
+      if (!rm) return;
+      for (var i = 0; i < STOPS.length; i++) { if (STOPS[i]._room === rm) buildStop(STOPS[i]); }
+    }
+    function buildNearStops() {
+      var p = controls.object.position;
+      for (var i = 0; i < STOPS.length; i++) {
+        var s = STOPS[i];
+        if (s._built) continue;
+        var rm = s._room;
+        if (!rm) { buildStop(s); continue; }
+        var c = roomWorld(rm, rm.x_offset + rm.w / 2, rm.z_offset + rm.d / 2);
+        var dx = p.x - c.x, dz = p.z - c.z;
+        if (dx * dx + dz * dz < STOP_BUILD_R2) buildStop(s);
+      }
+    }
+    if (!LAZY_STOPS) {
+      STOPS.forEach(function (s) { buildStop(s); });
+    } else {
+      buildRoomStops(curRoom);   // spawn room's objects up-front (regardless of camera position)
+      buildNearStops();          // + any other rooms already within range
+    }
+    if (pending <= 0) loading.style.display = 'none';   // nothing in flight right now (e.g. all objects far in a lazy building)
 
     function addPlaceholder(wp, s, ph) {
       var m = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), new THREE.MeshStandardMaterial({ color: 0x6c757d }));
@@ -2102,6 +2141,7 @@
     // ---- Walk-to navigator: travel the camera to an object and open its panel ----
     var fly = null;
     function flyTo(s) {
+      if (LAZY_STOPS) { buildStop(s); buildRoomStops(s._room || curRoom); }   // #1217 ensure the target object + its room are built before flying there
       var wp = worldPos(s);
       var rm = s._room || curRoom;
       var ccx = rm.x_offset + rm.w / 2, ccz = rm.z_offset + rm.d / 2;   // object's room centre
@@ -2299,6 +2339,7 @@
 
     // ---- Building minimap: top-down plan, tap a room to teleport into it ----
     function enterRoom(rm) {
+      if (LAZY_STOPS) buildRoomStops(rm);   // #1217 build the target room's objects before teleporting in
       var c = roomWorld(rm, rm.x_offset + rm.w / 2, rm.z_offset + rm.d / 2);
       curFloorY = (rm.floor || 0) * FLOOR_H;   // #1169 land on the room's floor
       controls.object.position.set(c.x, curFloorY + 1.6, c.z);
@@ -2377,6 +2418,7 @@
     var CULL2 = 52 * 52;
     function cullRooms() {
       var p = controls.object.position;
+      if (LAZY_STOPS) buildNearStops();   // #1217 build each room's objects as the visitor nears it
       for (var k in roomGroups) { var rg = roomGroups[k]; var dx = p.x - rg.cwx, dz = p.z - rg.cwz; rg.g.visible = (dx * dx + dz * dz) < CULL2; }
     }
 

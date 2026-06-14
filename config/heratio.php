@@ -221,4 +221,11 @@ return [
         'timeout_seconds' => (int) env('KM_TIMEOUT_SECONDS', 6),
     ],
     'exhibition_docent_km' => env('EXHIBITION_DOCENT_KM', true),
+
+    // heratio#1217 building-scale: a walkthrough whose building exceeds either threshold
+    // streams its rooms' object content (build-on-approach) instead of building it all at
+    // load, so big buildings stay performant. Small buildings build everything up-front,
+    // unchanged. Lower these (e.g. HERATIO_LAZY_ROOM_THRESHOLD=3) to exercise the lazy path.
+    'exhibition_lazy_room_threshold' => (int) env('HERATIO_LAZY_ROOM_THRESHOLD', 12),
+    'exhibition_lazy_object_threshold' => (int) env('HERATIO_LAZY_OBJECT_THRESHOLD', 120),
 ];
