@@ -13,6 +13,7 @@ use AhgResearch\Controllers\ResearchCopilotController;
 use AhgResearch\Controllers\ResearchAiDecisionController;
 use AhgResearch\Controllers\AuditController;
 use AhgResearch\Controllers\ResearchJournalController;
+use AhgResearch\Controllers\ResearchJournalEntryController;
 use AhgResearch\Controllers\ResearchEvidenceController;
 use AhgResearch\Controllers\ResearchLectureController;
 use AhgResearch\Controllers\ResearchTargetJournalController;
@@ -317,10 +318,10 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/project-collaborators/{id}', [ResearchCollaborationController::class, 'projectCollaborators'])->name('projectCollaborators')->where('id', '[0-9]+');
 
     // Journal (personal diary) - extracted to ResearchJournalController (serial integration, issue #1269)
-    Route::match(['get', 'post'], '/journal', [ResearchJournalController::class, 'journal'])->name('journal');
-    Route::get('/journal/create', [ResearchJournalController::class, 'createJournalEntry'])->name('journal.create');
-    Route::get('/journal/{id}', [ResearchJournalController::class, 'showJournalEntry'])->name('journal.show')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/journal/entry/{id}', [ResearchJournalController::class, 'journalEntry'])->name('journalEntry')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/journal', [ResearchJournalEntryController::class, 'journal'])->name('journal');
+    Route::get('/journal/create', [ResearchJournalEntryController::class, 'createJournalEntry'])->name('journal.create');
+    Route::get('/journal/{id}', [ResearchJournalEntryController::class, 'showJournalEntry'])->name('journal.show')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/journal/entry/{id}', [ResearchJournalEntryController::class, 'journalEntry'])->name('journalEntry')->where('id', '[0-9]+');
 
     // Bibliographies - extracted to ResearchBibliographiesController (stage 6,
     // issue #1253 / #1269). All four routes keep their names, URIs and the auth
