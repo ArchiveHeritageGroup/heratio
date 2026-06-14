@@ -243,8 +243,13 @@ PROMPT;
      *   error: string|null
      * }
      */
-    public function dispatch(string $sessionId, string $userMessage, ?int $userId = null, ?string $pageUrl = null): array
+    public function dispatch(string $sessionId, string $userMessage, ?int $userId = null, ?string $pageUrl = null, ?string $locale = null): array
     {
+        // #1273: answer in the visitor's language via the sanctioned MT route
+        // (AnswerLocalizer -> gateway /translate), NEVER a qwen "reply in X" prompt.
+        // Default to the request locale; prompts stay English, only the reply is translated.
+        $locale = $locale ?? app()->getLocale();
+
         // Guardrail pre-check
         $guardInspection = $this->guardrail->inspect([
             'provider'   => 'chatbot',
@@ -281,6 +286,8 @@ PROMPT;
 
         if (is_array($skillResult) && ($skillResult['handled'] ?? false)) {
             $reply = (string) ($skillResult['reply'] ?? '');
+            // #1273: localize the deterministic skill reply via the MT route (never an LLM).
+            $reply = app(\AhgCore\Services\AnswerLocalizer::class)->localize($reply, $locale);
 
             $flags = array_values(array_unique(array_merge(
                 (array) ($guardInspection['flags'] ?? []),
@@ -391,6 +398,14 @@ PROMPT;
                     ];
                 }, $records, array_keys($records));
             }
+        }
+
+        // #1273: localize the English reply into the visitor's language via the MT route
+        // (AnswerLocalizer -> gateway /translate), never a qwen "reply in X" prompt. The
+        // grounding check above ran on the English reply; we translate only the presented
+        // text and fail-soft to English on any miss (unsupported language / MT down).
+        if ($success) {
+            $reply = app(\AhgCore\Services\AnswerLocalizer::class)->localize((string) $reply, $locale);
         }
 
         // Surface curated preservation-knowledge passages as additional sources

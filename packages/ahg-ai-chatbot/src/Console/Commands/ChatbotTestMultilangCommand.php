@@ -44,9 +44,11 @@ class ChatbotTestMultilangCommand extends Command
     ];
 
     /**
-     * Latin-1 stop tokens that often leak into mistranslated qwen output for
-     * African languages. If any of these appear with high frequency in the
-     * response while the locale is NOT en/af, flag as language drift.
+     * English stop tokens used to detect whether a reply stayed in English. Post-#1273
+     * the chatbot localizes via the MT route (never a qwen "reply in X" prompt), so a
+     * mostly-English reply for a non-English locale just means MT did not localize for
+     * that language (unsupported / down) - the acceptable fallback, surfaced as a NOTE,
+     * not a failure. The old qwen "language drift" garbage mode can no longer occur.
      */
     private const DRIFT_TOKENS_NON_EUROPEAN = ['the', 'and', 'with', 'from'];
 
@@ -64,7 +66,7 @@ class ChatbotTestMultilangCommand extends Command
             $probe = self::PROBES[$locale] ?? self::PROBES['en'];
 
             try {
-                $r = $chatbot->dispatch($sessionId . ':' . $locale, $probe, null);
+                $r = $chatbot->dispatch($sessionId . ':' . $locale, $probe, null, null, $locale);
             } catch (Throwable $e) {
                 $results[] = $this->failResult($locale, $probe, 'dispatch_threw', $e->getMessage());
                 $failures++;
@@ -84,12 +86,17 @@ class ChatbotTestMultilangCommand extends Command
             $emptyReply = $reply === '';
             $lowConfidence = $grounding < (float) config('ahg-ai-chatbot.grounding_threshold', 0.5);
             $noSources = empty($sources);
-            $drift = $this->detectLanguageDrift($locale, $reply);
+            // #1273: replies are localized via the MT route (never a qwen "reply in X"
+            // prompt), so a mostly-English reply for a non-English locale just means MT
+            // did not localize it (unsupported language or MT down) - the documented,
+            // acceptable fallback, surfaced as a NOTE, not a failure.
+            $mtFallback = $this->detectLanguageDrift($locale, $reply);
 
-            $flags = [];
+            $flags = [];   // failure flags
+            $notes = [];   // informational, non-failing
             if ($emptyReply)     $flags[] = 'empty_reply';
             if ($noSources && !$lowConfidence) $flags[] = 'no_sources_high_confidence';
-            if ($drift)          $flags[] = 'language_drift';
+            if ($mtFallback)     $notes[] = 'mt_fallback_en';
 
             $pass = empty($flags);
             if (!$pass) $failures++;
@@ -103,7 +110,7 @@ class ChatbotTestMultilangCommand extends Command
                 'sources'   => count($sources),
                 'tokens_in' => (int) ($r['tokens_in'] ?? 0),
                 'tokens_out'=> (int) ($r['tokens_out'] ?? 0),
-                'flags'     => $flags,
+                'flags'     => array_merge($flags, $notes),
                 'status'    => $pass ? 'PASS' : 'FAIL',
             ];
         }
