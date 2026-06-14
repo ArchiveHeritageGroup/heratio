@@ -16,10 +16,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * heratio#1186 - generative exhibitions. Given a theme, find candidate objects in the
- * catalogue and let the AI gateway curate them into a draft exhibition: a few rooms, each
- * with a title and a short selection of objects with a one-line label/why. Nothing is built
- * or placed here - the curator reviews the draft (placement is a later slice).
+ * heratio#1186 - generative exhibitions. Given a theme: find candidate objects in the
+ * catalogue (ES topical recall + theme ranking), let the AI gateway curate them into draft
+ * rooms with one-line object labels (suggest()), then build that draft into a real multi-room
+ * Exhibition Space - placing each object, persisting its label as the wall note, and generating
+ * + saving an exhibition intro, per-room blurbs, and a highlights guided tour (buildExhibition()).
+ * All AI calls route through the AHG gateway (LlmService / KmContextService), never a direct node.
  */
 class GenerativeExhibitionService
 {
@@ -69,12 +71,13 @@ class GenerativeExhibitionService
         }
 
         try {
-            return DB::transaction(function () use ($theme, $rooms) {
+            $built = DB::transaction(function () use ($theme, $rooms) {
                 $firstId = 0;
                 $firstSlug = '';
                 $roomCount = 0;
                 $placed = 0;
                 $first = null;
+                $meta = [];   // per room: id, name, objects [{id,title,label}] - drives narrative + tour
 
                 foreach ($rooms as $idx => $room) {
                     $name = trim((string) ($room['room'] ?? '')) ?: ($theme !== '' ? $theme.' - Room '.($idx + 1) : 'Room '.($idx + 1));
@@ -100,16 +103,159 @@ class GenerativeExhibitionService
                         $roomId = (int) $added['id'];
                     }
                     $roomCount++;
-                    $placed += $this->placeRoomObjects($roomId, (array) ($room['objects'] ?? []));
+                    $objs = array_values(array_filter((array) ($room['objects'] ?? []), 'is_array'));
+                    $placed += $this->placeRoomObjects($roomId, $objs);
+                    $meta[] = ['id' => $roomId, 'name' => $name, 'objects' => $objs];
                 }
 
-                return ['ok' => true, 'space_id' => $firstId, 'slug' => $firstSlug, 'rooms' => $roomCount, 'placed' => $placed];
+                return ['first' => $first, 'space_id' => $firstId, 'slug' => $firstSlug, 'rooms' => $roomCount, 'placed' => $placed, 'meta' => $meta];
             });
+
+            // Narrative text (intro + per-room blurbs) and the guided tour are generated AFTER
+            // the build commits, so a slow or failed gateway/KM call can never roll back the
+            // built exhibition - it just lands without the generated text (fail-soft).
+            $this->decorateWithNarrative($theme, $built);
+
+            return ['ok' => true, 'space_id' => $built['space_id'], 'slug' => $built['slug'], 'rooms' => $built['rooms'], 'placed' => $built['placed']];
         } catch (\Throwable $e) {
             Log::warning('[ahg-exhibition] buildExhibition failed: '.$e->getMessage());
 
             return ['ok' => false, 'space_id' => 0, 'slug' => '', 'rooms' => 0, 'placed' => 0, 'error' => 'build failed'];
         }
+    }
+
+    /**
+     * heratio#1186 - after a draft is built into a real space, generate the exhibition
+     * introduction, a short blurb per room, and a guided tour, then persist them. Fully
+     * fail-soft: any gateway/KM failure leaves the built exhibition intact (just without the
+     * generated text). All AI calls route through the AHG gateway (LlmService / KmContextService)
+     * - never a direct node.
+     *
+     * @param  array{first:?object, meta:array<int,array{id:int,name:string,objects:array}>}  $built
+     */
+    private function decorateWithNarrative(string $theme, array $built): void
+    {
+        $first = $built['first'] ?? null;
+        $meta = $built['meta'] ?? [];
+        if (! $first || ! $meta) {
+            return;
+        }
+
+        // 1) Intro + per-room blurbs (one batched gateway call), persisted to ahg_exhibition_space.
+        try {
+            $narrative = $this->generateNarrative($theme, $meta);
+            if ($narrative) {
+                $intro = trim((string) ($narrative['intro'] ?? ''));
+                $blurbs = (array) ($narrative['blurbs'] ?? []);
+                foreach ($meta as $idx => $room) {
+                    $update = ['updated_at' => now()];
+                    if ($idx === 0 && $intro !== '') {
+                        $update['intro_text'] = $intro;   // whole-exhibition intro on the main room
+                    }
+                    $blurb = trim((string) ($blurbs[$idx] ?? ''));
+                    if ($blurb !== '') {
+                        $update['room_blurb'] = $blurb;
+                    }
+                    if (count($update) > 1) {
+                        DB::table('ahg_exhibition_space')->where('id', (int) $room['id'])->update($update);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::info('[ahg-exhibition] generative narrative skipped: '.$e->getMessage());
+        }
+
+        // 2) Guided tour: one "highlights" tour walking every placed object in room order,
+        //    narrated by each object's one-line label. Persisted via the existing tour writer.
+        try {
+            $stops = [];
+            foreach ($meta as $room) {
+                foreach ((array) ($room['objects'] ?? []) as $o) {
+                    if (! is_array($o) || (int) ($o['id'] ?? 0) <= 0) {
+                        continue;
+                    }
+                    $stops[] = ['io_id' => (int) $o['id'], 'narration' => trim((string) ($o['label'] ?? '')), 'dwell' => 6];
+                }
+            }
+            if ($stops) {
+                $tourName = mb_substr(($theme !== '' ? $theme : 'Exhibition').' - Highlights', 0, 80);
+                $this->spaces->saveGuidedTour($first, [['name' => $tourName, 'stops' => $stops]]);
+            }
+        } catch (\Throwable $e) {
+            Log::info('[ahg-exhibition] generative tour skipped: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * One batched gateway call: returns the exhibition intro + a blurb per room, grounded
+     * (best-effort) in KM. Returns ['intro'=>string, 'blurbs'=>[roomIndex=>string]] or [] on failure.
+     */
+    private function generateNarrative(string $theme, array $meta): array
+    {
+        $roomLines = [];
+        foreach ($meta as $idx => $room) {
+            $titles = [];
+            foreach ((array) ($room['objects'] ?? []) as $o) {
+                if (is_array($o) && ! empty($o['title'])) {
+                    $titles[] = (string) $o['title'];
+                }
+            }
+            $roomLines[] = 'Room '.$idx.' ("'.((string) ($room['name'] ?? ('Room '.$idx))).'"): '.(implode('; ', array_slice($titles, 0, 12)) ?: '(no objects)');
+        }
+        $roomsBlock = implode("\n", $roomLines);
+
+        $kmHint = '';
+        try {
+            if (class_exists(\AhgExhibition\Services\KmContextService::class)) {
+                $km = app(\AhgExhibition\Services\KmContextService::class)->ask($theme);
+                if (is_string($km) && trim($km) !== '') {
+                    $kmHint = "\n\nBackground from the knowledge base (use only if relevant, do not quote verbatim):\n".mb_substr(trim($km), 0, 1200);
+                }
+            }
+        } catch (\Throwable $e) {
+            // KM is optional grounding; ignore failures.
+        }
+
+        $prompt = "You are a museum curator writing the wall text for an exhibition on the theme: \"{$theme}\".\n"
+            ."The exhibition has these rooms and objects:\n{$roomsBlock}".$kmHint."\n\n"
+            ."Write (1) a 2 to 3 sentence introduction to the whole exhibition, and (2) a 1 to 2 sentence blurb for EACH room that ties its objects to the theme. Be factual and engaging; do not invent objects.\n"
+            ."Return ONLY valid JSON, no preamble, in exactly this shape:\n"
+            ."{\"intro\":\"...\",\"rooms\":[{\"i\":0,\"blurb\":\"...\"}]}";
+
+        try {
+            $resp = (string) app(\AhgAiServices\Services\LlmService::class)->complete($prompt, ['max_tokens' => 700, 'temperature' => 0.5]);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-exhibition] generative narrative LLM failed: '.$e->getMessage());
+
+            return [];
+        }
+
+        $json = $this->extractJsonObject($resp);
+        $parsed = $json !== null ? json_decode($json, true) : null;
+        if (! is_array($parsed)) {
+            return [];
+        }
+        $blurbs = [];
+        foreach ((array) ($parsed['rooms'] ?? []) as $r) {
+            if (is_array($r) && isset($r['i'])) {
+                $blurbs[(int) $r['i']] = trim((string) ($r['blurb'] ?? ''));
+            }
+        }
+
+        return ['intro' => trim((string) ($parsed['intro'] ?? '')), 'blurbs' => $blurbs];
+    }
+
+    /** Pull the first JSON object out of a model response. */
+    private function extractJsonObject(string $resp): ?string
+    {
+        $resp = trim($resp);
+        $start = strpos($resp, '{');
+        $end = strrpos($resp, '}');
+        if ($start !== false && $end !== false && $end > $start) {
+            return substr($resp, $start, $end - $start + 1);
+        }
+
+        return null;
     }
 
     /**
@@ -119,17 +265,20 @@ class GenerativeExhibitionService
      */
     private function placeRoomObjects(int $roomId, array $objects): int
     {
-        $ids = [];
+        // Keep the AI's one-line label alongside each id (persisted as the placement note /
+        // wall-label text), de-duplicated by object id while preserving order.
+        $labels = [];
         foreach ($objects as $o) {
             $ioId = (int) (is_array($o) ? ($o['id'] ?? 0) : $o);
-            if ($ioId > 0 && ! in_array($ioId, $ids, true)) {
-                $ids[] = $ioId;
+            if ($ioId > 0 && ! array_key_exists($ioId, $labels)) {
+                $labels[$ioId] = is_array($o) ? trim((string) ($o['label'] ?? '')) : '';
             }
         }
-        if (! $ids) {
+        if (! $labels) {
             return 0;
         }
 
+        $ids = array_keys($labels);
         $perWall = (int) ceil(count($ids) / 2);   // back wall first, then front wall
         $n = 0;
         foreach ($ids as $i => $ioId) {
@@ -139,7 +288,11 @@ class GenerativeExhibitionService
             $posX = $wallCount > 0 ? ($slot + 1) / ($wallCount + 1) : 0.5;
             $posY = $onBack ? 0.12 : 0.88;
             try {
-                $this->spaces->createPlacementAt($roomId, $ioId, $posX, $posY);
+                $pl = $this->spaces->createPlacementAt($roomId, $ioId, $posX, $posY);
+                $label = $labels[$ioId];
+                if ($label !== '' && is_array($pl) && ! empty($pl['id'])) {
+                    DB::table('ahg_exhibition_placement')->where('id', (int) $pl['id'])->update(['notes' => $label, 'updated_at' => now()]);
+                }
                 $n++;
             } catch (\Throwable $e) {
                 Log::info('[ahg-exhibition] buildExhibition: skipped object '.$ioId.' - '.$e->getMessage());
@@ -215,10 +368,9 @@ class GenerativeExhibitionService
     }
 
     /**
-     * heratio#1186 - Elasticsearch semantic/topical recall for the catalogue fallback. Mirrors the
-     * theme-curation ES query ({@see ThemeExhibitionService::candidateObjectsEs()}): a multi_match
+     * heratio#1186 - Elasticsearch semantic/topical recall for the catalogue fallback. A multi_match
      * (best_fields + most_fields + a phrase boost) over the description's narrative fields, so the
-     * two curation flows recall candidates the same way. Returns rows shaped exactly like the
+     * generative flow recalls candidates by topic rather than just keyword. Returns rows shaped like the
      * keyword catalogue query (->id, ->title, ->scope_and_content) so the downstream theme-overlap
      * scorer is unchanged. Degrades to an empty collection (-> keyword LIKE fallback) when
      * ahg-search is absent, ES is down, or there are no hits - never a hard dependency on ES.

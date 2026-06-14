@@ -4,7 +4,6 @@ use AhgExhibition\Controllers\ExhibitionController;
 use AhgExhibition\Controllers\ExhibitionEventController;
 use AhgExhibition\Controllers\ExhibitionSpaceController;
 use AhgExhibition\Controllers\GenerativeController;
-use AhgExhibition\Controllers\GenerativeExhibitionController;
 use AhgExhibition\Controllers\ReconstructionController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,9 +54,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/exhibition-space/generate', [GenerativeController::class, 'index'])->name('exhibition-space.generate');
     Route::post('/exhibition-space/generate/suggest', [GenerativeController::class, 'suggestAjax'])->name('exhibition-space.generate.suggest')->middleware('acl:create');
     Route::post('/exhibition-space/generate/build', [GenerativeController::class, 'buildAjax'])->name('exhibition-space.generate.build')->middleware('acl:create');
-    // heratio#1186 - one-shot theme curator: enter a theme -> AI picks + builds a themed space
-    Route::get('/exhibition-space/generate/theme', [GenerativeExhibitionController::class, 'create'])->name('exhibition-space.generate.theme');
-    Route::post('/exhibition-space/generate/theme', [GenerativeExhibitionController::class, 'store'])->name('exhibition-space.generate.theme.store')->middleware('acl:create');
+    // heratio#1186 - the one-shot theme curator has been RETIRED in favour of the canonical
+    // two-step flow (GenerativeController + GenerativeExhibitionService: draft -> review -> build,
+    // multi-room, era-aware). The two legacy URIs are kept (same name/URI/verb/middleware) but
+    // REPOINTED to the canonical designer so any existing UI link (e.g. the orphaned
+    // theme-exhibition.blade.php form) keeps resolving and now lands on the better flow.
+    Route::get('/exhibition-space/generate/theme', [GenerativeController::class, 'index'])->name('exhibition-space.generate.theme');
+    Route::post('/exhibition-space/generate/theme', [GenerativeController::class, 'index'])->name('exhibition-space.generate.theme.store')->middleware('acl:create');
 
     Route::get('/exhibition-space/add', [ExhibitionSpaceController::class, 'create'])->name('exhibition-space.create');
     Route::post('/exhibition-space/add', [ExhibitionSpaceController::class, 'store'])->name('exhibition-space.store')->middleware('acl:create');

@@ -456,6 +456,12 @@ CREATE TABLE IF NOT EXISTS ahg_exhibition_space (
       COMMENT 'one of: linear_wall_meters, display_cases, plinths, square_meters',
     lighting_lux_target DECIMAL(8,2) NULL,
     notes TEXT NULL,
+    -- heratio#1186 - generative exhibitions: AI-generated narrative text. intro_text is the
+    -- whole-exhibition introduction (held on the main / first room only); room_blurb is the
+    -- short blurb for THIS room. Both NULL until a generated build populates them. The service
+    -- provider boot also adds these idempotently to pre-existing installs (spatial-column pattern).
+    intro_text TEXT NULL,
+    room_blurb TEXT NULL,
     created_at TIMESTAMP NULL,
     updated_at TIMESTAMP NULL,
     UNIQUE KEY uq_exh_space_slug (slug),
