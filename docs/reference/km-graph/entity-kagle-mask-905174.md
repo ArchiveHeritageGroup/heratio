@@ -1,19 +1,21 @@
 # Graph entity: Kagle mask
 
-**Summary:** "Kagle mask" is connected to 2 related entities across the collection. Under people & organisations (1) it links to 'Dan artist'. Under activities (RiC) (1) it links to 'Creation'.
+**Summary:** "Kagle mask" is connected to 5 related entities across the collection. Under activities (RiC) (2) it links to '3D Photogrammetry Digitisation' and 'Creation'. Under people & organisations (1) it links to 'Dan artist'. Under places (RiC) (1) it links to 'Dan-We region, western Cote d'Ivoire and Liberia'. Under instantiations (RiC) (1) it links to 'Kagle mask 3D Model (glTF)'.
 
 ## Entity
 
 - Name: Kagle mask
 - Type: archival record (information object)
 - Record page: `/kagle-mask`
-- Relation edges in graph: 2
-- Collection domains it links into: 2
+- Relation edges in graph: 5
+- Collection domains it links into: 4
 
 ## Cross-collection connections
 
+- **Activities (RiC)** (2): 3D Photogrammetry Digitisation, Creation.
 - **People & organisations** (1): Dan artist.
-- **Activities (RiC)** (1): Creation.
+- **Places (RiC)** (1): Dan-We region, western Cote d'Ivoire and Liberia.
+- **Instantiations (RiC)** (1): Kagle mask 3D Model (glTF).
 
 ## Provenance
 
