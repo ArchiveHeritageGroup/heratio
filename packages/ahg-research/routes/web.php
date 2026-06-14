@@ -31,6 +31,8 @@ use AhgResearch\Controllers\ResearchRetrievalQueueController;
 use AhgResearch\Controllers\ResearchDocumentTemplatesController;
 use AhgResearch\Controllers\ResearchSavedSearchesController;
 use AhgResearch\Controllers\ResearchWalkInsController;
+use AhgResearch\Controllers\ResearchProjectsController;
+use AhgResearch\Controllers\ResearchProjectOutputsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -230,32 +232,34 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::put('/annotations/{id}', [ResearchAnnotationsController::class, 'updateAnnotation'])->name('annotations.update')->where('id', '[0-9]+');
     Route::delete('/annotations/{id}', [ResearchAnnotationsController::class, 'destroyAnnotation'])->name('annotations.destroy')->where('id', '[0-9]+');
 
-    // Projects
-    Route::get('/projects', [ResearchController::class, 'projects'])->name('projects');
-    Route::get('/projects/create', [ResearchController::class, 'createProject'])->name('projects.create');
-    Route::post('/projects', [ResearchController::class, 'storeProject'])->name('projects.store');
-    Route::match(['get', 'post'], '/viewProject/{id}', [ResearchController::class, 'viewProject'])->name('viewProject')->where('id', '[0-9]+');
+    // Projects (extracted to ResearchProjectsController - project-subsystem
+    // stage, issue #1269). Core project CRUD/management.
+    Route::get('/projects', [ResearchProjectsController::class, 'projects'])->name('projects');
+    Route::get('/projects/create', [ResearchProjectsController::class, 'createProject'])->name('projects.create');
+    Route::post('/projects', [ResearchProjectsController::class, 'storeProject'])->name('projects.store');
+    Route::match(['get', 'post'], '/viewProject/{id}', [ResearchProjectsController::class, 'viewProject'])->name('viewProject')->where('id', '[0-9]+');
 
-    // Project Analysis Tools
-    Route::match(['get', 'post'], '/knowledge-graph/{id}', [ResearchController::class, 'knowledgeGraph'])->name('knowledgeGraph')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/assertions/{id}', [ResearchController::class, 'assertions'])->name('assertions')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/hypotheses/{id}', [ResearchController::class, 'hypotheses'])->name('hypotheses')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/extraction-jobs/{id}', [ResearchController::class, 'extractionJobs'])->name('extractionJobs')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/snapshots/{id}', [ResearchController::class, 'snapshots'])->name('snapshots')->where('id', '[0-9]+');
-    Route::get('/viewSnapshot/{id}', [ResearchController::class, 'viewSnapshot'])->name('viewSnapshot')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/assertion-batch-review/{id}', [ResearchController::class, 'assertionBatchReview'])->name('assertionBatchReview')->where('id', '[0-9]+');
+    // Project Analysis Tools (extracted to ResearchProjectOutputsController -
+    // project-subsystem stage, issue #1269).
+    Route::match(['get', 'post'], '/knowledge-graph/{id}', [ResearchProjectOutputsController::class, 'knowledgeGraph'])->name('knowledgeGraph')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/assertions/{id}', [ResearchProjectOutputsController::class, 'assertions'])->name('assertions')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/hypotheses/{id}', [ResearchProjectOutputsController::class, 'hypotheses'])->name('hypotheses')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/extraction-jobs/{id}', [ResearchProjectOutputsController::class, 'extractionJobs'])->name('extractionJobs')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/snapshots/{id}', [ResearchProjectOutputsController::class, 'snapshots'])->name('snapshots')->where('id', '[0-9]+');
+    Route::get('/viewSnapshot/{id}', [ResearchProjectOutputsController::class, 'viewSnapshot'])->name('viewSnapshot')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/assertion-batch-review/{id}', [ResearchProjectOutputsController::class, 'assertionBatchReview'])->name('assertionBatchReview')->where('id', '[0-9]+');
 
-    // Project Visualization
-    Route::match(['get', 'post'], '/timeline/{id}', [ResearchController::class, 'timelineBuilder'])->name('timelineBuilder')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/map/{id}', [ResearchController::class, 'mapBuilder'])->name('mapBuilder')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/network-graph/{id}', [ResearchController::class, 'networkGraph'])->name('networkGraph')->where('id', '[0-9]+');
+    // Project Visualization (extracted to ResearchProjectOutputsController - issue #1269)
+    Route::match(['get', 'post'], '/timeline/{id}', [ResearchProjectOutputsController::class, 'timelineBuilder'])->name('timelineBuilder')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/map/{id}', [ResearchProjectOutputsController::class, 'mapBuilder'])->name('mapBuilder')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/network-graph/{id}', [ResearchProjectOutputsController::class, 'networkGraph'])->name('networkGraph')->where('id', '[0-9]+');
 
-    // Project Research Output
-    Route::match(['get', 'post'], '/ro-crate/{id}', [ResearchController::class, 'roCrate'])->name('roCrate')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/reproducibility/{id}', [ResearchController::class, 'reproducibilityPack'])->name('reproducibilityPack')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/doi/{id}', [ResearchController::class, 'mintDoi'])->name('mintDoi')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/ethics-milestones/{id}', [ResearchController::class, 'ethicsMilestones'])->name('ethicsMilestones')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/compliance/{id}', [ResearchController::class, 'complianceDashboard'])->name('complianceDashboard')->where('id', '[0-9]+');
+    // Project Research Output (extracted to ResearchProjectOutputsController - issue #1269)
+    Route::match(['get', 'post'], '/ro-crate/{id}', [ResearchProjectOutputsController::class, 'roCrate'])->name('roCrate')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/reproducibility/{id}', [ResearchProjectOutputsController::class, 'reproducibilityPack'])->name('reproducibilityPack')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/doi/{id}', [ResearchProjectOutputsController::class, 'mintDoi'])->name('mintDoi')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/ethics-milestones/{id}', [ResearchProjectOutputsController::class, 'ethicsMilestones'])->name('ethicsMilestones')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/compliance/{id}', [ResearchProjectOutputsController::class, 'complianceDashboard'])->name('complianceDashboard')->where('id', '[0-9]+');
 
     // Analytics dashboard
     Route::get('/analytics', [ResearchController::class, 'analytics'])->name('analytics');
