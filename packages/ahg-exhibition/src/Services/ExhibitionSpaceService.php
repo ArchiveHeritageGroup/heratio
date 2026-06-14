@@ -2681,15 +2681,16 @@ class ExhibitionSpaceService
      * ONLY in that object's catalogue record (title / reference / collection / scope), via
      * the AI gateway. Refuses to invent dates/names/provenance. Cached per (object, question).
      */
-    public function aiAnswerAboutObject(int $ioId, string $question): ?string
+    public function aiAnswerAboutObject(int $ioId, string $question, ?string $locale = null): ?string
     {
         $q = trim($question);
         if ($q === '') {
             return null;
         }
         $q = mb_substr($q, 0, 300);
+        $locale = $locale ?? app()->getLocale();   // #1208/#1211: answer in the visitor's language
 
-        return \Illuminate\Support\Facades\Cache::remember('exh_ai_ask_'.$ioId.'_'.md5(mb_strtolower($q)), now()->addDays(7), function () use ($ioId, $q) {
+        return \Illuminate\Support\Facades\Cache::remember('exh_ai_ask_'.$ioId.'_'.$locale.'_'.md5(mb_strtolower($q)), now()->addDays(7), function () use ($ioId, $q, $locale) {
             $io = DB::table('information_object as io')
                 ->leftJoin('information_object_i18n as i', function ($j) { $j->on('i.id', '=', 'io.id')->where('i.culture', '=', 'en'); })
                 ->where('io.id', $ioId)
@@ -2717,8 +2718,11 @@ class ExhibitionSpaceService
 
             try {
                 $resp = trim((string) app(\AhgAiServices\Services\LlmService::class)->complete($prompt, ['max_tokens' => 240, 'temperature' => 0.5]));
+                if ($resp === '') {
+                    return null;
+                }
 
-                return $resp !== '' ? $resp : null;
+                return app(\AhgCore\Services\AnswerLocalizer::class)->localize($resp, $locale);
             } catch (\Throwable $e) {
                 return null;
             }
@@ -2732,17 +2736,18 @@ class ExhibitionSpaceService
      * to use nothing but the supplied object list - no invented dates, names or provenance -
      * and may point the visitor toward relevant pieces by name. Cached per (building, question).
      */
-    public function aiAnswerAboutRoom(object $space, string $question): ?string
+    public function aiAnswerAboutRoom(object $space, string $question, ?string $locale = null): ?string
     {
         $q = trim($question);
         if ($q === '') {
             return null;
         }
         $q = mb_substr($q, 0, 300);
+        $locale = $locale ?? app()->getLocale();   // #1208/#1211: answer in the visitor's language
 
-        $key = 'exh_ai_room_'.($space->building_id ?: $space->slug).'_'.md5(mb_strtolower($q));
+        $key = 'exh_ai_room_'.($space->building_id ?: $space->slug).'_'.$locale.'_'.md5(mb_strtolower($q));
 
-        return \Illuminate\Support\Facades\Cache::remember($key, now()->addDays(7), function () use ($space, $q) {
+        return \Illuminate\Support\Facades\Cache::remember($key, now()->addDays(7), function () use ($space, $q, $locale) {
             $objects = $this->roomGroundingObjects($space, 60);
             if (empty($objects)) {
                 return null;
@@ -2773,8 +2778,11 @@ class ExhibitionSpaceService
 
             try {
                 $resp = trim((string) app(\AhgAiServices\Services\LlmService::class)->complete($prompt, ['max_tokens' => 300, 'temperature' => 0.5]));
+                if ($resp === '') {
+                    return null;
+                }
 
-                return $resp !== '' ? $resp : null;
+                return app(\AhgCore\Services\AnswerLocalizer::class)->localize($resp, $locale);
             } catch (\Throwable $e) {
                 return null;
             }
@@ -2791,8 +2799,9 @@ class ExhibitionSpaceService
      * @param array<int,array{q?:string,a?:string}> $turns prior turns, oldest first
      * @return array{answer:?string,suggest:?string}
      */
-    public function aiConverseRoom(object $space, string $question, array $turns = [], ?int $nearObjectId = null, ?int $roomId = null): array
+    public function aiConverseRoom(object $space, string $question, array $turns = [], ?int $nearObjectId = null, ?int $roomId = null, ?string $locale = null): array
     {
+        $locale = $locale ?? app()->getLocale();   // #1208/#1211: answer in the visitor's language
         $q = mb_substr(trim($question), 0, 300);
         if ($q === '') {
             return ['answer' => null, 'suggest' => null];
@@ -2882,7 +2891,11 @@ class ExhibitionSpaceService
             }
         }
 
-        return ['answer' => $resp !== '' ? $resp : null, 'suggest' => $suggest];
+        // Localize the spoken answer to the visitor's language (MT route, never an LLM);
+        // the suggestion stays the exact catalogue title so the walkthrough JS can match it.
+        $answer = $resp !== '' ? app(\AhgCore\Services\AnswerLocalizer::class)->localize($resp, $locale) : null;
+
+        return ['answer' => $answer, 'suggest' => $suggest];
     }
 
     /**

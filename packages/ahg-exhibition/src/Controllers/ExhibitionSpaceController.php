@@ -734,8 +734,8 @@ class ExhibitionSpaceController extends Controller
     /** heratio#1185 - AI docent: answer a visitor's question about an object, grounded in its catalogue record. */
     public function askObjectAjax(Request $request, int $ioId)
     {
-        $data = $request->validate(['q' => 'required|string|max:300']);
-        $answer = $this->service->aiAnswerAboutObject($ioId, $data['q']);
+        $data = $request->validate(['q' => 'required|string|max:300', 'lang' => 'nullable|string|max:12']);
+        $answer = $this->service->aiAnswerAboutObject($ioId, $data['q'], $data['lang'] ?? null);
 
         return response()->json(['ok' => $answer !== null, 'answer' => $answer]);
     }
@@ -750,8 +750,8 @@ class ExhibitionSpaceController extends Controller
         if (! $space) {
             return response()->json(['ok' => false], 404);
         }
-        $data = $request->validate(['q' => 'required|string|max:300']);
-        $answer = $this->service->aiAnswerAboutRoom($space, $data['q']);
+        $data = $request->validate(['q' => 'required|string|max:300', 'lang' => 'nullable|string|max:12']);
+        $answer = $this->service->aiAnswerAboutRoom($space, $data['q'], $data['lang'] ?? null);
 
         return response()->json(['ok' => $answer !== null, 'answer' => $answer]);
     }
@@ -774,13 +774,15 @@ class ExhibitionSpaceController extends Controller
             'history.*.a' => 'sometimes|nullable|string|max:600',
             'near_io' => 'sometimes|nullable|integer',
             'room_id' => 'sometimes|nullable|integer',
+            'lang' => 'sometimes|nullable|string|max:12',
         ]);
         $res = $this->service->aiConverseRoom(
             $space,
             $data['q'],
             $data['history'] ?? [],
             $data['near_io'] ?? null,
-            $data['room_id'] ?? null
+            $data['room_id'] ?? null,
+            $data['lang'] ?? null
         );
 
         return response()->json(['ok' => $res['answer'] !== null, 'answer' => $res['answer'], 'suggest' => $res['suggest']]);
