@@ -5,6 +5,7 @@ use AhgResearch\Controllers\ResearchReproductionsController;
 use AhgResearch\Controllers\ResearchAnnotationsController;
 use AhgResearch\Controllers\ResearchCitationsController;
 use AhgResearch\Controllers\ResearchNotebooksController;
+use AhgResearch\Controllers\ResearchReportsController;
 use AhgResearch\Controllers\ResearchCopilotController;
 use AhgResearch\Controllers\ResearchAiDecisionController;
 use AhgResearch\Controllers\AuditController;
@@ -311,9 +312,10 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
     // Reports
     Route::match(['get', 'post'], '/viewReproduction/{id}', [ResearchReproductionsController::class, 'viewReproduction'])->name('viewReproduction')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/reports', [ResearchController::class, 'reports'])->name('reports');
-    Route::match(['get', 'post'], '/report-templates', [ResearchController::class, 'reportTemplates'])->name('reportTemplates');
-    Route::match(['get', 'post'], '/viewReport/{id}', [ResearchController::class, 'viewReport'])->name('viewReport')->where('id', '[0-9]+');
+    // Extracted to ResearchReportsController - stage 5, issue #1253 / #1269
+    Route::match(['get', 'post'], '/reports', [ResearchReportsController::class, 'reports'])->name('reports');
+    Route::match(['get', 'post'], '/report-templates', [ResearchReportsController::class, 'reportTemplates'])->name('reportTemplates');
+    Route::match(['get', 'post'], '/viewReport/{id}', [ResearchReportsController::class, 'viewReport'])->name('viewReport')->where('id', '[0-9]+');
 
     // Reproductions
     Route::match(['get', 'post'], '/reproductions', [ResearchReproductionsController::class, 'reproductions'])->name('reproductions');
