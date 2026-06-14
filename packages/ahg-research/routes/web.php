@@ -29,6 +29,7 @@ use AhgResearch\Controllers\ResearchSeatsController;
 use AhgResearch\Controllers\ResearchEquipmentController;
 use AhgResearch\Controllers\ResearchRetrievalQueueController;
 use AhgResearch\Controllers\ResearchDocumentTemplatesController;
+use AhgResearch\Controllers\ResearchSavedSearchesController;
 use AhgResearch\Controllers\ResearchWalkInsController;
 use Illuminate\Support\Facades\Route;
 
@@ -205,13 +206,13 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/documentTemplates', [ResearchDocumentTemplatesController::class, 'documentTemplates'])->name('documentTemplates');
     Route::match(['get', 'post'], '/document-templates', [ResearchDocumentTemplatesController::class, 'documentTemplates'])->name('document-templates');
 
-    // Saved Searches
-    Route::get('/savedSearches', [ResearchController::class, 'savedSearches'])->name('savedSearches');
-    Route::post('/saved-searches', [ResearchController::class, 'storeSavedSearch'])->name('savedSearches.store');
-    Route::post('/search-diff/{id}', [ResearchController::class, 'searchDiff'])->name('searchDiff')->where('id', '[0-9]+');
-    Route::post('/search-snapshot/{id}', [ResearchController::class, 'searchSnapshot'])->name('searchSnapshot')->where('id', '[0-9]+');
-    Route::get('/saved-searches/{id}/run', [ResearchController::class, 'runSavedSearch'])->name('savedSearches.run')->where('id', '[0-9]+');
-    Route::delete('/saved-searches/{id}', [ResearchController::class, 'destroySavedSearch'])->name('savedSearches.destroy')->where('id', '[0-9]+');
+    // Saved Searches (extracted to ResearchSavedSearchesController - issue #1269)
+    Route::get('/savedSearches', [ResearchSavedSearchesController::class, 'savedSearches'])->name('savedSearches');
+    Route::post('/saved-searches', [ResearchSavedSearchesController::class, 'storeSavedSearch'])->name('savedSearches.store');
+    Route::post('/search-diff/{id}', [ResearchSavedSearchesController::class, 'searchDiff'])->name('searchDiff')->where('id', '[0-9]+');
+    Route::post('/search-snapshot/{id}', [ResearchSavedSearchesController::class, 'searchSnapshot'])->name('searchSnapshot')->where('id', '[0-9]+');
+    Route::get('/saved-searches/{id}/run', [ResearchSavedSearchesController::class, 'runSavedSearch'])->name('savedSearches.run')->where('id', '[0-9]+');
+    Route::delete('/saved-searches/{id}', [ResearchSavedSearchesController::class, 'destroySavedSearch'])->name('savedSearches.destroy')->where('id', '[0-9]+');
 
     // Collections (Evidence Sets)
     Route::get('/collections', [ResearchCollectionsController::class, 'collections'])->name('collections');
