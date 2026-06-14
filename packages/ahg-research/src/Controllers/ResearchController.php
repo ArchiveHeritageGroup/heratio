@@ -950,103 +950,9 @@ class ResearchController extends Controller
     // integration, issue #1269). Routes re-pointed in routes/web.php.
     // =========================================================================
 
-    public function retrievalQueue(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
+    // retrievalQueue() extracted to ResearchRetrievalQueueController (issue #1269). Route re-pointed in routes/web.php.
 
-        if ($request->isMethod('post')) {
-            $action = $request->input('form_action');
-
-            if (in_array($action, ['mark_in_transit', 'mark_delivered', 'mark_returned'])) {
-                $newStatus = match($action) { 'mark_in_transit' => 'in_transit', 'mark_delivered' => 'delivered', 'mark_returned' => 'returned' };
-                DB::table('research_material_request')
-                    ->where('id', (int) $request->input('request_id'))
-                    ->update(['status' => $newStatus, 'updated_at' => now()]);
-                return redirect()->route('research.retrievalQueue', ['status' => $request->input('current_status')])->with('success', 'Status updated.');
-            }
-
-            if ($action === 'batch_update' && $request->input('new_status')) {
-                $ids = $request->input('request_ids', []);
-                if (!empty($ids)) {
-                    DB::table('research_material_request')
-                        ->whereIn('id', array_map('intval', $ids))
-                        ->update(['status' => $request->input('new_status'), 'updated_at' => now()]);
-                    return redirect()->route('research.retrievalQueue')->with('success', count($ids) . ' request(s) updated.');
-                }
-            }
-        }
-
-        $rooms = $this->service->getReadingRooms();
-        $requests = DB::table('research_material_request as m')
-            ->join('research_booking as b', 'm.booking_id', '=', 'b.id')
-            ->join('research_researcher as r', 'b.researcher_id', '=', 'r.id')
-            ->leftJoin('information_object_i18n as i18n', function ($join) {
-                $join->on('m.object_id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
-            })
-            ->select('m.*', 'b.booking_date', 'b.start_time', 'b.end_time', 'r.first_name', 'r.last_name', 'i18n.title as object_title')
-            ->orderBy('b.booking_date')
-            ->get()->toArray();
-
-        return view('research::research.retrieval-queue', array_merge(
-            $this->getSidebarData('retrievalQueue'),
-            compact('rooms', 'requests')
-        ));
-    }
-
-    public function walkIn(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $rooms = $this->service->getReadingRooms();
-        $roomId = (int) $request->input('room_id');
-        $currentRoom = $roomId ? $this->service->getReadingRoom($roomId) : null;
-        $currentWalkIns = $roomId
-            ? DB::table('research_walk_in_visitor')
-                ->where('reading_room_id', $roomId)
-                ->where('visit_date', date('Y-m-d'))
-                ->whereNull('check_out_time')
-                ->orderBy('check_in_time')
-                ->get()->toArray()
-            : [];
-
-        if ($request->isMethod('post')) {
-            $action = $request->input('form_action');
-            if ($action === 'register') {
-                DB::table('research_walk_in_visitor')->insert([
-                    'reading_room_id' => $roomId,
-                    'first_name' => $request->input('first_name'),
-                    'last_name' => $request->input('last_name'),
-                    'email' => $request->input('email'),
-                    'phone' => $request->input('phone'),
-                    'id_type' => $request->input('id_type'),
-                    'id_number' => $request->input('id_number'),
-                    'organization' => $request->input('organization'),
-                    'purpose' => $request->input('purpose'),
-                    'research_topic' => $request->input('research_topic'),
-                    'rules_acknowledged' => $request->input('rules_acknowledged') ? 1 : 0,
-                    'visit_date' => date('Y-m-d'),
-                    'check_in_time' => date('H:i:s'),
-                    'checked_in_by' => Auth::id(),
-                ]);
-                return redirect()->route('research.walkIn', ['room_id' => $roomId])
-                    ->with('success', 'Walk-in visitor registered');
-            }
-            if ($action === 'checkout') {
-                DB::table('research_walk_in_visitor')
-                    ->where('id', (int) $request->input('visitor_id'))
-                    ->update([
-                        'check_out_time' => date('H:i:s'),
-                        'checked_out_by' => Auth::id(),
-                    ]);
-                return redirect()->route('research.walkIn', ['room_id' => $roomId])
-                    ->with('success', 'Visitor checked out');
-            }
-        }
-
-        return view('research::research.walk-in', array_merge(
-            $this->getSidebarData('walkIn'),
-            compact('rooms', 'roomId', 'currentRoom', 'currentWalkIns')
-        ));
-    }
+    // walkIn() extracted to ResearchWalkInsController (issue #1269). Route re-pointed in routes/web.php.
 
     // =========================================================================
     // ADMIN: RESEARCHER TYPES
@@ -2084,51 +1990,7 @@ class ResearchController extends Controller
     // DOCUMENT TEMPLATES
     // =========================================================================
 
-    public function documentTemplates(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        if ($request->isMethod('post')) {
-            $formAction = $request->input('form_action');
-
-            if ($formAction === 'create') {
-                DB::table('research_document_template')->insert([
-                    'name' => $request->input('name'),
-                    'document_type' => $request->input('document_type'),
-                    'description' => $request->input('description'),
-                    'fields_json' => $request->input('fields_json') ?: '[]',
-                    'created_by' => $researcher->id,
-                    'created_at' => date('Y-m-d H:i:s'),
-                ]);
-                return redirect('/research/documentTemplates')->with('success', 'Template created.');
-            }
-
-            if ($formAction === 'update') {
-                $templateId = (int) $request->input('template_id');
-                DB::table('research_document_template')
-                    ->where('id', $templateId)
-                    ->update([
-                        'name' => $request->input('name'),
-                        'document_type' => $request->input('document_type'),
-                        'description' => $request->input('description'),
-                        'fields_json' => $request->input('fields_json') ?: '[]',
-                    ]);
-                return redirect('/research/documentTemplates')->with('success', 'Template updated.');
-            }
-        }
-
-        $templates = DB::table('research_document_template')
-            ->orderBy('name')
-            ->get()
-            ->toArray();
-
-        return view('research::research.document-templates', array_merge(
-            $this->getSidebarData('documentTemplates'),
-            compact('templates')
-        ));
-    }
+    // documentTemplates() extracted to ResearchDocumentTemplatesController (issue #1269). Routes re-pointed in routes/web.php.
 
     // =========================================================================
     // PROJECT ANALYSIS TOOLS

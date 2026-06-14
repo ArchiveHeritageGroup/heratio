@@ -27,6 +27,9 @@ use AhgResearch\Controllers\ResearchNotificationsController;
 use AhgResearch\Controllers\ResearchRoomsController;
 use AhgResearch\Controllers\ResearchSeatsController;
 use AhgResearch\Controllers\ResearchEquipmentController;
+use AhgResearch\Controllers\ResearchRetrievalQueueController;
+use AhgResearch\Controllers\ResearchDocumentTemplatesController;
+use AhgResearch\Controllers\ResearchWalkInsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -198,9 +201,9 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/odrlPolicies', [ResearchOdrlPoliciesController::class, 'odrlPolicies'])->name('odrlPolicies');
     Route::match(['get', 'post'], '/odrl-policies', [ResearchOdrlPoliciesController::class, 'odrlPolicies'])->name('odrl-policies');
 
-    // Document Templates
-    Route::match(['get', 'post'], '/documentTemplates', [ResearchController::class, 'documentTemplates'])->name('documentTemplates');
-    Route::match(['get', 'post'], '/document-templates', [ResearchController::class, 'documentTemplates'])->name('document-templates');
+    // Document Templates (extracted to ResearchDocumentTemplatesController - issue #1269)
+    Route::match(['get', 'post'], '/documentTemplates', [ResearchDocumentTemplatesController::class, 'documentTemplates'])->name('documentTemplates');
+    Route::match(['get', 'post'], '/document-templates', [ResearchDocumentTemplatesController::class, 'documentTemplates'])->name('document-templates');
 
     // Saved Searches
     Route::get('/savedSearches', [ResearchController::class, 'savedSearches'])->name('savedSearches');
@@ -381,8 +384,8 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::match(['get', 'post'], '/seats', [ResearchSeatsController::class, 'seats'])->name('seats');
     Route::match(['get', 'post'], '/equipment', [ResearchEquipmentController::class, 'equipment'])->name('equipment');
     Route::get('/equipment-history/{id}', [ResearchEquipmentController::class, 'equipmentHistory'])->name('equipmentHistory')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/retrievalQueue', [ResearchController::class, 'retrievalQueue'])->name('retrievalQueue');
-    Route::match(['get', 'post'], '/walkIn', [ResearchController::class, 'walkIn'])->name('walkIn');
+    Route::match(['get', 'post'], '/retrievalQueue', [ResearchRetrievalQueueController::class, 'retrievalQueue'])->name('retrievalQueue');
+    Route::match(['get', 'post'], '/walkIn', [ResearchWalkInsController::class, 'walkIn'])->name('walkIn');
     Route::match(['get', 'post'], '/adminTypes', [ResearchController::class, 'adminTypes'])->name('adminTypes');
     Route::match(['get', 'post'], '/adminStatistics', [ResearchController::class, 'adminStatistics'])->name('adminStatistics');
     Route::match(['get', 'post'], '/institutions', [ResearchController::class, 'institutions'])->name('institutions');
