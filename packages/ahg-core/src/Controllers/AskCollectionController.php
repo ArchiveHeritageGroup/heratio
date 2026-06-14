@@ -39,9 +39,12 @@ class AskCollectionController extends Controller
     public function index(Request $request)
     {
         $question = trim((string) $request->query('q', ''));
+        // Optional ?lang override; otherwise the answer is localized to the visitor's
+        // current site locale (SetLocale middleware / culture switcher). #1208/#1211.
+        $locale = trim((string) $request->query('lang', '')) ?: null;
         $result = null;
         if ($question !== '') {
-            $result = $this->service->ask(mb_substr($question, 0, 500));
+            $result = $this->service->ask(mb_substr($question, 0, 500), $locale);
         }
 
         return view('ahg-core::ask-collection', [
@@ -59,8 +62,9 @@ class AskCollectionController extends Controller
     {
         $data = $request->validate([
             'q' => 'required|string|max:500',
+            'lang' => 'nullable|string|max:12',
         ]);
 
-        return response()->json($this->service->ask(trim($data['q'])));
+        return response()->json($this->service->ask(trim($data['q']), $data['lang'] ?? null));
     }
 }

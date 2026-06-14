@@ -79,7 +79,24 @@ class AskCollectionService
      *
      * @param  string  $question  the visitor's question
      */
-    public function ask(string $question): array
+    public function ask(string $question, ?string $locale = null): array
+    {
+        $result = $this->resolve($question);
+
+        // heratio#1208/#1211: localize the answer into the visitor's language via the
+        // sanctioned MT route (AnswerLocalizer -> gateway /translate), fail-soft to
+        // English. Never an LLM, so SA languages stay compliant. Sources/titles are
+        // left as-is (proper nouns / catalogue handles).
+        if (! empty($result['answer'])) {
+            $result['answer'] = app(\AhgCore\Services\AnswerLocalizer::class)
+                ->localize((string) $result['answer'], $locale);
+        }
+
+        return $result;
+    }
+
+    /** Resolve the grounded answer in English (single KM call); ask() localizes it. */
+    private function resolve(string $question): array
     {
         $question = trim($question);
         if ($question === '') {
