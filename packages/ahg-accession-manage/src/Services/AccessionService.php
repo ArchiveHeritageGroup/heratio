@@ -118,6 +118,117 @@ class AccessionService
     }
 
     /**
+     * Link an existing donor (actor of class QubitDonor) to an accession.
+     *
+     * Persists the link in the SAME representation getDonors() reads:
+     *   relation.subject_id = accession.id
+     *   relation.object_id  = donor.id
+     *   relation.type_id    = TermId::RELATION_DONOR (169)
+     * The relation row re-uses the object table's id (Qubit class-table
+     * inheritance) — a QubitRelation object row is pre-created and its id is
+     * used as relation.id, mirroring createInformationObject() and
+     * DonorService::syncInformationObjects().
+     *
+     * Idempotent: if the donor is already linked to this accession, no new
+     * row is created (no duplicate relation, never a duplicate donor/actor).
+     *
+     * @return bool true if a new link row was created, false if it already existed
+     */
+    public function linkDonor(int $accessionId, int $donorId): bool
+    {
+        if ($accessionId <= 0 || $donorId <= 0) {
+            return false;
+        }
+
+        return (bool) DB::transaction(function () use ($accessionId, $donorId) {
+            $exists = DB::table('relation')
+                ->where('subject_id', $accessionId)
+                ->where('object_id', $donorId)
+                ->where('type_id', TermId::RELATION_DONOR)
+                ->exists();
+            if ($exists) {
+                return false;
+            }
+
+            $relationId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitRelation',
+                'created_at' => now(),
+                'updated_at' => now(),
+                'serial_number' => 0,
+            ]);
+            DB::table('relation')->insert([
+                'id' => $relationId,
+                'subject_id' => $accessionId,
+                'object_id' => $donorId,
+                'type_id' => TermId::RELATION_DONOR,
+                'source_culture' => $this->culture,
+            ]);
+
+            return true;
+        });
+    }
+
+    /**
+     * Remove the link between a donor and an accession. Deletes only the
+     * relation row(s) and their parent QubitRelation object row — the donor
+     * actor itself is left intact. No-op when no such link exists.
+     *
+     * @return int number of relation rows removed
+     */
+    public function unlinkDonor(int $accessionId, int $donorId): int
+    {
+        if ($accessionId <= 0 || $donorId <= 0) {
+            return 0;
+        }
+
+        return (int) DB::transaction(function () use ($accessionId, $donorId) {
+            $relationIds = DB::table('relation')
+                ->where('subject_id', $accessionId)
+                ->where('object_id', $donorId)
+                ->where('type_id', TermId::RELATION_DONOR)
+                ->pluck('id')
+                ->toArray();
+            if (empty($relationIds)) {
+                return 0;
+            }
+            DB::table('relation')->whereIn('id', $relationIds)->delete();
+            DB::table('object')->whereIn('id', $relationIds)->delete();
+
+            return count($relationIds);
+        });
+    }
+
+    /**
+     * Replace the donor↔accession links with exactly the given donor ids.
+     * Same representation as getDonors() (subject=accession, object=donor,
+     * type=RELATION_DONOR). Existing links not in the list are unlinked;
+     * new ones are linked. Never creates duplicate donors or relations.
+     * Called from the accession save (update) flow.
+     */
+    public function syncDonors(int $accessionId, array $donorIds): void
+    {
+        $donorIds = array_values(array_unique(array_filter(array_map('intval', $donorIds))));
+
+        DB::transaction(function () use ($accessionId, $donorIds) {
+            $current = DB::table('relation')
+                ->where('subject_id', $accessionId)
+                ->where('type_id', TermId::RELATION_DONOR)
+                ->pluck('object_id')
+                ->map(fn ($v) => (int) $v)
+                ->toArray();
+
+            // Unlink donors no longer in the list.
+            foreach (array_diff($current, $donorIds) as $stale) {
+                $this->unlinkDonor($accessionId, (int) $stale);
+            }
+            // Link newly-selected donors.
+            foreach (array_diff($donorIds, $current) as $add) {
+                $this->linkDonor($accessionId, (int) $add);
+            }
+        });
+    }
+
+    /**
      * Get deaccessions for an accession.
      */
     public function getDeaccessions(int $accessionId): \Illuminate\Support\Collection

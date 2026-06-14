@@ -16,5 +16,11 @@ class AhgDonorManageServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-donor-manage');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgDonorManage\Console\DonorEncryptBackfillCommand::class,
+            ]);
+        }
     }
 }

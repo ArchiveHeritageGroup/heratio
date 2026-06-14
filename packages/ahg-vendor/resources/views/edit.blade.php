@@ -63,19 +63,19 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-8 mb-3">
-                                <label class="form-label">{{ __('Vendor Name *') }}</label>
-                                <input type="text" name="name" class="form-control" value="{{ e($vendor->name ?? '') }}" required>
+                                <label class="form-label" for="name">{{ __('Vendor Name *') }}</label>
+                                <input type="text" name="name" id="name" class="form-control" value="{{ e($vendor->name ?? '') }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('Vendor Code') }}</label>
-                                <input type="text" name="vendor_code" class="form-control" value="{{ e($vendor->vendor_code ?? '') }}" placeholder="{{ __('Auto-generated if empty') }}">
+                                <label class="form-label" for="vendor_code">{{ __('Vendor Code') }}</label>
+                                <input type="text" name="vendor_code" id="vendor_code" class="form-control" value="{{ e($vendor->vendor_code ?? '') }}" placeholder="{{ __('Auto-generated if empty') }}">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Vendor Type *') }}</label>
-                                <select name="vendor_type" class="form-select" required>
+                                <label class="form-label" for="vendor_type">{{ __('Vendor Type *') }}</label>
+                                <select name="vendor_type" id="vendor_type" class="form-select" required>
                                     <option value="">{{ __('Select Type...') }}</option>
                                     @foreach (($vendorTypes ?? []) as $key => $label)
                                     <option value="{{ $key }}" {{ ($vendor->vendor_type ?? '') === $key ? 'selected' : '' }}>
@@ -85,8 +85,8 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Status') }}</label>
-                                <select name="status" class="form-select">
+                                <label class="form-label" for="status">{{ __('Status') }}</label>
+                                <select name="status" id="status" class="form-select">
                                     @foreach (($vendorStatuses ?? []) as $code => $label)
                                     <option value="{{ $code }}" {{ ($vendor->status ?? '') === $code ? 'selected' : '' }}>{{ $label }}</option>
                                     @endforeach
@@ -96,12 +96,12 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Registration Number') }}</label>
-                                <input type="text" name="registration_number" class="form-control" value="{{ e($vendor->registration_number ?? '') }}">
+                                <label class="form-label" for="registration_number">{{ __('Registration Number') }}</label>
+                                <input type="text" name="registration_number" id="registration_number" class="form-control" value="{{ e($vendor->registration_number ?? '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('VAT Number') }}</label>
-                                <input type="text" name="vat_number" class="form-control" value="{{ e($vendor->vat_number ?? '') }}">
+                                <label class="form-label" for="vat_number">{{ __('VAT Number') }}</label>
+                                <input type="text" name="vat_number" id="vat_number" class="form-control" value="{{ e($vendor->vat_number ?? '') }}">
                             </div>
                         </div>
                     </div>
@@ -115,23 +115,23 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Phone') }}</label>
-                                <input type="text" name="phone" class="form-control" value="{{ e($vendor->phone ?? '') }}">
+                                <label class="form-label" for="phone">{{ __('Phone') }}</label>
+                                <input type="text" name="phone" id="phone" class="form-control" value="{{ e($vendor->phone ?? '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Alternative Phone') }}</label>
-                                <input type="text" name="phone_alt" class="form-control" value="{{ e($vendor->phone_alt ?? '') }}">
+                                <label class="form-label" for="phone_alt">{{ __('Alternative Phone') }}</label>
+                                <input type="text" name="phone_alt" id="phone_alt" class="form-control" value="{{ e($vendor->phone_alt ?? '') }}">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Email') }}</label>
-                                <input type="email" name="email" class="form-control" value="{{ e($vendor->email ?? '') }}">
+                                <label class="form-label" for="email">{{ __('Email') }}</label>
+                                <input type="email" name="email" id="email" class="form-control" value="{{ e($vendor->email ?? '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Website') }}</label>
-                                <input type="url" name="website" class="form-control" value="{{ e($vendor->website ?? '') }}" placeholder="{{ __('https://') }}">
+                                <label class="form-label" for="website">{{ __('Website') }}</label>
+                                <input type="url" name="website" id="website" class="form-control" value="{{ e($vendor->website ?? '') }}" placeholder="{{ __('https://') }}">
                             </div>
                         </div>
                     </div>
@@ -144,29 +144,29 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Street Address') }}</label>
-                            <textarea name="street_address" class="form-control" rows="2">{{ e($vendor->street_address ?? '') }}</textarea>
+                            <label class="form-label" for="street_address">{{ __('Street Address') }}</label>
+                            <textarea name="street_address" id="street_address" class="form-control" rows="2">{{ e($vendor->street_address ?? '') }}</textarea>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('City') }}</label>
-                                <input type="text" name="city" class="form-control" value="{{ e($vendor->city ?? '') }}">
+                                <label class="form-label" for="city">{{ __('City') }}</label>
+                                <input type="text" name="city" id="city" class="form-control" value="{{ e($vendor->city ?? '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Province/State') }}</label>
-                                <input type="text" name="province" class="form-control" value="{{ e($vendor->province ?? '') }}">
+                                <label class="form-label" for="province">{{ __('Province/State') }}</label>
+                                <input type="text" name="province" id="province" class="form-control" value="{{ e($vendor->province ?? '') }}">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Postal Code') }}</label>
-                                <input type="text" name="postal_code" class="form-control" value="{{ e($vendor->postal_code ?? '') }}">
+                                <label class="form-label" for="postal_code">{{ __('Postal Code') }}</label>
+                                <input type="text" name="postal_code" id="postal_code" class="form-control" value="{{ e($vendor->postal_code ?? '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Country') }}</label>
-                                <input type="text" name="country" class="form-control" value="{{ e($vendor->country ?? '') }}">
+                                <label class="form-label" for="country">{{ __('Country') }}</label>
+                                <input type="text" name="country" id="country" class="form-control" value="{{ e($vendor->country ?? '') }}">
                             </div>
                         </div>
                     </div>
@@ -180,29 +180,29 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Bank Name') }}</label>
-                                <input type="text" name="bank_name" class="form-control" value="{{ e($vendor->bank_name ?? '') }}">
+                                <label class="form-label" for="bank_name">{{ __('Bank Name') }}</label>
+                                <input type="text" name="bank_name" id="bank_name" class="form-control" value="{{ e($vendor->bank_name ?? '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Branch Name') }}</label>
-                                <input type="text" name="bank_branch" class="form-control" value="{{ e($vendor->bank_branch ?? '') }}">
+                                <label class="form-label" for="bank_branch">{{ __('Branch Name') }}</label>
+                                <input type="text" name="bank_branch" id="bank_branch" class="form-control" value="{{ e($vendor->bank_branch ?? '') }}">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Account Number') }}</label>
-                                <input type="text" name="bank_account_number" class="form-control" value="{{ e($vendor->bank_account_number ?? '') }}">
+                                <label class="form-label" for="bank_account_number">{{ __('Account Number') }}</label>
+                                <input type="text" name="bank_account_number" id="bank_account_number" class="form-control" value="{{ e($vendor->bank_account_number ?? '') }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Branch Code') }}</label>
-                                <input type="text" name="bank_branch_code" class="form-control" value="{{ e($vendor->bank_branch_code ?? '') }}">
+                                <label class="form-label" for="bank_branch_code">{{ __('Branch Code') }}</label>
+                                <input type="text" name="bank_branch_code" id="bank_branch_code" class="form-control" value="{{ e($vendor->bank_branch_code ?? '') }}">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Account Type') }}</label>
-                            <select name="bank_account_type" class="form-select">
+                            <label class="form-label" for="bank_account_type">{{ __('Account Type') }}</label>
+                            <select name="bank_account_type" id="bank_account_type" class="form-select">
                                 <option value="">{{ __('Select...') }}</option>
                                 <option value="cheque" {{ ($vendor->bank_account_type ?? '') === 'cheque' ? 'selected' : '' }}>Cheque Account</option>
                                 <option value="savings" {{ ($vendor->bank_account_type ?? '') === 'savings' ? 'selected' : '' }}>Savings Account</option>
@@ -267,25 +267,25 @@
 
                         <div id="insuranceFields">
                             <div class="mb-3">
-                                <label class="form-label">{{ __('Insurance Provider') }}</label>
-                                <input type="text" name="insurance_provider" class="form-control" value="{{ e($vendor->insurance_provider ?? '') }}">
+                                <label class="form-label" for="insurance_provider">{{ __('Insurance Provider') }}</label>
+                                <input type="text" name="insurance_provider" id="insurance_provider" class="form-control" value="{{ e($vendor->insurance_provider ?? '') }}">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">{{ __('Policy Number') }}</label>
-                                <input type="text" name="insurance_policy_number" class="form-control" value="{{ e($vendor->insurance_policy_number ?? '') }}">
+                                <label class="form-label" for="insurance_policy_number">{{ __('Policy Number') }}</label>
+                                <input type="text" name="insurance_policy_number" id="insurance_policy_number" class="form-control" value="{{ e($vendor->insurance_policy_number ?? '') }}">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">{{ __('Expiry Date') }}</label>
-                                <input type="date" name="insurance_expiry_date" class="form-control" value="{{ $vendor->insurance_expiry_date ?? '' }}">
+                                <label class="form-label" for="insurance_expiry_date">{{ __('Expiry Date') }}</label>
+                                <input type="date" name="insurance_expiry_date" id="insurance_expiry_date" class="form-control" value="{{ $vendor->insurance_expiry_date ?? '' }}">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">{{ __('Coverage Amount') }}</label>
+                                <label class="form-label" for="insurance_coverage_amount">{{ __('Coverage Amount') }}</label>
                                 <div class="input-group">
                                     <span class="input-group-text">R</span>
-                                    <input type="number" name="insurance_coverage_amount" class="form-control" step="0.01" value="{{ $vendor->insurance_coverage_amount ?? '' }}">
+                                    <input type="number" name="insurance_coverage_amount" id="insurance_coverage_amount" class="form-control" step="0.01" value="{{ $vendor->insurance_coverage_amount ?? '' }}">
                                 </div>
                             </div>
                         </div>

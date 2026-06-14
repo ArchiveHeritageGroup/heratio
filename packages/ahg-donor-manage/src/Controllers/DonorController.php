@@ -625,6 +625,26 @@ class DonorController extends Controller
         return response()->json($results);
     }
 
+    /**
+     * Donor typeahead for the accession "Related donor" modal.
+     *
+     * Backs the donor.autocomplete route. The YUI form-autocomplete widget
+     * (ahgThemeB5Plugin bundle) fetches the .list URL with TYPE_HTMLTABLE, so
+     * the response MUST be an HTML table - NOT JSON. Each row's first <td>
+     * anchor supplies the display name (link text) and the value (href) the
+     * widget writes into the hidden donor input on selection, linking an
+     * EXISTING donor rather than creating a duplicate.
+     */
+    public function autocomplete(Request $request)
+    {
+        $q = (string) $request->input('query', $request->input('q', ''));
+        $donors = $this->service->search($q);
+
+        return response()
+            ->view('ahg-donor-manage::autocomplete-list', ['donors' => $donors])
+            ->header('Content-Type', 'text/html; charset=utf-8');
+    }
+
     public function donorIndex(Request $request)
     {
         return view('ahg-donor-manage::donor-index', ['rows' => collect()]);

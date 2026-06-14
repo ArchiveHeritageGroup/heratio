@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use AhgResearch\Services\CollaborationService;
 use AhgResearch\Services\ValidationQueueService;
@@ -45,50 +46,13 @@ use Illuminate\Support\Facades\DB;
  */
 class ResearchController extends Controller
 {
+    use ResearchControllerHelpers;
+
     protected ResearchService $service;
 
     public function __construct()
     {
         $this->service = new ResearchService();
-    }
-
-    protected function getResearcherOrRedirect()
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) {
-            return redirect()->route('researcher.register');
-        }
-        return $researcher;
-    }
-
-    protected function getSidebarData(string $active): array
-    {
-        $unreadNotifications = 0;
-        $experienceLevel = 'intermediate';
-        if (Auth::check()) {
-            $researcher = $this->service->getResearcherByUserId(Auth::id());
-            if ($researcher) {
-                try {
-                    $unreadNotifications = (int) DB::table('research_notification')
-                        ->where('researcher_id', $researcher->id)
-                        ->where('is_read', 0)
-                        ->count();
-                } catch (\Exception $e) {
-                    // Table may not exist yet
-                }
-                if (!empty($researcher->experience_level)) {
-                    $experienceLevel = $researcher->experience_level;
-                }
-            }
-        }
-        return [
-            'sidebarActive' => $active,
-            'unreadNotifications' => $unreadNotifications,
-            'experienceLevel' => $experienceLevel,
-        ];
     }
 
     // =========================================================================
@@ -920,152 +884,14 @@ class ResearchController extends Controller
     // ANNOTATIONS
     // =========================================================================
 
-    public function annotations(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        if ($request->isMethod('post')) {
-            $action = $request->input('do');
-
-            if ($action === 'delete') {
-                $this->service->deleteAnnotation((int) $request->input('id'), $researcher->id);
-                return redirect()->route('research.annotations')->with('success', 'Note deleted');
-            }
-
-            if ($action === 'create') {
-                $content = trim($request->input('content'));
-                $validEntityTypes = ['information_object', 'actor', 'repository', 'accession', 'term'];
-                $entityType = $request->input('entity_type', 'information_object');
-                $visibility = $request->input('visibility', 'private');
-                $contentFormat = $request->input('content_format', 'text');
-
-                if ($content) {
-                    DB::table('research_annotation')->insert([
-                        'researcher_id' => $researcher->id,
-                        'object_id' => ((int) $request->input('object_id')) ?: null,
-                        'entity_type' => in_array($entityType, $validEntityTypes) ? $entityType : 'information_object',
-                        'collection_id' => ((int) $request->input('collection_id')) ?: null,
-                        'title' => trim($request->input('title')),
-                        'content' => $content,
-                        'tags' => trim($request->input('tags', '')) ?: null,
-                        'content_format' => in_array($contentFormat, ['text', 'html']) ? $contentFormat : 'text',
-                        'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
-                        'created_at' => date('Y-m-d H:i:s'),
-                    ]);
-                    return redirect()->route('research.annotations')->with('success', 'Note created');
-                }
-            }
-
-            if ($action === 'update') {
-                $id = (int) $request->input('id');
-                $content = trim($request->input('content'));
-                $validEntityTypes = ['information_object', 'actor', 'repository', 'accession', 'term'];
-                $entityType = $request->input('entity_type', 'information_object');
-                $visibility = $request->input('visibility', 'private');
-                $contentFormat = $request->input('content_format', 'text');
-
-                if ($content) {
-                    DB::table('research_annotation')
-                        ->where('id', $id)
-                        ->where('researcher_id', $researcher->id)
-                        ->update([
-                            'title' => trim($request->input('title')),
-                            'content' => $content,
-                            'object_id' => ((int) $request->input('object_id')) ?: null,
-                            'entity_type' => in_array($entityType, $validEntityTypes) ? $entityType : 'information_object',
-                            'collection_id' => ((int) $request->input('collection_id')) ?: null,
-                            'tags' => trim($request->input('tags', '')) ?: null,
-                            'content_format' => in_array($contentFormat, ['text', 'html']) ? $contentFormat : 'text',
-                            'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
-                        ]);
-                    return redirect()->route('research.annotations')->with('success', 'Note updated');
-                }
-            }
-        }
-
-        $q = $request->input('q');
-        $visibility = $request->input('visibility');
-        $tag = $request->input('tag');
-
-        $annotations = $q
-            ? $this->service->searchAnnotations($researcher->id, $q)
-            : $this->service->getAnnotations($researcher->id);
-
-        if ($visibility) {
-            $annotations = array_filter($annotations, fn($a) => ($a->visibility ?? 'private') === $visibility);
-        }
-        if ($tag) {
-            $annotations = array_filter($annotations, function ($a) use ($tag) {
-                if (empty($a->tags)) return false;
-                $tags = array_map('trim', explode(',', $a->tags));
-                return in_array($tag, $tags);
-            });
-        }
-        $annotations = array_values($annotations);
-
-        $researchCollections = DB::table('research_collection')
-            ->where('researcher_id', $researcher->id)
-            ->orderBy('name')->get();
-
-        return view('research::research.annotations', array_merge(
-            $this->getSidebarData('annotations'),
-            compact('researcher', 'annotations', 'researchCollections')
-        ));
-    }
+    // annotations() moved to ResearchAnnotationsController (stage 2, issue #1253).
 
     // =========================================================================
     // CITATIONS
     // =========================================================================
 
-    public function cite(Request $request, string $slug)
-    {
-        $object = DB::table('slug')->where('slug', $slug)->first();
-        if (!$object) abort(404);
-
-        $styles = ['chicago', 'mla', 'turabian', 'apa', 'harvard', 'unisa'];
-        $citations = [];
-        foreach ($styles as $style) {
-            $citations[$style] = $this->service->generateCitation($object->object_id, $style);
-        }
-
-        $researcherId = null;
-        if (Auth::check()) {
-            $r = $this->service->getResearcherByUserId(Auth::id());
-            if ($r) $researcherId = $r->id;
-        }
-        foreach ($citations as $style => $data) {
-            if (!isset($data['error'])) {
-                $this->service->logCitation($researcherId, $object->object_id, $style, $data['citation']);
-            }
-        }
-
-        $exportFormats = \AhgResearch\Services\CitationService::FORMATS;
-
-        return view('research::research.cite', array_merge(
-            $this->getSidebarData('bibliographies'),
-            compact('citations', 'styles', 'exportFormats'),
-            ['objectId' => (int) $object->object_id, 'objectSlug' => $slug]
-        ));
-    }
-
-    public function citeExport(Request $request, string $slug, string $format)
-    {
-        $object = DB::table('slug')->where('slug', $slug)->first();
-        if (!$object) abort(404);
-
-        $citation = app(\AhgResearch\Services\CitationService::class)->export((int) $object->object_id, strtolower($format));
-
-        if (isset($citation['error'])) {
-            abort(404, $citation['error']);
-        }
-
-        return response($citation['body'], 200, [
-            'Content-Type'        => $citation['mime'],
-            'Content-Disposition' => 'attachment; filename="' . $citation['filename'] . '"',
-        ]);
-    }
+    // cite() and citeExport() moved to ResearchCitationsController
+    // (stage 3 Part B, issue #1253). Both remain PUBLIC routes.
 
     // =========================================================================
     // PROJECTS
@@ -3163,83 +2989,8 @@ class ResearchController extends Controller
         return redirect()->route('research.viewProject', $projectId)->with('success', 'Project created');
     }
 
-    // =========================================================================
-    // DEDICATED ROUTE METHODS (Annotations)
-    // =========================================================================
-
-    public function storeAnnotation(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $content = trim($request->input('content'));
-        $validEntityTypes = ['information_object', 'actor', 'repository', 'accession', 'term'];
-        $entityType = $request->input('entity_type', 'information_object');
-        $visibility = $request->input('visibility', 'private');
-        $contentFormat = $request->input('content_format', 'text');
-
-        if ($content) {
-            DB::table('research_annotation')->insert([
-                'researcher_id' => $researcher->id,
-                'object_id' => ((int) $request->input('object_id')) ?: null,
-                'entity_type' => in_array($entityType, $validEntityTypes) ? $entityType : 'information_object',
-                'collection_id' => ((int) $request->input('collection_id')) ?: null,
-                'title' => trim($request->input('title')),
-                'content' => $content,
-                'tags' => trim($request->input('tags', '')) ?: null,
-                'content_format' => in_array($contentFormat, ['text', 'html']) ? $contentFormat : 'text',
-                'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
-                'created_at' => date('Y-m-d H:i:s'),
-            ]);
-            return redirect()->route('research.annotations')->with('success', 'Note created');
-        }
-
-        return redirect()->route('research.annotations')->with('error', 'Content is required');
-    }
-
-    public function updateAnnotation(Request $request, int $id)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $content = trim($request->input('content'));
-        $validEntityTypes = ['information_object', 'actor', 'repository', 'accession', 'term'];
-        $entityType = $request->input('entity_type', 'information_object');
-        $visibility = $request->input('visibility', 'private');
-        $contentFormat = $request->input('content_format', 'text');
-
-        if ($content) {
-            DB::table('research_annotation')
-                ->where('id', $id)
-                ->where('researcher_id', $researcher->id)
-                ->update([
-                    'title' => trim($request->input('title')),
-                    'content' => $content,
-                    'object_id' => ((int) $request->input('object_id')) ?: null,
-                    'entity_type' => in_array($entityType, $validEntityTypes) ? $entityType : 'information_object',
-                    'collection_id' => ((int) $request->input('collection_id')) ?: null,
-                    'tags' => trim($request->input('tags', '')) ?: null,
-                    'content_format' => in_array($contentFormat, ['text', 'html']) ? $contentFormat : 'text',
-                    'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
-                ]);
-            return redirect()->route('research.annotations')->with('success', 'Note updated');
-        }
-
-        return redirect()->route('research.annotations')->with('error', 'Content is required');
-    }
-
-    public function destroyAnnotation(int $id)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $this->service->deleteAnnotation($id, $researcher->id);
-
-        return redirect()->route('research.annotations')->with('success', 'Note deleted');
-    }
+    // storeAnnotation() / updateAnnotation() / destroyAnnotation() moved to
+    // ResearchAnnotationsController (stage 2, issue #1253).
 
     // =========================================================================
     // DEDICATED ROUTE METHODS (Researchers Admin)

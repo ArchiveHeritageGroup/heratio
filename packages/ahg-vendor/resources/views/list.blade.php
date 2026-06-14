@@ -40,12 +40,12 @@
         <div class="card-body">
             <form method="get" action="{{ route('ahgvendor.list') }}" class="row g-3">
                 <div class="col-md-3">
-                    <label class="form-label">{{ __('Search') }}</label>
-                    <input type="text" name="search" class="form-control" placeholder="{{ __('Name, code, email...') }}" value="{{ e($filters['search'] ?? '') }}">
+                    <label class="form-label" for="search">{{ __('Search') }}</label>
+                    <input type="text" name="search" id="search" class="form-control" placeholder="{{ __('Name, code, email...') }}" value="{{ e($filters['search'] ?? '') }}">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">{{ __('Status') }}</label>
-                    <select name="status" class="form-select">
+                    <label class="form-label" for="status">{{ __('Status') }}</label>
+                    <select name="status" id="status" class="form-select">
                         <option value="">{{ __('All Statuses') }}</option>
                         @foreach (($vendorStatuses ?? []) as $key => $label)
                             <option value="{{ $key }}" {{ ($filters['status'] ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -53,8 +53,8 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">{{ __('Type') }}</label>
-                    <select name="vendor_type" class="form-select">
+                    <label class="form-label" for="vendor_type">{{ __('Type') }}</label>
+                    <select name="vendor_type" id="vendor_type" class="form-select">
                         <option value="">{{ __('All Types') }}</option>
                         @foreach (($vendorTypes ?? []) as $key => $label)
                             <option value="{{ $key }}" {{ ($filters['vendor_type'] ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -62,8 +62,8 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">{{ __('Service') }}</label>
-                    <select name="service_type_id" class="form-select">
+                    <label class="form-label" for="service_type_id">{{ __('Service') }}</label>
+                    <select name="service_type_id" id="service_type_id" class="form-select">
                         <option value="">{{ __('All Services') }}</option>
                         @foreach (($serviceTypes ?? []) as $service)
                             <option value="{{ $service->id }}" {{ ($filters['service_type_id'] ?? '') == $service->id ? 'selected' : '' }}>{{ e($service->name) }}</option>
@@ -71,8 +71,8 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">{{ __('Insurance') }}</label>
-                    <select name="has_insurance" class="form-select">
+                    <label class="form-label" for="has_insurance">{{ __('Insurance') }}</label>
+                    <select name="has_insurance" id="has_insurance" class="form-select">
                         <option value="">{{ __('Any') }}</option>
                         <option value="1" {{ ($filters['has_insurance'] ?? '') === '1' ? 'selected' : '' }}>{{ __('Has Valid Insurance') }}</option>
                     </select>

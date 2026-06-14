@@ -422,40 +422,40 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">{{ __('Name *') }}</label>
-                        <input type="text" name="contact_name" class="form-control" required>
+                        <label class="form-label" for="contact_name">{{ __('Name *') }}</label>
+                        <input type="text" name="contact_name" id="contact_name" class="form-control" required>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">{{ __('Position') }}</label>
-                            <input type="text" name="position" class="form-control">
+                            <label class="form-label" for="position">{{ __('Position') }}</label>
+                            <input type="text" name="position" id="position" class="form-control">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">{{ __('Department') }}</label>
-                            <input type="text" name="department" class="form-control">
+                            <label class="form-label" for="department">{{ __('Department') }}</label>
+                            <input type="text" name="department" id="department" class="form-control">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">{{ __('Phone') }}</label>
-                            <input type="text" name="contact_phone" class="form-control">
+                            <label class="form-label" for="contact_phone">{{ __('Phone') }}</label>
+                            <input type="text" name="contact_phone" id="contact_phone" class="form-control">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">{{ __('Mobile') }}</label>
-                            <input type="text" name="mobile" class="form-control">
+                            <label class="form-label" for="mobile">{{ __('Mobile') }}</label>
+                            <input type="text" name="mobile" id="mobile" class="form-control">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('Email') }}</label>
-                        <input type="email" name="contact_email" class="form-control">
+                        <label class="form-label" for="contact_email">{{ __('Email') }}</label>
+                        <input type="email" name="contact_email" id="contact_email" class="form-control">
                     </div>
                     <div class="form-check mb-3">
                         <input type="checkbox" name="is_primary" value="1" class="form-check-input" id="isPrimary">
                         <label class="form-check-label" for="isPrimary">{{ __('Primary Contact') }}</label>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('Notes') }}</label>
-                        <textarea name="contact_notes" class="form-control" rows="2"></textarea>
+                        <label class="form-label" for="contact_notes">{{ __('Notes') }}</label>
+                        <textarea name="contact_notes" id="contact_notes" class="form-control" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

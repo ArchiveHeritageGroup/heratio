@@ -40,12 +40,12 @@
         <div class="card-body">
             <form method="get" action="{{ route('ahgvendor.transactions') }}" class="row g-3">
                 <div class="col-md-2">
-                    <label class="form-label">{{ __('Search') }}</label>
-                    <input type="text" name="search" class="form-control" placeholder="{{ __('Transaction #...') }}" value="{{ e($filters['search'] ?? '') }}">
+                    <label class="form-label" for="search">{{ __('Search') }}</label>
+                    <input type="text" name="search" id="search" class="form-control" placeholder="{{ __('Transaction #...') }}" value="{{ e($filters['search'] ?? '') }}">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">{{ __('Status') }}</label>
-                    <select name="status" class="form-select">
+                    <label class="form-label" for="status">{{ __('Status') }}</label>
+                    <select name="status" id="status" class="form-select">
                         <option value="">{{ __('All Statuses') }}</option>
                         @foreach (($statusOptions ?? []) as $key => $label)
                         <option value="{{ $key }}" {{ ($filters['status'] ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -53,8 +53,8 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">{{ __('Vendor') }}</label>
-                    <select name="vendor_id" class="form-select">
+                    <label class="form-label" for="vendor_id">{{ __('Vendor') }}</label>
+                    <select name="vendor_id" id="vendor_id" class="form-select">
                         <option value="">{{ __('All Vendors') }}</option>
                         @foreach (($vendors ?? []) as $vendor)
                         <option value="{{ $vendor->id }}" {{ ($filters['vendor_id'] ?? '') == $vendor->id ? 'selected' : '' }}>{{ e($vendor->name) }}</option>
@@ -62,8 +62,8 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">{{ __('Service') }}</label>
-                    <select name="service_type_id" class="form-select">
+                    <label class="form-label" for="service_type_id">{{ __('Service') }}</label>
+                    <select name="service_type_id" id="service_type_id" class="form-select">
                         <option value="">{{ __('All Services') }}</option>
                         @foreach (($serviceTypes ?? []) as $service)
                         <option value="{{ $service->id }}" {{ ($filters['service_type_id'] ?? '') == $service->id ? 'selected' : '' }}>{{ e($service->name) }}</option>
@@ -71,12 +71,12 @@
                     </select>
                 </div>
                 <div class="col-md-1">
-                    <label class="form-label">{{ __('From') }}</label>
-                    <input type="date" name="date_from" class="form-control" value="{{ e($filters['date_from'] ?? '') }}">
+                    <label class="form-label" for="date_from">{{ __('From') }}</label>
+                    <input type="date" name="date_from" id="date_from" class="form-control" value="{{ e($filters['date_from'] ?? '') }}">
                 </div>
                 <div class="col-md-1">
-                    <label class="form-label">{{ __('To') }}</label>
-                    <input type="date" name="date_to" class="form-control" value="{{ e($filters['date_to'] ?? '') }}">
+                    <label class="form-label" for="date_to">{{ __('To') }}</label>
+                    <input type="date" name="date_to" id="date_to" class="form-control" value="{{ e($filters['date_to'] ?? '') }}">
                 </div>
                 <div class="col-md-1">
                     <label class="form-label">&nbsp;</label>

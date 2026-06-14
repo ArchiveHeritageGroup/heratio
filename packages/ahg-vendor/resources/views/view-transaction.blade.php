@@ -200,14 +200,14 @@ $statusColors = [
                 <div class="modal-header"><h5 class="modal-title">{{ __('Update Status') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">{{ __('New Status') }}</label>
-                        <select name="status" class="form-select" required>
+                        <label class="form-label" for="status">{{ __('New Status') }}</label>
+                        <select name="status" id="status" class="form-select" required>
                             @foreach (($statusOptions ?? []) as $code => $label)
                             <option value="{{ $code }}" {{ $transaction->status === $code ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea name="status_notes" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label" for="status_notes">{{ __('Notes') }}</label><textarea name="status_notes" id="status_notes" class="form-control" rows="3"></textarea></div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary">{{ __('Update') }}</button></div>
             </form>

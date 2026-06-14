@@ -71,8 +71,8 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">{{ __('Contract Type') }} <span class="text-danger">*</span></label>
-                        <select name="contract[contract_type_id]" class="form-select" required>
+                        <label class="form-label" for="contract_contract_type_id">{{ __('Contract Type') }} <span class="text-danger">*</span></label>
+                        <select name="contract[contract_type_id]" id="contract_contract_type_id" class="form-select" required>
                             <option value="">{{ __('Select type...') }}</option>
                             @foreach ($types ?? [] as $type)
                                 <option value="{{ $type->id }}"
@@ -81,14 +81,14 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">{{ __('Contract Number') }}</label>
-                        <input type="text" name="contract[contract_number]" class="form-control"
+                        <label class="form-label" for="contract_contract_number">{{ __('Contract Number') }}</label>
+                        <input type="text" name="contract[contract_number]" id="contract_contract_number" class="form-control"
                                value="{{ $contract->contract_number ?? '' }}"
                                placeholder="{{ __('Auto-generated if blank') }}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">{{ __('Status') }}</label>
-                        <select name="contract[status]" class="form-select">
+                        <label class="form-label" for="contract_status">{{ __('Status') }}</label>
+                        <select name="contract[status]" id="contract_status" class="form-select">
                             @foreach ($statuses as $s)
                                 <option value="{{ $s->code }}"
                                         @selected(($contract->status ?? 'draft') === $s->code)>{{ $s->label }}</option>
@@ -96,16 +96,16 @@
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
-                        <input type="text" name="contract[title]" class="form-control"
+                        <label class="form-label" for="contract_title">{{ __('Title') }} <span class="text-danger">*</span></label>
+                        <input type="text" name="contract[title]" id="contract_title" class="form-control"
                                value="{{ $contract->title ?? '' }}" required>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">{{ __('Description') }}</label>
-                        <textarea name="contract[description]" class="form-control" rows="3">{{ $contract->description ?? '' }}</textarea>
+                        <label class="form-label" for="contract_description">{{ __('Description') }}</label>
+                        <textarea name="contract[description]" id="contract_description" class="form-control" rows="3">{{ $contract->description ?? '' }}</textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">{{ __('Contract Logo') }}</label>
+                        <label class="form-label" for="contract_logo">{{ __('Contract Logo') }}</label>
                         @if (! empty($contract->logo_path))
                             <div class="mb-2">
                                 <img src="/uploads{{ $contract->logo_path }}" alt="{{ __('Logo') }}" class="img-thumbnail" style="max-height: 80px;">
@@ -115,12 +115,12 @@
                                 </div>
                             </div>
                         @endif
-                        <input type="file" name="contract_logo" class="form-control" accept="image/jpeg,image/png,image/gif,image/webp">
+                        <input type="file" name="contract_logo" id="contract_logo" class="form-control" accept="image/jpeg,image/png,image/gif,image/webp">
                         <small class="text-muted">{{ __('Upload organization logo for contract header (JPG, PNG, GIF, WebP)') }}</small>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">{{ __('Risk Level') }}</label>
-                        <select name="contract[risk_level]" class="form-select">
+                        <label class="form-label" for="contract_risk_level">{{ __('Risk Level') }}</label>
+                        <select name="contract[risk_level]" id="contract_risk_level" class="form-select">
                             @foreach ($risks as $r)
                                 <option value="{{ $r->code }}"
                                         @selected(($contract->risk_level ?? 'low') === $r->code)>{{ $r->label }}</option>
@@ -144,13 +144,13 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label">{{ __('Counterparty Name') }} <span class="text-danger">*</span></label>
-                        <input type="text" name="contract[counterparty_name]" class="form-control"
+                        <label class="form-label" for="contract_counterparty_name">{{ __('Counterparty Name') }} <span class="text-danger">*</span></label>
+                        <input type="text" name="contract[counterparty_name]" id="contract_counterparty_name" class="form-control"
                                value="{{ $contract->counterparty_name ?? ($vendor->name ?? '') }}" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">{{ __('Type') }}</label>
-                        <select name="contract[counterparty_type]" class="form-select">
+                        <label class="form-label" for="contract_counterparty_type">{{ __('Type') }}</label>
+                        <select name="contract[counterparty_type]" id="contract_counterparty_type" class="form-select">
                             @foreach ($cpTypes as $t)
                                 <option value="{{ $t->code }}"
                                         @selected(($contract->counterparty_type ?? 'vendor') === $t->code)>{{ $t->label }}</option>
@@ -158,8 +158,8 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">{{ __('Link to Vendor') }}</label>
-                        <select name="contract[vendor_id]" class="form-select">
+                        <label class="form-label" for="contract_vendor_id">{{ __('Link to Vendor') }}</label>
+                        <select name="contract[vendor_id]" id="contract_vendor_id" class="form-select">
                             <option value="">{{ __('None') }}</option>
                             @foreach ($vendors ?? [] as $v)
                                 <option value="{{ $v->id }}"
@@ -168,18 +168,18 @@
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">{{ __('Contact Information') }}</label>
-                        <textarea name="contract[counterparty_contact]" class="form-control" rows="2"
+                        <label class="form-label" for="contract_counterparty_contact">{{ __('Contact Information') }}</label>
+                        <textarea name="contract[counterparty_contact]" id="contract_counterparty_contact" class="form-control" rows="2"
                                   placeholder="{{ __('Address, phone, email...') }}">{{ $contract->counterparty_contact ?? '' }}</textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">{{ __('Representative Name') }}</label>
-                        <input type="text" name="contract[counterparty_representative]" class="form-control"
+                        <label class="form-label" for="contract_counterparty_representative">{{ __('Representative Name') }}</label>
+                        <input type="text" name="contract[counterparty_representative]" id="contract_counterparty_representative" class="form-control"
                                value="{{ $contract->counterparty_representative ?? '' }}">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">{{ __('Representative Title') }}</label>
-                        <input type="text" name="contract[counterparty_representative_title]" class="form-control"
+                        <label class="form-label" for="contract_counterparty_representative_title">{{ __('Representative Title') }}</label>
+                        <input type="text" name="contract[counterparty_representative_title]" id="contract_counterparty_representative_title" class="form-control"
                                value="{{ $contract->counterparty_representative_title ?? '' }}">
                     </div>
                 </div>
@@ -192,13 +192,13 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label">{{ __('Our Representative') }}</label>
-                        <input type="text" name="contract[our_representative]" class="form-control"
+                        <label class="form-label" for="contract_our_representative">{{ __('Our Representative') }}</label>
+                        <input type="text" name="contract[our_representative]" id="contract_our_representative" class="form-control"
                                value="{{ $contract->our_representative ?? '' }}">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">{{ __('Title/Position') }}</label>
-                        <input type="text" name="contract[our_representative_title]" class="form-control"
+                        <label class="form-label" for="contract_our_representative_title">{{ __('Title/Position') }}</label>
+                        <input type="text" name="contract[our_representative_title]" id="contract_our_representative_title" class="form-control"
                                value="{{ $contract->our_representative_title ?? '' }}">
                     </div>
                 </div>
@@ -211,16 +211,16 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label">{{ __('Effective Date') }}</label>
-                        <input type="date" name="contract[effective_date]" class="form-control" value="{{ $contract->effective_date ?? '' }}">
+                        <label class="form-label" for="contract_effective_date">{{ __('Effective Date') }}</label>
+                        <input type="date" name="contract[effective_date]" id="contract_effective_date" class="form-control" value="{{ $contract->effective_date ?? '' }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">{{ __('Expiry Date') }}</label>
-                        <input type="date" name="contract[expiry_date]" class="form-control" value="{{ $contract->expiry_date ?? '' }}">
+                        <label class="form-label" for="contract_expiry_date">{{ __('Expiry Date') }}</label>
+                        <input type="date" name="contract[expiry_date]" id="contract_expiry_date" class="form-control" value="{{ $contract->expiry_date ?? '' }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">{{ __('Review Date') }}</label>
-                        <input type="date" name="contract[review_date]" class="form-control" value="{{ $contract->review_date ?? '' }}">
+                        <label class="form-label" for="contract_review_date">{{ __('Review Date') }}</label>
+                        <input type="date" name="contract[review_date]" id="contract_review_date" class="form-control" value="{{ $contract->review_date ?? '' }}">
                     </div>
                     <div class="col-md-3">
                         <div class="form-check mt-4">
@@ -246,13 +246,13 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">{{ __('Contract Value') }}</label>
-                        <input type="number" step="0.01" name="contract[contract_value]" class="form-control"
+                        <label class="form-label" for="contract_contract_value">{{ __('Contract Value') }}</label>
+                        <input type="number" step="0.01" name="contract[contract_value]" id="contract_contract_value" class="form-control"
                                value="{{ $contract->contract_value ?? '' }}">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">{{ __('Currency') }}</label>
-                        <select name="contract[currency]" class="form-select">
+                        <label class="form-label" for="contract_currency">{{ __('Currency') }}</label>
+                        <select name="contract[currency]" id="contract_currency" class="form-select">
                             @foreach ($currencies as $c)
                                 <option value="{{ $c->code }}"
                                         @selected(($contract->currency ?? 'ZAR') === $c->code)>{{ $c->label }}</option>
@@ -260,8 +260,8 @@
                         </select>
                     </div>
                     <div class="col-md-5">
-                        <label class="form-label">{{ __('Payment Terms') }}</label>
-                        <input type="text" name="contract[payment_terms]" class="form-control"
+                        <label class="form-label" for="contract_payment_terms">{{ __('Payment Terms') }}</label>
+                        <input type="text" name="contract[payment_terms]" id="contract_payment_terms" class="form-control"
                                value="{{ $contract->payment_terms ?? '' }}"
                                placeholder="{{ __('e.g., 30 days from invoice') }}">
                     </div>
@@ -281,21 +281,21 @@
                         'special_conditions' => __('Special Conditions'),
                     ] as $field => $label)
                         <div class="col-12">
-                            <label class="form-label">{{ $label }}</label>
-                            <textarea name="contract[{{ $field }}]" class="form-control" rows="3">{{ $contract->{$field} ?? '' }}</textarea>
+                            <label class="form-label" for="contract_{{ $field }}">{{ $label }}</label>
+                            <textarea name="contract[{{ $field }}]" id="contract_{{ $field }}" class="form-control" rows="3">{{ $contract->{$field} ?? '' }}</textarea>
                         </div>
                     @endforeach
                     <div class="col-md-6">
-                        <label class="form-label">{{ __('IP Terms') }}</label>
-                        <textarea name="contract[ip_terms]" class="form-control" rows="3">{{ $contract->ip_terms ?? '' }}</textarea>
+                        <label class="form-label" for="contract_ip_terms">{{ __('IP Terms') }}</label>
+                        <textarea name="contract[ip_terms]" id="contract_ip_terms" class="form-control" rows="3">{{ $contract->ip_terms ?? '' }}</textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">{{ __('Confidentiality Terms') }}</label>
-                        <textarea name="contract[confidentiality_terms]" class="form-control" rows="3">{{ $contract->confidentiality_terms ?? '' }}</textarea>
+                        <label class="form-label" for="contract_confidentiality_terms">{{ __('Confidentiality Terms') }}</label>
+                        <textarea name="contract[confidentiality_terms]" id="contract_confidentiality_terms" class="form-control" rows="3">{{ $contract->confidentiality_terms ?? '' }}</textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">{{ __('Governing Law') }}</label>
-                        <input type="text" name="contract[governing_law]" class="form-control"
+                        <label class="form-label" for="contract_governing_law">{{ __('Governing Law') }}</label>
+                        <input type="text" name="contract[governing_law]" id="contract_governing_law" class="form-control"
                                value="{{ $contract->governing_law ?? '' }}"
                                placeholder="{{ __('e.g. South Africa, England & Wales') }}">
                     </div>

@@ -281,5 +281,11 @@ class AhgResearchServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Blade::anonymousComponentNamespace(
             'components', 'research'
         );
+
+        // #1254 Publish research lifecycle events (project created/updated/closed,
+        // output published) into the RiC graph via RiCBridgeService. The subscriber
+        // self-guards when ahg-ric is absent, so this is safe to register
+        // unconditionally.
+        \Illuminate\Support\Facades\Event::subscribe(\AhgResearch\Listeners\ResearchRiCSubscriber::class);
     }
 }

@@ -26,6 +26,7 @@
 namespace AhgDonorManage\Services;
 
 use AhgCore\Constants\TermId;
+use AhgCore\Services\EncryptionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -36,6 +37,68 @@ class DonorService
     public function __construct(?string $culture = null)
     {
         $this->culture = $culture ?? (string) app()->getLocale();
+    }
+
+    /**
+     * Typeahead search for donors by authorized form of name.
+     *
+     * Joins donor -> actor (parent_id = 3) -> actor_i18n (culture-aware, with a
+     * COALESCE fallback to the source_culture row) -> slug. Returns rows shaped
+     * for the YUI form-autocomplete widget that powers the accession "Related
+     * donor" modal: the widget reads an HTML table where each row's first <td>
+     * holds an <a href="VALUE">DISPLAY NAME</a>. The blade list template turns
+     * each returned row into exactly that anchor, using 'slug' for the href
+     * (value written into the hidden donor input) and 'label' for the link text.
+     *
+     * @return array<int,array{id:int,label:string,slug:?string}>
+     */
+    public function search(string $q, int $limit = 20): array
+    {
+        $q = trim($q);
+        if (mb_strlen($q) < 2) {
+            return [];
+        }
+
+        // Escape LIKE wildcards in the user term so '%' / '_' are literal.
+        $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q);
+        $like = '%'.$escaped.'%';
+
+        $rows = DB::table('donor')
+            ->join('actor', 'donor.id', '=', 'actor.id')
+            ->join('object', 'donor.id', '=', 'object.id')
+            ->leftJoin('slug', 'donor.id', '=', 'slug.object_id')
+            // Preferred-culture i18n row.
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('donor.id', '=', 'ai.id')
+                    ->where('ai.culture', '=', $this->culture);
+            })
+            // Source-culture i18n row, for the COALESCE fallback.
+            ->leftJoin('actor_i18n as src', function ($j) {
+                $j->on('donor.id', '=', 'src.id')
+                    ->whereColumn('src.culture', 'actor.source_culture');
+            })
+            ->where('actor.parent_id', 3)
+            ->where('object.class_name', 'QubitDonor')
+            ->where(function ($w) use ($like) {
+                $w->where('ai.authorized_form_of_name', 'LIKE', $like)
+                    ->orWhere('src.authorized_form_of_name', 'LIKE', $like);
+            })
+            ->select([
+                'donor.id',
+                DB::raw('COALESCE(ai.authorized_form_of_name, src.authorized_form_of_name) as label'),
+                'slug.slug',
+            ])
+            ->orderBy('label')
+            ->limit($limit)
+            ->get();
+
+        return $rows->map(function ($r) {
+            return [
+                'id' => (int) $r->id,
+                'label' => (string) ($r->label ?? ''),
+                'slug' => $r->slug,
+            ];
+        })->all();
     }
 
     public function getBySlug(string $slug): ?object
@@ -88,7 +151,7 @@ class DonorService
 
     public function getContacts(int $donorId): \Illuminate\Support\Collection
     {
-        return DB::table('contact_information')
+        $rows = DB::table('contact_information')
             ->leftJoin('contact_information_i18n', function ($j) {
                 $j->on('contact_information.id', '=', 'contact_information_i18n.id')
                     ->where('contact_information_i18n.culture', '=', $this->culture);
@@ -106,6 +169,24 @@ class DonorService
                 'contact_information_i18n.region', 'contact_information_i18n.note',
             ])
             ->get();
+
+        // #1261: decrypt the registered contact_details PII columns. Mirrors
+        // RepositoryService::getContacts - donor + repository share the base
+        // contact_information table, so the same columns (email + city) are
+        // encrypted on write and must be decrypted on read. decrypt() is a
+        // pass-through for plaintext (no ENC2: sentinel), so legacy rows + rows
+        // written while encryption was off both read correctly.
+        $enc = new EncryptionService;
+        foreach ($rows as $r) {
+            if (! empty($r->email)) {
+                $r->email = $enc->decrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, (string) $r->email, 'contact_information', 'email', $r->id);
+            }
+            if (! empty($r->city)) {
+                $r->city = $enc->decrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, (string) $r->city, 'contact_information_i18n', 'city', $r->id);
+            }
+        }
+
+        return $rows;
     }
 
     /**
@@ -333,10 +414,20 @@ class DonorService
             if ($this->isContactEmpty($c)) {
                 continue;
             }
+
+            // #1261: encrypt the registered contact_details PII columns the same
+            // way RepositoryService does (encrypt() self-gates on
+            // encryption_enabled + the per-category flag, so it is a no-op /
+            // plaintext when encryption is off). Only email + city are wide
+            // enough to hold ENC2: ciphertext (~205-233 chars) and are the
+            // columns registered in ahg_encrypted_fields.
+            $enc = new EncryptionService;
+            $emailEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $c['email'] ?? null, 'contact_information', 'email', null);
+
             $cid = DB::table('contact_information')->insertGetId([
                 'actor_id' => $actorId, 'primary_contact' => ! empty($c['primary_contact']) ? 1 : 0,
                 'contact_person' => $c['contact_person'] ?? null, 'street_address' => $c['street_address'] ?? null,
-                'website' => $c['website'] ?? null, 'email' => $c['email'] ?? null,
+                'website' => $c['website'] ?? null, 'email' => $emailEnc,
                 'telephone' => $c['telephone'] ?? null, 'fax' => $c['fax'] ?? null,
                 'postal_code' => $c['postal_code'] ?? null, 'country_code' => $c['country_code'] ?? null,
                 'longitude' => $c['longitude'] ?? null, 'latitude' => $c['latitude'] ?? null,
@@ -344,9 +435,12 @@ class DonorService
                 'created_at' => now(), 'updated_at' => now(),
                 'source_culture' => $this->culture, 'serial_number' => 0,
             ]);
+
+            $cityEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $c['city'] ?? null, 'contact_information_i18n', 'city', $cid);
+
             DB::table('contact_information_i18n')->insert([
                 'id' => $cid, 'culture' => $this->culture,
-                'contact_type' => $c['contact_type'] ?? null, 'city' => $c['city'] ?? null,
+                'contact_type' => $c['contact_type'] ?? null, 'city' => $cityEnc,
                 'region' => $c['region'] ?? null, 'note' => $c['note'] ?? null,
             ]);
         }
@@ -365,17 +459,23 @@ class DonorService
                 continue;
             }
             if (! empty($c['id'])) {
+                // #1261: encrypt PII on update (email + city), mirroring
+                // RepositoryService::syncContacts. encrypt() self-gates.
+                $enc = new EncryptionService;
+                $emailEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $c['email'] ?? null, 'contact_information', 'email', $c['id']);
+
                 DB::table('contact_information')->where('id', $c['id'])->update([
                     'primary_contact' => ! empty($c['primary_contact']) ? 1 : 0,
                     'contact_person' => $c['contact_person'] ?? null, 'street_address' => $c['street_address'] ?? null,
-                    'website' => $c['website'] ?? null, 'email' => $c['email'] ?? null,
+                    'website' => $c['website'] ?? null, 'email' => $emailEnc,
                     'telephone' => $c['telephone'] ?? null, 'fax' => $c['fax'] ?? null,
                     'postal_code' => $c['postal_code'] ?? null, 'country_code' => $c['country_code'] ?? null,
                     'longitude' => $c['longitude'] ?? null, 'latitude' => $c['latitude'] ?? null,
                     'contact_note' => $c['contact_note'] ?? null,
                     'updated_at' => now(), 'serial_number' => DB::raw('serial_number + 1'),
                 ]);
-                $i18n = ['contact_type' => $c['contact_type'] ?? null, 'city' => $c['city'] ?? null, 'region' => $c['region'] ?? null, 'note' => $c['note'] ?? null];
+                $cityEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $c['city'] ?? null, 'contact_information_i18n', 'city', $c['id']);
+                $i18n = ['contact_type' => $c['contact_type'] ?? null, 'city' => $cityEnc, 'region' => $c['region'] ?? null, 'note' => $c['note'] ?? null];
                 $exists = DB::table('contact_information_i18n')->where('id', $c['id'])->where('culture', $this->culture)->exists();
                 if ($exists) {
                     DB::table('contact_information_i18n')->where('id', $c['id'])->where('culture', $this->culture)->update($i18n);

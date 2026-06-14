@@ -194,9 +194,15 @@
 
                     <div class="modal-body pb-2">
 
-                      <div class="mb-3">
+                      <div class="mb-3 position-relative">
                         <label for="donor_name" class="form-label">Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                        <input type="text" name="donor_name" id="donor_name" class="form-control" value="{{ old('donor_name', $donor->name ?? '') }}" placeholder="{{ __('Type to search donors...') }}" autocomplete="off">
+                        <input type="text" name="donor_name" id="donor_name" class="form-control" value="{{ old('donor_name', $donor->name ?? '') }}" placeholder="{{ __('Type to search donors...') }}" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list">
+                        {{-- #1267: hidden id/slug carry the selected EXISTING donor through save.
+                             donor_id is the authoritative value (relation.object_id); donor_slug
+                             is the autocomplete-anchor fallback the controller resolves. --}}
+                        <input type="hidden" name="donor_id" id="donor_id" value="{{ old('donor_id', $donor->id ?? '') }}">
+                        <input type="hidden" name="donor_slug" id="donor_slug" value="{{ old('donor_slug', $donor->slug ?? '') }}">
+                        <div id="donor_suggestions" class="list-group position-absolute w-100 shadow-sm d-none" style="z-index:1080; max-height:240px; overflow-y:auto;"></div>
                         <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="This is the legal entity field and provides the contact information for the person(s) or the institution that donated or transferred the materials. It has the option of multiple instances and provides the option of creating more than one contact record using the same form."><i class="fas fa-question-circle"></i></button>
                       </div>
 
@@ -657,8 +663,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var btn = e.target.closest('.delete-donor-row');
     if (btn) {
       btn.closest('tr').remove();
-      // Clear donor fields
-      ['donor_name','donor_contact_person','donor_telephone','donor_fax','donor_email','donor_url',
+      // Clear donor fields (#1267: include the hidden id/slug so the save
+      // unlinks the donor instead of re-persisting the cleared selection).
+      ['donor_name','donor_id','donor_slug','donor_contact_person','donor_telephone','donor_fax','donor_email','donor_url',
        'donor_street_address','donor_region','donor_country','donor_postal_code','donor_city',
        'donor_latitude','donor_longitude','donor_contact_type','donor_note'].forEach(function(id) {
         var el = document.getElementById(id);
@@ -666,6 +673,63 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   });
+
+  // #1267: existing-donor autocomplete for the "Related donor" modal.
+  // Fetches JSON from accession.donor-search and, on selection, writes the
+  // display name into donor_name and the donor id/slug into the hidden
+  // inputs the accession save reads (syncDonors -> relation row).
+  (function() {
+    var nameInput = document.getElementById('donor_name');
+    var idInput = document.getElementById('donor_id');
+    var slugInput = document.getElementById('donor_slug');
+    var box = document.getElementById('donor_suggestions');
+    if (!nameInput || !box) return;
+
+    var searchUrl = @json(route('accession.donor-search'));
+    var debounce;
+
+    function hide() { box.classList.add('d-none'); box.innerHTML = ''; nameInput.setAttribute('aria-expanded', 'false'); }
+
+    function render(items) {
+      box.innerHTML = '';
+      if (!items || !items.length) { hide(); return; }
+      items.forEach(function(it) {
+        var a = document.createElement('button');
+        a.type = 'button';
+        a.className = 'list-group-item list-group-item-action';
+        a.textContent = it.name;
+        a.addEventListener('click', function() {
+          nameInput.value = it.name;
+          if (idInput) idInput.value = it.id;
+          if (slugInput) slugInput.value = it.slug || '';
+          hide();
+        });
+        box.appendChild(a);
+      });
+      box.classList.remove('d-none');
+      nameInput.setAttribute('aria-expanded', 'true');
+    }
+
+    nameInput.addEventListener('input', function() {
+      // Typing a fresh query invalidates any previously-resolved id; the
+      // user must pick a suggestion to relink an existing donor.
+      if (idInput) idInput.value = '';
+      if (slugInput) slugInput.value = '';
+      var q = nameInput.value.trim();
+      clearTimeout(debounce);
+      if (q.length < 2) { hide(); return; }
+      debounce = setTimeout(function() {
+        fetch(searchUrl + '?query=' + encodeURIComponent(q) + '&limit=15', { headers: { 'Accept': 'application/json' } })
+          .then(function(r) { return r.json(); })
+          .then(render)
+          .catch(hide);
+      }, 200);
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!box.contains(e.target) && e.target !== nameInput) hide();
+    });
+  })();
 });
 
 document.addEventListener('DOMContentLoaded', function() {

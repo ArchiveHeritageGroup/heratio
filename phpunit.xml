@@ -34,6 +34,9 @@
             <directory>packages/ahg-multi-tenant/tests</directory>
             <directory>packages/ahg-request-publish/tests</directory>
             <directory>packages/ahg-research/tests</directory>
+            <directory>packages/ahg-core/tests</directory>
+            <directory>packages/ahg-donor-manage/tests</directory>
+            <directory>packages/ahg-vendor/tests</directory>
             <!-- Additional packages will be added here as tests are created -->
             <!-- See docs/package-classification.md for priority order -->
         </testsuite>

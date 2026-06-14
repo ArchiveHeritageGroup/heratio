@@ -1,5 +1,7 @@
 # ahg-research - Architecture
 
+> For runtime operations - settings, AI usage/disclosure, testing, and common errors/fixes - see [`RUNBOOK.md`](RUNBOOK.md).
+
 The research portal: researcher accounts, projects, collections/evidence sets,
 bookings and reading-room services, bibliographies, notebooks, the "Research OS"
 journey (epic #1222), and a set of AI-assisted research tools. It is a Laravel

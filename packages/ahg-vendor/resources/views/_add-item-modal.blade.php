@@ -42,7 +42,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label">{{ __('Search GLAM Items') }} *</label>
+                        <label class="form-label" for="glamAutocomplete">{{ __('Search GLAM Items') }} *</label>
                         <input type="text" id="glamAutocomplete" class="form-control form-control-lg"
                                placeholder="{{ __('Type title or identifier to search...') }}" autocomplete="off">
                         <input type="hidden" name="information_object_id" id="selectedItemId" required>
@@ -70,13 +70,13 @@
 
                     <div class="row">
                         <div class="col-md-8 mb-3">
-                            <label class="form-label">{{ __('Condition before service') }}</label>
-                            <textarea name="condition_before" class="form-control" rows="2"
+                            <label class="form-label" for="condition_before">{{ __('Condition before service') }}</label>
+                            <textarea name="condition_before" id="condition_before" class="form-control" rows="2"
                                       placeholder="{{ __('Describe the item condition at intake') }}"></textarea>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">{{ __('Condition rating') }}</label>
-                            <select name="condition_before_rating" class="form-select">
+                            <label class="form-label" for="condition_before_rating">{{ __('Condition rating') }}</label>
+                            <select name="condition_before_rating" id="condition_before_rating" class="form-select">
                                 <option value="">{{ __('— select —') }}</option>
                                 @foreach ($conditionGrades as $g)
                                     <option value="{{ $g->code }}">{{ $g->label }}</option>
@@ -87,15 +87,15 @@
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">{{ __('Declared value') }}</label>
+                            <label class="form-label" for="declared_value">{{ __('Declared value') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text" title="{{ __('Currency from parent transaction') }}">{{ $currencyCode }}</span>
-                                <input type="number" name="declared_value" class="form-control" step="0.01" min="0">
+                                <input type="number" name="declared_value" id="declared_value" class="form-control" step="0.01" min="0">
                             </div>
                         </div>
                         <div class="col-md-8 mb-3">
-                            <label class="form-label">{{ __('Service description') }}</label>
-                            <input type="text" name="service_description" class="form-control"
+                            <label class="form-label" for="service_description">{{ __('Service description') }}</label>
+                            <input type="text" name="service_description" id="service_description" class="form-control"
                                    placeholder="{{ __('What needs to be done to this item') }}">
                         </div>
                     </div>

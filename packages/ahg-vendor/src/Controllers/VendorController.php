@@ -25,12 +25,20 @@
 
 namespace AhgVendor\Controllers;
 
+use AhgVendor\Services\VendorService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class VendorController extends Controller
 {
+    protected VendorService $vendors;
+
+    public function __construct(?VendorService $vendors = null)
+    {
+        $this->vendors = $vendors ?? new VendorService;
+    }
+
     // =========================================================================
     // VENDOR BROWSE / LIST / DASHBOARD
     // =========================================================================
@@ -161,6 +169,8 @@ class VendorController extends Controller
         $query->orderBy($filters['sort'], $filters['direction']);
 
         $vendors = $query->get();
+        // #1264 decrypt PII columns for display (no-op on plaintext rows).
+        $this->vendors->decryptVendors($vendors);
 
         $serviceTypes = DB::table('ahg_vendor_service_types')
             ->where('is_active', 1)
@@ -195,11 +205,15 @@ class VendorController extends Controller
             abort(404, 'Vendor not found');
         }
 
+        // #1264 decrypt vendor PII for display (no-op on plaintext rows).
+        $this->vendors->decryptVendor($vendor);
+
         $contacts = DB::table('ahg_vendor_contacts')
             ->where('vendor_id', $vendor->id)
             ->orderByDesc('is_primary')
             ->orderBy('name')
             ->get();
+        $this->vendors->decryptContacts($contacts);
 
         $services = DB::table('ahg_vendor_services')
             ->join('ahg_vendor_service_types', 'ahg_vendor_services.service_type_id', '=', 'ahg_vendor_service_types.id')
@@ -260,7 +274,8 @@ class VendorController extends Controller
                     $data['created_at'] = now();
                     $data['updated_at'] = now();
 
-                    $vendorId = DB::table('ahg_vendors')->insertGetId($data);
+                    // #1264 encrypt PII + #1263 audit create, via the service.
+                    $vendorId = $this->vendors->createVendor($data);
 
                     // Sync services
                     $serviceIds = $request->input('service_ids', []);
@@ -304,6 +319,10 @@ class VendorController extends Controller
             abort(404, 'Vendor not found');
         }
 
+        $vendorId = $vendor->id;
+        // #1264 decrypt for the edit-form prefill (no-op on plaintext rows).
+        $this->vendors->decryptVendor($vendor);
+
         $errors = [];
         $vendorTypes = $this->loadDropdown('vendor_type');
         $vendorStatuses = $this->loadDropdown('vendor_status');
@@ -334,16 +353,17 @@ class VendorController extends Controller
                     $data['updated_at'] = now();
 
                     if (isset($data['name'])) {
-                        $data['slug'] = $this->generateVendorSlug($data['name'], $vendor->id);
+                        $data['slug'] = $this->generateVendorSlug($data['name'], $vendorId);
                     }
 
-                    DB::table('ahg_vendors')->where('id', $vendor->id)->update($data);
+                    // #1264 encrypt PII + #1263 audit edit, via the service.
+                    $this->vendors->updateVendor($vendorId, $data);
 
                     // Sync services
                     $serviceIds = $request->input('service_ids', []);
-                    $this->syncVendorServices($vendor->id, $serviceIds);
+                    $this->syncVendorServices($vendorId, $serviceIds);
 
-                    $vendor = DB::table('ahg_vendors')->where('id', $vendor->id)->first();
+                    $vendor = DB::table('ahg_vendors')->where('id', $vendorId)->first();
 
                     return redirect()
                         ->route('ahgvendor.view', ['slug' => $vendor->slug])
@@ -386,12 +406,8 @@ class VendorController extends Controller
                 ->with('error', 'Cannot delete vendor with active transactions');
         }
 
-        // Remove vendor services
-        DB::table('ahg_vendor_services')->where('vendor_id', $vendor->id)->delete();
-        // Remove vendor contacts
-        DB::table('ahg_vendor_contacts')->where('vendor_id', $vendor->id)->delete();
-        // Remove the vendor
-        DB::table('ahg_vendors')->where('id', $vendor->id)->delete();
+        // #1263 audit delete (before the row is gone) + cascade, via the service.
+        $this->vendors->deleteVendor($vendor->id);
 
         return redirect()
             ->route('ahgvendor.list')
@@ -439,7 +455,8 @@ class VendorController extends Controller
                 ->update(['is_primary' => 0]);
         }
 
-        DB::table('ahg_vendor_contacts')->insert($data);
+        // #1264 encrypt contact PII + #1263 audit create, via the service.
+        $this->vendors->createContact($data);
 
         return redirect()
             ->route('ahgvendor.view', ['slug' => $slug])
@@ -475,7 +492,8 @@ class VendorController extends Controller
             }
         }
 
-        DB::table('ahg_vendor_contacts')->where('id', $contactId)->update($data);
+        // #1264 encrypt contact PII + #1263 audit edit, via the service.
+        $this->vendors->updateContact($contactId, $data);
 
         return redirect()
             ->route('ahgvendor.view', ['slug' => $slug])
@@ -487,7 +505,8 @@ class VendorController extends Controller
      */
     public function deleteContact(Request $request, string $slug, int $contactId)
     {
-        DB::table('ahg_vendor_contacts')->where('id', $contactId)->delete();
+        // #1263 audit delete (snapshot before the row is gone), via the service.
+        $this->vendors->deleteContact($contactId);
 
         return redirect()
             ->route('ahgvendor.view', ['slug' => $slug])
@@ -606,6 +625,20 @@ class VendorController extends Controller
 
         if (! $transaction) {
             abort(404, 'Transaction not found');
+        }
+
+        // #1264 the joined vendor_email / vendor_phone are stored encrypted;
+        // decrypt for display (no-op on plaintext rows).
+        $enc = new \AhgCore\Services\EncryptionService;
+        if (! empty($transaction->vendor_email)) {
+            $transaction->vendor_email = $enc->decrypt(
+                \AhgCore\Services\EncryptionService::CATEGORY_CONTACT_DETAILS,
+                (string) $transaction->vendor_email, 'ahg_vendors', 'email', $transaction->vendor_id ?? null);
+        }
+        if (! empty($transaction->vendor_phone)) {
+            $transaction->vendor_phone = $enc->decrypt(
+                \AhgCore\Services\EncryptionService::CATEGORY_CONTACT_DETAILS,
+                (string) $transaction->vendor_phone, 'ahg_vendors', 'phone', $transaction->vendor_id ?? null);
         }
 
         $items = DB::table('ahg_vendor_transaction_items')

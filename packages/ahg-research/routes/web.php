@@ -2,6 +2,8 @@
 
 use AhgResearch\Controllers\ResearchController;
 use AhgResearch\Controllers\ResearchReproductionsController;
+use AhgResearch\Controllers\ResearchAnnotationsController;
+use AhgResearch\Controllers\ResearchCitationsController;
 use AhgResearch\Controllers\ResearchCopilotController;
 use AhgResearch\Controllers\ResearchAiDecisionController;
 use AhgResearch\Controllers\AuditController;
@@ -25,8 +27,8 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::get('/publicRegister', [ResearchController::class, 'publicRegister'])->name('publicRegister');
     Route::post('/public-register', [ResearchController::class, 'publicRegister'])->name('publicRegister.store');
     Route::get('/registrationComplete', [ResearchController::class, 'registrationComplete'])->name('registrationComplete');
-    Route::get('/cite/{slug}', [ResearchController::class, 'cite'])->name('cite');
-    Route::get('/cite/{slug}/export/{format}', [ResearchController::class, 'citeExport'])->name('citeExport')->where('format', 'ris|bibtex|endnote|apa|mla|chicago');
+    Route::get('/cite/{slug}', [ResearchCitationsController::class, 'cite'])->name('cite');
+    Route::get('/cite/{slug}/export/{format}', [ResearchCitationsController::class, 'citeExport'])->name('citeExport')->where('format', 'ris|bibtex|endnote|apa|mla|chicago');
 
     // ORCID public-record lookup for register-form auto-populate (rate-limited
     // in the controller). Public so both the staff register + public-register
@@ -203,11 +205,11 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::delete('/collections/{collectionId}/remove-item/{itemId}', [ResearchController::class, 'removeItemFromCollection'])->name('collections.removeItem')->where(['collectionId' => '[0-9]+', 'itemId' => '[0-9]+']);
     Route::match(['get', 'post'], '/viewCollection', [ResearchController::class, 'viewCollection'])->name('viewCollection')->where('id', '[0-9]+');
 
-    // Annotations
-    Route::get('/annotations', [ResearchController::class, 'annotations'])->name('annotations');
-    Route::post('/annotations', [ResearchController::class, 'storeAnnotation'])->name('annotations.store');
-    Route::put('/annotations/{id}', [ResearchController::class, 'updateAnnotation'])->name('annotations.update')->where('id', '[0-9]+');
-    Route::delete('/annotations/{id}', [ResearchController::class, 'destroyAnnotation'])->name('annotations.destroy')->where('id', '[0-9]+');
+    // Annotations (extracted to ResearchAnnotationsController - stage 2, issue #1253)
+    Route::get('/annotations', [ResearchAnnotationsController::class, 'annotations'])->name('annotations');
+    Route::post('/annotations', [ResearchAnnotationsController::class, 'storeAnnotation'])->name('annotations.store');
+    Route::put('/annotations/{id}', [ResearchAnnotationsController::class, 'updateAnnotation'])->name('annotations.update')->where('id', '[0-9]+');
+    Route::delete('/annotations/{id}', [ResearchAnnotationsController::class, 'destroyAnnotation'])->name('annotations.destroy')->where('id', '[0-9]+');
 
     // Projects
     Route::get('/projects', [ResearchController::class, 'projects'])->name('projects');

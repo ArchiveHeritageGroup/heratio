@@ -115,12 +115,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Conservation, Digitisation, Storage') }}">
+                        <label class="form-label" for="addTypeName">Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="addTypeName" class="form-control" required placeholder="{{ __('e.g., Conservation, Digitisation, Storage') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('Description') }}</label>
-                        <textarea name="description" class="form-control" rows="2" placeholder="{{ __('Brief description of this service type') }}"></textarea>
+                        <label class="form-label" for="addTypeDescription">{{ __('Description') }}</label>
+                        <textarea name="description" id="addTypeDescription" class="form-control" rows="2" placeholder="{{ __('Brief description of this service type') }}"></textarea>
                     </div>
                     <div class="form-check">
                         <input type="checkbox" name="is_active" class="form-check-input" id="addIsActive" value="1" checked>
@@ -150,11 +150,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Name <span class="text-danger">*</span></label>
+                        <label class="form-label" for="editTypeName">Name <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="editTypeName" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('Description') }}</label>
+                        <label class="form-label" for="editTypeDescription">{{ __('Description') }}</label>
                         <textarea name="description" id="editTypeDescription" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="form-check">

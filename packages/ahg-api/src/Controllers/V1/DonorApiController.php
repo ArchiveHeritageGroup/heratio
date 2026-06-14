@@ -77,6 +77,20 @@ class DonorApiController extends Controller
             ->where('contact_information.actor_id', $donor->id)
             ->first();
 
+        // #1261: decrypt the registered contact_details PII columns (email +
+        // city) so the API returns plaintext. decrypt() is a pass-through for
+        // plaintext rows, so legacy / encryption-off rows are unaffected.
+        if ($donor->contact_information) {
+            $enc = new \AhgCore\Services\EncryptionService;
+            $ci = $donor->contact_information;
+            if (! empty($ci->email)) {
+                $ci->email = $enc->decrypt(\AhgCore\Services\EncryptionService::CATEGORY_CONTACT_DETAILS, (string) $ci->email, 'contact_information', 'email', $ci->id ?? null);
+            }
+            if (! empty($ci->city)) {
+                $ci->city = $enc->decrypt(\AhgCore\Services\EncryptionService::CATEGORY_CONTACT_DETAILS, (string) $ci->city, 'contact_information_i18n', 'city', $ci->id ?? null);
+            }
+        }
+
         return response()->json($donor);
     }
 }

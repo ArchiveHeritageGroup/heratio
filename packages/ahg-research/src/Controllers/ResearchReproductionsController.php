@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,44 +43,13 @@ use Illuminate\Support\Facades\DB;
  */
 class ResearchReproductionsController extends Controller
 {
+    use ResearchControllerHelpers;
+
     protected ResearchService $service;
 
     public function __construct(ResearchService $service)
     {
         $this->service = $service;
-    }
-
-    /**
-     * Sidebar data shared with the research portal layout.
-     *
-     * NOTE: duplicated from ResearchController during stage-1 extraction.
-     * To be lifted into a shared base controller / trait in a later stage.
-     */
-    protected function getSidebarData(string $active): array
-    {
-        $unreadNotifications = 0;
-        $experienceLevel = 'intermediate';
-        if (Auth::check()) {
-            $researcher = $this->service->getResearcherByUserId(Auth::id());
-            if ($researcher) {
-                try {
-                    $unreadNotifications = (int) DB::table('research_notification')
-                        ->where('researcher_id', $researcher->id)
-                        ->where('is_read', 0)
-                        ->count();
-                } catch (\Exception $e) {
-                    // Table may not exist yet
-                }
-                if (!empty($researcher->experience_level)) {
-                    $experienceLevel = $researcher->experience_level;
-                }
-            }
-        }
-        return [
-            'sidebarActive' => $active,
-            'unreadNotifications' => $unreadNotifications,
-            'experienceLevel' => $experienceLevel,
-        ];
     }
 
     public function reproductions(Request $request)

@@ -56,8 +56,8 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Vendor *') }}</label>
-                                <select name="vendor_id" class="form-select" required>
+                                <label class="form-label" for="vendor_id">{{ __('Vendor *') }}</label>
+                                <select name="vendor_id" id="vendor_id" class="form-select" required>
                                     <option value="">{{ __('Select vendor...') }}</option>
                                     @foreach (($vendors ?? []) as $vendor)
                                     <option value="{{ $vendor->id }}" {{ ($form['vendor_id'] ?? '') == $vendor->id ? 'selected' : '' }}>
@@ -67,8 +67,8 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Service Type *') }}</label>
-                                <select name="service_type_id" class="form-select" required>
+                                <label class="form-label" for="service_type_id">{{ __('Service Type *') }}</label>
+                                <select name="service_type_id" id="service_type_id" class="form-select" required>
                                     <option value="">{{ __('Select service...') }}</option>
                                     @foreach (($serviceTypes ?? []) as $service)
                                     <option value="{{ $service->id }}" {{ ($form['service_type_id'] ?? '') == $service->id ? 'selected' : '' }}>
@@ -80,16 +80,16 @@
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('Request Date *') }}</label>
-                                <input type="date" name="request_date" class="form-control" value="{{ e($form['request_date'] ?? date('Y-m-d')) }}" required>
+                                <label class="form-label" for="request_date">{{ __('Request Date *') }}</label>
+                                <input type="date" name="request_date" id="request_date" class="form-control" value="{{ e($form['request_date'] ?? date('Y-m-d')) }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('Due Date') }}</label>
-                                <input type="date" name="due_date" class="form-control" value="{{ e($form['due_date'] ?? '') }}">
+                                <label class="form-label" for="due_date">{{ __('Due Date') }}</label>
+                                <input type="date" name="due_date" id="due_date" class="form-control" value="{{ e($form['due_date'] ?? '') }}">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('Priority') }}</label>
-                                <select name="priority" class="form-select">
+                                <label class="form-label" for="priority">{{ __('Priority') }}</label>
+                                <select name="priority" id="priority" class="form-select">
                                     <option value="normal">{{ __('Normal') }}</option>
                                     <option value="low">{{ __('Low') }}</option>
                                     <option value="high">{{ __('High') }}</option>
@@ -98,8 +98,8 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Description') }}</label>
-                            <textarea name="description" class="form-control" rows="2">{{ e($form['description'] ?? '') }}</textarea>
+                            <label class="form-label" for="description">{{ __('Description') }}</label>
+                            <textarea name="description" id="description" class="form-control" rows="2">{{ e($form['description'] ?? '') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
 
                         {{-- Search Box --}}
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Search GLAM Items') }}</label>
+                            <label class="form-label" for="glamSearch">{{ __('Search GLAM Items') }}</label>
                             <div class="input-group">
                                 <input type="text" id="glamSearch" class="form-control" placeholder="{{ __('Type title or identifier to search...') }}" autocomplete="off">
                                 <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
@@ -168,10 +168,10 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Estimated Cost') }}</label>
+                            <label class="form-label" for="estimated_cost">{{ __('Estimated Cost') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text">R</span>
-                                <input type="number" name="estimated_cost" class="form-control" step="0.01" value="{{ $form['estimated_cost'] ?? '' }}">
+                                <input type="number" name="estimated_cost" id="estimated_cost" class="form-control" step="0.01" value="{{ $form['estimated_cost'] ?? '' }}">
                             </div>
                         </div>
                     </div>
@@ -184,8 +184,8 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Reference Number') }}</label>
-                            <input type="text" name="reference_number" class="form-control" value="{{ e($form['reference_number'] ?? '') }}" placeholder="{{ __('Optional external reference') }}">
+                            <label class="form-label" for="reference_number">{{ __('Reference Number') }}</label>
+                            <input type="text" name="reference_number" id="reference_number" class="form-control" value="{{ e($form['reference_number'] ?? '') }}" placeholder="{{ __('Optional external reference') }}">
                         </div>
                     </div>
                 </div>

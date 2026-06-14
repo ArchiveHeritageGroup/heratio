@@ -30,6 +30,9 @@ use AhgApi\Controllers\V1\FunctionApiController;
 use AhgApi\Controllers\V1\InformationObjectApiController;
 use AhgApi\Controllers\V1\PhysicalObjectApiController;
 use AhgApi\Controllers\V1\RepositoryApiController;
+use AhgApi\Controllers\V1\ResearchBibliographyApiController;
+use AhgApi\Controllers\V1\ResearchOutputApiController;
+use AhgApi\Controllers\V1\ResearchProjectApiController;
 use AhgApi\Controllers\V1\TaxonomyApiController;
 use AhgApi\Controllers\V2\ApiKeyController;
 use AhgApi\Controllers\V2\ApiRootController;
@@ -983,9 +986,64 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'a
     Route::get('accessions', [AccessionApiController::class, 'index']);
     Route::get('accessions/{slug}', [AccessionApiController::class, 'show']);
 
-    // Donors
-    Route::get('donors', [DonorApiController::class, 'index']);
-    Route::get('donors/{slug}', [DonorApiController::class, 'show']);
+    // Donors - read endpoints expose donor contact PII (email/phone/address),
+    // so unlike the public catalogue reads they require an authenticated key
+    // with the `read` scope (#1258).
+    Route::middleware('api.auth:read')->group(function () {
+        Route::get('donors', [DonorApiController::class, 'index']);
+        Route::get('donors/{slug}', [DonorApiController::class, 'show']);
+    });
+
+    // Research Projects (#1255) - research data is not public; gate every
+    // endpoint behind an authenticated key (read/write/delete scopes), mirroring
+    // the v2 read-auth posture rather than the public catalogue reads.
+    Route::middleware('api.auth:read')->group(function () {
+        Route::get('research-projects', [ResearchProjectApiController::class, 'index']);
+        Route::get('research-projects/{id}', [ResearchProjectApiController::class, 'show'])->where('id', '[0-9]+');
+    });
+    Route::middleware('api.auth:write')->group(function () {
+        Route::post('research-projects', [ResearchProjectApiController::class, 'store']);
+        Route::put('research-projects/{id}', [ResearchProjectApiController::class, 'update'])->where('id', '[0-9]+');
+    });
+    Route::delete('research-projects/{id}', [ResearchProjectApiController::class, 'destroy'])
+        ->where('id', '[0-9]+')
+        ->middleware('api.auth:delete');
+
+    // Research Bibliographies (#1255) - bibliographies + nested entries.
+    // Same auth posture as research projects: read/write/delete scopes, never
+    // public. Nested entry CRUD lives under each bibliography id.
+    Route::middleware('api.auth:read')->group(function () {
+        Route::get('research-bibliographies', [ResearchBibliographyApiController::class, 'index']);
+        Route::get('research-bibliographies/{id}', [ResearchBibliographyApiController::class, 'show'])->where('id', '[0-9]+');
+        Route::get('research-bibliographies/{id}/entries', [ResearchBibliographyApiController::class, 'entries'])->where('id', '[0-9]+');
+    });
+    Route::middleware('api.auth:write')->group(function () {
+        Route::post('research-bibliographies', [ResearchBibliographyApiController::class, 'store']);
+        Route::put('research-bibliographies/{id}', [ResearchBibliographyApiController::class, 'update'])->where('id', '[0-9]+');
+        Route::post('research-bibliographies/{id}/entries', [ResearchBibliographyApiController::class, 'storeEntry'])->where('id', '[0-9]+');
+        Route::put('research-bibliographies/{id}/entries/{entryId}', [ResearchBibliographyApiController::class, 'updateEntry'])->where(['id' => '[0-9]+', 'entryId' => '[0-9]+']);
+    });
+    Route::delete('research-bibliographies/{id}', [ResearchBibliographyApiController::class, 'destroy'])
+        ->where('id', '[0-9]+')
+        ->middleware('api.auth:delete');
+    Route::delete('research-bibliographies/{id}/entries/{entryId}', [ResearchBibliographyApiController::class, 'destroyEntry'])
+        ->where(['id' => '[0-9]+', 'entryId' => '[0-9]+'])
+        ->middleware('api.auth:delete');
+
+    // Research Outputs (#1255) - the CRIS / RIM register of scholarly outputs a
+    // research project produces (journal articles, datasets, software, theses,
+    // etc.). Numeric-id keyed (no slug); read/write/delete scopes, never public.
+    Route::middleware('api.auth:read')->group(function () {
+        Route::get('research-outputs', [ResearchOutputApiController::class, 'index']);
+        Route::get('research-outputs/{id}', [ResearchOutputApiController::class, 'show'])->where('id', '[0-9]+');
+    });
+    Route::middleware('api.auth:write')->group(function () {
+        Route::post('research-outputs', [ResearchOutputApiController::class, 'store']);
+        Route::match(['put', 'patch'], 'research-outputs/{id}', [ResearchOutputApiController::class, 'update'])->where('id', '[0-9]+');
+    });
+    Route::delete('research-outputs/{id}', [ResearchOutputApiController::class, 'destroy'])
+        ->where('id', '[0-9]+')
+        ->middleware('api.auth:delete');
 
     // Functions
     Route::get('functions', [FunctionApiController::class, 'index']);

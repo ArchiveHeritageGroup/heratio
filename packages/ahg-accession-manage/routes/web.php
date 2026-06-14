@@ -1,6 +1,7 @@
 <?php
 
 use AhgAccessionManage\Controllers\AccessionController;
+use AhgDonorManage\Controllers\DonorController;
 use Illuminate\Support\Facades\Route;
 
 // Accession create form requires auth
@@ -13,6 +14,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/accession/add', [AccessionController::class, 'store'])->name('accession.store')->middleware('acl:create');
     Route::get('/accession/{slug}/edit', [AccessionController::class, 'edit'])->name('accession.edit');
     Route::post('/accession/{slug}/edit', [AccessionController::class, 'update'])->name('accession.update')->middleware('acl:update');
+
+    // #1267: persist an existing-donor selection from the "Related donor"
+    // modal. Links / unlinks the donor↔accession relation
+    // (subject=accession, object=donor, type=RELATION_DONOR) — the same
+    // representation AccessionService::getDonors() reads back on show/edit.
+    // These power the modal's add-existing + delete-row actions when the
+    // save isn't routed through the full accession update (e.g. an
+    // inline AJAX link/unlink). The accession update() also honours the
+    // donor_id field directly so a plain form save persists the link too.
+    Route::post('/accession/{slug}/donor/link', [AccessionController::class, 'linkDonor'])
+        ->name('accession.donor-link')->middleware('acl:update');
+    Route::post('/accession/{slug}/donor/unlink', [AccessionController::class, 'unlinkDonor'])
+        ->name('accession.donor-unlink')->middleware('acl:update');
     // Finalise transition. Sets accession_v2.status='accepted' + accepted_at,
     // gated on AccessionService::finalisationBlockers() (which honours
     // accession_require_donor_agreement + accession_require_appraisal).
@@ -61,11 +75,26 @@ Route::get('/accession/{slug}', [AccessionController::class, 'show'])->name('acc
 
 Route::middleware(['web'])->group(function () {
 
-    // Auto-registered stub routes
-    Route::match(['get', 'post'], '/donor/autocomplete', function () {
-        return view('ahg-accession-manage::autocomplete');
-    })->name('donor.autocomplete');
+    // Donor typeahead for the "Related donor" modal. Returns an HTML table
+    // consumed by the YUI form-autocomplete widget (TYPE_HTMLTABLE), not JSON.
+    Route::match(['get', 'post'], '/donor/autocomplete', [DonorController::class, 'autocomplete'])
+        ->name('donor.autocomplete');
+
+    // #1267: JSON donor typeahead for the accession edit form's TomSelect
+    // (id/label/slug). Distinct from /donor/autocomplete which returns the
+    // YUI HTML-table shape. The TomSelect writes the chosen donor's id into
+    // the hidden donor_id field that the accession save reads.
+    Route::get('/accession/donor/search', [AccessionController::class, 'donorSearch'])
+        ->name('accession.donor-search');
+
     Route::match(['get', 'post'], '/donor/add', function () {
         return view('ahg-accession-manage::add');
     })->name('donor.add');
+
+    // Named route referenced by the related-donor row template
+    // (route('accession.relatedDonor', ['slug' => ...])). Resolves an
+    // existing donor by slug and returns its id/label so the modal can
+    // pre-fill the hidden donor_id when editing an already-linked donor.
+    Route::get('/accession/related-donor/{slug}', [AccessionController::class, 'relatedDonor'])
+        ->name('accession.relatedDonor');
 });

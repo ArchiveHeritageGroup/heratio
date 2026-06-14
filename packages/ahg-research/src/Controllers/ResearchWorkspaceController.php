@@ -3,6 +3,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,43 +11,13 @@ use Illuminate\Support\Facades\DB;
 
 class ResearchWorkspaceController extends Controller
 {
+    use ResearchControllerHelpers;
+
     protected ResearchService $service;
 
     public function __construct()
     {
         $this->service = new ResearchService();
-    }
-
-    protected function getSidebarData(string $active): array
-    {
-        $unreadNotifications = 0;
-        if (Auth::check()) {
-            $researcher = $this->service->getResearcherByUserId(Auth::id());
-            if ($researcher) {
-                try {
-                    $unreadNotifications = (int) DB::table('research_notification')
-                        ->where('researcher_id', $researcher->id)
-                        ->where('is_read', 0)
-                        ->count();
-                } catch (\Exception $e) {
-                    // Table may not exist yet
-                }
-            }
-        }
-
-        $experienceLevel = 'intermediate';
-        if (Auth::check()) {
-            $r = $this->service->getResearcherByUserId(Auth::id());
-            if ($r && !empty($r->experience_level)) {
-                $experienceLevel = $r->experience_level;
-            }
-        }
-
-        return [
-            'sidebarActive' => $active,
-            'unreadNotifications' => $unreadNotifications,
-            'experienceLevel' => $experienceLevel,
-        ];
     }
 
     public function workspace(Request $request)

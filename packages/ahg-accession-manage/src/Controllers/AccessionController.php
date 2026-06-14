@@ -569,9 +569,153 @@ class AccessionController extends Controller
 
         $this->service->update($accession->id, $data);
 
+        // #1267: persist the existing-donor selection from the "Related
+        // donor" modal. The modal's autocomplete writes the chosen donor's
+        // id into donor_id (and slug into donor_slug as a fallback). An
+        // empty donor_id means "no donor linked" — syncDonors() then
+        // unlinks any previously-linked donor. We never create a donor/actor
+        // here; only existing donors (resolved by id or slug) are linked.
+        $donorIds = $this->resolveSelectedDonorIds($request);
+        $this->service->syncDonors($accession->id, $donorIds);
+
         return redirect()
             ->route('accession.show', $slug)
             ->with('success', 'Accession record updated successfully.');
+    }
+
+    /**
+     * Resolve the donor selection carried by the accession edit form into a
+     * list of existing donor ids. Accepts a numeric donor_id (preferred,
+     * written by the modal autocomplete) or a donor_slug (the autocomplete
+     * anchor href value). Supports the multi-donor shape donor_ids[] too.
+     * Returns [] when nothing is selected (which unlinks all donors).
+     *
+     * @return int[]
+     */
+    private function resolveSelectedDonorIds(Request $request): array
+    {
+        $ids = [];
+
+        foreach ((array) $request->input('donor_ids', []) as $v) {
+            if (is_numeric($v) && (int) $v > 0) {
+                $ids[] = (int) $v;
+            }
+        }
+
+        $single = $request->input('donor_id');
+        if (is_numeric($single) && (int) $single > 0) {
+            $ids[] = (int) $single;
+        }
+
+        // Fall back to resolving a slug when no numeric id was supplied.
+        if (empty($ids)) {
+            $slug = trim((string) $request->input('donor_slug', ''));
+            if ($slug !== '') {
+                $slug = ltrim($slug, '/');
+                $donor = (new \AhgDonorManage\Services\DonorService(app()->getLocale()))->getBySlug($slug);
+                if ($donor) {
+                    $ids[] = (int) $donor->id;
+                }
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * #1267: link an existing donor to this accession (AJAX add-existing
+     * action from the "Related donor" modal). Accepts donor_id or donor_slug.
+     */
+    public function linkDonor(Request $request, string $slug)
+    {
+        $accession = $this->service->getBySlug($slug);
+        if (! $accession) {
+            abort(404);
+        }
+
+        $ids = $this->resolveSelectedDonorIds($request);
+        if (empty($ids)) {
+            return $this->donorActionResponse($request, $slug, false, 'No existing donor selected.');
+        }
+
+        $created = false;
+        foreach ($ids as $donorId) {
+            $created = $this->service->linkDonor($accession->id, $donorId) || $created;
+        }
+
+        return $this->donorActionResponse($request, $slug, true,
+            $created ? 'Donor linked to accession.' : 'Donor already linked to this accession.');
+    }
+
+    /**
+     * #1267: unlink a donor from this accession (modal delete-row action).
+     */
+    public function unlinkDonor(Request $request, string $slug)
+    {
+        $accession = $this->service->getBySlug($slug);
+        if (! $accession) {
+            abort(404);
+        }
+
+        $ids = $this->resolveSelectedDonorIds($request);
+        $removed = 0;
+        foreach ($ids as $donorId) {
+            $removed += $this->service->unlinkDonor($accession->id, $donorId);
+        }
+
+        return $this->donorActionResponse($request, $slug, true,
+            $removed > 0 ? 'Donor unlinked from accession.' : 'No matching donor link to remove.');
+    }
+
+    private function donorActionResponse(Request $request, string $slug, bool $ok, string $message)
+    {
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['ok' => $ok, 'message' => $message]);
+        }
+
+        return redirect()
+            ->route('accession.show', $slug)
+            ->with($ok ? 'success' : 'error', $message);
+    }
+
+    /**
+     * #1267: JSON donor typeahead for the accession edit form's TomSelect.
+     * Returns [{id, name, slug}, ...] using DonorService::search().
+     */
+    public function donorSearch(Request $request)
+    {
+        $query = (string) $request->input('query', $request->input('q', ''));
+        $limit = (int) $request->input('limit', 15);
+        $donors = (new \AhgDonorManage\Services\DonorService(app()->getLocale()))->search($query, $limit > 0 ? $limit : 15);
+
+        $out = array_map(function ($d) {
+            return [
+                'id' => $d['id'],
+                'name' => $d['label'],
+                'slug' => $d['slug'],
+            ];
+        }, $donors);
+
+        return response()->json($out);
+    }
+
+    /**
+     * #1267: resolve an existing donor by slug to {id, name, slug}. Powers
+     * the related-donor row template's edit action so the modal can pre-fill
+     * the hidden donor_id when editing an already-linked donor.
+     */
+    public function relatedDonor(string $slug)
+    {
+        $donor = (new \AhgDonorManage\Services\DonorService(app()->getLocale()))->getBySlug($slug);
+        if (! $donor) {
+            abort(404);
+        }
+
+        return response()->json([
+            'id' => (int) $donor->id,
+            'name' => $donor->authorized_form_of_name ?? '',
+            'slug' => $donor->slug ?? $slug,
+        ]);
     }
 
     public function confirmDelete(string $slug)
