@@ -82,14 +82,22 @@ class AskCollectionService
     public function ask(string $question, ?string $locale = null): array
     {
         $result = $this->resolve($question);
+        $dynamic = (bool) ($result['_dynamic'] ?? false);
+        unset($result['_dynamic']);
 
-        // heratio#1208/#1211: localize the answer into the visitor's language via the
-        // sanctioned MT route (AnswerLocalizer -> gateway /translate), fail-soft to
-        // English. Never an LLM, so SA languages stay compliant. Sources/titles are
-        // left as-is (proper nouns / catalogue handles).
         if (! empty($result['answer'])) {
-            $result['answer'] = app(\AhgCore\Services\AnswerLocalizer::class)
-                ->localize((string) $result['answer'], $locale);
+            $targetLocale = trim((string) ($locale ?? app()->getLocale()));
+            if ($dynamic) {
+                // heratio#1208/#1211: a dynamic KM answer - translate via the sanctioned
+                // MT route (AnswerLocalizer -> gateway /translate), fail-soft to English,
+                // never an LLM. Sources/titles stay as-is (proper nouns / catalogue handles).
+                $result['answer'] = app(\AhgCore\Services\AnswerLocalizer::class)
+                    ->localize((string) $result['answer'], $targetLocale);
+            } else {
+                // Our own boilerplate ("we don't know") - use the curated lang-file string
+                // for the target locale (a hand-curated message beats rough MT for fixed UI).
+                $result['answer'] = __((string) $result['answer'], [], $targetLocale);
+            }
         }
 
         return $result;
@@ -142,10 +150,14 @@ class AskCollectionService
             // If KM honestly reports a corpus gap, pass it through as the answer but
             // mark it NOT grounded so the page frames it as "we don't know", not fact.
             if ($this->looksLikeGap($answer)) {
+                // KM honestly reports a corpus gap. Surface our OWN curated "we don't know"
+                // boilerplate (localized via the lang files in ask(), not rough MT of KM's
+                // English), while keeping any sources KM did return. #1208/#1211 curation.
                 return [
-                    'answer' => $answer,
+                    'answer' => self::NOT_GROUNDED_MESSAGE,
                     'sources' => $sources,
                     'grounded' => false,
+                    '_dynamic' => false,
                 ];
             }
 
@@ -155,6 +167,7 @@ class AskCollectionService
                 // Treat an answer with no cited sources as not-confidently-grounded:
                 // grounded answers should be able to point at where they came from.
                 'grounded' => $sources !== [],
+                '_dynamic' => true,   // KM-sourced text -> MT-localize (stripped in ask())
             ];
         } catch (\Throwable $e) {
             // Timeout, DNS, TLS, connection refused, malformed JSON - all soft.
@@ -171,6 +184,7 @@ class AskCollectionService
             'answer' => self::NOT_GROUNDED_MESSAGE,
             'sources' => [],
             'grounded' => false,
+            '_dynamic' => false,   // our own boilerplate -> curated __() string, not MT
         ];
     }
 
