@@ -18,6 +18,9 @@ use AhgResearch\Controllers\ResearchWorkspaceController;
 use AhgResearch\Controllers\ResearchValidationQueueController;
 use AhgResearch\Controllers\ResearchEntityResolutionController;
 use AhgResearch\Controllers\ResearchOdrlPoliciesController;
+use AhgResearch\Controllers\ResearchBookingsController;
+use AhgResearch\Controllers\ResearchCollectionsController;
+use AhgResearch\Controllers\ResearchOrcidController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,7 +42,7 @@ Route::prefix('research')->name('research.')->group(function () {
     // ORCID public-record lookup for register-form auto-populate (rate-limited
     // in the controller). Public so both the staff register + public-register
     // forms can prefill from an entered ORCID iD without an account.
-    Route::post('/orcid/fetch-public', [ResearchController::class, 'orcidFetchPublic'])->name('orcidFetchPublic');
+    Route::post('/orcid/fetch-public', [ResearchOrcidController::class, 'orcidFetchPublic'])->name('orcidFetchPublic');
 });
 
 Route::prefix('research')->name('research.')->middleware('auth')->group(function () {
@@ -202,14 +205,14 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::delete('/saved-searches/{id}', [ResearchController::class, 'destroySavedSearch'])->name('savedSearches.destroy')->where('id', '[0-9]+');
 
     // Collections (Evidence Sets)
-    Route::get('/collections', [ResearchController::class, 'collections'])->name('collections');
-    Route::get('/collections/create', [ResearchController::class, 'createCollection'])->name('collections.create');
-    Route::post('/collections', [ResearchController::class, 'storeCollection'])->name('collections.store');
-    Route::put('/collections/{id}', [ResearchController::class, 'updateCollection'])->name('collections.update')->where('id', '[0-9]+');
-    Route::delete('/collections/{id}', [ResearchController::class, 'destroyCollection'])->name('collections.destroy')->where('id', '[0-9]+');
-    Route::post('/collections/{id}/add-item', [ResearchController::class, 'addItemToCollection'])->name('collections.addItem')->where('id', '[0-9]+');
-    Route::delete('/collections/{collectionId}/remove-item/{itemId}', [ResearchController::class, 'removeItemFromCollection'])->name('collections.removeItem')->where(['collectionId' => '[0-9]+', 'itemId' => '[0-9]+']);
-    Route::match(['get', 'post'], '/viewCollection', [ResearchController::class, 'viewCollection'])->name('viewCollection')->where('id', '[0-9]+');
+    Route::get('/collections', [ResearchCollectionsController::class, 'collections'])->name('collections');
+    Route::get('/collections/create', [ResearchCollectionsController::class, 'createCollection'])->name('collections.create');
+    Route::post('/collections', [ResearchCollectionsController::class, 'storeCollection'])->name('collections.store');
+    Route::put('/collections/{id}', [ResearchCollectionsController::class, 'updateCollection'])->name('collections.update')->where('id', '[0-9]+');
+    Route::delete('/collections/{id}', [ResearchCollectionsController::class, 'destroyCollection'])->name('collections.destroy')->where('id', '[0-9]+');
+    Route::post('/collections/{id}/add-item', [ResearchCollectionsController::class, 'addItemToCollection'])->name('collections.addItem')->where('id', '[0-9]+');
+    Route::delete('/collections/{collectionId}/remove-item/{itemId}', [ResearchCollectionsController::class, 'removeItemFromCollection'])->name('collections.removeItem')->where(['collectionId' => '[0-9]+', 'itemId' => '[0-9]+']);
+    Route::match(['get', 'post'], '/viewCollection', [ResearchCollectionsController::class, 'viewCollection'])->name('viewCollection')->where('id', '[0-9]+');
 
     // Annotations (extracted to ResearchAnnotationsController - stage 2, issue #1253)
     Route::get('/annotations', [ResearchAnnotationsController::class, 'annotations'])->name('annotations');
@@ -252,14 +255,14 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::post('/sync/offline', [ResearchController::class, 'offlineSync'])->name('offlineSync');
 
     // ORCID integration
-    Route::get('/orcid',           [ResearchController::class, 'orcidLink'])->name('orcid');
-    Route::get('/orcid/authorize', [ResearchController::class, 'orcidAuthorize'])->name('orcidAuthorize');
-    Route::get('/orcid/callback',  [ResearchController::class, 'orcidCallback'])->name('orcidCallback');
-    Route::post('/orcid/sync',     [ResearchController::class, 'orcidSync'])->name('orcidSync');
-    Route::post('/orcid/pull-profile', [ResearchController::class, 'orcidPullProfile'])->name('orcidPullProfile');
-    Route::post('/orcid/credentials', [ResearchController::class, 'orcidSaveCredentials'])->name('orcidSaveCredentials');
-    Route::post('/orcid/credentials/clear', [ResearchController::class, 'orcidClearCredentials'])->name('orcidClearCredentials');
-    Route::post('/orcid/unlink',   [ResearchController::class, 'orcidUnlink'])->name('orcidUnlink');
+    Route::get('/orcid',           [ResearchOrcidController::class, 'orcidLink'])->name('orcid');
+    Route::get('/orcid/authorize', [ResearchOrcidController::class, 'orcidAuthorize'])->name('orcidAuthorize');
+    Route::get('/orcid/callback',  [ResearchOrcidController::class, 'orcidCallback'])->name('orcidCallback');
+    Route::post('/orcid/sync',     [ResearchOrcidController::class, 'orcidSync'])->name('orcidSync');
+    Route::post('/orcid/pull-profile', [ResearchOrcidController::class, 'orcidPullProfile'])->name('orcidPullProfile');
+    Route::post('/orcid/credentials', [ResearchOrcidController::class, 'orcidSaveCredentials'])->name('orcidSaveCredentials');
+    Route::post('/orcid/credentials/clear', [ResearchOrcidController::class, 'orcidClearCredentials'])->name('orcidClearCredentials');
+    Route::post('/orcid/unlink',   [ResearchOrcidController::class, 'orcidUnlink'])->name('orcidUnlink');
 
     // Real-time collaboration (polling fallback)
     Route::get('/projects/{projectId}/realtime/panel',  [ResearchController::class, 'collabPanel'])->name('collabPanel')->where('projectId', '[0-9]+');
@@ -327,16 +330,16 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/reproductions', [ResearchReproductionsController::class, 'reproductions'])->name('reproductions');
 
     // Bookings
-    Route::get('/book', [ResearchController::class, 'book'])->name('book');
-    Route::post('/book', [ResearchController::class, 'book'])->name('book.store');
-    Route::match(['get', 'post'], '/viewBooking/{id}', [ResearchController::class, 'viewBooking'])->name('viewBooking')->where('id', '[0-9]+');
-    Route::post('/bookings/{id}/confirm', [ResearchController::class, 'confirmBooking'])->name('bookings.confirm')->where('id', '[0-9]+');
-    Route::post('/bookings/{id}/check-in', [ResearchController::class, 'checkInBooking'])->name('bookings.checkIn')->where('id', '[0-9]+');
-    Route::post('/bookings/{id}/check-out', [ResearchController::class, 'checkOutBooking'])->name('bookings.checkOut')->where('id', '[0-9]+');
-    Route::post('/bookings/{id}/no-show', [ResearchController::class, 'noShowBooking'])->name('bookings.noShow')->where('id', '[0-9]+');
-    Route::post('/bookings/{id}/cancel', [ResearchController::class, 'cancelBooking'])->name('bookings.cancel')->where('id', '[0-9]+');
-    Route::post('/checkIn/{id}', [ResearchController::class, 'checkIn'])->name('checkIn')->where('id', '[0-9]+');
-    Route::post('/checkOut/{id}', [ResearchController::class, 'checkOut'])->name('checkOut')->where('id', '[0-9]+');
+    Route::get('/book', [ResearchBookingsController::class, 'book'])->name('book');
+    Route::post('/book', [ResearchBookingsController::class, 'book'])->name('book.store');
+    Route::match(['get', 'post'], '/viewBooking/{id}', [ResearchBookingsController::class, 'viewBooking'])->name('viewBooking')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/confirm', [ResearchBookingsController::class, 'confirmBooking'])->name('bookings.confirm')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/check-in', [ResearchBookingsController::class, 'checkInBooking'])->name('bookings.checkIn')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/check-out', [ResearchBookingsController::class, 'checkOutBooking'])->name('bookings.checkOut')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/no-show', [ResearchBookingsController::class, 'noShowBooking'])->name('bookings.noShow')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/cancel', [ResearchBookingsController::class, 'cancelBooking'])->name('bookings.cancel')->where('id', '[0-9]+');
+    Route::post('/checkIn/{id}', [ResearchBookingsController::class, 'checkIn'])->name('checkIn')->where('id', '[0-9]+');
+    Route::post('/checkOut/{id}', [ResearchBookingsController::class, 'checkOut'])->name('checkOut')->where('id', '[0-9]+');
 
     // Notifications
     Route::match(['get', 'post'], '/notifications', [ResearchController::class, 'notifications'])->name('notifications');
@@ -346,15 +349,15 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
     // AJAX endpoints
     Route::get('/searchItems', [ResearchController::class, 'searchItems'])->name('searchItems');
-    Route::post('/addToCollection', [ResearchController::class, 'addToCollection'])->name('addToCollection');
-    Route::post('/createCollectionAjax', [ResearchController::class, 'createCollectionAjax'])->name('createCollectionAjax');
+    Route::post('/addToCollection', [ResearchCollectionsController::class, 'addToCollection'])->name('addToCollection');
+    Route::post('/createCollectionAjax', [ResearchCollectionsController::class, 'createCollectionAjax'])->name('createCollectionAjax');
 });
 
 // Admin research management routes
 Route::prefix('research')->name('research.')->middleware('admin')->group(function () {
     // Dashboard URL aliases under /research/admin/* (matches reports dashboard links)
     Route::match(['get', 'post'], '/admin/researchers', [ResearchController::class, 'researchers'])->name('admin.researchers');
-    Route::match(['get', 'post'], '/admin/bookings', [ResearchController::class, 'bookings'])->name('admin.bookings');
+    Route::match(['get', 'post'], '/admin/bookings', [ResearchBookingsController::class, 'bookings'])->name('admin.bookings');
     Route::match(['get', 'post'], '/admin/statistics', [ResearchController::class, 'adminStatistics'])->name('admin.statistics');
 
     Route::match(['get', 'post'], '/researchers', [ResearchController::class, 'researchers'])->name('researchers');
@@ -366,7 +369,7 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::post('/researchers/{id}/suspend', [ResearchController::class, 'suspendResearcher'])->name('researchers.suspend')->where('id', '[0-9]+');
     Route::post('/researchers/{id}/verify', [ResearchController::class, 'verifyResearcher'])->name('researchers.verify')->where('id', '[0-9]+');
     Route::post('/researchers/{id}/reset-password', [ResearchController::class, 'resetPassword'])->name('resetPassword')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/bookings', [ResearchController::class, 'bookings'])->name('bookings');
+    Route::match(['get', 'post'], '/bookings', [ResearchBookingsController::class, 'bookings'])->name('bookings');
     Route::get('/rooms', [ResearchController::class, 'rooms'])->name('rooms');
     Route::match(['get', 'post'], '/editRoom', [ResearchController::class, 'editRoom'])->name('editRoom');
     Route::match(['get', 'post'], '/seats', [ResearchController::class, 'seats'])->name('seats');
