@@ -131,9 +131,9 @@
                 </td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">
-                    <a href="{{ route('donor.show', $doc['slug']) }}" class="btn btn-outline-primary" title="{{ __('View') }}"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('donor.show', $doc['slug']) }}" class="btn btn-outline-primary" title="{{ __('View') }}" aria-label="{{ __('View') }}"><i class="fas fa-eye" aria-hidden="true"></i></a>
                     @auth
-                      <a href="{{ route('donor.edit', $doc['slug']) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}"><i class="fas fa-edit"></i></a>
+                      <a href="{{ route('donor.edit', $doc['slug']) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}" aria-label="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
                     @endauth
                   </div>
                 </td>
