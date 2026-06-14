@@ -2036,7 +2036,11 @@
     })();
     function openPanel(s) {
       document.getElementById('inlayTitle').textContent = s.title;
-      document.getElementById('inlayDesc').textContent = s.description || '{{ __('No description available.') }}';
+      // #1186: show the generative per-object wall label (caption) above the catalogue description.
+      var _cap = (s.caption || '').trim(), _dsc = (s.description || '').trim();
+      var _inlay = document.getElementById('inlayDesc');
+      if (_cap) { _inlay.innerHTML = '<em>' + _cap.replace(/[<>&]/g, '') + '</em>' + (_dsc ? '<br><br>' + _dsc.replace(/[<>&]/g, '') : ''); }
+      else { _inlay.textContent = _dsc || '{{ __('No description available.') }}'; }
       buildAskChips(s);
       var _ae = document.getElementById('wtAskAnswer'); if (_ae) { _ae.style.display = 'none'; _ae.textContent = ''; }
       var _ai = document.getElementById('wtAskInput'); if (_ai) _ai.value = '';

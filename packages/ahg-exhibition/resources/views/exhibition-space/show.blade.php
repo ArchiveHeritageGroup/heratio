@@ -26,6 +26,14 @@
   @if(session('success'))<div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>@endif
   @if(session('error'))<div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>@endif
 
+  {{-- heratio#1186 - AI-generated exhibition introduction (generative exhibitions) --}}
+  @if(!empty($space->intro_text))
+    <div class="card mb-3">
+      <div class="card-header"><strong>{{ __('Exhibition introduction') }}</strong></div>
+      <div class="card-body"><p class="mb-0">{{ $space->intro_text }}</p></div>
+    </div>
+  @endif
+
   <div class="row">
     <div class="col-lg-4">
       <div class="card mb-3">
@@ -50,6 +58,28 @@
       </div>
       @if(!empty($space->notes))
         <div class="card mb-3"><div class="card-header"><strong>{{ __('Notes') }}</strong></div><div class="card-body"><p class="mb-0">{{ $space->notes }}</p></div></div>
+      @endif
+      {{-- heratio#1186 - building rooms + their AI-generated blurbs (generative exhibitions) --}}
+      @php
+        $buildingRooms = !empty($space->building_id)
+          ? \Illuminate\Support\Facades\DB::table('ahg_exhibition_space')
+              ->where('building_id', $space->building_id)
+              ->orderBy('floor_level')->orderBy('building_seq')->orderBy('id')
+              ->get(['name', 'room_blurb'])
+          : collect();
+      @endphp
+      @if($buildingRooms->count() > 1)
+        <div class="card mb-3">
+          <div class="card-header"><strong>{{ __('Rooms') }}</strong></div>
+          <ul class="list-group list-group-flush">
+            @foreach($buildingRooms as $r)
+              <li class="list-group-item">
+                <strong>{{ $r->name }}</strong>
+                @if(!empty($r->room_blurb))<br><small class="text-muted">{{ $r->room_blurb }}</small>@endif
+              </li>
+            @endforeach
+          </ul>
+        </div>
       @endif
     </div>
 
