@@ -24,6 +24,9 @@ use AhgResearch\Controllers\ResearchOrcidController;
 use AhgResearch\Controllers\ResearchStudioController;
 use AhgResearch\Controllers\ResearchCollaborationController;
 use AhgResearch\Controllers\ResearchNotificationsController;
+use AhgResearch\Controllers\ResearchRoomsController;
+use AhgResearch\Controllers\ResearchSeatsController;
+use AhgResearch\Controllers\ResearchEquipmentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -164,7 +167,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/renewal', [ResearchController::class, 'renewal'])->name('renewal');
 
     // Workspace (personal)
-    Route::match(['get', 'post'], '/workspace', [ResearchController::class, 'workspace'])->name('workspace');
+    Route::match(['get', 'post'], '/workspace', [ResearchWorkspaceController::class, 'workspace'])->name('workspace');
     // Persist the self-declared research mode (beginning/intermediate/advanced)
     // chosen from the sidebar selector. JSON endpoint, hit via fetch().
     Route::post('/experience-level', [ResearchWorkspaceController::class, 'saveExperienceLevel'])->name('saveExperienceLevel');
@@ -177,8 +180,8 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::get('/exportFindingAid', [ResearchController::class, 'exportFindingAid'])->name('exportFindingAid');
     Route::get('/exportNotes', [ResearchController::class, 'exportNotes'])->name('exportNotes');
     Route::get('/generateFindingAid', [ResearchController::class, 'generateFindingAid'])->name('generateFindingAid');
-    Route::match(['get', 'post'], '/workspaces', [ResearchController::class, 'workspaces'])->name('workspaces');
-    Route::match(['get', 'post'], '/workspaces/{id}', [ResearchController::class, 'viewWorkspace'])->name('viewWorkspace')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/workspaces', [ResearchWorkspaceController::class, 'workspaces'])->name('workspaces');
+    Route::match(['get', 'post'], '/workspaces/{id}', [ResearchWorkspaceController::class, 'viewWorkspace'])->name('viewWorkspace')->where('id', '[0-9]+');
 
     // Validation Queue (extracted to ResearchValidationQueueController - stage 7, issue #1269)
     Route::get('/validationQueue', [ResearchValidationQueueController::class, 'validationQueue'])->name('validationQueue');
@@ -373,11 +376,11 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::post('/researchers/{id}/verify', [ResearchController::class, 'verifyResearcher'])->name('researchers.verify')->where('id', '[0-9]+');
     Route::post('/researchers/{id}/reset-password', [ResearchController::class, 'resetPassword'])->name('resetPassword')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/bookings', [ResearchBookingsController::class, 'bookings'])->name('bookings');
-    Route::get('/rooms', [ResearchController::class, 'rooms'])->name('rooms');
-    Route::match(['get', 'post'], '/editRoom', [ResearchController::class, 'editRoom'])->name('editRoom');
-    Route::match(['get', 'post'], '/seats', [ResearchController::class, 'seats'])->name('seats');
-    Route::match(['get', 'post'], '/equipment', [ResearchController::class, 'equipment'])->name('equipment');
-    Route::get('/equipment-history/{id}', [ResearchController::class, 'equipmentHistory'])->name('equipmentHistory')->where('id', '[0-9]+');
+    Route::get('/rooms', [ResearchRoomsController::class, 'rooms'])->name('rooms');
+    Route::match(['get', 'post'], '/editRoom', [ResearchRoomsController::class, 'editRoom'])->name('editRoom');
+    Route::match(['get', 'post'], '/seats', [ResearchSeatsController::class, 'seats'])->name('seats');
+    Route::match(['get', 'post'], '/equipment', [ResearchEquipmentController::class, 'equipment'])->name('equipment');
+    Route::get('/equipment-history/{id}', [ResearchEquipmentController::class, 'equipmentHistory'])->name('equipmentHistory')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/retrievalQueue', [ResearchController::class, 'retrievalQueue'])->name('retrievalQueue');
     Route::match(['get', 'post'], '/walkIn', [ResearchController::class, 'walkIn'])->name('walkIn');
     Route::match(['get', 'post'], '/adminTypes', [ResearchController::class, 'adminTypes'])->name('adminTypes');
