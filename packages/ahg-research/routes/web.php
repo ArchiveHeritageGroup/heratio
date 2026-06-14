@@ -21,6 +21,9 @@ use AhgResearch\Controllers\ResearchOdrlPoliciesController;
 use AhgResearch\Controllers\ResearchBookingsController;
 use AhgResearch\Controllers\ResearchCollectionsController;
 use AhgResearch\Controllers\ResearchOrcidController;
+use AhgResearch\Controllers\ResearchStudioController;
+use AhgResearch\Controllers\ResearchCollaborationController;
+use AhgResearch\Controllers\ResearchNotificationsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -265,11 +268,11 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::post('/orcid/unlink',   [ResearchOrcidController::class, 'orcidUnlink'])->name('orcidUnlink');
 
     // Real-time collaboration (polling fallback)
-    Route::get('/projects/{projectId}/realtime/panel',  [ResearchController::class, 'collabPanel'])->name('collabPanel')->where('projectId', '[0-9]+');
-    Route::post('/projects/{projectId}/realtime/join',  [ResearchController::class, 'collabJoin'])->name('collabJoin')->where('projectId', '[0-9]+');
-    Route::get('/projects/{projectId}/realtime/poll',   [ResearchController::class, 'collabPoll'])->name('collabPoll')->where('projectId', '[0-9]+');
-    Route::post('/projects/{projectId}/realtime/comment', [ResearchController::class, 'collabComment'])->name('collabComment')->where('projectId', '[0-9]+');
-    Route::post('/projects/{projectId}/realtime/comment/{commentId}/resolve', [ResearchController::class, 'collabCommentResolve'])->name('collabCommentResolve')->where(['projectId' => '[0-9]+', 'commentId' => '[0-9]+']);
+    Route::get('/projects/{projectId}/realtime/panel',  [ResearchCollaborationController::class, 'collabPanel'])->name('collabPanel')->where('projectId', '[0-9]+');
+    Route::post('/projects/{projectId}/realtime/join',  [ResearchCollaborationController::class, 'collabJoin'])->name('collabJoin')->where('projectId', '[0-9]+');
+    Route::get('/projects/{projectId}/realtime/poll',   [ResearchCollaborationController::class, 'collabPoll'])->name('collabPoll')->where('projectId', '[0-9]+');
+    Route::post('/projects/{projectId}/realtime/comment', [ResearchCollaborationController::class, 'collabComment'])->name('collabComment')->where('projectId', '[0-9]+');
+    Route::post('/projects/{projectId}/realtime/comment/{commentId}/resolve', [ResearchCollaborationController::class, 'collabCommentResolve'])->name('collabCommentResolve')->where(['projectId' => '[0-9]+', 'commentId' => '[0-9]+']);
 
     // Cross-fonds reasoning queries
     Route::match(['get','post'], '/cross-fonds-query', [ResearchController::class, 'crossFondsQuery'])->name('crossFondsQuery');
@@ -282,16 +285,16 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::post('/notebooks/{id}/promote', [ResearchNotebooksController::class, 'notebookPromote'])->name('notebookPromote')->where('id', '[0-9]+');
 
     // Studio (NotebookLM-style artefact generator)
-    Route::get('/studio/{projectId}', [ResearchController::class, 'studio'])->name('studio')->where('projectId', '[0-9]+');
-    Route::post('/studio/{projectId}/generate', [ResearchController::class, 'studioGenerate'])->name('studioGenerate')->where('projectId', '[0-9]+');
-    Route::get('/studio/{projectId}/artefact/{artefactId}', [ResearchController::class, 'studioShow'])->name('studioShow')->where(['projectId' => '[0-9]+', 'artefactId' => '[0-9]+']);
-    Route::get('/studio/{projectId}/artefact/{artefactId}/download', [ResearchController::class, 'studioDownload'])->name('studioDownload')->where(['projectId' => '[0-9]+', 'artefactId' => '[0-9]+']);
-    Route::delete('/studio/{projectId}/artefact/{artefactId}', [ResearchController::class, 'studioDelete'])->name('studioDelete')->where(['projectId' => '[0-9]+', 'artefactId' => '[0-9]+']);
+    Route::get('/studio/{projectId}', [ResearchStudioController::class, 'studio'])->name('studio')->where('projectId', '[0-9]+');
+    Route::post('/studio/{projectId}/generate', [ResearchStudioController::class, 'studioGenerate'])->name('studioGenerate')->where('projectId', '[0-9]+');
+    Route::get('/studio/{projectId}/artefact/{artefactId}', [ResearchStudioController::class, 'studioShow'])->name('studioShow')->where(['projectId' => '[0-9]+', 'artefactId' => '[0-9]+']);
+    Route::get('/studio/{projectId}/artefact/{artefactId}/download', [ResearchStudioController::class, 'studioDownload'])->name('studioDownload')->where(['projectId' => '[0-9]+', 'artefactId' => '[0-9]+']);
+    Route::delete('/studio/{projectId}/artefact/{artefactId}', [ResearchStudioController::class, 'studioDelete'])->name('studioDelete')->where(['projectId' => '[0-9]+', 'artefactId' => '[0-9]+']);
 
     // Collaborator Management
-    Route::match(['get', 'post'], '/invite-collaborator/{id}', [ResearchController::class, 'inviteCollaborator'])->name('inviteCollaborator')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/share-project/{id}', [ResearchController::class, 'shareProject'])->name('shareProject')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/project-collaborators/{id}', [ResearchController::class, 'projectCollaborators'])->name('projectCollaborators')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/invite-collaborator/{id}', [ResearchCollaborationController::class, 'inviteCollaborator'])->name('inviteCollaborator')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/share-project/{id}', [ResearchCollaborationController::class, 'shareProject'])->name('shareProject')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/project-collaborators/{id}', [ResearchCollaborationController::class, 'projectCollaborators'])->name('projectCollaborators')->where('id', '[0-9]+');
 
     // Journal
     Route::match(['get', 'post'], '/journal', [ResearchController::class, 'journal'])->name('journal');
@@ -342,7 +345,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::post('/checkOut/{id}', [ResearchBookingsController::class, 'checkOut'])->name('checkOut')->where('id', '[0-9]+');
 
     // Notifications
-    Route::match(['get', 'post'], '/notifications', [ResearchController::class, 'notifications'])->name('notifications');
+    Route::match(['get', 'post'], '/notifications', [ResearchNotificationsController::class, 'notifications'])->name('notifications');
 
     // Evidence Viewer
     Route::match(['get', 'post'], '/evidence-viewer', [ResearchController::class, 'evidenceViewer'])->name('evidence-viewer');

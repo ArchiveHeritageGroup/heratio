@@ -1006,63 +1006,9 @@ class ResearchController extends Controller
     // =========================================================================
     // NOTIFICATIONS
     // =========================================================================
-
-    public function notifications(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        if ($request->isMethod('post')) {
-            $action = $request->input('do');
-            if ($action === 'mark_read') {
-                DB::table('research_notification')
-                    ->where('id', (int) $request->input('id'))
-                    ->where('researcher_id', $researcher->id)
-                    ->update(['is_read' => 1, 'read_at' => date('Y-m-d H:i:s')]);
-            } elseif ($action === 'mark_all_read') {
-                DB::table('research_notification')
-                    ->where('researcher_id', $researcher->id)
-                    ->where('is_read', 0)
-                    ->update(['is_read' => 1, 'read_at' => date('Y-m-d H:i:s')]);
-            } elseif ($action === 'update_preferences') {
-                $prefs = $request->input('prefs', []);
-                foreach ($prefs as $type => $settings) {
-                    DB::table('research_notification_preference')->updateOrInsert(
-                        ['researcher_id' => $researcher->id, 'notification_type' => $type],
-                        [
-                            'in_app_enabled' => isset($settings['in_app_enabled']) ? 1 : 0,
-                            'email_enabled' => isset($settings['email_enabled']) ? 1 : 0,
-                            'digest_frequency' => $settings['digest_frequency'] ?? 'immediate',
-                        ]
-                    );
-                }
-                return redirect()->route('research.notifications', ['tab' => 'preferences'])->with('success', 'Preferences saved.');
-            }
-            return redirect()->route('research.notifications');
-        }
-
-        $notifications = DB::table('research_notification')
-            ->where('researcher_id', $researcher->id)
-            ->orderBy('created_at', 'desc')
-            ->limit(100)
-            ->get()->toArray();
-
-        // Load preferences
-        $preferences = [];
-        try {
-            $prefRows = DB::table('research_notification_preference')
-                ->where('researcher_id', $researcher->id)->get();
-            foreach ($prefRows as $p) {
-                $preferences[$p->notification_type] = $p;
-            }
-        } catch (\Exception $e) {}
-
-        return view('research::research.notifications', array_merge(
-            $this->getSidebarData('notifications'),
-            compact('researcher', 'notifications', 'preferences')
-        ));
-    }
+    // Extracted to ResearchNotificationsController (stage 8, issue #1269):
+    // notifications(). Route re-pointed in packages/ahg-research/routes/web.php.
+    // =========================================================================
 
     // =========================================================================
     // ADMIN: READING ROOMS
@@ -3439,209 +3385,20 @@ class ResearchController extends Controller
     // =========================================================================
     // COLLABORATOR MANAGEMENT
     // =========================================================================
-
-    public function inviteCollaborator(Request $request, int $id)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        [$project, $researcher] = $this->loadProjectContext($id);
-
-        if ($request->isMethod('post')) {
-            $email = $request->input('email');
-            $role = $request->input('role', 'contributor');
-
-            $invitee = DB::table('research_researcher')->where('email', $email)->first();
-            if (!$invitee) {
-                return redirect()->route('research.inviteCollaborator', $id)->with('error', 'No researcher found with that email.');
-            }
-
-            $exists = DB::table('research_project_collaborator')
-                ->where('project_id', $id)
-                ->where('researcher_id', $invitee->id)
-                ->first();
-            if ($exists) {
-                return redirect()->route('research.inviteCollaborator', $id)->with('error', 'Already a collaborator.');
-            }
-
-            DB::table('research_project_collaborator')->insert([
-                'project_id'    => $id,
-                'researcher_id' => $invitee->id,
-                'role'          => $role,
-                'status'        => 'invited',
-                'invited_at'    => now(),
-            ]);
-
-            return redirect()->route('research.viewProject', $id)->with('success', 'Invitation sent to ' . $email);
-        }
-
-        $collaborators = DB::table('research_project_collaborator as pc')
-            ->join('research_researcher as r', 'pc.researcher_id', '=', 'r.id')
-            ->where('pc.project_id', $id)
-            ->select('pc.*', 'r.first_name', 'r.last_name', 'r.email')
-            ->get()->toArray();
-
-        return view('research::research.invite-collaborator', array_merge(
-            $this->getSidebarData('projects'),
-            compact('project', 'researcher', 'collaborators')
-        ));
-    }
-
-    public function shareProject(Request $request, int $id)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        [$project, $researcher] = $this->loadProjectContext($id);
-
-        if ($request->isMethod('post') && $request->input('form_action') === 'generate_token') {
-            $token = bin2hex(random_bytes(32));
-            DB::table('research_project')->where('id', $id)->update([
-                'share_token' => $token,
-                'updated_at'  => now(),
-            ]);
-            return redirect()->route('research.shareProject', $id)->with('success', 'Share link generated.');
-        }
-
-        return view('research::research.share-project', array_merge(
-            $this->getSidebarData('projects'),
-            compact('project', 'researcher')
-        ));
-    }
-
-    public function projectCollaborators(Request $request, int $id)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        [$project, $researcher] = $this->loadProjectContext($id);
-
-        $collaborators = DB::table('research_project_collaborator as pc')
-            ->join('research_researcher as r', 'pc.researcher_id', '=', 'r.id')
-            ->where('pc.project_id', $id)
-            ->select('pc.*', 'r.first_name', 'r.last_name', 'r.email')
-            ->get()->toArray();
-
-        return view('research::research.project-collaborators', array_merge(
-            $this->getSidebarData('projects'),
-            compact('project', 'researcher', 'collaborators')
-        ));
-    }
+    // Extracted to ResearchCollaborationController (stage 8, issue #1269):
+    // inviteCollaborator(), shareProject(), projectCollaborators(). Routes
+    // re-pointed in packages/ahg-research/routes/web.php. The shared private
+    // helper loadProjectContext() REMAINS in this controller (still called by
+    // ~18 other methods); the new controller carries its own verbatim copy.
+    // =========================================================================
 
     // =========================================================================
     // STUDIO (NotebookLM-style artefact generator)
     // =========================================================================
-
-    public function studio(Request $request, int $projectId)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (!$project) abort(404, 'Project not found');
-
-        $studio = app(\AhgResearch\Services\ResearchStudioService::class);
-
-        $artefacts = $studio->listForProject($projectId);
-
-        $availableSources = DB::table('research_collection as c')
-            ->leftJoin('research_collection_item as ci', 'c.id', '=', 'ci.collection_id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ci.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
-            })
-            ->where('c.project_id', $projectId)
-            ->select('ci.object_id', 'ioi.title', 'c.name as collection_name')
-            ->whereNotNull('ci.object_id')
-            ->orderBy('c.name')
-            ->orderBy('ioi.title')
-            ->get()
-            ->toArray();
-
-        $supportedTypes = \AhgResearch\Services\ResearchStudioService::SUPPORTED_TYPES;
-
-        return view('research::research.studio', array_merge(
-            $this->getSidebarData('projects'),
-            compact('project', 'researcher', 'artefacts', 'availableSources', 'supportedTypes')
-        ));
-    }
-
-    public function studioGenerate(Request $request, int $projectId)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $validated = $request->validate([
-            'output_type'          => 'required|string|in:briefing,study_guide,faq,timeline,diagram,video_script,spreadsheet,audio',
-            'source_object_ids'    => 'required|array|min:1',
-            'source_object_ids.*'  => 'integer|min:1',
-            'title'                => 'nullable|string|max:500',
-            'columns_request'      => 'nullable|string|max:500',
-            'voice_id'             => 'nullable|string|max:120',
-        ]);
-
-        $studio = app(\AhgResearch\Services\ResearchStudioService::class);
-
-        $options = array_filter([
-            'title'           => $validated['title'] ?? null,
-            'columns_request' => $validated['columns_request'] ?? null,
-            'voice_id'        => $validated['voice_id'] ?? null,
-        ], fn ($v) => $v !== null && $v !== '');
-
-        $artefactId = $studio->generate(
-            $projectId,
-            $validated['source_object_ids'],
-            $validated['output_type'],
-            $options,
-            (int) ($researcher->id ?? 0)
-        );
-
-        return redirect()->route('research.studioShow', ['projectId' => $projectId, 'artefactId' => $artefactId])
-            ->with('success', 'Studio artefact generated.');
-    }
-
-    public function studioShow(Request $request, int $projectId, int $artefactId)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (!$project) abort(404);
-
-        $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
-        if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
-
-        $citations = is_string($artefact->citations) ? json_decode($artefact->citations, true) : [];
-
-        return view('research::research.studio-show', array_merge(
-            $this->getSidebarData('projects'),
-            compact('project', 'artefact', 'citations')
-        ));
-    }
-
-    public function studioDownload(Request $request, int $projectId, int $artefactId)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
-        if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
-
-        if ($artefact->output_type === 'spreadsheet' && $artefact->xlsx_path && is_file($artefact->xlsx_path)) {
-            return response()->download($artefact->xlsx_path, basename($artefact->xlsx_path));
-        }
-
-        if ($artefact->output_type === 'audio' && $artefact->audio_url) {
-            return redirect()->away($artefact->audio_url);
-        }
-
-        abort(404, 'No downloadable file for this artefact.');
-    }
-
-    public function studioDelete(Request $request, int $projectId, int $artefactId)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
-        if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
-
-        app(\AhgResearch\Services\ResearchStudioService::class)->delete($artefactId);
-
-        return redirect()->route('research.studio', $projectId)->with('success', 'Studio artefact removed.');
-    }
+    // Extracted to ResearchStudioController (stage 8, issue #1269): studio(),
+    // studioGenerate(), studioShow(), studioDownload(), studioDelete(). Routes
+    // re-pointed in packages/ahg-research/routes/web.php.
+    // =========================================================================
 
     // =========================================================================
     // NOTEBOOKS (researcher-private scratchpad)
@@ -3765,81 +3522,10 @@ class ResearchController extends Controller
     // =========================================================================
     // REAL-TIME COLLABORATION (polling fallback)
     // =========================================================================
-
-    public function collabJoin(Request $request, int $projectId)
-    {
-        if (!Auth::check()) abort(401);
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
-
-        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
-        $data = $svc->joinProject($projectId, (int) $researcher->id, $request->input('cursor_target'));
-
-        return response()->json(array_merge($data, $svc->poll($projectId)));
-    }
-
-    public function collabPoll(Request $request, int $projectId)
-    {
-        if (!Auth::check()) abort(401);
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
-
-        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
-        $svc->heartbeat($projectId, (int) $researcher->id, $request->input('cursor_target'));
-
-        $since = $request->input('since');
-        return response()->json($svc->poll($projectId, $since !== null ? (int) $since : null));
-    }
-
-    public function collabComment(Request $request, int $projectId)
-    {
-        if (!Auth::check()) abort(401);
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
-
-        $validated = $request->validate([
-            'body'              => 'required|string|max:5000',
-            'collection_id'     => 'nullable|integer',
-            'item_id'           => 'nullable|integer',
-            'parent_comment_id' => 'nullable|integer',
-        ]);
-
-        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
-        $id = $svc->postComment($projectId, (int) $researcher->id, $validated);
-
-        return response()->json(['id' => $id, 'status' => 'open']);
-    }
-
-    public function collabCommentResolve(Request $request, int $projectId, int $commentId)
-    {
-        if (!Auth::check()) abort(401);
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
-
-        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
-        $svc->resolveComment($commentId, (int) $researcher->id);
-
-        return response()->json(['status' => 'resolved']);
-    }
-
-    public function collabPanel(Request $request, int $projectId)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (!$project) abort(404);
-
-        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
-        $comments = $svc->comments($projectId);
-        $presence = $svc->presence($projectId);
-
-        return view('research::research.collab-panel', array_merge(
-            $this->getSidebarData('projects'),
-            compact('project', 'comments', 'presence', 'researcher')
-        ));
-    }
+    // Extracted to ResearchCollaborationController (stage 8, issue #1269):
+    // collabJoin(), collabPoll(), collabComment(), collabCommentResolve(),
+    // collabPanel(). Routes re-pointed in packages/ahg-research/routes/web.php.
+    // =========================================================================
 
     public function analytics(Request $request)
     {
