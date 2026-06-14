@@ -4,6 +4,7 @@ use AhgResearch\Controllers\ResearchController;
 use AhgResearch\Controllers\ResearchReproductionsController;
 use AhgResearch\Controllers\ResearchAnnotationsController;
 use AhgResearch\Controllers\ResearchCitationsController;
+use AhgResearch\Controllers\ResearchNotebooksController;
 use AhgResearch\Controllers\ResearchCopilotController;
 use AhgResearch\Controllers\ResearchAiDecisionController;
 use AhgResearch\Controllers\AuditController;
@@ -266,10 +267,11 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get','post'], '/cross-fonds-query', [ResearchController::class, 'crossFondsQuery'])->name('crossFondsQuery');
 
     // Notebooks (private researcher scratchpad)
-    Route::match(['get','post'], '/notebooks', [ResearchController::class, 'notebooks'])->name('notebooks');
-    Route::match(['get','post'], '/notebooks/{id}', [ResearchController::class, 'notebookShow'])->name('notebookShow')->where('id', '[0-9]+');
-    Route::delete('/notebooks/{id}', [ResearchController::class, 'notebookDelete'])->name('notebookDelete')->where('id', '[0-9]+');
-    Route::post('/notebooks/{id}/promote', [ResearchController::class, 'notebookPromote'])->name('notebookPromote')->where('id', '[0-9]+');
+    // Extracted to ResearchNotebooksController - stage 4, issue #1253 / #1269
+    Route::match(['get','post'], '/notebooks', [ResearchNotebooksController::class, 'notebooks'])->name('notebooks');
+    Route::match(['get','post'], '/notebooks/{id}', [ResearchNotebooksController::class, 'notebookShow'])->name('notebookShow')->where('id', '[0-9]+');
+    Route::delete('/notebooks/{id}', [ResearchNotebooksController::class, 'notebookDelete'])->name('notebookDelete')->where('id', '[0-9]+');
+    Route::post('/notebooks/{id}/promote', [ResearchNotebooksController::class, 'notebookPromote'])->name('notebookPromote')->where('id', '[0-9]+');
 
     // Studio (NotebookLM-style artefact generator)
     Route::get('/studio/{projectId}', [ResearchController::class, 'studio'])->name('studio')->where('projectId', '[0-9]+');
