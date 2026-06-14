@@ -17,6 +17,7 @@ namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
 use AhgResearch\Services\ResearchJournalService;
+use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +25,13 @@ use Illuminate\Support\Facades\Schema;
 
 class ResearchJournalController extends Controller
 {
-    public function __construct(private ResearchJournalService $service)
-    {
+    protected ResearchService $researchService;
+
+    public function __construct(
+        private ResearchJournalService $service,
+        ResearchService $researchService
+    ) {
+        $this->researchService = $researchService;
     }
 
     // ── Journals ──────────────────────────────────────────────────────────
@@ -199,6 +205,159 @@ class ResearchJournalController extends Controller
             ->with('success', __('Article deleted.'));
     }
 
+    // ── Personal research journal / diary (research_journal_entry) ──────────
+    // Extracted verbatim from ResearchController (issue #1269). Distinct feature
+    // from the #1105 journal *builder* above: this is the researcher's personal
+    // logbook (journal()/journalEntry()/createJournalEntry()/showJournalEntry()).
+    // Uses the shared ResearchControllerHelpers trait (getSidebarData) and the
+    // injected ResearchService ($this->researchService for getResearcherByUserId
+    // + sanitizeHtml). No cross-calls to other ResearchController methods. Route
+    // names preserved: research.journal / research.journalEntry / etc.
+
+    public function journal(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->researchService->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $filters = [
+            'project_id' => $request->input('project_id'),
+            'entry_type' => $request->input('entry_type'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'search' => $request->input('q'),
+        ];
+
+        $query = DB::table('research_journal_entry')
+            ->where('researcher_id', $researcher->id);
+
+        if ($filters['project_id']) $query->where('project_id', $filters['project_id']);
+        if ($filters['entry_type']) $query->where('entry_type', $filters['entry_type']);
+        if ($filters['date_from']) $query->where('entry_date', '>=', $filters['date_from']);
+        if ($filters['date_to']) $query->where('entry_date', '<=', $filters['date_to']);
+        if ($filters['search']) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('title', 'LIKE', '%' . $filters['search'] . '%')
+                  ->orWhere('content', 'LIKE', '%' . $filters['search'] . '%');
+            });
+        }
+
+        $entries = $query->orderBy('entry_date', 'desc')->orderBy('created_at', 'desc')->get()->toArray();
+
+        $projects = DB::table('research_project as p')
+            ->join('research_project_collaborator as pc', 'p.id', '=', 'pc.project_id')
+            ->where('pc.researcher_id', $researcher->id)
+            ->where('pc.status', 'accepted')
+            ->select('p.id', 'p.title')
+            ->orderBy('p.title')->get()->toArray();
+
+        if ($request->isMethod('post') && $request->input('do') === 'create') {
+            $content = $this->researchService->sanitizeHtml($request->input('content', ''));
+            if ($content) {
+                DB::table('research_journal_entry')->insert([
+                    'researcher_id' => $researcher->id,
+                    'title' => $request->input('title'),
+                    'content' => $content,
+                    'content_format' => 'html',
+                    'project_id' => $request->input('project_id') ?: null,
+                    'entry_type' => $request->input('entry_type') ?: 'manual',
+                    'time_spent_minutes' => $request->input('time_spent_minutes') ?: null,
+                    'tags' => $request->input('tags'),
+                    'entry_date' => $request->input('entry_date') ?: date('Y-m-d'),
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
+                return redirect()->route('research.journal')->with('success', 'Journal entry created');
+            }
+        }
+
+        $journals = DB::table('research_journal')
+            ->where('researcher_id', $researcher->id)
+            ->orderByDesc('updated_at')->get()->toArray();
+
+        return view('research::research.journal', array_merge(
+            $this->getSidebarData('journal'),
+            compact('researcher', 'entries', 'projects', 'filters', 'journals')
+        ));
+    }
+
+    public function journalEntry(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->researchService->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $entry = DB::table('research_journal_entry')->where('id', $id)->first();
+        if (!$entry || $entry->researcher_id != $researcher->id) abort(404);
+
+        $projects = DB::table('research_project as p')
+            ->join('research_project_collaborator as pc', 'p.id', '=', 'pc.project_id')
+            ->where('pc.researcher_id', $researcher->id)
+            ->where('pc.status', 'accepted')
+            ->select('p.id', 'p.title')->orderBy('p.title')->get()->toArray();
+
+        if ($request->isMethod('post')) {
+            if ($request->input('form_action') === 'delete') {
+                DB::table('research_journal_entry')
+                    ->where('id', $id)
+                    ->where('researcher_id', $researcher->id)
+                    ->delete();
+                return redirect()->route('research.journal')->with('success', 'Entry deleted');
+            }
+            $content = $this->researchService->sanitizeHtml($request->input('content', ''));
+            DB::table('research_journal_entry')->where('id', $id)->where('researcher_id', $researcher->id)->update([
+                'title' => $request->input('title'),
+                'content' => $content,
+                'content_format' => 'html',
+                'project_id' => $request->input('project_id') ?: null,
+                'entry_type' => $request->input('entry_type', $entry->entry_type),
+                'time_spent_minutes' => $request->input('time_spent_minutes') ?: null,
+                'tags' => $request->input('tags'),
+                'is_private' => $request->has('is_private') ? 1 : 0,
+                'entry_date' => $request->input('entry_date') ?: $entry->entry_date,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+            return redirect()->route('research.journalEntry', $id)->with('success', 'Entry updated');
+        }
+
+        return view('research::research.journal-entry', array_merge(
+            $this->getSidebarData('journal'),
+            compact('researcher', 'entry', 'projects')
+        ));
+    }
+
+    public function createJournalEntry()
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->researchService->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $projects = DB::table('research_project as p')
+            ->join('research_project_collaborator as pc', 'p.id', '=', 'pc.project_id')
+            ->where('pc.researcher_id', $researcher->id)
+            ->where('pc.status', 'accepted')
+            ->select('p.id', 'p.title')
+            ->orderBy('p.title')->get()->toArray();
+
+        $filters = ['project_id' => null, 'entry_type' => null, 'date_from' => null, 'date_to' => null, 'search' => null];
+        $entries = [];
+
+        $journals = DB::table('research_journal')
+            ->where('researcher_id', $researcher->id)
+            ->orderByDesc('updated_at')->get()->toArray();
+
+        return view('research::research.journal', array_merge(
+            $this->getSidebarData('journal'),
+            compact('researcher', 'entries', 'projects', 'filters', 'journals'),
+            ['showCreateForm' => true]
+        ));
+    }
+
+    public function showJournalEntry(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        return redirect()->route('research.journalEntry', $id);
+    }
+
     // ── validation + helpers ────────────────────────────────────────────────
 
     private function validateJournal(Request $request): array
@@ -269,5 +428,41 @@ class ResearchJournalController extends Controller
         $r = DB::table('researcher')->where('user_id', Auth::id())->first();
 
         return $r ? (int) $r->id : null;
+    }
+
+    /**
+     * Sidebar data shared with the research portal layout.
+     *
+     * Local copy of ResearchControllerHelpers::getSidebarData() — the trait
+     * cannot be mixed in here because its CONTRACT requires `$this->service` to
+     * be the canonical ResearchService, whereas this slice's `$service` is the
+     * ResearchJournalService (journal builder). The personal-journal methods use
+     * the separately injected $this->researchService instead.
+     */
+    private function getSidebarData(string $active): array
+    {
+        $unreadNotifications = 0;
+        $experienceLevel = 'intermediate';
+        if (Auth::check()) {
+            $researcher = $this->researchService->getResearcherByUserId(Auth::id());
+            if ($researcher) {
+                try {
+                    $unreadNotifications = (int) DB::table('research_notification')
+                        ->where('researcher_id', $researcher->id)
+                        ->where('is_read', 0)
+                        ->count();
+                } catch (\Exception $e) {
+                    // Table may not exist yet
+                }
+                if (!empty($researcher->experience_level)) {
+                    $experienceLevel = $researcher->experience_level;
+                }
+            }
+        }
+        return [
+            'sidebarActive' => $active,
+            'unreadNotifications' => $unreadNotifications,
+            'experienceLevel' => $experienceLevel,
+        ];
     }
 }

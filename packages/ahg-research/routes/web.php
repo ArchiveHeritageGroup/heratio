@@ -6,11 +6,14 @@ use AhgResearch\Controllers\ResearchAnnotationsController;
 use AhgResearch\Controllers\ResearchCitationsController;
 use AhgResearch\Controllers\ResearchNotebooksController;
 use AhgResearch\Controllers\ResearchReportsController;
+use AhgResearch\Controllers\ResearchRegistrationController;
+use AhgResearch\Controllers\ResearchAdminController;
 use AhgResearch\Controllers\ResearchBibliographiesController;
 use AhgResearch\Controllers\ResearchCopilotController;
 use AhgResearch\Controllers\ResearchAiDecisionController;
 use AhgResearch\Controllers\AuditController;
 use AhgResearch\Controllers\ResearchJournalController;
+use AhgResearch\Controllers\ResearchEvidenceController;
 use AhgResearch\Controllers\ResearchLectureController;
 use AhgResearch\Controllers\ResearchTargetJournalController;
 use AhgResearch\Controllers\ResearchTrainingController;
@@ -36,6 +39,9 @@ use AhgResearch\Controllers\ResearchProjectOutputsController;
 use AhgResearch\Controllers\ResearchExportsController;
 use AhgResearch\Controllers\ResearchMobileController;
 use AhgResearch\Controllers\ResearchAnalyticsController;
+use AhgResearch\Controllers\ResearchAdminReferenceController;
+use AhgResearch\Controllers\ResearchAssessmentsController;
+use AhgResearch\Controllers\ResearchApiKeysController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,9 +54,9 @@ use Illuminate\Support\Facades\Route;
 
 // Public research routes
 Route::prefix('research')->name('research.')->group(function () {
-    Route::get('/publicRegister', [ResearchController::class, 'publicRegister'])->name('publicRegister');
-    Route::post('/public-register', [ResearchController::class, 'publicRegister'])->name('publicRegister.store');
-    Route::get('/registrationComplete', [ResearchController::class, 'registrationComplete'])->name('registrationComplete');
+    Route::get('/publicRegister', [ResearchRegistrationController::class, 'publicRegister'])->name('publicRegister');
+    Route::post('/public-register', [ResearchRegistrationController::class, 'publicRegister'])->name('publicRegister.store');
+    Route::get('/registrationComplete', [ResearchRegistrationController::class, 'registrationComplete'])->name('registrationComplete');
     Route::get('/cite/{slug}', [ResearchCitationsController::class, 'cite'])->name('cite');
     Route::get('/cite/{slug}/export/{format}', [ResearchCitationsController::class, 'citeExport'])->name('citeExport')->where('format', 'ris|bibtex|endnote|apa|mla|chicago');
 
@@ -166,14 +172,14 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::get('/admin', [ResearchController::class, 'dashboard'])->name('admin');
 
     // Registration
-    Route::get('/register', [ResearchController::class, 'register'])->name('register');
-    Route::post('/register', [ResearchController::class, 'register'])->name('register.store');
+    Route::get('/register', [ResearchRegistrationController::class, 'register'])->name('register');
+    Route::post('/register', [ResearchRegistrationController::class, 'register'])->name('register.store');
 
     // Profile
     Route::get('/profile', [ResearchController::class, 'profile'])->name('profile');
     Route::post('/profile', [ResearchController::class, 'profile'])->name('profile.update');
-    Route::match(['get', 'post'], '/apiKeys', [ResearchController::class, 'apiKeys'])->name('apiKeys');
-    Route::match(['get', 'post'], '/renewal', [ResearchController::class, 'renewal'])->name('renewal');
+    Route::match(['get', 'post'], '/apiKeys', [ResearchApiKeysController::class, 'apiKeys'])->name('apiKeys');
+    Route::match(['get', 'post'], '/renewal', [ResearchRegistrationController::class, 'renewal'])->name('renewal');
 
     // Workspace (personal)
     Route::match(['get', 'post'], '/workspace', [ResearchWorkspaceController::class, 'workspace'])->name('workspace');
@@ -310,11 +316,11 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/share-project/{id}', [ResearchCollaborationController::class, 'shareProject'])->name('shareProject')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/project-collaborators/{id}', [ResearchCollaborationController::class, 'projectCollaborators'])->name('projectCollaborators')->where('id', '[0-9]+');
 
-    // Journal
-    Route::match(['get', 'post'], '/journal', [ResearchController::class, 'journal'])->name('journal');
-    Route::get('/journal/create', [ResearchController::class, 'createJournalEntry'])->name('journal.create');
-    Route::get('/journal/{id}', [ResearchController::class, 'showJournalEntry'])->name('journal.show')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/journal/entry/{id}', [ResearchController::class, 'journalEntry'])->name('journalEntry')->where('id', '[0-9]+');
+    // Journal (personal diary) - extracted to ResearchJournalController (serial integration, issue #1269)
+    Route::match(['get', 'post'], '/journal', [ResearchJournalController::class, 'journal'])->name('journal');
+    Route::get('/journal/create', [ResearchJournalController::class, 'createJournalEntry'])->name('journal.create');
+    Route::get('/journal/{id}', [ResearchJournalController::class, 'showJournalEntry'])->name('journal.show')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/journal/entry/{id}', [ResearchJournalController::class, 'journalEntry'])->name('journalEntry')->where('id', '[0-9]+');
 
     // Bibliographies - extracted to ResearchBibliographiesController (stage 6,
     // issue #1253 / #1269). All four routes keep their names, URIs and the auth
@@ -334,7 +340,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
         ->where('format', 'bibtex|ris|csljson');
 
     // Source Assessments
-    Route::get('/assessments', [ResearchController::class, 'assessments'])->name('assessments');
+    Route::get('/assessments', [ResearchAssessmentsController::class, 'assessments'])->name('assessments');
 
     // Reports
     Route::match(['get', 'post'], '/viewReproduction/{id}', [ResearchReproductionsController::class, 'viewReproduction'])->name('viewReproduction')->where('id', '[0-9]+');
@@ -361,11 +367,11 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     // Notifications
     Route::match(['get', 'post'], '/notifications', [ResearchNotificationsController::class, 'notifications'])->name('notifications');
 
-    // Evidence Viewer
-    Route::match(['get', 'post'], '/evidence-viewer', [ResearchController::class, 'evidenceViewer'])->name('evidence-viewer');
+    // Evidence Viewer - extracted to ResearchEvidenceController (serial integration, issue #1269)
+    Route::match(['get', 'post'], '/evidence-viewer', [ResearchEvidenceController::class, 'evidenceViewer'])->name('evidence-viewer');
 
     // AJAX endpoints
-    Route::get('/searchItems', [ResearchController::class, 'searchItems'])->name('searchItems');
+    Route::get('/searchItems', [ResearchEvidenceController::class, 'searchItems'])->name('searchItems');
     Route::post('/addToCollection', [ResearchCollectionsController::class, 'addToCollection'])->name('addToCollection');
     Route::post('/createCollectionAjax', [ResearchCollectionsController::class, 'createCollectionAjax'])->name('createCollectionAjax');
 });
@@ -373,19 +379,19 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 // Admin research management routes
 Route::prefix('research')->name('research.')->middleware('admin')->group(function () {
     // Dashboard URL aliases under /research/admin/* (matches reports dashboard links)
-    Route::match(['get', 'post'], '/admin/researchers', [ResearchController::class, 'researchers'])->name('admin.researchers');
+    Route::match(['get', 'post'], '/admin/researchers', [ResearchAdminController::class, 'researchers'])->name('admin.researchers');
     Route::match(['get', 'post'], '/admin/bookings', [ResearchBookingsController::class, 'bookings'])->name('admin.bookings');
-    Route::match(['get', 'post'], '/admin/statistics', [ResearchController::class, 'adminStatistics'])->name('admin.statistics');
+    Route::match(['get', 'post'], '/admin/statistics', [ResearchAdminReferenceController::class, 'adminStatistics'])->name('admin.statistics');
 
-    Route::match(['get', 'post'], '/researchers', [ResearchController::class, 'researchers'])->name('researchers');
-    Route::match(['get', 'post'], '/viewResearcher/{id}', [ResearchController::class, 'viewResearcher'])->name('viewResearcher')->where('id', '[0-9]+');
-    Route::post('/approveResearcher/{id}', [ResearchController::class, 'approveResearcher'])->name('approveResearcher')->where('id', '[0-9]+');
-    Route::post('/rejectResearcher/{id}', [ResearchController::class, 'rejectResearcher'])->name('rejectResearcher')->where('id', '[0-9]+');
-    Route::post('/researchers/{id}/approve', [ResearchController::class, 'approveResearcher'])->name('researchers.approve')->where('id', '[0-9]+');
-    Route::post('/researchers/{id}/reject', [ResearchController::class, 'rejectResearcher'])->name('researchers.reject')->where('id', '[0-9]+');
-    Route::post('/researchers/{id}/suspend', [ResearchController::class, 'suspendResearcher'])->name('researchers.suspend')->where('id', '[0-9]+');
-    Route::post('/researchers/{id}/verify', [ResearchController::class, 'verifyResearcher'])->name('researchers.verify')->where('id', '[0-9]+');
-    Route::post('/researchers/{id}/reset-password', [ResearchController::class, 'resetPassword'])->name('resetPassword')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/researchers', [ResearchAdminController::class, 'researchers'])->name('researchers');
+    Route::match(['get', 'post'], '/viewResearcher/{id}', [ResearchAdminController::class, 'viewResearcher'])->name('viewResearcher')->where('id', '[0-9]+');
+    Route::post('/approveResearcher/{id}', [ResearchAdminController::class, 'approveResearcher'])->name('approveResearcher')->where('id', '[0-9]+');
+    Route::post('/rejectResearcher/{id}', [ResearchAdminController::class, 'rejectResearcher'])->name('rejectResearcher')->where('id', '[0-9]+');
+    Route::post('/researchers/{id}/approve', [ResearchAdminController::class, 'approveResearcher'])->name('researchers.approve')->where('id', '[0-9]+');
+    Route::post('/researchers/{id}/reject', [ResearchAdminController::class, 'rejectResearcher'])->name('researchers.reject')->where('id', '[0-9]+');
+    Route::post('/researchers/{id}/suspend', [ResearchAdminController::class, 'suspendResearcher'])->name('researchers.suspend')->where('id', '[0-9]+');
+    Route::post('/researchers/{id}/verify', [ResearchAdminController::class, 'verifyResearcher'])->name('researchers.verify')->where('id', '[0-9]+');
+    Route::post('/researchers/{id}/reset-password', [ResearchAdminController::class, 'resetPassword'])->name('resetPassword')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/bookings', [ResearchBookingsController::class, 'bookings'])->name('bookings');
     Route::get('/rooms', [ResearchRoomsController::class, 'rooms'])->name('rooms');
     Route::match(['get', 'post'], '/editRoom', [ResearchRoomsController::class, 'editRoom'])->name('editRoom');
@@ -394,9 +400,9 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::get('/equipment-history/{id}', [ResearchEquipmentController::class, 'equipmentHistory'])->name('equipmentHistory')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/retrievalQueue', [ResearchRetrievalQueueController::class, 'retrievalQueue'])->name('retrievalQueue');
     Route::match(['get', 'post'], '/walkIn', [ResearchWalkInsController::class, 'walkIn'])->name('walkIn');
-    Route::match(['get', 'post'], '/adminTypes', [ResearchController::class, 'adminTypes'])->name('adminTypes');
-    Route::match(['get', 'post'], '/adminStatistics', [ResearchController::class, 'adminStatistics'])->name('adminStatistics');
-    Route::match(['get', 'post'], '/institutions', [ResearchController::class, 'institutions'])->name('institutions');
+    Route::match(['get', 'post'], '/adminTypes', [ResearchAdminReferenceController::class, 'adminTypes'])->name('adminTypes');
+    Route::match(['get', 'post'], '/adminStatistics', [ResearchAdminReferenceController::class, 'adminStatistics'])->name('adminStatistics');
+    Route::match(['get', 'post'], '/institutions', [ResearchAdminReferenceController::class, 'institutions'])->name('institutions');
     Route::match(['get', 'post'], '/activities', [ResearchController::class, 'activities'])->name('activities');
 });
 

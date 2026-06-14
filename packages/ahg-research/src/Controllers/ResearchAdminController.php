@@ -1,28 +1,68 @@
 <?php
 
+/**
+ * ResearchAdminController - Controller for Heratio
+ *
+ * Copyright (C) 2026 Johan Pieterse
+ * Plain Sailing Information Systems
+ * Email: johan@plainsailingisystems.co.za
+ *
+ * This file is part of Heratio.
+ *
+ * Heratio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Heratio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
+
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
-use AhgResearch\Contracts\UserProvisionerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
+/**
+ * ResearchAdminController - Researcher administration (ACL cluster).
+ *
+ * Extracted from ResearchController as the researchers-admin stage of the
+ * monolith decomposition (issue #1269). These seven endpoints are the core
+ * auth/ACL writers of the research portal: they list/approve/verify/reject/
+ * suspend researchers and reset their passwords, mutating the linked `user`
+ * account through the canonical UserProvisioner contract (never a direct
+ * write to the auth tables). All seven are admin-gated in routes/web.php.
+ *
+ * No cross-calls to other ResearchController methods existed - the bodies use
+ * only the shared trait helper (getSidebarData), the injected ResearchService,
+ * the UserProvisionerInterface resolved via the container, and the DB facade,
+ * so the move is a verbatim lift.
+ */
 class ResearchAdminController extends Controller
 {
-    protected ResearchService $service;
-    protected UserProvisionerInterface $provisioner;
+    use ResearchControllerHelpers;
 
-    public function __construct(ResearchService $service, UserProvisionerInterface $provisioner)
+    protected ResearchService $service;
+
+    public function __construct(ResearchService $service)
     {
         $this->service = $service;
-        $this->provisioner = $provisioner;
     }
 
     public function researchers(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');
-        // Admin middleware guards this route
         $filter = $request->input('filter', 'all');
         $query = $request->input('q');
 
@@ -33,16 +73,16 @@ class ResearchAdminController extends Controller
         ]);
 
         $counts = [
-            'all' => (int) \Illuminate\Support\Facades\DB::table('research_researcher')->count(),
-            'pending' => (int) \Illuminate\Support\Facades\DB::table('research_researcher')->where('status', 'pending')->count(),
-            'approved' => (int) \Illuminate\Support\Facades\DB::table('research_researcher')->where('status', 'approved')->count(),
-            'suspended' => (int) \Illuminate\Support\Facades\DB::table('research_researcher')->where('status', 'suspended')->count(),
-            'expired' => (int) \Illuminate\Support\Facades\DB::table('research_researcher')->where('status', 'expired')->count(),
-            'rejected' => (int) \Illuminate\Support\Facades\DB::table('research_researcher')->where('status', 'rejected')->count(),
+            'all' => DB::table('research_researcher')->count(),
+            'pending' => DB::table('research_researcher')->where('status', 'pending')->count(),
+            'approved' => DB::table('research_researcher')->where('status', 'approved')->count(),
+            'suspended' => DB::table('research_researcher')->where('status', 'suspended')->count(),
+            'expired' => DB::table('research_researcher')->where('status', 'expired')->count(),
+            'rejected' => DB::table('research_researcher')->where('status', 'rejected')->count(),
         ];
 
         return view('research::research.researchers', array_merge(
-            method_exists($this, 'getSidebarData') ? $this->getSidebarData('researchers') : [],
+            $this->getSidebarData('researchers'),
             compact('researchers', 'filter', 'counts', 'query')
         ));
     }
@@ -55,17 +95,24 @@ class ResearchAdminController extends Controller
 
         if ($request->isMethod('post')) {
             $action = $request->input('booking_action');
+            $provisioner = app(\AhgResearch\Contracts\UserProvisionerInterface::class);
             if ($action === 'approve') {
                 $this->service->approveResearcher($id, Auth::id());
-                $this->provisioner->updateUser($researcher->user_id, ['active' => 1]);
+                $provisioner->updateUser($researcher->user_id, ['active' => 1]);
                 return redirect()->route('research.viewResearcher', $id)->with('success', 'Approved');
             } elseif ($action === 'suspend') {
-                \Illuminate\Support\Facades\DB::table('research_researcher')->where('id', $id)->update(['status' => 'suspended']);
+                DB::table('research_researcher')->where('id', $id)->update(['status' => 'suspended']);
+                // Also deactivate the linked account, consistent with suspendResearcher().
+                $provisioner->deactivateUser($researcher->user_id);
                 return redirect()->route('research.viewResearcher', $id)->with('success', 'Suspended');
             }
         }
 
-        // decrypt PII as ResearchController did
+        // #74 encryption_field_donor_information / personal_notes: decrypt
+        // PII columns before passing to the view. Idempotent for plaintext
+        // values (EncryptionService::decrypt round-trips when isCiphertext
+        // is false), so the call is safe whether the operator has the
+        // category on or off.
         $enc = new \AhgCore\Services\EncryptionService();
         $researcher->phone = $enc->decrypt(
             \AhgCore\Services\EncryptionService::CATEGORY_DONOR_INFORMATION,
@@ -88,7 +135,7 @@ class ResearchAdminController extends Controller
         $bookings = $this->service->getResearcherBookings($id);
 
         return view('research::research.view-researcher', array_merge(
-            method_exists($this, 'getSidebarData') ? $this->getSidebarData('researchers') : [],
+            $this->getSidebarData('researchers'),
             compact('researcher', 'bookings')
         ));
     }
@@ -100,12 +147,21 @@ class ResearchAdminController extends Controller
         if (!$researcher) abort(404);
 
         $this->service->approveResearcher($id, Auth::id());
-        $this->provisioner->updateUser($researcher->user_id, ['active' => 1]);
+        app(\AhgResearch\Contracts\UserProvisionerInterface::class)->updateUser($researcher->user_id, ['active' => 1]);
 
         return redirect()->route('research.viewResearcher', $id)
             ->with('success', 'Researcher approved and account activated');
     }
 
+    /**
+     * Manually flip a researcher's verified flag.
+     *
+     * The registration flow expects the researcher to confirm by email; when
+     * mail delivery is down they never receive it and instead confirm their
+     * identity by phone. This lets an admin set the verified flag directly,
+     * reusing the existing id_verified column + its audit fields (by / at).
+     * POST `verified` = '1' to verify, '0' to clear.
+     */
     public function verifyResearcher(Request $request, int $id)
     {
         if (!Auth::check()) return redirect()->route('login');
@@ -113,7 +169,7 @@ class ResearchAdminController extends Controller
         if (!$researcher) abort(404);
 
         $verified = (string) $request->input('verified', '1') === '1' ? 1 : 0;
-        \Illuminate\Support\Facades\DB::table('research_researcher')->where('id', $id)->update([
+        DB::table('research_researcher')->where('id', $id)->update([
             'id_verified'    => $verified,
             'id_verified_by' => $verified ? Auth::id() : null,
             'id_verified_at' => $verified ? now() : null,
@@ -133,7 +189,7 @@ class ResearchAdminController extends Controller
 
         $reason = $request->input('reason', '');
 
-        \Illuminate\Support\Facades\DB::table('research_researcher_audit')->insert([
+        DB::table('research_researcher_audit')->insert([
             'original_id' => $researcher->id,
             'user_id' => $researcher->user_id,
             'title' => $researcher->title,
@@ -158,12 +214,42 @@ class ResearchAdminController extends Controller
             'original_updated_at' => $researcher->updated_at,
         ]);
 
-        \Illuminate\Support\Facades\DB::table('research_researcher')->where('id', $id)->delete();
-        $this->provisioner->deactivateUser($researcher->user_id);
+        DB::table('research_researcher')->where('id', $id)->delete();
+        app(\AhgResearch\Contracts\UserProvisionerInterface::class)->deactivateUser($researcher->user_id);
 
         return redirect()->route('research.researchers')
             ->with('success', 'Researcher registration rejected and archived');
     }
 
-    // You can add more admin methods (rooms, equipment, bookings etc.) as needed
+    public function resetPassword(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcher($id);
+        if (!$researcher) abort(404);
+
+        $newPassword = \Illuminate\Support\Str::random(12);
+        // Use the provisioner so the password uses the canonical auth scheme
+        // (salt + sha1 + argon2), not a one-off bcrypt that login cannot verify.
+        app(\AhgResearch\Contracts\UserProvisionerInterface::class)
+            ->setPassword($researcher->user_id, $newPassword);
+
+        return redirect()->route('research.viewResearcher', $id)
+            ->with('success', 'Password reset. New password: <strong>' . e($newPassword) . '</strong> - share this with the researcher securely.');
+    }
+
+    public function suspendResearcher(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcher($id);
+        if (!$researcher) abort(404);
+
+        DB::table('research_researcher')->where('id', $id)->update([
+            'status' => 'suspended',
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        app(\AhgResearch\Contracts\UserProvisionerInterface::class)->deactivateUser($researcher->user_id);
+
+        return redirect()->route('research.viewResearcher', $id)
+            ->with('success', 'Researcher suspended');
+    }
 }
