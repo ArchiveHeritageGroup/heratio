@@ -31,7 +31,7 @@
     <i class="fas fa-exclamation-circle me-2"></i>
     <strong>{{ __('Your researcher registration has expired.') }}</strong> Please request a renewal to continue using research features.
   </div>
-  <a href="{{ route('research.register') }}" class="btn btn-danger"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
+  <a href="{{ route('research.renewal') }}" class="btn btn-danger"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
 </div>
 @elseif($isExpiringSoon)
 <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4">
@@ -39,7 +39,7 @@
     <i class="fas fa-clock me-2"></i>
     <strong>Your registration expires on {{ date('M j, Y', strtotime($expiresAt)) }}</strong>
   </div>
-  <a href="{{ route('research.register') }}" class="btn btn-warning"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
+  <a href="{{ route('research.renewal') }}" class="btn btn-warning"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
 </div>
 @elseif($status === 'rejected')
 <div class="alert alert-danger d-flex justify-content-between align-items-center mb-4">
@@ -50,7 +50,7 @@
       <br><small>Reason: {{ e($researcher->rejection_reason) }}</small>
     @endif
   </div>
-  <a href="{{ route('research.register') }}" class="btn btn-primary"><i class="fas fa-redo me-1"></i>{{ __('Re-apply') }}</a>
+  <a href="{{ route('research.renewal') }}" class="btn btn-primary"><i class="fas fa-redo me-1"></i>{{ __('Re-apply') }}</a>
 </div>
 @endif
 

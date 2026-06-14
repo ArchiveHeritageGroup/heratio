@@ -270,6 +270,52 @@ class ResearchRegistrationController extends Controller
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return redirect()->route('researcher.register');
 
+        // Rejected researchers re-apply through this same route (the formerly
+        // URL-unreachable register() carried the only re-apply path; its
+        // /research/register URI is shadowed by the app LoginController route,
+        // so the workspace "Re-apply" button now points here). Behaviour is
+        // ported verbatim from register(): reset the existing
+        // research_researcher row back to 'pending', clear the rejection
+        // reason, refresh the profile fields, and confirm via the same flash.
+        if ($researcher->status === 'rejected') {
+            if ($request->isMethod('post')) {
+                try {
+                    // Reset the existing research_researcher row to pending and
+                    // clear the rejection reason - the verbatim re-apply effect
+                    // from register(). The profile fields are re-applied only
+                    // when the request actually carries them (the full register
+                    // form); the reason-only renewal form leaves the stored
+                    // profile intact rather than nulling it. register() used a
+                    // raw research_researcher update; the same mechanism is kept
+                    // here (no core user-table writes).
+                    $editable = [
+                        'title', 'first_name', 'last_name', 'email', 'phone',
+                        'affiliation_type', 'institution', 'department', 'position',
+                        'research_interests', 'current_project', 'orcid_id',
+                        'id_type', 'id_number', 'student_id',
+                    ];
+                    $data = ['status' => 'pending', 'rejection_reason' => null];
+                    foreach ($editable as $field) {
+                        if ($request->has($field)) {
+                            $data[$field] = $request->input($field);
+                        }
+                    }
+                    DB::table('research_researcher')
+                        ->where('id', $researcher->id)
+                        ->update($data);
+                    return redirect()->route('research.registrationComplete')
+                        ->with('success', 'Re-registration submitted for review');
+                } catch (\Exception $e) {
+                    return back()->with('error', $e->getMessage());
+                }
+            }
+
+            return view('research::research.renewal', array_merge(
+                $this->getSidebarData('profile'),
+                compact('researcher')
+            ));
+        }
+
         if (!in_array($researcher->status, ['expired', 'approved'])) {
             return redirect()->route('research.profile')->with('error', 'Renewal not available for your current status');
         }

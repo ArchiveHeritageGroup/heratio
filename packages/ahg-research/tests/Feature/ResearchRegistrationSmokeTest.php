@@ -74,6 +74,50 @@ class ResearchRegistrationSmokeTest extends TestCase
         $response->assertRedirect('/login');
     }
 
+    // ---- #1271: /research/register name collision fix ----
+    //
+    // The package's research.register route is dropped at runtime (the app
+    // LoginController route owns the /research/register URI by method+URI and
+    // the duplicate name is discarded), so route('research.register') throws
+    // RouteNotFoundException. The workspace page rendered that helper for the
+    // expired / expiring-soon / rejected researcher states and 500'd. Option B
+    // repoints those buttons at research.renewal, which now also carries the
+    // rejected re-apply path that previously lived only in register(). These
+    // assertions lock in: (1) research.renewal still resolves by name, and
+    // (2) the workspace route is reachable (auth bounce, not a 500) for an
+    // anonymous request - it never even reaches the blade that would have
+    // thrown, but this guards the public entry path regardless.
+
+    public function test_research_renewal_route_resolves_by_name()
+    {
+        // route() would throw RouteNotFoundException if the name were dropped.
+        $url = route('research.renewal');
+        $this->assertStringContainsString('/research/renewal', $url);
+    }
+
+    public function test_research_register_name_is_not_registered()
+    {
+        // The package name was discarded by the app route collision; asserting
+        // it is absent documents why workspace must use research.renewal.
+        $this->assertFalse(
+            \Illuminate\Support\Facades\Route::has('research.register'),
+            'research.register name is expected to be dropped by the app route collision (#1271)'
+        );
+    }
+
+    public function test_workspace_does_not_500_for_anonymous()
+    {
+        // Pre-fix this 500'd for expired/rejected researchers via the blade's
+        // route('research.register') call. Anonymous hits the auth bounce
+        // first, so it must be a redirect to /login - never a 500.
+        $response = $this->get('/research/workspace');
+        $response->assertRedirect('/login');
+        $this->assertTrue(
+            $response->isRedirect(),
+            'workspace must redirect (auth bounce), not 500'
+        );
+    }
+
     /**
      * True only when the response is a redirect whose Location path is /login
      * (the auth-middleware bounce). A 200 render or a 419 CSRF rejection is not
