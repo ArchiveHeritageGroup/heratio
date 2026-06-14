@@ -3623,7 +3623,7 @@ class ExhibitionSpaceService
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
                 'ep.rotation_deg', 'ep.scale', 'ep.size_units_used', 'ep.wall_or_zone',
                 'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case', 'ep.on_floor',
-                'ep.view_x', 'ep.view_y',
+                'ep.view_x', 'ep.view_y', 'ep.notes',
                 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
             )
             ->get();
@@ -3638,6 +3638,7 @@ class ExhibitionSpaceService
                 'information_object_id' => (int) $r->information_object_id,
                 'title' => $r->title ?: ('#'.$r->information_object_id),
                 'description' => mb_strlen($desc) > 400 ? mb_substr($desc, 0, 400).'...' : $desc,
+                'caption' => trim((string) ($r->notes ?? '')),   // #1186 per-object AI wall label (placement note); blank when not generative
                 'pos_x' => $r->pos_x !== null ? (float) $r->pos_x : 0.5,
                 'pos_y' => $r->pos_y !== null ? (float) $r->pos_y : 0.5,
                 'rotation_deg' => (float) ($r->rotation_deg ?? 0),
