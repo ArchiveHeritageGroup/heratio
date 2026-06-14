@@ -6,6 +6,7 @@ use AhgResearch\Controllers\ResearchAnnotationsController;
 use AhgResearch\Controllers\ResearchCitationsController;
 use AhgResearch\Controllers\ResearchNotebooksController;
 use AhgResearch\Controllers\ResearchReportsController;
+use AhgResearch\Controllers\ResearchBibliographiesController;
 use AhgResearch\Controllers\ResearchCopilotController;
 use AhgResearch\Controllers\ResearchAiDecisionController;
 use AhgResearch\Controllers\AuditController;
@@ -14,6 +15,9 @@ use AhgResearch\Controllers\ResearchLectureController;
 use AhgResearch\Controllers\ResearchTargetJournalController;
 use AhgResearch\Controllers\ResearchTrainingController;
 use AhgResearch\Controllers\ResearchWorkspaceController;
+use AhgResearch\Controllers\ResearchValidationQueueController;
+use AhgResearch\Controllers\ResearchEntityResolutionController;
+use AhgResearch\Controllers\ResearchOdrlPoliciesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -52,8 +56,8 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::post('/ai/decision', [ResearchAiDecisionController::class, 'decision'])->name('ai.decision');
 
     // AJAX autocomplete endpoints (JSON)
-    Route::get('/researcher-autocomplete', [ResearchController::class, 'researcherAutocomplete'])->name('researcherAutocomplete');
-    Route::get('/target-autocomplete', [ResearchController::class, 'targetAutocomplete'])->name('targetAutocomplete');
+    Route::get('/researcher-autocomplete', [ResearchOdrlPoliciesController::class, 'researcherAutocomplete'])->name('researcherAutocomplete');
+    Route::get('/target-autocomplete', [ResearchOdrlPoliciesController::class, 'targetAutocomplete'])->name('targetAutocomplete');
 
     // #1105 Journal builder — institutional publication + manuscript workspace
     Route::prefix('journals')->name('journal-builder.')->group(function () {
@@ -170,20 +174,20 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/workspaces', [ResearchController::class, 'workspaces'])->name('workspaces');
     Route::match(['get', 'post'], '/workspaces/{id}', [ResearchController::class, 'viewWorkspace'])->name('viewWorkspace')->where('id', '[0-9]+');
 
-    // Validation Queue
-    Route::get('/validationQueue', [ResearchController::class, 'validationQueue'])->name('validationQueue');
-    Route::post('/validate/{resultId}', [ResearchController::class, 'validateResult'])->name('validateResult')->where('resultId', '[0-9]+');
-    Route::post('/bulk-validate', [ResearchController::class, 'bulkValidate'])->name('bulkValidate');
+    // Validation Queue (extracted to ResearchValidationQueueController - stage 7, issue #1269)
+    Route::get('/validationQueue', [ResearchValidationQueueController::class, 'validationQueue'])->name('validationQueue');
+    Route::post('/validate/{resultId}', [ResearchValidationQueueController::class, 'validateResult'])->name('validateResult')->where('resultId', '[0-9]+');
+    Route::post('/bulk-validate', [ResearchValidationQueueController::class, 'bulkValidate'])->name('bulkValidate');
 
-    // Entity Resolution
-    Route::match(['get', 'post'], '/entityResolution', [ResearchController::class, 'entityResolution'])->name('entityResolution');
-    Route::match(['get', 'post'], '/entity-resolution', [ResearchController::class, 'entityResolution'])->name('entity-resolution');
-    Route::post('/entity-resolution/{id}/resolve', [ResearchController::class, 'resolveEntityResolution'])->name('resolveEntityResolution')->where('id', '[0-9]+');
-    Route::get('/entity-resolution/{id}/conflicts', [ResearchController::class, 'entityResolutionConflicts'])->name('entityResolutionConflicts')->where('id', '[0-9]+');
+    // Entity Resolution (extracted to ResearchEntityResolutionController - stage 7, issue #1269)
+    Route::match(['get', 'post'], '/entityResolution', [ResearchEntityResolutionController::class, 'entityResolution'])->name('entityResolution');
+    Route::match(['get', 'post'], '/entity-resolution', [ResearchEntityResolutionController::class, 'entityResolution'])->name('entity-resolution');
+    Route::post('/entity-resolution/{id}/resolve', [ResearchEntityResolutionController::class, 'resolveEntityResolution'])->name('resolveEntityResolution')->where('id', '[0-9]+');
+    Route::get('/entity-resolution/{id}/conflicts', [ResearchEntityResolutionController::class, 'entityResolutionConflicts'])->name('entityResolutionConflicts')->where('id', '[0-9]+');
 
-    // ODRL Policies
-    Route::match(['get', 'post'], '/odrlPolicies', [ResearchController::class, 'odrlPolicies'])->name('odrlPolicies');
-    Route::match(['get', 'post'], '/odrl-policies', [ResearchController::class, 'odrlPolicies'])->name('odrl-policies');
+    // ODRL Policies (extracted to ResearchOdrlPoliciesController - stage 7, issue #1269)
+    Route::match(['get', 'post'], '/odrlPolicies', [ResearchOdrlPoliciesController::class, 'odrlPolicies'])->name('odrlPolicies');
+    Route::match(['get', 'post'], '/odrl-policies', [ResearchOdrlPoliciesController::class, 'odrlPolicies'])->name('odrl-policies');
 
     // Document Templates
     Route::match(['get', 'post'], '/documentTemplates', [ResearchController::class, 'documentTemplates'])->name('documentTemplates');
@@ -292,17 +296,19 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::get('/journal/{id}', [ResearchController::class, 'showJournalEntry'])->name('journal.show')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/journal/entry/{id}', [ResearchController::class, 'journalEntry'])->name('journalEntry')->where('id', '[0-9]+');
 
-    // Bibliographies
-    Route::match(['get', 'post'], '/bibliographies', [ResearchController::class, 'bibliographies'])->name('bibliographies');
-    Route::match(['get', 'post'], '/viewBibliography/{id}', [ResearchController::class, 'viewBibliography'])->name('viewBibliography')->where('id', '[0-9]+');
+    // Bibliographies - extracted to ResearchBibliographiesController (stage 6,
+    // issue #1253 / #1269). All four routes keep their names, URIs and the auth
+    // middleware group unchanged.
+    Route::match(['get', 'post'], '/bibliographies', [ResearchBibliographiesController::class, 'bibliographies'])->name('bibliographies');
+    Route::match(['get', 'post'], '/viewBibliography/{id}', [ResearchBibliographiesController::class, 'viewBibliography'])->name('viewBibliography')->where('id', '[0-9]+');
 
     // Bibliography export for reference managers (BibTeX / RIS / CSL-JSON).
     // Same auth + ownership gating as viewBibliography (enforced in the controller).
-    Route::get('/bibliography/{id}/export/{format}', [ResearchController::class, 'exportBibliography'])
+    Route::get('/bibliography/{id}/export/{format}', [ResearchBibliographiesController::class, 'exportBibliography'])
         ->name('bibliography.export')
         ->where('id', '[0-9]+')
         ->where('format', 'bibtex|ris|csljson');
-    Route::get('/cite/{itemId}/export/{format}', [ResearchController::class, 'exportBibliographyEntry'])
+    Route::get('/cite/{itemId}/export/{format}', [ResearchBibliographiesController::class, 'exportBibliographyEntry'])
         ->name('bibliographyEntry.export')
         ->where('itemId', '[0-9]+')
         ->where('format', 'bibtex|ris|csljson');
