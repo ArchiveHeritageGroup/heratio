@@ -33,6 +33,9 @@ use AhgResearch\Controllers\ResearchSavedSearchesController;
 use AhgResearch\Controllers\ResearchWalkInsController;
 use AhgResearch\Controllers\ResearchProjectsController;
 use AhgResearch\Controllers\ResearchProjectOutputsController;
+use AhgResearch\Controllers\ResearchExportsController;
+use AhgResearch\Controllers\ResearchMobileController;
+use AhgResearch\Controllers\ResearchAnalyticsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -183,9 +186,9 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     });
 
     // Team Workspaces
-    Route::get('/exportFindingAid', [ResearchController::class, 'exportFindingAid'])->name('exportFindingAid');
-    Route::get('/exportNotes', [ResearchController::class, 'exportNotes'])->name('exportNotes');
-    Route::get('/generateFindingAid', [ResearchController::class, 'generateFindingAid'])->name('generateFindingAid');
+    Route::get('/exportFindingAid', [ResearchExportsController::class, 'exportFindingAid'])->name('exportFindingAid');
+    Route::get('/exportNotes', [ResearchExportsController::class, 'exportNotes'])->name('exportNotes');
+    Route::get('/generateFindingAid', [ResearchExportsController::class, 'generateFindingAid'])->name('generateFindingAid');
     Route::match(['get', 'post'], '/workspaces', [ResearchWorkspaceController::class, 'workspaces'])->name('workspaces');
     Route::match(['get', 'post'], '/workspaces/{id}', [ResearchWorkspaceController::class, 'viewWorkspace'])->name('viewWorkspace')->where('id', '[0-9]+');
 
@@ -262,11 +265,11 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/compliance/{id}', [ResearchProjectOutputsController::class, 'complianceDashboard'])->name('complianceDashboard')->where('id', '[0-9]+');
 
     // Analytics dashboard
-    Route::get('/analytics', [ResearchController::class, 'analytics'])->name('analytics');
+    Route::get('/analytics', [ResearchAnalyticsController::class, 'analytics'])->name('analytics');
 
     // Mobile / PWA + offline sync
-    Route::get('/mobile',       [ResearchController::class, 'mobileHome'])->name('mobileHome');
-    Route::post('/sync/offline', [ResearchController::class, 'offlineSync'])->name('offlineSync');
+    Route::get('/mobile',       [ResearchMobileController::class, 'mobileHome'])->name('mobileHome');
+    Route::post('/sync/offline', [ResearchMobileController::class, 'offlineSync'])->name('offlineSync');
 
     // ORCID integration
     Route::get('/orcid',           [ResearchOrcidController::class, 'orcidLink'])->name('orcid');
@@ -286,7 +289,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::post('/projects/{projectId}/realtime/comment/{commentId}/resolve', [ResearchCollaborationController::class, 'collabCommentResolve'])->name('collabCommentResolve')->where(['projectId' => '[0-9]+', 'commentId' => '[0-9]+']);
 
     // Cross-fonds reasoning queries
-    Route::match(['get','post'], '/cross-fonds-query', [ResearchController::class, 'crossFondsQuery'])->name('crossFondsQuery');
+    Route::match(['get','post'], '/cross-fonds-query', [ResearchAnalyticsController::class, 'crossFondsQuery'])->name('crossFondsQuery');
 
     // Notebooks (private researcher scratchpad)
     // Extracted to ResearchNotebooksController - stage 4, issue #1253 / #1269

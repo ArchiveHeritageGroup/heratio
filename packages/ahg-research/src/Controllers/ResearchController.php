@@ -1415,150 +1415,9 @@ class ResearchController extends Controller
     // =========================================================================
     // FINDING AID EXPORT
     // =========================================================================
-
-    /**
-     * Export finding aid as PDF or DOCX (generates HTML with print styling).
-     */
-    /**
-     * Export notes as PDF (printable HTML) or CSV.
-     */
-    public function exportNotes(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $format = $request->input('format', 'pdf');
-        $ids = $request->input('ids') ? explode(',', $request->input('ids')) : [];
-        $id = $request->input('id');
-        if ($id) $ids = [(int) $id];
-
-        $query = DB::table('research_annotation')
-            ->where('researcher_id', $researcher->id);
-        if (!empty($ids)) {
-            $query->whereIn('id', array_map('intval', $ids));
-        }
-        $notes = $query->orderBy('created_at', 'desc')->get();
-
-        if ($format === 'csv') {
-            $filename = 'research-notes.csv';
-            return response()->stream(function () use ($notes) {
-                $out = fopen('php://output', 'w');
-                fputcsv($out, ['Title', 'Content', 'Tags', 'Visibility', 'Created']);
-                foreach ($notes as $n) {
-                    fputcsv($out, [$n->title, strip_tags($n->content ?? ''), $n->tags, $n->visibility, $n->created_at]);
-                }
-                fclose($out);
-            }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=\"{$filename}\""]);
-        }
-
-        // PDF = printable HTML
-        return view('research::research.export-notes-pdf', compact('notes', 'researcher'));
-    }
-
-    public function exportFindingAid(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $collectionId = (int) $request->input('id');
-        $format = $request->input('format', 'pdf');
-
-        $collection = $this->service->getCollection($collectionId);
-        if (!$collection || $collection->researcher_id != $researcher->id) {
-            return redirect()->route('research.collections')->with('error', 'Collection not found');
-        }
-
-        $data = $this->getCollectionFindingAidData($collectionId);
-
-        if ($format === 'pdf') {
-            // Render as printable HTML — user can print to PDF
-            return view('research::research.finding-aid', [
-                'collection' => $collection,
-                'items' => $data,
-                'researcher' => $researcher,
-                'format' => 'pdf',
-            ]);
-        }
-
-        // CSV fallback for DOCX (basic export)
-        $filename = ($collection->name ?? 'finding-aid') . '.csv';
-        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=\"{$filename}\""];
-
-        return response()->stream(function () use ($data, $collection) {
-            $out = fopen('php://output', 'w');
-            fputcsv($out, ['Finding Aid: ' . $collection->name]);
-            fputcsv($out, []);
-            fputcsv($out, ['Identifier', 'Title', 'Level', 'Repository', 'Scope & Content', 'Extent', 'Access Conditions', 'Notes']);
-            foreach ($data as $item) {
-                fputcsv($out, [
-                    $item->identifier, $item->title, $item->level_of_description,
-                    $item->repository_name, $item->scope_and_content, $item->extent_and_medium,
-                    $item->access_conditions, $item->researcher_notes,
-                ]);
-            }
-            fclose($out);
-        }, 200, $headers);
-    }
-
-    /**
-     * Generate HTML finding aid (viewable in browser).
-     */
-    public function generateFindingAid(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
-
-        $collectionId = (int) $request->input('id');
-        $collection = $this->service->getCollection($collectionId);
-        if (!$collection || $collection->researcher_id != $researcher->id) {
-            return redirect()->route('research.collections')->with('error', 'Collection not found');
-        }
-
-        $data = $this->getCollectionFindingAidData($collectionId);
-
-        return view('research::research.finding-aid', [
-            'collection' => $collection,
-            'items' => $data,
-            'researcher' => $researcher,
-            'format' => 'html',
-        ]);
-    }
-
-    /**
-     * Get enriched collection items for finding aid export.
-     */
-    private function getCollectionFindingAidData(int $collectionId): array
-    {
-        $culture = app()->getLocale();
-
-        return DB::table('research_collection_item as ci')
-            ->join('information_object as io', 'ci.object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as lod', function ($j) use ($culture) {
-                $j->on('io.level_of_description_id', '=', 'lod.id')->where('lod.culture', '=', $culture);
-            })
-            ->leftJoin('actor_i18n as repo', function ($j) use ($culture) {
-                $j->on('io.repository_id', '=', 'repo.id')->where('repo.culture', '=', $culture);
-            })
-            ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
-            ->where('ci.collection_id', $collectionId)
-            ->select(
-                'io.id', 'io.identifier', 's.slug',
-                'ioi.title', 'ioi.scope_and_content', 'ioi.extent_and_medium',
-                'ioi.archival_history', 'ioi.arrangement', 'ioi.access_conditions',
-                'ioi.reproduction_conditions', 'ioi.physical_characteristics',
-                'lod.name as level_of_description',
-                'repo.authorized_form_of_name as repository_name',
-                'ci.notes as researcher_notes', 'ci.created_at'
-            )
-            ->orderBy('ci.created_at')
-            ->get()->toArray();
-    }
+    // exportNotes(), exportFindingAid(), generateFindingAid() and the private
+    // helper getCollectionFindingAidData() extracted to ResearchExportsController
+    // (serial integration, issue #1269). Routes re-pointed in routes/web.php.
 
     // =========================================================================
     // TEAM WORKSPACES: workspaces() and viewWorkspace() extracted to
@@ -1621,104 +1480,14 @@ class ResearchController extends Controller
     // =========================================================================
     // CROSS-FONDS QUERY
     // =========================================================================
+    // crossFondsQuery() extracted to ResearchAnalyticsController (serial
+    // integration, issue #1269). Route re-pointed in routes/web.php.
 
     // =========================================================================
     // MOBILE / PWA + OFFLINE SYNC
     // =========================================================================
-
-    public function mobileHome(Request $request)
-    {
-        $researcher = Auth::check() ? $this->service->getResearcherByUserId(Auth::id()) : null;
-
-        $readingList = [];
-        if ($researcher) {
-            try {
-                $readingList = DB::table('research_collection_item as ci')
-                    ->join('research_collection as c', 'ci.collection_id', '=', 'c.id')
-                    ->leftJoin('information_object_i18n as ioi', function ($j) {
-                        $j->on('ci.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
-                    })
-                    ->leftJoin('slug', 'ci.object_id', '=', 'slug.object_id')
-                    ->where('c.researcher_id', $researcher->id)
-                    ->orderByDesc('ci.created_at')
-                    ->limit(50)
-                    ->select('ci.object_id', 'ioi.title', 'slug.slug', 'c.name as collection_name')
-                    ->get()
-                    ->toArray();
-            } catch (\Throwable $e) {}
-        }
-
-        return view('research::research.mobile-home', compact('researcher', 'readingList'));
-    }
-
-    public function offlineSync(Request $request)
-    {
-        if (!Auth::check()) abort(401);
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
-
-        $payload = $request->json()->all();
-        if (!is_array($payload) || empty($payload['queue'])) {
-            return response()->json(['applied' => 0, 'conflicts' => 0]);
-        }
-
-        $applied = 0;
-        $conflicts = 0;
-        $logId = DB::table('research_offline_sync_log')->insertGetId([
-            'researcher_id'   => (int) $researcher->id,
-            'sync_started_at' => date('Y-m-d H:i:s'),
-            'queued_count'    => count($payload['queue']),
-            'payload_hash'    => hash('sha256', json_encode($payload['queue'])),
-        ]);
-
-        foreach ($payload['queue'] as $item) {
-            $kind = $item['kind'] ?? null;
-            try {
-                if ($kind === 'journal_entry') {
-                    DB::table('research_journal_entry')->insert([
-                        'researcher_id' => (int) $researcher->id,
-                        'project_id'    => $item['project_id'] ?? null,
-                        'entry_type'    => $item['entry_type'] ?? 'note',
-                        'entry_date'    => $item['entry_date'] ?? date('Y-m-d'),
-                        'title'         => mb_substr((string) ($item['title'] ?? ''), 0, 255),
-                        'content'       => (string) ($item['content'] ?? ''),
-                        'created_at'    => date('Y-m-d H:i:s'),
-                    ]);
-                    $applied++;
-                } elseif ($kind === 'annotation') {
-                    DB::table('ahg_iiif_annotation')->insert([
-                        'uuid'                  => $item['uuid'] ?? (string) \Illuminate\Support\Str::uuid(),
-                        'target_iri'            => (string) ($item['target_iri'] ?? ''),
-                        'information_object_id' => $item['information_object_id'] ?? null,
-                        'project_id'            => $item['project_id'] ?? null,
-                        'visibility'            => $item['visibility'] ?? 'private',
-                        'body_json'             => json_encode($item['body'] ?? []),
-                        'created_by'            => Auth::id(),
-                        'updated_by'            => Auth::id(),
-                        'created_at'            => date('Y-m-d H:i:s'),
-                        'updated_at'            => date('Y-m-d H:i:s'),
-                    ]);
-                    $applied++;
-                } else {
-                    $conflicts++;
-                }
-            } catch (\Throwable $e) {
-                $conflicts++;
-            }
-        }
-
-        DB::table('research_offline_sync_log')->where('id', $logId)->update([
-            'sync_completed_at' => date('Y-m-d H:i:s'),
-            'applied_count'     => $applied,
-            'conflict_count'    => $conflicts,
-        ]);
-
-        return response()->json([
-            'applied'   => $applied,
-            'conflicts' => $conflicts,
-            'log_id'    => $logId,
-        ]);
-    }
+    // mobileHome() and offlineSync() extracted to ResearchMobileController
+    // (serial integration, issue #1269). Routes re-pointed in routes/web.php.
 
     // =========================================================================
     // ORCID INTEGRATION
@@ -1738,41 +1507,9 @@ class ResearchController extends Controller
     // collabPanel(). Routes re-pointed in packages/ahg-research/routes/web.php.
     // =========================================================================
 
-    public function analytics(Request $request)
-    {
-        if (!Auth::check()) return redirect()->route('login');
-        $from = $request->input('from');
-        $to   = $request->input('to');
-
-        $data = app(\AhgResearch\Services\ResearchAnalyticsService::class)->dashboard($from, $to);
-
-        return view('research::research.analytics', array_merge(
-            $this->getSidebarData('analytics'),
-            compact('data')
-        ));
-    }
-
-    public function crossFondsQuery(Request $request)
-    {
-        $researcher = Auth::check() ? $this->service->getResearcherByUserId(Auth::id()) : null;
-        $svc = app(\AhgResearch\Services\CrossFondsQueryService::class);
-
-        $fondsList = $svc->availableFonds();
-        $query = trim((string) $request->input('q', ''));
-        $selected = array_map('intval', (array) $request->input('fonds', []));
-        $expand = (bool) $request->input('expand');
-
-        $result = null;
-        if ($query !== '') {
-            $result = $svc->query($query, $selected, $researcher->id ?? null, [
-                'expand' => $expand,
-                'top_k'  => 30,
-            ]);
-        }
-
-        return view('research::research.cross-fonds-query', array_merge(
-            $this->getSidebarData('crossFonds'),
-            compact('fondsList', 'query', 'selected', 'expand', 'result')
-        ));
-    }
+    // =========================================================================
+    // ANALYTICS DASHBOARD
+    // =========================================================================
+    // analytics() extracted to ResearchAnalyticsController (serial integration,
+    // issue #1269). Route re-pointed in routes/web.php.
 }
