@@ -2964,7 +2964,7 @@
     var FIG_KINDS = ['man', 'woman', 'man-walking', 'woman-walking', 'stick', 'dog', 'mouse', 'chicken'], figIdx = 0;
     // #1186 per-kind real-world height (m) + sprite aspect (width/height): people are tall+narrow
     // (drawn on a 128x256 canvas), animals/walkers use the square emoji canvas, sized to life.
-    var FIG_HEIGHTS = { man: 1.75, woman: 1.75, 'man-walking': 1.7, 'woman-walking': 1.7, stick: 1.75, dog: 0.7, mouse: 0.2, chicken: 0.5 };
+    var FIG_HEIGHTS = { man: 1.75, woman: 1.75, 'man-walking': 0.85, 'woman-walking': 0.85, stick: 1.75, dog: 0.7, mouse: 0.2, chicken: 0.5 };
     var FIG_ASPECT = { man: 0.5, woman: 0.5, stick: 0.5, 'man-walking': 1, 'woman-walking': 1, dog: 1, mouse: 1, chicken: 1 };
     var FIG_LABELS = { man: 'Man', woman: 'Woman', 'man-walking': 'Man walking', 'woman-walking': 'Woman walking', stick: 'Stick figure', dog: 'Dog', mouse: 'Mouse', chicken: 'Chicken' };
     function updateFigurePointer() {
