@@ -2056,6 +2056,29 @@ class SettingsController extends Controller
         ]);
     }
 
+    /**
+     * Pre-enable installation check. The GUI "enable" action only flips
+     * atom_plugin.is_enabled; it does not run composer or the plugin's
+     * install.sql. A plugin may define record_check_query - a SELECT probe over
+     * its own tables. If that probe throws, the schema is not installed and
+     * enabling the plugin would break its pages, so we block with a message.
+     * Returns an error string to block the enable, or null when it is safe (or
+     * cannot be determined) to enable.
+     */
+    private function pluginInstallationError(object $plugin): ?string
+    {
+        $probe = trim((string) ($plugin->record_check_query ?? ''));
+        if ($probe !== '' && stripos($probe, 'select') === 0) {
+            try {
+                DB::select($probe);
+            } catch (\Throwable $e) {
+                return 'plugin schema not installed. Run the plugin installation first.';
+            }
+        }
+
+        return null;
+    }
+
     public function plugins(Request $request)
     {
         if ($request->isMethod('post')) {
@@ -2066,6 +2089,14 @@ class SettingsController extends Controller
                 $plugin = DB::table('atom_plugin')->where('name', $pluginName)->first();
 
                 if ($plugin && $action === 'enable') {
+                    // Enabling only flips a flag; it does NOT install code or schema.
+                    // Block (with a message) if the plugin's backing schema is absent,
+                    // so we never surface a plugin that would then break its pages.
+                    if ($err = $this->pluginInstallationError($plugin)) {
+                        return redirect()->route('settings.plugins')
+                            ->with('error', "Cannot enable '{$pluginName}': {$err}");
+                    }
+
                     DB::table('atom_plugin')->where('name', $pluginName)
                         ->update(['is_enabled' => 1, 'enabled_at' => now(), 'updated_at' => now()]);
 
