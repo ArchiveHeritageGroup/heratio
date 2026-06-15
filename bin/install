@@ -54,6 +54,12 @@ PHP_FPM_SOCK="/run/php/php8.3-fpm.sock"
 SKIP_ES=0
 SKIP_NGINX=0
 NON_INTERACTIVE=0
+# The bundled nginx vhost is http-only, so default APP_URL to http and DISABLE
+# secure cookies - secure cookies over http are dropped by the browser, which
+# breaks the CSRF session and yields 419 "Page Expired" on every form POST
+# (including login). Pass --https only when terminating TLS in front of the app.
+APP_SCHEME="http"
+SECURE_COOKIE="false"
 
 # ------------------------------------------------------------ flags
 while [[ $# -gt 0 ]]; do
@@ -70,6 +76,7 @@ while [[ $# -gt 0 ]]; do
         --php-fpm-sock=*)   PHP_FPM_SOCK="${1#*=}" ;;
         --skip-es)          SKIP_ES=1 ;;
         --skip-nginx)       SKIP_NGINX=1 ;;
+        --https)            APP_SCHEME="https"; SECURE_COOKIE="true" ;;
         --non-interactive)  NON_INTERACTIVE=1 ;;
         -h|--help)
             grep -E '^# ' "$0" | sed 's/^# \?//' | head -40
@@ -205,11 +212,11 @@ else
 
     # render values + production-safe overrides
     sed -i \
-        -e "s|^APP_URL=.*|APP_URL=https://${DOMAIN}|" \
+        -e "s|^APP_URL=.*|APP_URL=${APP_SCHEME}://${DOMAIN}|" \
         -e "s|^APP_ENV=.*|APP_ENV=production|" \
         -e "s|^APP_DEBUG=.*|APP_DEBUG=false|" \
         -e "s|^LOG_LEVEL=.*|LOG_LEVEL=warning|" \
-        -e "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|" \
+        -e "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=${SECURE_COOKIE}|" \
         -e "s|^SESSION_HTTP_ONLY=.*|SESSION_HTTP_ONLY=true|" \
         -e "s|^SESSION_SAME_SITE=.*|SESSION_SAME_SITE=lax|" \
         -e "s|^SESSION_ENCRYPT=.*|SESSION_ENCRYPT=true|" \
@@ -243,7 +250,7 @@ else
     ensure_env HERATIO_BACKUPS_PATH  "${STORAGE_PATH}/backups"
     ensure_env ELASTICSEARCH_HOST    "${ES_HOST}"
     ensure_env ELASTICSEARCH_PREFIX  "${ES_PREFIX}"
-    ensure_env SESSION_SECURE_COOKIE true
+    ensure_env SESSION_SECURE_COOKIE "${SECURE_COOKIE}"
     ensure_env SESSION_HTTP_ONLY     true
     ensure_env SESSION_SAME_SITE     lax
 
@@ -328,7 +335,12 @@ ADMIN_ID=$(mysql_run -Nse "SELECT id FROM \`$DB_NAME\`.\`user\` WHERE email='${A
 if [[ -n "$ADMIN_ID" ]]; then
     ok "admin user already exists (id=$ADMIN_ID, email=$ADMIN_EMAIL)"
 else
-    HASH="$(php -r "echo password_hash('${ADMIN_PASSWORD}', PASSWORD_BCRYPT);")"
+    # Heratio auth verifies password_verify(sha1(salt . password), password_hash)
+    # (see EloquentUserProvisioner / LoginController). A plain bcrypt of the
+    # plaintext with an empty salt can never match, so the admin could not log
+    # in. Replicate the canonical two-layer scheme with a real per-user salt.
+    SALT="$(php -r 'echo bin2hex(random_bytes(16));')"
+    HASH="$(php -r "echo password_hash(sha1('${SALT}'.'${ADMIN_PASSWORD}'), PASSWORD_BCRYPT);")"
     mysql_run "$DB_NAME" <<SQL >/dev/null
 INSERT INTO object (class_name, created_at, updated_at, serial_number)
 VALUES ('QubitUser', NOW(), NOW(), 0);
@@ -338,7 +350,11 @@ VALUES (@uid, 'en', NULL, NULL, NULL);
 INSERT INTO actor_i18n (id, culture, authorized_form_of_name)
 VALUES (@uid, 'en', 'Administrator');
 INSERT INTO \`user\` (id, username, email, password_hash, salt, active)
-VALUES (@uid, 'admin', '${ADMIN_EMAIL}', '${HASH}', '', 1);
+VALUES (@uid, 'admin', '${ADMIN_EMAIL}', '${HASH}', '${SALT}', 1);
+-- Grant the administrator group (AclGroup::ADMINISTRATOR_ID = 100); without it
+-- the new admin authenticates but AclService::canAdmin() denies every admin page.
+INSERT INTO acl_user_group (user_id, group_id, serial_number)
+VALUES (@uid, 100, 0);
 SQL
     ok "admin created (email=$ADMIN_EMAIL — password printed at end)"
 fi
@@ -420,9 +436,9 @@ fi
 say "Stage 13/14 — smoke test"
 # The vhost template ships http-only (listen 80); curl the scheme it actually
 # serves so a working install does not report a false failure.
-TARGET="http://localhost"
+TARGET="${APP_SCHEME}://localhost"
 if [[ "$SKIP_NGINX" -eq 0 ]]; then
-    TARGET="http://${DOMAIN}"
+    TARGET="${APP_SCHEME}://${DOMAIN}"
 fi
 RESP="$(curl -s -o /dev/null -w '%{http_code}' "$TARGET/" 2>/dev/null || echo "000")"
 [[ "$RESP" =~ ^(200|301|302)$ ]] && ok "GET / -> $RESP" || warn "GET / -> $RESP (check php-fpm, nginx vhost, storage perms)"
@@ -435,8 +451,8 @@ cat <<REPORT
 ═══════════════════════════════════════════════════════════════════════════════
   Heratio installed
 ═══════════════════════════════════════════════════════════════════════════════
-  URL          : http://${DOMAIN}/
-  Login        : http://${DOMAIN}/login
+  URL          : ${APP_SCHEME}://${DOMAIN}/
+  Login        : ${APP_SCHEME}://${DOMAIN}/login
     Email      : ${ADMIN_EMAIL}
     Password   : ${ADMIN_PASSWORD}    ← printed once. Save it now.
   Database     : ${DB_NAME}@${DB_HOST}
