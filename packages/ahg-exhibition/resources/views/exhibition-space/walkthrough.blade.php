@@ -727,6 +727,25 @@
     // figures (furniture kinds person-man/person-woman) and the figure-pointer overlay.
     var _personTex = {};
     function personCanvas(kind) {
+      // #1186 extra figure pointers: emoji glyphs for walkers + animals (square canvas so the
+      // glyph fills it), and a hand-drawn stick figure. Man/woman keep their drawn silhouettes.
+      var FIG_EMOJI = { 'man-walking': '🚶‍♂️', 'woman-walking': '🚶‍♀️', dog: '🐕', mouse: '🐭', chicken: '🐔' };
+      if (FIG_EMOJI[kind]) {
+        var ce = document.createElement('canvas'); ce.width = 256; ce.height = 256; var ge = ce.getContext('2d');
+        ge.textAlign = 'center'; ge.textBaseline = 'middle';
+        ge.font = '210px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif';
+        ge.fillText(FIG_EMOJI[kind], 128, 142);
+        return ce;
+      }
+      if (kind === 'stick') {
+        var cs = document.createElement('canvas'); cs.width = 128; cs.height = 256; var gs = cs.getContext('2d');
+        gs.strokeStyle = '#1a1a1a'; gs.lineWidth = 9; gs.lineCap = 'round';
+        gs.beginPath(); gs.arc(64, 46, 26, 0, Math.PI * 2); gs.stroke();          // head
+        gs.beginPath(); gs.moveTo(64, 72); gs.lineTo(64, 162); gs.stroke();        // torso
+        gs.beginPath(); gs.moveTo(64, 98); gs.lineTo(26, 136); gs.moveTo(64, 98); gs.lineTo(102, 136); gs.stroke();   // arms
+        gs.beginPath(); gs.moveTo(64, 162); gs.lineTo(34, 238); gs.moveTo(64, 162); gs.lineTo(94, 238); gs.stroke();  // legs
+        return cs;
+      }
       var c = document.createElement('canvas'); c.width = 128; c.height = 256; var g = c.getContext('2d');
       var skin = '#caa07a', hair = '#3a2a1a', cloth = (kind === 'woman') ? '#7a3b6b' : '#36506e';
       g.fillStyle = cloth; g.fillRect(33, 78, 12, 70); g.fillRect(83, 78, 12, 70);   // arms
@@ -2943,7 +2962,11 @@
     if (tBtn) tBtn.addEventListener('click', function (e) { e.stopPropagation(); toggleTorch(); tBtn.classList.toggle('btn-warning', torch.intensity > 0); tBtn.classList.toggle('btn-dark', torch.intensity === 0); });
 
     // ---- Figure tool: pointer becomes a person, wheel cycles man/woman, click drops a billboard figure ----
-    var FIG_KINDS = ['man', 'woman'], figIdx = 0;
+    var FIG_KINDS = ['man', 'woman', 'man-walking', 'woman-walking', 'stick', 'dog', 'mouse', 'chicken'], figIdx = 0;
+    // #1186 per-kind real-world height (m) + sprite aspect (width/height): people are tall+narrow
+    // (drawn on a 128x256 canvas), animals/walkers use the square emoji canvas, sized to life.
+    var FIG_HEIGHTS = { man: 1.75, woman: 1.75, 'man-walking': 1.7, 'woman-walking': 1.7, stick: 1.75, dog: 0.7, mouse: 0.2, chicken: 0.5 };
+    var FIG_ASPECT = { man: 0.5, woman: 0.5, stick: 0.5, 'man-walking': 1, 'woman-walking': 1, dog: 1, mouse: 1, chicken: 1 };
     function updateFigurePointer() { var ov = document.getElementById('figurePointer'); if (ov) ov.src = personCanvas(FIG_KINDS[figIdx]).toDataURL(); }
     function setFigureMode(on) {
       window.__figureMode = on;
@@ -2960,7 +2983,7 @@
       ray.setFromCamera(ndc, camera);
       var hits = ray.intersectObjects(scene.children, true).filter(function (h) { return h.distance > 0.5; });
       if (!hits.length) { return; }
-      var p = hits[0].point, kind = FIG_KINDS[figIdx], pth = 1.75, ptw = pth * 0.5;
+      var p = hits[0].point, kind = FIG_KINDS[figIdx], pth = FIG_HEIGHTS[kind] || 1.75, ptw = pth * (FIG_ASPECT[kind] || 0.5);
       var grp = new THREE.Group();
       var psp = new THREE.Sprite(new THREE.SpriteMaterial({ map: personTexture(kind), transparent: true, depthWrite: true }));
       psp.scale.set(ptw, pth, 1); psp.position.y = pth / 2; grp.add(psp);
