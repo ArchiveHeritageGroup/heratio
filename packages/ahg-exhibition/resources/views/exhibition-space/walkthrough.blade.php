@@ -712,6 +712,7 @@
     // #1170 outdoor space: grass ground + scattered trees + a park bench, no walls/ceiling.
     var pathMat = new THREE.MeshStandardMaterial({ color: 0xc9bd9a, roughness: 1 });
     var benchMat = new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.9 });
+    pathMat.userData.shared = benchMat.userData.shared = true;   // #1279 module-level singletons reused across rooms - never dispose on room-leave
     // --- Life-like grass + trees: canvas-painted textures, no external assets (#1170) ---
     var _grassTex = null, _treeTex = null, _tuftTex = null;
     function grassTexture() {
@@ -739,6 +740,7 @@
     function personTexture(kind) {
       if (_personTex[kind]) return _personTex[kind];
       var t = new THREE.CanvasTexture(personCanvas(kind)); t.minFilter = THREE.LinearFilter;
+      t.userData.shared = true;   // #1279 memoized, used directly as a sprite map across rooms - never dispose on room-leave
       return (_personTex[kind] = t);
     }
     function treeTexture() {
@@ -750,13 +752,13 @@
       function blob(cx, cy, r, col) { var rg = g.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.2, cx, cy, r); rg.addColorStop(0, col[0]); rg.addColorStop(1, col[1]); g.fillStyle = rg; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill(); }
       [[128, 150, 72], [88, 172, 52], [168, 168, 52], [108, 108, 50], [150, 106, 50], [128, 86, 46], [128, 202, 58]].forEach(function (bl, i) { blob(bl[0], bl[1], bl[2], greens[i % greens.length]); });
       for (var i = 0; i < 500; i++) { var a = Math.random() * Math.PI * 2, rr = Math.random() * 78; var x = 128 + Math.cos(a) * rr, y = 150 + Math.sin(a) * rr * 1.15; if (y > 245 || y < 30) continue; g.fillStyle = 'rgba(' + ((70 + Math.random() * 90) | 0) + ',' + ((140 + Math.random() * 80) | 0) + ',' + ((45 + Math.random() * 45) | 0) + ',' + (0.35 + Math.random() * 0.4) + ')'; g.fillRect(x, y, 2, 2); }
-      var t = new THREE.CanvasTexture(c); _treeTex = t; return t;
+      var t = new THREE.CanvasTexture(c); t.userData.shared = true; _treeTex = t; return t;   // #1279 shared across rooms (used directly) - never dispose on room-leave
     }
     function tuftTexture() {
       if (_tuftTex) return _tuftTex;
       var c = document.createElement('canvas'); c.width = c.height = 64; var g = c.getContext('2d');
       for (var i = 0; i < 22; i++) { var bx = 10 + Math.random() * 44, h = 18 + Math.random() * 30; g.strokeStyle = 'rgba(' + ((50 + Math.random() * 40) | 0) + ',' + ((120 + Math.random() * 80) | 0) + ',' + ((40 + Math.random() * 35) | 0) + ',0.9)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(bx, 64); g.quadraticCurveTo(bx + (Math.random() * 10 - 5), 64 - h * 0.6, bx + (Math.random() * 14 - 7), 64 - h); g.stroke(); }
-      var t = new THREE.CanvasTexture(c); _tuftTex = t; return t;
+      var t = new THREE.CanvasTexture(c); t.userData.shared = true; _tuftTex = t; return t;   // #1279 shared across rooms (used directly) - never dispose on room-leave
     }
     // Polished marble floor (cream field + soft clouds + grey veins). Tiled ~4 m. Glossy material.
     var _marbleTex = null, _wallTex = null;
@@ -1220,9 +1222,13 @@
         if (o.material) {
           var ms = Array.isArray(o.material) ? o.material : [o.material];
           ms.forEach(function (m) {
-            if (!m || SHARED_MATS.indexOf(m) !== -1) { return; }   // never dispose shared singletons
+            // #1279 never dispose a shared singleton material (the original 8 via SHARED_MATS,
+            // plus anything tagged userData.shared - pedestal/path/bench reused across rooms).
+            if (!m || SHARED_MATS.indexOf(m) !== -1 || (m.userData && m.userData.shared)) { return; }
             ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'aoMap', 'alphaMap'].forEach(function (t) {
-              if (m[t] && m[t].dispose) { try { m[t].dispose(); } catch (e) {} }
+              // #1279 a memoized texture (tree/tuft/person) is shared across rooms - skip it;
+              // per-room textures (incl. marble/grass .clone()s) are not tagged and do get freed.
+              if (m[t] && m[t].dispose && !(m[t].userData && m[t].userData.shared)) { try { m[t].dispose(); } catch (e) {} }
             });
             try { m.dispose(); } catch (e) {}
           });
@@ -1565,6 +1571,7 @@
 
     // Objects (pickables already declared before the room loop)
     var pedestalMat = new THREE.MeshStandardMaterial({ color: 0x3a3f47, roughness: 0.8 });
+    pedestalMat.userData.shared = true;   // #1279 one pedestal material reused for every object in every room - never dispose on room-leave
     // #1217: corridors are counted up-front; each object adds itself to the in-flight
     // count when it is actually built (buildStop -> pending++), so build-on-approach in a
     // lazy building keeps the loading indicator correct. For a non-lazy building every
