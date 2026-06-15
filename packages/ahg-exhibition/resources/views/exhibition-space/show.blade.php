@@ -109,7 +109,15 @@
                   @foreach($placements as $p)
                     <tr>
                       <td>
-                        @if(!empty($p->information_object_title))
+                        @if(!empty($p->is_remote))
+                          {{-- #1277 federated twin: a borrowed peer object (no local record) --}}
+                          @if(!empty($p->record_url))
+                            <a href="{{ $p->record_url }}" target="_blank" rel="noopener">{{ $p->information_object_title }}</a>
+                          @else
+                            {{ $p->information_object_title }}
+                          @endif
+                          <span class="badge bg-primary ms-1"><i class="fas fa-people-arrows me-1"></i>{{ $p->remote_peer ? __('Courtesy of').' '.$p->remote_peer : __('Borrowed') }}</span>
+                        @elseif(!empty($p->information_object_title))
                           {{ $p->information_object_title }} <small class="text-muted">#{{ $p->information_object_id }}</small>
                         @else
                           <span class="text-muted">{{ __('Object') }} #{{ $p->information_object_id }}</span>

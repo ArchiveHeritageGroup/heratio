@@ -302,7 +302,119 @@ class ExhibitionSpaceController extends Controller
             'layout' => $layout,
             'guidedTour' => $this->service->getGuidedTour($space),   // authored audio tour stops
             'tourObjects' => $this->service->buildingTourObjects($space),   // building-wide objects for the tour picker
+            'peers' => $this->activeScenePeers(),   // #1277 federated twin: peers a curator can borrow an object from
         ]);
+    }
+
+    /**
+     * heratio#1277 - active federation peers a curator can borrow exhibition objects from.
+     * Resilient: a missing federation module / table degrades to an empty list (the builder
+     * just hides the "Borrow from peer" action) rather than 500-ing the whole builder.
+     *
+     * @return array<int,array{id:int,name:string,base_url:string}>
+     */
+    private function activeScenePeers(): array
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('federation_peer')) {
+                return [];
+            }
+
+            return \Illuminate\Support\Facades\DB::table('federation_peer')
+                ->where('is_active', 1)
+                ->orderBy('name')
+                ->get(['id', 'name', 'base_url', 'config'])
+                ->map(function ($p) {
+                    $cfg = json_decode((string) ($p->config ?? ''), true) ?: [];
+                    // The OAI base_url may not be the public site root; prefer an explicit
+                    // scene_base_url in the peer config when present.
+                    $base = trim((string) ($cfg['scene_base_url'] ?? '')) ?: trim((string) $p->base_url);
+
+                    return ['id' => (int) $p->id, 'name' => (string) $p->name, 'base_url' => $base];
+                })
+                ->all();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * heratio#1277 - fetch + normalise a peer institution's exhibition scene.json for the
+     * builder "Borrow from peer" picker. Returns the RemoteSceneFetchService result verbatim
+     * ({ok, name, objects:[...], error}). Never throws to the client (always HTTP 200 + ok flag).
+     */
+    public function peerScene(Request $request, string $slug)
+    {
+        $request->validate([
+            'peer_id' => 'nullable|integer|min:1',
+            'base_url' => 'nullable|string|max:500',
+            'scene_slug' => 'required|string|max:255',
+        ]);
+
+        if (! class_exists(\AhgFederation\Services\RemoteSceneFetchService::class)) {
+            return response()->json(['ok' => false, 'error' => 'Federation module is not installed.', 'objects' => []]);
+        }
+
+        $base = trim((string) $request->input('base_url', ''));
+        $apiKey = null;
+        $peerId = (int) $request->input('peer_id', 0);
+        if ($peerId > 0) {
+            $peer = \Illuminate\Support\Facades\DB::table('federation_peer')->where('id', $peerId)->first();
+            if ($peer) {
+                $cfg = json_decode((string) ($peer->config ?? ''), true) ?: [];
+                $base = trim((string) ($cfg['scene_base_url'] ?? '')) ?: ($base !== '' ? $base : trim((string) $peer->base_url));
+                $apiKey = $peer->api_key ?: null;
+            }
+        }
+
+        if ($base === '' || ! preg_match('~^https?://~i', $base)) {
+            return response()->json(['ok' => false, 'error' => 'A valid peer base URL is required.', 'objects' => []]);
+        }
+
+        $result = (new \AhgFederation\Services\RemoteSceneFetchService)
+            ->fetchScene($base, (string) $request->input('scene_slug'), $apiKey);
+
+        return response()->json($result);
+    }
+
+    /**
+     * heratio#1277 - borrow a single peer object into this space as a read-only remote placement.
+     * Accepts the normalised remote object as a JSON string (as returned by peerScene) plus the
+     * provenance link (remote_peer_id / remote_ref). Local catalogue is never touched.
+     */
+    public function placeRemote(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $request->validate([
+            'remote_payload' => 'required|string',
+            'remote_peer_id' => 'nullable|integer|min:1',
+            'remote_ref' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $placement = $this->service->placeRemotePlacement([
+                'exhibition_space_id' => (int) $space->id,
+                'remote_peer_id' => $request->input('remote_peer_id'),
+                'remote_ref' => $request->input('remote_ref'),
+                'remote_payload' => $request->input('remote_payload'),
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['ok' => true, 'placement' => $placement]);
+            }
+
+            return redirect()->route('exhibition-space.builder', ['slug' => $slug])
+                ->with('success', 'Borrowed object added.');
+        } catch (\Throwable $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['ok' => false, 'error' => $e->getMessage()], 422);
+            }
+
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     // ===================================================================

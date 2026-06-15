@@ -2159,7 +2159,14 @@
       var _inlay = document.getElementById('inlayDesc');
       if (_cap) { _inlay.innerHTML = '<em>' + _cap.replace(/[<>&]/g, '') + '</em>' + (_dsc ? '<br><br>' + _dsc.replace(/[<>&]/g, '') : ''); }
       else { _inlay.textContent = _dsc || '{{ __('No description available.') }}'; }
+      // #1277 borrowed peer object: a clear read-only / attribution badge, and no local "ask the
+      // docent" box (there is no local record to ground an answer in).
+      if (s.remote) {
+        var _peer = (s.remote_peer || '').replace(/[<>&]/g, '');
+        _inlay.innerHTML = '<span class="badge bg-primary mb-1"><i class="fas fa-people-arrows me-1"></i>{{ __('Read-only - courtesy of') }} ' + (_peer || '{{ __('a partner institution') }}') + '</span>' + (_dsc ? '<br><br>' + _dsc.replace(/[<>&]/g, '') : '');
+      }
       buildAskChips(s);
+      var _askBox = document.getElementById('wtAsk'); if (_askBox) _askBox.style.display = s.remote ? 'none' : '';
       var _ae = document.getElementById('wtAskAnswer'); if (_ae) { _ae.style.display = 'none'; _ae.textContent = ''; }
       var _ai = document.getElementById('wtAskInput'); if (_ai) _ai.value = '';
       var rec = document.getElementById('inlayRec');
@@ -2210,10 +2217,21 @@
       if (ov) ov.style.display = 'none';
       if (fr) fr.src = 'about:blank';   // stop the record loading/playing behind the gallery
     }
-    function viewFullDetails() { if (currentStop && currentStop.record_url) openRecordOverlay(currentStop.record_url); }
+    function viewFullDetails() {
+      // #1277 a borrowed peer record lives on another origin (likely un-iframeable) - open it in a
+      // new tab; a local record still shows in the in-walkthrough overlay.
+      if (currentStop && currentStop.remote && currentStop.record_url) { window.open(currentStop.record_url, '_blank', 'noopener'); return; }
+      if (currentStop && currentStop.record_url) openRecordOverlay(currentStop.record_url);
+    }
     (function () {
       var rc = document.getElementById('recClose'); if (rc) rc.addEventListener('click', function (e) { e.stopPropagation(); closeRecordOverlay(); });
-      var ir = document.getElementById('inlayRec'); if (ir) ir.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); if (ir.getAttribute('href') && ir.getAttribute('href') !== '#') openRecordOverlay(ir.getAttribute('href')); });
+      var ir = document.getElementById('inlayRec'); if (ir) ir.addEventListener('click', function (e) {
+        var href = ir.getAttribute('href');
+        if (!href || href === '#') { e.preventDefault(); return; }
+        // #1277 remote: let the native target="_blank" carry the peer record to a new tab.
+        if (currentStop && currentStop.remote) { e.stopPropagation(); return; }
+        e.preventDefault(); e.stopPropagation(); openRecordOverlay(href);
+      });
     })();
     document.getElementById('inlayClose').addEventListener('click', function (e) { e.stopPropagation(); closeAllPopups(); });
 

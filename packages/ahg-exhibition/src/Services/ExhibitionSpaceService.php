@@ -197,9 +197,25 @@ class ExhibitionSpaceService
             ->select(
                 'ep.id', 'ep.information_object_id', 'ep.exhibition_id',
                 'ep.size_units_used', 'ep.starts_at', 'ep.ends_at', 'ep.notes',
+                'ep.remote_peer_id', 'ep.remote_payload',   // #1277 borrowed peer objects
                 'ioi.title as information_object_title'
             )
-            ->get();
+            ->get()
+            ->map(function ($r) {
+                // #1277 federated twin: surface a borrowed peer object with its payload title +
+                // owning institution, so the show-page list does not render a blank "#" row.
+                $r->is_remote = empty($r->information_object_id) && ! empty($r->remote_payload);
+                $r->remote_peer = '';
+                $r->record_url = null;
+                if ($r->is_remote) {
+                    $rp = json_decode((string) $r->remote_payload, true) ?: [];
+                    $r->information_object_title = trim((string) ($rp['title'] ?? '')) ?: 'Untitled';
+                    $r->remote_peer = trim((string) ($rp['peer_name'] ?? ''));
+                    $r->record_url = $rp['record_url'] ?? null;
+                }
+
+                return $r;
+            });
     }
 
     /**
@@ -383,6 +399,99 @@ class ExhibitionSpaceService
         return DB::table('ahg_exhibition_placement')->where('id', $placementId)->delete() > 0;
     }
 
+    /**
+     * heratio#1277 federated twin: persist a BORROWED peer object as a read-only remote
+     * placement (no local information object). The normalised remote object - produced by
+     * AhgFederation\Services\RemoteSceneFetchService::fetchScene() - is stored verbatim in
+     * remote_payload; remote_peer_id / remote_ref keep the provenance link back to the owner.
+     * The walkthrough + builder render it read-only from the payload (peer media URLs,
+     * "Courtesy of <institution>" attribution, link-back), never touching the local catalogue.
+     */
+    public function placeRemotePlacement(array $data): array
+    {
+        $placementId = (int) ($data['id'] ?? 0);
+        $spaceId = (int) ($data['exhibition_space_id'] ?? 0);
+
+        $payload = $data['remote_payload'] ?? null;
+        if (is_string($payload)) {
+            $decoded = json_decode($payload, true);
+            $payload = is_array($decoded) ? $decoded : null;
+        }
+
+        if ($spaceId <= 0) {
+            throw new \InvalidArgumentException('exhibition_space_id is required.');
+        }
+        if (! is_array($payload) || trim((string) ($payload['title'] ?? '')) === '') {
+            throw new \InvalidArgumentException('A remote object (with a title) is required.');
+        }
+
+        // Keep only the known, view-safe keys (defence against an oversized / odd payload),
+        // and accept only absolute http(s) media URLs (never a relative path that would resolve
+        // against the local host) - mirrors RemoteSceneFetchService::absOnly().
+        $clean = [];
+        foreach (['title', 'description', 'kind', 'model_format', 'peer_name', 'peer_base'] as $k) {
+            if (isset($payload[$k]) && $payload[$k] !== '') {
+                $clean[$k] = (string) $payload[$k];
+            }
+        }
+        foreach (['image_url', 'model_url', 'record_url'] as $k) {
+            $u = trim((string) ($payload[$k] ?? ''));
+            if ($u !== '' && preg_match('~^https?://~i', $u)) {
+                $clean[$k] = $u;
+            }
+        }
+
+        $row = [
+            'exhibition_space_id' => $spaceId,
+            'information_object_id' => null,
+            'remote_peer_id' => isset($data['remote_peer_id']) && $data['remote_peer_id'] !== '' ? (int) $data['remote_peer_id'] : null,
+            'remote_ref' => trim((string) ($data['remote_ref'] ?? ($payload['ref'] ?? ''))) ?: null,
+            'remote_payload' => json_encode($clean, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            'notes' => $data['notes'] ?? null,
+            'updated_at' => now(),
+        ];
+
+        if ($placementId > 0) {
+            DB::table('ahg_exhibition_placement')->where('id', $placementId)->update($row);
+            $id = $placementId;
+            $posX = 0.5;
+            $posY = 0.5;
+        } else {
+            // A newly borrowed object lands centred on the room canvas; the curator then
+            // drags it into place (the standard builder position-save persists pos_x/pos_y).
+            $posX = 0.5;
+            $posY = 0.5;
+            $row['pos_x'] = $posX;
+            $row['pos_y'] = $posY;
+            $row['rotation_deg'] = 0;
+            $row['scale'] = 1;
+            $row['z_order'] = 0;
+            $row['label_visible'] = 1;
+            $row['created_at'] = now();
+            $id = (int) DB::table('ahg_exhibition_placement')->insertGetId($row);
+        }
+
+        // Canvas-ready placement, same shape getPlacementsForBuilder emits for a remote object,
+        // so the builder JS can addNode() it without re-fetching the whole room.
+        return [
+            'id' => $id,
+            'information_object_id' => 0,
+            'remote' => 1,
+            'remote_peer' => $clean['peer_name'] ?? '',
+            'title' => $clean['title'],
+            'pos_x' => $posX,
+            'pos_y' => $posY,
+            'rotation_deg' => 0.0,
+            'scale' => 1.0,
+            'z_order' => 0,
+            'wall_or_zone' => null,
+            'label_visible' => 1,
+            'size_units_used' => 0.0,
+            'kind' => $clean['kind'] ?? 'image',
+            'thumb_url' => $clean['image_url'] ?? null,
+        ];
+    }
+
     // -------- Digital twin / builder (heratio#1138) --------
 
     /**
@@ -406,16 +515,51 @@ class ExhibitionSpaceService
                 'ep.wall_or_zone', 'ep.label_visible', 'ep.size_units_used',
                 'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case', 'ep.on_floor',
                 'ep.view_x', 'ep.view_y',
+                'ep.remote_peer_id', 'ep.remote_ref', 'ep.remote_payload',   // #1277 borrowed peer objects
                 'ioi.title as information_object_title'
             )
             ->orderBy('ep.z_order')
             ->get();
 
         return $rows->map(function ($r) {
+            // #1277 federated twin: a placement with no local IO + a remote_payload is a borrowed
+            // peer object - render it on the canvas from the payload (peer thumbnail, "Courtesy of"
+            // badge), read-only, with no local catalogue lookup.
+            if (empty($r->information_object_id) && ! empty($r->remote_payload)) {
+                $rp = json_decode((string) $r->remote_payload, true) ?: [];
+
+                return [
+                    'id' => (int) $r->id,
+                    'information_object_id' => 0,
+                    'remote' => 1,
+                    'remote_peer' => trim((string) ($rp['peer_name'] ?? '')),
+                    'title' => trim((string) ($rp['title'] ?? '')) ?: 'Untitled',
+                    'pos_x' => $r->pos_x !== null ? (float) $r->pos_x : null,
+                    'pos_y' => $r->pos_y !== null ? (float) $r->pos_y : null,
+                    'rotation_deg' => (float) ($r->rotation_deg ?? 0),
+                    'scale' => (float) ($r->scale ?? 1),
+                    'z_order' => (int) ($r->z_order ?? 0),
+                    'wall_or_zone' => $r->wall_or_zone,
+                    'label_visible' => (int) ($r->label_visible ?? 1),
+                    'size_units_used' => (float) ($r->size_units_used ?? 0),
+                    'view_x' => $r->view_x !== null ? (float) $r->view_x : null,
+                    'view_y' => $r->view_y !== null ? (float) $r->view_y : null,
+                    'kind' => (string) ($rp['kind'] ?? 'image'),
+                    'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
+                    'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
+                    'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
+                    'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
+                    'spotlight' => (int) ($r->spotlight ?? 0),
+                    'display_case' => (int) ($r->display_case ?? 0), 'on_floor' => (int) ($r->on_floor ?? 0),
+                    'thumb_url' => $rp['image_url'] ?? null,
+                ];
+            }
+
             $media = $this->getObjectMedia((int) $r->information_object_id);
 
             return [
                 'id' => (int) $r->id,
+                'remote' => 0,
                 'information_object_id' => (int) $r->information_object_id,
                 'title' => $r->information_object_title ?: ('#'.$r->information_object_id),
                 'pos_x' => $r->pos_x !== null ? (float) $r->pos_x : null,

@@ -67,6 +67,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/exhibition-space/{slug}/edit', [ExhibitionSpaceController::class, 'edit'])->name('exhibition-space.edit');
     Route::post('/exhibition-space/{slug}/edit', [ExhibitionSpaceController::class, 'update'])->name('exhibition-space.update')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/place', [ExhibitionSpaceController::class, 'placePlacement'])->name('exhibition-space.place')->middleware('acl:update');
+    // heratio#1277 federated twin: borrow a peer institution's object into this space (read-only)
+    Route::post('/exhibition-space/{slug}/peer-scene', [ExhibitionSpaceController::class, 'peerScene'])->name('exhibition-space.peer-scene')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/place-remote', [ExhibitionSpaceController::class, 'placeRemote'])->name('exhibition-space.place-remote')->middleware('acl:update');
     // heratio#1195 - publish this space into the RiC graph as a rico:Activity
     Route::post('/exhibition-space/{slug}/sync-ric', [ExhibitionSpaceController::class, 'syncRic'])->name('exhibition-space.sync-ric')->middleware('acl:update');
     Route::post('/exhibition-space/placement/{placementId}/remove', [ExhibitionSpaceController::class, 'removePlacement'])->name('exhibition-space.placement.remove')->middleware('acl:update')->whereNumber('placementId');

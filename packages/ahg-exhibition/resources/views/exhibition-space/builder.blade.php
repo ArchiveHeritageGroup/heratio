@@ -357,6 +357,30 @@
           </div>
         </div>
 
+        {{-- heratio#1277 federated twin - borrow a peer institution's object (read-only) --}}
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-people-arrows me-1"></i>{{ __('Borrow from a partner') }}</strong></div>
+            <div class="card-body small">
+              <p class="text-muted mb-2">{{ __('Borrow a single object from a partner institution\'s published exhibition. It shows read-only, attributed "Courtesy of ...", and links back to the owner. Nothing is copied - media stays on the partner.') }}</p>
+              <label class="form-label mb-1">{{ __('Partner') }}</label>
+              <select id="peerSel" class="form-select form-select-sm mb-2">
+                @forelse(($peers ?? []) as $pr)
+                  <option value="{{ $pr['id'] }}" data-base="{{ $pr['base_url'] }}">{{ $pr['name'] }}</option>
+                @empty
+                @endforelse
+                <option value="">{{ __('Other (enter URL)') }}</option>
+              </select>
+              <input id="peerBase" class="form-control form-control-sm mb-2 d-none" placeholder="https://partner.example/" maxlength="500">
+              <label class="form-label mb-1">{{ __('Exhibition slug') }}</label>
+              <input id="peerSlug" class="form-control form-control-sm mb-2" placeholder="e.g. founders-gallery" maxlength="255">
+              <button type="button" id="peerFetchBtn" class="btn btn-sm btn-outline-primary w-100 mb-2"><i class="fas fa-cloud-arrow-down me-1"></i>{{ __('Fetch objects') }}</button>
+              <div id="peerMsg" class="small mb-1"></div>
+              <div id="peerObjList" class="list-group list-group-flush small" style="max-height:220px;overflow:auto;"></div>
+            </div>
+          </div>
+        </div>
+
         {{-- authored audio guided tour --}}
         <div class="col-md-6 col-xl-3">
           <div class="card mb-0">
@@ -429,8 +453,11 @@
       recommend: '{{ route('exhibition-space.recommend', ['slug' => $space->slug]) }}',
       guidedTour: '{{ route('exhibition-space.guided-tour', ['slug' => $space->slug]) }}',
       tourAudio: '{{ route('exhibition-space.tour-audio', ['slug' => $space->slug]) }}',
-      walkthrough: '{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}'
+      walkthrough: '{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}',
+      peerScene: '{{ route('exhibition-space.peer-scene', ['slug' => $space->slug]) }}',   // #1277 fetch a peer's scene
+      placeRemote: '{{ route('exhibition-space.place-remote', ['slug' => $space->slug]) }}'   // #1277 borrow a peer object
     };
+    var PEERS = @json($peers ?? []);   // #1277 active federation peers (id, name, base_url)
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
     var GUIDED_TOUR = @json($guidedTour ?? []);
@@ -692,6 +719,16 @@
       label.add(new Konva.Text({ text: (p.title || '').substring(0, 28), fontSize: 11, padding: 3, fill: '#fff' }));
       label.offsetX(label.width() / 2);
       g.add(label);
+
+      // #1277 borrowed peer object: a small "Courtesy of" badge so the curator can tell it apart.
+      if (p.remote) {
+        g.setAttr('remote', 1);
+        g.setAttr('remotePeer', p.remote_peer || '');
+        var badge = new Konva.Label({ x: -NODE / 2 + 2, y: -NODE / 2 + 2 });
+        badge.add(new Konva.Tag({ fill: 'rgba(13,110,253,0.9)', cornerRadius: 3 }));
+        badge.add(new Konva.Text({ text: '🌐', fontSize: 11, padding: 2, fill: '#fff' }));   // globe glyph
+        g.add(badge);
+      }
 
       g.on('click tap', function (e) {
         e.cancelBubble = true;
@@ -1329,6 +1366,69 @@
         body: JSON.stringify({ information_object_id: io, pos_x: 0.5, pos_y: 0.5, size_units_used: parseFloat(document.getElementById('initialSize').value) || 0 }) })
         .then(function (r) { return r.json(); }).then(function (d) { if (d.ok) { var g = addNode(d.placement); layer.draw(); selectNode(g); renderObjList(); if (row) { row.style.opacity = '0.45'; } } });
     }
+
+    // ---- #1277 federated twin: borrow a peer institution's object ----
+    (function wirePeerBorrow() {
+      var sel = document.getElementById('peerSel'), base = document.getElementById('peerBase'),
+          slug = document.getElementById('peerSlug'), fetchBtn = document.getElementById('peerFetchBtn'),
+          msg = document.getElementById('peerMsg'), list = document.getElementById('peerObjList');
+      if (!fetchBtn) return;   // card not rendered (no auth)
+
+      function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : String(s)); return d.innerHTML; }
+      function showMsg(t, cls) { msg.className = 'small mb-1 ' + (cls || 'text-muted'); msg.textContent = t || ''; }
+
+      // "Other (enter URL)" reveals a manual base-URL field; a named peer hides it.
+      function syncBaseField() { var v = sel.value; if (v === '') { base.classList.remove('d-none'); } else { base.classList.add('d-none'); } }
+      sel.addEventListener('change', syncBaseField); syncBaseField();
+
+      fetchBtn.addEventListener('click', function () {
+        var sceneSlug = (slug.value || '').trim();
+        if (!sceneSlug) { showMsg('{{ __('Enter the partner exhibition slug.') }}', 'text-danger'); return; }
+        var body = { scene_slug: sceneSlug };
+        if (sel.value === '') { body.base_url = (base.value || '').trim(); }
+        else { body.peer_id = sel.value; }
+        list.innerHTML = ''; showMsg('{{ __('Fetching ...') }}');
+        fetchBtn.disabled = true;
+        fetch(URLS.peerScene, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            fetchBtn.disabled = false;
+            if (!d || !d.ok) { showMsg(d && d.error ? d.error : '{{ __('Could not reach that partner.') }}', 'text-danger'); return; }
+            var objs = d.objects || [];
+            if (!objs.length) { showMsg('{{ __('That exhibition has no borrowable objects.') }}', 'text-warning'); return; }
+            showMsg(objs.length + ' {{ __('object(s) found - click to borrow:') }}', 'text-success');
+            objs.forEach(function (o) {
+              var a = document.createElement('button');
+              a.type = 'button';
+              a.className = 'list-group-item list-group-item-action d-flex align-items-center gap-2 py-1 px-2';
+              var thumb = o.image_url ? '<img src="' + esc(o.image_url) + '" style="width:32px;height:32px;object-fit:cover;border-radius:3px;flex:0 0 auto;">' : '<span class="text-muted" style="width:32px;text-align:center;flex:0 0 auto;"><i class="fas fa-cube"></i></span>';
+              a.innerHTML = thumb + '<span class="text-truncate">' + esc(o.title) + '</span>';
+              a.addEventListener('click', function () { borrowObject(o, a); });
+              list.appendChild(a);
+            });
+          })
+          .catch(function () { fetchBtn.disabled = false; showMsg('{{ __('Could not reach that partner.') }}', 'text-danger'); });
+      });
+
+      function borrowObject(o, el) {
+        el.disabled = true; el.classList.add('disabled');
+        var peerId = (sel.value === '') ? '' : sel.value;
+        fetch(URLS.placeRemote, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+          body: JSON.stringify({ remote_payload: JSON.stringify(o), remote_peer_id: peerId, remote_ref: o.ref || '' }) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d && d.ok) {
+              var g = addNode(d.placement); layer.draw(); selectNode(g);
+              el.innerHTML = '<i class="fas fa-check text-success me-1"></i>' + el.textContent;
+            } else {
+              el.disabled = false; el.classList.remove('disabled');
+              showMsg(d && d.error ? d.error : '{{ __('Could not borrow that object.') }}', 'text-danger');
+            }
+          })
+          .catch(function () { el.disabled = false; el.classList.remove('disabled'); showMsg('{{ __('Could not borrow that object.') }}', 'text-danger'); });
+      }
+    })();
+
     function loadRecs() {
       var el = document.getElementById('recList'); if (!el) return;
       var io = (selected && selected.getAttr('ioId')) ? selected.getAttr('ioId') : 0;
