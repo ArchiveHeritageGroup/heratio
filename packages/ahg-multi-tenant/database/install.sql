@@ -19,7 +19,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ahg_tenant - one row per tenant; FK to repository for data scoping
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `ahg_tenant` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    -- INT UNSIGNED to match the canonical core schema (database/core) so the
+    -- tenant_id FKs below are type-compatible whether this runs standalone or
+    -- after the core dump has already created ahg_tenant.
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `code` VARCHAR(50) NOT NULL COMMENT 'Unique tenant code / slug',
     `name` VARCHAR(255) NOT NULL COMMENT 'Display name',
     `description` TEXT DEFAULT NULL,
@@ -57,8 +60,8 @@ CREATE TABLE IF NOT EXISTS `ahg_tenant` (
 -- A user may belong to multiple tenants; is_primary picks the default.
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `ahg_tenant_user` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `tenant_id` INT NOT NULL,
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `tenant_id` INT UNSIGNED NOT NULL,
     `user_id` INT NOT NULL,
     `role` VARCHAR(50) NOT NULL DEFAULT 'viewer' COMMENT 'owner, super_user, editor, contributor, viewer',
     `is_super_user` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Convenience flag mirroring role=super_user|owner',
@@ -80,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `ahg_tenant_user` (
 -- ahg_tenant_branding - per-tenant theme overrides (logo, colours, custom CSS)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `ahg_tenant_branding` (
-    `tenant_id` INT PRIMARY KEY,
+    `tenant_id` INT UNSIGNED PRIMARY KEY,
     `logo_url` VARCHAR(500) DEFAULT NULL,
     `primary_color` VARCHAR(20) DEFAULT NULL,
     `secondary_color` VARCHAR(20) DEFAULT NULL,
@@ -100,8 +103,8 @@ CREATE TABLE IF NOT EXISTS `ahg_tenant_branding` (
 -- ahg_tenant_settings_override - per-tenant overrides on ahg_settings keys
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `ahg_tenant_settings_override` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `tenant_id` INT NOT NULL,
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `tenant_id` INT UNSIGNED NOT NULL,
     `setting_key` VARCHAR(100) NOT NULL,
     `setting_value` TEXT DEFAULT NULL,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
