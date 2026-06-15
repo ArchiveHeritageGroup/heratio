@@ -51,7 +51,9 @@
           <div id="roomCrosshair" style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#000;border:2px solid rgba(255,255,255,.85);box-sizing:border-box;z-index:4;display:none;pointer-events:none;"></div>
           {{-- Figure tool: the pointer becomes a person silhouette; mouse wheel cycles man/woman; click drops a figure. --}}
           <img id="figurePointer" alt="" style="position:absolute;top:50%;left:50%;height:120px;margin-top:-110px;transform:translateX(-50%);z-index:4;display:none;pointer-events:none;opacity:.92;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));">
-          <div id="figureHint" class="bg-dark text-white px-2 py-1 rounded small" style="position:absolute;bottom:90px;left:50%;transform:translateX(-50%);z-index:7;display:none;"><i class="fas fa-person-walking me-1"></i>{{ __('Wheel: change person - click: place (this view only)') }}</div>
+          <div id="figureHint" class="bg-dark text-white px-2 py-1 rounded small" style="position:absolute;bottom:90px;left:50%;transform:translateX(-50%);z-index:7;display:none;"><i class="fas fa-person-walking me-1"></i>{{ __('Pick a figure below, then click the floor to place it (this view only)') }}</div>
+          {{-- #1186 figure picker: click an icon to choose the pointer (mouse, dog, ...); buttons are filled from FIG_KINDS in JS. --}}
+          <div id="figurePicker" style="position:absolute;bottom:44px;left:50%;transform:translateX(-50%);z-index:8;display:none;gap:4px;background:rgba(0,0,0,.55);padding:5px 7px;border-radius:8px;"></div>
           {{-- When the centre ray is over a clickable object, the pointer becomes a plain hand (person/figure suppressed) so you can interact with it. --}}
           <div id="objectPointer" style="position:absolute;top:50%;left:50%;margin:-12px 0 0 -11px;z-index:5;display:none;pointer-events:none;color:#fff;font-size:22px;text-shadow:0 1px 3px rgba(0,0,0,.8);"><i class="fas fa-hand-pointer"></i></div>
           <div id="roomLoading" style="position:absolute;bottom:8px;left:8px;z-index:4;color:#ccc;font-size:.8rem;">{{ __('Loading gallery...') }}</div>
@@ -2456,11 +2458,8 @@
     }
     renderer.domElement.addEventListener('wheel', function (e) {
       e.preventDefault();
-      if (window.__figureMode) {   // figure tool: roll the wheel to cycle which person the pointer is
-        figIdx = (figIdx + (e.deltaY < 0 ? 1 : FIG_KINDS.length - 1)) % FIG_KINDS.length;
-        updateFigurePointer();
-        return;
-      }
+      // #1186: the wheel always walks (forward/back). Figure selection moved to the
+      // click-to-pick icon row (figurePicker), so figure mode no longer steals the wheel.
       if (keys['KeyU']) {
         // Hold U + wheel: stand taller (roll up) / crouch down (roll down).
         eyeBase = Math.max(0.6, Math.min(2.2, eyeBase + (e.deltaY < 0 ? 1 : -1) * 0.1));
@@ -2967,12 +2966,44 @@
     // (drawn on a 128x256 canvas), animals/walkers use the square emoji canvas, sized to life.
     var FIG_HEIGHTS = { man: 1.75, woman: 1.75, 'man-walking': 1.7, 'woman-walking': 1.7, stick: 1.75, dog: 0.7, mouse: 0.2, chicken: 0.5 };
     var FIG_ASPECT = { man: 0.5, woman: 0.5, stick: 0.5, 'man-walking': 1, 'woman-walking': 1, dog: 1, mouse: 1, chicken: 1 };
-    function updateFigurePointer() { var ov = document.getElementById('figurePointer'); if (ov) ov.src = personCanvas(FIG_KINDS[figIdx]).toDataURL(); }
+    var FIG_LABELS = { man: 'Man', woman: 'Woman', 'man-walking': 'Man walking', 'woman-walking': 'Woman walking', stick: 'Stick figure', dog: 'Dog', mouse: 'Mouse', chicken: 'Chicken' };
+    function updateFigurePointer() {
+      var ov = document.getElementById('figurePointer'); if (ov) ov.src = personCanvas(FIG_KINDS[figIdx]).toDataURL();
+      highlightFigurePicker();
+    }
+    // #1186 click-to-pick icon row: one button per figure (thumbnail = the actual pointer art).
+    function buildFigurePicker() {
+      var box = document.getElementById('figurePicker'); if (!box || box.childElementCount) { return; }
+      box.style.display = 'flex';   // it's toggled by setFigureMode; flex keeps the row layout
+      box.style.display = 'none';
+      FIG_KINDS.forEach(function (kind, i) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.title = FIG_LABELS[kind] || kind;
+        btn.setAttribute('data-fig', String(i));
+        btn.style.cssText = 'width:38px;height:38px;padding:2px;border-radius:6px;border:2px solid transparent;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;';
+        var img = document.createElement('img');
+        img.src = personCanvas(kind).toDataURL();
+        img.alt = FIG_LABELS[kind] || kind;
+        img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
+        btn.appendChild(img);
+        btn.addEventListener('click', function (e) { e.stopPropagation(); figIdx = i; updateFigurePointer(); });
+        box.appendChild(btn);
+      });
+    }
+    function highlightFigurePicker() {
+      var box = document.getElementById('figurePicker'); if (!box) { return; }
+      Array.prototype.forEach.call(box.children, function (b) {
+        b.style.borderColor = (String(figIdx) === b.getAttribute('data-fig')) ? '#ffc107' : 'transparent';
+      });
+    }
     function setFigureMode(on) {
       window.__figureMode = on;
+      buildFigurePicker();
       var b = document.getElementById('wtFigureBtn'); if (b) { b.classList.toggle('btn-warning', on); b.classList.toggle('btn-dark', !on); }
       var ov = document.getElementById('figurePointer'); if (ov) ov.style.display = on ? 'block' : 'none';
       var hint = document.getElementById('figureHint'); if (hint) hint.style.display = on ? 'block' : 'none';
+      var pick = document.getElementById('figurePicker'); if (pick) pick.style.display = on ? 'flex' : 'none';
       var ch = document.getElementById('roomCrosshair'); if (ch && on) ch.style.display = 'none';
       if (on) updateFigurePointer();
     }
