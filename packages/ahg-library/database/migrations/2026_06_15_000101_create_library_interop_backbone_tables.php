@@ -136,7 +136,7 @@ return new class extends Migration
                 last_error TEXT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                UNIQUE KEY uk_feed_url (feed_url),
+                UNIQUE KEY uk_feed_url (feed_url(255)),   -- prefix length: feed_url is VARCHAR(1000); a full utf8mb4 index (4000 bytes) exceeds InnoDB's 3072-byte key limit
                 INDEX idx_active (active)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         SQL);
