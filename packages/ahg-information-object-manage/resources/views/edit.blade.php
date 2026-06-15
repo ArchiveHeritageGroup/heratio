@@ -95,7 +95,7 @@
               <label for="identifier" class="form-label">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="input-group">
                 <input type="text" class="form-control" id="identifier" name="identifier"
-                       autocomplete="off"
+                       autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
                        value="{{ old('identifier', $io->identifier) }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier"
                         data-generate-identifier-url="{{ url('/informationobject/generateIdentifier') }}">
