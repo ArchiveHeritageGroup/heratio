@@ -73,6 +73,8 @@ if virsh dominfo "$VM_NAME" >/dev/null 2>&1; then
 fi
 
 [[ -n "$ADMIN_PASSWORD" ]] || ADMIN_PASSWORD="$(head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 16)"
+# Console password for ahgadmin (SSH stays key-only; this is for `virsh console` debugging).
+VM_PASSWORD="$(head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 16)"
 
 IMG_DIR=/var/lib/libvirt/images
 CACHE_DIR=/var/lib/libvirt/cache
@@ -113,12 +115,19 @@ packages:
   - ca-certificates
   - curl
   - git
+  - qemu-guest-agent
+chpasswd:
+  expire: false
+  list: |
+    ahgadmin:$VM_PASSWORD
 runcmd:
-  # Elasticsearch needs a higher map count; set it before the install runs.
+  # qemu-guest-agent lets the host read the bridged guest's IP (virsh --source agent).
+  - systemctl enable --now qemu-guest-agent || true
+  # Elasticsearch needs a higher map count (for when you run the install).
   - sysctl -w vm.max_map_count=262144
   - echo "vm.max_map_count=262144" >> /etc/sysctl.conf
   - touch /var/log/heratio-vm-ready
-final_message: "base ready; host will SSH in to install Heratio"
+final_message: "VM base ready - SSH/console in and run the install yourself"
 EOF
 
 cat > "$SEED_DIR/meta-data" <<EOF
@@ -126,13 +135,25 @@ instance-id: $VM_NAME
 local-hostname: $VM_NAME
 EOF
 
-genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock \
-            "$SEED_DIR/user-data" "$SEED_DIR/meta-data" >/dev/null 2>&1
+# Build the cloud-init seed ISO with whatever tool is present (this host has
+# xorriso, not genisoimage). Errors are NOT swallowed so a failure is visible.
+if command -v genisoimage >/dev/null 2>&1; then
+    genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
+elif command -v xorriso >/dev/null 2>&1; then
+    xorriso -as genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
+elif command -v cloud-localds >/dev/null 2>&1; then
+    cloud-localds "$SEED_ISO" "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
+else
+    echo "need genisoimage, xorriso, or cloud-localds to build the cloud-init seed ISO" >&2; exit 1
+fi
 
 # ── 3. disk + virt-install ───────────────────────────────────────────────────
 echo "==> creating $VM_DISK_GB GB disk for $VM_NAME"
 cp --reflink=auto "$CLOUD_IMG" "$DISK"
-qemu-img resize "$DISK" "${VM_DISK_GB}G"
+# Use libvirt's qemu-img explicitly - a bare 'qemu-img' on this host resolves to
+# the android-sdk build first on PATH, which is not the qcow2 tool we want.
+QEMU_IMG=/usr/bin/qemu-img; [[ -x "$QEMU_IMG" ]] || QEMU_IMG=$(command -v qemu-img)
+"$QEMU_IMG" resize "$DISK" "${VM_DISK_GB}G"
 
 echo "==> virt-install $VM_NAME ($VM_CPUS vCPU, $VM_RAM_MB MB, $VM_DISK_GB GB) on $NET_BRIDGE"
 virt-install \
@@ -148,47 +169,37 @@ virt-install \
     --import \
     --noautoconsole
 
-# ── 4. wait for the guest IP + cloud-init ────────────────────────────────────
-echo "==> waiting for DHCP lease"
+# ── 4. wait for the guest IP (bridged → use the guest agent, then ARP) ───────
+echo "==> waiting for guest IP via qemu-guest-agent (allow a few min for first boot + agent install)"
 IP=""
-for i in {1..60}; do
-    IP=$(virsh domifaddr "$VM_NAME" 2>/dev/null | awk '/ipv4/{split($4,a,"/"); print a[1]; exit}')
+for i in {1..120}; do
+    IP=$(virsh domifaddr "$VM_NAME" --source agent 2>/dev/null | awk '/ipv4/{split($4,a,"/"); print a[1]; exit}')
+    [[ -z "$IP" ]] && IP=$(virsh domifaddr "$VM_NAME" --source arp 2>/dev/null | awk '/ipv4/{split($4,a,"/"); print a[1]; exit}')
+    [[ "$IP" == 127.* || "$IP" == 169.254.* ]] && IP=""
     [[ -n "$IP" ]] && break
-    sleep 2
-done
-[[ -n "$IP" ]] || { echo "no IP after 2 min - check 'virsh console $VM_NAME'" >&2; exit 1; }
-echo "==> guest IP: $IP"
-
-echo "==> waiting for cloud-init base"
-for i in {1..90}; do
-    if ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
-           ahgadmin@"$IP" 'test -f /var/log/heratio-vm-ready' 2>/dev/null; then break; fi
     sleep 5
 done
-
-# ── 5. install Heratio INSIDE the guest (clone + host-tools + bin/install) ───
-#       Every command below runs on the GUEST via SSH - never on this host.
-DOMAIN="${APP_DOMAIN:-$IP}"
-echo "==> [guest $IP] cloning $REPO_URL ($BRANCH) and running the full install"
-ssh -o StrictHostKeyChecking=accept-new ahgadmin@"$IP" "bash -se" <<REMOTE
-set -euo pipefail
-sudo mkdir -p /usr/share/nginx
-if [ ! -d /usr/share/nginx/heratio/.git ]; then
-  sudo git clone --branch "$BRANCH" "$REPO_URL" /usr/share/nginx/heratio
+if [[ -z "$IP" ]]; then
+    echo "no IP after ~10 min." >&2
+    echo "Debug from the console: sudo virsh console $VM_NAME  (login: ahgadmin / $VM_PASSWORD ; Ctrl-] to detach)" >&2
+    exit 1
 fi
-cd /usr/share/nginx/heratio
-sudo bash bin/install-host-tools.sh
-sudo bash bin/install --non-interactive --domain="$DOMAIN" --admin-email="$ADMIN_EMAIL" --admin-password='$ADMIN_PASSWORD'
-REMOTE
 
+# ── 5. STOP here - the VM is up and reachable; you run the pull + install ────
+DOMAIN="${APP_DOMAIN:-$IP}"
 echo
 echo "==================================================================="
-echo "Heratio installed in a fresh VM (GitHub pull + full bin/install)"
-echo "  Host:    .112 (untouched - install ran inside the guest only)"
+echo "Fresh Heratio VM is UP and reachable - install is yours to run."
+echo "  Host:    .112 (untouched)"
 echo "  VM name: $VM_NAME"
 echo "  IP:      $IP"
-echo "  Web:     http://$DOMAIN/"
-echo "  SSH:     ssh ahgadmin@$IP"
-echo "  Admin:   $ADMIN_EMAIL  /  $ADMIN_PASSWORD"
-echo "  Console: virsh console $VM_NAME   (Ctrl-] to detach)"
+echo "  SSH:     ssh ahgadmin@$IP                  (your key)"
+echo "  Console: sudo virsh console $VM_NAME       (login ahgadmin / $VM_PASSWORD ; Ctrl-] detaches)"
+echo
+echo "  Pull + full install - run these INSIDE the VM:"
+echo "    ssh ahgadmin@$IP"
+echo "    sudo git clone --branch $BRANCH $REPO_URL /usr/share/nginx/heratio"
+echo "    cd /usr/share/nginx/heratio"
+echo "    sudo bash bin/install-host-tools.sh"
+echo "    sudo bash bin/install --domain=$DOMAIN --admin-email=$ADMIN_EMAIL"
 echo "==================================================================="

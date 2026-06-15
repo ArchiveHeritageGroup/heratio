@@ -138,7 +138,7 @@ Heratio supports three install scenarios.
 | Scenario | When to use | Entry point |
 | --- | --- | --- |
 | **1. Overlay** onto an existing AtoM database | You already run AtoM and want to add Heratio without losing your catalogue, or you're cutting a customer over from AtoM | `./bin/install-overlay` |
-| **2. Standalone** clean install | No AtoM. New deployment from scratch | `./bin/install` *(in development - see [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md))* |
+| **2. Standalone** clean install | No AtoM. New deployment from scratch | `./bin/install` - full guide: [`docs/standalone-install-howto.md`](docs/standalone-install-howto.md) |
 | **3. Docker** test stack | You want to try Heratio without touching the host - laptop demo, CI, throwaway evaluations, libvirt VMs | `docker compose -f docker/docker-compose.yml up -d --build` |
 
 Scenarios 1 and 2 share the same Laravel-side bootstrap (composer install, `.env`, `key:generate`, ServiceProvider auto-seed). The two scenarios differ only in how the database is brought to life. Scenario 3 wraps Scenario 2's pipeline inside a containerised stack - same code, no host setup.
@@ -172,9 +172,9 @@ Full guide: [`docs/overlay-install-howto.md`](docs/overlay-install-howto.md)
 
 ### Scenario 2 - Standalone clean install
 
-For a fresh deployment with no AtoM. Status: planning document committed; entry point `bin/install` under development. The plan ports AtoM's core schema + 81 AHG plugin install.sqls + 6 YAML fixtures into Heratio's own `database/core/`, `packages/*/database/`, and `database/seeds/` so a fresh box becomes a working Heratio in one command.
+For a fresh deployment with no AtoM. `bin/install` is a 14-stage idempotent installer: preflight → composer → npm build → `.env` + `key:generate` → create DB → core schema (`database/core/`) → plugin schema (`heratio:install-bootstrap`) → seeds (`database/seeds/`) → admin user → storage paths → Elasticsearch reindex → nginx config → smoke test. `bin/install-host-tools.sh` installs the OS prerequisites (PHP 8.3, MySQL 8, nginx, Redis, Node, Elasticsearch) first.
 
-See [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md) for the full work plan.
+Full step-by-step guide: [`docs/standalone-install-howto.md`](docs/standalone-install-howto.md). (The original design doc is [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md).)
 
 ### Scenario 3 - Docker test stack
 

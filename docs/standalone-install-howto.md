@@ -41,6 +41,8 @@ Both methods run the same `bin/install` and produce identical results.
 
 ## 3. Pre-install checklist
 
+> **Shortcut:** after cloning the repo (Section 4) you can run `sudo bin/install-host-tools.sh` to install all of these prerequisites automatically (PHP 8.3, MySQL 8, nginx, Redis, Node, Elasticsearch). The manual steps below are the reference / alternative for non-Debian hosts.
+
 ```bash
 # 1. install OS dependencies (Ubuntu/Debian - adapt for RHEL/Arch)
 sudo apt-get update
@@ -79,8 +81,8 @@ sudo mysql_secure_installation
 sudo git clone https://github.com/ArchiveHeritageGroup/heratio.git /usr/share/nginx/heratio
 cd /usr/share/nginx/heratio
 
-# pin to a specific release (recommended for production)
-sudo git checkout v1.36.0    # or whatever the latest tag is
+# pin to the latest release tag (recommended for production)
+sudo git fetch --tags && sudo git checkout "$(git describe --tags --abbrev=0)"
 
 # run the installer
 sudo bin/install --domain=mysite.example --admin-email=admin@mysite.example
@@ -219,7 +221,7 @@ Heratio reads these via `config/heratio.php` (`model_tools_bin`, `fbx2gltf_bin`,
 
 ---
 
-## 8. Optional - AI services
+## 9. Optional - AI services
 
 > Heratio is an **AI client**, not an AI host. Set up your own Ollama / vLLM / OpenAI-compatible endpoint on a separate GPU box (or use a managed service), then point Heratio at it.
 
@@ -238,7 +240,7 @@ See `docs/ai-host-setup.md` for AI host installation guidance (operator's respon
 
 ---
 
-## 9. Optional - OpenRiC (separate product)
+## 10. Optional - OpenRiC (separate product)
 
 If you want a public RiC-O SPARQL endpoint (e.g. `ric.mysite.example`):
 
@@ -259,12 +261,12 @@ OpenRiC has its own database (`openric`), its own web service, and its own insta
 
 ---
 
-## 10. Updating
+## 11. Updating
 
 ```bash
 cd /usr/share/nginx/heratio
 sudo git fetch --tags
-sudo git checkout v1.37.0          # or whatever new release
+sudo git checkout "$(git describe --tags --abbrev=0)"   # latest release tag
 sudo bin/install                    # idempotent - re-runs migrations + reload
 ```
 
@@ -280,7 +282,7 @@ sudo bin/install                    # idempotent - re-runs migrations + reload
 
 ---
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 ### Install aborts at preflight
 
@@ -334,7 +336,7 @@ sudo bin/install --domain=mysite.example --admin-email=...
 
 ---
 
-## 12. What's next
+## 13. What's next
 
 - Browse `/admin/dropdowns` to customise enumerated values per institution.
 - `/admin/repository/add` to create your first repository.

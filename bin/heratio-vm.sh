@@ -127,13 +127,25 @@ instance-id: $VM_NAME
 local-hostname: $VM_NAME
 EOF
 
-genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock \
-            "$SEED_DIR/user-data" "$SEED_DIR/meta-data" >/dev/null 2>&1
+# Build the cloud-init seed ISO with whatever tool is present (some hosts have
+# xorriso, not genisoimage). Errors are NOT swallowed so a failure is visible.
+if command -v genisoimage >/dev/null 2>&1; then
+    genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
+elif command -v xorriso >/dev/null 2>&1; then
+    xorriso -as genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
+elif command -v cloud-localds >/dev/null 2>&1; then
+    cloud-localds "$SEED_ISO" "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
+else
+    echo "need genisoimage, xorriso, or cloud-localds to build the cloud-init seed ISO" >&2; exit 1
+fi
 
 # ── 4. clone the cloud image into the VM disk and resize ─────────────────────
 echo "==> creating $VM_DISK_GB GB disk"
 cp --reflink=auto "$CLOUD_IMG" "$DISK"
-qemu-img resize "$DISK" "${VM_DISK_GB}G"
+# Use libvirt's qemu-img explicitly - a bare 'qemu-img' may resolve to another
+# build first on PATH (e.g. android-sdk), which is not the qcow2 tool we want.
+QEMU_IMG=/usr/bin/qemu-img; [[ -x "$QEMU_IMG" ]] || QEMU_IMG=$(command -v qemu-img)
+"$QEMU_IMG" resize "$DISK" "${VM_DISK_GB}G"
 
 # ── 5. virt-install (no graphics, serial console for `virsh console`) ────────
 echo "==> creating VM $VM_NAME ($VM_CPUS vCPU, $VM_RAM_MB MB RAM, $VM_DISK_GB GB disk)"
