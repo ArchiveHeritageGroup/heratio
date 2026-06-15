@@ -26,6 +26,62 @@ use Illuminate\Support\Facades\Mail;
 class PrivacyService
 {
     // =====================================================================
+    //  Breach taxonomies (ported from PSIS PrivacyBreachService)
+    // =====================================================================
+
+    public static function getBreachTypes(): array
+    {
+        return [
+            'confidentiality' => 'Confidentiality Breach (unauthorized disclosure)',
+            'integrity' => 'Integrity Breach (unauthorized alteration)',
+            'availability' => 'Availability Breach (loss or destruction)',
+        ];
+    }
+
+    public static function getSeverityLevels(): array
+    {
+        return [
+            'low' => 'Low - Minor impact, easily contained',
+            'medium' => 'Medium - Moderate impact, limited exposure',
+            'high' => 'High - Significant risk, many affected',
+            'critical' => 'Critical - Severe harm likely',
+        ];
+    }
+
+    public static function getBreachStatuses(): array
+    {
+        return [
+            'detected' => 'Detected',
+            'investigating' => 'Investigating',
+            'contained' => 'Contained',
+            'resolved' => 'Resolved',
+            'closed' => 'Closed',
+        ];
+    }
+
+    public static function getRiskLevels(): array
+    {
+        return [
+            '' => '-- Select --',
+            'unlikely' => 'Unlikely - No significant risk',
+            'possible' => 'Possible - Some risk exists',
+            'likely' => 'Likely - Risk is probable',
+            'high' => 'High - Risk is certain or severe',
+        ];
+    }
+
+    /** Bootstrap badge colour maps for breach severity / status. */
+    public static function getSeverityClasses(): array
+    {
+        return ['low' => 'success', 'medium' => 'warning', 'high' => 'danger', 'critical' => 'dark'];
+    }
+
+    public static function getStatusClasses(): array
+    {
+        return ['detected' => 'danger', 'investigating' => 'warning', 'contained' => 'info', 'resolved' => 'success', 'closed' => 'secondary'];
+    }
+
+    // =====================================================================
     //  DSAR (Data Subject Access Requests)
     // =====================================================================
 

@@ -301,12 +301,55 @@ class PrivacyController extends Controller
 
     public function breachAdd()
     {
-        return view('privacy::breach-add');
+        $jurisdictions = $this->loadJurisdictions();
+        $defaultJurisdiction = DataProtectionSettings::defaultRegulation();
+        if (! isset($jurisdictions[$defaultJurisdiction])) {
+            $defaultJurisdiction = array_key_first($jurisdictions) ?: 'popia';
+        }
+
+        return view('privacy::breach-add', [
+            'jurisdictions' => $jurisdictions,
+            'defaultJurisdiction' => $defaultJurisdiction,
+            'breachTypes' => PrivacyService::getBreachTypes(),
+            'severityLevels' => PrivacyService::getSeverityLevels(),
+        ]);
     }
 
-    public function breachEdit()
+    public function breachEdit(Request $request)
     {
-        return view('privacy::breach-edit');
+        $breach = null;
+        $id = $request->input('id');
+        if ($id && Schema::hasTable('privacy_breach')) {
+            $breach = DB::table('privacy_breach')->where('id', $id)->first();
+        }
+        if (! $breach) {
+            return redirect()->route('ahgprivacy.breach-list')
+                ->with('error', __('Breach not found.'));
+        }
+
+        $breachI18n = null;
+        if (Schema::hasTable('privacy_breach_i18n')) {
+            $breachI18n = DB::table('privacy_breach_i18n')
+                ->where('id', $breach->id)
+                ->where('culture', app()->getLocale())
+                ->first();
+        }
+
+        $users = Schema::hasTable('user')
+            ? DB::table('user')->select('id', 'username', 'email')->orderBy('username')->get()
+            : collect();
+
+        return view('privacy::breach-edit', [
+            'breach' => $breach,
+            'breachI18n' => $breachI18n,
+            'breachTypes' => PrivacyService::getBreachTypes(),
+            'severityLevels' => PrivacyService::getSeverityLevels(),
+            'statusOptions' => PrivacyService::getBreachStatuses(),
+            'riskLevels' => PrivacyService::getRiskLevels(),
+            'jurisdictions' => $this->loadJurisdictions(),
+            'users' => $users,
+            'user' => Auth::user(),
+        ]);
     }
 
     public function breachList()
@@ -322,9 +365,27 @@ class PrivacyController extends Controller
         return view('privacy::breach-list', compact('breaches'));
     }
 
-    public function breachView()
+    public function breachView(Request $request)
     {
-        return view('privacy::breach-view');
+        $breach = null;
+        $id = $request->input('id');
+        if ($id && Schema::hasTable('privacy_breach')) {
+            $breach = DB::table('privacy_breach')->where('id', $id)->first();
+        }
+        if (! $breach) {
+            return redirect()->route('ahgprivacy.breach-list')
+                ->with('error', __('Breach not found.'));
+        }
+
+        $jurisdictions = $this->loadJurisdictions();
+
+        return view('privacy::breach-view', [
+            'breach' => $breach,
+            'jurisdictionInfo' => $jurisdictions[$breach->jurisdiction] ?? null,
+            'severityLevels' => PrivacyService::getSeverityLevels(),
+            'severityClasses' => PrivacyService::getSeverityClasses(),
+            'statusClasses' => PrivacyService::getStatusClasses(),
+        ]);
     }
 
     public function complaintAdd()
