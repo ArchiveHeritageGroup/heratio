@@ -69,7 +69,7 @@
                 Identifier
                 <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <div class="input-group">
-                <input type="text" class="form-control" id="identifier" name="identifier" autocomplete="off" value="{{ old('identifier') }}">
+                <input type="text" class="form-control" id="identifier" name="identifier" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" value="{{ old('identifier') }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier"
                         data-generate-identifier-url="{{ url('/informationobject/generateIdentifier') }}">
                   <i class="fas fa-cog me-1" aria-hidden="true"></i>{{ __('Generate') }}

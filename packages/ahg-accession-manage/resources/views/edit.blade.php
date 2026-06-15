@@ -36,7 +36,7 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label for="identifier" class="form-label">Accession number <span class="form-required text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-              <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror" autocomplete="off"
+              <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
                      value="{{ old('identifier', $accession->identifier ?? ($defaultIdentifier ?? '')) }}">
               @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Accession number should be a combination of values recorded in the field and should be a unique accession number for the repository"><i class="fas fa-question-circle"></i></button>

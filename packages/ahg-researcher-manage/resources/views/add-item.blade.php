@@ -73,7 +73,7 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                <input type="text" name="identifier" class="form-control" value="@php echo htmlspecialchars($item->identifier ?? '') @endphp" placeholder="{{ __('e.g., MS-2024-001') }}">
+                <input type="text" name="identifier" class="form-control" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" value="@php echo htmlspecialchars($item->identifier ?? '') @endphp" placeholder="{{ __('e.g., MS-2024-001') }}">
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">Level of Description <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
