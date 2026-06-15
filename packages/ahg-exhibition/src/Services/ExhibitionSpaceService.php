@@ -3650,7 +3650,7 @@ class ExhibitionSpaceService
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
                 'ep.rotation_deg', 'ep.scale', 'ep.size_units_used', 'ep.wall_or_zone',
                 'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case', 'ep.on_floor',
-                'ep.view_x', 'ep.view_y', 'ep.notes',
+                'ep.view_x', 'ep.view_y', 'ep.notes', 'ep.remote_peer_id', 'ep.remote_ref', 'ep.remote_payload',
                 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
             )
             ->get();
@@ -3693,6 +3693,32 @@ class ExhibitionSpaceService
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
                 'record_url' => $r->slug ? '/'.$r->slug : null,
             ];
+            // #1155 federated twin: a placement with no local IO but a remote_payload is a
+            // borrowed peer object - render it read-only from the payload (peer media URLs,
+            // "Courtesy of <institution>" caption, link-back to the owner). No local lookup.
+            if (empty($r->information_object_id) && ! empty($r->remote_payload)) {
+                $rp = json_decode((string) $r->remote_payload, true);
+                if (is_array($rp)) {
+                    $stop['information_object_id'] = 0;
+                    $stop['title'] = trim((string) ($rp['title'] ?? '')) ?: 'Untitled';
+                    $rdesc = trim(strip_tags((string) ($rp['description'] ?? '')));
+                    $stop['description'] = mb_strlen($rdesc) > 400 ? mb_substr($rdesc, 0, 400).'...' : $rdesc;
+                    $stop['kind'] = (string) ($rp['kind'] ?? 'image');
+                    $stop['model_url'] = $rp['model_url'] ?? null;
+                    $stop['model_oversize'] = false;
+                    $stop['model_format'] = (string) ($rp['model_format'] ?? '');
+                    $stop['image_url'] = $rp['image_url'] ?? null;
+                    $stop['thumb_url'] = $rp['image_url'] ?? null;
+                    $stop['record_url'] = $rp['record_url'] ?? null;   // links back to the owning institution's record
+                    $stop['splat_url'] = null;
+                    $stop['doc_url'] = null;
+                    $stop['remote'] = true;                            // read-only marker for the viewer (no download / reproduce)
+                    $stop['remote_peer'] = trim((string) ($rp['peer_name'] ?? ''));
+                    if ($stop['remote_peer'] !== '') {
+                        $stop['caption'] = 'Courtesy of '.$stop['remote_peer'];
+                    }
+                }
+            }
             $byId[$stop['id']] = $stop;
             $stops[] = $stop;
         }

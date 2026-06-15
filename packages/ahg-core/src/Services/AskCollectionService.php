@@ -145,6 +145,17 @@ class AskCollectionService
                 return $this->notGrounded();
             }
 
+            // heratio#1274: defence in depth - the public, anonymous surface must NEVER expose
+            // internal/technical KB content (raw SQL, schema, code fences, operator docs) that can
+            // leak into a RAG answer. If the answer looks technical, suppress it and degrade to the
+            // curated "we don't know" rather than show it. (The primary fix is KM-side web-role
+            // source filtering; this is the belt-and-braces in-repo guard.)
+            if ($this->looksTechnical($answer)) {
+                Log::info('[ahg-core] ask-collection: suppressed a technical/internal answer on the public surface (#1274)');
+
+                return $this->notGrounded();
+            }
+
             $sources = $this->normaliseSources($resp->json('sources'));
 
             // If KM honestly reports a corpus gap, pass it through as the answer but
@@ -250,6 +261,32 @@ class AskCollectionService
         $head = mb_strtolower(mb_substr($answer, 0, 200));
         foreach (self::GAP_MARKERS as $marker) {
             if (mb_strpos($head, $marker) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * heratio#1274: does this answer contain internal/technical content that must never reach
+     * a public, anonymous visitor (raw SQL, schema/table names, code fences, operator markers)?
+     * These patterns are unambiguous on a museum "ask the collection" surface, so a match means
+     * the RAG answer leaked technical KB and should be suppressed (degrade to "we don't know").
+     */
+    private function looksTechnical(string $answer): bool
+    {
+        $patterns = [
+            '/```/',                                                   // any code fence
+            '/\bSELECT\b[\s\S]{0,200}\bFROM\b/i',                      // a SQL SELECT ... FROM
+            '/\b(INSERT\s+INTO|DELETE\s+FROM|UPDATE\s+\S+\s+SET|DROP\s+TABLE|ALTER\s+TABLE|CREATE\s+TABLE|TRUNCATE\s+TABLE)\b/i',
+            '/\bFROM\s+\S+\s+WHERE\b/i',                               // SQL from/where
+            '/\bWHERE\s+[\w.`]+\s*=/i',                                // SQL where clause
+            '/\b(information_object|term_i18n|digital_object|acl_user_group|qubit_\w+)\b/i',   // internal AtoM/Heratio table/column names
+            '/(php artisan|->where\(|::class\b|composer require|\/usr\/share\/nginx|\/opt\/ahg)/i',   // code / operator markers
+        ];
+        foreach ($patterns as $p) {
+            if (preg_match($p, $answer)) {
                 return true;
             }
         }

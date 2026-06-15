@@ -49,11 +49,25 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'on_floor' => 'TINYINT(1) NULL DEFAULT 0',   // stand the 3D model directly on the floor (no pedestal)
                     'view_x' => 'DECIMAL(6,5) NULL',   // curator-set viewing spot (room-local fraction) the tour/walk stands at
                     'view_y' => 'DECIMAL(6,5) NULL',
+                    // heratio#1155 federated twin foundation: a placement may reference a REMOTE
+                    // object borrowed from a peer institution's scene.json export instead of a
+                    // local information_object_id. Read-only; attribution + media URLs live in
+                    // remote_payload. No FK (the object is owned by the peer).
+                    'remote_peer_id' => 'INT NULL',                 // federation_peer.id the object came from (nullable: ad-hoc by URL)
+                    'remote_ref' => 'VARCHAR(255) NULL',            // the peer's object reference (e.g. its information_object_id)
+                    'remote_payload' => 'JSON NULL',                // normalised stop: {title,description,image_url,model_url,model_format,kind,record_url,peer_name}
                 ];
                 foreach ($placementCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_placement', $col)) {
                         DB::statement("ALTER TABLE ahg_exhibition_placement ADD COLUMN {$col} {$ddl}");
                     }
+                }
+                // #1155: a borrowed remote object has NO local IO, so relax the historically
+                // NOT NULL information_object_id to allow NULL (once; idempotent). The FK still
+                // permits NULL, so local placements are unaffected.
+                $ioCol = DB::selectOne("SELECT IS_NULLABLE FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'ahg_exhibition_placement' AND column_name = 'information_object_id'");
+                if ($ioCol && strtoupper((string) $ioCol->IS_NULLABLE) === 'NO') {
+                    DB::statement('ALTER TABLE ahg_exhibition_placement MODIFY information_object_id INT NULL');
                 }
             }
 
