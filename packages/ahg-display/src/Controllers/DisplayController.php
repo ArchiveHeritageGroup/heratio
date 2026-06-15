@@ -527,10 +527,18 @@ class DisplayController extends Controller
                     ->select('path', 'name')
                     ->first();
 
-                if ($thumb && $thumb->path && $thumb->name) {
+                // Only use a derivative as a browse thumbnail when it is actually an IMAGE.
+                // Audio/video/PDF masters often have no image derivative, so usage 142/141
+                // can resolve to the media file itself (e.g. an .mp3); rendering that as an
+                // <img> shows a blank/broken cell. Leaving the thumbnail null lets the card
+                // fall back to the type icon. (A jpg/png poster frame still passes through.)
+                $isImageName = static fn (?string $name): bool => is_string($name)
+                    && (bool) preg_match('/\.(jpe?g|png|gif|webp|avif|svg|tiff?|bmp)$/i', $name);
+
+                if ($thumb && $thumb->path && $thumb->name && $isImageName($thumb->name)) {
                     $obj->thumbnail = rtrim($thumb->path, '/') . '/' . $thumb->name;
                 }
-                if ($ref && $ref->path && $ref->name) {
+                if ($ref && $ref->path && $ref->name && $isImageName($ref->name)) {
                     $obj->reference = rtrim($ref->path, '/') . '/' . $ref->name;
                 }
                 // If no separate thumbnail, fall back to reference for the small slot too
