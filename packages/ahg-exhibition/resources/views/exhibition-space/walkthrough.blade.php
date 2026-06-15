@@ -261,6 +261,10 @@
     ROOMS.forEach(function (rm) { (rm.stops || []).forEach(function (s) { s._room = rm; STOPS.push(s); }); });
     // Corridor objects: free-standing, positioned as a fraction of the building bbox.
     var CORRIDOR = (BUILDING && BUILDING.corridor) ? BUILDING.corridor : [];
+    // #1217/#1276 building-scale: a big "lazy" building streams rooms (shells + objects built
+    // on approach, disposed on leave); a small building builds everything up-front, unchanged.
+    var LAZY = !!(typeof BUILDING !== 'undefined' && BUILDING && BUILDING.lazy);
+    var _disposedRooms = {};   // #1276 room ids disposed on leave - addToRoom + late async loads skip them until the room is rebuilt
     // Stack index: objects sharing a wall + (near) the same point cascade as layers (#1140).
     // Wall-hung objects are keyed by their along-wall u + height v (the actual spot); free/auto
     // objects by their floor position. Same bucket => they layer instead of z-fighting.
@@ -467,10 +471,11 @@
       g.rotation.y = -((rm.rot || 0) * Math.PI / 180);
       scene.add(g);
       var cen = roomWorld(rm, rm.x_offset + rm.w / 2, rm.z_offset + rm.d / 2);   // world centre, for distance culling
-      return (roomGroups[k] = { g: g, cx: cx, cz: cz, cwx: cen.x, cwz: cen.z });
+      return (roomGroups[k] = { g: g, cx: cx, cz: cz, cwx: cen.x, cwz: cen.z, rm: rm, colliders: [], shellBuilt: false });   // #1276 rm + per-room colliders + shell-built flag
     }
     function addToRoom(rm, mesh) {
       if (!rm) { scene.add(mesh); return; }
+      if (LAZY && _disposedRooms[rm.id]) { return; }   // #1276 drop late async meshes for a room disposed on leave (it rebuilds on return)
       var rg = roomGroup(rm);
       mesh.position.x -= rg.cx; mesh.position.z -= rg.cz;
       rg.g.add(mesh);
@@ -521,6 +526,12 @@
     var doorMat = new THREE.MeshStandardMaterial({ color: 0x7c6a58, roughness: 0.9, side: THREE.DoubleSide });   // solid door panel (not see-through)
     var glassMat = new THREE.MeshStandardMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.1, side: THREE.DoubleSide });   // #1172 window pane
     var colliders = [];   // wall meshes the visitor cannot walk through (doorways/glass excluded)
+    var SHARED_MATS = [];   // #1276 module-level singleton materials - NEVER disposed on room-leave (shared across rooms)
+    // #1276: register a collider both globally and on its room, so dispose-on-leave can splice it back out.
+    function _collide(m, rm) {
+      colliders.push(m);
+      if (LAZY) { var r = rm || _curRoom; if (r && roomGroups[r.id]) { roomGroups[r.id].colliders.push(m); } }
+    }
     var stairRamps = [];  // walkable sloped corridors: {ax,az,bx,bz,ya,yb,ux,uz,len,half}
     // #1171 door leaves on a polygon-edge opening (single/double/glass/sliding/ornate). Built in a
     // group whose local X runs along the edge and local Z is the wall normal; leaves swing about Y
@@ -569,6 +580,7 @@
     var ceilMat = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, emissive: 0x55514b, emissiveIntensity: 1, roughness: 1, side: THREE.DoubleSide });   // self-lit so the down-facing plaster ceiling is always clearly visible
     var corniceMat = new THREE.MeshStandardMaterial({ color: 0xefe7d6, roughness: 0.8, side: THREE.DoubleSide });
     var corniceGoldMat = new THREE.MeshStandardMaterial({ color: 0xb89a5e, roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide });
+    SHARED_MATS = [wallMat, doorMat, glassMat, frontDoorMat, ornateDoorMat, ceilMat, corniceMat, corniceGoldMat];   // #1276 never dispose these (shared)
     function addCornice(rm, ax, az, bx, bz, topY, cenx, cenz) {
       var dx = bx - ax, dz = bz - az, len = Math.hypot(dx, dz); if (len < 0.2) return;
       var ang = Math.atan2(dz, dx), mx = (ax + bx) / 2, mz = (az + bz) / 2;
@@ -585,14 +597,14 @@
       if (len <= 0.05) return;
       var m = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), mat || wallMat);
       m.position.set(x, RH / 2, z); m.rotation.y = ry; addToRoom(_curRoom, m);
-      if (mat !== doorMat && mat !== glassMat) colliders.push(m);
+      if (mat !== doorMat && mat !== glassMat) _collide(m);
     }
     // Partial-height wall piece between heights y0..y1 (used for door lintels).
     function wallSegH(len, x, z, ry, mat, y0, y1) {
       if (len <= 0.05 || (y1 - y0) <= 0.05) return null;
       var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), mat || wallMat);
       m.position.set(x, (y0 + y1) / 2, z); m.rotation.y = ry; addToRoom(_curRoom, m);
-      if (mat !== doorMat && mat !== glassMat && y0 < 1.7) colliders.push(m);   // body-height wall pieces only
+      if (mat !== doorMat && mat !== glassMat && y0 < 1.7) _collide(m);   // body-height wall pieces only
       return m;
     }
     // #1176 step 1: auto-doorways for a polygon EDGE, mirroring doorsOnWall's auto rule so a room
@@ -630,7 +642,7 @@
       var auto = [];   // manual-only doors: a door appears ONLY where the curator placed one (no auto-doorways)
       var raw = manual.concat(auto).filter(function (d) { return d.e - d.s > 0.15; }).sort(function (p, q) { return p.s - q.s; });
       var doors = []; raw.forEach(function (d) { var last = doors[doors.length - 1]; if (last && d.s <= last.e + 0.01) { last.e = Math.max(last.e, d.e); if (d.type !== 'open') last.type = d.type; } else doors.push({ s: d.s, e: d.e, type: d.type }); });
-      function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return null; var um = m2 || mat || wallMat, mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), um); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); if (um !== doorMat && um !== glassMat && y0 < 1.7) colliders.push(m); return m; }
+      function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return null; var um = m2 || mat || wallMat, mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), um); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); if (um !== doorMat && um !== glassMat && y0 < 1.7) _collide(m, rm); return m; }
       // #1172 windows on this polygon edge: punch glass openings into full segments.
       var winsE = (rm.windows || []).filter(function (w) { return typeof w.edge === 'number' && w.edge === eIdx; });
       function fullEdge(s, e) {
@@ -969,7 +981,14 @@
     }
     function addHoles(shape, holes) { holes.forEach(function (hp) { var path = new THREE.Path(); path.moveTo(hp.x0, hp.z0); path.lineTo(hp.x1, hp.z0); path.lineTo(hp.x1, hp.z1); path.lineTo(hp.x0, hp.z1); path.closePath(); shape.holes.push(path); }); return shape; }
     function shapeWithHoles(outline, holes) { var s = new THREE.Shape(); outline.forEach(function (p, i) { if (i === 0) s.moveTo(p[0], p[1]); else s.lineTo(p[0], p[1]); }); s.closePath(); return new THREE.ShapeGeometry(addHoles(s, holes)); }
-    ROOMS.forEach(function (rm, i) {
+    // #1276: build one room's shell (walls/floor/ceiling/furniture/doors). Wrapped from a
+    // forEach so a lazy building can build it on approach and dispose it on leave; a non-lazy
+    // building builds every room once up-front (see the invocation after this function).
+    function buildRoomShell(rm, i) {
+      var _rg = roomGroup(rm);
+      if (_rg.shellBuilt) { return; }
+      _rg.shellBuilt = true;
+      delete _disposedRooms[rm.id];   // (re)building this room - re-enable addToRoom for it
       var cx = rm.x_offset + rm.w / 2, cz = rm.z_offset + rm.d / 2;
       RH = rm.h || WALL_H;   // this room's wall height (per-room, not building-wide)
       _curRoom = rm;         // wallSeg/wallSegH add into this room's (possibly rotated) group
@@ -1153,7 +1172,7 @@
         var len = Math.hypot(bx - ax, bz - az); if (len < 0.1) return;
         var ang = Math.atan2(bz - az, bx - ax);
         var m = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), wallMat);
-        m.position.set((ax + bx) / 2, RH / 2, (az + bz) / 2); m.rotation.y = -ang; addToRoom(rm, m); colliders.push(m);
+        m.position.set((ax + bx) / 2, RH / 2, (az + bz) / 2); m.rotation.y = -ang; addToRoom(rm, m); _collide(m, rm);
       });
       // Live conservation status tint (hidden until the Live button is pressed).
       (function () {
@@ -1174,7 +1193,67 @@
       mapIcon.position.set(rm.x_offset + 0.5, Math.min(RH - 0.4, 1.6), rm.z_offset + 0.06);
       mapIcon.userData.action = 'minimap';
       addToRoom(rm, mapIcon); pickables.push(mapIcon);
-    });
+    }
+
+    // #1276 build-on-approach / dispose-on-leave radii. build < dispose = hysteresis, so a
+    // room's loads finish well before it can be disposed and rooms do not thrash on the edge.
+    var SHELL_BUILD_R2 = 70 * 70, DISPOSE_R2 = 120 * 120;
+    function buildNearShells() {
+      var p = controls.object.position;
+      for (var i = 0; i < ROOMS.length; i++) {
+        var rm = ROOMS[i], rg = roomGroups[rm.id];
+        if (rg && rg.shellBuilt) { continue; }
+        var c = roomWorld(rm, rm.x_offset + rm.w / 2, rm.z_offset + rm.d / 2);
+        var dx = p.x - c.x, dz = p.z - c.z;
+        if (dx * dx + dz * dz < SHELL_BUILD_R2) { buildRoomShell(rm, i); }
+      }
+    }
+    // #1276: free a far room's GPU resources - dispose per-room geometry + non-shared
+    // materials/textures, splice its colliders, and reset its object stops so they rebuild on
+    // return. Shared singleton materials are never disposed. (In-room Gaussian splats added to
+    // the shared DropInViewer are NOT detached here - follow-up #1276; that memory persists.)
+    function disposeRoom(rm) {
+      var rg = roomGroups[rm.id];
+      if (!rg) { return; }
+      rg.g.traverse(function (o) {
+        if (o.geometry && o.geometry.dispose) { try { o.geometry.dispose(); } catch (e) {} }
+        if (o.material) {
+          var ms = Array.isArray(o.material) ? o.material : [o.material];
+          ms.forEach(function (m) {
+            if (!m || SHARED_MATS.indexOf(m) !== -1) { return; }   // never dispose shared singletons
+            ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'aoMap', 'alphaMap'].forEach(function (t) {
+              if (m[t] && m[t].dispose) { try { m[t].dispose(); } catch (e) {} }
+            });
+            try { m.dispose(); } catch (e) {}
+          });
+        }
+      });
+      scene.remove(rg.g);
+      if (rg.colliders && rg.colliders.length) {
+        for (var ci = colliders.length - 1; ci >= 0; ci--) { if (rg.colliders.indexOf(colliders[ci]) !== -1) { colliders.splice(ci, 1); } }
+      }
+      for (var si = 0; si < STOPS.length; si++) { if (STOPS[si]._room === rm) { STOPS[si]._built = false; } }
+      _disposedRooms[rm.id] = true;
+      delete roomGroups[rm.id];
+    }
+    function disposeFarRooms() {
+      var p = controls.object.position;
+      for (var k in roomGroups) {
+        var rg = roomGroups[k];
+        if (!rg.shellBuilt || !rg.rm) { continue; }
+        if (curRoom && rg.rm.id === curRoom.id) { continue; }   // never dispose the room the visitor is in
+        var dx = p.x - rg.cwx, dz = p.z - rg.cwz;
+        if (dx * dx + dz * dz > DISPOSE_R2) { disposeRoom(rg.rm); }
+      }
+    }
+    // Build the shells: a small building builds them all up-front (unchanged); a lazy building
+    // builds the spawn room + nearby rooms now and streams the rest via cullRooms.
+    if (!LAZY) {
+      ROOMS.forEach(function (rm, i) { buildRoomShell(rm, i); });
+    } else {
+      buildRoomShell(curRoom, ROOMS.indexOf(curRoom));
+      buildNearShells();
+    }
 
     // #1169 stairs: a straight flight or an L-shaped "elbow" linking two floors; click to change floor.
     (BUILDING && BUILDING.stairs ? BUILDING.stairs : []).forEach(function (st) {
@@ -2418,7 +2497,11 @@
     var CULL2 = 52 * 52;
     function cullRooms() {
       var p = controls.object.position;
-      if (LAZY_STOPS) buildNearStops();   // #1217 build each room's objects as the visitor nears it
+      if (LAZY) {
+        buildNearShells();   // #1276 build a room's shell as the visitor nears it
+        buildNearStops();    // #1217 then its objects
+        disposeFarRooms();   // #1276 free rooms beyond the dispose radius (hysteresis)
+      }
       for (var k in roomGroups) { var rg = roomGroups[k]; var dx = p.x - rg.cwx, dz = p.z - rg.cwz; rg.g.visible = (dx * dx + dz * dz) < CULL2; }
     }
 
