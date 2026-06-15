@@ -1392,6 +1392,11 @@
 
     var keys = {};
     document.addEventListener('keydown', function (e) {
+      // #1186: when the visitor is typing in a text field (e.g. the injected AI Library
+      // Assistant chat widget that sits on this page), do NOT consume the keystroke for
+      // movement or hotkeys (V/H/Z/F/N) - it was stealing typed letters and popping overlays.
+      var _t = e.target;
+      if (_t && (_t.tagName === 'INPUT' || _t.tagName === 'TEXTAREA' || _t.tagName === 'SELECT' || _t.isContentEditable)) { return; }
       keys[e.code] = true;
       if (e.code === 'Escape') closeAllPopups();
       if (e.code === 'KeyH') {
