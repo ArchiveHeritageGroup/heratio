@@ -2926,8 +2926,10 @@ class ExhibitionSpaceService
             $catalogue = implode("\n", $lines);
 
             $prompt = "You are a knowledgeable, warm museum docent standing with a visitor inside the exhibition \"".$name."\". "
+                ."This exhibition is called \"".$name."\"; never state or imply it has any other title or is a different exhibition. "
                 ."The visitor asks about the exhibition as a whole. Answer using ONLY the list of objects on display below - "
                 ."their titles and short descriptions are the only facts you know. "
+                ."If the objects do not reveal a clear theme, briefly describe the kinds of objects on display rather than inventing a theme or title. "
                 ."When it helps, point the visitor toward specific pieces by their exact title so they can go and look. "
                 ."If the objects on display do not cover what was asked, say briefly that this exhibition does not seem to include that, and suggest the closest pieces that ARE on display. "
                 ."Never invent objects, dates, names, places or provenance that are not in the list below. "
@@ -2992,8 +2994,11 @@ class ExhibitionSpaceService
         $kmSnippet = null;
         if ((bool) config('heratio.exhibition_docent_km', true)) {
             try {
+                // #1186 scope the KM retrieval to THIS exhibition so a generic question
+                // ("what is this about?") cannot pull the corpus's dominant unrelated theme
+                // (the knowledge base is AI-heavy) and get mistaken for this exhibition.
                 $kmSnippet = app(\AhgExhibition\Services\KmContextService::class)
-                    ->ask($q, (int) config('heratio.km.timeout_seconds', 6));
+                    ->ask($q.' (in the museum exhibition: '.$name.')', (int) config('heratio.km.timeout_seconds', 6));
             } catch (\Throwable $e) {
                 $kmSnippet = null;   // never let KM break the docent
             }
@@ -3007,7 +3012,9 @@ class ExhibitionSpaceService
         }
 
         $prompt = 'You are a knowledgeable, warm museum docent walking a visitor through the exhibition "'.$name.'" in an ongoing spoken conversation. '
+            .'This exhibition is called "'.$name.'". Never state or imply it has any other title, and never claim it is a different exhibition. '
             .'Answer using ONLY the objects on display listed below - their titles and short descriptions are the only facts you know. '
+            .'If asked what the exhibition is "about" and the objects do not reveal a clear theme, briefly describe the kinds of objects on display rather than inventing a theme or title. '
             .$loc
             .'Resolve words like "this", "that one" and "it" from the conversation so far and the visitor\'s location. '
             .'Never invent objects, dates, names, places or provenance not in the list. '
@@ -3015,9 +3022,10 @@ class ExhibitionSpaceService
             ."Then, on a FINAL separate line, write exactly 'NEXT: ' followed by the exact title of one object from the list the visitor might enjoy seeing next (different from what they just asked about), or 'NEXT: NONE'.\n\n"
             ."OBJECTS ON DISPLAY:\n".$catalogue."\n\n"
             .($kmSnippet !== null
-                ? "BROADER COLLECTION CONTEXT (from the knowledge base, use only to enrich - the objects on display above are authoritative):\n"
+                ? "BROADER COLLECTION CONTEXT (from a general knowledge base, use only to enrich - the objects on display above are authoritative):\n"
                     .$kmSnippet."\n"
-                    ."Use this background only to add colour or answer a broader question; it does NOT add objects to the room. "
+                    ."This background is NOT a description of this exhibition: never use it to state the exhibition's title, theme, or what it is \"about\". "
+                    ."Use it only to add detail about an object the visitor asked about; it does NOT add objects to the room. "
                     ."Still prefer the objects on display, and never claim the room holds anything not listed above.\n\n"
                 : '')
             .($hist !== '' ? "CONVERSATION SO FAR:\n".$hist."\n" : '')
