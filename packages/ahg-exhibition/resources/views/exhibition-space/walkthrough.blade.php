@@ -1212,8 +1212,8 @@
     }
     // #1276: free a far room's GPU resources - dispose per-room geometry + non-shared
     // materials/textures, splice its colliders, and reset its object stops so they rebuild on
-    // return. Shared singleton materials are never disposed. (In-room Gaussian splats added to
-    // the shared DropInViewer are NOT detached here - follow-up #1276; that memory persists.)
+    // return. Shared singleton materials are never disposed. In-room Gaussian splats are detached
+    // from the shared DropInViewer too (#1278), freeing their GPU memory; they re-add on return.
     function disposeRoom(rm) {
       var rg = roomGroups[rm.id];
       if (!rg) { return; }
@@ -1239,6 +1239,7 @@
         for (var ci = colliders.length - 1; ci >= 0; ci--) { if (rg.colliders.indexOf(colliders[ci]) !== -1) { colliders.splice(ci, 1); } }
       }
       for (var si = 0; si < STOPS.length; si++) { if (STOPS[si]._room === rm) { STOPS[si]._built = false; } }
+      disposeRoomSplats(rm.id);   // #1278 free this room's Gaussian-splat GPU memory (re-adds on return via the _built reset)
       _disposedRooms[rm.id] = true;
       delete roomGroups[rm.id];
     }
@@ -1512,7 +1513,11 @@
     // #1193 Gaussian splats composited into the room. One shared GaussianSplats3D DropInViewer
     // (a THREE.Object3D) holds every splat scene; each is positioned at its placement. Scenes
     // are added one at a time (the sorter/worker setup doesn't like concurrent adds).
-    var _dropIn = null, _splatQueue = [], _splatBusy = false;
+    // #1278: _splatScenes mirrors the DropInViewer's scene list in add-order (index i here ==
+    // scene index i in the viewer), each tagged with its room so a room-leave can detach exactly
+    // its splats and free their GPU memory. Adds AND removes share the one queue because the
+    // GaussianSplats3D sorter/worker dislikes concurrent scene operations.
+    var _dropIn = null, _splatQueue = [], _splatBusy = false, _splatScenes = [];
     function dropInViewer() {
       if (_dropIn) return _dropIn;
       _dropIn = new GaussianSplats3D.DropInViewer({ gpuAcceleratedSort: false, sharedMemoryForWorkers: false });
@@ -1530,9 +1535,33 @@
       var job = _splatQueue.shift();
       if (!job) return;
       _splatBusy = true;
+      if (job.type === 'remove') {
+        // #1278 detach a left room's splat scenes. Recompute indices NOW (the queue may have
+        // added/removed scenes since this job was enqueued), then drop them in one call and keep
+        // _splatScenes in sync (splice high-to-low so earlier indices stay valid).
+        var idx = [];
+        for (var i = 0; i < _splatScenes.length; i++) { if (_splatScenes[i].roomId === job.roomId) { idx.push(i); } }
+        if (!idx.length) { _splatBusy = false; pumpSplatQueue(); return; }
+        dropInViewer().removeSplatScenes(idx, false)
+          .then(function () {
+            idx.sort(function (a, b) { return b - a; }).forEach(function (i) { _splatScenes.splice(i, 1); });
+            _splatBusy = false; pumpSplatQueue();
+          })
+          .catch(function () { _splatBusy = false; pumpSplatQueue(); });
+        return;
+      }
       dropInViewer().addSplatScene(job.url, job.opts)
-        .then(function () { _splatBusy = false; job.done(); pumpSplatQueue(); })
+        .then(function () { _splatScenes.push({ roomId: job.roomId }); _splatBusy = false; job.done(); pumpSplatQueue(); })
         .catch(function () { _splatBusy = false; job.fail(); pumpSplatQueue(); });
+    }
+    // #1278 enqueue removal of every splat scene belonging to a room being disposed.
+    function disposeRoomSplats(roomId) {
+      if (roomId == null) { return; }
+      var has = false;
+      for (var i = 0; i < _splatScenes.length; i++) { if (_splatScenes[i].roomId === roomId) { has = true; break; } }
+      if (!has) { return; }
+      _splatQueue.push({ type: 'remove', roomId: roomId });
+      pumpSplatQueue();
     }
     function loadSplat(s, wp, room) {
       var ph = addPedestal(wp.x, wp.z, 0.6, room);   // stand the capture on a pedestal like other objects
@@ -1553,6 +1582,8 @@
       var off = new THREE.Vector3(center[0], center[1], center[2]).multiplyScalar(sc).applyQuaternion(q);
       var pos = disp.clone().sub(off);
       _splatQueue.push({
+        type: 'add',
+        roomId: room ? room.id : null,   // #1278 so a room-leave can detach exactly this scene
         url: s.splat_url,
         opts: {
           format: splatFormat(s.model_format),
