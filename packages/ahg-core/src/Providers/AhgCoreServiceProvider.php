@@ -85,8 +85,11 @@ class AhgCoreServiceProvider extends ServiceProvider
                     ->get();
                 $translatorOverrides = [];
                 foreach ($rows as $r) {
-                    $val = ($r->cur !== null && $r->cur !== '') ? $r->cur : $r->fb;
-                    $val = $val !== null ? strtr((string) $val, ['&nbsp;' => ' ']) : '';
+                    $raw = ($r->cur !== null && $r->cur !== '') ? $r->cur : $r->fb;
+                    // Some ui_label rows store the whole culture map as JSON in one
+                    // row; pickI18nLabel decodes + selects the culture so the raw
+                    // JSON never leaks into titles/headings.
+                    $val = SettingHelper::pickI18nLabel($raw, $culture, $fallback);
                     if ($val === '') {
                         continue;
                     }
@@ -99,7 +102,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                     // culture without changing every call site to use config().
                     // The en value is the source key __() looks up; map it to the
                     // selected-culture value.
-                    $en = $r->fb !== null ? strtr((string) $r->fb, ['&nbsp;' => ' ']) : '';
+                    $en = SettingHelper::pickI18nLabel($r->fb, $fallback, $fallback);
                     if ($en !== '' && $val !== $en) {
                         $translatorOverrides[$en] = $val;
                     }

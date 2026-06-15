@@ -38,6 +38,41 @@ class SettingHelper
     }
 
     /**
+     * Resolve a setting_i18n value to a plain label string for the wanted culture.
+     *
+     * Some AtoM-derived ui_label rows store the entire culture map as a single
+     * JSON object in one row's value (e.g. {"en":"Archival institution","fr":...})
+     * rather than one plain-string row per culture. Left raw, that JSON leaks into
+     * page titles/headings. This decodes such a map and picks $culture, then the
+     * $fallback, then the first available value. Plain-string values pass through
+     * untouched. &nbsp; entities are normalised to spaces.
+     */
+    public static function pickI18nLabel(?string $raw, string $culture = 'en', string $fallback = 'en'): string
+    {
+        if ($raw === null) {
+            return '';
+        }
+        $s = trim($raw);
+        if (isset($s[0]) && $s[0] === '{') {
+            $decoded = json_decode($s, true);
+            if (is_array($decoded)) {
+                $picked = $decoded[$culture] ?? $decoded[$fallback] ?? null;
+                if ($picked === null) {
+                    foreach ($decoded as $v) {
+                        if (is_string($v) && $v !== '') {
+                            $picked = $v;
+                            break;
+                        }
+                    }
+                }
+                $s = is_string($picked) ? $picked : '';
+            }
+        }
+
+        return strtr((string) $s, ['&nbsp;' => ' ']);
+    }
+
+    /**
      * Get a global AtoM setting value from the setting + setting_i18n tables.
      */
     public static function get(string $name, string $default = '', string $culture = 'en'): string

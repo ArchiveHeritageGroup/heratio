@@ -314,13 +314,15 @@ class SetLocale
                 ->get();
             $translatorOverrides = [];
             foreach ($rows as $r) {
-                $val = ($r->cur !== null && $r->cur !== '') ? $r->cur : $r->fb;
-                $val = $val !== null ? strtr((string) $val, ['&nbsp;' => ' ']) : '';
+                $raw = ($r->cur !== null && $r->cur !== '') ? $r->cur : $r->fb;
+                // Decode JSON culture-map values (AtoM-style) and pick this culture,
+                // so the raw i18n JSON never leaks into titles/headings.
+                $val = \AhgCore\Services\SettingHelper::pickI18nLabel($raw, $culture, $fallback);
                 if ($val === '') {
                     continue;
                 }
                 config(["app.ui_label_{$r->name}" => $val]);
-                $en = $r->fb !== null ? strtr((string) $r->fb, ['&nbsp;' => ' ']) : '';
+                $en = \AhgCore\Services\SettingHelper::pickI18nLabel($r->fb, $fallback, $fallback);
                 if ($en !== '' && $val !== $en) {
                     $translatorOverrides[$en] = $val;
                 }
