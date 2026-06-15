@@ -55,6 +55,12 @@ class HeratioCspPreset implements Preset
                 // Draco-compressed 3D models decode in WebAssembly inside
                 // <model-viewer>; without this the geometry never loads.
                 Keyword::UNSAFE_WEB_ASSEMBLY_EXECUTION,
+                // 'unsafe-eval': several bundled libraries evaluate strings
+                // (new Function / setTimeout(string)) - the 3D / splat stack and
+                // some CDN widgets. The nginx-level CSP already allows it; without
+                // it here the two CSP headers intersect and the browser blocks eval
+                // ("CSP blocks the use of 'eval'"), breaking those scripts.
+                Keyword::UNSAFE_EVAL,
                 // blob: so the Gaussian-splat viewer's sort worker
                 // (@mkkellogg/gaussian-splats-3d spawns a blob: Web Worker whose
                 // script the browser also checks against script-src) is not
