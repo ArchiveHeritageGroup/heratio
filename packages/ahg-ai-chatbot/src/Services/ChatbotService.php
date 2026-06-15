@@ -250,6 +250,18 @@ PROMPT;
         // Default to the request locale; prompts stay English, only the reply is translated.
         $locale = $locale ?? app()->getLocale();
 
+        // #1275 (opt-in): reply in the language the message was TYPED in rather than the UI
+        // locale. Detection is local (no network, no qwen - InputLanguageDetector); it only
+        // overrides the locale on a confident, MT-supported result, otherwise the #1273
+        // UI-locale default stands. The detected code is only ever an MT target; AnswerLocalizer
+        // still fails soft to English, so a bad detection never yields qwen garbage.
+        if (config('ahg-ai-chatbot.reply_in_input_language', false)) {
+            $detected = app(\AhgCore\Services\InputLanguageDetector::class)->detect($userMessage);
+            if ($detected !== null) {
+                $locale = $detected;
+            }
+        }
+
         // Guardrail pre-check
         $guardInspection = $this->guardrail->inspect([
             'provider'   => 'chatbot',

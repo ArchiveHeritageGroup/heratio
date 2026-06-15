@@ -68,6 +68,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Reply in the input message language (heratio#1275)
+    |--------------------------------------------------------------------------
+    | When true, the chatbot detects the language a message was typed in (local,
+    | no-network, no-LLM heuristic) and replies in that language via the sanctioned
+    | MT route, regardless of the UI locale. Low-confidence or MT-unsupported input
+    | falls back to the UI locale / English (never a qwen "reply in X" prompt).
+    | Default off: the #1273 UI-locale behaviour stays unless explicitly enabled.
+    */
+
+    'reply_in_input_language' => (bool) env('AHG_CHATBOT_REPLY_IN_INPUT_LANGUAGE', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Default model
     |--------------------------------------------------------------------------
     | Model name passed to LlmService when no user preference is set.

@@ -27,7 +27,8 @@ class ChatbotTestMultilangCommand extends Command
     protected $signature = 'ahg:chatbot-test-multilang
         {--locales=af,en,zu,nso : Comma-separated locales to probe}
         {--strict : Exit non-zero on any failure (default: warn only)}
-        {--json : Emit results as JSON instead of a table}';
+        {--json : Emit results as JSON instead of a table}
+        {--detect : Offline self-check of #1275 input-language detection (no gateway calls)}';
 
     protected $description = 'Multi-language regression probe for the AI Library Assistant.';
 
@@ -52,8 +53,28 @@ class ChatbotTestMultilangCommand extends Command
      */
     private const DRIFT_TOKENS_NON_EUROPEAN = ['the', 'and', 'with', 'from'];
 
+    /**
+     * #1275 input-language detection probes: [typed message, expected detected locale].
+     * null = should fall back to the UI-locale / English default (ambiguous or English).
+     */
+    private const DETECT_PROBES = [
+        ['Watter rekords het julle oor die Benson familie?', 'af'],
+        ['Hoekom is hierdie dokument nie beskikbaar nie?', 'af'],
+        ['Ngicela ungitshele ngomlando wakwaBenson, ngiyabonga', 'zu'],
+        ['Molo, ndicela undixelele ngembali yosapho, enkosi', 'xh'],
+        ['Avuxeni, ndza khensa, leswaku ndzi kuma vutivi', 'ts'],
+        ['Ndaa, ndi livhuwa, uri ndi wane mafhungo', 've'],
+        ['What records do you have about the Benson family?', null],
+        ['dumela', null],
+        ['sawubona', null],
+    ];
+
     public function handle(ChatbotService $chatbot): int
     {
+        if ((bool) $this->option('detect')) {
+            return $this->runDetectSelfCheck();
+        }
+
         $locales = array_filter(array_map('trim', explode(',', (string) $this->option('locales'))));
         $strict = (bool) $this->option('strict');
         $asJson = (bool) $this->option('json');
@@ -139,6 +160,35 @@ class ChatbotTestMultilangCommand extends Command
         }
 
         return ($strict && $failures > 0) ? self::FAILURE : self::SUCCESS;
+    }
+
+    /**
+     * #1275 offline self-check: run InputLanguageDetector over canonical phrases and
+     * assert each maps to the expected locale (or null = default). No gateway, no LLM.
+     */
+    private function runDetectSelfCheck(): int
+    {
+        $detector = app(\AhgCore\Services\InputLanguageDetector::class);
+        $rows = [];
+        $failures = 0;
+        foreach (self::DETECT_PROBES as [$text, $expected]) {
+            $got = $detector->detect($text);
+            $pass = ($got === $expected);
+            if (! $pass) {
+                $failures++;
+            }
+            $rows[] = [
+                $this->truncate($text, 48),
+                $expected ?? '(default)',
+                $got ?? '(default)',
+                $pass ? 'PASS' : 'FAIL',
+            ];
+        }
+        $this->table(['Typed message', 'Expected', 'Detected', 'Status'], $rows);
+        $this->newLine();
+        $this->info(sprintf('%d detection probe(s) - %d pass / %d fail', count($rows), count($rows) - $failures, $failures));
+
+        return ($failures > 0) ? self::FAILURE : self::SUCCESS;
     }
 
     private function failResult(string $locale, string $probe, string $code, string $detail): array
