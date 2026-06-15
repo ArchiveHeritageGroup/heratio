@@ -223,20 +223,17 @@ Heratio reads these via `config/heratio.php` (`model_tools_bin`, `fbx2gltf_bin`,
 
 ## 9. Optional - AI services
 
-> Heratio is an **AI client**, not an AI host. Set up your own Ollama / vLLM / OpenAI-compatible endpoint on a separate GPU box (or use a managed service), then point Heratio at it.
+> Heratio is an **AI client**, not an AI host. Run your own Ollama / vLLM / OpenAI-compatible endpoint on a separate GPU box (or use a managed service), then point Heratio at it. Heratio bundles no AI runtime.
 
-In `/admin/settings`, set:
+Configure the AI endpoints from the **admin Settings UI** (stored in `ahg_ai_settings` / `ahg_ner_settings`):
 
-| Setting | Example value |
+| Settings page | Configures |
 |---|---|
-| `voice_local_llm_url` | `http://192.168.0.78:11434/api/chat` |
-| `htr_endpoint` | `http://192.168.0.78:11434/api/generate` |
-| `ner_endpoint` | `http://192.168.0.78:11434/api/generate` |
-| `condition_endpoint` | `http://192.168.0.78:11434/api/generate` |
+| **Settings → Voice AI** | the chat / LLM endpoint (`voice_local_llm_url`), e.g. `http://YOUR-AI-HOST:11434/api/chat` |
+| **Settings → AI Services** (`/admin/ahgSettings/aiServices`) | HTR, NER, summarise and translate endpoints + API key |
+| **Settings → AI Condition** (`/admin/ahgSettings/aiCondition`) | the condition-assessment model endpoint |
 
-Or via CLI: `php artisan ahg:settings-set voice_local_llm_url 'http://...'`.
-
-See `docs/ai-host-setup.md` for AI host installation guidance (operator's responsibility - Heratio does not bundle Ollama or any AI runtime).
+Use your own host/IP in place of `YOUR-AI-HOST`. Each AI feature degrades gracefully when its endpoint is unset, so configure only what you use.
 
 ---
 
@@ -250,12 +247,7 @@ cd /usr/share/nginx/openric
 sudo bin/install --domain=ric.mysite.example
 ```
 
-Then point Heratio at it:
-
-```bash
-cd /usr/share/nginx/heratio
-php artisan ahg:settings-set openric_base_url https://ric.mysite.example
-```
+Then wire Heratio to it from the **RiC dashboard** at `/admin/ric`: it runs a readiness check and, once the SPARQL/Fuseki target is configured there, enables the **Sync to Fuseki** button. See [`docs/ric-sync-setup.md`](ric-sync-setup.md) for the readiness gate and sync configuration.
 
 OpenRiC has its own database (`openric`), its own web service, and its own install procedure. See the OpenRiC repo for details.
 
