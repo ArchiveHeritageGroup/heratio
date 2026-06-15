@@ -27,15 +27,18 @@ namespace AhgMetadataExport\Controllers;
 use AhgMetadataExport\Services\Importers\EadXmlImporter;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\MessageBag;
 
 class EadImportController extends Controller
 {
     public function form()
     {
+        // Leave $errors as Laravel's shared ViewErrorBag so validation errors
+        // flashed by validate() (which redirects back to this GET form) render
+        // in the blade's @if ($errors->any()) block. No schema errors at upload.
         return view('ahg-metadata-export::ead-import', [
             'stage' => 'upload',
             'tree' => null,
-            'errors' => [],
             'culture' => 'en',
             'variant' => null,
         ]);
@@ -63,10 +66,13 @@ class EadImportController extends Controller
         session()->flash('eadxml_payload', base64_encode($xml));
         session()->flash('eadxml_culture', $culture);
 
+        // Surface schema-validation notes through Laravel's $errors bag so the
+        // blade's @if ($errors->any()) / $errors->all() block lists them. The
+        // value MUST be a MessageBag (not a plain array) or ->any() fatals.
         return view('ahg-metadata-export::ead-import', [
             'stage' => 'preview',
             'tree' => $rootNode,
-            'errors' => $schemaErrors,
+            'errors' => new MessageBag(['schema' => array_values((array) $schemaErrors)]),
             'culture' => $culture,
             'variant' => $variant,
             'valid' => $valid,
@@ -94,7 +100,7 @@ class EadImportController extends Controller
         return view('ahg-metadata-export::ead-import', [
             'stage' => 'committed',
             'tree' => $rootNode,
-            'errors' => [],
+            'errors' => new MessageBag(),
             'culture' => $culture,
             'variant' => $importer->detectVariant($xml),
             'valid' => true,

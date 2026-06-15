@@ -224,11 +224,22 @@ class BibframeController extends Controller
      */
     public function agent(): Response
     {
-        $agents = DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->select(['id', 'name', 'type', 'created_at'])
-            ->orderBy('name')
-            ->get();
+        // The library_biblio_agent scaffold is optional; when the bibliographic
+        // schema has not been installed the page must still render (empty list)
+        // rather than 500. Mirrors the hasTable() guard used elsewhere here.
+        $hasTable = \Illuminate\Support\Facades\Schema::connection('heratio')->hasTable('library_biblio_agent');
+        $agents = $hasTable
+            ? DB::connection('heratio')
+                ->table('library_biblio_agent')
+                ->select(['id', 'name', 'type', 'created_at'])
+                ->orderBy('name')
+                ->get()
+            : collect();
+
+        if (! $hasTable) {
+            // Flag the unavailable feature in-app rather than a silent empty list.
+            session()->now('info', __('The BIBFRAME agent index is not installed on this instance, so no agents can be listed here.'));
+        }
 
         return response()->view('ahg-biblio-bf::agent', [
             'agents' => $agents,

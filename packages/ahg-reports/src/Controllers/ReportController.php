@@ -32,6 +32,7 @@ use AhgCore\Support\GlobalSettings;
 use AhgReports\Services\ReportService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -40,9 +41,61 @@ class ReportController extends Controller
 {
     private ReportService $service;
 
+    /** Guard so the Blade precompiler is registered at most once per request. */
+    private static bool $extraFiltersPrecompilerRegistered = false;
+
     public function __construct(ReportService $service)
     {
         $this->service = $service;
+    }
+
+    /**
+     * #1289: report-recent.blade.php / report-taxonomy.blade.php build their
+     * sidebar filter HTML as a single-quoted PHP string assigned to the
+     * @include(...) 'extraFilters' key. That string embeds {{ __('Label') }}
+     * Blade echo tags. Blade compiles those tags wherever they appear in the
+     * template text - including inside the string literal - turning each into
+     * a <?php echo e(__('Label')); ?> island that prematurely closes the
+     * surrounding @include PHP block and produces a fatal compile error:
+     * "syntax error, unexpected identifier ... expecting ]".
+     *
+     * The blades are under .locked-paths so we fix it from the controller: a
+     * narrow Blade precompiler resolves the {{ __('...') }} tags that live
+     * inside an 'extraFilters' => '...' literal to their already-translated
+     * literal text BEFORE compilation, leaving the PHP string intact and
+     * preserving the i18n labels. Scoped to the two affected templates only;
+     * all other Blade compilation is untouched.
+     */
+    private function registerExtraFiltersPrecompiler(): void
+    {
+        if (self::$extraFiltersPrecompilerRegistered) {
+            return;
+        }
+        self::$extraFiltersPrecompilerRegistered = true;
+
+        Blade::prepareStringsForCompilationUsing(function (string $template): string {
+            if (! str_contains($template, "'extraFilters' => '")) {
+                return $template;
+            }
+
+            // Only rewrite {{ __('...') }} echo tags that fall within the
+            // single-quoted extraFilters literal (between "=> '" and the
+            // terminating "',"). Resolve each to its translated text so the
+            // label still honours the active locale.
+            return preg_replace_callback(
+                "/('extraFilters' => ')(.*?)(',\\s*\\])/s",
+                function (array $m): string {
+                    $body = preg_replace_callback(
+                        "/\\{\\{\\s*__\\(\\s*'((?:[^'\\\\]|\\\\.)*)'\\s*\\)\\s*\\}\\}/",
+                        fn (array $t): string => (string) __(stripslashes($t[1])),
+                        $m[2]
+                    );
+
+                    return $m[1] . $body . $m[3];
+                },
+                $template
+            );
+        });
     }
 
     // ── #113 generate_reports_as_pub_user ──────────────────────────────
@@ -271,6 +324,8 @@ class ReportController extends Controller
         $params = $request->only(['dateStart', 'dateEnd', 'className', 'limit', 'page']);
         $data = $this->service->reportUpdates($params);
 
+        $this->registerExtraFiltersPrecompiler();
+
         return view('ahg-reports::report-recent', array_merge($data, ['params' => $params]));
     }
 
@@ -278,6 +333,8 @@ class ReportController extends Controller
     {
         $params = $request->only(['dateStart', 'dateEnd', 'sort', 'limit', 'page']);
         $data = $this->service->reportTaxonomies($params);
+
+        $this->registerExtraFiltersPrecompiler();
 
         return view('ahg-reports::report-taxonomy', array_merge($data, ['params' => $params]));
     }

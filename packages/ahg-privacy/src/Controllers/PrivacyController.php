@@ -1222,17 +1222,13 @@ class PrivacyController extends Controller
 
     public function piiScan()
     {
-        // PII dashboard. Full statistics require a NER corpus; until a scan has
-        // run this shows a zeroed dashboard rather than 500ing. (Deeper stats +
-        // object scanning are a follow-up port of PiiScanService::getStatistics.)
-        $stats = [
-            'total_scanned' => 0,
-            'with_pii' => 0,
-            'high_risk_entities' => 0,
-            'pending_review' => 0,
-            'coverage_percent' => 0,
-            'by_type' => [],
-        ];
+        // PII dashboard statistics derived from the NER corpus (guarded; zeros
+        // when nothing has been scanned). Flag an empty corpus in-app rather
+        // than silently showing a zeroed dashboard.
+        $stats = app(\AhgPrivacy\Services\PiiScanService::class)->getStatistics();
+        if (($stats['total_scanned'] ?? 0) === 0) {
+            session()->now('info', __('No PII scan data yet. Run a scan to populate these statistics.'));
+        }
         $repositories = collect();
         try {
             if (Schema::hasTable('repository')) {

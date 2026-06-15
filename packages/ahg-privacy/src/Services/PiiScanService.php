@@ -746,4 +746,44 @@ final class PiiScanService
         }
         return 'gdpr';
     }
+
+    /**
+     * PII scan dashboard statistics, derived from the NER extraction tables.
+     * Every metric is guarded so an absent NER corpus yields zeros rather than
+     * an error. Returns the six keys the pii-scan dashboard renders.
+     */
+    public function getStatistics(): array
+    {
+        $stats = [
+            'total_scanned' => 0,
+            'with_pii' => 0,
+            'high_risk_entities' => 0,
+            'pending_review' => 0,
+            'coverage_percent' => 0,
+            'by_type' => [],
+        ];
+
+        try {
+            if (Schema::hasTable('ahg_ner_extraction')) {
+                $stats['total_scanned'] = (int) DB::table('ahg_ner_extraction')->distinct()->count('object_id');
+                $stats['with_pii'] = (int) DB::table('ahg_ner_extraction')->where('entity_count', '>', 0)->distinct()->count('object_id');
+            }
+            if (Schema::hasTable('ahg_ner_entity')) {
+                $highRisk = ['ID_NUMBER', 'NATIONAL_ID', 'PASSPORT', 'EMAIL', 'PHONE', 'CREDIT_CARD', 'BANK_ACCOUNT', 'PERSON'];
+                $stats['high_risk_entities'] = (int) DB::table('ahg_ner_entity')->whereIn('entity_type', $highRisk)->count();
+                $stats['pending_review'] = (int) DB::table('ahg_ner_entity')->whereIn('status', ['pending', 'unreviewed', 'new'])->count();
+                foreach (DB::table('ahg_ner_entity')->select('entity_type', DB::raw('COUNT(*) as c'))->groupBy('entity_type')->orderByDesc('c')->get() as $r) {
+                    $stats['by_type'][(string) $r->entity_type] = (int) $r->c;
+                }
+            }
+            if (Schema::hasTable('information_object')) {
+                $totalIo = (int) DB::table('information_object')->count();
+                $stats['coverage_percent'] = $totalIo > 0 ? round($stats['total_scanned'] / $totalIo * 100, 1) : 0;
+            }
+        } catch (\Throwable $e) {
+            // Degrade to zeros - dashboard renders an empty state, never 500s.
+        }
+
+        return $stats;
+    }
 }

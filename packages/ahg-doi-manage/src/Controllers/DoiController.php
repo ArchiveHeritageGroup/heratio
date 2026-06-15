@@ -391,8 +391,8 @@ class DoiController extends Controller
             if (\Illuminate\Support\Facades\Schema::hasTable('ahg_doi_queue')) {
                 foreach ($ids as $objectId) {
                     \Illuminate\Support\Facades\DB::table('ahg_doi_queue')->insert([
-                        'object_id' => $objectId,
-                        'state' => $state,
+                        'information_object_id' => $objectId,
+                        'action' => 'mint',
                         'status' => 'pending',
                         'created_at' => now(),
                     ]);
@@ -410,7 +410,7 @@ class DoiController extends Controller
                 ->leftJoin('information_object_i18n as ioi', function ($j) {
                     $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', app()->getLocale());
                 })
-                ->leftJoin('ahg_doi as d', 'io.id', '=', 'd.object_id')
+                ->leftJoin('ahg_doi as d', 'io.id', '=', 'd.information_object_id')
                 ->whereNull('d.id')
                 ->select('io.id', 'ioi.title')
                 ->orderByDesc('io.id')

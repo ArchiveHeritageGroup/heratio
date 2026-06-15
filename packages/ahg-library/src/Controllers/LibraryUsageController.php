@@ -80,8 +80,28 @@ class LibraryUsageController extends Controller
 
         $report = $this->usage->buildCounterReport('TR', $fromDate, $toDate);
 
+        // The tr view renders a per-title pivot ($rows with ->total/->html/->pdf)
+        // plus the date range as $start/$end. Pivot the COUNTER Report_Items by
+        // title; on an install with no usage data this is an empty collection
+        // (the view shows its empty-state rather than 500ing).
+        $rows = collect($report['Report_Items'] ?? [])
+            ->groupBy(fn ($i) => $i['Item_Name'] ?? '')
+            ->map(function ($metrics, $title) {
+                $by = collect($metrics)->keyBy('Metric_Type');
+                return [
+                    'title' => $title,
+                    'total' => (int) ($by->get('Total_Item_Requests')['Count'] ?? collect($metrics)->sum('Count')),
+                    'html'  => (int) ($by->get('Total_Item_Requests_HTML')['Count'] ?? 0),
+                    'pdf'   => (int) ($by->get('Total_Item_Requests_PDF')['Count'] ?? 0),
+                ];
+            })
+            ->values();
+
         return view('ahg-library::usage.tr', [
             'report'   => $report,
+            'rows'     => $rows,
+            'start'    => $fromDate,
+            'end'      => $toDate,
             'fromDate' => $fromDate,
             'toDate'   => $toDate,
         ]);

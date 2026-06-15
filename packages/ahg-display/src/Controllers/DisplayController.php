@@ -905,7 +905,15 @@ class DisplayController extends Controller
         $type = $request->input('type');
         $recursive = $request->input('recursive');
 
-        $this->service->setObjectType($objectId, $type);
+        // This is an action endpoint; a bare GET (or missing params) should not
+        // crash. Redirect back with a notice instead of passing null/0 downstream.
+        if ($objectId <= 0 || $type === null || $type === '') {
+            session()->flash('error', 'Object ID and type are required to set the object type.');
+
+            return redirect($request->headers->get('referer', route('glam.index')));
+        }
+
+        $this->service->setObjectType($objectId, (string) $type);
 
         if ($recursive) {
             $count = $this->service->setObjectTypeRecursive($objectId, $type);
@@ -931,6 +939,14 @@ class DisplayController extends Controller
         $profileId = (int) $request->input('profile_id');
         $context = $request->input('context', 'default');
         $primary = $request->input('primary') ? true : false;
+
+        // Action endpoint: a bare GET (or missing params) must not hit the DB with
+        // zero ids and trigger a foreign-key violation. Redirect back gracefully.
+        if ($objectId <= 0 || $profileId <= 0) {
+            session()->flash('error', 'Object ID and profile ID are required to assign a profile.');
+
+            return redirect($request->headers->get('referer', route('glam.index')));
+        }
 
         $this->service->assignProfile($objectId, $profileId, $context, $primary);
 
@@ -999,7 +1015,14 @@ class DisplayController extends Controller
             ->orderBy('df.field_group')->orderBy('df.sort_order')
             ->get()->toArray();
 
-        $fieldGroups = ['identity', 'description', 'context', 'access', 'technical', 'admin'];
+        // The view iterates $fieldGroups as [groupName => [field, ...]] and calls
+        // count() on the inner value, so it must be an associative map of group
+        // name to the list of fields in that group (not a flat list of names).
+        $fieldGroups = [];
+        foreach ($fields as $field) {
+            $group = $field->field_group ?? 'other';
+            $fieldGroups[$group][] = $field;
+        }
 
         return view('ahg-display::display.fields', compact('fields', 'fieldGroups'));
     }

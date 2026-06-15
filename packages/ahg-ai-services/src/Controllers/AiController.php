@@ -1525,8 +1525,9 @@ class AiController extends Controller
         if ($request->isMethod('get')) {
             $culture      = app()->getLocale();
             $repositories = DB::table('actor')
+                ->join('object', 'actor.id', '=', 'object.id')
                 ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
-                ->where('actor.class_name', 'QubitRepository')
+                ->where('object.class_name', 'QubitRepository')
                 ->where('actor_i18n.culture', $culture)
                 ->orderBy('actor_i18n.authorized_form_of_name')
                 ->select('actor.id', 'actor_i18n.authorized_form_of_name as name')
@@ -2575,7 +2576,105 @@ class AiController extends Controller
     // TODO: wire ai_condition_overlay_enabled setting — use AhgSettingsService::getBool('ai_condition_overlay_enabled', true) when overlay generation is built
     // TODO: wire ai_condition_notify_grade setting — use AhgSettingsService::get('ai_condition_notify_grade', 'poor') when grade notification is built
 
-    public function conditionAssess(Request $request) { return view('ahg-ai-services::condition-assess', ['rows' => collect()]); }
+    public function conditionAssess(Request $request)
+    {
+        // The image-analysis step routes through the AHG AI gateway, whose
+        // condition endpoint is not available yet (heratio#1268). Flag in-app so
+        // the form is usable but the user knows submissions cannot be processed.
+        $configured = (string) \AhgCore\Services\AhgSettingsService::get('ai_condition_service_url', '') !== '';
+        if (! $configured) {
+            session()->now('warning', __('AI condition assessment is not available on this instance yet: the condition service endpoint is not configured (pending the AI gateway condition route).'));
+        }
+
+        return view('ahg-ai-services::condition-assess', ['rows' => collect()]);
+    }
+
+    /**
+     * Autocomplete search for archival descriptions (consumed by the
+     * condition-assess page object picker). Returns {results:[{id,title}]}.
+     */
+    public function conditionApiObjectSearch(Request $request)
+    {
+        $query = trim((string) $request->get('query', ''));
+        if (mb_strlen($query) < 2) {
+            return response()->json(['results' => []]);
+        }
+
+        $culture = app()->getLocale();
+        $results = DB::table('information_object as io')
+            ->join('object as o', 'io.id', '=', 'o.id')
+            ->leftJoin('information_object_i18n as i18n', function ($join) use ($culture) {
+                $join->on('io.id', '=', 'i18n.id')
+                     ->where('i18n.culture', '=', $culture);
+            })
+            ->where('o.class_name', 'QubitInformationObject')
+            ->where('io.id', '!=', 1)
+            ->where('i18n.title', 'like', '%' . $query . '%')
+            ->orderBy('i18n.title')
+            ->limit(20)
+            ->select('io.id', 'i18n.title')
+            ->get()
+            ->map(function ($row) {
+                return [
+                    'id'    => (int) $row->id,
+                    'title' => $row->title !== null && $row->title !== ''
+                        ? $row->title
+                        : ('Untitled #' . $row->id),
+                ];
+            })
+            ->all();
+
+        return response()->json(['results' => $results]);
+    }
+
+    /**
+     * Receive an uploaded image for AI condition assessment.
+     *
+     * The backing AI condition-assessment service / AHG gateway route does not
+     * exist yet (#1268), so this endpoint cannot run a real analysis. It
+     * validates the request and returns a graceful JSON error instead of a 500
+     * so the page degrades cleanly until the gateway route is built.
+     */
+    public function conditionApiSubmit(Request $request)
+    {
+        $objectId = (int) $request->get('information_object_id', 0);
+        if (! $request->hasFile('image_file')) {
+            return response()->json(['success' => false, 'error' => 'No image file uploaded']);
+        }
+        if ($objectId <= 0) {
+            return response()->json(['success' => false, 'error' => 'Please select an archival description']);
+        }
+
+        return response()->json([
+            'success' => false,
+            'error'   => 'AI condition assessment is not yet available: the condition-assessment gateway route is pending (#1268).',
+        ]);
+    }
+
+    /**
+     * Mark an existing AI condition assessment as confirmed by a reviewer.
+     */
+    public function conditionApiConfirm(Request $request)
+    {
+        $id = (int) $request->get('id', 0);
+        if ($id <= 0) {
+            return response()->json(['success' => false, 'error' => 'Missing assessment id']);
+        }
+
+        $exists = DB::table('ahg_ai_condition_assessment')->where('id', $id)->exists();
+        if (! $exists) {
+            return response()->json(['success' => false, 'error' => 'Assessment not found']);
+        }
+
+        DB::table('ahg_ai_condition_assessment')->where('id', $id)->update([
+            'is_confirmed' => 1,
+            'confirmed_by' => auth()->id(),
+            'confirmed_at' => now(),
+            'updated_at'   => now(),
+        ]);
+
+        return response()->json(['success' => true]);
+    }
 
     public function conditionBrowse(Request $request)
     {

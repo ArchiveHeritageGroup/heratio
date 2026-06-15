@@ -18,6 +18,7 @@ class AhgHelpServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgHelp\Commands\IngestHelpArticleCommand::class,
+                \AhgHelp\Commands\IngestAllHelpCommand::class,
             ]);
         }
     }

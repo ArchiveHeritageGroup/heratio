@@ -266,13 +266,16 @@ Route::middleware('auth')->group(function () {
 
     // ── Usage / SUSHI ─────────────────────────────────────────────────────
     Route::get('/library-manage/usage', [LibraryUsageController::class, 'index'])->name('library.usage');
-    Route::get('/library-manage/usage/tr', [LibraryUsageController::class, 'titleReport'])->name('library.usage-tr');
+    Route::get('/library-manage/usage/tr', [LibraryUsageController::class, 'titleReport'])->name('library.usage.title-report');
     Route::get('/library-manage/usage/dr', [LibraryUsageController::class, 'databaseReport'])->name('library.usage-dr');
     Route::get('/library-manage/usage/harvest', [LibraryUsageController::class, 'harvest'])->name('library.usage-harvest');
     Route::get('/library-manage/usage/subscriptions', [LibraryUsageController::class, 'subscriptions'])->name('library.usage-subscriptions');
     Route::post('/library-manage/usage/subscriptions', [LibraryUsageController::class, 'subscriptionsStore'])->name('library.usage-subscriptions-store');
     Route::get('/library-manage/usage/subscriptions/test', [LibraryUsageController::class, 'testConnection'])->name('library.usage-subscriptions-test');
     Route::get('/library-manage/usage/export/{type}', [LibraryUsageController::class, 'export'])->name('library.usage-export')->where('type', 'PR|TR|TR_J1|TR_J3|DR|IR');
+    // Dotted-name alias: the tr/dr/index views reference route('library.usage.export');
+    // permissive constraint so lower-case report types (e.g. 'tr') resolve too.
+    Route::get('/library-manage/usage/export/{type}', [LibraryUsageController::class, 'export'])->name('library.usage.export')->where('type', '[A-Za-z0-9_]+');
 });
 
 // OPAC

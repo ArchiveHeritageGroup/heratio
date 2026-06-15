@@ -485,7 +485,7 @@ class LibraryIllService
             return $base . '-0001';
         }
         $count = (int) DB::table('library_ill_request')
-            ->where('ill_number', 'LIKE', $base . '-%')
+            ->where('request_number', 'LIKE', $base . '-%')
             ->count();
         return $base . '-' . str_pad((string) ($count + 1), 4, '0', STR_PAD_LEFT);
     }

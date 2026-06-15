@@ -489,7 +489,7 @@ class LibraryUsageService
                             ->where('ioi.culture', '=', app()->getLocale());
                     })
                     ->whereBetween('us.stat_date', [$fromDate, $toDate])
-                    ->select('ioi.title as item_name', 'us.metric_type', DB::raw('SUM(us.count) as total_count'))
+                    ->select(DB::raw('ANY_VALUE(ioi.title) as item_name'), 'us.metric_type', DB::raw('SUM(us.count) as total_count'))
                     ->groupBy('us.library_item_id', 'us.metric_type')
                     ->get();
 

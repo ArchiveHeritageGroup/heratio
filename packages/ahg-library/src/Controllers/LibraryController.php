@@ -1568,11 +1568,12 @@ class LibraryController extends Controller
 
     // ── Circulation transactions (checkout / return / renew / hold) ─────
 
-    public function checkoutForm(Request $request): \Illuminate\View\View
+    public function checkoutForm(Request $request): \Illuminate\Http\RedirectResponse
     {
-        return view('ahg-library::circulation.checkout', [
-            'patronId' => $request->query('patron'),
-        ]);
+        // Legacy no-copy checkout route, superseded by the CirculationDesk flow.
+        // A copy-less checkout form cannot render (needs a specific copy + loan
+        // terms), so send the user to the desk where they scan a barcode.
+        return redirect()->route('library.circulation.index');
     }
 
     public function checkoutStore(Request $request): \Illuminate\Http\RedirectResponse

@@ -24,15 +24,18 @@ namespace AhgMetadataExport\Controllers;
 use AhgMetadataExport\Services\Importers\MarcXmlImporter;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\MessageBag;
 
 class MarcImportController extends Controller
 {
     public function form()
     {
+        // Leave $errors as Laravel's shared ViewErrorBag so validation errors
+        // flashed by validate() (which redirects back to this GET form) render
+        // in the blade's @if ($errors->any()) block. No schema errors at upload.
         return view('ahg-metadata-export::marc-import', [
             'stage' => 'upload',
             'records' => [],
-            'errors' => [],
             'culture' => 'en',
         ]);
     }
@@ -59,10 +62,13 @@ class MarcImportController extends Controller
         session()->flash('marcxml_payload', base64_encode($xml));
         session()->flash('marcxml_culture', $culture);
 
+        // Surface schema-validation notes through Laravel's $errors bag so the
+        // blade's @if ($errors->any()) / $errors->all() block lists them. The
+        // value MUST be a MessageBag (not a plain array) or ->any() fatals.
         return view('ahg-metadata-export::marc-import', [
             'stage' => 'preview',
             'records' => $records,
-            'errors' => $schemaErrors,
+            'errors' => new MessageBag(['schema' => array_values((array) $schemaErrors)]),
             'culture' => $culture,
             'valid' => $valid,
         ]);
@@ -88,7 +94,7 @@ class MarcImportController extends Controller
         return view('ahg-metadata-export::marc-import', [
             'stage' => 'committed',
             'records' => $results,
-            'errors' => [],
+            'errors' => new MessageBag(),
             'culture' => $culture,
             'valid' => true,
         ]);

@@ -122,11 +122,52 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     {
         $filePath = session('dm_file');
         $targetType = session('dm_target', 'informationObject');
-        $mappings = json_decode($req->input('mappings', '{}'), true);
-        $preview = $this->repo->previewRecords($filePath, $mappings, 10);
 
-        return view('ahg-data-migration::preview',
-            compact('preview', 'targetType', 'mappings'));
+        // Accept the mapping from request (json string) or from session, default to empty.
+        $mapping = json_decode($req->input('mappings', $req->input('mapping', '{}')), true);
+        if (! is_array($mapping)) {
+            $mapping = [];
+        }
+        if (empty($mapping)) {
+            $sessionMapping = session('dm_mapping', []);
+            $mapping = is_array($sessionMapping) ? $sessionMapping : [];
+        }
+
+        // Parse the source file to obtain headers, sample rows and the total row count.
+        $parsed = ['headers' => [], 'rows' => [], 'totalRows' => 0];
+        if ($filePath && file_exists($filePath)) {
+            try {
+                $parsed = $this->service->parseCSV($filePath, 10);
+            } catch (\Throwable $e) {
+                $parsed = ['headers' => [], 'rows' => [], 'totalRows' => 0];
+            }
+        }
+
+        $totalRows = (int) ($parsed['totalRows'] ?? 0);
+
+        // Target headers are the distinct target fields the source columns are mapped to.
+        $targetHeaders = array_values(array_filter(array_unique(array_values($mapping))));
+
+        // Build the transformed rows: re-key each sample row from source column to target field.
+        $transformedRows = [];
+        foreach (($parsed['rows'] ?? []) as $row) {
+            $row = (array) $row;
+            $transformed = [];
+            foreach ($mapping as $sourceCol => $targetField) {
+                if ($targetField === null || $targetField === '') {
+                    continue;
+                }
+                $transformed[$targetField] = $row[$sourceCol] ?? '';
+            }
+            $transformedRows[] = $transformed;
+        }
+
+        // Preview kept for backward-compatibility with any caller expecting it.
+        $preview = $parsed['rows'] ?? [];
+
+        return view('ahg-data-migration::preview', compact(
+            'preview', 'targetType', 'mapping', 'totalRows', 'transformedRows', 'targetHeaders'
+        ));
     }
 
     // ── Existing: execute ────────────────────────────────────
@@ -218,9 +259,31 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     // ── Existing: importResults ──────────────────────────────
     public function importResults()
     {
+        // The view renders the most recent completed import. Pull the latest job
+        // and synthesise a $result summary from its counters. Defaults keep the
+        // page graceful when no imports have ever run.
         $results = $this->repo->getImportResults();
+        $latest = (is_array($results) && count($results) > 0) ? $results[0] : null;
 
-        return view('ahg-data-migration::import-results', compact('results'));
+        $job = null;
+        $result = null;
+
+        if ($latest) {
+            // getImportResults() does not decode error_log; pull the full job for that.
+            $full = $this->service->getJob((int) ($latest['id'] ?? 0));
+            $job = $full ?: $latest;
+
+            $result = [
+                'success' => ($job['status'] ?? '') === 'completed',
+                'message' => $job['progress_message'] ?? '',
+                'imported' => (int) ($job['imported_records'] ?? 0),
+                'updated' => (int) ($job['updated_records'] ?? 0),
+                'skipped' => (int) ($job['skipped_records'] ?? 0),
+                'errors' => (int) ($job['error_count'] ?? 0),
+            ];
+        }
+
+        return view('ahg-data-migration::import-results', compact('results', 'job', 'result'));
     }
 
     // ════════════════════════════════════════════════════════

@@ -63,7 +63,7 @@ class AuthorityControlService
             ->get();
 
         return [
-            'hits'  => (array) $rows,
+            'hits'  => $rows->values()->all(),
             'total' => $total,
             'page'  => $page,
             'limit' => $limit,

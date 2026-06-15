@@ -27,7 +27,7 @@ class IllRequestController
         if ($request->filled('search')) {
             $needle = '%' . $request->search . '%';
             $q->where(function ($w) use ($needle) {
-                $w->where('ill_number', 'LIKE', $needle)
+                $w->where('request_number', 'LIKE', $needle)
                   ->orWhere('title', 'LIKE', $needle)
                   ->orWhere('author', 'LIKE', $needle)
                   ->orWhere('isbn', 'LIKE', $needle);
@@ -64,9 +64,10 @@ class IllRequestController
         $partners = TradingPartner::active()->orderBy('edi_partner_code')->get(['id', 'edi_partner_code', 'edi_type']);
         $vendors = DB::table('library_vendor')->where('is_active', 1)->orderBy('name')->get(['id', 'name', 'vendor_code as code']);
         $illNumber = $this->illService->generateIllNumber();
+        $protocols = ['AARC', 'IFM', 'BLDSS', 'RLG', 'CUSTOM'];
 
         return view('ahg-library::circulation.ill-requests.create', compact(
-            'partners', 'vendors', 'illNumber'
+            'partners', 'vendors', 'illNumber', 'protocols'
         ));
     }
 

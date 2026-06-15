@@ -97,6 +97,11 @@ class HeritageController extends Controller
                 ->selectRaw('COUNT(relation.id) as item_count')
                 ->whereNotNull('actor_i18n.authorized_form_of_name')
                 ->where('actor_i18n.authorized_form_of_name', '!=', '')
+                // Only creators with a resolvable slug; the landing view builds
+                // route('actor.show', ['slug' => ...]) which throws a
+                // UrlGenerationException when the slug is null/empty (#1290).
+                ->whereNotNull('slug.slug')
+                ->where('slug.slug', '!=', '')
                 ->groupBy('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name')
                 ->orderByDesc('item_count')
                 ->limit(10)

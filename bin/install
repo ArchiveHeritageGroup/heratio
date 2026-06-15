@@ -327,6 +327,15 @@ for f in database/seeds/0*.sql; do
         ok "loaded $bn" || warn "$bn produced errors (see /tmp/heratio-install-${bn}.err) — continuing"
 done
 
+# Bulk-ingest the in-app Help Center from docs/help/ so a fresh install ships a
+# populated /help rather than an empty one. Idempotent (upsert by slug); a few
+# per-file failures are non-fatal.
+if php artisan ahg:help-ingest-all --no-interaction >/tmp/heratio-install-help.out 2>&1; then
+    ok "help articles ingested ($(grep -oE '[0-9]+ ingested, [0-9]+ failed, [0-9]+ total' /tmp/heratio-install-help.out | head -1))"
+else
+    warn "help ingest produced errors (see /tmp/heratio-install-help.out) — continuing"
+fi
+
 # ============================================================================
 # 9. Admin user
 # ============================================================================

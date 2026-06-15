@@ -85,9 +85,36 @@ class ExtendedRightsController extends Controller
             ->limit(500)
             ->get();
 
-        $rightsStatements = Schema::hasTable('rights_statement') ? DB::table('rights_statement')->orderBy('sort_order')->get() : collect();
-        $ccLicenses = Schema::hasTable('creative_commons_license') ? DB::table('creative_commons_license')->orderBy('sort_order')->get() : collect();
-        $tkLabels = Schema::hasTable('rights_tk_label') ? DB::table('rights_tk_label')->orderBy('sort_order')->get() : collect();
+        // The blade renders $rs->name / $cc->name / $tk->name, but the base
+        // tables only hold code/uri; the human-readable name lives in the
+        // matching *_i18n tables. Join them so every row exposes a `name`.
+        $rightsStatements = Schema::hasTable('rights_statement')
+            ? DB::table('rights_statement as rs')
+                ->leftJoin('rights_statement_i18n as rsi', function ($j) use ($culture) {
+                    $j->on('rs.id', '=', 'rsi.rights_statement_id')->where('rsi.culture', '=', $culture);
+                })
+                ->select('rs.*', 'rsi.name')
+                ->orderBy('rs.sort_order')
+                ->get()
+            : collect();
+        $ccLicenses = Schema::hasTable('creative_commons_license')
+            ? DB::table('creative_commons_license as cc')
+                ->leftJoin('creative_commons_license_i18n as cci', function ($j) use ($culture) {
+                    $j->on('cc.id', '=', 'cci.creative_commons_license_id')->where('cci.culture', '=', $culture);
+                })
+                ->select('cc.*', 'cci.name')
+                ->orderBy('cc.sort_order')
+                ->get()
+            : collect();
+        $tkLabels = Schema::hasTable('rights_tk_label')
+            ? DB::table('rights_tk_label as tk')
+                ->leftJoin('rights_tk_label_i18n as tki', function ($j) use ($culture) {
+                    $j->on('tk.id', '=', 'tki.id')->where('tki.culture', '=', $culture);
+                })
+                ->select('tk.*', 'tki.name')
+                ->orderBy('tk.sort_order')
+                ->get()
+            : collect();
         $donors = DB::table('donor')
             ->join('actor_i18n', 'donor.id', '=', 'actor_i18n.id')
             ->where('actor_i18n.culture', $culture)

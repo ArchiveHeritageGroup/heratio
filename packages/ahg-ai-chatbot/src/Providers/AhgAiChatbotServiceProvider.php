@@ -39,6 +39,14 @@ class AhgAiChatbotServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-ai-chatbot');
 
+        // The chatbot views @extends('layouts/admin'), a non-namespaced layout
+        // name that Heratio never defined. Register a compat path on the default
+        // view finder so that name resolves to a bridge that extends the
+        // canonical theme::layouts.1col. Keeps the locked chatbot blades intact.
+        $this->callAfterResolving('view', function ($factory): void {
+            $factory->getFinder()->addLocation(__DIR__ . '/../../resources/compat-views');
+        });
+
         $this->ensureSchema();
 
         if ($this->app->runningInConsole()) {

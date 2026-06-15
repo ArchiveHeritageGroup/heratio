@@ -99,6 +99,10 @@ if [ ! -f "$MARKER" ]; then
         grep -iE "^ERROR" /tmp/sql-load.err | head -3 || true
     done
 
+    # ── Help Center ingest (mirrors bin/install) ─────────────────────────────
+    echo "[init] ingesting help articles from docs/help/"
+    php artisan ahg:help-ingest-all --no-interaction 2>&1 | tail -2 || true
+
     # ── Stage 9: admin user ──────────────────────────────────────────────────
     echo "[init] creating admin user (${ADMIN_EMAIL:-admin@heratio.test})"
     HASH=$(php -r "echo password_hash(getenv('ADMIN_PASSWORD') ?: 'admin-please-change', PASSWORD_BCRYPT);")

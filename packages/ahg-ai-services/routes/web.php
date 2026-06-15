@@ -48,6 +48,10 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/condition/history', [AiController::class, 'conditionHistory'])->name('admin.ai.condition.history');
     Route::match(['get','post'], '/condition/manual', [AiController::class, 'conditionManualAssess'])->name('admin.ai.condition.manual');
     Route::match(['get','post'], '/condition/training', [AiController::class, 'conditionTraining'])->name('admin.ai.condition.training');
+    // Condition assess AJAX API (consumed by condition-assess.blade.php)
+    Route::get('/condition/api/object-search', [AiController::class, 'conditionApiObjectSearch'])->name('admin.ai.condition.api.object-search');
+    Route::post('/condition/api/submit', [AiController::class, 'conditionApiSubmit'])->name('admin.ai.condition.api.submit');
+    Route::post('/condition/api/confirm', [AiController::class, 'conditionApiConfirm'])->name('admin.ai.condition.api.confirm');
     Route::get('/condition/{id}', [AiController::class, 'conditionView'])->name('admin.ai.condition.view')->whereNumber('id');
 
     // ─── NER Entity Management ─────────────────────────────────────

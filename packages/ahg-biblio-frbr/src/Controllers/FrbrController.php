@@ -204,11 +204,24 @@ class FrbrController extends Controller
      */
     public function agent(): Response
     {
-        $agents = DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->select(['id', 'name', 'type', 'created_at'])
-            ->orderBy('name')
-            ->get();
+        // The library_biblio_agent scaffold is optional; when the bibliographic
+        // schema has not been installed the page must still render (empty list)
+        // rather than 500. Mirrors the hasTable() guard used elsewhere here.
+        // The blade expects a paginator ($agents->total()/->links()); return one
+        // even when the optional scaffold table is absent, so the page renders.
+        $hasTable = \Illuminate\Support\Facades\Schema::connection('heratio')->hasTable('library_biblio_agent');
+        $agents = $hasTable
+            ? DB::connection('heratio')
+                ->table('library_biblio_agent')
+                ->select(['id', 'name', 'type', 'created_at'])
+                ->orderBy('name')
+                ->paginate(50)
+            : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 50);
+
+        if (! $hasTable) {
+            // Flag the unavailable feature in-app rather than a silent empty list.
+            session()->now('info', __('The FRBR agent index is not installed on this instance, so no agents can be listed here.'));
+        }
 
         return response()->view('ahg-biblio-frbr::agent', [
             'agents' => $agents,
