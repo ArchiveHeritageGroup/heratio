@@ -47,10 +47,11 @@ class SruService
         $schema = $version >= '1.2'
             ? 'http://www.loc.gov/zing/srw/sru.xsd'
             : 'http://www.loc.gov/zing/srw/';
+        $ns = self::XML_NS;   // XML_NS is a class const; $this->XML_NS would be an undefined property
 
         return <<<XML
             <?xml version="1.0" encoding="UTF-8"?>
-            <srw:searchRetrieveResponse xmlns:srw="{$this->XML_NS}"
+            <srw:searchRetrieveResponse xmlns:srw="{$ns}"
               xmlns:dc="http://purl.org/dc/elements/1.1/"
               xmlns:diag="http://www.loc.gov/zing/srw/diagnostic/"
               xmlns:xcql="http://www.loc.gov/zing/cql/xcql/"

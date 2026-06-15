@@ -42,6 +42,10 @@ Route::prefix('api/sushi/r5')->group(function () {
 Route::get('/library', [LibraryController::class, 'browse'])->name('library.browse');
 Route::get('/library/browse', [LibraryController::class, 'browse'])->name('library.browse.alias');
 
+// #1281 SRU (Search/Retrieve via URL) server - explain + searchRetrieve over the
+// public library catalogue (CORS-enabled, read-only). GET-based per the SRU spec.
+Route::get('/library/sru', [\AhgLibrary\Controllers\SruController::class, 'handle'])->name('library.sru');
+
 Route::get('/library/cover-image/{isbn}', [LibraryController::class, 'coverImage'])
     ->name('library.cover-image')
     ->where('isbn', '[0-9Xx\-]{9,20}');
