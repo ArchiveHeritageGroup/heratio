@@ -31,6 +31,7 @@ use AhgApi\Controllers\V1\InformationObjectApiController;
 use AhgApi\Controllers\V1\PhysicalObjectApiController;
 use AhgApi\Controllers\V1\RepositoryApiController;
 use AhgApi\Controllers\V1\ResearchBibliographyApiController;
+use AhgApi\Controllers\V1\ExhibitionApiController;
 use AhgApi\Controllers\V1\ResearchOutputApiController;
 use AhgApi\Controllers\V1\ResearchProjectApiController;
 use AhgApi\Controllers\V1\TaxonomyApiController;
@@ -42,6 +43,7 @@ use AhgApi\Controllers\V2\AuthorityController;
 use AhgApi\Controllers\V2\BatchController;
 use AhgApi\Controllers\V2\ConditionController;
 use AhgApi\Controllers\V2\DescriptionController;
+use AhgApi\Controllers\V2\ExhibitionController as V2ExhibitionController;
 use AhgApi\Controllers\V2\DigitalObjectController as V2DigitalObjectController;
 use AhgApi\Controllers\V2\EventController;
 use AhgApi\Controllers\V2\IdentifierController;
@@ -1009,6 +1011,27 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'a
         ->where('id', '[0-9]+')
         ->middleware('api.auth:delete');
 
+    // Exhibitions (#1280) - exhibition spaces + their object placements (local + #1277
+    // remote/borrowed). The public read-only interop (IIIF manifest.json, scene.json,
+    // exhibition.jsonld) stays unauthenticated; this resource is the scoped-key management
+    // surface. Read/write/delete scopes, same posture as research projects.
+    Route::middleware('api.auth:read')->group(function () {
+        Route::get('exhibitions', [ExhibitionApiController::class, 'index']);
+        Route::get('exhibitions/{slug}', [ExhibitionApiController::class, 'show']);
+        Route::get('exhibitions/{slug}/placements', [ExhibitionApiController::class, 'placements']);
+    });
+    Route::middleware('api.auth:write')->group(function () {
+        Route::post('exhibitions', [ExhibitionApiController::class, 'store']);
+        Route::put('exhibitions/{slug}', [ExhibitionApiController::class, 'update']);
+        Route::post('exhibitions/{slug}/placements', [ExhibitionApiController::class, 'storePlacement']);
+        Route::post('exhibitions/{slug}/placements/remote', [ExhibitionApiController::class, 'storeRemotePlacement']);
+    });
+    Route::delete('exhibitions/{slug}', [ExhibitionApiController::class, 'destroy'])
+        ->middleware('api.auth:delete');
+    Route::delete('exhibitions/{slug}/placements/{id}', [ExhibitionApiController::class, 'destroyPlacement'])
+        ->where('id', '[0-9]+')
+        ->middleware('api.auth:delete');
+
     // Research Bibliographies (#1255) - bibliographies + nested entries.
     // Same auth posture as research projects: read/write/delete scopes, never
     // public. Nested entry CRUD lives under each bibliography id.
@@ -1078,6 +1101,10 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
 
     // Root — endpoint listing
     Route::get('/', [ApiRootController::class, 'index'])->withoutMiddleware('api.auth:read');
+
+    // Exhibitions (#1280) - v2 READ mirror; writes are on the v1 resource.
+    Route::get('exhibitions', [V2ExhibitionController::class, 'index']);
+    Route::get('exhibitions/{slug}', [V2ExhibitionController::class, 'show']);
 
     // Descriptions — full CRUD
     Route::get('descriptions', [DescriptionController::class, 'index']);
