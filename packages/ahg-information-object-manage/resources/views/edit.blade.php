@@ -96,6 +96,7 @@
               <div class="input-group">
                 <input type="text" class="form-control" id="identifier" name="identifier"
                        autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"
+                       data-lpignore="true" data-1p-ignore="true" data-form-type="other"
                        value="{{ old('identifier', $io->identifier) }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier"
                         data-generate-identifier-url="{{ url('/informationobject/generateIdentifier') }}">
