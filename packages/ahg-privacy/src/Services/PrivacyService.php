@@ -82,6 +82,59 @@ class PrivacyService
     }
 
     // =====================================================================
+    //  PAIA / DSAR taxonomies (ported from PSIS)
+    // =====================================================================
+
+    public static function getPAIARequestTypes(): array
+    {
+        return [
+            'section_18' => ['code' => 'PAIA S18', 'label' => 'Request for access to record of public body', 'days' => 30],
+            'section_22' => ['code' => 'PAIA S22', 'label' => 'Fees payable', 'days' => 30],
+            'section_23' => ['code' => 'PAIA S23', 'label' => 'Access request to private body', 'days' => 30],
+            'section_50' => ['code' => 'PAIA S50', 'label' => 'Request for access to record of private body', 'days' => 30],
+            'section_77' => ['code' => 'PAIA S77', 'label' => 'Internal appeal', 'days' => 30],
+        ];
+    }
+
+    public static function getDsarStatuses(): array
+    {
+        return [
+            'received' => 'Received',
+            'verified' => 'Verified',
+            'in_progress' => 'In Progress',
+            'pending_info' => 'Pending Information',
+            'completed' => 'Completed',
+            'rejected' => 'Rejected',
+            'withdrawn' => 'Withdrawn',
+        ];
+    }
+
+    public static function getDsarOutcomes(): array
+    {
+        return [
+            '' => '-- Select Outcome --',
+            'granted' => 'Granted',
+            'partially_granted' => 'Partially Granted',
+            'refused' => 'Refused',
+            'not_applicable' => 'Not Applicable',
+        ];
+    }
+
+    /** PAIA requests list with optional status filter (PSIS getPaiaRequests). */
+    public function getPaiaRequests(array $filters = [])
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('privacy_paia_request')) {
+            return collect();
+        }
+        $q = DB::table('privacy_paia_request');
+        if (! empty($filters['status'])) {
+            $q->where('status', $filters['status']);
+        }
+
+        return $q->orderByDesc('id')->get();
+    }
+
+    // =====================================================================
     //  DSAR (Data Subject Access Requests)
     // =====================================================================
 

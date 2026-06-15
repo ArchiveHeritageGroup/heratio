@@ -103,6 +103,7 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(functi
     Route::get('/pii-review', [PrivacyController::class, 'piiReview'])->name('ahgprivacy.pii-review');
     Route::get('/pii-scan-object', [PrivacyController::class, 'piiScanObject'])->name('ahgprivacy.pii-scan-object');
     Route::get('/pii-scan', [PrivacyController::class, 'piiScan'])->name('ahgprivacy.pii-scan');
+    Route::post('/pii-scan-run', [PrivacyController::class, 'piiScanRun'])->name('ahgprivacy.pii-scan-run');
     Route::get('/report', [PrivacyController::class, 'report'])->name('ahgprivacy.report');
     Route::get('/ropa-add', [PrivacyController::class, 'ropaAdd'])->name('ahgprivacy.ropa-add');
     Route::get('/ropa-edit', [PrivacyController::class, 'ropaEdit'])->name('ahgprivacy.ropa-edit');

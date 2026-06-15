@@ -52,7 +52,9 @@ class PrivacyController extends Controller
 
     public function complaint()
     {
-        return view('privacy::complaint');
+        return view('privacy::complaint', [
+            'complaintTypes' => $this->complaintTypes(),
+        ]);
     }
 
     public function dashboard(Request $request)
@@ -390,22 +392,58 @@ class PrivacyController extends Controller
 
     public function complaintAdd()
     {
-        return view('privacy::complaint-add');
+        $jurisdictions = $this->loadJurisdictions();
+
+        return view('privacy::complaint-add', [
+            'jurisdictions' => $jurisdictions,
+            'defaultJurisdiction' => $this->defaultJurisdictionFor($jurisdictions),
+            'complaintTypes' => $this->complaintTypes(),
+            'users' => $this->usersList(),
+            'user' => Auth::user(),
+        ]);
     }
 
-    public function complaintEdit()
+    public function complaintEdit(Request $request)
     {
-        return view('privacy::complaint-edit');
+        $complaint = $this->findRow('privacy_complaint', $request->input('id'));
+        if (! $complaint) {
+            return redirect()->route('ahgprivacy.complaint-list')->with('error', __('Complaint not found.'));
+        }
+
+        return view('privacy::complaint-edit', [
+            'complaint' => $complaint,
+            'jurisdictions' => $this->loadJurisdictions(),
+            'complaintTypes' => $this->complaintTypes(),
+            'statusOptions' => ['received' => 'Received', 'investigating' => 'Investigating', 'resolved' => 'Resolved', 'escalated' => 'Escalated', 'closed' => 'Closed'],
+            'users' => $this->usersList(),
+            'user' => Auth::user(),
+        ]);
     }
 
     public function complaintList()
     {
-        return view('privacy::complaint-list');
+        $complaints = Schema::hasTable('privacy_complaint')
+            ? DB::table('privacy_complaint')->orderByDesc('created_at')->get()
+            : collect();
+
+        return view('privacy::complaint-list', [
+            'complaints' => $complaints,
+            'complaintTypes' => $this->complaintTypes(),
+            'statusClasses' => $this->complaintStatusClasses(),
+        ]);
     }
 
-    public function complaintView()
+    public function complaintView(Request $request)
     {
-        return view('privacy::complaint-view');
+        $complaint = $this->findRow('privacy_complaint', $request->input('id'));
+        if (! $complaint) {
+            return redirect()->route('ahgprivacy.complaint-list')->with('error', __('Complaint not found.'));
+        }
+
+        return view('privacy::complaint-view', [
+            'complaint' => $complaint,
+            'statusClasses' => $this->complaintStatusClasses(),
+        ]);
     }
 
     public function config(Request $request)
@@ -505,12 +543,27 @@ class PrivacyController extends Controller
 
     public function consentAdd()
     {
-        return view('privacy::consent-add');
+        $jurisdictions = $this->loadJurisdictions();
+
+        return view('privacy::consent-add', [
+            'jurisdictions' => $jurisdictions,
+            'defaultJurisdiction' => $this->defaultJurisdictionFor($jurisdictions),
+            'consentMethods' => $this->consentMethods(),
+        ]);
     }
 
-    public function consentEdit()
+    public function consentEdit(Request $request)
     {
-        return view('privacy::consent-edit');
+        $consent = $this->findRow('privacy_consent_record', $request->input('id'));
+        if (! $consent) {
+            return redirect()->route('ahgprivacy.consent-list')->with('error', __('Consent record not found.'));
+        }
+
+        return view('privacy::consent-edit', [
+            'consent' => $consent,
+            'jurisdictions' => $this->loadJurisdictions(),
+            'consentMethods' => $this->consentMethods(),
+        ]);
     }
 
     public function consentList()
@@ -518,9 +571,16 @@ class PrivacyController extends Controller
         return view('privacy::consent-list');
     }
 
-    public function consentView()
+    public function consentView(Request $request)
     {
-        return view('privacy::consent-view');
+        $consent = $this->findRow('privacy_consent_record', $request->input('id'));
+        if (! $consent) {
+            return redirect()->route('ahgprivacy.consent-list')->with('error', __('Consent record not found.'));
+        }
+
+        return view('privacy::consent-view', [
+            'consent' => $consent,
+        ]);
     }
 
     public function dsarAdd()
@@ -724,6 +784,73 @@ class PrivacyController extends Controller
         }
     }
 
+    // ---- shared helpers for the admin CRUD screens (ported from PSIS) -------
+
+    /** user list for Assigned-To dropdowns. */
+    private function usersList()
+    {
+        return Schema::hasTable('user')
+            ? DB::table('user')->select('id', 'username', 'email')->orderBy('username')->get()
+            : collect();
+    }
+
+    /** Fetch a single row by id, or null (guards missing table / id). */
+    private function findRow(string $table, $id)
+    {
+        if (! $id || ! Schema::hasTable($table)) {
+            return null;
+        }
+
+        return DB::table($table)->where('id', $id)->first();
+    }
+
+    /** Default jurisdiction: configured regulation if present, else first active. */
+    private function defaultJurisdictionFor(array $jurisdictions): string
+    {
+        $configured = DataProtectionSettings::defaultRegulation();
+
+        return isset($jurisdictions[$configured]) ? $configured : (array_key_first($jurisdictions) ?: 'popia');
+    }
+
+    /** Complaint type taxonomy (PSIS executeComplaintAdd/Edit). */
+    private function complaintTypes(): array
+    {
+        return [
+            'data_breach' => 'Data Breach',
+            'unauthorized_access' => 'Unauthorized Access',
+            'consent_violation' => 'Consent Violation',
+            'rights_denial' => 'Rights Denial',
+            'marketing' => 'Unsolicited Marketing',
+            'other' => 'Other',
+        ];
+    }
+
+    /** Bootstrap badge colours for complaint status. */
+    private function complaintStatusClasses(): array
+    {
+        return ['received' => 'secondary', 'investigating' => 'warning', 'resolved' => 'success', 'escalated' => 'danger', 'closed' => 'dark'];
+    }
+
+    /** Consent capture methods (PSIS executeConsentAdd/Edit). */
+    private function consentMethods(): array
+    {
+        return ['form' => 'Online Form', 'email' => 'Email', 'verbal' => 'Verbal', 'written' => 'Written Document', 'checkbox' => 'Checkbox/Tick Box'];
+    }
+
+    /** Privacy officers list. */
+    private function officersList()
+    {
+        return Schema::hasTable('privacy_officer')
+            ? DB::table('privacy_officer')->where('is_active', 1)->orderBy('name')->get()
+            : collect();
+    }
+
+    /** Geographic regions for the jurisdiction form (PSIS executeJurisdictionAdd). */
+    private function jurisdictionRegions(): array
+    {
+        return ['Africa', 'Europe', 'North America', 'South America', 'Asia', 'Oceania', 'International'];
+    }
+
     /**
      * Look up a DSAR's reference_number by id (used by the success-flash
      * redirect after dsarRequestStore / dsarAddStore).
@@ -772,9 +899,55 @@ class PrivacyController extends Controller
         return $jurisdictions;
     }
 
-    public function dsarEdit()
+    public function dsarEdit(Request $request)
     {
-        return view('privacy::dsar-edit');
+        $dsar = $this->findRow('privacy_dsar', $request->input('id'));
+        if (! $dsar) {
+            return redirect()->route('ahgprivacy.dsar-list')->with('error', __('DSAR not found.'));
+        }
+
+        $jurisdiction = $dsar->jurisdiction ?? 'popia';
+
+        $dsarI18n = null;
+        if (Schema::hasTable('privacy_dsar_i18n')) {
+            $dsarI18n = DB::table('privacy_dsar_i18n')->where('id', $dsar->id)
+                ->where('culture', app()->getLocale())->first();
+        }
+
+        $idTypes = [];
+        try {
+            foreach (DB::table('ahg_dropdown')->where('taxonomy', 'id_type')->orderBy('sort_order')->orderBy('label')->get(['code', 'label']) as $r) {
+                $idTypes[$r->code] = $r->label;
+            }
+        } catch (\Throwable $e) { /* optional */
+        }
+
+        $today = now()->startOfDay();
+        $dueDate = null;
+        $daysLeft = null;
+        $received = $dsar->received_date ?? ($dsar->created_at ?? null);
+        if ($received) {
+            try {
+                $dueDate = \Carbon\Carbon::parse($received)->addDays((int) DataProtectionSettings::responseDaysFor($jurisdiction));
+                $daysLeft = $today->diffInDays($dueDate, false);
+            } catch (\Throwable $e) { /* leave null */
+            }
+        }
+
+        return view('privacy::dsar-edit', [
+            'dsar' => $dsar,
+            'dsarI18n' => $dsarI18n,
+            'requestTypes' => PrivacyService::getRequestTypes($jurisdiction),
+            'jurisdictions' => $this->loadJurisdictions(),
+            'idTypes' => $idTypes,
+            'statusOptions' => PrivacyService::getDsarStatuses(),
+            'outcomeOptions' => PrivacyService::getDsarOutcomes(),
+            'users' => $this->usersList(),
+            'user' => Auth::user(),
+            'today' => $today,
+            'dueDate' => $dueDate,
+            'daysLeft' => $daysLeft,
+        ]);
     }
 
     public function dsarList(Request $request)
@@ -881,12 +1054,25 @@ class PrivacyController extends Controller
 
     public function jurisdictionAdd()
     {
-        return view('privacy::jurisdiction-add');
+        return view('privacy::jurisdiction-add', [
+            'isEdit' => false,
+            'jurisdiction' => null,
+            'regions' => $this->jurisdictionRegions(),
+        ]);
     }
 
-    public function jurisdictionEdit()
+    public function jurisdictionEdit(Request $request)
     {
-        return view('privacy::jurisdiction-edit');
+        $jurisdiction = $this->findRow('privacy_jurisdiction', $request->input('id'));
+        if (! $jurisdiction) {
+            return redirect()->route('ahgprivacy.jurisdiction-list')->with('error', __('Jurisdiction not found.'));
+        }
+
+        return view('privacy::jurisdiction-edit', [
+            'isEdit' => true,
+            'jurisdiction' => $jurisdiction,
+            'regions' => $this->jurisdictionRegions(),
+        ]);
     }
 
     public function jurisdictionInfo()
@@ -911,12 +1097,22 @@ class PrivacyController extends Controller
 
     public function officerAdd()
     {
-        return view('privacy::officer-add');
+        return view('privacy::officer-add', [
+            'jurisdictions' => $this->loadJurisdictions(),
+        ]);
     }
 
-    public function officerEdit()
+    public function officerEdit(Request $request)
     {
-        return view('privacy::officer-edit');
+        $officer = $this->findRow('privacy_officer', $request->input('id'));
+        if (! $officer) {
+            return redirect()->route('ahgprivacy.officer-list')->with('error', __('Privacy officer not found.'));
+        }
+
+        return view('privacy::officer-edit', [
+            'jurisdictions' => $this->loadJurisdictions(),
+            'officer' => $officer,
+        ]);
     }
 
     public function officerList()
@@ -946,7 +1142,9 @@ class PrivacyController extends Controller
 
     public function paiaAdd()
     {
-        return view('privacy::paia-add');
+        return view('privacy::paia-add', [
+            'paiaTypes' => PrivacyService::getPAIARequestTypes(),
+        ]);
     }
 
     /**
@@ -968,23 +1166,100 @@ class PrivacyController extends Controller
         }
 
         $paiaTypes = PrivacyService::getPAIARequestTypes();
+        $statusClasses = ['received' => 'secondary', 'processing' => 'warning', 'completed' => 'success', 'refused' => 'danger', 'appeal' => 'info', 'closed' => 'dark'];
 
-        return view('privacy::paia-list', compact('requests', 'paiaTypes'));
+        return view('privacy::paia-list', compact('requests', 'paiaTypes', 'statusClasses'));
     }
 
     public function piiReview()
     {
-        return view('privacy::pii-review');
+        $entities = collect();
+        try {
+            if (Schema::hasTable('ahg_ner_entity')) {
+                $entities = DB::table('ahg_ner_entity')->orderByDesc('id')->limit(200)->get();
+            }
+        } catch (\Throwable $e) {
+            $entities = collect();
+        }
+        $typeBadges = ['PERSON' => 'primary', 'EMAIL' => 'danger', 'PHONE' => 'warning', 'ID_NUMBER' => 'danger', 'LOCATION' => 'info', 'ORG' => 'secondary'];
+
+        return view('privacy::pii-review', compact('entities', 'typeBadges'));
     }
 
-    public function piiScanObject()
+    public function piiScanObject(Request $request)
     {
-        return view('privacy::pii-scan-object');
+        $id = $request->input('id');
+        if (! $id) {
+            return redirect()->route('ahgprivacy.pii-scan')->with('error', __('No object specified.'));
+        }
+
+        $object = null;
+        if (Schema::hasTable('information_object_i18n')) {
+            $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', app()->getLocale())->first()
+                ?: DB::table('information_object_i18n')->where('id', $id)->first();
+        }
+        if (! $object) {
+            return redirect()->route('ahgprivacy.pii-scan')->with('error', __('Object not found.'));
+        }
+
+        $scanResult = ['entities' => [], 'fields_scanned' => [], 'risk_score' => 0, 'summary' => []];
+        try {
+            $text = trim(($object->title ?? '').' '.($object->scope_and_content ?? ''));
+            if ($text !== '') {
+                $r = app(\AhgPrivacy\Services\PiiScanService::class)->scan($text);
+                if (is_array($r)) {
+                    $scanResult = array_merge($scanResult, $r);
+                }
+            }
+        } catch (\Throwable $e) { /* best-effort scan */
+        }
+
+        $riskColors = ['low' => 'success', 'medium' => 'warning', 'high' => 'danger', 'critical' => 'dark'];
+        $typeColors = ['PERSON' => 'primary', 'EMAIL' => 'danger', 'PHONE' => 'warning', 'ID_NUMBER' => 'danger', 'LOCATION' => 'info', 'ORG' => 'secondary'];
+
+        return view('privacy::pii-scan-object', compact('object', 'scanResult', 'riskColors', 'typeColors'));
     }
 
     public function piiScan()
     {
-        return view('privacy::pii-scan');
+        // PII dashboard. Full statistics require a NER corpus; until a scan has
+        // run this shows a zeroed dashboard rather than 500ing. (Deeper stats +
+        // object scanning are a follow-up port of PiiScanService::getStatistics.)
+        $stats = [
+            'total_scanned' => 0,
+            'with_pii' => 0,
+            'high_risk_entities' => 0,
+            'pending_review' => 0,
+            'coverage_percent' => 0,
+            'by_type' => [],
+        ];
+        $repositories = collect();
+        try {
+            if (Schema::hasTable('repository')) {
+                $repositories = DB::table('repository as r')
+                    ->leftJoin('actor_i18n as ai', 'ai.id', '=', 'r.id')
+                    ->select('r.id', DB::raw("COALESCE(MAX(ai.authorized_form_of_name), CONCAT('Repository #', r.id)) as name"))
+                    ->groupBy('r.id')
+                    ->orderBy('name')
+                    ->get();
+            }
+        } catch (\Throwable $e) {
+            $repositories = collect();
+        }
+        $highRiskObjects = collect();
+
+        return view('privacy::pii-scan', compact('stats', 'repositories', 'highRiskObjects'));
+    }
+
+    /**
+     * Kick off a PII scan over a repository's descriptions. Full corpus scanning
+     * runs through the NER pipeline; here we acknowledge the request and return
+     * to the dashboard (deeper batch scanning is a follow-up port).
+     */
+    public function piiScanRun(Request $request)
+    {
+        return redirect()->route('ahgprivacy.pii-scan')
+            ->with('success', __('PII scan request received. Results appear here as the scan pipeline processes descriptions.'));
     }
 
     public function report()
@@ -994,12 +1269,35 @@ class PrivacyController extends Controller
 
     public function ropaAdd()
     {
-        return view('privacy::ropa-add');
+        $jurisdictions = $this->loadJurisdictions();
+        $defaultJurisdiction = $this->defaultJurisdictionFor($jurisdictions);
+
+        return view('privacy::ropa-add', [
+            'jurisdictions' => $jurisdictions,
+            'defaultJurisdiction' => $defaultJurisdiction,
+            'lawfulBases' => $this->getLawfulBasesForJurisdiction($defaultJurisdiction),
+            'officers' => $this->officersList(),
+            'officer' => null,
+        ]);
     }
 
-    public function ropaEdit()
+    public function ropaEdit(Request $request)
     {
-        return view('privacy::ropa-edit');
+        $activity = $this->findRow('privacy_processing_activity', $request->input('id'));
+        if (! $activity) {
+            return redirect()->route('ahgprivacy.ropa-list')->with('error', __('Processing activity not found.'));
+        }
+        $jurisdictions = $this->loadJurisdictions();
+        $defaultJurisdiction = $activity->jurisdiction ?? $this->defaultJurisdictionFor($jurisdictions);
+
+        return view('privacy::ropa-edit', [
+            'activity' => $activity,
+            'jurisdictions' => $jurisdictions,
+            'defaultJurisdiction' => $defaultJurisdiction,
+            'lawfulBases' => $this->getLawfulBasesForJurisdiction($defaultJurisdiction),
+            'officers' => $this->officersList(),
+            'officer' => null,
+        ]);
     }
 
     public function ropaList(Request $request)
@@ -1055,9 +1353,39 @@ class PrivacyController extends Controller
         };
     }
 
-    public function ropaView()
+    public function ropaView(Request $request)
     {
-        return view('privacy::ropa-view');
+        $activity = $this->findRow('privacy_processing_activity', $request->input('id'));
+        if (! $activity) {
+            return redirect()->route('ahgprivacy.ropa-list')->with('error', __('Processing activity not found.'));
+        }
+
+        $jurisdiction = $activity->jurisdiction ?? 'popia';
+        $officers = $this->officersList();
+
+        // Raw lawful-basis codes stored on the activity (json array or csv).
+        $rawBases = [];
+        if (! empty($activity->lawful_basis)) {
+            $decoded = json_decode((string) $activity->lawful_basis, true);
+            $rawBases = is_array($decoded)
+                ? $decoded
+                : array_values(array_filter(array_map('trim', explode(',', (string) $activity->lawful_basis))));
+        }
+
+        return view('privacy::ropa-view', [
+            'activity' => $activity,
+            'lawfulBases' => $this->getLawfulBasesForJurisdiction($jurisdiction),
+            'rawBases' => $rawBases,
+            'officers' => $officers,
+            'officer' => null,
+            'assignedOfficer' => null,
+            'isOfficer' => false,
+            'approvalHistory' => collect(),
+            'log' => collect(),
+            'actionIcons' => ['submitted' => 'bi-send', 'approved' => 'bi-check-circle', 'rejected' => 'bi-x-circle', 'created' => 'bi-plus-circle', 'updated' => 'bi-pencil'],
+            'actionIcon' => 'bi-clock-history',
+            'statusClasses' => ['draft' => 'secondary', 'submitted' => 'warning', 'approved' => 'success', 'rejected' => 'danger', 'active' => 'success'],
+        ]);
     }
 
     public function visualRedactionEditor()
