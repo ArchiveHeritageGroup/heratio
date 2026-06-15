@@ -18,7 +18,7 @@ class StoreTradingPartnerRequest extends FormRequest
                 'required', 'string', 'max:20',
                 Rule::unique('library_trading_partner', 'edi_partner_code')->ignore($partnerId),
             ],
-            'vendor_id'        => 'nullable|integer|exists:library_vendors,id',
+            'vendor_id'        => 'nullable|integer|exists:library_vendor,id',
             'edi_type'         => ['required', Rule::in(['EANCOM', 'X12', 'UN/EDIFACT', 'CUSTOM'])],
             'message_profile'  => ['required', Rule::in(['EANCOM_S93', 'EANCOM_S94', 'X12_850', 'CUSTOM'])],
             'endpoint_type'   => ['required', Rule::in(['SFTP', 'AS2', 'HTTP_HTTPS', 'EMAIL', 'MANUAL'])],

@@ -13,8 +13,8 @@ class StoreIllRequestRequest extends FormRequest
     {
         return [
             'ill_number'          => 'nullable|string|max:30',
-            'requester_library_id'=> 'nullable|integer|exists:library_vendors,id',
-            'responder_library_id'=> 'nullable|integer|exists:library_vendors,id',
+            'requester_library_id'=> 'nullable|integer|exists:library_vendor,id',
+            'responder_library_id'=> 'nullable|integer|exists:library_vendor,id',
             'trading_partner_id'  => 'nullable|integer|exists:library_trading_partner,id',
             'patron_id'           => 'nullable|integer',
             'request_type'        => ['nullable', Rule::in(['BORROW', 'SUPPLY', 'PHOTOCOPY', 'LOAN_RENEWAL', 'STATUS_CHECK'])],

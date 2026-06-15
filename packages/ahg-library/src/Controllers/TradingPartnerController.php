@@ -42,14 +42,14 @@ class TradingPartnerController
             'as2'     => TradingPartner::where('endpoint_type', 'AS2')->count(),
         ];
 
-        return view('library::circulation.trading-partners.index', compact('partners', 'stats'));
+        return view('ahg-library::circulation.trading-partners.index', compact('partners', 'stats'));
     }
 
     /** Create form */
     public function create(): View
     {
-        $vendors = DB::table('library_vendors')->where('is_active', 1)->orderBy('name')->get(['id', 'name', 'code']);
-        return view('library::circulation.trading-partners.create', compact('vendors'));
+        $vendors = DB::table('library_vendor')->where('is_active', 1)->orderBy('name')->get(['id', 'name', 'vendor_code as code']);
+        return view('ahg-library::circulation.trading-partners.create', compact('vendors'));
     }
 
     /** Store new partner */
@@ -64,8 +64,8 @@ class TradingPartnerController
     /** Edit form */
     public function edit(TradingPartner $partner): View
     {
-        $vendors = DB::table('library_vendors')->where('is_active', 1)->orderBy('name')->get(['id', 'name', 'code']);
-        return view('library::circulation.trading-partners.edit', compact('partner', 'vendors'));
+        $vendors = DB::table('library_vendor')->where('is_active', 1)->orderBy('name')->get(['id', 'name', 'vendor_code as code']);
+        return view('ahg-library::circulation.trading-partners.edit', compact('partner', 'vendors'));
     }
 
     /** Update partner */

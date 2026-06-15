@@ -53,7 +53,7 @@ class IllRequestController
 
         $counts = $this->illService->countByStatus();
 
-        return view('library::circulation.ill-requests.index', compact(
+        return view('ahg-library::circulation.ill-requests.index', compact(
             'requests', 'statuses', 'protocols', 'partners', 'counts'
         ));
     }
@@ -62,10 +62,10 @@ class IllRequestController
     public function create(): View
     {
         $partners = TradingPartner::active()->orderBy('edi_partner_code')->get(['id', 'edi_partner_code', 'edi_type']);
-        $vendors = DB::table('library_vendors')->where('is_active', 1)->orderBy('name')->get(['id', 'name', 'code']);
+        $vendors = DB::table('library_vendor')->where('is_active', 1)->orderBy('name')->get(['id', 'name', 'vendor_code as code']);
         $illNumber = $this->illService->generateIllNumber();
 
-        return view('library::circulation.ill-requests.create', compact(
+        return view('ahg-library::circulation.ill-requests.create', compact(
             'partners', 'vendors', 'illNumber'
         ));
     }
@@ -136,7 +136,7 @@ class IllRequestController
 
         $protocols = ['AARC', 'IFM', 'BLDSS', 'RLG', 'CUSTOM'];
 
-        return view('library::circulation.ill-requests.show', compact(
+        return view('ahg-library::circulation.ill-requests.show', compact(
             'ill', 'partner', 'availableTransitions', 'protocols'
         ));
     }
