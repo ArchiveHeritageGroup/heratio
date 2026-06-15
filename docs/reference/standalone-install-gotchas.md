@@ -51,6 +51,33 @@ one). So:
   a TLS-terminating proxy that is correct; for a bare http-only box you may want
   to set `APP_URL=http://<domain>` to avoid mixed-scheme URL generation.
 
+## Empty Browse menu / bare Plugin Management = base plugins not registered
+
+The nav Browse dropdown and `/admin/ahgSettings/plugins` are driven by the
+`atom_plugin` registry (`is_enabled=1` rows). `atom_plugin.is_enabled` controls
+nav/menu visibility, NOT route loading (Laravel ServiceProviders load routes
+regardless). A fresh install used to register only ~3 plugins, so Browse was
+empty and Plugin Management nearly so.
+
+The base set is the seven `is_core=1` plugins, always installed AND enabled from
+the start: `ahgCorePlugin`, `sfPropelPlugin`, `qbAclPlugin`, `sfPluginAdminPlugin`,
+`ahgSettingsPlugin`, `ahgSecurityClearancePlugin`, `ahgThemeB5Plugin`. Three of
+them (`sfPropelPlugin`, `qbAclPlugin`, `sfPluginAdminPlugin`) are legacy registry
+names with no self-registering package, so they can only come from a seed -
+`database/seeds/08_base_plugins.sql`. Every other plugin is registered/enabled
+one at a time by the admin via `/admin/ahgSettings/plugins`.
+
+If Browse is empty on an existing install, confirm the base set:
+`SELECT name,is_enabled FROM atom_plugin WHERE is_core=1;` - all seven should be 1.
+
+## Admin can log in but every /admin page is 403
+
+Admin authorisation is `AclService::canAdmin()`, which needs the user in the
+`administrator` ACL group (`acl_group.id=100`) via `acl_user_group`. The group
+list is cached 300s (`Cache::remember("acl_groups_{id}")`), so after changing a
+user's groups run `php artisan cache:clear` or wait out the TTL. The installer
+(v1.142.172+) grants group 100 to the admin it creates.
+
 ## Fresh MySQL 8 root is socket-only
 
 On a clean Ubuntu 24.04 MySQL 8 install, `root` authenticates via `auth_socket`
