@@ -27,10 +27,18 @@ VM_NAME="heratio-dev"
 VM_RAM_MB=4096
 VM_CPUS=4
 VM_DISK_GB=40
-NET_BRIDGE="br0"
+# LAN bridge + a STATIC IP: this environment's LAN has no DHCP for new guests
+# (Mogalakwena uses a static address), so cloud-init assigns a fixed IP via a
+# netplan network-config in the seed. Override the address with --ip; use
+# --bridge <name> to change the bridge.
+NET_SPEC="bridge=br0"
+STATIC_IP="192.168.0.60"            # free on the LAN (ping-clear + absent from ARP); override with --ip
+GATEWAY="192.168.0.1"
+DNS1="192.168.0.1"
+DNS2="8.8.8.8"
 REPO_URL="https://github.com/ArchiveHeritageGroup/heratio.git"   # PUBLIC - no creds
 BRANCH="main"
-APP_DOMAIN=""                       # default: the guest's DHCP IP
+APP_DOMAIN=""                       # default: the static IP
 ADMIN_EMAIL="admin@heratio.local"
 ADMIN_PASSWORD=""                   # default: generated, printed at the end
 FORCE=0
@@ -41,6 +49,8 @@ PROTECTED_VMS=("Mogalakwena")
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --name)            VM_NAME="$2"; shift 2 ;;
+        --ip)              STATIC_IP="$2"; shift 2 ;;
+        --bridge)          NET_SPEC="bridge=$2"; shift 2 ;;
         --cpus)            VM_CPUS="$2"; shift 2 ;;
         --ram-mb)          VM_RAM_MB="$2"; shift 2 ;;
         --disk-gb)         VM_DISK_GB="$2"; shift 2 ;;
@@ -135,14 +145,32 @@ instance-id: $VM_NAME
 local-hostname: $VM_NAME
 EOF
 
+# Static network (the LAN has no DHCP). NoCloud reads this 'network-config' (netplan v2).
+cat > "$SEED_DIR/network-config" <<EOF
+version: 2
+ethernets:
+  primary:
+    match:
+      name: "en*"
+    dhcp4: false
+    addresses:
+      - $STATIC_IP/24
+    routes:
+      - to: default
+        via: $GATEWAY
+    nameservers:
+      addresses: [$DNS1, $DNS2]
+EOF
+
 # Build the cloud-init seed ISO with whatever tool is present (this host has
-# xorriso, not genisoimage). Errors are NOT swallowed so a failure is visible.
+# xorriso, not genisoimage). network-config is included so the static IP applies.
+# Errors are NOT swallowed so a failure is visible.
 if command -v genisoimage >/dev/null 2>&1; then
-    genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
+    genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock "$SEED_DIR/user-data" "$SEED_DIR/meta-data" "$SEED_DIR/network-config"
 elif command -v xorriso >/dev/null 2>&1; then
-    xorriso -as genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
+    xorriso -as genisoimage -output "$SEED_ISO" -volid cidata -joliet -rock "$SEED_DIR/user-data" "$SEED_DIR/meta-data" "$SEED_DIR/network-config"
 elif command -v cloud-localds >/dev/null 2>&1; then
-    cloud-localds "$SEED_ISO" "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
+    cloud-localds --network-config="$SEED_DIR/network-config" "$SEED_ISO" "$SEED_DIR/user-data" "$SEED_DIR/meta-data"
 else
     echo "need genisoimage, xorriso, or cloud-localds to build the cloud-init seed ISO" >&2; exit 1
 fi
@@ -155,7 +183,7 @@ cp --reflink=auto "$CLOUD_IMG" "$DISK"
 QEMU_IMG=/usr/bin/qemu-img; [[ -x "$QEMU_IMG" ]] || QEMU_IMG=$(command -v qemu-img)
 "$QEMU_IMG" resize "$DISK" "${VM_DISK_GB}G"
 
-echo "==> virt-install $VM_NAME ($VM_CPUS vCPU, $VM_RAM_MB MB, $VM_DISK_GB GB) on $NET_BRIDGE"
+echo "==> virt-install $VM_NAME ($VM_CPUS vCPU, $VM_RAM_MB MB, $VM_DISK_GB GB) on $NET_SPEC, static IP $STATIC_IP"
 virt-install \
     --name      "$VM_NAME" \
     --memory    "$VM_RAM_MB" \
@@ -163,25 +191,25 @@ virt-install \
     --disk      "path=$DISK,format=qcow2,bus=virtio" \
     --disk      "path=$SEED_ISO,device=cdrom" \
     --os-variant ubuntu24.04 \
-    --network   "bridge=$NET_BRIDGE,model=virtio" \
+    --network   "$NET_SPEC,model=virtio" \
     --graphics  none \
     --console   pty,target_type=serial \
     --import \
     --noautoconsole
 
-# ── 4. wait for the guest IP (bridged → use the guest agent, then ARP) ───────
-echo "==> waiting for guest IP via qemu-guest-agent (allow a few min for first boot + agent install)"
-IP=""
-for i in {1..120}; do
-    IP=$(virsh domifaddr "$VM_NAME" --source agent 2>/dev/null | awk '/ipv4/{split($4,a,"/"); print a[1]; exit}')
-    [[ -z "$IP" ]] && IP=$(virsh domifaddr "$VM_NAME" --source arp 2>/dev/null | awk '/ipv4/{split($4,a,"/"); print a[1]; exit}')
-    [[ "$IP" == 127.* || "$IP" == 169.254.* ]] && IP=""
-    [[ -n "$IP" ]] && break
+# ── 4. wait for the guest to come up on its STATIC IP (deterministic) ────────
+IP="$STATIC_IP"
+echo "==> waiting for SSH on the static IP $IP (first boot + cloud-init, ~3-5 min)"
+UP=0
+for i in {1..96}; do
+    if ssh -o BatchMode=yes -o ConnectTimeout=4 -o StrictHostKeyChecking=accept-new \
+           ahgadmin@"$IP" 'test -f /var/log/heratio-vm-ready' 2>/dev/null; then UP=1; break; fi
     sleep 5
 done
-if [[ -z "$IP" ]]; then
-    echo "no IP after ~10 min." >&2
+if [[ "$UP" -ne 1 ]]; then
+    echo "VM not reachable at $IP after ~8 min." >&2
     echo "Debug from the console: sudo virsh console $VM_NAME  (login: ahgadmin / $VM_PASSWORD ; Ctrl-] to detach)" >&2
+    echo "Inside, check: ip -4 addr ; cloud-init status --long ; cat /etc/netplan/50-cloud-init.yaml" >&2
     exit 1
 fi
 

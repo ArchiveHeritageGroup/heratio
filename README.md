@@ -172,7 +172,7 @@ Full guide: [`docs/overlay-install-howto.md`](docs/overlay-install-howto.md)
 
 ### Scenario 2 - Standalone clean install
 
-For a fresh deployment with no AtoM. `bin/install` is a 14-stage idempotent installer: preflight → composer → npm build → `.env` + `key:generate` → create DB → core schema (`database/core/`) → plugin schema (`heratio:install-bootstrap`) → seeds (`database/seeds/`) → admin user → storage paths → Elasticsearch reindex → nginx config → smoke test. `bin/install-host-tools.sh` installs the OS prerequisites (PHP 8.3, MySQL 8, nginx, Redis, Node, Elasticsearch) first.
+For a fresh deployment with no AtoM. `bin/install` is a 14-stage idempotent installer: preflight → composer → npm build → `.env` + `key:generate` → create DB → core schema (`database/core/`) → plugin schema (`heratio:install-bootstrap`) → seeds (`database/seeds/`) → admin user → storage paths → Elasticsearch reindex → nginx config → smoke test. Install the OS prerequisites first (PHP 8.3, MySQL 8, nginx, Redis, Node, Elasticsearch - see the how-to §3). (`bin/install-host-tools.sh` is separate: it installs the optional 3D / provenance tools only.)
 
 Full step-by-step guide: [`docs/standalone-install-howto.md`](docs/standalone-install-howto.md). (The original design doc is [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md).)
 

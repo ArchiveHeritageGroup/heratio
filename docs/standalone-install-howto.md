@@ -41,7 +41,7 @@ Both methods run the same `bin/install` and produce identical results.
 
 ## 3. Pre-install checklist
 
-> **Shortcut:** after cloning the repo (Section 4) you can run `sudo bin/install-host-tools.sh` to install all of these prerequisites automatically (PHP 8.3, MySQL 8, nginx, Redis, Node, Elasticsearch). The manual steps below are the reference / alternative for non-Debian hosts.
+> Install these core prerequisites with the commands below. (`bin/install-host-tools.sh` is a *separate* installer for the optional 3D / provenance tools - FBX2glTF, c2patool, point-cloud converter - covered in Section 8; it does **not** install PHP/MySQL/nginx/ES.)
 
 ```bash
 # 1. install OS dependencies (Ubuntu/Debian - adapt for RHEL/Arch)

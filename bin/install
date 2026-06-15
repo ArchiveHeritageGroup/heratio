@@ -363,6 +363,16 @@ for d in "$STORAGE_PATH" "$STORAGE_PATH/r" "$STORAGE_PATH/backups" "$STORAGE_PAT
     fi
 done
 
+# Laravel runtime dirs must be owned by the php-fpm user (www-data). The install
+# runs as root, so a freshly-cloned storage/ + bootstrap/cache are root-owned and
+# every web request 500s (cannot write logs, compiled views, framework cache).
+for d in storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache; do
+    mkdir -p "$d"
+done
+chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+find storage bootstrap/cache -type d -exec chmod 775 {} \; 2>/dev/null || true
+ok "storage + bootstrap/cache owned by www-data (web-writable)"
+
 # ============================================================================
 # 11. Elasticsearch
 # ============================================================================
@@ -408,12 +418,14 @@ fi
 # 13. Smoke test
 # ============================================================================
 say "Stage 13/14 — smoke test"
+# The vhost template ships http-only (listen 80); curl the scheme it actually
+# serves so a working install does not report a false failure.
 TARGET="http://localhost"
 if [[ "$SKIP_NGINX" -eq 0 ]]; then
-    TARGET="https://${DOMAIN}"
+    TARGET="http://${DOMAIN}"
 fi
-RESP="$(curl -sk -o /dev/null -w '%{http_code}' "$TARGET/" 2>/dev/null || echo "000")"
-[[ "$RESP" =~ ^(200|301|302)$ ]] && ok "GET / -> $RESP" || warn "GET / -> $RESP (vhost may need DNS / SSL setup)"
+RESP="$(curl -s -o /dev/null -w '%{http_code}' "$TARGET/" 2>/dev/null || echo "000")"
+[[ "$RESP" =~ ^(200|301|302)$ ]] && ok "GET / -> $RESP" || warn "GET / -> $RESP (check php-fpm, nginx vhost, storage perms)"
 
 # ============================================================================
 # 14. Report
@@ -423,8 +435,8 @@ cat <<REPORT
 ═══════════════════════════════════════════════════════════════════════════════
   Heratio installed
 ═══════════════════════════════════════════════════════════════════════════════
-  URL          : https://${DOMAIN}/
-  Admin login  : https://${DOMAIN}/admin/login
+  URL          : http://${DOMAIN}/
+  Login        : http://${DOMAIN}/login
     Email      : ${ADMIN_EMAIL}
     Password   : ${ADMIN_PASSWORD}    ← printed once. Save it now.
   Database     : ${DB_NAME}@${DB_HOST}
