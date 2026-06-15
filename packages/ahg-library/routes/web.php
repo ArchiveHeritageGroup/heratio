@@ -217,6 +217,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/library/patron/{id}/reactivate', [LibraryController::class, 'patronReactivate'])->name('library.patron-reactivate')->where('id', '[0-9]+')->middleware('acl:update');
 
     // ── Serials ────────────────────────────────────────────────────────────
+    // #1281 serials bindery (vendor consignment): dashboard + send/receive
+    Route::get('/library-manage/serial-bindery', [\AhgLibrary\Controllers\SerialBinderyController::class, 'index'])->name('library.serial-bindery');
+    Route::post('/library-manage/serial-bindery/send', [\AhgLibrary\Controllers\SerialBinderyController::class, 'send'])->name('library.serial-bindery-send')->middleware('acl:update');
+    Route::post('/library-manage/serial-bindery/receive', [\AhgLibrary\Controllers\SerialBinderyController::class, 'receive'])->name('library.serial-bindery-receive')->middleware('acl:update');
     Route::get('/library-manage/serials', [LibraryController::class, 'serials'])->name('library.serials');
     Route::get('/library-manage/serial/{id}', [LibraryController::class, 'serialView'])->name('library.serial-view')->where('id', '[0-9]+');
     Route::get('/library-manage/serial/add', [LibraryController::class, 'serialCreate'])->name('library.serial-create');

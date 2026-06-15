@@ -684,6 +684,109 @@ class LibrarySerialService
             ->all();
     }
 
+    // ── Bindery batches (heratio#1281, PSIS parity) ──────────────────────────────
+    // Vendor-CONSIGNMENT workflow, distinct from createBinding() above (which binds a run
+    // in-house immediately): gather received issues, send them OUT to a commercial bindery
+    // as a batch, then receive the batch back and mark its issues bound. Ported from the
+    // PSIS ahgLibraryPlugin SerialService.
+
+    /**
+     * Create a bindery batch from received issues and send it out.
+     *
+     * @param  int[]  $issueIds  library_serial_issue ids to send
+     * @return int library_bindery_batch id (0 if the table is absent)
+     */
+    public function createBinderyBatch(array $issueIds, ?int $vendorId = null, ?string $notes = null, ?int $userId = null): int
+    {
+        if (!Schema::hasTable('library_bindery_batch')) {
+            return 0;
+        }
+        $issueIds = array_values(array_filter(array_map('intval', $issueIds), fn ($v) => $v > 0));
+        $now = now();
+
+        $batchId = (int) DB::table('library_bindery_batch')->insertGetId([
+            'batch_number' => 'BND-' . date('Ymd') . '-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 5)),
+            'vendor_id'    => $vendorId,
+            'status'       => 'sent',
+            'sent_date'    => date('Y-m-d'),
+            'item_count'   => count($issueIds),
+            'notes'        => $notes,
+            'created_by'   => $userId,
+            'created_at'   => $now,
+            'updated_at'   => $now,
+        ]);
+
+        if ($issueIds && Schema::hasColumn('library_serial_issue', 'bindery_batch_id')) {
+            DB::table('library_serial_issue')->whereIn('id', $issueIds)
+                ->update(['bindery_batch_id' => $batchId, 'updated_at' => $now]);
+        }
+
+        return $batchId;
+    }
+
+    /** Receive a bindery batch back: mark the batch returned and its issues bound. */
+    public function receiveBinderyBatch(int $batchId, ?int $boundVolumeId = null): bool
+    {
+        if (!Schema::hasTable('library_bindery_batch')) {
+            return false;
+        }
+        $now = now();
+        $ok = (bool) DB::table('library_bindery_batch')->where('id', $batchId)->update([
+            'status'        => 'returned',
+            'returned_date' => date('Y-m-d'),
+            'updated_at'    => $now,
+        ]);
+
+        if (Schema::hasColumn('library_serial_issue', 'bindery_batch_id')) {
+            $upd = ['status' => 'bound', 'updated_at' => $now];
+            if (Schema::hasColumn('library_serial_issue', 'bound_at')) {
+                $upd['bound_at'] = $now->toDateString();
+            }
+            if ($boundVolumeId && Schema::hasColumn('library_serial_issue', 'bound_volume_id')) {
+                $upd['bound_volume_id'] = $boundVolumeId;
+            }
+            DB::table('library_serial_issue')->where('bindery_batch_id', $batchId)->update($upd);
+        }
+
+        return $ok;
+    }
+
+    /**
+     * Bindery batches, newest first.
+     *
+     * @return array<int,object>
+     */
+    public function listBinderyBatches(array $params = []): array
+    {
+        if (!Schema::hasTable('library_bindery_batch')) {
+            return [];
+        }
+        $q = DB::table('library_bindery_batch');
+        if (!empty($params['status'])) {
+            $q->where('status', $params['status']);
+        }
+
+        return $q->orderByDesc('id')->limit(200)->get()->all();
+    }
+
+    /**
+     * Received issues not yet sent to a bindery batch (candidates for binding).
+     *
+     * @return array<int,object>
+     */
+    public function getBindableIssues(?int $subscriptionId = null): array
+    {
+        if (!Schema::hasTable('library_serial_issue') || !Schema::hasColumn('library_serial_issue', 'bindery_batch_id')) {
+            return [];
+        }
+        $q = DB::table('library_serial_issue')->where('status', 'received')->whereNull('bindery_batch_id');
+        if ($subscriptionId) {
+            $q->where('subscription_id', $subscriptionId);
+        }
+
+        return $q->orderBy('expected_date')->limit(500)->get()->all();
+    }
+
     // ── Lifespan ─────────────────────────────────────────────────────────
 
     /**
