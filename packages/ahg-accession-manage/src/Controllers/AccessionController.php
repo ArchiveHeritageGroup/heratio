@@ -577,13 +577,10 @@ class AccessionController extends Controller
 
         $this->service->update($accession->id, $data);
 
-        // Persist the "Related donor" modal selection. The modal writes the
-        // chosen EXISTING donor's id into donor_id (slug into donor_slug as a
-        // fallback); when none is picked but a name was typed, a brand-new
-        // donor + contact is created here. An empty result means "no donor
-        // linked" — syncDonors() then unlinks any previously-linked donor.
-        $donorIds = $this->resolveOrCreateDonorIds($request);
-        $this->service->syncDonors($accession->id, $donorIds);
+        // Persist the "Related donor" modal: link an existing donor, create a
+        // new one from the typed name + contact, or refresh the contact/name of
+        // the donor already linked. An empty selection unlinks any prior donor.
+        $this->syncAccessionDonor($request, $accession->id);
 
         return redirect()
             ->route('accession.show', $slug)
@@ -644,7 +641,22 @@ class AccessionController extends Controller
             return null;
         }
 
-        $contact = [
+        return (new \AhgDonorManage\Services\DonorService(app()->getLocale()))->create([
+            'authorized_form_of_name' => $name,
+            'contacts' => [$this->donorContactFromRequest($request)],
+        ]);
+    }
+
+    /**
+     * Map the "Related donor" modal contact inputs to the contact_information
+     * shape DonorService::create()/update() expect. Shared by the create and
+     * update paths.
+     *
+     * @return array<string, mixed>
+     */
+    private function donorContactFromRequest(Request $request): array
+    {
+        return [
             'primary_contact' => 1,
             'contact_person'  => $request->input('donor_contact_person'),
             'telephone'       => $request->input('donor_telephone'),
@@ -661,17 +673,42 @@ class AccessionController extends Controller
             'contact_type'    => $request->input('donor_contact_type'),
             'note'            => $request->input('donor_note'),
         ];
+    }
 
-        return (new \AhgDonorManage\Services\DonorService(app()->getLocale()))->create([
-            'authorized_form_of_name' => $name,
-            'contacts' => [$contact],
-        ]);
+    /**
+     * Push the modal's name + contact edits back onto an already-linked donor.
+     * The existing primary contact is updated IN PLACE (its id is passed) so no
+     * duplicate row is created; a new contact is inserted only when the donor
+     * had none. syncContacts() skips an all-empty contact, so this never wipes
+     * existing details on a save that did not touch the modal.
+     */
+    private function updateExistingDonorFromRequest(Request $request, int $donorId): void
+    {
+        $data = [];
+
+        $name = trim((string) $request->input('donor_name', ''));
+        if ($name !== '') {
+            $data['authorized_form_of_name'] = $name;
+        }
+
+        $contact = $this->donorContactFromRequest($request);
+        $existingContactId = DB::table('contact_information')
+            ->where('actor_id', $donorId)
+            ->orderByDesc('primary_contact')
+            ->orderBy('id')
+            ->value('id');
+        if ($existingContactId) {
+            $contact['id'] = (int) $existingContactId;
+        }
+        $data['contacts'] = [$contact];
+
+        (new \AhgDonorManage\Services\DonorService(app()->getLocale()))->update($donorId, $data);
     }
 
     /**
      * Resolve the donor selection from the modal into ids, creating a new
-     * donor when a name was typed but no existing donor was picked. Shared by
-     * store() and update().
+     * donor when a name was typed but no existing donor was picked. Used by
+     * store() (no previously-linked donor to refresh).
      *
      * @return int[]
      */
@@ -686,6 +723,32 @@ class AccessionController extends Controller
         }
 
         return $donorIds;
+    }
+
+    /**
+     * Full donor handling for the accession edit save: link an existing donor,
+     * create a new one, or refresh the contact/name of the donor that is
+     * already linked (only when the same donor is re-submitted, so a changed
+     * or multi selection never clobbers another donor's contact).
+     */
+    private function syncAccessionDonor(Request $request, int $accessionId): void
+    {
+        $currentDonor = $this->service->getDonor($accessionId);
+        $existingIds = $this->resolveSelectedDonorIds($request);
+
+        if (! empty($existingIds)) {
+            if ($currentDonor
+                && count($existingIds) === 1
+                && (int) $existingIds[0] === (int) $currentDonor->id) {
+                $this->updateExistingDonorFromRequest($request, (int) $existingIds[0]);
+            }
+            $donorIds = $existingIds;
+        } else {
+            $newId = $this->createDonorFromRequest($request);
+            $donorIds = $newId ? [$newId] : [];
+        }
+
+        $this->service->syncDonors($accessionId, $donorIds);
     }
 
     /**
