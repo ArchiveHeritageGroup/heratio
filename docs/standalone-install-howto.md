@@ -88,27 +88,44 @@ cd /usr/share/nginx/heratio
 # (optional) pin to the latest release tag for production
 sudo git fetch --tags && sudo git checkout "$(git describe --tags --abbrev=0)"
 
-# run the installer (COMPOSER_ALLOW_SUPERUSER lets composer run as root)
+# run the installer - one command (COMPOSER_ALLOW_SUPERUSER lets composer run as root)
 sudo COMPOSER_ALLOW_SUPERUSER=1 bin/install \
   --domain=mysite.example \
-  --admin-email=admin@mysite.example
+  --admin-email=admin@mysite.example \
+  --admin-password='choose-a-strong-one'
 ```
 
-**MySQL credentials - the installer detects which of two situations applies:**
+**Flags - everything needed for a hands-off run:**
+
+| Flag | Required? | Notes |
+|---|---|---|
+| `--domain=` | **yes** | The host you browse to. Use the **IP** (e.g. `192.168.0.60`) if you reach the box by IP; use an **FQDN/hostname** only if it resolves to this box (DNS or `/etc/hosts`) on the machine you log in from. The post-login redirect uses this value, so a mismatch breaks login. |
+| `--admin-email=` | **yes** | Login email for the first admin user. |
+| `--admin-password=` | no | If omitted, a **random password is generated and printed once** at the end - copy it immediately (it is bcrypt-hashed, not retrievable later). Pass one to set your own. |
+| `--db-pass=` | only for existing MySQL | See "MySQL credentials" below. |
+| `--non-interactive` | no | Never prompt; abort if a required value is missing. Use in scripts/CI. |
+| `--skip-es` / `--skip-nginx` | no | Skip the Elasticsearch reindex / nginx vhost render. |
+| `--fresh` | no | Drop+recreate the DB before loading (clean rebuild; **wipes data**). Only for a re-install onto a populated DB - a fresh box does not need it. |
+| `--https` | no | Set when TLS terminates in front of the app (secure cookies + https URLs). |
+
+**MySQL credentials - the installer auto-detects which applies:**
 
 - **Fresh box (recommended):** if MySQL `root` is still on the default `auth_socket`
-  login (you did NOT set a root password), the installer reaches MySQL over the
-  local socket and **auto-provisions a dedicated `heratio` DB user with a generated
-  password**, written into `.env`. Add nothing.
-- **Existing MySQL with a known password** (e.g. installing alongside AtoM): pass it:
-  ```bash
-  sudo COMPOSER_ALLOW_SUPERUSER=1 bin/install --domain=… --admin-email=… --db-pass='<mysql root password>'
-  ```
+  login (you did NOT set a root password), the installer reaches MySQL over the local
+  socket and **auto-provisions a dedicated `heratio` DB user with a generated password**,
+  written into `.env`. Add nothing - not even `--db-pass`.
+- **Existing MySQL with a known password** (e.g. installing alongside AtoM): pass it with
+  `--db-pass='<mysql root password>'`.
 
-> **Do NOT pre-create the `heratio` database** - let stage 5 create it. If a stale
-> `heratio` DB already exists, either `DROP DATABASE heratio` (don't recreate it) or
-> add `--fresh` to the installer to drop+recreate. Pre-creating it makes stage 4's
-> boot auto-install package tables first, which then collide with the core schema.
+> **Do NOT pre-create the `heratio` database** - let the installer create it. If a stale
+> `heratio` DB already exists, either `DROP DATABASE heratio` (don't recreate it) or add
+> `--fresh`. Pre-creating it lets stage 4's boot auto-install package tables first, which
+> then collide with the core schema (FK error 3780).
+
+**When it finishes** it prints the URL, admin email and password (see the box below). Log
+in at **`http://<your --domain>/login`** - note `/login`, *not* `/admin/login` - with that
+exact email + password. **Copy the password before closing the terminal** if you let it
+auto-generate one.
 
 ### Method B - Tarball
 
