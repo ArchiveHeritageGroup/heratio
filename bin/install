@@ -410,6 +410,10 @@ INSERT INTO actor_i18n (id, culture, authorized_form_of_name)
 VALUES (@uid, 'en', 'Administrator');
 INSERT INTO \`user\` (id, username, email, password_hash, salt, active)
 VALUES (@uid, 'admin', '${ADMIN_EMAIL}', '${HASH}', '${SALT}', 1);
+-- The user browse (/user/list) and show (/user/{slug}) pages inner-join the
+-- slug table, so an admin with no slug row is invisible in the UI even though
+-- it can still log in. Every UI-created user gets one; the bootstrap must too.
+INSERT INTO slug (object_id, slug) VALUES (@uid, 'admin');
 -- Grant the administrator group (AclGroup::ADMINISTRATOR_ID = 100); without it
 -- the new admin authenticates but AclService::canAdmin() denies every admin page.
 INSERT INTO acl_user_group (user_id, group_id, serial_number)

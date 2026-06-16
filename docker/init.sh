@@ -116,6 +116,9 @@ INSERT INTO actor_i18n (id, culture, authorized_form_of_name)
 VALUES (@uid, 'en', 'Administrator');
 INSERT INTO \`user\` (id, username, email, password_hash, salt, active)
 VALUES (@uid, 'admin', '${ADMIN_EMAIL:-admin@heratio.test}', '${HASH}', '', 1);
+-- /user/list and /user/{slug} inner-join the slug table; without a slug row
+-- the admin is invisible in the UI even though it can log in.
+INSERT INTO slug (object_id, slug) VALUES (@uid, 'admin');
 SQL
 
     touch "$MARKER"
