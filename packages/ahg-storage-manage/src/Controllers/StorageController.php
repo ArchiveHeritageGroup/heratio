@@ -519,10 +519,22 @@ class StorageController extends Controller
                     ->where('type_id', 161)
                     ->exists();
                 if (! $exists) {
+                    // relation.id is a class-table-inheritance column (= object.id),
+                    // not auto-increment — pre-create a QubitRelation object row and
+                    // use its id (mirrors AccessionService::linkDonor). Without this
+                    // the insert fails: "Field 'id' doesn't have a default value".
+                    $relationId = DB::table('object')->insertGetId([
+                        'class_name' => 'QubitRelation',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'serial_number' => 0,
+                    ]);
                     DB::table('relation')->insert([
+                        'id' => $relationId,
                         'object_id' => $ioId,
                         'subject_id' => $poId,
                         'type_id' => 161,
+                        'source_culture' => $culture,
                     ]);
                 }
             }
@@ -574,11 +586,20 @@ class StorageController extends Controller
                 'status' => 'active',
             ], fn ($v) => $v !== null));
 
-            // Link to IO
+            // Link to IO — relation.id is a CTI column (= object.id); create a
+            // QubitRelation object row and use its id.
+            $relationId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitRelation',
+                'created_at' => now(),
+                'updated_at' => now(),
+                'serial_number' => 0,
+            ]);
             DB::table('relation')->insert([
+                'id' => $relationId,
                 'object_id' => $ioId,
                 'subject_id' => $objectId,
                 'type_id' => 161,
+                'source_culture' => $culture,
             ]);
         }
 
