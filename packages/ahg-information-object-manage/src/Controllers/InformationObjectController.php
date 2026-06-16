@@ -1625,9 +1625,14 @@ class InformationObjectController extends Controller
             ->get();
 
         // Display standard options (taxonomy_id = 52 — descriptive standards)
+        // Taxonomy 70 = "Information object templates" (AtoM
+        // INFORMATION_OBJECT_TEMPLATE_ID): ISAD(G), Dublin Core, MODS, RAD,
+        // DACS, Museum (CCO), Photo/DAM, Gallery, Library. Was wrongly pointed
+        // at taxonomy 52 ("RAD Title Note"), which filled the Display standard
+        // dropdown with title-note terms.
         $displayStandards = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->where('term.taxonomy_id', 52)
+            ->where('term.taxonomy_id', 70)
             ->where('term_i18n.culture', $culture)
             ->orderBy('term_i18n.name')
             ->select('term.id', 'term_i18n.name')

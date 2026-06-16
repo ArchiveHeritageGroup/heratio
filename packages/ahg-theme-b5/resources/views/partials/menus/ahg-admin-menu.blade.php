@@ -244,7 +244,7 @@
     <li><h6 class="dropdown-header">{{ __('Workflow') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('workflow.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>{{ __('Dashboard') }}</a></li>
     <li><a class="dropdown-item" href="{{ route('workflow.admin') }}"><i class="fas fa-cogs me-2"></i>{{ __('Workflows & diagrams') }}</a></li>
-    @if($hasSpectrumCompliance)
+    @if($hasSpectrumCompliance && ($spectrumEnabled ?? false))
     <li><a class="dropdown-item" href="{{ route('workflow.spectrum.dashboard') }}"><i class="fas fa-university me-2"></i>{{ __('Spectrum compliance') }}</a></li>
     <li><a class="dropdown-item" href="{{ route('workflow.spectrum.chain') }}"><i class="fas fa-link me-2"></i>{{ __('Spectrum chain rules') }}</a></li>
     @endif
