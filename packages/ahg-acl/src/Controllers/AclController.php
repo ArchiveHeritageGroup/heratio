@@ -64,6 +64,36 @@ class AclController extends Controller
      * (Issue #50 Phase 1: replaces the previous flat add/delete-permission
      * form. The four per-entity tabs handle scoped permissions.)
      */
+    /**
+     * Show the "create group" form.
+     */
+    public function createGroup()
+    {
+        return view('ahg-acl::create-group');
+    }
+
+    /**
+     * Persist a new ACL group, then redirect to its edit page so the admin can
+     * set members and per-entity permissions.
+     */
+    public function storeGroup(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'translate' => 'nullable|boolean',
+        ]);
+
+        $id = $this->service->createGroup([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'translate' => (bool) $request->input('translate'),
+        ]);
+
+        return redirect()->route('acl.edit-group', ['id' => $id])
+            ->with('success', __('Group created.'));
+    }
+
     public function editGroup(Request $request, int $id)
     {
         if ($request->isMethod('post')) {

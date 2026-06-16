@@ -38,6 +38,6 @@
 
 @section('after-content')
   <section class="actions mb-3">
-    <a class="btn atom-btn-outline-light" href="{{ route('acl.groups') }}">Add new</a>
+    <a class="btn atom-btn-outline-light" href="{{ route('acl.create-group') }}">Add new</a>
   </section>
 @endsection

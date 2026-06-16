@@ -16,6 +16,11 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/translatePermission', [TranslatePermissionController::class, 'index']);
 
     Route::get('/admin/acl', [AclController::class, 'groups'])->name('acl.groups');
+    // Create-group: declared before the /group/{id} param route. The {id} route
+    // is constrained to [0-9]+ so 'new'/'store' can't collide, but keep them
+    // first for clarity.
+    Route::get('/admin/acl/group/new', [AclController::class, 'createGroup'])->name('acl.create-group');
+    Route::post('/admin/acl/group/store', [AclController::class, 'storeGroup'])->name('acl.store-group');
     Route::match(['get', 'post'], '/admin/acl/group/{id}', [AclController::class, 'editGroup'])->name('acl.edit-group')->where('id', '[0-9]+');
     // Per-entity ACL editor tabs (issue #50)
     Route::match(['get', 'post'], '/admin/acl/group/{id}/information-object-acl', [AclController::class, 'editInformationObjectAcl'])->name('acl.editInformationObjectAcl')->where('id', '[0-9]+');

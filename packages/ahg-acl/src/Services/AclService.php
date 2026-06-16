@@ -198,6 +198,29 @@ class AclService
     ];
 
     /**
+     * Create a new ACL group and persist its profile. acl_group is a standalone
+     * auto-increment table (no CTI object row), so we just insert the row and
+     * hand off to saveGroupProfile for the i18n name/description + translate
+     * grant. New groups parent off the root group (id 1), matching the seeded
+     * system groups.
+     */
+    public function createGroup(array $data): int
+    {
+        $now = now()->toDateTimeString();
+        $id = DB::table('acl_group')->insertGetId([
+            'parent_id' => 1,
+            'source_culture' => 'en',
+            'serial_number' => 0,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $this->saveGroupProfile($id, $data);
+
+        return $id;
+    }
+
+    /**
      * Save Profile tab: name, description, translate flag.
      * Translate is stored as a single grant row on action='translate' with
      * object_id NULL — matches AtoM's QubitAclGroup model.
