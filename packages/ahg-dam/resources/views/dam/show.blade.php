@@ -143,7 +143,7 @@
     @endif
 
     {{-- AI Tools --}}
-    @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin'))
+    @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin') && ($aiConfigured ?? false))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-robot me-1"></i> {{ __('AI Tools') }}

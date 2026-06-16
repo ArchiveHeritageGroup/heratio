@@ -202,7 +202,7 @@
 
   {{-- Named Entity Recognition sidebar --}}
   @auth
-    @if(\Illuminate\Support\Facades\Route::has('io.ai.review'))
+    @if(\Illuminate\Support\Facades\Route::has('io.ai.review') && ($aiConfigured ?? false))
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
           <i class="fas fa-brain me-1"></i> {{ __('Named Entity Recognition') }}

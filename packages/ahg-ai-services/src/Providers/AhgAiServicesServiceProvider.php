@@ -65,6 +65,14 @@ class AhgAiServicesServiceProvider extends ServiceProvider
 
         $this->ensureSchema();
 
+        // Share whether an AI services key is loaded so views can hide the
+        // AI Tools (Describe / NER / Summary / Translate / Animate) when none
+        // is configured — those tools all call the AI gateway and would error
+        // without a key. Guarded so a missing settings table never breaks boot.
+        if (! $this->app->runningInConsole()) {
+            \Illuminate\Support\Facades\View::share('aiConfigured', $this->aiKeyConfigured());
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgAiServices\Commands\AiNerExtractCommand::class,
@@ -95,6 +103,31 @@ class AhgAiServicesServiceProvider extends ServiceProvider
      * Follows the reference_ci_schema_hastable.md outer-try pattern so a
      * missing DB connection during CI bootstrap never blocks boot.
      */
+    /**
+     * Whether an AI services API key is configured. The live gateway key lives
+     * in ahg_ner_settings.api_key (it shadows ahg_ai_settings); we check both
+     * for setting_key='api_key' with a non-empty value. Used to gate the AI
+     * Tools UI so a keyless install doesn't show tools that would error.
+     */
+    protected function aiKeyConfigured(): bool
+    {
+        try {
+            foreach (['ahg_ner_settings', 'ahg_ai_settings'] as $t) {
+                if (! Schema::hasTable($t)) {
+                    continue;
+                }
+                $key = DB::table($t)->where('setting_key', 'api_key')->value('setting_value');
+                if (is_string($key) && trim($key) !== '') {
+                    return true;
+                }
+            }
+        } catch (Throwable) {
+            // never block view rendering
+        }
+
+        return false;
+    }
+
     protected function ensureSchema(): void
     {
         try {
