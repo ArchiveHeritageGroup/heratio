@@ -59,6 +59,7 @@ class ResearchLectureController extends Controller
     {
         $lecture = $this->service->getLecture($id);
         abort_if(! $lecture, 404);
+        $this->assertOwner($lecture);
 
         return view('research::lectures.show', [
             'lecture'   => $lecture,
@@ -71,13 +72,16 @@ class ResearchLectureController extends Controller
     {
         $lecture = $this->service->getLecture($id);
         abort_if(! $lecture, 404);
+        $this->assertOwner($lecture);
 
         return view('research::lectures.builder', ['lecture' => $lecture, 'type' => $lecture['type']]);
     }
 
     public function update(int $id, Request $request)
     {
-        abort_if(! $this->service->getLecture($id), 404);
+        $lecture = $this->service->getLecture($id);
+        abort_if(! $lecture, 404);
+        $this->assertOwner($lecture);
         $this->service->updateLecture($id, $this->validateLecture($request));
 
         return redirect()->route('research.lecture-builder.show', $id)->with('success', __('Lecture updated.'));
@@ -85,6 +89,9 @@ class ResearchLectureController extends Controller
 
     public function destroy(int $id)
     {
+        $lecture = $this->service->getLecture($id);
+        abort_if(! $lecture, 404);
+        $this->assertOwner($lecture);
         $this->service->deleteLecture($id);
 
         return redirect()->route('research.lecture-builder.index')->with('success', __('Lecture deleted.'));
@@ -92,6 +99,9 @@ class ResearchLectureController extends Controller
 
     public function setStatus(int $id, Request $request)
     {
+        $lecture = $this->service->getLecture($id);
+        abort_if(! $lecture, 404);
+        $this->assertOwner($lecture);
         $this->service->setStatus($id, (string) $request->input('status', 'draft'));
 
         return back()->with('success', __('Status updated.'));
@@ -101,7 +111,9 @@ class ResearchLectureController extends Controller
 
     public function storeSection(int $lectureId, Request $request)
     {
-        abort_if(! $this->service->getLecture($lectureId), 404);
+        $lecture = $this->service->getLecture($lectureId);
+        abort_if(! $lecture, 404);
+        $this->assertOwner($lecture);
         $this->service->createSection($lectureId, $this->validateSection($request));
 
         return back()->with('success', __('Section added.'));
@@ -111,6 +123,7 @@ class ResearchLectureController extends Controller
     {
         $section = $this->service->getSection($id);
         abort_if(! $section, 404);
+        $this->assertOwner($this->service->getLecture((int) $section['lecture_id']));
 
         return view('research::lectures.section-edit', [
             'section' => $section,
@@ -122,6 +135,7 @@ class ResearchLectureController extends Controller
     {
         $section = $this->service->getSection($id);
         abort_if(! $section, 404);
+        $this->assertOwner($this->service->getLecture((int) $section['lecture_id']));
         $this->service->updateSection($id, $this->validateSection($request));
 
         return redirect()->route('research.lecture-builder.show', (int) $section['lecture_id'])
@@ -132,6 +146,7 @@ class ResearchLectureController extends Controller
     {
         $section = $this->service->getSection($id);
         abort_if(! $section, 404);
+        $this->assertOwner($this->service->getLecture((int) $section['lecture_id']));
         $this->service->deleteSection($id);
 
         return back()->with('success', __('Section removed.'));
@@ -141,7 +156,9 @@ class ResearchLectureController extends Controller
 
     public function storeResource(int $lectureId, Request $request)
     {
-        abort_if(! $this->service->getLecture($lectureId), 404);
+        $lecture = $this->service->getLecture($lectureId);
+        abort_if(! $lecture, 404);
+        $this->assertOwner($lecture);
         $this->service->createResource($lectureId, $request->validate([
             'label'         => 'required|string|max:255',
             'url'           => 'nullable|string|max:1000',
@@ -193,11 +210,30 @@ class ResearchLectureController extends Controller
 
     private function researcherId(): ?int
     {
-        if (! Auth::check() || ! Schema::hasTable('researcher')) {
+        // FIX (#1308): the canonical table is research_researcher; the old
+        // 'researcher' table never existed, so ownership was never recorded.
+        if (! Auth::check() || ! Schema::hasTable('research_researcher')) {
             return null;
         }
-        $r = DB::table('researcher')->where('user_id', Auth::id())->first();
+        $r = DB::table('research_researcher')->where('user_id', Auth::id())->first();
 
         return $r ? (int) $r->id : null;
+    }
+
+    /**
+     * SECURITY (#1308): a researcher may only act on their own lecture; site
+     * admins may act on any. Fails closed (403) for unowned/foreign rows.
+     */
+    private function assertOwner(?array $row): void
+    {
+        if (\AhgCore\Services\AclService::isAdministrator(Auth::user())) {
+            return;
+        }
+        $mine = $this->researcherId();
+        abort_unless(
+            $row !== null && $mine !== null && (int) ($row['researcher_id'] ?? 0) === $mine,
+            403,
+            'You do not have access to this item.'
+        );
     }
 }

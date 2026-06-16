@@ -52,6 +52,7 @@ class ResearchTrainingController extends Controller
     {
         $course = $this->service->getCourse($id);
         abort_if(! $course, 404);
+        $this->assertOwner($course);
 
         return view('research::training.show', [
             'course'      => $course,
@@ -67,13 +68,16 @@ class ResearchTrainingController extends Controller
     {
         $course = $this->service->getCourse($id);
         abort_if(! $course, 404);
+        $this->assertOwner($course);
 
         return view('research::training.builder', ['course' => $course]);
     }
 
     public function update(int $id, Request $request)
     {
-        abort_if(! $this->service->getCourse($id), 404);
+        $course = $this->service->getCourse($id);
+        abort_if(! $course, 404);
+        $this->assertOwner($course);
         $this->service->updateCourse($id, $this->validateCourse($request));
 
         return redirect()->route('research.training.show', $id)->with('success', __('Course updated.'));
@@ -81,6 +85,9 @@ class ResearchTrainingController extends Controller
 
     public function destroy(int $id)
     {
+        $course = $this->service->getCourse($id);
+        abort_if(! $course, 404);
+        $this->assertOwner($course);
         $this->service->deleteCourse($id);
 
         return redirect()->route('research.training.index')->with('success', __('Course deleted.'));
@@ -88,6 +95,9 @@ class ResearchTrainingController extends Controller
 
     public function setStatus(int $id, Request $request)
     {
+        $course = $this->service->getCourse($id);
+        abort_if(! $course, 404);
+        $this->assertOwner($course);
         $this->service->setCourseStatus($id, (string) $request->input('status', 'draft'));
 
         return back()->with('success', __('Status updated.'));
@@ -97,7 +107,9 @@ class ResearchTrainingController extends Controller
 
     public function storeModule(int $courseId, Request $request)
     {
-        abort_if(! $this->service->getCourse($courseId), 404);
+        $course = $this->service->getCourse($courseId);
+        abort_if(! $course, 404);
+        $this->assertOwner($course);
         $this->service->createModule($courseId, $this->validateModule($request));
 
         return back()->with('success', __('Module added.'));
@@ -107,6 +119,7 @@ class ResearchTrainingController extends Controller
     {
         $module = $this->service->getModule($id);
         abort_if(! $module, 404);
+        $this->assertOwner($this->service->getCourse((int) $module['course_id']));
 
         return view('research::training.module-edit', [
             'module'   => $module,
@@ -119,6 +132,7 @@ class ResearchTrainingController extends Controller
     {
         $module = $this->service->getModule($id);
         abort_if(! $module, 404);
+        $this->assertOwner($this->service->getCourse((int) $module['course_id']));
         $this->service->updateModule($id, $this->validateModule($request));
 
         return redirect()->route('research.training.show', (int) $module['course_id'])->with('success', __('Module saved.'));
@@ -128,6 +142,7 @@ class ResearchTrainingController extends Controller
     {
         $module = $this->service->getModule($id);
         abort_if(! $module, 404);
+        $this->assertOwner($this->service->getCourse((int) $module['course_id']));
         $this->service->deleteModule($id);
 
         return back()->with('success', __('Module removed.'));
@@ -139,6 +154,7 @@ class ResearchTrainingController extends Controller
     {
         $course = $this->service->getCourse($courseId);
         abort_if(! $course, 404);
+        $this->assertOwner($course);
 
         return view('research::training.assessment-edit', [
             'course'     => $course,
@@ -149,7 +165,9 @@ class ResearchTrainingController extends Controller
 
     public function saveAssessment(int $courseId, Request $request)
     {
-        abort_if(! $this->service->getCourse($courseId), 404);
+        $course = $this->service->getCourse($courseId);
+        abort_if(! $course, 404);
+        $this->assertOwner($course);
         // Assemble questions from parallel arrays; keep only rows with text.
         $questions = [];
         foreach ((array) $request->input('q', []) as $i => $qtext) {
@@ -177,7 +195,9 @@ class ResearchTrainingController extends Controller
 
     public function enrol(int $courseId, Request $request)
     {
-        abort_if(! $this->service->getCourse($courseId), 404);
+        $course = $this->service->getCourse($courseId);
+        abort_if(! $course, 404);
+        $this->assertOwner($course);
         $this->service->enrol($courseId, $request->validate([
             'learner_name'  => 'required|string|max:255',
             'learner_email' => 'nullable|email|max:255',
@@ -192,6 +212,7 @@ class ResearchTrainingController extends Controller
         $enrol = $this->service->getEnrolment($id);
         abort_if(! $enrol, 404);
         $courseId = (int) $enrol['course_id'];
+        $this->assertOwner($this->service->getCourse($courseId));
         $this->service->deleteEnrolment($id);
 
         return redirect()->route('research.training.show', $courseId)->with('success', __('Enrolment removed.'));
@@ -297,11 +318,32 @@ class ResearchTrainingController extends Controller
 
     private function researcherId(): ?int
     {
-        if (! Auth::check() || ! Schema::hasTable('researcher')) {
+        // FIX (#1308): the canonical table is research_researcher; the old
+        // 'researcher' table never existed, so ownership was never recorded.
+        if (! Auth::check() || ! Schema::hasTable('research_researcher')) {
             return null;
         }
-        $r = DB::table('researcher')->where('user_id', Auth::id())->first();
+        $r = DB::table('research_researcher')->where('user_id', Auth::id())->first();
 
         return $r ? (int) $r->id : null;
+    }
+
+    /**
+     * SECURITY (#1308): a researcher may only manage their own course (builder
+     * side); site admins may manage any. Fails closed (403). Note: the learner
+     * flow (learn/takeAssessment/certificate) is enrolment-scoped, not course-
+     * owner-scoped, and is intentionally not guarded here.
+     */
+    private function assertOwner(?array $row): void
+    {
+        if (\AhgCore\Services\AclService::isAdministrator(Auth::user())) {
+            return;
+        }
+        $mine = $this->researcherId();
+        abort_unless(
+            $row !== null && $mine !== null && (int) ($row['researcher_id'] ?? 0) === $mine,
+            403,
+            'You do not have access to this item.'
+        );
     }
 }

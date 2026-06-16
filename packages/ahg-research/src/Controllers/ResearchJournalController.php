@@ -64,6 +64,7 @@ class ResearchJournalController extends Controller
     {
         $journal = $this->service->getJournal($id);
         abort_if(! $journal, 404);
+        $this->assertOwner($journal);
 
         return view('research::journals.show', [
             'journal' => $journal,
@@ -75,6 +76,7 @@ class ResearchJournalController extends Controller
     {
         $journal = $this->service->getJournal($id);
         abort_if(! $journal, 404);
+        $this->assertOwner($journal);
 
         return view('research::journals.builder', [
             'journal'        => $journal,
@@ -85,7 +87,9 @@ class ResearchJournalController extends Controller
 
     public function update(int $id, Request $request)
     {
-        abort_if(! $this->service->getJournal($id), 404);
+        $journal = $this->service->getJournal($id);
+        abort_if(! $journal, 404);
+        $this->assertOwner($journal);
         $this->service->updateJournal($id, $this->validateJournal($request));
 
         return redirect()->route('research.journal-builder.show', $id)
@@ -94,6 +98,9 @@ class ResearchJournalController extends Controller
 
     public function destroy(int $id)
     {
+        $journal = $this->service->getJournal($id);
+        abort_if(! $journal, 404);
+        $this->assertOwner($journal);
         $this->service->deleteJournal($id);
 
         return redirect()->route('research.journal-builder.index')
@@ -102,6 +109,9 @@ class ResearchJournalController extends Controller
 
     public function setStatus(int $id, Request $request)
     {
+        $journal = $this->service->getJournal($id);
+        abort_if(! $journal, 404);
+        $this->assertOwner($journal);
         $status = (string) $request->input('status', 'draft');
         abort_unless(in_array($status, ['draft', 'published', 'archived'], true), 422);
         $this->service->setJournalStatus($id, $status);
@@ -113,7 +123,9 @@ class ResearchJournalController extends Controller
 
     public function storeIssue(int $journalId, Request $request)
     {
-        abort_if(! $this->service->getJournal($journalId), 404);
+        $journal = $this->service->getJournal($journalId);
+        abort_if(! $journal, 404);
+        $this->assertOwner($journal);
         $this->service->createIssue($journalId, $this->validateIssue($request));
 
         return back()->with('success', __('Issue added.'));
@@ -123,6 +135,7 @@ class ResearchJournalController extends Controller
     {
         $issue = $this->service->getIssue($id);
         abort_if(! $issue, 404);
+        $this->assertOwner($this->service->getJournal((int) $issue['journal_id']));
         $this->service->updateIssue($id, $this->validateIssue($request));
 
         return back()->with('success', __('Issue updated.'));
@@ -132,6 +145,7 @@ class ResearchJournalController extends Controller
     {
         $issue = $this->service->getIssue($id);
         abort_if(! $issue, 404);
+        $this->assertOwner($this->service->getJournal((int) $issue['journal_id']));
         $this->service->deleteIssue($id);
 
         return back()->with('success', __('Issue removed; its articles were unassigned.'));
@@ -143,6 +157,7 @@ class ResearchJournalController extends Controller
     {
         $journal = $this->service->getJournal($journalId);
         abort_if(! $journal, 404);
+        $this->assertOwner($journal);
 
         return view('research::journals.article-builder', [
             'journal'        => $journal,
@@ -157,6 +172,7 @@ class ResearchJournalController extends Controller
     {
         $journal = $this->service->getJournal($journalId);
         abort_if(! $journal, 404);
+        $this->assertOwner($journal);
         $id = $this->service->createArticle($journalId, $this->validateArticle($request));
 
         return redirect()->route('research.journal-builder.article-edit', $id)
@@ -168,6 +184,7 @@ class ResearchJournalController extends Controller
         $article = $this->service->getArticle($id);
         abort_if(! $article, 404);
         $journal = $this->service->getJournal((int) $article['journal_id']);
+        $this->assertOwner($journal);
 
         return view('research::journals.article-builder', [
             'journal'        => $journal,
@@ -183,6 +200,7 @@ class ResearchJournalController extends Controller
     {
         $article = $this->service->getArticle($id);
         abort_if(! $article, 404);
+        $this->assertOwner($this->service->getJournal((int) $article['journal_id']));
         $this->service->updateArticle($id, $this->validateArticle($request));
 
         return redirect()->route('research.journal-builder.article-edit', $id)
@@ -193,6 +211,7 @@ class ResearchJournalController extends Controller
     {
         $article = $this->service->getArticle($id);
         abort_if(! $article, 404);
+        $this->assertOwner($this->service->getJournal((int) $article['journal_id']));
         $this->service->deleteArticle($id);
 
         return redirect()->route('research.journal-builder.show', (int) $article['journal_id'])
@@ -263,11 +282,30 @@ class ResearchJournalController extends Controller
 
     private function researcherId(): ?int
     {
-        if (! Auth::check() || ! Schema::hasTable('researcher')) {
+        // FIX (#1308): the canonical table is research_researcher; the old
+        // 'researcher' table never existed, so ownership was never recorded.
+        if (! Auth::check() || ! Schema::hasTable('research_researcher')) {
             return null;
         }
-        $r = DB::table('researcher')->where('user_id', Auth::id())->first();
+        $r = DB::table('research_researcher')->where('user_id', Auth::id())->first();
 
         return $r ? (int) $r->id : null;
+    }
+
+    /**
+     * SECURITY (#1308): a researcher may only act on their own journal; site
+     * admins may act on any. Fails closed (403) for unowned/foreign rows.
+     */
+    private function assertOwner(?array $row): void
+    {
+        if (\AhgCore\Services\AclService::isAdministrator(Auth::user())) {
+            return;
+        }
+        $mine = $this->researcherId();
+        abort_unless(
+            $row !== null && $mine !== null && (int) ($row['researcher_id'] ?? 0) === $mine,
+            403,
+            'You do not have access to this item.'
+        );
     }
 }
