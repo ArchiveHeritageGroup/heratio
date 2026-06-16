@@ -73,6 +73,11 @@ class ResearchAnnotationsController extends Controller
                 $entityType = $request->input('entity_type', 'information_object');
                 $visibility = $request->input('visibility', 'private');
                 $contentFormat = $request->input('content_format', 'text');
+                // SECURITY (#1309): content is rendered raw when content_format is html;
+                // sanitize before storing to prevent stored XSS in shared/public notes.
+                if ($contentFormat === 'html') {
+                    $content = $this->service->sanitizeHtml($content);
+                }
 
                 if ($content) {
                     DB::table('research_annotation')->insert([
@@ -98,6 +103,11 @@ class ResearchAnnotationsController extends Controller
                 $entityType = $request->input('entity_type', 'information_object');
                 $visibility = $request->input('visibility', 'private');
                 $contentFormat = $request->input('content_format', 'text');
+                // SECURITY (#1309): content is rendered raw when content_format is html;
+                // sanitize before storing to prevent stored XSS in shared/public notes.
+                if ($contentFormat === 'html') {
+                    $content = $this->service->sanitizeHtml($content);
+                }
 
                 if ($content) {
                     DB::table('research_annotation')
@@ -159,6 +169,11 @@ class ResearchAnnotationsController extends Controller
         $entityType = $request->input('entity_type', 'information_object');
         $visibility = $request->input('visibility', 'private');
         $contentFormat = $request->input('content_format', 'text');
+        // SECURITY (#1309): content is rendered raw when content_format is html;
+        // sanitize before storing to prevent stored XSS in shared/public notes.
+        if ($contentFormat === 'html') {
+            $content = $this->service->sanitizeHtml($content);
+        }
 
         if ($content) {
             DB::table('research_annotation')->insert([

@@ -135,10 +135,14 @@ class IngestHelpArticleCommand extends Command
         foreach ($sections as $i => $s) {
             DB::table('help_section')->insert([
                 'article_id' => $articleId,
-                'heading' => $s['heading'],
-                'anchor' => $s['anchor'],
+                // Fit the column sizes (heading varchar(500), anchor varchar(255),
+                // body_text TEXT ~64KB). The full article body is kept in
+                // help_article.body_* (mediumtext); help_section is just the TOC
+                // and per-section search index, so truncating here is safe.
+                'heading' => mb_substr($s['heading'], 0, 500),
+                'anchor' => mb_substr($s['anchor'], 0, 255),
                 'level' => $s['level'],
-                'body_text' => $s['body_text'],
+                'body_text' => mb_strcut($s['body_text'], 0, 60000),
                 'sort_order' => $i,
             ]);
         }

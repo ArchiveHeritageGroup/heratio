@@ -59,12 +59,19 @@ class IngestAllHelpCommand extends Command
         $fail = 0;
         foreach ($files as $path) {
             $base = basename($path, '.md');
-            // callSilent: suppress per-file output (hundreds of files).
-            $code = $this->callSilent('ahg:help-ingest', [
-                '--path' => $path,
-                '--slug' => $base,
-                '--category' => $this->categoryFor($base),
-            ]);
+            // callSilent: suppress per-file output (hundreds of files). Wrap in
+            // try/catch so one bad file (e.g. an oversized section) is skipped
+            // and counted, never aborting the whole bulk run.
+            try {
+                $code = $this->callSilent('ahg:help-ingest', [
+                    '--path' => $path,
+                    '--slug' => $base,
+                    '--category' => $this->categoryFor($base),
+                ]);
+            } catch (\Throwable $e) {
+                $code = self::FAILURE;
+                $this->warn("  exception on {$base}: ".$e->getMessage());
+            }
             if ($code === self::SUCCESS) {
                 $ok++;
             } else {
