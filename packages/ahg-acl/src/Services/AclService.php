@@ -206,18 +206,20 @@ class AclService
      */
     public function createGroup(array $data): int
     {
-        $now = now()->toDateTimeString();
-        $id = DB::table('acl_group')->insertGetId([
-            'parent_id' => 1,
-            'source_culture' => 'en',
-            'serial_number' => 0,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        return DB::transaction(function () use ($data) {
+            $now = now()->toDateTimeString();
+            $id = DB::table('acl_group')->insertGetId([
+                'parent_id' => 1,
+                'source_culture' => 'en',
+                'serial_number' => 0,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
 
-        $this->saveGroupProfile($id, $data);
+            $this->saveGroupProfile($id, $data);
 
-        return $id;
+            return $id;
+        });
     }
 
     /**
@@ -236,12 +238,13 @@ class AclService
                 'description' => $data['description'] ?? null,
             ]);
         } else {
+            // acl_group_i18n has only id/culture/name/description - no
+            // serial_number column (that lives on acl_group, not the i18n row).
             DB::table('acl_group_i18n')->insert([
                 'id' => $groupId,
                 'culture' => 'en',
                 'name' => $data['name'] ?? null,
                 'description' => $data['description'] ?? null,
-                'serial_number' => 0,
             ]);
         }
         DB::table('acl_group')->where('id', $groupId)->update(['updated_at' => $now]);
