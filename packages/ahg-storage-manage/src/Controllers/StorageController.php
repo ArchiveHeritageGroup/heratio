@@ -483,12 +483,15 @@ class StorageController extends Controller
             )
             ->get();
 
-        // Container types for the create form
+        // Container types for the create form. Taxonomy 48 = "Physical object
+        // types" (AtoM PHYSICAL_OBJECT_TYPE_ID: Box, Folder, Shelf, ...). Was
+        // wrongly pointed at taxonomy 56 ("Relation Note Types": description,
+        // date display), which filled the Type dropdown with note types.
         $containerTypes = DB::table('term')
             ->join('term_i18n', function ($j) use ($culture) {
                 $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', $culture);
             })
-            ->where('term.taxonomy_id', 56)
+            ->where('term.taxonomy_id', 48)
             ->select('term.id', 'term_i18n.name')
             ->orderBy('term_i18n.name')
             ->get();
