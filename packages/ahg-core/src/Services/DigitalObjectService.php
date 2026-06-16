@@ -275,7 +275,11 @@ class DigitalObjectService
         $mediaTypeId = self::resolveMediaTypeId($mimeType);
 
         // Create upload directory
-        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$objectId;
+        // Write under the canonical 'r/' shard so the on-disk location matches
+        // the DB web path ($webPath = '/uploads/r/<id>/') and the nginx /uploads
+        // alias + IIIF delegates. Without the 'r/' the files landed in
+        // uploads/<id>/ while the DB/viewer expected uploads/r/<id>/ -> 404.
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/r/'.$objectId;
         if (! is_dir($uploadDir)) {
             mkdir($uploadDir, 0775, true);
         }
@@ -1140,7 +1144,11 @@ class DigitalObjectService
         string $safeName,
         string $webPath
     ): void {
-        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$objectId;
+        // Write under the canonical 'r/' shard so the on-disk location matches
+        // the DB web path ($webPath = '/uploads/r/<id>/') and the nginx /uploads
+        // alias + IIIF delegates. Without the 'r/' the files landed in
+        // uploads/<id>/ while the DB/viewer expected uploads/r/<id>/ -> 404.
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/r/'.$objectId;
 
         // Load source image
         $imageInfo = @getimagesize($masterPath);
