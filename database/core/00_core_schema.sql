@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `access_audit_log` (
   KEY `idx_user` (`user_id`),
   KEY `idx_created` (`created_at`),
   KEY `idx_granted` (`granted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `access_justification_template` (
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `access_log` (
   KEY `1` (`access_date`,`object_id`),
   KEY `access_log_FI_1` (`object_id`),
   CONSTRAINT `access_log_FK_1` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `access_request` (
   KEY `current_classification_id` (`current_classification_id`),
   CONSTRAINT `access_request_ibfk_1` FOREIGN KEY (`requested_classification_id`) REFERENCES `security_classification` (`id`) ON DELETE CASCADE,
   CONSTRAINT `access_request_ibfk_2` FOREIGN KEY (`current_classification_id`) REFERENCES `security_classification` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS `access_request_approver` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_user` (`user_id`),
   KEY `idx_active` (`active`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS `access_request_justification` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_request` (`request_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `access_request_log` (
   KEY `idx_request_id` (`request_id`),
   KEY `idx_actor_id` (`actor_id`),
   CONSTRAINT `access_request_log_ibfk_1` FOREIGN KEY (`request_id`) REFERENCES `access_request` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS `access_request_scope` (
   KEY `idx_request_id` (`request_id`),
   KEY `idx_object` (`object_type`,`object_id`),
   CONSTRAINT `access_request_scope_ibfk_1` FOREIGN KEY (`request_id`) REFERENCES `access_request` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -230,7 +230,7 @@ CREATE TABLE IF NOT EXISTS `accession` (
   CONSTRAINT `accession_FK_3` FOREIGN KEY (`processing_priority_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `accession_FK_4` FOREIGN KEY (`processing_status_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `accession_FK_5` FOREIGN KEY (`resource_type_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -415,7 +415,7 @@ CREATE TABLE IF NOT EXISTS `accession_event` (
   CONSTRAINT `accession_event_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `accession_event_FK_2` FOREIGN KEY (`type_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `accession_event_FK_3` FOREIGN KEY (`accession_id`) REFERENCES `accession` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -431,7 +431,7 @@ CREATE TABLE IF NOT EXISTS `accession_event_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `accession_event_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `accession_event` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -455,7 +455,7 @@ CREATE TABLE IF NOT EXISTS `accession_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `accession_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `accession` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -662,7 +662,7 @@ CREATE TABLE IF NOT EXISTS `acl_group` (
   PRIMARY KEY (`id`),
   KEY `acl_group_FI_1` (`parent_id`),
   CONSTRAINT `acl_group_FK_1` FOREIGN KEY (`parent_id`) REFERENCES `acl_group` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -679,7 +679,7 @@ CREATE TABLE IF NOT EXISTS `acl_group_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `acl_group_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `acl_group` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -708,7 +708,7 @@ CREATE TABLE IF NOT EXISTS `acl_permission` (
   CONSTRAINT `acl_permission_FK_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
   CONSTRAINT `acl_permission_FK_2` FOREIGN KEY (`group_id`) REFERENCES `acl_group` (`id`) ON DELETE CASCADE,
   CONSTRAINT `acl_permission_FK_3` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -728,7 +728,7 @@ CREATE TABLE IF NOT EXISTS `acl_user_group` (
   KEY `acl_user_group_FI_2` (`group_id`),
   CONSTRAINT `acl_user_group_FK_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
   CONSTRAINT `acl_user_group_FK_2` FOREIGN KEY (`group_id`) REFERENCES `acl_group` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -760,7 +760,7 @@ CREATE TABLE IF NOT EXISTS `actor` (
   CONSTRAINT `actor_FK_3` FOREIGN KEY (`description_status_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `actor_FK_4` FOREIGN KEY (`description_detail_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `actor_FK_5` FOREIGN KEY (`parent_id`) REFERENCES `actor` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -829,7 +829,7 @@ CREATE TABLE IF NOT EXISTS `actor_i18n` (
   PRIMARY KEY (`id`,`culture`),
   FULLTEXT KEY `ft_ai_name` (`authorized_form_of_name`),
   CONSTRAINT `actor_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `actor` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1983,7 +1983,7 @@ CREATE TABLE IF NOT EXISTS `ahg_backup_binlog` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_binlog_file` (`binlog_file`),
   KEY `idx_archived_at` (`archived_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2010,7 +2010,7 @@ CREATE TABLE IF NOT EXISTS `ahg_backup_replication` (
   KEY `idx_status` (`status`),
   KEY `idx_replicated_at` (`replicated_at`),
   KEY `idx_verified_at` (`verified_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2036,7 +2036,7 @@ CREATE TABLE IF NOT EXISTS `ahg_backup_run` (
   UNIQUE KEY `uq_backup_filename` (`backup_filename`),
   KEY `idx_dumped_at` (`dumped_at`),
   KEY `idx_db_name` (`db_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2797,7 +2797,7 @@ CREATE TABLE IF NOT EXISTS `ahg_dropdown_i18n` (
   `label` varchar(255) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `ahg_dropdown_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `ahg_dropdown` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2996,7 +2996,7 @@ CREATE TABLE IF NOT EXISTS `ahg_error_log` (
   KEY `idx_error_log_read` (`is_read`),
   KEY `idx_error_log_level` (`level`),
   KEY `idx_error_log_resolved` (`resolved_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3043,7 +3043,7 @@ CREATE TABLE IF NOT EXISTS `ahg_exhibition_annotation` (
   `yaw` double DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_building` (`building_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3069,7 +3069,7 @@ CREATE TABLE IF NOT EXISTS `ahg_exhibition_furniture` (
   `pole_json` json DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_room` (`exhibition_space_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3089,7 +3089,7 @@ CREATE TABLE IF NOT EXISTS `ahg_exhibition_furniture_asset` (
   `updated_at` datetime DEFAULT NULL,
   `description` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3131,7 +3131,7 @@ CREATE TABLE IF NOT EXISTS `ahg_exhibition_placement` (
   KEY `ix_exh_placement_dates` (`starts_at`,`ends_at`),
   CONSTRAINT `fk_exh_io` FOREIGN KEY (`information_object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_exh_sp` FOREIGN KEY (`exhibition_space_id`) REFERENCES `ahg_exhibition_space` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3160,7 +3160,7 @@ CREATE TABLE IF NOT EXISTS `ahg_exhibition_presence` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_building_token` (`building_id`,`session_token`),
   KEY `idx_building_seen` (`building_id`,`last_seen`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3178,7 +3178,7 @@ CREATE TABLE IF NOT EXISTS `ahg_exhibition_reading` (
   `recorded_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_space_metric_time` (`exhibition_space_id`,`metric`,`recorded_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3241,7 +3241,7 @@ CREATE TABLE IF NOT EXISTS `ahg_exhibition_space` (
   UNIQUE KEY `uq_exh_space_slug` (`slug`),
   KEY `ix_exh_space_name` (`name`),
   KEY `ix_exh_space_type` (`space_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3264,7 +3264,7 @@ CREATE TABLE IF NOT EXISTS `ahg_exhibition_visit` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_visit` (`building_id`,`session_token`),
   KEY `idx_building_started` (`building_id`,`started_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3284,7 +3284,7 @@ CREATE TABLE IF NOT EXISTS `ahg_exhibition_visit_event` (
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_building_type` (`building_id`,`type`,`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3764,7 +3764,7 @@ CREATE TABLE IF NOT EXISTS `ahg_io_security` (
   CONSTRAINT `fk_ahg_io_security_class` FOREIGN KEY (`security_classification_id`) REFERENCES `security_classification` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_ahg_io_security_object` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_ahg_io_security_wm` FOREIGN KEY (`watermark_type_id`) REFERENCES `watermark_type` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4534,7 +4534,7 @@ CREATE TABLE IF NOT EXISTS `ahg_mfa_policy` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_mfa_policy_tenant` (`tenant_id`),
   KEY `idx_mfa_policy_enforcement` (`enforcement`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4618,7 +4618,7 @@ CREATE TABLE IF NOT EXISTS `ahg_ner_entity` (
   KEY `idx_correction_type` (`correction_type`),
   KEY `idx_training_exported` (`training_exported`),
   CONSTRAINT `ahg_ner_entity_ibfk_1` FOREIGN KEY (`extraction_id`) REFERENCES `ahg_ner_extraction` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4660,7 +4660,7 @@ CREATE TABLE IF NOT EXISTS `ahg_ner_extraction` (
   PRIMARY KEY (`id`),
   KEY `idx_object` (`object_id`),
   KEY `idx_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4707,7 +4707,7 @@ CREATE TABLE IF NOT EXISTS `ahg_ner_settings` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `setting_key` (`setting_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4870,7 +4870,7 @@ CREATE TABLE IF NOT EXISTS `ahg_otp_challenge` (
   PRIMARY KEY (`id`),
   KEY `idx_otp_challenge_factor` (`factor_id`,`consumed_at`,`expires_at`),
   KEY `idx_otp_challenge_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4892,7 +4892,7 @@ CREATE TABLE IF NOT EXISTS `ahg_otp_factor` (
   PRIMARY KEY (`id`),
   KEY `idx_otp_factor_user` (`user_id`),
   KEY `idx_otp_factor_user_type` (`user_id`,`factor_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5012,7 +5012,7 @@ CREATE TABLE IF NOT EXISTS `ahg_physical_object_storage` (
   KEY `ix_strongroom` (`strongroom_id`),
   CONSTRAINT `fk_phyo` FOREIGN KEY (`physical_object_id`) REFERENCES `physical_object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_strr` FOREIGN KEY (`strongroom_id`) REFERENCES `ahg_strongroom` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5888,7 +5888,7 @@ CREATE TABLE IF NOT EXISTS `ahg_spectrum_chain_rule` (
   UNIQUE KEY `uq_chain` (`from_procedure`,`to_procedure`,`trigger_event`),
   KEY `ix_from` (`from_procedure`,`is_active`),
   KEY `ix_to` (`to_procedure`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5915,7 +5915,7 @@ CREATE TABLE IF NOT EXISTS `ahg_spectrum_object_compliance` (
   KEY `ix_procedure_status` (`spectrum_procedure`,`status`),
   KEY `ix_object` (`object_id`,`object_type`),
   KEY `ix_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6040,7 +6040,7 @@ CREATE TABLE IF NOT EXISTS `ahg_strongroom` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_strongroom_slug` (`slug`),
   KEY `ix_strongroom_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6330,7 +6330,7 @@ CREATE TABLE IF NOT EXISTS `ahg_translation_draft` (
   UNIQUE KEY `uk_draft_dedupe` (`object_id`,`field_name`,`source_culture`,`target_culture`,`source_hash`),
   KEY `idx_object_field` (`object_id`,`field_name`),
   KEY `idx_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6359,7 +6359,7 @@ CREATE TABLE IF NOT EXISTS `ahg_translation_log` (
   PRIMARY KEY (`id`),
   KEY `idx_object` (`object_id`),
   KEY `idx_ok` (`ok`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6426,7 +6426,7 @@ CREATE TABLE IF NOT EXISTS `ahg_translation_settings` (
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_setting_key` (`setting_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6445,7 +6445,7 @@ CREATE TABLE IF NOT EXISTS `ahg_tts_settings` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `setting_sector` (`setting_key`,`sector`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6825,7 +6825,7 @@ CREATE TABLE IF NOT EXISTS `ahg_webauthn_credential` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_webauthn_credential_id` (`credential_id`),
   KEY `idx_webauthn_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6941,7 +6941,7 @@ CREATE TABLE IF NOT EXISTS `ahg_workflow_edge` (
   CONSTRAINT `fk_wfedge_from` FOREIGN KEY (`from_step_id`) REFERENCES `ahg_workflow_step` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_wfedge_to` FOREIGN KEY (`to_step_id`) REFERENCES `ahg_workflow_step` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_wfedge_workflow` FOREIGN KEY (`workflow_id`) REFERENCES `ahg_workflow` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7169,7 +7169,7 @@ CREATE TABLE IF NOT EXISTS `ai_iiif_extraction` (
   KEY `idx_aie_type` (`extraction_type`),
   KEY `idx_aie_status` (`status`),
   KEY `idx_aie_created` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7411,7 +7411,7 @@ CREATE TABLE IF NOT EXISTS `aip` (
   CONSTRAINT `aip_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `aip_FK_2` FOREIGN KEY (`type_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `aip_FK_3` FOREIGN KEY (`part_of`) REFERENCES `object` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7439,7 +7439,7 @@ CREATE TABLE IF NOT EXISTS `atom_data_mapping` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_name_type` (`name`,`target_type`),
   KEY `idx_target_type` (`target_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7668,7 +7668,7 @@ CREATE TABLE IF NOT EXISTS `atom_framework_migrations` (
   `executed_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `migration` (`migration`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7915,7 +7915,7 @@ CREATE TABLE IF NOT EXISTS `atom_library_cover_queue` (
   PRIMARY KEY (`id`),
   KEY `idx_status` (`status`),
   KEY `idx_io_id` (`information_object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7971,7 +7971,7 @@ CREATE TABLE IF NOT EXISTS `atom_migration_job` (
   KEY `idx_job_id` (`job_id`),
   KEY `idx_created_by` (`created_by`),
   KEY `idx_created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7998,7 +7998,7 @@ CREATE TABLE IF NOT EXISTS `atom_migration_log` (
   KEY `idx_job_id` (`job_id`),
   KEY `idx_action` (`action`),
   CONSTRAINT `atom_migration_log_ibfk_1` FOREIGN KEY (`job_id`) REFERENCES `atom_migration_job` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8136,7 +8136,7 @@ CREATE TABLE IF NOT EXISTS `atom_plugin_audit` (
   PRIMARY KEY (`id`),
   KEY `idx_plugin` (`plugin_name`),
   KEY `idx_created` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8208,7 +8208,7 @@ CREATE TABLE IF NOT EXISTS `atom_validation_log` (
   KEY `idx_severity` (`severity`),
   KEY `idx_row` (`row_number`),
   CONSTRAINT `atom_validation_log_ibfk_1` FOREIGN KEY (`job_id`) REFERENCES `atom_migration_job` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8233,7 +8233,7 @@ CREATE TABLE IF NOT EXISTS `atom_validation_rule` (
   KEY `idx_sector` (`sector_code`),
   KEY `idx_field` (`field_name`),
   KEY `idx_active` (`is_active`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8266,7 +8266,7 @@ CREATE TABLE IF NOT EXISTS `audit_log` (
   KEY `idx_action` (`action`),
   KEY `idx_created` (`created_at`),
   KEY `idx_table_field` (`table_name`,`field_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8291,7 +8291,7 @@ CREATE TABLE IF NOT EXISTS `backup_history` (
   UNIQUE KEY `backup_id` (`backup_id`),
   KEY `idx_status` (`status`),
   KEY `idx_created` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8319,7 +8319,7 @@ CREATE TABLE IF NOT EXISTS `backup_schedule` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8340,7 +8340,7 @@ CREATE TABLE IF NOT EXISTS `backup_setting` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `setting_key` (`setting_key`),
   KEY `idx_setting_key` (`setting_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8483,7 +8483,7 @@ CREATE TABLE IF NOT EXISTS `cart` (
   PRIMARY KEY (`id`),
   KEY `idx_cart_kind` (`kind`),
   KEY `idx_cart_listing` (`listing_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8782,7 +8782,7 @@ CREATE TABLE IF NOT EXISTS `clipboard_save` (
   PRIMARY KEY (`id`),
   KEY `clipboard_save_FI_1` (`user_id`),
   CONSTRAINT `clipboard_save_FK_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8800,7 +8800,7 @@ CREATE TABLE IF NOT EXISTS `clipboard_save_item` (
   PRIMARY KEY (`id`),
   KEY `clipboard_save_item_FI_1` (`save_id`),
   CONSTRAINT `clipboard_save_item_FK_1` FOREIGN KEY (`save_id`) REFERENCES `clipboard_save` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8822,7 +8822,7 @@ CREATE TABLE IF NOT EXISTS `condition_assessment_schedule` (
   PRIMARY KEY (`id`),
   KEY `idx_object` (`object_id`),
   KEY `idx_due` (`next_due_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8841,7 +8841,7 @@ CREATE TABLE IF NOT EXISTS `condition_conservation_link` (
   PRIMARY KEY (`id`),
   KEY `idx_event` (`condition_event_id`),
   KEY `idx_treatment` (`treatment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8896,7 +8896,7 @@ CREATE TABLE IF NOT EXISTS `condition_event` (
   KEY `idx_object` (`object_id`),
   KEY `idx_date` (`event_date`),
   KEY `idx_status` (`condition_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8996,7 +8996,7 @@ CREATE TABLE IF NOT EXISTS `condition_vocabulary_term` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_vocab_term` (`vocabulary_type`,`term_code`),
   KEY `idx_type` (`vocabulary_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9034,7 +9034,7 @@ CREATE TABLE IF NOT EXISTS `contact_information` (
   KEY `idx_contact_latitude` (`latitude`),
   KEY `idx_contact_longitude` (`longitude`),
   CONSTRAINT `contact_information_FK_1` FOREIGN KEY (`actor_id`) REFERENCES `actor` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9081,7 +9081,7 @@ CREATE TABLE IF NOT EXISTS `contact_information_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `contact_information_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `contact_information` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9292,7 +9292,7 @@ CREATE TABLE IF NOT EXISTS `custom_watermark` (
   PRIMARY KEY (`id`),
   KEY `idx_object` (`object_id`),
   KEY `idx_active` (`active`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9470,7 +9470,7 @@ CREATE TABLE IF NOT EXISTS `dam_iptc_metadata` (
   KEY `idx_genre` (`genre`),
   KEY `idx_production_company` (`production_company`(100)),
   KEY `idx_broadcast_date` (`broadcast_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9550,7 +9550,7 @@ CREATE TABLE IF NOT EXISTS `data_migration_log` (
   KEY `idx_source_sector` (`source_sector`),
   KEY `idx_target_sector` (`target_sector`),
   KEY `idx_created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9575,7 +9575,7 @@ CREATE TABLE IF NOT EXISTS `deaccession` (
   CONSTRAINT `deaccession_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `deaccession_FK_2` FOREIGN KEY (`accession_id`) REFERENCES `accession` (`id`) ON DELETE CASCADE,
   CONSTRAINT `deaccession_FK_3` FOREIGN KEY (`scope_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9593,7 +9593,7 @@ CREATE TABLE IF NOT EXISTS `deaccession_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `deaccession_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `deaccession` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9658,7 +9658,7 @@ CREATE TABLE IF NOT EXISTS `digital_object` (
   CONSTRAINT `digital_object_FK_3` FOREIGN KEY (`usage_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `digital_object_FK_4` FOREIGN KEY (`media_type_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `digital_object_FK_5` FOREIGN KEY (`parent_id`) REFERENCES `digital_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9775,7 +9775,7 @@ CREATE TABLE IF NOT EXISTS `display_collection_type` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9792,7 +9792,7 @@ CREATE TABLE IF NOT EXISTS `display_collection_type_i18n` (
   `description` text,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `fk_dcti_type` FOREIGN KEY (`id`) REFERENCES `display_collection_type` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9842,7 +9842,7 @@ CREATE TABLE IF NOT EXISTS `display_field` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9859,7 +9859,7 @@ CREATE TABLE IF NOT EXISTS `display_field_i18n` (
   `help_text` text,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `fk_dfi_field` FOREIGN KEY (`id`) REFERENCES `display_field` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9884,7 +9884,7 @@ CREATE TABLE IF NOT EXISTS `display_level` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9901,7 +9901,7 @@ CREATE TABLE IF NOT EXISTS `display_level_i18n` (
   `description` text,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `fk_dli_level` FOREIGN KEY (`id`) REFERENCES `display_level` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9927,7 +9927,7 @@ CREATE TABLE IF NOT EXISTS `display_mode_audit` (
   KEY `idx_user` (`user_id`),
   KEY `idx_module` (`module`),
   KEY `idx_created` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9977,7 +9977,7 @@ CREATE TABLE IF NOT EXISTS `display_object_config` (
   KEY `idx_object` (`object_id`),
   KEY `idx_type` (`object_type`),
   CONSTRAINT `fk_doc_object` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9999,7 +9999,7 @@ CREATE TABLE IF NOT EXISTS `display_object_profile` (
   KEY `idx_object` (`object_id`),
   KEY `fk_dop_profile` (`profile_id`),
   CONSTRAINT `fk_dop_profile` FOREIGN KEY (`profile_id`) REFERENCES `display_profile` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10031,7 +10031,7 @@ CREATE TABLE IF NOT EXISTS `display_profile` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10048,7 +10048,7 @@ CREATE TABLE IF NOT EXISTS `display_profile_i18n` (
   `description` text,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `fk_dpi_profile` FOREIGN KEY (`id`) REFERENCES `display_profile` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10119,7 +10119,7 @@ CREATE TABLE IF NOT EXISTS `donor` (
   `id` int NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `donor_FK_1` FOREIGN KEY (`id`) REFERENCES `actor` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10585,7 +10585,7 @@ CREATE TABLE IF NOT EXISTS `email_setting` (
   UNIQUE KEY `setting_key` (`setting_key`),
   KEY `idx_key` (`setting_key`),
   KEY `idx_group` (`setting_group`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10743,7 +10743,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   CONSTRAINT `event_FK_2` FOREIGN KEY (`type_id`) REFERENCES `term` (`id`) ON DELETE CASCADE,
   CONSTRAINT `event_FK_3` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `event_FK_4` FOREIGN KEY (`actor_id`) REFERENCES `actor` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10761,7 +10761,7 @@ CREATE TABLE IF NOT EXISTS `event_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `event_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `event` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11376,7 +11376,7 @@ CREATE TABLE IF NOT EXISTS `favorites` (
   `last_viewed_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_folder` (`folder_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11428,7 +11428,7 @@ CREATE TABLE IF NOT EXISTS `favorites_share` (
   KEY `idx_folder` (`folder_id`),
   KEY `idx_token` (`token`),
   KEY `idx_shared_with` (`shared_with_user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11740,7 +11740,7 @@ CREATE TABLE IF NOT EXISTS `feedback` (
   `source_culture` varchar(14) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `feedback_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11763,7 +11763,7 @@ CREATE TABLE IF NOT EXISTS `feedback_i18n` (
   `status` varchar(50) DEFAULT 'pending',
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `feedback_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `feedback` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11808,7 +11808,7 @@ CREATE TABLE IF NOT EXISTS `function_object` (
   CONSTRAINT `function_object_FK_2` FOREIGN KEY (`type_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `function_object_FK_3` FOREIGN KEY (`description_status_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `function_object_FK_4` FOREIGN KEY (`description_detail_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11833,7 +11833,7 @@ CREATE TABLE IF NOT EXISTS `function_object_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `function_object_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `function_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11881,7 +11881,7 @@ CREATE TABLE IF NOT EXISTS `gallery_artist` (
   KEY `idx_actor` (`actor_id`),
   KEY `idx_name` (`display_name`),
   KEY `idx_represented` (`represented`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11910,7 +11910,7 @@ CREATE TABLE IF NOT EXISTS `gallery_artist_bibliography` (
   PRIMARY KEY (`id`),
   KEY `idx_artist` (`artist_id`),
   KEY `idx_type` (`entry_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11937,7 +11937,7 @@ CREATE TABLE IF NOT EXISTS `gallery_artist_exhibition_history` (
   PRIMARY KEY (`id`),
   KEY `idx_artist` (`artist_id`),
   KEY `idx_date` (`start_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -11992,7 +11992,7 @@ CREATE TABLE IF NOT EXISTS `gallery_exhibition` (
   KEY `idx_status` (`status`),
   KEY `idx_dates` (`start_date`,`end_date`),
   KEY `idx_venue` (`venue_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12034,7 +12034,7 @@ CREATE TABLE IF NOT EXISTS `gallery_facility_report` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_loan` (`loan_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12062,7 +12062,7 @@ CREATE TABLE IF NOT EXISTS `gallery_insurance_policy` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_dates` (`start_date`,`end_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12106,7 +12106,7 @@ CREATE TABLE IF NOT EXISTS `gallery_loan` (
   KEY `idx_type` (`loan_type`),
   KEY `idx_status` (`status`),
   KEY `idx_dates` (`loan_start_date`,`loan_end_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12134,7 +12134,7 @@ CREATE TABLE IF NOT EXISTS `gallery_loan_object` (
   PRIMARY KEY (`id`),
   KEY `idx_loan` (`loan_id`),
   KEY `idx_object` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12159,7 +12159,7 @@ CREATE TABLE IF NOT EXISTS `gallery_space` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_venue` (`venue_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12191,7 +12191,7 @@ CREATE TABLE IF NOT EXISTS `gallery_valuation` (
   KEY `idx_object` (`object_id`),
   KEY `idx_type` (`valuation_type`),
   KEY `idx_current` (`is_current`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12217,7 +12217,7 @@ CREATE TABLE IF NOT EXISTS `gallery_venue` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12242,7 +12242,7 @@ CREATE TABLE IF NOT EXISTS `getty_aat_cache` (
   KEY `idx_category` (`category`),
   KEY `idx_pref_label` (`pref_label`(100)),
   FULLTEXT KEY `ft_label` (`pref_label`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12272,7 +12272,7 @@ CREATE TABLE IF NOT EXISTS `getty_vocabulary_link` (
   KEY `idx_status` (`status`),
   KEY `idx_getty_id` (`getty_id`),
   KEY `idx_vocab_status` (`vocabulary`,`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12296,7 +12296,7 @@ CREATE TABLE IF NOT EXISTS `granted_right` (
   KEY `granted_right_FI_2` (`act_id`),
   CONSTRAINT `granted_right_FK_1` FOREIGN KEY (`rights_id`) REFERENCES `rights` (`id`) ON DELETE CASCADE,
   CONSTRAINT `granted_right_FK_2` FOREIGN KEY (`act_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12370,7 +12370,7 @@ CREATE TABLE IF NOT EXISTS `help_article` (
   KEY `idx_category` (`category`),
   KEY `idx_related_plugin` (`related_plugin`),
   FULLTEXT KEY `ft_search` (`title`,`body_text`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12392,7 +12392,7 @@ CREATE TABLE IF NOT EXISTS `help_section` (
   KEY `idx_article` (`article_id`),
   FULLTEXT KEY `ft_section_search` (`heading`,`body_text`),
   CONSTRAINT `help_section_ibfk_1` FOREIGN KEY (`article_id`) REFERENCES `help_article` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12947,7 +12947,7 @@ CREATE TABLE IF NOT EXISTS `heritage_compliance_rule` (
   KEY `idx_standard` (`standard_id`),
   KEY `idx_category` (`category`),
   CONSTRAINT `heritage_compliance_rule_ibfk_1` FOREIGN KEY (`standard_id`) REFERENCES `heritage_accounting_standard` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -13563,7 +13563,7 @@ CREATE TABLE IF NOT EXISTS `heritage_featured_collection` (
   UNIQUE KEY `uk_source` (`source_type`,`source_id`,`institution_id`),
   KEY `idx_enabled` (`is_enabled`),
   KEY `idx_order` (`display_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -13814,7 +13814,7 @@ CREATE TABLE IF NOT EXISTS `heritage_institution_config` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_repository` (`repository_id`),
   KEY `idx_region` (`region_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -14107,7 +14107,7 @@ CREATE TABLE IF NOT EXISTS `heritage_regional_config` (
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `region_code` (`region_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -14526,7 +14526,7 @@ CREATE TABLE IF NOT EXISTS `icip_config` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `config_key` (`config_key`),
   KEY `idx_config_key` (`config_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -14791,7 +14791,7 @@ CREATE TABLE IF NOT EXISTS `iiif_3d_manifest` (
   UNIQUE KEY `model_id` (`model_id`),
   KEY `idx_model_id` (`model_id`),
   CONSTRAINT `iiif_3d_manifest_ibfk_1` FOREIGN KEY (`model_id`) REFERENCES `object_3d_model` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15006,7 +15006,7 @@ CREATE TABLE IF NOT EXISTS `iiif_collection` (
   KEY `idx_parent` (`parent_id`),
   KEY `idx_public` (`is_public`),
   CONSTRAINT `iiif_collection_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `iiif_collection` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15025,7 +15025,7 @@ CREATE TABLE IF NOT EXISTS `iiif_collection_i18n` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_collection_culture` (`collection_id`,`culture`),
   CONSTRAINT `iiif_collection_i18n_ibfk_1` FOREIGN KEY (`collection_id`) REFERENCES `iiif_collection` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15051,7 +15051,7 @@ CREATE TABLE IF NOT EXISTS `iiif_collection_item` (
   KEY `idx_object` (`object_id`),
   CONSTRAINT `iiif_collection_item_ibfk_1` FOREIGN KEY (`collection_id`) REFERENCES `iiif_collection` (`id`) ON DELETE CASCADE,
   CONSTRAINT `iiif_collection_item_ibfk_2` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15167,7 +15167,7 @@ CREATE TABLE IF NOT EXISTS `iiif_viewer_settings` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `setting_key` (`setting_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15186,7 +15186,7 @@ CREATE TABLE IF NOT EXISTS `image_ar_settings` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `setting_key` (`setting_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15241,7 +15241,7 @@ CREATE TABLE IF NOT EXISTS `information_object` (
   CONSTRAINT `information_object_FK_6` FOREIGN KEY (`description_status_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `information_object_FK_7` FOREIGN KEY (`description_detail_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `information_object_FK_8` FOREIGN KEY (`display_standard_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15279,7 +15279,7 @@ CREATE TABLE IF NOT EXISTS `information_object_i18n` (
   FULLTEXT KEY `ft_ioi_title` (`title`),
   FULLTEXT KEY `ft_ioi_scope` (`scope_and_content`),
   CONSTRAINT `information_object_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15315,7 +15315,7 @@ CREATE TABLE IF NOT EXISTS `information_object_physical_location` (
   KEY `idx_physical_object` (`physical_object_id`),
   KEY `idx_barcode` (`barcode`),
   KEY `idx_access_status` (`access_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15515,7 +15515,7 @@ CREATE TABLE IF NOT EXISTS `ingest_file` (
   KEY `ix_ingest_file_status` (`status`),
   KEY `ix_ingest_file_hash` (`source_hash`),
   KEY `ix_ingest_file_io` (`resolved_io_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15545,7 +15545,7 @@ CREATE TABLE IF NOT EXISTS `ingest_job` (
   PRIMARY KEY (`id`),
   KEY `idx_session` (`session_id`),
   KEY `idx_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15566,7 +15566,7 @@ CREATE TABLE IF NOT EXISTS `ingest_mapping` (
   `sort_order` int DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idx_session` (`session_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15600,7 +15600,7 @@ CREATE TABLE IF NOT EXISTS `ingest_row` (
   KEY `idx_session` (`session_id`),
   KEY `idx_legacy` (`legacy_id`),
   KEY `idx_valid` (`is_valid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15658,7 +15658,7 @@ CREATE TABLE IF NOT EXISTS `ingest_session` (
   KEY `idx_user` (`user_id`),
   KEY `idx_status` (`status`),
   KEY `ix_session_kind` (`session_kind`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -15680,7 +15680,7 @@ CREATE TABLE IF NOT EXISTS `ingest_validation` (
   PRIMARY KEY (`id`),
   KEY `idx_session` (`session_id`),
   KEY `idx_row` (`row_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -16337,7 +16337,7 @@ CREATE TABLE IF NOT EXISTS `job` (
   CONSTRAINT `job_FK_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL,
   CONSTRAINT `job_FK_3` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE SET NULL,
   CONSTRAINT `job_FK_4` FOREIGN KEY (`status_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -16397,7 +16397,7 @@ CREATE TABLE IF NOT EXISTS `keymap` (
   `id` int NOT NULL AUTO_INCREMENT,
   `serial_number` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -16417,7 +16417,7 @@ CREATE TABLE IF NOT EXISTS `level_of_description_sector` (
   UNIQUE KEY `unique_term_sector` (`term_id`,`sector`),
   KEY `idx_sector` (`sector`),
   KEY `idx_term` (`term_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -17456,7 +17456,7 @@ CREATE TABLE IF NOT EXISTS `library_settings` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `setting_key` (`setting_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -17959,7 +17959,7 @@ CREATE TABLE IF NOT EXISTS `marketplace_artist` (
   UNIQUE KEY `uniq_artist_slug_per_seller` (`seller_id`,`slug`),
   KEY `idx_artist_seller` (`seller_id`),
   KEY `idx_artist_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -18225,7 +18225,7 @@ CREATE TABLE IF NOT EXISTS `marketplace_licence_agreement` (
   KEY `idx_lic_seller` (`seller_id`),
   KEY `idx_lic_status` (`status`),
   KEY `idx_lic_valid_until` (`valid_until`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -18435,7 +18435,7 @@ CREATE TABLE IF NOT EXISTS `marketplace_reservation` (
   KEY `idx_resv_user` (`user_id`),
   KEY `idx_resv_status` (`status`),
   KEY `idx_resv_expires` (`expires_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -18796,7 +18796,7 @@ CREATE TABLE IF NOT EXISTS `media_snippets` (
   `created_by` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_do_id` (`digital_object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -18873,7 +18873,7 @@ CREATE TABLE IF NOT EXISTS `menu` (
   PRIMARY KEY (`id`),
   KEY `menu_FI_1` (`parent_id`),
   CONSTRAINT `menu_FK_1` FOREIGN KEY (`parent_id`) REFERENCES `menu` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -18890,7 +18890,7 @@ CREATE TABLE IF NOT EXISTS `menu_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `menu_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `menu` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -19095,7 +19095,7 @@ CREATE TABLE IF NOT EXISTS `museum_metadata` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_object` (`object_id`),
   CONSTRAINT `museum_metadata_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -19194,7 +19194,7 @@ CREATE TABLE IF NOT EXISTS `museum_metadata_i18n` (
   `edition_size` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `museum_metadata_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `museum_metadata` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -19976,7 +19976,7 @@ CREATE TABLE IF NOT EXISTS `note` (
   CONSTRAINT `note_FK_1` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `note_FK_2` FOREIGN KEY (`type_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `note_FK_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -19992,7 +19992,7 @@ CREATE TABLE IF NOT EXISTS `note_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `note_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `note` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20110,7 +20110,7 @@ CREATE TABLE IF NOT EXISTS `oai_harvest` (
   PRIMARY KEY (`id`),
   KEY `oai_harvest_FI_1` (`oai_repository_id`),
   CONSTRAINT `oai_harvest_FK_1` FOREIGN KEY (`oai_repository_id`) REFERENCES `oai_repository` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20130,7 +20130,7 @@ CREATE TABLE IF NOT EXISTS `oai_repository` (
   `updated_at` datetime NOT NULL,
   `serial_number` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20154,7 +20154,7 @@ CREATE TABLE IF NOT EXISTS `oais_fixity_check` (
   KEY `idx_package_id` (`package_id`),
   KEY `idx_is_valid` (`is_valid`),
   CONSTRAINT `oais_fixity_check_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `oais_information_package` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20191,7 +20191,7 @@ CREATE TABLE IF NOT EXISTS `oais_information_package` (
   KEY `idx_object_id` (`object_id`),
   CONSTRAINT `oais_information_package_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE SET NULL,
   CONSTRAINT `oais_information_package_ibfk_2` FOREIGN KEY (`parent_package_id`) REFERENCES `oais_information_package` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20223,7 +20223,7 @@ CREATE TABLE IF NOT EXISTS `oais_package_content` (
   KEY `idx_pronom` (`pronom_puid`),
   CONSTRAINT `oais_package_content_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `oais_information_package` (`id`) ON DELETE CASCADE,
   CONSTRAINT `oais_package_content_ibfk_2` FOREIGN KEY (`digital_object_id`) REFERENCES `digital_object` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20253,7 +20253,7 @@ CREATE TABLE IF NOT EXISTS `oais_premis_event` (
   KEY `idx_event_date` (`event_date_time`),
   CONSTRAINT `oais_premis_event_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `oais_information_package` (`id`) ON DELETE CASCADE,
   CONSTRAINT `oais_premis_event_ibfk_2` FOREIGN KEY (`content_id`) REFERENCES `oais_package_content` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20275,7 +20275,7 @@ CREATE TABLE IF NOT EXISTS `oais_preservation_policy` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20299,7 +20299,7 @@ CREATE TABLE IF NOT EXISTS `oais_pronom_format` (
   UNIQUE KEY `puid` (`puid`),
   KEY `idx_puid` (`puid`),
   KEY `idx_risk` (`risk_level`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20316,7 +20316,7 @@ CREATE TABLE IF NOT EXISTS `object` (
   `id` int NOT NULL AUTO_INCREMENT,
   `serial_number` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20342,7 +20342,7 @@ CREATE TABLE IF NOT EXISTS `object_3d_audit_log` (
   KEY `idx_object_id` (`object_id`),
   KEY `idx_action` (`action`),
   KEY `idx_created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20399,7 +20399,7 @@ CREATE TABLE IF NOT EXISTS `object_3d_hotspot` (
   PRIMARY KEY (`id`),
   KEY `idx_model_id` (`model_id`),
   CONSTRAINT `object_3d_hotspot_ibfk_1` FOREIGN KEY (`model_id`) REFERENCES `object_3d_model` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20418,7 +20418,7 @@ CREATE TABLE IF NOT EXISTS `object_3d_hotspot_i18n` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_hotspot_culture` (`hotspot_id`,`culture`),
   CONSTRAINT `object_3d_hotspot_i18n_ibfk_1` FOREIGN KEY (`hotspot_id`) REFERENCES `object_3d_hotspot` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20473,7 +20473,7 @@ CREATE TABLE IF NOT EXISTS `object_3d_model` (
   KEY `idx_format` (`format`),
   KEY `idx_is_public` (`is_public`),
   CONSTRAINT `object_3d_model_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20493,7 +20493,7 @@ CREATE TABLE IF NOT EXISTS `object_3d_model_i18n` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_model_culture` (`model_id`,`culture`),
   CONSTRAINT `object_3d_model_i18n_ibfk_1` FOREIGN KEY (`model_id`) REFERENCES `object_3d_model` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20544,7 +20544,7 @@ CREATE TABLE IF NOT EXISTS `object_3d_texture` (
   PRIMARY KEY (`id`),
   KEY `idx_model_id` (`model_id`),
   CONSTRAINT `object_3d_texture_ibfk_1` FOREIGN KEY (`model_id`) REFERENCES `object_3d_model` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20575,7 +20575,7 @@ CREATE TABLE IF NOT EXISTS `object_access_grant` (
   KEY `idx_active` (`active`),
   KEY `idx_request` (`request_id`),
   CONSTRAINT `object_access_grant_ibfk_1` FOREIGN KEY (`request_id`) REFERENCES `access_request` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20597,7 +20597,7 @@ CREATE TABLE IF NOT EXISTS `object_classification_history` (
   PRIMARY KEY (`id`),
   KEY `idx_object_id` (`object_id`),
   KEY `idx_changed_by` (`changed_by`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20619,7 +20619,7 @@ CREATE TABLE IF NOT EXISTS `object_compartment` (
   UNIQUE KEY `unique_object_compartment` (`object_id`,`compartment_id`),
   KEY `idx_compartment` (`compartment_id`),
   CONSTRAINT `object_compartment_ibfk_1` FOREIGN KEY (`compartment_id`) REFERENCES `security_compartment` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20664,7 +20664,7 @@ CREATE TABLE IF NOT EXISTS `object_declassification_schedule` (
   KEY `idx_object` (`object_id`),
   KEY `idx_scheduled` (`scheduled_date`),
   KEY `idx_processed` (`processed`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20701,7 +20701,7 @@ CREATE TABLE IF NOT EXISTS `object_image_ar` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_object_id` (`object_id`),
   KEY `idx_digital_object_id` (`digital_object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20743,7 +20743,7 @@ CREATE TABLE IF NOT EXISTS `object_rights_holder` (
   PRIMARY KEY (`id`),
   KEY `idx_object_id` (`object_id`),
   KEY `idx_donor_id` (`donor_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20822,7 +20822,7 @@ CREATE TABLE IF NOT EXISTS `object_term_relation` (
   CONSTRAINT `object_term_relation_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `object_term_relation_FK_2` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `object_term_relation_FK_3` FOREIGN KEY (`term_id`) REFERENCES `term` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20849,7 +20849,7 @@ CREATE TABLE IF NOT EXISTS `object_watermark_setting` (
   KEY `custom_watermark_id` (`custom_watermark_id`),
   CONSTRAINT `object_watermark_setting_ibfk_1` FOREIGN KEY (`watermark_type_id`) REFERENCES `watermark_type` (`id`) ON DELETE SET NULL,
   CONSTRAINT `object_watermark_setting_ibfk_2` FOREIGN KEY (`custom_watermark_id`) REFERENCES `custom_watermark` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20925,7 +20925,7 @@ CREATE TABLE IF NOT EXISTS `other_name` (
   KEY `other_name_FI_2` (`type_id`),
   CONSTRAINT `other_name_FK_1` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `other_name_FK_2` FOREIGN KEY (`type_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20943,7 +20943,7 @@ CREATE TABLE IF NOT EXISTS `other_name_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `other_name_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `other_name` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21014,7 +21014,7 @@ CREATE TABLE IF NOT EXISTS `physical_object` (
   KEY `physical_object_FI_2` (`type_id`),
   CONSTRAINT `physical_object_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `physical_object_FK_2` FOREIGN KEY (`type_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21065,7 +21065,7 @@ CREATE TABLE IF NOT EXISTS `physical_object_extended` (
   KEY `idx_building` (`building`),
   KEY `idx_status` (`status`),
   KEY `idx_available_capacity` (`available_capacity`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21083,7 +21083,7 @@ CREATE TABLE IF NOT EXISTS `physical_object_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `physical_object_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `physical_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21225,7 +21225,7 @@ CREATE TABLE IF NOT EXISTS `premis_object` (
   KEY `premis_object_FI_2` (`information_object_id`),
   CONSTRAINT `premis_object_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `premis_object_FK_2` FOREIGN KEY (`information_object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21379,7 +21379,7 @@ DROP TABLE IF EXISTS `preservation_format`;
 CREATE TABLE IF NOT EXISTS `preservation_format` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `puid` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'PRONOM Unique Identifier',
-  `mime_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `mime_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `format_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `format_version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `extension` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -21408,9 +21408,9 @@ DROP TABLE IF EXISTS `preservation_format_conversion`;
 CREATE TABLE IF NOT EXISTS `preservation_format_conversion` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `digital_object_id` int NOT NULL,
-  `source_format` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `source_format` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `source_mime_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `target_format` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `target_format` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `target_mime_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `conversion_tool` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'imagemagick, ffmpeg, ghostscript, etc.',
   `tool_version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -21616,7 +21616,7 @@ CREATE TABLE IF NOT EXISTS `preservation_object_format` (
   `digital_object_id` int NOT NULL,
   `format_id` bigint unsigned DEFAULT NULL,
   `puid` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `mime_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `mime_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `format_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `format_version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `identification_tool` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'e.g., DROID, file, finfo',
@@ -22080,7 +22080,7 @@ CREATE TABLE IF NOT EXISTS `privacy_breach_incident` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_reference` (`reference`),
   KEY `idx_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22132,7 +22132,7 @@ CREATE TABLE IF NOT EXISTS `privacy_complaint` (
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_complaint_ref` (`reference_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22287,7 +22287,7 @@ CREATE TABLE IF NOT EXISTS `privacy_consent_record` (
   `withdrawal_reason` text,
   PRIMARY KEY (`id`),
   KEY `idx_subject` (`data_subject_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22420,7 +22420,7 @@ CREATE TABLE IF NOT EXISTS `privacy_dsar_log` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_dsar` (`dsar_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22470,7 +22470,7 @@ CREATE TABLE IF NOT EXISTS `privacy_dsar_request` (
   UNIQUE KEY `uk_reference` (`reference`),
   KEY `idx_status` (`status`),
   KEY `idx_deadline` (`deadline_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22527,7 +22527,7 @@ CREATE TABLE IF NOT EXISTS `privacy_jurisdiction` (
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_jurisdiction_code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22725,7 +22725,7 @@ CREATE TABLE IF NOT EXISTS `privacy_processing_activity` (
   `rejection_reason` text,
   `assigned_officer_id` int DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22883,7 +22883,7 @@ CREATE TABLE IF NOT EXISTS `privacy_template` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_category` (`category`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22939,7 +22939,7 @@ CREATE TABLE IF NOT EXISTS `property` (
   PRIMARY KEY (`id`),
   KEY `property_FI_1` (`object_id`),
   CONSTRAINT `property_FK_1` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22955,7 +22955,7 @@ CREATE TABLE IF NOT EXISTS `property_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `property_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `property` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -23266,7 +23266,7 @@ CREATE TABLE IF NOT EXISTS `relation` (
   CONSTRAINT `relation_FK_2` FOREIGN KEY (`subject_id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `relation_FK_3` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `relation_FK_4` FOREIGN KEY (`type_id`) REFERENCES `term` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -23283,7 +23283,7 @@ CREATE TABLE IF NOT EXISTS `relation_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `relation_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `relation` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -23596,7 +23596,7 @@ CREATE TABLE IF NOT EXISTS `repository` (
   CONSTRAINT `repository_FK_1` FOREIGN KEY (`id`) REFERENCES `actor` (`id`) ON DELETE CASCADE,
   CONSTRAINT `repository_FK_2` FOREIGN KEY (`desc_status_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `repository_FK_3` FOREIGN KEY (`desc_detail_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -23626,7 +23626,7 @@ CREATE TABLE IF NOT EXISTS `repository_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `repository_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `repository` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -23694,7 +23694,7 @@ CREATE TABLE IF NOT EXISTS `request_to_publish` (
   `source_culture` varchar(14) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `requesttopublish_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -23723,7 +23723,7 @@ CREATE TABLE IF NOT EXISTS `request_to_publish_i18n` (
   `culture` varchar(14) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `requesttopublish_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `request_to_publish` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -23929,7 +23929,7 @@ CREATE TABLE IF NOT EXISTS `research_annotation` (
   KEY `idx_object` (`object_id`),
   KEY `idx_collection` (`collection_id`),
   FULLTEXT KEY `idx_annotation_fulltext` (`title`,`content`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -24197,7 +24197,7 @@ CREATE TABLE IF NOT EXISTS `research_booking` (
   KEY `idx_date` (`booking_date`),
   KEY `idx_status` (`status`),
   KEY `idx_booking_seat` (`seat_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -24217,7 +24217,7 @@ CREATE TABLE IF NOT EXISTS `research_citation_log` (
   PRIMARY KEY (`id`),
   KEY `idx_researcher` (`researcher_id`),
   KEY `idx_object` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -24304,7 +24304,7 @@ CREATE TABLE IF NOT EXISTS `research_collection` (
   PRIMARY KEY (`id`),
   KEY `idx_researcher` (`researcher_id`),
   KEY `idx_share_token` (`share_token`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -24330,7 +24330,7 @@ CREATE TABLE IF NOT EXISTS `research_collection_item` (
   UNIQUE KEY `unique_item` (`collection_id`,`object_id`),
   KEY `idx_collection` (`collection_id`),
   KEY `idx_object` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -24410,7 +24410,7 @@ CREATE TABLE IF NOT EXISTS `research_custody_handoff` (
   KEY `idx_type` (`handoff_type`),
   KEY `idx_spectrum` (`spectrum_movement_id`),
   KEY `idx_created` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -24585,7 +24585,7 @@ CREATE TABLE IF NOT EXISTS `research_equipment_maintenance` (
   PRIMARY KEY (`id`),
   KEY `idx_equipment` (`equipment_id`),
   KEY `idx_performed_at` (`performed_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -25080,7 +25080,7 @@ CREATE TABLE IF NOT EXISTS `research_material_request` (
   KEY `idx_object` (`object_id`),
   KEY `idx_request_queue` (`queue_id`),
   KEY `idx_request_retrieval` (`retrieval_scheduled_for`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -25219,7 +25219,7 @@ CREATE TABLE IF NOT EXISTS `research_password_reset` (
   KEY `idx_token` (`token`),
   KEY `idx_user` (`user_id`),
   KEY `idx_expires` (`expires_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -25451,7 +25451,7 @@ CREATE TABLE IF NOT EXISTS `research_reading_room` (
   `closing_time` time DEFAULT '17:00:00',
   `days_open` varchar(50) DEFAULT 'Mon,Tue,Wed,Thu,Fri',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -25690,7 +25690,7 @@ CREATE TABLE IF NOT EXISTS `research_request_correspondence` (
   KEY `idx_request` (`request_id`,`request_type`),
   KEY `idx_sender` (`sender_id`),
   KEY `idx_created` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -25807,7 +25807,7 @@ CREATE TABLE IF NOT EXISTS `research_researcher` (
   KEY `idx_user` (`user_id`),
   KEY `idx_status` (`status`),
   KEY `idx_email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -26044,7 +26044,7 @@ CREATE TABLE IF NOT EXISTS `research_saved_search` (
   `last_run_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_researcher` (`researcher_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -27254,7 +27254,7 @@ CREATE TABLE IF NOT EXISTS `rights` (
   CONSTRAINT `rights_FK_3` FOREIGN KEY (`rights_holder_id`) REFERENCES `actor` (`id`) ON DELETE SET NULL,
   CONSTRAINT `rights_FK_4` FOREIGN KEY (`copyright_status_id`) REFERENCES `term` (`id`) ON DELETE SET NULL,
   CONSTRAINT `rights_FK_5` FOREIGN KEY (`statute_citation_id`) REFERENCES `term` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -27492,7 +27492,7 @@ CREATE TABLE IF NOT EXISTS `rights_holder` (
   `id` int NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `rights_holder_FK_1` FOREIGN KEY (`id`) REFERENCES `actor` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -27516,7 +27516,7 @@ CREATE TABLE IF NOT EXISTS `rights_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `rights_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `rights` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28417,7 +28417,7 @@ CREATE TABLE IF NOT EXISTS `security_2fa_session` (
   UNIQUE KEY `unique_session` (`session_id`),
   KEY `idx_user_session` (`user_id`,`session_id`),
   KEY `idx_expires` (`expires_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28440,7 +28440,7 @@ CREATE TABLE IF NOT EXISTS `security_access_condition_link` (
   PRIMARY KEY (`id`),
   KEY `idx_object` (`object_id`),
   KEY `idx_classification` (`classification_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28507,7 +28507,7 @@ CREATE TABLE IF NOT EXISTS `security_access_request` (
   KEY `compartment_id` (`compartment_id`),
   CONSTRAINT `security_access_request_ibfk_1` FOREIGN KEY (`classification_id`) REFERENCES `security_classification` (`id`) ON DELETE SET NULL,
   CONSTRAINT `security_access_request_ibfk_2` FOREIGN KEY (`compartment_id`) REFERENCES `security_compartment` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28535,7 +28535,7 @@ CREATE TABLE IF NOT EXISTS `security_audit_log` (
   KEY `idx_action` (`action`),
   KEY `idx_category` (`action_category`),
   KEY `idx_created` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28593,7 +28593,7 @@ CREATE TABLE IF NOT EXISTS `security_clearance_history` (
   KEY `new_classification_id` (`new_classification_id`),
   CONSTRAINT `security_clearance_history_ibfk_1` FOREIGN KEY (`previous_classification_id`) REFERENCES `security_classification` (`id`) ON DELETE SET NULL,
   CONSTRAINT `security_clearance_history_ibfk_2` FOREIGN KEY (`new_classification_id`) REFERENCES `security_classification` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28619,7 +28619,7 @@ CREATE TABLE IF NOT EXISTS `security_compartment` (
   KEY `idx_active` (`active`),
   KEY `min_clearance_id` (`min_clearance_id`),
   CONSTRAINT `security_compartment_ibfk_1` FOREIGN KEY (`min_clearance_id`) REFERENCES `security_classification` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28643,7 +28643,7 @@ CREATE TABLE IF NOT EXISTS `security_compliance_log` (
   KEY `idx_action` (`action`),
   KEY `idx_user` (`user_id`),
   KEY `idx_created` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28673,7 +28673,7 @@ CREATE TABLE IF NOT EXISTS `security_declassification_schedule` (
   KEY `to_classification_id` (`to_classification_id`),
   CONSTRAINT `security_declassification_schedule_ibfk_1` FOREIGN KEY (`from_classification_id`) REFERENCES `security_classification` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `security_declassification_schedule_ibfk_2` FOREIGN KEY (`to_classification_id`) REFERENCES `security_classification` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28749,7 +28749,7 @@ CREATE TABLE IF NOT EXISTS `security_retention_schedule` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_narssa` (`narssa_ref`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28776,7 +28776,7 @@ CREATE TABLE IF NOT EXISTS `security_watermark_log` (
   KEY `idx_object` (`object_id`),
   KEY `idx_code` (`watermark_code`),
   KEY `idx_date` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28879,7 +28879,7 @@ CREATE TABLE IF NOT EXISTS `service_monitor_log` (
   KEY `idx_service_key` (`service_key`),
   KEY `idx_event_type` (`event_type`),
   KEY `idx_created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28918,7 +28918,7 @@ CREATE TABLE IF NOT EXISTS `setting` (
   `id` int NOT NULL AUTO_INCREMENT,
   `serial_number` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28934,7 +28934,7 @@ CREATE TABLE IF NOT EXISTS `setting_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `setting_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `setting` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29208,7 +29208,7 @@ CREATE TABLE IF NOT EXISTS `slug` (
   UNIQUE KEY `slug_U_1` (`object_id`),
   UNIQUE KEY `slug_U_2` (`slug`),
   CONSTRAINT `slug_FK_1` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29253,7 +29253,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_acquisition` (
   KEY `idx_acquisition_date` (`acquisition_date`),
   KEY `idx_wf_acq` (`workflow_state`),
   CONSTRAINT `spectrum_acquisition_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29303,7 +29303,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_audit_log` (
   KEY `idx_audit_procedure` (`procedure_type`,`procedure_id`),
   KEY `idx_audit_date` (`action_date`),
   KEY `idx_audit_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29327,7 +29327,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_barcode` (
   KEY `idx_barcode_object` (`object_id`),
   KEY `idx_barcode_type` (`barcode_type`),
   CONSTRAINT `spectrum_barcode_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29381,7 +29381,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_condition_check` (
   KEY `idx_wf_cond` (`workflow_state`),
   KEY `idx_check_date` (`check_date`),
   CONSTRAINT `spectrum_condition_check_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29407,7 +29407,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_condition_check_data` (
   CONSTRAINT `spectrum_condition_check_data_ibfk_1` FOREIGN KEY (`condition_check_id`) REFERENCES `spectrum_condition_check` (`id`) ON DELETE CASCADE,
   CONSTRAINT `spectrum_condition_check_data_ibfk_2` FOREIGN KEY (`template_id`) REFERENCES `spectrum_condition_template` (`id`) ON DELETE CASCADE,
   CONSTRAINT `spectrum_condition_check_data_ibfk_3` FOREIGN KEY (`field_id`) REFERENCES `spectrum_condition_template_field` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29477,7 +29477,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_condition_photo_comparison` (
   PRIMARY KEY (`id`),
   KEY `idx_condition_check` (`condition_check_id`),
   CONSTRAINT `spectrum_condition_photo_comparison_ibfk_1` FOREIGN KEY (`condition_check_id`) REFERENCES `spectrum_condition_check` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29533,7 +29533,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_condition_template` (
   UNIQUE KEY `code` (`code`),
   KEY `idx_material_type` (`material_type`),
   KEY `idx_active` (`is_active`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29559,7 +29559,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_condition_template_field` (
   PRIMARY KEY (`id`),
   KEY `idx_section` (`section_id`),
   CONSTRAINT `spectrum_condition_template_field_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `spectrum_condition_template_section` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29579,7 +29579,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_condition_template_section` (
   PRIMARY KEY (`id`),
   KEY `idx_template` (`template_id`),
   CONSTRAINT `spectrum_condition_template_section_ibfk_1` FOREIGN KEY (`template_id`) REFERENCES `spectrum_condition_template` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29623,7 +29623,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_conservation` (
   KEY `idx_treatment_date` (`treatment_date`),
   KEY `idx_wf_cons` (`workflow_state`),
   CONSTRAINT `spectrum_conservation_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29649,7 +29649,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_conservation_treatment` (
   PRIMARY KEY (`id`),
   KEY `idx_object` (`object_id`),
   KEY `idx_date` (`treatment_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29689,7 +29689,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_deaccession` (
   KEY `idx_deaccession_date` (`deaccession_date`),
   KEY `idx_wf_deacc` (`workflow_state`),
   CONSTRAINT `spectrum_deaccession_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29784,7 +29784,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_grap_data` (
   KEY `idx_grap_cost_center` (`cost_center`),
   KEY `idx_grap_recognition_date` (`initial_recognition_date`),
   CONSTRAINT `spectrum_grap_data_ibfk_1` FOREIGN KEY (`information_object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29809,7 +29809,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_grap_depreciation_schedule` (
   UNIQUE KEY `idx_deprec_period` (`grap_data_id`,`fiscal_year`,`fiscal_period`),
   KEY `idx_fiscal_year` (`fiscal_year`),
   CONSTRAINT `spectrum_grap_depreciation_schedule_ibfk_1` FOREIGN KEY (`grap_data_id`) REFERENCES `spectrum_grap_data` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29837,7 +29837,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_grap_journal` (
   KEY `idx_journal_date` (`journal_date`),
   KEY `idx_journal_type` (`journal_type`),
   CONSTRAINT `spectrum_grap_journal_ibfk_1` FOREIGN KEY (`grap_data_id`) REFERENCES `spectrum_grap_data` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29865,7 +29865,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_grap_revaluation_history` (
   KEY `grap_data_id` (`grap_data_id`),
   KEY `idx_reval_date` (`revaluation_date`),
   CONSTRAINT `spectrum_grap_revaluation_history_ibfk_1` FOREIGN KEY (`grap_data_id`) REFERENCES `spectrum_grap_data` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29928,7 +29928,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_loan_document` (
   PRIMARY KEY (`id`),
   KEY `idx_loan_document` (`loan_type`,`loan_id`),
   KEY `idx_document_type` (`document_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29989,7 +29989,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_loan_in` (
   KEY `idx_wf_lin` (`workflow_state`),
   KEY `idx_loan_dates` (`loan_start_date`,`loan_end_date`),
   CONSTRAINT `spectrum_loan_in_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30057,7 +30057,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_loan_out` (
   KEY `idx_wf_lout` (`workflow_state`),
   KEY `idx_loan_dates` (`loan_start_date`,`loan_end_date`),
   CONSTRAINT `spectrum_loan_out_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30094,7 +30094,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_location` (
   KEY `idx_location_name` (`location_name`),
   KEY `idx_wf_loc` (`workflow_state`),
   CONSTRAINT `spectrum_location_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30141,7 +30141,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_movement` (
   CONSTRAINT `spectrum_movement_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `spectrum_movement_ibfk_2` FOREIGN KEY (`location_from`) REFERENCES `spectrum_location` (`id`),
   CONSTRAINT `spectrum_movement_ibfk_3` FOREIGN KEY (`location_to`) REFERENCES `spectrum_location` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30226,7 +30226,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_object_entry` (
   KEY `idx_depositor` (`depositor_name`),
   KEY `idx_wf_entry` (`workflow_state`),
   CONSTRAINT `spectrum_object_entry_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30262,7 +30262,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_object_exit` (
   KEY `idx_exit_date` (`exit_date`),
   KEY `idx_wf_exit` (`workflow_state`),
   CONSTRAINT `spectrum_object_exit_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30313,7 +30313,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_procedure_history` (
   KEY `idx_object_id` (`object_id`),
   KEY `idx_procedure_type` (`procedure_type`),
   KEY `idx_created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30349,7 +30349,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_valuation` (
   KEY `idx_renewal_date` (`renewal_date`),
   KEY `idx_wf_valuation` (`workflow_state`),
   CONSTRAINT `spectrum_valuation_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30375,7 +30375,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_valuation_alert` (
   KEY `idx_alert_date` (`alert_date`),
   KEY `idx_alert_acknowledged` (`is_acknowledged`),
   CONSTRAINT `spectrum_valuation_alert_ibfk_1` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30398,7 +30398,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_workflow_config` (
   PRIMARY KEY (`id`),
   KEY `idx_procedure_type` (`procedure_type`),
   KEY `idx_active` (`is_active`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30425,7 +30425,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_workflow_history` (
   KEY `idx_procedure_record` (`procedure_type`,`record_id`),
   KEY `idx_created_at` (`created_at`),
   KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30451,7 +30451,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_workflow_notification` (
   PRIMARY KEY (`id`),
   KEY `idx_pending` (`is_sent`,`created_at`),
   KEY `idx_recipient` (`recipient_user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30475,7 +30475,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_workflow_state` (
   UNIQUE KEY `unique_record` (`procedure_type`,`record_id`),
   KEY `idx_procedure_state` (`procedure_type`,`current_state`),
   KEY `idx_assigned_to` (`assigned_to`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30490,7 +30490,7 @@ CREATE TABLE IF NOT EXISTS `static_page` (
   `source_culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `static_page_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30507,7 +30507,7 @@ CREATE TABLE IF NOT EXISTS `static_page_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `static_page_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `static_page` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30531,7 +30531,7 @@ CREATE TABLE IF NOT EXISTS `status` (
   CONSTRAINT `status_FK_1` FOREIGN KEY (`object_id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `status_FK_2` FOREIGN KEY (`type_id`) REFERENCES `term` (`id`) ON DELETE CASCADE,
   CONSTRAINT `status_FK_3` FOREIGN KEY (`status_id`) REFERENCES `term` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30550,7 +30550,7 @@ CREATE TABLE IF NOT EXISTS `taxonomy` (
   KEY `taxonomy_FI_2` (`parent_id`),
   CONSTRAINT `taxonomy_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `taxonomy_FK_2` FOREIGN KEY (`parent_id`) REFERENCES `taxonomy` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30567,7 +30567,7 @@ CREATE TABLE IF NOT EXISTS `taxonomy_i18n` (
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
   CONSTRAINT `taxonomy_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `taxonomy` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30592,7 +30592,7 @@ CREATE TABLE IF NOT EXISTS `term` (
   CONSTRAINT `term_FK_1` FOREIGN KEY (`id`) REFERENCES `object` (`id`) ON DELETE CASCADE,
   CONSTRAINT `term_FK_2` FOREIGN KEY (`taxonomy_id`) REFERENCES `taxonomy` (`id`) ON DELETE CASCADE,
   CONSTRAINT `term_FK_3` FOREIGN KEY (`parent_id`) REFERENCES `term` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30609,7 +30609,7 @@ CREATE TABLE IF NOT EXISTS `term_i18n` (
   PRIMARY KEY (`id`,`culture`),
   FULLTEXT KEY `ft_ti_name` (`name`),
   CONSTRAINT `term_i18n_FK_1` FOREIGN KEY (`id`) REFERENCES `term` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30883,7 +30883,7 @@ CREATE TABLE IF NOT EXISTS `ui_string` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `ui_string_key_culture` (`key`(255),`culture`),
   KEY `idx_culture` (`culture`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30909,7 +30909,7 @@ CREATE TABLE IF NOT EXISTS `ui_string_change` (
   KEY `idx_status_submitted` (`status`,`submitted_at`),
   KEY `idx_locale_status` (`locale`,`status`),
   KEY `idx_submitter` (`submitted_by_user_id`,`submitted_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30930,7 +30930,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `preferred_locale` varchar(10) DEFAULT NULL COMMENT 'preferred locale for outgoing email (e.g. en, af, fr)',
   PRIMARY KEY (`id`),
   CONSTRAINT `user_FK_1` FOREIGN KEY (`id`) REFERENCES `actor` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30984,7 +30984,7 @@ CREATE TABLE IF NOT EXISTS `user_compartment_access` (
   KEY `idx_compartment` (`compartment_id`),
   KEY `idx_expiry` (`expiry_date`,`active`),
   CONSTRAINT `user_compartment_access_ibfk_1` FOREIGN KEY (`compartment_id`) REFERENCES `security_compartment` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -31032,7 +31032,7 @@ CREATE TABLE IF NOT EXISTS `user_mfa_recovery_code` (
   PRIMARY KEY (`id`),
   KEY `idx_user_unused` (`user_id`,`used_at`),
   CONSTRAINT `fk_mfa_recovery_user` FOREIGN KEY (`user_id`) REFERENCES `user_totp_secret` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -31142,7 +31142,7 @@ CREATE TABLE IF NOT EXISTS `user_security_clearance_log` (
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_changed_by` (`changed_by`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -31241,7 +31241,7 @@ CREATE TABLE IF NOT EXISTS `viewer_3d_settings` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `setting_key` (`setting_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -31332,7 +31332,7 @@ CREATE TABLE IF NOT EXISTS `watermark_setting` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `setting_key` (`setting_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -31436,7 +31436,7 @@ CREATE TABLE IF NOT EXISTS `z3950_targets` (
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013  SQL SECURITY INVOKER */
 /*!50001 VIEW `grap_heritage_asset` AS select 1 AS `id`,1 AS `object_id`,1 AS `repository_id`,1 AS `asset_number`,1 AS `recognition_status`,1 AS `asset_class`,1 AS `asset_subclass`,1 AS `acquisition_date`,1 AS `acquisition_method`,1 AS `donor_source`,1 AS `cost_of_acquisition`,1 AS `current_carrying_amount`,1 AS `impairment_loss`,1 AS `accumulated_depreciation`,1 AS `residual_value`,1 AS `measurement_basis`,1 AS `valuation_date`,1 AS `valuer`,1 AS `valuation_method`,1 AS `physical_location`,1 AS `condition_description`,1 AS `insurance_value`,1 AS `insurance_policy`,1 AS `insurance_expiry`,1 AS `compliance_score`,1 AS `compliance_notes`,1 AS `last_compliance_check`,1 AS `notes`,1 AS `created_at`,1 AS `updated_at` */;
@@ -31454,7 +31454,7 @@ CREATE TABLE IF NOT EXISTS `z3950_targets` (
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013  SQL SECURITY INVOKER */
 /*!50001 VIEW `ric_queue_status` AS select 1 AS `status`,1 AS `count`,1 AS `oldest`,1 AS `newest` */;
@@ -31472,7 +31472,7 @@ CREATE TABLE IF NOT EXISTS `z3950_targets` (
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013  SQL SECURITY INVOKER */
 /*!50001 VIEW `ric_recent_operations` AS select 1 AS `id`,1 AS `operation`,1 AS `entity_type`,1 AS `entity_id`,1 AS `ric_uri`,1 AS `status`,1 AS `triples_affected`,1 AS `details`,1 AS `error_message`,1 AS `execution_time_ms`,1 AS `triggered_by`,1 AS `user_id`,1 AS `batch_id`,1 AS `created_at` */;
@@ -31490,7 +31490,7 @@ CREATE TABLE IF NOT EXISTS `z3950_targets` (
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013  SQL SECURITY INVOKER */
 /*!50001 VIEW `ric_sync_summary` AS select 1 AS `entity_type`,1 AS `sync_status`,1 AS `count`,1 AS `last_sync`,1 AS `with_retries` */;
