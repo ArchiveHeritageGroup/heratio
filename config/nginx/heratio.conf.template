@@ -37,10 +37,14 @@ server {
     add_header Permissions-Policy       "geolocation=(), microphone=(), camera=(self), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()" always;
     add_header Cross-Origin-Opener-Policy   "same-origin"                  always;
     add_header Cross-Origin-Resource-Policy "same-site"                    always;
-    # Content-Security-Policy — start permissive (Heratio uses inline JS in
-    # several views + jsdelivr CDN for d3, OpenSeadragon, etc.). Tighten per
-    # deployment after a CSP audit.
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none';" always;
+    # Content-Security-Policy is set by the APP, not here. Heratio ships a
+    # nonce-based CSP via spatie/laravel-csp (app/Csp/HeratioCspPreset.php) that
+    # already allows everything the viewers need (blob: for Mirador manifests +
+    # OpenSeadragon/PDF.js/3D workers, the CDNs, etc.). Adding a SECOND CSP
+    # header here makes the browser enforce the INTERSECTION of both, and this
+    # simpler header's `connect-src 'self' https:` (no blob:) silently broke the
+    # IIIF/Mirador viewer ("TypeError: Failed to fetch" on a blob: manifest).
+    # Leave CSP to the app so there is a single source of truth.
     # X-XSS-Protection is deprecated by modern browsers (use CSP above) but
     # keeps legacy clients happy.
     add_header X-XSS-Protection         "1; mode=block"                    always;
