@@ -95,6 +95,21 @@ sudo COMPOSER_ALLOW_SUPERUSER=1 bin/install \
   --admin-password='choose-a-strong-one'
 ```
 
+**Worked example - a LAN box reached by its IP** (here `192.0.2.50` - **replace with your server's own IP or resolvable hostname**):
+
+```bash
+git clone https://github.com/ArchiveHeritageGroup/heratio.git /usr/share/nginx/heratio
+cd /usr/share/nginx/heratio
+sudo COMPOSER_ALLOW_SUPERUSER=1 bin/install \
+  --domain=192.0.2.50 \
+  --admin-email=admin@heratio.local \
+  --admin-password='HeratioDev2026'
+```
+
+Then browse **`http://192.0.2.50/login`** and sign in with `admin@heratio.local` / the password you set.
+
+> The `--domain` value must be **exactly how you will reach the box** - the IP if you browse by IP, or a hostname that resolves to it. Do **not** leave the `mysite.example` placeholder: the post-install smoke test will report `GET / -> 000000` and the site will be unreachable / show no menu, because nginx's `server_name` and the app's `APP_URL` won't match your browser's address.
+
 **Flags - everything needed for a hands-off run:**
 
 | Flag | Required? | Notes |
