@@ -23,12 +23,16 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) =>
-            Promise.all(keys.map((k) => (k !== SW_VERSION ? caches.delete(k) : null)))
-        )
-    );
-    self.clients.claim();
+    event.waitUntil((async () => {
+        // Drop every old cache (incl. v1's cached HTML pages).
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => (k !== SW_VERSION ? caches.delete(k) : null)));
+        await self.clients.claim();
+        // Self-heal: reload any window a previous version served stale HTML to,
+        // so it re-fetches fresh now that navigations are no longer cached.
+        const wins = await self.clients.matchAll({ type: 'window' });
+        wins.forEach((c) => { if ('navigate' in c) { try { c.navigate(c.url); } catch (e) {} } });
+    })());
 });
 
 self.addEventListener('fetch', (event) => {

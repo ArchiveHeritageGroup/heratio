@@ -757,12 +757,14 @@ class AccessionService
             ->where('contact_information.actor_id', $actorId)
             ->select([
                 'contact_information.id',
-                'contact_information_i18n.contact_person',
-                'contact_information_i18n.street_address',
+                // contact_person/street_address/postal_code/country_code live on
+                // the BASE contact_information table; only city/region are i18n.
+                'contact_information.contact_person',
+                'contact_information.street_address',
                 'contact_information_i18n.city',
                 'contact_information_i18n.region',
-                'contact_information_i18n.postal_code',
-                'contact_information_i18n.country_code',
+                'contact_information.postal_code',
+                'contact_information.country_code',
                 'contact_information.telephone',
                 'contact_information.fax',
                 'contact_information.email',

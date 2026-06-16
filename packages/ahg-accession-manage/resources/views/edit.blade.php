@@ -143,7 +143,13 @@
 
             <h3 class="fs-6 mb-2">{{ __('Related donors') }}</h3>
 
-            <div class="atom-table-modal">
+            {{-- NOT class="atom-table-modal": that class makes the theme bundle's
+                 AtoM table-modal widget ($(".atom-table-modal").each(... new
+                 widget)) ALSO bind this modal and serialise its own (broken,
+                 13-field, empty) donors[] payload that overrode the custom
+                 multi-donor JS below. The custom manager targets #donor-modal /
+                 #donor-rows / #donor-hidden by id, so no class is needed. --}}
+            <div class="ahg-donor-manager">
               <div class="table-responsive">
                 <table class="table table-bordered mb-0" id="donor-table">
                   <thead>
