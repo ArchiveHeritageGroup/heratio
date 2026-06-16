@@ -484,7 +484,7 @@ class ImportJob implements ShouldQueue
     protected function createRecord(array $data, string $culture, ?string $startDate = null, ?string $endDate = null, ?string $dateDisplay = null): ?int
     {
         try {
-            return DB::transaction(function () use ($data, $culture, $startDate, $endDate, $dateDisplay) {
+            $newId = DB::transaction(function () use ($data, $culture, $startDate, $endDate, $dateDisplay) {
                 $parentId = $data['parent_id'] ?? 1;
 
                 // Get parent's rgt for nested set positioning
@@ -607,6 +607,22 @@ class ImportJob implements ShouldQueue
 
                 return $objectId;
             });
+
+            // Classify the new record into a GLAM sector (writes its
+            // display_object_config row). The sector-filtered browse
+            // (default_sector) left-joins that table and filters on
+            // doc.object_type, so a record with no row is invisible under
+            // any sector view. Done after commit, in parent-before-child
+            // order, so child records can inherit the parent's sector.
+            if ($newId) {
+                try {
+                    \AhgDisplay\Services\DisplayTypeDetector::detectAndSave($newId);
+                } catch (\Throwable $e) {
+                    $this->logError('Sector classification failed for #'.$newId.' (imported but may not appear under a sector-filtered browse): '.$e->getMessage());
+                }
+            }
+
+            return $newId;
         } catch (\Throwable $e) {
             $this->logError("Create record failed: {$e->getMessage()}");
 
