@@ -216,7 +216,7 @@ class StorageController extends Controller
             })
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.object_id', $storage->id)
-            ->where('relation.type_id', 179)
+            ->where('relation.type_id', 151) // HAS_PHYSICAL_OBJECT (was 179 = Artwork component)
             ->select('information_object_i18n.title', 'slug.slug')
             ->get();
 
@@ -459,17 +459,18 @@ class StorageController extends Controller
             abort(404);
         }
 
-        // Current linked containers
+        // Current linked containers (subject = record, object = physical object,
+        // type 151 = HAS_PHYSICAL_OBJECT — matches linkToStore() + the IO show).
         $linked = DB::table('relation')
-            ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
+            ->join('physical_object', 'relation.object_id', '=', 'physical_object.id')
             ->leftJoin('physical_object_i18n', function ($j) use ($culture) {
                 $j->on('physical_object.id', '=', 'physical_object_i18n.id')
                     ->where('physical_object_i18n.culture', $culture);
             })
             ->leftJoin('physical_object_extended as poe', 'physical_object.id', '=', 'poe.physical_object_id')
             ->leftJoin('slug as po_slug', 'physical_object.id', '=', 'po_slug.object_id')
-            ->where('relation.object_id', $io->id)
-            ->where('relation.type_id', 161)
+            ->where('relation.subject_id', $io->id)
+            ->where('relation.type_id', 151)
             ->select(
                 'relation.id as relation_id',
                 'physical_object.id as po_id',
@@ -517,9 +518,9 @@ class StorageController extends Controller
             if ($poId) {
                 // Check not already linked
                 $exists = DB::table('relation')
-                    ->where('object_id', $ioId)
-                    ->where('subject_id', $poId)
-                    ->where('type_id', 161)
+                    ->where('subject_id', $ioId)
+                    ->where('object_id', $poId)
+                    ->where('type_id', 151)
                     ->exists();
                 if (! $exists) {
                     // relation.id is a class-table-inheritance column (= object.id),
@@ -534,9 +535,15 @@ class StorageController extends Controller
                     ]);
                     DB::table('relation')->insert([
                         'id' => $relationId,
-                        'object_id' => $ioId,
-                        'subject_id' => $poId,
-                        'type_id' => 161,
+                        // HAS_PHYSICAL_OBJECT (151): subject = the record,
+                        // object = the physical object — the direction/type both
+                        // the IO show "Physical storage" section and the container
+                        // view read. Was wrongly type 161 ("name access points")
+                        // with reversed ends, so the box showed up as a nameless
+                        // "PhysicalObject #<id>" name-access-point on the record.
+                        'subject_id' => $ioId,
+                        'object_id' => $poId,
+                        'type_id' => 151,
                         'source_culture' => $culture,
                     ]);
                 }
@@ -599,9 +606,9 @@ class StorageController extends Controller
             ]);
             DB::table('relation')->insert([
                 'id' => $relationId,
-                'object_id' => $ioId,
-                'subject_id' => $objectId,
-                'type_id' => 161,
+                'subject_id' => $ioId,
+                'object_id' => $objectId,
+                'type_id' => 151,
                 'source_culture' => $culture,
             ]);
         }
