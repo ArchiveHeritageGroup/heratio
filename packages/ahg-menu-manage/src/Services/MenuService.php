@@ -208,6 +208,50 @@ class MenuService
     }
 
     /**
+     * Recompute the MPTT nested set (lft/rgt) for the whole menu tree from the
+     * parent_id hierarchy. Fresh installs seed menu rows with NULL lft/rgt, so
+     * any nested-set operation (create, reorder) would otherwise fail. A depth-
+     * first walk from ROOT_ID assigns contiguous lft/rgt; any node unreachable
+     * from the root (dangling parent_id) is appended afterwards so it still gets
+     * a valid, non-overlapping range.
+     */
+    public function rebuildNestedSet(): void
+    {
+        DB::transaction(function () {
+            $rows = DB::table('menu')->select('id', 'parent_id')->orderBy('id')->get();
+
+            $children = [];
+            foreach ($rows as $r) {
+                $children[$r->parent_id ?? 0][] = $r->id;
+            }
+
+            $counter = 1;
+            $visited = [];
+            $assign = function (int $id) use (&$assign, &$children, &$counter, &$visited) {
+                if (isset($visited[$id])) {
+                    return;
+                }
+                $visited[$id] = true;
+                $lft = $counter++;
+                foreach ($children[$id] ?? [] as $childId) {
+                    $assign($childId);
+                }
+                $rgt = $counter++;
+                DB::table('menu')->where('id', $id)->update(['lft' => $lft, 'rgt' => $rgt]);
+            };
+
+            $assign(self::ROOT_ID);
+
+            // Defensive: cover any orphaned nodes not reachable from the root.
+            foreach ($rows as $r) {
+                if (! isset($visited[$r->id])) {
+                    $assign((int) $r->id);
+                }
+            }
+        });
+    }
+
+    /**
      * Create a new menu item.
      *
      * Inserts at the end of the parent's children (just before parent's rgt).
@@ -228,6 +272,18 @@ class MenuService
 
             if (! $parent) {
                 throw new \RuntimeException('Parent menu not found.');
+            }
+
+            // Self-heal: fresh installs seed menu rows with NULL lft/rgt. With
+            // a NULL rgt the gap-opening below becomes where('rgt','>=',NULL),
+            // which throws "Illegal operator and value combination". Rebuild the
+            // nested set once, then re-read the parent.
+            if ($parent->lft === null || $parent->rgt === null) {
+                $this->rebuildNestedSet();
+                $parent = DB::table('menu')
+                    ->where('id', $parentId)
+                    ->select('id', 'lft', 'rgt')
+                    ->first();
             }
 
             // Insert position: just before parent's rgt (end of children)
