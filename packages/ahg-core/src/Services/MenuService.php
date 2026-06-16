@@ -60,7 +60,7 @@ class MenuService
                 ->leftJoin('menu_i18n as mi_cur', function ($j) use ($culture) {
                     $j->on('menu.id', '=', 'mi_cur.id')->where('mi_cur.culture', '=', $culture);
                 })
-                ->orderBy('menu.lft');
+                ->orderBy('menu.lft')->orderBy('menu.id');
             if ($culture !== $fallback) {
                 $query->leftJoin('menu_i18n as mi_fb', function ($j) use ($fallback) {
                     $j->on('menu.id', '=', 'mi_fb.id')->where('mi_fb.culture', '=', $fallback);
@@ -380,11 +380,14 @@ class MenuService
      */
     private static function buildTree(array $rows): array
     {
-        $tree = [];
+        // Two passes so nesting does NOT depend on row order. Seeded menus often
+        // have menu.lft = NULL, so `ORDER BY lft` cannot guarantee a parent is
+        // seen before its children; a single-pass build would then drop those
+        // children to the top level (empty Browse / partial Add menus). Pass 1
+        // registers every node; pass 2 attaches each to its parent.
         $lookup = [];
-
         foreach ($rows as $row) {
-            $item = (object) [
+            $lookup[(int) $row->id] = (object) [
                 'id' => (int) $row->id,
                 'parentId' => $row->parent_id ? (int) $row->parent_id : null,
                 'name' => $row->name ?? '',
@@ -395,9 +398,10 @@ class MenuService
                 'description' => $row->description ?? '',
                 'children' => [],
             ];
+        }
 
-            $lookup[$item->id] = $item;
-
+        $tree = [];
+        foreach ($lookup as $item) {
             if ($item->parentId === null || ! isset($lookup[$item->parentId])) {
                 $tree[] = $item;
             } else {
