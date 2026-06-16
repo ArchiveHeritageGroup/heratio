@@ -758,7 +758,14 @@ class ImportJob implements ShouldQueue
             'updated_at' => now(),
         ]);
 
-        $this->jobRecordId = DB::table('job')->insertGetId([
+        // job.id is the class-table-inheritance PK (= object.id), not
+        // auto-increment — set it explicitly to the QubitJob object id.
+        // insertGetId() returned 0 here (no auto-increment column), so the row
+        // failed with "Field 'id' doesn't have a default value" and the whole
+        // import job crashed before importing anything.
+        $this->jobRecordId = $objectId;
+        DB::table('job')->insert([
+            'id' => $objectId,
             'name' => 'App\\Jobs\\ImportJob',
             'status_id' => self::STATUS_IN_PROGRESS,
             'object_id' => $objectId,

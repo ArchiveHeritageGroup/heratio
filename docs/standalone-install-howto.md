@@ -233,6 +233,33 @@ docroot and ships in the repo, so no system `php.ini` change is needed. If you
 push the limit above nginx's `client_max_body_size`, raise that in your vhost
 too.
 
+### Background jobs (queue worker) — required
+
+Imports (CSV/XML), AI processing, exports, finding-aid generation and other
+long-running tasks run on the Laravel queue (`QUEUE_CONNECTION=database`).
+**Without a running worker they queue to the `jobs` table and never execute** —
+e.g. a CSV import creates nothing and reports no job. Install the shipped
+systemd template unit (one instance per `@N`):
+
+```bash
+cd /usr/share/nginx/heratio
+sudo cp tools/systemd/heratio-queue-worker@.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now heratio-queue-worker@1.service
+# add more workers for throughput, e.g.:
+# sudo systemctl enable --now heratio-queue-worker@2.service
+```
+
+Verify with `systemctl status heratio-queue-worker@1` and
+`journalctl -u heratio-queue-worker@1 -f`. Also run the scheduler every minute
+for periodic tasks (e.g. in `/etc/cron.d/heratio-schedule`):
+
+```cron
+* * * * * www-data cd /usr/share/nginx/heratio && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Full reference: `docs/queue-worker-deployment.md`.
+
 ---
 
 ## 5. SSL - set up HTTPS
