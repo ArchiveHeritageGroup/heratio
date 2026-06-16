@@ -1223,6 +1223,10 @@ class TermController extends Controller
                 if (! filter_var($url, FILTER_VALIDATE_URL)) {
                     return back()->with('error', 'Invalid URL.');
                 }
+                // SECURITY: block SSRF - reject non-http(s) schemes and private/reserved hosts.
+                if (! \AhgCore\Support\UrlGuard::isAllowed($url)) {
+                    return back()->with('error', 'URL not allowed.');
+                }
                 $ctx = stream_context_create(['http' => ['timeout' => 30, 'header' => 'Accept: application/rdf+xml,text/xml,*/*']]);
                 $xmlContent = @file_get_contents($url, false, $ctx);
                 if ($xmlContent === false) {

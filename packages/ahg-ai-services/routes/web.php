@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
 
     // Dashboard
     Route::get('/', [AiController::class, 'index'])->name('admin.ai.index');

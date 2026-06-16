@@ -106,11 +106,15 @@
             </td>
             <td>{{ $assign->created_at ? \Carbon\Carbon::parse($assign->created_at)->format('d M Y') : '-' }}</td>
             <td>
-              <a href="{{ route('ext-rights-admin.remove-tk-label', ['object_id' => $assign->object_id, 'label_id' => $assign->tk_label_id]) }}"
-                 class="btn btn-sm btn-outline-danger"
-                 onclick="return confirm('Remove this TK Label assignment?');">
-                <i class="fas fa-times"></i>
-              </a>
+              <form method="POST" action="{{ route('ext-rights-admin.remove-tk-label') }}" class="d-inline"
+                    onsubmit="return confirm('Remove this TK Label assignment?');">
+                @csrf
+                <input type="hidden" name="object_id" value="{{ $assign->object_id }}">
+                <input type="hidden" name="label_id" value="{{ $assign->tk_label_id }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-times"></i>
+                </button>
+              </form>
             </td>
           </tr>
           @empty

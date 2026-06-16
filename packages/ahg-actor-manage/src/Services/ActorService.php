@@ -551,7 +551,7 @@ class ActorService
         }
 
         // AtoM stores as serialized PHP array
-        $decoded = @unserialize($row);
+        $decoded = @unserialize($row, ['allowed_classes' => false]);
         if (is_array($decoded)) {
             return $decoded;
         }
@@ -577,7 +577,7 @@ class ActorService
             return [];
         }
 
-        $decoded = @unserialize($row);
+        $decoded = @unserialize($row, ['allowed_classes' => false]);
         if (is_array($decoded)) {
             return $decoded;
         }

@@ -120,7 +120,13 @@ class MediaController extends Controller
                         $metadata['video_codec'] = $stream['codec_name'] ?? null;
                         $metadata['video_width'] = (int) ($stream['width'] ?? 0);
                         $metadata['video_height'] = (int) ($stream['height'] ?? 0);
-                        $metadata['video_frame_rate'] = eval('return ' . ($stream['r_frame_rate'] ?? '0') . ';') ?: 0;
+                        // SECURITY: r_frame_rate is attacker-influenced ffprobe metadata
+                        // from the uploaded file - NEVER eval it. It is a "num/den"
+                        // fraction; parse it explicitly.
+                        $fr = (string) ($stream['r_frame_rate'] ?? '0/1');
+                        $frParts = array_pad(explode('/', $fr, 2), 2, '1');
+                        $frDen = (float) $frParts[1];
+                        $metadata['video_frame_rate'] = $frDen ? round((float) $frParts[0] / $frDen, 3) : 0;
                     }
                 }
             }
@@ -138,7 +144,12 @@ class MediaController extends Controller
 
     public function transcribe(Request $request, int $id)
     {
-        $lang = $request->get('lang', 'en');
+        // SECURITY: $lang is interpolated into a shell command below - whitelist it
+        // to an ISO language code so it cannot inject shell metacharacters.
+        $lang = (string) $request->get('lang', 'en');
+        if (! preg_match('/^[a-zA-Z]{2,3}$/', $lang)) {
+            $lang = 'en';
+        }
         $do = DB::table('digital_object')->where('id', $id)->first();
         if (!$do) {
             return response()->json(['success' => false, 'error' => 'Digital object not found'], 404);
@@ -151,7 +162,7 @@ class MediaController extends Controller
         }
 
         // Try Whisper for transcription
-        $whisperCmd = "whisper " . escapeshellarg($filePath) . " --language {$lang} --output_format json --output_dir /tmp 2>/dev/null";
+        $whisperCmd = "whisper " . escapeshellarg($filePath) . " --language " . escapeshellarg($lang) . " --output_format json --output_dir /tmp 2>/dev/null";
         $output = shell_exec($whisperCmd);
 
         $baseName = pathinfo($filePath, PATHINFO_FILENAME);

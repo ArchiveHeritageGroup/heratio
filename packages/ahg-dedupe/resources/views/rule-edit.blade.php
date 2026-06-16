@@ -105,10 +105,9 @@
             <i class="fas fa-save me-1"></i> {{ __('Update Rule') }}
           </button>
           <a href="{{ route('dedupe.rules') }}" class="btn atom-btn-white">Cancel</a>
-          <a href="{{ route('dedupe.rule.delete', $rule->id) }}" class="btn atom-btn-outline-danger ms-auto"
-             onclick="return confirm('Delete this rule?');">
+          <button type="submit" form="deleteRuleForm" class="btn atom-btn-outline-danger ms-auto">
             <i class="fas fa-trash me-1"></i> {{ __('Delete') }}
-          </a>
+          </button>
         </div>
       </div>
 
@@ -128,5 +127,10 @@
         </div>
       </div>
     </div>
+  </form>
+  {{-- Delete form kept outside the edit form (no nested forms); driven by the Delete button via form="deleteRuleForm". --}}
+  <form id="deleteRuleForm" method="POST" action="{{ route('dedupe.rule.delete', $rule->id) }}"
+        class="d-none" onsubmit="return confirm('Delete this rule?');">
+    @csrf
   </form>
 @endsection

@@ -338,7 +338,7 @@ class DcManageController extends Controller
             ->value('property_i18n.value');
 
         if ($raw) {
-            $decoded = @unserialize($raw);
+            $decoded = @unserialize($raw, ['allowed_classes' => false]);
             if (is_array($decoded)) {
                 return collect($decoded);
             }

@@ -412,7 +412,7 @@ class TiffPdfMergeService
      */
     private function isCommandAvailable(string $command): bool
     {
-        $result = shell_exec("which {$command} 2>/dev/null");
+        $result = shell_exec('which '.escapeshellarg($command).' 2>/dev/null');
 
         return ! empty(trim($result ?? ''));
     }

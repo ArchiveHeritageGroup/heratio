@@ -402,7 +402,7 @@ class DublinCoreQualifiedSerializer
         if (! $raw) {
             return '';
         }
-        $decoded = @unserialize($raw);
+        $decoded = @unserialize($raw, ['allowed_classes' => false]);
         if (is_string($decoded)) {
             return $decoded;
         }

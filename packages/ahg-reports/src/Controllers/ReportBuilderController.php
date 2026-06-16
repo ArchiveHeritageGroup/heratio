@@ -1159,6 +1159,10 @@ class ReportBuilderController extends Controller
         if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
             return response()->json(['success' => false, 'error' => 'Invalid URL']);
         }
+        // SECURITY: block SSRF - reject non-http(s) schemes and private/reserved hosts.
+        if (!\AhgCore\Support\UrlGuard::isAllowed($url)) {
+            return response()->json(['success' => false, 'error' => 'URL not allowed']);
+        }
 
         try {
             $html = @file_get_contents($url);

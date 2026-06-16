@@ -168,7 +168,7 @@ class UserService
             return [];
         }
 
-        $data = @unserialize($source);
+        $data = @unserialize($source, ['allowed_classes' => false]);
         if (is_array($data) && isset($data['languages'])) {
             return $data['languages'];
         }

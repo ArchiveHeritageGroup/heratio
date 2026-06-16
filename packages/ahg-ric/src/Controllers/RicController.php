@@ -1557,6 +1557,11 @@ SPARQL;
      */
     public function buildGraphFromDatabase($recordId, string $baseUri, string $instanceId): array
     {
+        // SECURITY: $recordId originates from $request->input('id') and is
+        // interpolated into a DB::raw() CASE expression below. Force it to an
+        // integer so it can never carry SQL. Record IDs are always integers;
+        // the 'overview' sentinel is branched off before this method is reached.
+        $recordId = (int) $recordId;
         $culture = app()->getLocale() === 'en' ? 'en' : app()->getLocale();
         $nodes = [];
         $edges = [];

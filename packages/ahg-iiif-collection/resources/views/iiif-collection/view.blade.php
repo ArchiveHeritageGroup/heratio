@@ -361,12 +361,15 @@ foreach ($collection->items as $item) {
                                 </a>
                                 @endif
                                 @auth
-                                <a href="{{ route('iiif-collection.remove-item', ['item_id' => $item->id, 'collection_id' => $collection->id]) }}"
-                                   class="btn btn-sm atom-btn-outline-danger"
-                                   onclick="return confirm('Remove this item from the collection?')"
-                                   title="{{ __('Remove') }}">
-                                    <i class="fas fa-times"></i>
-                                </a>
+                                <form method="POST" action="{{ route('iiif-collection.remove-item') }}" class="d-inline"
+                                      onsubmit="return confirm('Remove this item from the collection?')">
+                                    @csrf
+                                    <input type="hidden" name="item_id" value="{{ $item->id }}">
+                                    <input type="hidden" name="collection_id" value="{{ $collection->id }}">
+                                    <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="{{ __('Remove') }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
                                 @endauth
                             </td>
                         </tr>

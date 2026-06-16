@@ -61,6 +61,29 @@ class ResearchBookingsController extends Controller
         $this->service = $service;
     }
 
+    /**
+     * Reading-room staff / administrator? Staff may manage every booking
+     * (confirm, check-in, check-out, no-show, cancel any). Researchers may
+     * only view and cancel their own.
+     */
+    private function isBookingStaff(): bool
+    {
+        return Auth::check() && \AhgCore\Services\AclService::isAdministrator(Auth::user());
+    }
+
+    /**
+     * Does the current logged-in researcher own this booking?
+     */
+    private function ownsBooking(?object $booking): bool
+    {
+        if (!$booking) {
+            return false;
+        }
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+
+        return $researcher && (int) $booking->researcher_id === (int) $researcher->id;
+    }
+
     public function bookings()
     {
         if (!Auth::check()) return redirect()->route('login');
@@ -132,15 +155,24 @@ class ResearchBookingsController extends Controller
         $booking = $this->service->getBooking($id);
         if (!$booking) abort(404, 'Booking not found');
 
+        // IDOR guard: a researcher may only view/act on their own booking; staff may view any.
+        $isStaff = $this->isBookingStaff();
+        if (!$isStaff && !$this->ownsBooking($booking)) {
+            abort(403, 'You do not have access to this booking.');
+        }
+
         if ($request->isMethod('post')) {
             $action = $request->input('booking_action');
             if ($action === 'confirm') {
+                if (!$isStaff) abort(403, 'Staff only.');
                 $this->service->confirmBooking($id, Auth::id());
                 return redirect()->route('research.viewBooking', $id)->with('success', 'Booking confirmed');
             } elseif ($action === 'cancel') {
-                $this->service->cancelBooking($id, 'Cancelled by staff');
+                // Owner or staff (already enforced by the guard above).
+                $this->service->cancelBooking($id, $isStaff ? 'Cancelled by staff' : 'Cancelled by researcher');
                 return redirect()->route('research.viewBooking', $id)->with('success', 'Booking cancelled');
             } elseif ($action === 'noshow') {
+                if (!$isStaff) abort(403, 'Staff only.');
                 DB::table('research_booking')->where('id', $id)->update(['status' => 'no_show']);
                 return redirect()->route('research.viewBooking', $id)->with('success', 'Marked as no-show');
             }
@@ -166,6 +198,7 @@ class ResearchBookingsController extends Controller
     public function checkIn(int $id)
     {
         if (!Auth::check()) return redirect()->route('login');
+        if (!$this->isBookingStaff()) abort(403, 'Staff only.');
         DB::table('research_booking')->where('id', $id)->update([
             'checked_in_at' => date('Y-m-d H:i:s'),
             'status' => 'confirmed',
@@ -176,6 +209,7 @@ class ResearchBookingsController extends Controller
     public function checkOut(int $id)
     {
         if (!Auth::check()) return redirect()->route('login');
+        if (!$this->isBookingStaff()) abort(403, 'Staff only.');
         DB::table('research_booking')->where('id', $id)->update([
             'checked_out_at' => date('Y-m-d H:i:s'),
             'status' => 'completed',
@@ -196,6 +230,7 @@ class ResearchBookingsController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         $booking = $this->service->getBooking($id);
         if (!$booking) abort(404, 'Booking not found');
+        if (!$this->isBookingStaff()) abort(403, 'Staff only.');
 
         $this->service->confirmBooking($id, Auth::id());
 
@@ -207,6 +242,7 @@ class ResearchBookingsController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         $booking = $this->service->getBooking($id);
         if (!$booking) abort(404, 'Booking not found');
+        if (!$this->isBookingStaff()) abort(403, 'Staff only.');
 
         DB::table('research_booking')->where('id', $id)->update([
             'checked_in_at' => date('Y-m-d H:i:s'),
@@ -221,6 +257,7 @@ class ResearchBookingsController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         $booking = $this->service->getBooking($id);
         if (!$booking) abort(404, 'Booking not found');
+        if (!$this->isBookingStaff()) abort(403, 'Staff only.');
 
         DB::table('research_booking')->where('id', $id)->update([
             'checked_out_at' => date('Y-m-d H:i:s'),
@@ -239,6 +276,7 @@ class ResearchBookingsController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         $booking = $this->service->getBooking($id);
         if (!$booking) abort(404, 'Booking not found');
+        if (!$this->isBookingStaff()) abort(403, 'Staff only.');
 
         DB::table('research_booking')->where('id', $id)->update(['status' => 'no_show']);
 
@@ -250,8 +288,13 @@ class ResearchBookingsController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         $booking = $this->service->getBooking($id);
         if (!$booking) abort(404, 'Booking not found');
+        // Owner or staff may cancel; nobody else.
+        $isStaff = $this->isBookingStaff();
+        if (!$isStaff && !$this->ownsBooking($booking)) {
+            abort(403, 'You do not have access to this booking.');
+        }
 
-        $this->service->cancelBooking($id, 'Cancelled by staff');
+        $this->service->cancelBooking($id, $isStaff ? 'Cancelled by staff' : 'Cancelled by researcher');
 
         return redirect()->route('research.viewBooking', $id)->with('success', 'Booking cancelled');
     }

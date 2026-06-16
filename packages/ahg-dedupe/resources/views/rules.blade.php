@@ -86,10 +86,13 @@
                       <a href="{{ route('dedupe.rule.edit', $rule->id) }}" class="btn btn-outline-secondary" title="{{ __('Edit') }}">
                         <i class="fas fa-edit"></i>
                       </a>
-                      <a href="{{ route('dedupe.rule.delete', $rule->id) }}" class="btn atom-btn-outline-danger"
-                         title="{{ __('Delete') }}" onclick="return confirm('Delete this rule?');">
-                        <i class="fas fa-trash"></i>
-                      </a>
+                      <form method="POST" action="{{ route('dedupe.rule.delete', $rule->id) }}" class="d-inline"
+                            onsubmit="return confirm('Delete this rule?');">
+                        @csrf
+                        <button type="submit" class="btn atom-btn-outline-danger" title="{{ __('Delete') }}">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
                     </div>
                   </td>
                 </tr>

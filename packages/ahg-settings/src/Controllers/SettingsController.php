@@ -1260,7 +1260,7 @@ class SettingsController extends Controller
         $currentValue = $this->service->getSetting('inventory_levels', null, $culture) ?? '';
         $selectedLevels = [];
         if (! empty($currentValue)) {
-            $unserialized = @unserialize($currentValue);
+            $unserialized = @unserialize($currentValue, ['allowed_classes' => false]);
             if (is_array($unserialized)) {
                 $selectedLevels = $unserialized;
             }

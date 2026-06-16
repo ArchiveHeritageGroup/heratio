@@ -593,17 +593,26 @@ class CartController extends Controller
     {
         $data = $request->all();
 
-        // Log the notification
+        // SECURITY: a PayFast ITN must be cryptographically verified before it is
+        // trusted - otherwise anyone can POST payment_status=COMPLETE to mark any
+        // order paid. Verify the md5 signature (param string + passphrase) and the
+        // merchant id against our stored settings; only then act on it.
+        $settings = $this->ecommerceService->getSettings();
+        $valid = $this->verifyPayfastSignature($data, $settings->payfast_passphrase ?? null)
+            && (empty($settings->payfast_merchant_id)
+                || (string) ($data['merchant_id'] ?? '') === (string) $settings->payfast_merchant_id);
+
+        // Always record the raw notification (flagged if it failed verification).
         DB::table('ahg_payment_notifications')->insert([
             'gateway' => 'payfast',
             'payload' => json_encode($data),
-            'status' => $data['payment_status'] ?? 'unknown',
+            'status' => $valid ? ($data['payment_status'] ?? 'unknown') : 'invalid_signature',
             'order_id' => $data['m_payment_id'] ?? null,
             'created_at' => now(),
         ]);
 
-        // Update order status if we have a valid order
-        if (! empty($data['m_payment_id']) && ($data['payment_status'] ?? '') === 'COMPLETE') {
+        // Only a signature-verified COMPLETE notification updates the order.
+        if ($valid && ! empty($data['m_payment_id']) && ($data['payment_status'] ?? '') === 'COMPLETE') {
             DB::table('ahg_order')
                 ->where('id', $data['m_payment_id'])
                 ->update([
@@ -614,6 +623,34 @@ class CartController extends Controller
                 ]);
         }
 
+        // PayFast expects a 200 acknowledgement regardless; do not leak validity.
         return response('OK', 200);
+    }
+
+    /**
+     * Verify a PayFast ITN signature: md5 of the urlencoded parameter string in
+     * the order received (excluding 'signature'), with the merchant passphrase
+     * appended when configured. Constant-time compared to the posted signature.
+     */
+    private function verifyPayfastSignature(array $data, ?string $passphrase): bool
+    {
+        $posted = $data['signature'] ?? '';
+        if (! is_string($posted) || $posted === '') {
+            return false;
+        }
+
+        $pairs = [];
+        foreach ($data as $key => $val) {
+            if ($key === 'signature' || is_array($val)) {
+                continue;
+            }
+            $pairs[] = $key.'='.urlencode(trim((string) $val));
+        }
+        $str = implode('&', $pairs);
+        if (! empty($passphrase)) {
+            $str .= '&passphrase='.urlencode(trim((string) $passphrase));
+        }
+
+        return hash_equals(md5($str), $posted);
     }
 }

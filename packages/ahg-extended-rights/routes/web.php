@@ -68,7 +68,7 @@ Route::middleware('admin')->prefix('ext-rights-admin')->group(function () {
     // TK Labels
     Route::get('/tk-labels', [RightsAdminController::class, 'tkLabels'])->name('ext-rights-admin.tk-labels');
     Route::post('/tk-labels/assign', [RightsAdminController::class, 'assignTkLabel'])->name('ext-rights-admin.assign-tk-label')->middleware('acl:create');
-    Route::get('/tk-labels/remove', [RightsAdminController::class, 'removeTkLabel'])->name('ext-rights-admin.remove-tk-label');
+    Route::post('/tk-labels/remove', [RightsAdminController::class, 'removeTkLabel'])->name('ext-rights-admin.remove-tk-label');
 
     // Statements & Licenses
     Route::get('/statements', [RightsAdminController::class, 'statements'])->name('ext-rights-admin.statements');

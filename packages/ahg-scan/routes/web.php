@@ -12,7 +12,7 @@ use AhgScan\Controllers\ScanFolderController;
 use AhgScan\Controllers\ScanInboxController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->prefix('admin/scan')->name('scan.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin/scan')->name('scan.')->group(function () {
     Route::get('/', [ScanDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/folders', [ScanFolderController::class, 'index'])->name('folders.index');

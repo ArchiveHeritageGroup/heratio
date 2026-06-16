@@ -759,7 +759,7 @@ class InformationObjectController extends Controller
                 ->where('property_i18n.culture', $culture)
                 ->value('property_i18n.value');
             if (!$raw) return collect();
-            $decoded = @unserialize($raw);
+            $decoded = @unserialize($raw, ['allowed_classes' => false]);
             return is_array($decoded) ? collect($decoded) : collect();
         };
         $langNames = self::languageDisplayMap();
@@ -1527,17 +1527,17 @@ class InformationObjectController extends Controller
         $languagesOfDescriptionRaw = DB::table('property')->join('property_i18n', 'property.id', '=', 'property_i18n.id')
             ->where('property.object_id', $io->id)->where('property.name', 'languageOfDescription')->where('property_i18n.culture', $culture)->value('property_i18n.value');
         $languagesOfDescription = collect();
-        if ($languagesOfDescriptionRaw) { $decoded = @unserialize($languagesOfDescriptionRaw); if (is_array($decoded) && !empty($decoded)) { $languagesOfDescription = collect($decoded); } }
+        if ($languagesOfDescriptionRaw) { $decoded = @unserialize($languagesOfDescriptionRaw, ['allowed_classes' => false]); if (is_array($decoded) && !empty($decoded)) { $languagesOfDescription = collect($decoded); } }
 
         $scriptsOfDescriptionRaw = DB::table('property')->join('property_i18n', 'property.id', '=', 'property_i18n.id')
             ->where('property.object_id', $io->id)->where('property.name', 'scriptOfDescription')->where('property_i18n.culture', $culture)->value('property_i18n.value');
         $scriptsOfDescription = collect();
-        if ($scriptsOfDescriptionRaw) { $decoded = @unserialize($scriptsOfDescriptionRaw); if (is_array($decoded) && !empty($decoded)) { $scriptsOfDescription = collect($decoded); } }
+        if ($scriptsOfDescriptionRaw) { $decoded = @unserialize($scriptsOfDescriptionRaw, ['allowed_classes' => false]); if (is_array($decoded) && !empty($decoded)) { $scriptsOfDescription = collect($decoded); } }
 
         $materialScriptsRaw = DB::table('property')->join('property_i18n', 'property.id', '=', 'property_i18n.id')
             ->where('property.object_id', $io->id)->where('property.name', 'script')->where('property_i18n.culture', $culture)->value('property_i18n.value');
         $materialScripts = collect();
-        if ($materialScriptsRaw) { $decoded = @unserialize($materialScriptsRaw); if (is_array($decoded) && !empty($decoded)) { $materialScripts = collect($decoded); } }
+        if ($materialScriptsRaw) { $decoded = @unserialize($materialScriptsRaw, ['allowed_classes' => false]); if (is_array($decoded) && !empty($decoded)) { $materialScripts = collect($decoded); } }
 
         return view('ahg-io-manage::print', [
             'io' => $io,
@@ -1860,23 +1860,23 @@ class InformationObjectController extends Controller
         $materialLanguagesRaw = DB::table('property')->join('property_i18n', 'property.id', '=', 'property_i18n.id')
             ->where('property.object_id', $io->id)->where('property.name', 'language')->where('property_i18n.culture', $culture)->value('property_i18n.value');
         $materialLanguages = collect();
-        if ($materialLanguagesRaw) { $decoded = @unserialize($materialLanguagesRaw); if (is_array($decoded)) { $materialLanguages = collect($decoded); } }
+        if ($materialLanguagesRaw) { $decoded = @unserialize($materialLanguagesRaw, ['allowed_classes' => false]); if (is_array($decoded)) { $materialLanguages = collect($decoded); } }
 
         $materialScriptsRaw = DB::table('property')->join('property_i18n', 'property.id', '=', 'property_i18n.id')
             ->where('property.object_id', $io->id)->where('property.name', 'script')->where('property_i18n.culture', $culture)->value('property_i18n.value');
         $materialScripts = collect();
-        if ($materialScriptsRaw) { $decoded = @unserialize($materialScriptsRaw); if (is_array($decoded)) { $materialScripts = collect($decoded); } }
+        if ($materialScriptsRaw) { $decoded = @unserialize($materialScriptsRaw, ['allowed_classes' => false]); if (is_array($decoded)) { $materialScripts = collect($decoded); } }
 
         // Languages/scripts of description (from property table, serialized)
         $languagesOfDescriptionRaw = DB::table('property')->join('property_i18n', 'property.id', '=', 'property_i18n.id')
             ->where('property.object_id', $io->id)->where('property.name', 'languageOfDescription')->where('property_i18n.culture', $culture)->value('property_i18n.value');
         $languagesOfDescription = collect();
-        if ($languagesOfDescriptionRaw) { $decoded = @unserialize($languagesOfDescriptionRaw); if (is_array($decoded)) { $languagesOfDescription = collect($decoded); } }
+        if ($languagesOfDescriptionRaw) { $decoded = @unserialize($languagesOfDescriptionRaw, ['allowed_classes' => false]); if (is_array($decoded)) { $languagesOfDescription = collect($decoded); } }
 
         $scriptsOfDescriptionRaw = DB::table('property')->join('property_i18n', 'property.id', '=', 'property_i18n.id')
             ->where('property.object_id', $io->id)->where('property.name', 'scriptOfDescription')->where('property_i18n.culture', $culture)->value('property_i18n.value');
         $scriptsOfDescription = collect();
-        if ($scriptsOfDescriptionRaw) { $decoded = @unserialize($scriptsOfDescriptionRaw); if (is_array($decoded)) { $scriptsOfDescription = collect($decoded); } }
+        if ($scriptsOfDescriptionRaw) { $decoded = @unserialize($scriptsOfDescriptionRaw, ['allowed_classes' => false]); if (is_array($decoded)) { $scriptsOfDescription = collect($decoded); } }
 
         // Related material descriptions (relation type 176 — same id as save +
         // show paths). Pull both directions: this IO can appear as either
@@ -4007,7 +4007,7 @@ class InformationObjectController extends Controller
 
         $levelIds = [];
         if ($inventoryLevelIds) {
-            $decoded = @unserialize($inventoryLevelIds);
+            $decoded = @unserialize($inventoryLevelIds, ['allowed_classes' => false]);
             if (is_array($decoded)) {
                 $levelIds = $decoded;
             }

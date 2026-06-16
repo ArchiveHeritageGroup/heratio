@@ -262,7 +262,7 @@ class RepositoryService
             return [];
         }
 
-        $decoded = @unserialize($row);
+        $decoded = @unserialize($row, ['allowed_classes' => false]);
         if (is_array($decoded)) {
             return $decoded;
         }
@@ -288,7 +288,7 @@ class RepositoryService
             return [];
         }
 
-        $decoded = @unserialize($row);
+        $decoded = @unserialize($row, ['allowed_classes' => false]);
         if (is_array($decoded)) {
             return $decoded;
         }

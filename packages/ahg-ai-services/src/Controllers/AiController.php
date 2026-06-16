@@ -3199,6 +3199,19 @@ PY;
             abort(404);
         }
 
+        // SECURITY: $path is request-controlled and is served back (incl. a raw
+        // fallback below), so confine it to the known image roots - mirrors
+        // htrServeImage() - or it is an arbitrary file read (.env, /etc/passwd).
+        $allowed = ['/opt/ahg-ai/', '/tmp/', '/mnt/', '/usr/share/nginx/heratio/FamilySearch/'];
+        $real = realpath($path);
+        $ok = false;
+        foreach ($allowed as $prefix) {
+            if ($real && str_starts_with($real, $prefix)) { $ok = true; break; }
+        }
+        if (!$ok) {
+            abort(403, 'Access denied');
+        }
+
         $cacheDir = storage_path('app/cropped-cache');
         @mkdir($cacheDir, 0777, true);
         $cacheKey = md5($path . filemtime($path));

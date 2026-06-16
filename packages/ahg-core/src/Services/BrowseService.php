@@ -128,7 +128,11 @@ abstract class BrowseService
         // an explicit empty-string default (controllers do `?? ''`) still
         // falls back to the canonical default.
         $sort = ($params['sort'] ?? '') ?: 'lastUpdated';
-        $sortDir = ! empty($params['sortDir']) ? $params['sortDir'] : (($sort === 'lastUpdated') ? 'desc' : 'asc');
+        // SECURITY: $sortDir is concatenated into ORDER BY by subclasses' applySort()
+        // (orderByRaw), so it MUST be whitelisted to asc|desc - never the raw request
+        // value - or it is a SQL injection sink on the public browse endpoints.
+        $rawDir = strtolower((string) ($params['sortDir'] ?? ''));
+        $sortDir = in_array($rawDir, ['asc', 'desc'], true) ? $rawDir : (($sort === 'lastUpdated') ? 'desc' : 'asc');
         $subquery = trim($params['subquery'] ?? '');
 
         try {
