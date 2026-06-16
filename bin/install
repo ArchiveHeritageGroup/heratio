@@ -169,8 +169,14 @@ GRANT ALL PRIVILEGES ON $DB_NAME.* TO 'heratio'@'localhost';
 FLUSH PRIVILEGES;
 SQL
     DB_USER="heratio"; DB_PASS="$GEN_DB_PASS"; DB_HOST="127.0.0.1"
+    # Force a clean DB at stage 5: we created the DB above, so stage 4's artisan
+    # boot (key:generate/config:clear) would otherwise let package providers
+    # auto-install their tables into it BEFORE the core schema loads, colliding
+    # at the first FK (error 3780). FRESH=1 drops+recreates at stage 5 (after the
+    # boot, before the schema) via socket-root, so the core schema loads clean.
+    FRESH=1
     mysql_run -e "SELECT 1" &>/dev/null \
-        && ok "provisioned dedicated DB user 'heratio' (saved to .env)" \
+        && ok "provisioned dedicated DB user 'heratio' (saved to .env; DB will load clean)" \
         || die "MySQL provisioning failed"
 else
     die "cannot reach MySQL: no login for $DB_USER@$DB_HOST and no local socket. Install mysql-server, or pass --db-pass for an existing server."
