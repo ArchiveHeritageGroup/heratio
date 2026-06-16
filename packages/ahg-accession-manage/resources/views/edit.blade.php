@@ -730,6 +730,51 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!box.contains(e.target) && e.target !== nameInput) hide();
     });
   })();
+
+  // Modal "Submit": stage the entered/selected donor into the visible table
+  // and close the modal. The donor_* inputs live inside the accession <form>,
+  // so persistence happens on the accession Save — the controller creates a
+  // new donor, links the chosen existing one, or updates the linked donor's
+  // name + contact. Without this the Submit button looked dead and "Add new"
+  // appeared to do nothing.
+  (function() {
+    var modalEl = document.getElementById('donor-modal');
+    var tbody = document.querySelector('#donor-table tbody');
+    if (!modalEl || !tbody) return;
+    var submit = modalEl.querySelector('.modal-submit');
+    if (!submit) return;
+
+    submit.addEventListener('click', function() {
+      var name = (document.getElementById('donor_name').value || '').trim();
+
+      if (name === '') {
+        // Nothing to add — an empty name persists no donor; just close.
+        if (window.bootstrap) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+        return;
+      }
+
+      var row = tbody.querySelector('tr');
+      if (!row) {
+        row = document.createElement('tr');
+        row.innerHTML =
+          '<td></td>' +
+          '<td class="text-nowrap">' +
+            '<button type="button" class="btn atom-btn-white me-1 edit-donor-row" data-bs-toggle="modal" data-bs-target="#donor-modal">' +
+              '<i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>' +
+              '<span class="visually-hidden">{{ __('Edit row') }}</span>' +
+            '</button>' +
+            '<button type="button" class="btn atom-btn-white delete-donor-row">' +
+              '<i class="fas fa-fw fa-times" aria-hidden="true"></i>' +
+              '<span class="visually-hidden">{{ __('Delete row') }}</span>' +
+            '</button>' +
+          '</td>';
+        tbody.appendChild(row);
+      }
+      row.querySelector('td').textContent = name;
+
+      if (window.bootstrap) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+    });
+  })();
 });
 
 document.addEventListener('DOMContentLoaded', function() {
