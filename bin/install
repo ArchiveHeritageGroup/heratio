@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # =============================================================================
-# bin/install — Heratio standalone master installer
+# bin/install - Heratio standalone master installer
 # =============================================================================
-# Single-command install for a fresh Linux box. Idempotent — re-running detects
+# Single-command install for a fresh Linux box. Idempotent - re-running detects
 # already-completed stages and skips them. See docs/standalone-install-plan.md.
 #
 # Usage:
@@ -11,22 +11,23 @@
 #   sudo bin/install --non-interactive --admin-password='hunter2'
 #
 # Stages (each idempotent):
-#   1. Preflight     — check PHP/MySQL/Nginx/Redis/Node/Composer/git/ES present
-#   2. Composer      — composer install --no-dev (skipped if vendor/ up-to-date)
-#   3. NPM           — npm ci && npm run build (skipped if public/build/ exists)
-#   4. .env          — copy .env.example → .env, fill APP_URL/DB/HERATIO_*,
+#   1. Preflight     - check PHP/MySQL/Node/Composer/git/curl + ES; on a fresh
+#                       MySQL, auto-provision a dedicated 'heratio' DB user
+#   2. Composer      - composer install --no-dev (skipped if vendor/ up-to-date)
+#   3. NPM           - npm ci && npm run build (skipped if public/build/ exists)
+#   4. .env          - copy .env.example → .env, fill APP_URL/DB/HERATIO_*,
 #                       artisan key:generate (skipped if .env present)
-#   5. DB create     — CREATE DATABASE heratio (skipped if exists)
-#   6. Core schema   — load database/core/0[0-3]_*.sql via mysql
-#   7. Plugin schema — php artisan heratio:install-bootstrap --pass=2
-#   8. Seeds         — load database/seeds/0[0-7]_*.sql via mysql
-#   9. Admin user    — create superuser via heratio:user:add-superuser
-#   10. Storage      — mkdir HERATIO_UPLOADS_PATH/HERATIO_BACKUPS_PATH
-#   11. Elasticsearch — php artisan ahg:es-reindex --drop  (--skip-es to skip)
-#   12. Nginx        — render config/nginx/heratio.conf.template, link, reload
+#   5. DB create     - CREATE DATABASE heratio (skipped if exists; --fresh drops+recreates)
+#   6. Core schema   - load database/core/0[0-3]_*.sql via mysql
+#   7. Plugin schema - php artisan heratio:install-bootstrap --pass=2
+#   8. Seeds         - load database/seeds/0[0-7]_*.sql via mysql
+#   9. Admin user    - create admin (user row + admin ACL group 100)
+#   10. Storage      - mkdir HERATIO_UPLOADS_PATH/HERATIO_BACKUPS_PATH
+#   11. Elasticsearch - php artisan ahg:es-reindex --drop  (--skip-es to skip)
+#   12. Nginx        - render config/nginx/heratio.conf.template, link, reload
 #                       (--skip-nginx to skip)
-#   13. Smoke test   — curl /, /admin/login, /informationobject/browse
-#   14. Report       — print URLs, admin creds, optional sub-installer hints
+#   13. Smoke test   - curl / (expect 200/301/302)
+#   14. Report       - print URLs, admin creds, optional sub-installer hints
 #
 # Crash behaviour: every stage wraps in `set -e`. Failure prints stage + exits
 # non-zero. Re-running picks up where it left off.
@@ -120,9 +121,9 @@ mysql_run() {
 # ============================================================================
 # 1. Preflight
 # ============================================================================
-say "Stage 1/14 — preflight"
+say "Stage 1/14 - preflight"
 
-[[ $EUID -eq 0 ]] || warn "not running as root — some stages may fail (use sudo)"
+[[ $EUID -eq 0 ]] || warn "not running as root - some stages may fail (use sudo)"
 
 need() {
     command -v "$1" &>/dev/null || die "missing dependency: $1 ($2)"
@@ -139,10 +140,8 @@ PHP_MAJ="$(echo "$PHP_VER" | cut -d. -f1)"
 PHP_MIN="$(echo "$PHP_VER" | cut -d. -f2)"
 [[ "$PHP_MAJ" -ge 8 && "$PHP_MIN" -ge 3 ]] || die "PHP 8.3+ required (found $PHP_VER)"
 
-# Prefer DB creds from an existing .env BEFORE the connectivity check, so a
-# re-run on an already-configured box (`git pull && bin/install`) authenticates
-# without needing --db-pass. CLI flags only seed the defaults; a populated .env
-# wins (matching the canonical re-read in stage 4). `|| true` keeps set -e happy.
+# Load DB creds from an existing .env before the connectivity check so a re-run
+# authenticates without --db-pass (a populated .env wins over flag defaults).
 if [[ -f .env ]]; then
     _v="$(grep -E '^DB_DATABASE=' .env | tail -1 | cut -d= -f2- || true)"; DB_NAME="${_v:-$DB_NAME}"
     _v="$(grep -E '^DB_USERNAME=' .env | tail -1 | cut -d= -f2- || true)"; DB_USER="${_v:-$DB_USER}"
@@ -152,16 +151,36 @@ if [[ -f .env ]]; then
 fi
 
 if mysql_run -e "SELECT 1" &>/dev/null; then
+    # Option 1: existing MySQL with known creds (e.g. alongside AtoM) - reuse them.
     ok "MySQL reachable as $DB_USER@$DB_HOST"
+elif mysql -e "SELECT 1" &>/dev/null; then
+    # Option 2: fresh MySQL - root is reachable over the local socket (auth_socket)
+    # with no TCP login yet. Provision a dedicated least-privilege 'heratio' user
+    # with a generated password so a no-MySQL box is still one command.
+    GEN_DB_PASS="$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9' | head -c 24)"
+    mysql <<SQL
+CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'heratio'@'127.0.0.1' IDENTIFIED BY '$GEN_DB_PASS';
+CREATE USER IF NOT EXISTS 'heratio'@'localhost' IDENTIFIED BY '$GEN_DB_PASS';
+ALTER  USER 'heratio'@'127.0.0.1' IDENTIFIED BY '$GEN_DB_PASS';
+ALTER  USER 'heratio'@'localhost' IDENTIFIED BY '$GEN_DB_PASS';
+GRANT ALL PRIVILEGES ON $DB_NAME.* TO 'heratio'@'127.0.0.1';
+GRANT ALL PRIVILEGES ON $DB_NAME.* TO 'heratio'@'localhost';
+FLUSH PRIVILEGES;
+SQL
+    DB_USER="heratio"; DB_PASS="$GEN_DB_PASS"; DB_HOST="127.0.0.1"
+    mysql_run -e "SELECT 1" &>/dev/null \
+        && ok "provisioned dedicated DB user 'heratio' (saved to .env)" \
+        || die "MySQL provisioning failed"
 else
-    die "cannot connect to MySQL as $DB_USER@$DB_HOST — check creds"
+    die "cannot reach MySQL: no login for $DB_USER@$DB_HOST and no local socket. Install mysql-server, or pass --db-pass for an existing server."
 fi
 
 if [[ "$SKIP_ES" -eq 0 ]]; then
     if curl -sf "$ES_HOST" &>/dev/null; then
         ok "Elasticsearch reachable at $ES_HOST"
     else
-        warn "Elasticsearch unreachable at $ES_HOST — pass --skip-es to bypass or set --es-host"
+        warn "Elasticsearch unreachable at $ES_HOST - pass --skip-es to bypass or set --es-host"
         die  "cannot reach ES (see warning above)"
     fi
 fi
@@ -175,7 +194,7 @@ prompt_if_empty DOMAIN       "Domain (e.g. heratio.example.com)"
 prompt_if_empty ADMIN_EMAIL  "Admin email"   "admin@${DOMAIN}"
 [[ -z "$ADMIN_PASSWORD" ]] && ADMIN_PASSWORD="$(openssl rand -base64 18 | tr -d '=+/' | head -c 16)"
 
-# Default storage path is the in-tree uploads/ — matches config/heratio.php
+# Default storage path is the in-tree uploads/ - matches config/heratio.php
 # which has storage_path = base_path('uploads'). Production deployments
 # override via --storage-path or HERATIO_STORAGE_PATH in .env (e.g. NAS mount).
 [[ -z "$STORAGE_PATH"  ]] && STORAGE_PATH="${INSTALL_DIR}/uploads"
@@ -183,9 +202,9 @@ prompt_if_empty ADMIN_EMAIL  "Admin email"   "admin@${DOMAIN}"
 # ============================================================================
 # 2. Composer
 # ============================================================================
-say "Stage 2/14 — composer install"
+say "Stage 2/14 - composer install"
 if [[ -d vendor && -f vendor/autoload.php && composer.lock -ot vendor ]]; then
-    ok "vendor/ up-to-date — skipping"
+    ok "vendor/ up-to-date - skipping"
 else
     composer install --no-dev --no-interaction --optimize-autoloader
     ok "composer install complete"
@@ -194,9 +213,9 @@ fi
 # ============================================================================
 # 3. NPM build
 # ============================================================================
-say "Stage 3/14 — npm build"
+say "Stage 3/14 - npm build"
 if [[ -d public/build && -n "$(ls -A public/build 2>/dev/null)" ]]; then
-    ok "public/build/ present — skipping"
+    ok "public/build/ present - skipping"
 else
     npm ci --silent
     npm run build --silent
@@ -206,12 +225,12 @@ fi
 # ============================================================================
 # 4. .env
 # ============================================================================
-say "Stage 4/14 — .env"
+say "Stage 4/14 - .env"
 # Always bust Laravel's cached config / routes / views before this stage. A
 # stale bootstrap/cache/config.php from a previous install (or from a CI
 # vendor-cache layer) holds DB credentials that no longer match the .env we
 # are about to render, and Laravel's PDO would connect with the wrong
-# password — silently breaking Stage 7 (heratio:install-bootstrap) where
+# password - silently breaking Stage 7 (heratio:install-bootstrap) where
 # every package install.sql throws on DB::unprepared and the bootstrap step
 # adds 0 tables. Idempotent: clear is safe whether the cache exists or not.
 # Tracked under heratio issue #53.
@@ -219,9 +238,9 @@ php artisan config:clear --ansi 2>/dev/null || true
 php artisan route:clear  --ansi 2>/dev/null || true
 php artisan view:clear   --ansi 2>/dev/null || true
 if [[ -f .env ]]; then
-    ok ".env present — leaving alone"
+    ok ".env present - leaving alone"
 else
-    [[ -f .env.example ]] || die ".env.example missing — cannot bootstrap"
+    [[ -f .env.example ]] || die ".env.example missing - cannot bootstrap"
     cp .env.example .env
 
     # render values + production-safe overrides
@@ -298,21 +317,20 @@ unset _v
 # ============================================================================
 # 5. DB create
 # ============================================================================
-say "Stage 5/14 — database"
+say "Stage 5/14 - database"
 if [[ "$FRESH" -eq 1 ]]; then
-    # --fresh: guarantee an empty DB for the authoritative core-schema load in
-    # stage 6. This ALSO wipes any tables that stage 4's `php artisan` boot may
-    # have auto-created via package ServiceProviders (the auto-seed-on-boot
-    # pattern). Those package tables can collide with the core schema - e.g.
-    # the package ships user_totp_secret as `int unsigned` while core uses
-    # signed `int`, so the core FK then fails with MySQL error 3780. Dropping
-    # here removes them so the core schema is the single source of truth.
-    mysql_run -e "DROP DATABASE IF EXISTS \`$DB_NAME\`; CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
-    warn "--fresh: dropped and recreated $DB_NAME (ALL prior data wiped)"
+    # --fresh: drop+recreate so the core schema loads into an empty DB (also
+    # clears any tables a prior artisan boot auto-created, which can collide
+    # with the core schema). Prefer socket-root, since a provisioned 'heratio'
+    # user has no DROP/CREATE DATABASE privilege.
+    if    mysql     -e "DROP DATABASE IF EXISTS \`$DB_NAME\`; CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci" 2>/dev/null \
+       || mysql_run -e "DROP DATABASE IF EXISTS \`$DB_NAME\`; CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci" 2>/dev/null; then
+        warn "--fresh: dropped + recreated $DB_NAME (ALL prior data wiped)"
+    else
+        die "--fresh: could not drop/recreate $DB_NAME (needs root or socket access)"
+    fi
 elif mysql_run -e "USE \`$DB_NAME\`" &>/dev/null; then
     ok "database $DB_NAME exists"
-    # Heads-up: a re-install onto a populated DB can hit the stage-4-boot
-    # collision described above. Pass --fresh for a guaranteed-clean rebuild.
 else
     mysql_run -e "CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
     ok "created database $DB_NAME"
@@ -321,13 +339,13 @@ fi
 # Security: warn if MySQL is bound to 0.0.0.0 (publicly reachable). Default
 # Ubuntu MySQL 8 bind is 127.0.0.1; this just catches misconfigured installs.
 if ss -tln | awk '{print $4}' | grep -qE "^0\.0\.0\.0:3306\$|^\[::]:3306\$"; then
-    warn "MySQL is bound to 0.0.0.0:3306 — publicly reachable. Recommend: set bind-address=127.0.0.1 in mysqld.cnf"
+    warn "MySQL is bound to 0.0.0.0:3306 - publicly reachable. Recommend: set bind-address=127.0.0.1 in mysqld.cnf"
 fi
 
 # ============================================================================
 # 6. Core schema (00→03)
 # ============================================================================
-say "Stage 6/14 — core schema"
+say "Stage 6/14 - core schema"
 for f in database/core/0*.sql; do
     [[ -f "$f" ]] || continue
     bn="$(basename "$f")"
@@ -338,19 +356,19 @@ done
 # ============================================================================
 # 7. Plugin schema (artisan two-pass)
 # ============================================================================
-say "Stage 7/14 — plugin schema (heratio:install-bootstrap --pass=2)"
+say "Stage 7/14 - plugin schema (heratio:install-bootstrap --pass=2)"
 php artisan heratio:install-bootstrap --pass=2
 ok "plugin schemas loaded"
 
 # ============================================================================
 # 8. Seeds (00→07)
 # ============================================================================
-say "Stage 8/14 — seeds"
+say "Stage 8/14 - seeds"
 for f in database/seeds/0*.sql; do
     [[ -f "$f" ]] || continue
     bn="$(basename "$f")"
     mysql_run "$DB_NAME" < "$f" 2>/tmp/heratio-install-${bn}.err && \
-        ok "loaded $bn" || warn "$bn produced errors (see /tmp/heratio-install-${bn}.err) — continuing"
+        ok "loaded $bn" || warn "$bn produced errors (see /tmp/heratio-install-${bn}.err) - continuing"
 done
 
 # Bulk-ingest the in-app Help Center from docs/help/ so a fresh install ships a
@@ -359,13 +377,13 @@ done
 if php artisan ahg:help-ingest-all --no-interaction >/tmp/heratio-install-help.out 2>&1; then
     ok "help articles ingested ($(grep -oE '[0-9]+ ingested, [0-9]+ failed, [0-9]+ total' /tmp/heratio-install-help.out | head -1))"
 else
-    warn "help ingest produced errors (see /tmp/heratio-install-help.out) — continuing"
+    warn "help ingest produced errors (see /tmp/heratio-install-help.out) - continuing"
 fi
 
 # ============================================================================
 # 9. Admin user
 # ============================================================================
-say "Stage 9/14 — admin user"
+say "Stage 9/14 - admin user"
 ADMIN_ID=$(mysql_run -Nse "SELECT id FROM \`$DB_NAME\`.\`user\` WHERE email='${ADMIN_EMAIL}' LIMIT 1" 2>/dev/null || echo "")
 if [[ -n "$ADMIN_ID" ]]; then
     ok "admin user already exists (id=$ADMIN_ID, email=$ADMIN_EMAIL)"
@@ -391,17 +409,17 @@ VALUES (@uid, 'admin', '${ADMIN_EMAIL}', '${HASH}', '${SALT}', 1);
 INSERT INTO acl_user_group (user_id, group_id, serial_number)
 VALUES (@uid, 100, 0);
 SQL
-    ok "admin created (email=$ADMIN_EMAIL — password printed at end)"
+    ok "admin created (email=$ADMIN_EMAIL - password printed at end)"
 fi
 
 # ============================================================================
 # 10. Storage paths
 # ============================================================================
-say "Stage 10/14 — storage paths"
+say "Stage 10/14 - storage paths"
 # Default layout when STORAGE_PATH = ${INSTALL_DIR}/uploads:
-#   uploads/r/                       — actual digital-object tree (per-repo subdirs)
-#   uploads/backups/                 — DB backups (HERATIO_BACKUPS_PATH)
-#   uploads/derivatives/             — generated thumbnails / refs
+#   uploads/r/                       - actual digital-object tree (per-repo subdirs)
+#   uploads/backups/                 - DB backups (HERATIO_BACKUPS_PATH)
+#   uploads/derivatives/             - generated thumbnails / refs
 # Production overrides: storage_path on a NAS mount, with uploads/r as a
 # symlink into a separate archive partition.
 for d in "$STORAGE_PATH" "$STORAGE_PATH/r" "$STORAGE_PATH/backups" "$STORAGE_PATH/derivatives" "$STORAGE_PATH/tmp"; do
@@ -427,32 +445,32 @@ ok "storage + bootstrap/cache owned by www-data (web-writable)"
 # ============================================================================
 # 11. Elasticsearch
 # ============================================================================
-say "Stage 11/14 — Elasticsearch"
+say "Stage 11/14 - Elasticsearch"
 if [[ "$SKIP_ES" -eq 1 ]]; then
     warn "skipped (--skip-es)"
 else
     if curl -sf "$ES_HOST" &>/dev/null; then
-        php artisan ahg:es-reindex --drop --quiet 2>&1 | tail -5 || warn "reindex returned non-zero — check logs"
+        php artisan ahg:es-reindex --drop --quiet 2>&1 | tail -5 || warn "reindex returned non-zero - check logs"
         ok "ES indices created/reindexed"
     else
-        warn "ES not reachable at $ES_HOST — skipping reindex"
+        warn "ES not reachable at $ES_HOST - skipping reindex"
     fi
 fi
 
 # ============================================================================
 # 12. Nginx
 # ============================================================================
-say "Stage 12/14 — nginx"
+say "Stage 12/14 - nginx"
 if [[ "$SKIP_NGINX" -eq 1 ]]; then
-    warn "skipped (--skip-nginx) — render manually:"
+    warn "skipped (--skip-nginx) - render manually:"
     warn "  cp config/nginx/heratio.conf.template /etc/nginx/sites-available/${DOMAIN}.conf"
 elif ! command -v nginx &>/dev/null; then
-    warn "nginx not installed — skipping"
+    warn "nginx not installed - skipping"
 else
     VHOST="/etc/nginx/sites-available/${DOMAIN}.conf"
     LINK="/etc/nginx/sites-enabled/${DOMAIN}.conf"
     if [[ -f "$VHOST" ]]; then
-        ok "$VHOST exists — leaving alone"
+        ok "$VHOST exists - leaving alone"
     else
         sed \
             -e "s|{{DOMAIN}}|${DOMAIN}|g" \
@@ -468,7 +486,7 @@ fi
 # ============================================================================
 # 13. Smoke test
 # ============================================================================
-say "Stage 13/14 — smoke test"
+say "Stage 13/14 - smoke test"
 # The vhost template ships http-only (listen 80); curl the scheme it actually
 # serves so a working install does not report a false failure.
 TARGET="${APP_SCHEME}://localhost"
