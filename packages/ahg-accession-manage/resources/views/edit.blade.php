@@ -152,10 +152,10 @@
                       <th><span class="visually-hidden">{{ __('Actions') }}</span></th>
                     </tr>
                   </thead>
-                  <tbody>
-                    @if($donor ?? null)
-                      <tr>
-                        <td>{{ $donor->name }}</td>
+                  <tbody id="donor-rows">
+                    @foreach(($donorRows ?? []) as $i => $dr)
+                      <tr data-donor-idx="{{ $i }}">
+                        <td class="donor-name-cell">{{ $dr['name'] }}</td>
                         <td class="text-nowrap">
                           <button type="button" class="btn atom-btn-white me-1 edit-donor-row" data-bs-toggle="modal" data-bs-target="#donor-modal">
                             <i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
@@ -167,18 +167,32 @@
                           </button>
                         </td>
                       </tr>
-                    @endif
+                    @endforeach
                   </tbody>
                   <tfoot>
                     <tr>
                       <td colspan="2">
-                        <button type="button" class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#donor-modal">
+                        <button type="button" class="btn atom-btn-white donor-add-new" data-bs-toggle="modal" data-bs-target="#donor-modal">
                           <i class="fas fa-plus me-1" aria-hidden="true"></i>{{ __('Add new') }}
                         </button>
                       </td>
                     </tr>
                   </tfoot>
                 </table>
+              </div>
+
+              {{-- Hidden donors[] blocks: one per related donor, submitted with
+                   the accession save. The modal edits these via JS (add / edit /
+                   delete row); the controller creates, links or updates each. --}}
+              <div id="donor-hidden" class="d-none">
+                @php $donorFields = ['id','slug','name','contact_person','telephone','fax','email','url','street_address','region','country','postal_code','city','latitude','longitude','contact_type','note']; @endphp
+                @foreach(($donorRows ?? []) as $i => $dr)
+                  <div data-donor-idx="{{ $i }}">
+                    @foreach($donorFields as $f)
+                      <input type="hidden" name="donors[{{ $i }}][{{ $f }}]" value="{{ $dr[$f] ?? '' }}">
+                    @endforeach
+                  </div>
+                @endforeach
               </div>
 
               <!-- Donor Modal -->
@@ -658,106 +672,77 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Delete donor row
-  document.addEventListener('click', function(e) {
-    var btn = e.target.closest('.delete-donor-row');
-    if (btn) {
-      btn.closest('tr').remove();
-      // Clear donor fields (#1267: include the hidden id/slug so the save
-      // unlinks the donor instead of re-persisting the cleared selection).
-      ['donor_name','donor_id','donor_slug','donor_contact_person','donor_telephone','donor_fax','donor_email','donor_url',
-       'donor_street_address','donor_region','donor_country','donor_postal_code','donor_city',
-       'donor_latitude','donor_longitude','donor_contact_type','donor_note'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-    }
-  });
-
-  // #1267: existing-donor autocomplete for the "Related donor" modal.
-  // Fetches JSON from accession.donor-search and, on selection, writes the
-  // display name into donor_name and the donor id/slug into the hidden
-  // inputs the accession save reads (syncDonors -> relation row).
+  // ---- Related donors: multi-row manager -------------------------------
+  // The modal is a single-donor scratch editor. Submitting it writes the
+  // entered/selected donor into a hidden donors[idx][...] block (submitted
+  // with the accession Save) and adds/updates a visible row. "Edit row"
+  // re-opens a row in the modal; "Delete row" drops the row + its hidden
+  // block. On save the controller creates new donors, links existing ones
+  // (picked via search), and updates the contact of donors already linked.
   (function() {
+    var FIELDS = {
+      name: 'donor_name', id: 'donor_id', slug: 'donor_slug',
+      contact_person: 'donor_contact_person', telephone: 'donor_telephone',
+      fax: 'donor_fax', email: 'donor_email', url: 'donor_url',
+      street_address: 'donor_street_address', region: 'donor_region',
+      country: 'donor_country', postal_code: 'donor_postal_code',
+      city: 'donor_city', latitude: 'donor_latitude', longitude: 'donor_longitude',
+      contact_type: 'donor_contact_type', note: 'donor_note'
+    };
+    var KEYS = Object.keys(FIELDS);
+
+    var modalEl = document.getElementById('donor-modal');
+    var rowsBody = document.getElementById('donor-rows');
+    var hidden = document.getElementById('donor-hidden');
+    var suggestBox = document.getElementById('donor_suggestions');
     var nameInput = document.getElementById('donor_name');
     var idInput = document.getElementById('donor_id');
     var slugInput = document.getElementById('donor_slug');
-    var box = document.getElementById('donor_suggestions');
-    if (!nameInput || !box) return;
+    if (!modalEl || !rowsBody || !hidden) return;
 
-    var searchUrl = @json(route('accession.donor-search'));
-    var debounce;
-
-    function hide() { box.classList.add('d-none'); box.innerHTML = ''; nameInput.setAttribute('aria-expanded', 'false'); }
-
-    function render(items) {
-      box.innerHTML = '';
-      if (!items || !items.length) { hide(); return; }
-      items.forEach(function(it) {
-        var a = document.createElement('button');
-        a.type = 'button';
-        a.className = 'list-group-item list-group-item-action';
-        a.textContent = it.name;
-        a.addEventListener('click', function() {
-          nameInput.value = it.name;
-          if (idInput) idInput.value = it.id;
-          if (slugInput) slugInput.value = it.slug || '';
-          hide();
-        });
-        box.appendChild(a);
-      });
-      box.classList.remove('d-none');
-      nameInput.setAttribute('aria-expanded', 'true');
-    }
-
-    nameInput.addEventListener('input', function() {
-      // Typing a fresh query invalidates any previously-resolved id; the
-      // user must pick a suggestion to relink an existing donor.
-      if (idInput) idInput.value = '';
-      if (slugInput) slugInput.value = '';
-      var q = nameInput.value.trim();
-      clearTimeout(debounce);
-      if (q.length < 2) { hide(); return; }
-      debounce = setTimeout(function() {
-        fetch(searchUrl + '?query=' + encodeURIComponent(q) + '&limit=15', { headers: { 'Accept': 'application/json' } })
-          .then(function(r) { return r.json(); })
-          .then(render)
-          .catch(hide);
-      }, 200);
-    });
-
-    document.addEventListener('click', function(e) {
-      if (!box.contains(e.target) && e.target !== nameInput) hide();
-    });
-  })();
-
-  // Modal "Submit": stage the entered/selected donor into the visible table
-  // and close the modal. The donor_* inputs live inside the accession <form>,
-  // so persistence happens on the accession Save — the controller creates a
-  // new donor, links the chosen existing one, or updates the linked donor's
-  // name + contact. Without this the Submit button looked dead and "Add new"
-  // appeared to do nothing.
-  (function() {
-    var modalEl = document.getElementById('donor-modal');
-    var tbody = document.querySelector('#donor-table tbody');
-    if (!modalEl || !tbody) return;
     var submit = modalEl.querySelector('.modal-submit');
-    if (!submit) return;
+    var editingIdx = null;
+    var nextIdx = (function() {
+      var max = -1;
+      hidden.querySelectorAll('[data-donor-idx]').forEach(function(b) {
+        var n = parseInt(b.getAttribute('data-donor-idx'), 10);
+        if (!isNaN(n) && n > max) max = n;
+      });
+      return max + 1;
+    })();
 
-    submit.addEventListener('click', function() {
-      var name = (document.getElementById('donor_name').value || '').trim();
+    function getModal(k) { var el = document.getElementById(FIELDS[k]); return el ? el.value : ''; }
+    function setModal(values) { KEYS.forEach(function(k) { var el = document.getElementById(FIELDS[k]); if (el) el.value = (values && values[k]) || ''; }); }
 
-      if (name === '') {
-        // Nothing to add — an empty name persists no donor; just close.
-        if (window.bootstrap) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-        return;
-      }
+    function writeHidden(idx, values) {
+      var block = hidden.querySelector('[data-donor-idx="' + idx + '"]');
+      if (!block) { block = document.createElement('div'); block.setAttribute('data-donor-idx', idx); hidden.appendChild(block); }
+      block.innerHTML = '';
+      KEYS.forEach(function(k) {
+        var inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = 'donors[' + idx + '][' + k + ']';
+        inp.value = (values && values[k]) || '';
+        block.appendChild(inp);
+      });
+    }
+    function readHidden(idx) {
+      var v = {}, block = hidden.querySelector('[data-donor-idx="' + idx + '"]');
+      if (block) KEYS.forEach(function(k) {
+        var inp = block.querySelector('input[name="donors[' + idx + '][' + k + ']"]');
+        v[k] = inp ? inp.value : '';
+      });
+      return v;
+    }
+    function removeHidden(idx) { var b = hidden.querySelector('[data-donor-idx="' + idx + '"]'); if (b) b.remove(); }
 
-      var row = tbody.querySelector('tr');
+    function upsertRow(idx, name) {
+      var row = rowsBody.querySelector('tr[data-donor-idx="' + idx + '"]');
       if (!row) {
         row = document.createElement('tr');
+        row.setAttribute('data-donor-idx', idx);
         row.innerHTML =
-          '<td></td>' +
+          '<td class="donor-name-cell"></td>' +
           '<td class="text-nowrap">' +
             '<button type="button" class="btn atom-btn-white me-1 edit-donor-row" data-bs-toggle="modal" data-bs-target="#donor-modal">' +
               '<i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>' +
@@ -768,12 +753,100 @@ document.addEventListener('DOMContentLoaded', function() {
               '<span class="visually-hidden">{{ __('Delete row') }}</span>' +
             '</button>' +
           '</td>';
-        tbody.appendChild(row);
+        rowsBody.appendChild(row);
       }
-      row.querySelector('td').textContent = name;
+      row.querySelector('.donor-name-cell').textContent = name || '{{ __('(unnamed donor)') }}';
+    }
 
-      if (window.bootstrap) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+    function hideSuggest() { if (suggestBox) { suggestBox.classList.add('d-none'); suggestBox.innerHTML = ''; } if (nameInput) nameInput.setAttribute('aria-expanded', 'false'); }
+
+    // "Add new" -> blank modal for a fresh entry.
+    document.querySelectorAll('.donor-add-new').forEach(function(btn) {
+      btn.addEventListener('click', function() { editingIdx = null; setModal({}); hideSuggest(); });
     });
+
+    // "Edit row" -> load the row's stored values into the modal.
+    rowsBody.addEventListener('click', function(e) {
+      var btn = e.target.closest('.edit-donor-row');
+      if (!btn) return;
+      var row = btn.closest('tr');
+      editingIdx = parseInt(row.getAttribute('data-donor-idx'), 10);
+      setModal(readHidden(editingIdx));
+      hideSuggest();
+    });
+
+    // "Delete row" -> drop the row + its hidden block.
+    rowsBody.addEventListener('click', function(e) {
+      var btn = e.target.closest('.delete-donor-row');
+      if (!btn) return;
+      var row = btn.closest('tr');
+      removeHidden(parseInt(row.getAttribute('data-donor-idx'), 10));
+      row.remove();
+    });
+
+    // Modal "Submit" -> persist scratch fields into a hidden block + row.
+    if (submit) {
+      submit.addEventListener('click', function() {
+        var values = {};
+        KEYS.forEach(function(k) { values[k] = getModal(k); });
+        if (!(values.name || '').trim() && !(values.id || '').trim()) {
+          if (window.bootstrap) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+          return;
+        }
+        var idx = (editingIdx !== null) ? editingIdx : nextIdx++;
+        writeHidden(idx, values);
+        upsertRow(idx, values.name);
+        editingIdx = null;
+        // Clear the scratch fields so leftover text can't be re-submitted as a
+        // phantom donor via the legacy flat-field fallback after a delete.
+        setModal({});
+        if (window.bootstrap) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+      });
+    }
+
+    // Existing-donor search inside the modal: pick a suggestion to link an
+    // existing donor (fills the scratch name + id/slug). Typing a fresh query
+    // clears the resolved id so a new name becomes a new donor.
+    (function() {
+      if (!nameInput || !suggestBox) return;
+      var searchUrl = @json(route('accession.donor-search'));
+      var debounce;
+      function render(items) {
+        suggestBox.innerHTML = '';
+        if (!items || !items.length) { hideSuggest(); return; }
+        items.forEach(function(it) {
+          var a = document.createElement('button');
+          a.type = 'button';
+          a.className = 'list-group-item list-group-item-action';
+          a.textContent = it.name;
+          a.addEventListener('click', function() {
+            nameInput.value = it.name;
+            if (idInput) idInput.value = it.id;
+            if (slugInput) slugInput.value = it.slug || '';
+            hideSuggest();
+          });
+          suggestBox.appendChild(a);
+        });
+        suggestBox.classList.remove('d-none');
+        nameInput.setAttribute('aria-expanded', 'true');
+      }
+      nameInput.addEventListener('input', function() {
+        if (idInput) idInput.value = '';
+        if (slugInput) slugInput.value = '';
+        var q = nameInput.value.trim();
+        clearTimeout(debounce);
+        if (q.length < 2) { hideSuggest(); return; }
+        debounce = setTimeout(function() {
+          fetch(searchUrl + '?query=' + encodeURIComponent(q) + '&limit=15', { headers: { 'Accept': 'application/json' } })
+            .then(function(r) { return r.json(); })
+            .then(render)
+            .catch(hideSuggest);
+        }, 200);
+      });
+      document.addEventListener('click', function(e) {
+        if (!suggestBox.contains(e.target) && e.target !== nameInput) hideSuggest();
+      });
+    })();
   })();
 });
 

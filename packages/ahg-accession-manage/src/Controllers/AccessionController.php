@@ -471,12 +471,41 @@ class AccessionController extends Controller
                 ->select('contact_information.*', 'contact_information_i18n.*')
                 ->first();
         }
+        // All linked donors (+ decrypted primary contact) for the multi-donor
+        // "Related donors" table. Each becomes a pre-populated row + hidden
+        // donors[] block the modal can edit.
+        $dsvc = new \AhgDonorManage\Services\DonorService(app()->getLocale());
+        $donorRows = [];
+        foreach ($this->service->getDonors($accession->id) as $d) {
+            $c = $dsvc->getContacts((int) $d->id)->first();
+            $donorRows[] = [
+                'id' => (int) $d->id,
+                'slug' => $d->slug,
+                'name' => $d->name,
+                'contact_person' => $c->contact_person ?? '',
+                'telephone' => $c->telephone ?? '',
+                'fax' => $c->fax ?? '',
+                'email' => $c->email ?? '',
+                'url' => $c->website ?? '',
+                'street_address' => $c->street_address ?? '',
+                'region' => $c->region ?? '',
+                'country' => $c->country_code ?? '',
+                'postal_code' => $c->postal_code ?? '',
+                'city' => $c->city ?? '',
+                'latitude' => $c->latitude ?? '',
+                'longitude' => $c->longitude ?? '',
+                'contact_type' => $c->contact_type ?? '',
+                'note' => $c->note ?? '',
+            ];
+        }
+
         $formChoices = $this->service->getFormChoices();
 
         return view('ahg-accession-manage::edit', [
             'accession' => $accession,
             'donor' => $donor,
             'donorContact' => $donorContact,
+            'donorRows' => $donorRows,
             'formChoices' => $formChoices,
             'defaultIdentifier' => null,
             'defaultPriorityTermId' => null,
@@ -515,13 +544,9 @@ class AccessionController extends Controller
         $id = $this->service->create($data);
         $slug = $this->service->getSlug($id);
 
-        // Link an existing donor or create a new one from the "Related donor"
-        // modal (same logic as update()), so a donor entered on the create
-        // form is persisted with the new accession.
-        $donorIds = $this->resolveOrCreateDonorIds($request);
-        if (! empty($donorIds)) {
-            $this->service->syncDonors($id, $donorIds);
-        }
+        // Link/create the related donor(s) from the "Related donor" modal so
+        // donors entered on the create form persist with the new accession.
+        $this->syncAccessionDonor($request, $id);
 
         // Auto-Assign to Archivist setting: if enabled, stamp the workflow
         // row's assigned_to with the creating user. Honoured here rather
@@ -634,121 +659,139 @@ class AccessionController extends Controller
      * id, or null when there is no name to create from. Contact details are
      * optional — saveContacts() skips an all-empty contact row.
      */
-    private function createDonorFromRequest(Request $request): ?int
-    {
-        $name = trim((string) $request->input('donor_name', ''));
-        if ($name === '') {
-            return null;
-        }
-
-        return (new \AhgDonorManage\Services\DonorService(app()->getLocale()))->create([
-            'authorized_form_of_name' => $name,
-            'contacts' => [$this->donorContactFromRequest($request)],
-        ]);
-    }
-
     /**
-     * Map the "Related donor" modal contact inputs to the contact_information
-     * shape DonorService::create()/update() expect. Shared by the create and
-     * update paths.
+     * Map one donor entry (an element of the donors[] array, or the legacy
+     * single donor_* fields) to the contact_information shape DonorService
+     * expects.
      *
+     * @param  array<string, mixed>  $e
      * @return array<string, mixed>
      */
-    private function donorContactFromRequest(Request $request): array
+    private function donorContactFromEntry(array $e): array
     {
         return [
             'primary_contact' => 1,
-            'contact_person'  => $request->input('donor_contact_person'),
-            'telephone'       => $request->input('donor_telephone'),
-            'fax'             => $request->input('donor_fax'),
-            'email'           => $request->input('donor_email'),
-            'website'         => $request->input('donor_url'),
-            'street_address'  => $request->input('donor_street_address'),
-            'region'          => $request->input('donor_region'),
-            'country_code'    => $request->input('donor_country'),
-            'postal_code'     => $request->input('donor_postal_code'),
-            'city'            => $request->input('donor_city'),
-            'latitude'        => $request->input('donor_latitude'),
-            'longitude'       => $request->input('donor_longitude'),
-            'contact_type'    => $request->input('donor_contact_type'),
-            'note'            => $request->input('donor_note'),
+            'contact_person'  => $e['contact_person'] ?? null,
+            'telephone'       => $e['telephone'] ?? null,
+            'fax'             => $e['fax'] ?? null,
+            'email'           => $e['email'] ?? null,
+            'website'         => $e['url'] ?? ($e['website'] ?? null),
+            'street_address'  => $e['street_address'] ?? null,
+            'region'          => $e['region'] ?? null,
+            'country_code'    => $e['country'] ?? ($e['country_code'] ?? null),
+            'postal_code'     => $e['postal_code'] ?? null,
+            'city'            => $e['city'] ?? null,
+            'latitude'        => $e['latitude'] ?? null,
+            'longitude'       => $e['longitude'] ?? null,
+            'contact_type'    => $e['contact_type'] ?? null,
+            'note'            => $e['note'] ?? null,
         ];
     }
 
     /**
-     * Push the modal's name + contact edits back onto an already-linked donor.
-     * The existing primary contact is updated IN PLACE (its id is passed) so no
-     * duplicate row is created; a new contact is inserted only when the donor
-     * had none. syncContacts() skips an all-empty contact, so this never wipes
-     * existing details on a save that did not touch the modal.
-     */
-    private function updateExistingDonorFromRequest(Request $request, int $donorId): void
-    {
-        $data = [];
-
-        $name = trim((string) $request->input('donor_name', ''));
-        if ($name !== '') {
-            $data['authorized_form_of_name'] = $name;
-        }
-
-        $contact = $this->donorContactFromRequest($request);
-        $existingContactId = DB::table('contact_information')
-            ->where('actor_id', $donorId)
-            ->orderByDesc('primary_contact')
-            ->orderBy('id')
-            ->value('id');
-        if ($existingContactId) {
-            $contact['id'] = (int) $existingContactId;
-        }
-        $data['contacts'] = [$contact];
-
-        (new \AhgDonorManage\Services\DonorService(app()->getLocale()))->update($donorId, $data);
-    }
-
-    /**
-     * Resolve the donor selection from the modal into ids, creating a new
-     * donor when a name was typed but no existing donor was picked. Used by
-     * store() (no previously-linked donor to refresh).
+     * Resolve one donor entry to a donor id: link an existing donor (by id or
+     * slug) and refresh its name + primary contact when it is already linked
+     * to this accession, or create a brand-new donor from a typed name.
+     * Returns null when the entry carries neither an existing reference nor a
+     * name.
      *
-     * @return int[]
+     * @param  array<string, mixed>  $e
+     * @param  int[]  $currentlyLinked  donor ids already linked to this accession
      */
-    private function resolveOrCreateDonorIds(Request $request): array
+    private function resolveDonorEntry(array $e, array $currentlyLinked): ?int
     {
-        $donorIds = $this->resolveSelectedDonorIds($request);
-        if (empty($donorIds)) {
-            $newDonorId = $this->createDonorFromRequest($request);
-            if ($newDonorId) {
-                $donorIds[] = $newDonorId;
-            }
+        $svc = new \AhgDonorManage\Services\DonorService(app()->getLocale());
+
+        $id = (isset($e['id']) && is_numeric($e['id']) && (int) $e['id'] > 0) ? (int) $e['id'] : null;
+        if (! $id && ! empty($e['slug'])) {
+            $donor = $svc->getBySlug(ltrim((string) $e['slug'], '/'));
+            $id = $donor ? (int) $donor->id : null;
         }
 
-        return $donorIds;
+        if ($id) {
+            // Only refresh the name/contact of a donor ALREADY linked to this
+            // accession (its details were shown in the modal). A freshly-picked
+            // existing donor is just linked, never overwritten.
+            if (in_array($id, $currentlyLinked, true)) {
+                $data = [];
+                $name = trim((string) ($e['name'] ?? ''));
+                if ($name !== '') {
+                    $data['authorized_form_of_name'] = $name;
+                }
+                $contact = $this->donorContactFromEntry($e);
+                $existingContactId = DB::table('contact_information')
+                    ->where('actor_id', $id)
+                    ->orderByDesc('primary_contact')->orderBy('id')
+                    ->value('id');
+                if ($existingContactId) {
+                    $contact['id'] = (int) $existingContactId;
+                }
+                $data['contacts'] = [$contact];
+                $svc->update($id, $data);
+            }
+
+            return $id;
+        }
+
+        $name = trim((string) ($e['name'] ?? ''));
+        if ($name === '') {
+            return null;
+        }
+
+        return $svc->create([
+            'authorized_form_of_name' => $name,
+            'contacts' => [$this->donorContactFromEntry($e)],
+        ]);
     }
 
     /**
-     * Full donor handling for the accession edit save: link an existing donor,
-     * create a new one, or refresh the contact/name of the donor that is
-     * already linked (only when the same donor is re-submitted, so a changed
-     * or multi selection never clobbers another donor's contact).
+     * Full donor handling for the accession create/save. Processes the
+     * donors[] array (multiple related donors): creates new ones, links
+     * existing ones, and refreshes the contact of those already linked. Falls
+     * back to the legacy single donor_* fields when no donors[] array is
+     * posted. An empty result unlinks every donor via syncDonors().
      */
     private function syncAccessionDonor(Request $request, int $accessionId): void
     {
-        $currentDonor = $this->service->getDonor($accessionId);
-        $existingIds = $this->resolveSelectedDonorIds($request);
+        $entries = $request->input('donors');
+        $entries = is_array($entries) ? array_values($entries) : [];
 
-        if (! empty($existingIds)) {
-            if ($currentDonor
-                && count($existingIds) === 1
-                && (int) $existingIds[0] === (int) $currentDonor->id) {
-                $this->updateExistingDonorFromRequest($request, (int) $existingIds[0]);
-            }
-            $donorIds = $existingIds;
-        } else {
-            $newId = $this->createDonorFromRequest($request);
-            $donorIds = $newId ? [$newId] : [];
+        // Back-compat: the single-donor modal posts donor_* fields flat.
+        if (empty($entries)
+            && ($request->filled('donor_name') || $request->filled('donor_id') || $request->filled('donor_slug'))) {
+            $entries = [[
+                'id'             => $request->input('donor_id'),
+                'slug'           => $request->input('donor_slug'),
+                'name'           => $request->input('donor_name'),
+                'contact_person' => $request->input('donor_contact_person'),
+                'telephone'      => $request->input('donor_telephone'),
+                'fax'            => $request->input('donor_fax'),
+                'email'          => $request->input('donor_email'),
+                'url'            => $request->input('donor_url'),
+                'street_address' => $request->input('donor_street_address'),
+                'region'         => $request->input('donor_region'),
+                'country'        => $request->input('donor_country'),
+                'postal_code'    => $request->input('donor_postal_code'),
+                'city'           => $request->input('donor_city'),
+                'latitude'       => $request->input('donor_latitude'),
+                'longitude'      => $request->input('donor_longitude'),
+                'contact_type'   => $request->input('donor_contact_type'),
+                'note'           => $request->input('donor_note'),
+            ]];
         }
 
-        $this->service->syncDonors($accessionId, $donorIds);
+        $currentlyLinked = $this->service->getDonors($accessionId)
+            ->pluck('id')->map(fn ($x) => (int) $x)->all();
+
+        $ids = [];
+        foreach ($entries as $e) {
+            $donorId = $this->resolveDonorEntry((array) $e, $currentlyLinked);
+            if ($donorId) {
+                $ids[] = $donorId;
+            }
+        }
+
+        $this->service->syncDonors($accessionId, array_values(array_unique($ids)));
     }
 
     /**
