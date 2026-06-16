@@ -166,11 +166,15 @@ function modelOverrides(string $model): array
 
 // Models whose rows must also have a row inserted into `object` table first
 // (class-table inheritance — base class is QubitObject).
+// NOTE: QubitMenu is deliberately NOT object-backed here. The `menu` table has
+// no FK to `object`, the live database carries zero QubitMenu object rows, and
+// emitting them made the menu seed squat object ids 1/3/6/7 — colliding (via
+// INSERT IGNORE) with the InformationObject root (1), Actor root (3),
+// Repository root (6) and static pages (7,9). Menus seed `menu`/`menu_i18n` only.
 const OBJECT_BACKED_MODELS = [
     'QubitStaticPage',
     'QubitTaxonomy',
     'QubitTerm',
-    'QubitMenu',
     'QubitRepository',
     'QubitContactInformation',
 ];
