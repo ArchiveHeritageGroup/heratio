@@ -208,6 +208,31 @@ The installer runs **14 idempotent stages**. Re-running picks up where it left o
 
 **Save the admin password immediately** - it is not stored anywhere else and not retrievable from the database (it's bcrypt-hashed on insert).
 
+### File upload size
+
+The install ships a `public/.user.ini` that raises PHP's upload limits to
+**256 MB** (`upload_max_filesize` and `post_max_size`). PHP's stock defaults are
+only **2 MB / 8 MB**, which is far too small for GLAM material: archival masters
+and digital objects are routinely large - high-resolution TIFF/JP2 scans are
+often 50-300 MB per page, and audio, video, multi-page PDFs and 3D models can be
+larger still. With the stock defaults the uploader fails with *"The maximum size
+of file uploads is 2 MB"*.
+
+The nginx vhost template already sets `client_max_body_size 2G`, so PHP is the
+only real limit. To allow even larger files, edit `public/.user.ini`:
+
+```ini
+upload_max_filesize = 1024M
+post_max_size       = 1024M
+memory_limit        = 1024M   ; raise if you process very large images server-side
+```
+
+Apply with `sudo systemctl reload php8.3-fpm` (or wait out the 300 s
+`user_ini.cache_ttl`). `.user.ini` is read per-directory for the `public/`
+docroot and ships in the repo, so no system `php.ini` change is needed. If you
+push the limit above nginx's `client_max_body_size`, raise that in your vhost
+too.
+
 ---
 
 ## 5. SSL - set up HTTPS
