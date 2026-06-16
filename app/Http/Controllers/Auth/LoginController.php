@@ -371,8 +371,24 @@ class LoginController extends Controller
             return redirect('/user/'.$slug);
         }
 
-        // Fallback: render the legacy auth.profile view if the user has no slug yet
-        return view('auth.profile', compact('user'));
+        // Fallback: render the legacy auth.profile view if the user has no slug
+        // yet (e.g. the freshly-installed admin before a slug is minted). Pass
+        // every variable the view reads so it renders instead of 500ing on an
+        // undefined $groups / $repository / $securityClearance.
+        $groups = collect($user->groups ?? []);
+        $repository = null;
+        $securityClearance = null;
+        if (class_exists(\AhgSecurityClearance\Services\SecurityClearanceService::class)
+            && \Illuminate\Support\Facades\Schema::hasTable('user_security_clearance')) {
+            try {
+                $securityClearance = app(\AhgSecurityClearance\Services\SecurityClearanceService::class)
+                    ->getUserClearanceRecord($user->id);
+            } catch (\Throwable $e) {
+                $securityClearance = null;
+            }
+        }
+
+        return view('auth.profile', compact('user', 'groups', 'repository', 'securityClearance'));
     }
 
     /**
