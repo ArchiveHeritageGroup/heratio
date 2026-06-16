@@ -142,6 +142,22 @@ in at **`http://<your --domain>/login`** - note `/login`, *not* `/admin/login` -
 exact email + password. **Copy the password before closing the terminal** if you let it
 auto-generate one.
 
+### Pre-selecting which plugins are enabled (optional)
+
+A fresh install registers **every** plugin and enables them all by default, except
+`ahgFederationPlugin` (shipped installed but **disabled**). To choose a different
+starting set, edit **`database/seeds/08_base_plugins.sql` before running `bin/install`** -
+set a plugin's `is_enabled` to `0` and `status` to `'disabled'` (federation is the worked
+example already in that file). Plugins can also be toggled any time after install from
+**`/admin/ahgSettings/plugins`**.
+
+> **Do not disable the foundation set or the theme** - the platform requires them
+> (without them you get no admin UI, no styling, and broken auth):
+> `ahgCorePlugin`, `sfPropelPlugin`, `qbAclPlugin`, `sfPluginAdminPlugin`,
+> `ahgSettingsPlugin`, `ahgSecurityClearancePlugin`, and the theme `ahgThemeB5Plugin`.
+> The seed's trailing `UPDATE` force-re-enables exactly these, so disabling them in the
+> INSERT block has no effect anyway.
+
 ### Method B - Tarball
 
 ```bash
