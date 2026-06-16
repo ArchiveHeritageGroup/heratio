@@ -54,6 +54,7 @@ PHP_FPM_SOCK="/run/php/php8.3-fpm.sock"
 SKIP_ES=0
 SKIP_NGINX=0
 NON_INTERACTIVE=0
+FRESH=0
 # The bundled nginx vhost is http-only, so default APP_URL to http and DISABLE
 # secure cookies - secure cookies over http are dropped by the browser, which
 # breaks the CSRF session and yields 419 "Page Expired" on every form POST
@@ -78,6 +79,7 @@ while [[ $# -gt 0 ]]; do
         --skip-nginx)       SKIP_NGINX=1 ;;
         --https)            APP_SCHEME="https"; SECURE_COOKIE="true" ;;
         --non-interactive)  NON_INTERACTIVE=1 ;;
+        --fresh)            FRESH=1 ;;
         -h|--help)
             grep -E '^# ' "$0" | sed 's/^# \?//' | head -40
             exit 0
@@ -297,8 +299,20 @@ unset _v
 # 5. DB create
 # ============================================================================
 say "Stage 5/14 — database"
-if mysql_run -e "USE \`$DB_NAME\`" &>/dev/null; then
+if [[ "$FRESH" -eq 1 ]]; then
+    # --fresh: guarantee an empty DB for the authoritative core-schema load in
+    # stage 6. This ALSO wipes any tables that stage 4's `php artisan` boot may
+    # have auto-created via package ServiceProviders (the auto-seed-on-boot
+    # pattern). Those package tables can collide with the core schema - e.g.
+    # the package ships user_totp_secret as `int unsigned` while core uses
+    # signed `int`, so the core FK then fails with MySQL error 3780. Dropping
+    # here removes them so the core schema is the single source of truth.
+    mysql_run -e "DROP DATABASE IF EXISTS \`$DB_NAME\`; CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+    warn "--fresh: dropped and recreated $DB_NAME (ALL prior data wiped)"
+elif mysql_run -e "USE \`$DB_NAME\`" &>/dev/null; then
     ok "database $DB_NAME exists"
+    # Heads-up: a re-install onto a populated DB can hit the stage-4-boot
+    # collision described above. Pass --fresh for a guaranteed-clean rebuild.
 else
     mysql_run -e "CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
     ok "created database $DB_NAME"
