@@ -515,6 +515,14 @@ class AccessionController extends Controller
         $id = $this->service->create($data);
         $slug = $this->service->getSlug($id);
 
+        // Link an existing donor or create a new one from the "Related donor"
+        // modal (same logic as update()), so a donor entered on the create
+        // form is persisted with the new accession.
+        $donorIds = $this->resolveOrCreateDonorIds($request);
+        if (! empty($donorIds)) {
+            $this->service->syncDonors($id, $donorIds);
+        }
+
         // Auto-Assign to Archivist setting: if enabled, stamp the workflow
         // row's assigned_to with the creating user. Honoured here rather
         // than inside service->create() so the create() path stays
@@ -569,13 +577,12 @@ class AccessionController extends Controller
 
         $this->service->update($accession->id, $data);
 
-        // #1267: persist the existing-donor selection from the "Related
-        // donor" modal. The modal's autocomplete writes the chosen donor's
-        // id into donor_id (and slug into donor_slug as a fallback). An
-        // empty donor_id means "no donor linked" — syncDonors() then
-        // unlinks any previously-linked donor. We never create a donor/actor
-        // here; only existing donors (resolved by id or slug) are linked.
-        $donorIds = $this->resolveSelectedDonorIds($request);
+        // Persist the "Related donor" modal selection. The modal writes the
+        // chosen EXISTING donor's id into donor_id (slug into donor_slug as a
+        // fallback); when none is picked but a name was typed, a brand-new
+        // donor + contact is created here. An empty result means "no donor
+        // linked" — syncDonors() then unlinks any previously-linked donor.
+        $donorIds = $this->resolveOrCreateDonorIds($request);
         $this->service->syncDonors($accession->id, $donorIds);
 
         return redirect()
@@ -620,6 +627,65 @@ class AccessionController extends Controller
         }
 
         return array_values(array_unique($ids));
+    }
+
+    /**
+     * Create a brand-new donor from the "Related donor" modal fields when the
+     * user typed a name that does not resolve to an existing donor (no
+     * donor_id / donor_slug). The modal lives inside the accession <form>, so
+     * its donor_* inputs arrive on the accession save. Returns the new donor
+     * id, or null when there is no name to create from. Contact details are
+     * optional — saveContacts() skips an all-empty contact row.
+     */
+    private function createDonorFromRequest(Request $request): ?int
+    {
+        $name = trim((string) $request->input('donor_name', ''));
+        if ($name === '') {
+            return null;
+        }
+
+        $contact = [
+            'primary_contact' => 1,
+            'contact_person'  => $request->input('donor_contact_person'),
+            'telephone'       => $request->input('donor_telephone'),
+            'fax'             => $request->input('donor_fax'),
+            'email'           => $request->input('donor_email'),
+            'website'         => $request->input('donor_url'),
+            'street_address'  => $request->input('donor_street_address'),
+            'region'          => $request->input('donor_region'),
+            'country_code'    => $request->input('donor_country'),
+            'postal_code'     => $request->input('donor_postal_code'),
+            'city'            => $request->input('donor_city'),
+            'latitude'        => $request->input('donor_latitude'),
+            'longitude'       => $request->input('donor_longitude'),
+            'contact_type'    => $request->input('donor_contact_type'),
+            'note'            => $request->input('donor_note'),
+        ];
+
+        return (new \AhgDonorManage\Services\DonorService(app()->getLocale()))->create([
+            'authorized_form_of_name' => $name,
+            'contacts' => [$contact],
+        ]);
+    }
+
+    /**
+     * Resolve the donor selection from the modal into ids, creating a new
+     * donor when a name was typed but no existing donor was picked. Shared by
+     * store() and update().
+     *
+     * @return int[]
+     */
+    private function resolveOrCreateDonorIds(Request $request): array
+    {
+        $donorIds = $this->resolveSelectedDonorIds($request);
+        if (empty($donorIds)) {
+            $newDonorId = $this->createDonorFromRequest($request);
+            if ($newDonorId) {
+                $donorIds[] = $newDonorId;
+            }
+        }
+
+        return $donorIds;
     }
 
     /**
