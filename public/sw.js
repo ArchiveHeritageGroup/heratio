@@ -8,7 +8,7 @@
  * Cache name is bumped via the SW_VERSION constant - update it whenever the
  * mobile shell changes so old clients pick up the new bundle.
  */
-const SW_VERSION = 'heratio-mobile-v1';
+const SW_VERSION = 'heratio-mobile-v2';
 const SHELL_URLS = [
     '/research/mobile',
     '/manifest.webmanifest',
@@ -41,6 +41,19 @@ self.addEventListener('fetch', (event) => {
     // Don't cache cross-origin or chrome-extension requests.
     const url = new URL(req.url);
     if (url.origin !== self.location.origin) return;
+
+    // NEVER intercept HTML navigations. The app's dynamic pages (forms, admin,
+    // accession edit, etc.) must always come fresh from the server. Caching them
+    // here served stale forms and silently masked deploys. Let the browser hit
+    // the network directly for any document/navigation request.
+    const accept = req.headers.get('accept') || '';
+    if (req.mode === 'navigate' || accept.includes('text/html')) return;
+
+    // Otherwise only the mobile shell + static asset types are cached for
+    // offline; everything else passes through untouched.
+    const isShell = SHELL_URLS.indexOf(url.pathname) !== -1;
+    const isAsset = /\.(?:css|js|map|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot|webmanifest|wasm|json)$/i.test(url.pathname);
+    if (!isShell && !isAsset) return;
 
     // Static asset network-first-with-cache-fallback for the mobile route + shell.
     event.respondWith(
