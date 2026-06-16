@@ -378,11 +378,15 @@ class ImportJob implements ShouldQueue
             'rules' => 'rules',
             'sources' => 'sources',
             'revisionhistory' => 'revision_history',
+            // AtoM-official ISAD column is `institutionIdentifier`; the older
+            // `institutionResponsibleIdentifier` is kept as a legacy alias.
+            'institutionidentifier' => 'institution_responsible_identifier',
             'institutionresponsibleidentifier' => 'institution_responsible_identifier',
             'alternatetitle' => 'alternate_title',
             'edition' => 'edition',
             'eventdates' => '_event_dates',
-            'eventstarddates' => '_event_start_dates',
+            // was 'eventstarddates' (typo) - AtoM column is `eventStartDates`.
+            'eventstartdates' => '_event_start_dates',
             'eventenddates' => '_event_end_dates',
             'culture' => '_culture',
             'qubitparentslug' => '_parent_slug',
@@ -936,6 +940,9 @@ class ImportJob implements ShouldQueue
         // CSV column (lowercased) => ActorService data key.
         $columnMap = [
             'authorizedformofname' => 'authorized_form_of_name',
+            // AtoM's official authority CSV column is `typeOfEntity`; accept
+            // the legacy `entityType` as an alias so older templates still work.
+            'typeofentity' => '_entity_type',
             'entitytype' => '_entity_type',
             'corporatebodyidentifiers' => 'corporate_body_identifiers',
             'datesofexistence' => 'dates_of_existence',

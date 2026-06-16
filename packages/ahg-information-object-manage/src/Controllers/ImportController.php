@@ -171,6 +171,11 @@ class ImportController extends Controller
 
         // Check for missing required columns
         $presentHeaders = array_column($results, 'column');
+        // typeOfEntity (AtoM official) and entityType (legacy alias) are
+        // interchangeable — a CSV using either satisfies the requirement.
+        if (in_array('entityType', $presentHeaders, true) && !in_array('typeOfEntity', $presentHeaders, true)) {
+            $presentHeaders[] = 'typeOfEntity';
+        }
         foreach ($requiredColumns as $required) {
             if (!in_array($required, $presentHeaders)) {
                 $results[] = [
@@ -287,7 +292,8 @@ class ImportController extends Controller
                 'scopeAndContent', 'appraisal', 'accruals', 'arrangement',
                 'accessConditions', 'reproductionConditions', 'language',
                 'script', 'languageNote', 'physicalCharacteristics',
-                'findingAids', 'relatedUnitsOfDescription', 'publicationNote',
+                'findingAids', 'locationOfOriginals', 'locationOfCopies',
+                'relatedUnitsOfDescription', 'publicationNote',
                 'digitalObjectPath', 'digitalObjectURI', 'generalNote',
                 'subjectAccessPoints', 'placeAccessPoints', 'nameAccessPoints',
                 'genreAccessPoints', 'descriptionIdentifier',
@@ -309,7 +315,9 @@ class ImportController extends Controller
                 'donors', 'creators', 'culture',
             ],
             'authorityRecord' => [
-                'authorizedFormOfName', 'entityType', 'corporateBodyIdentifiers',
+                // AtoM's official authority CSV column is `typeOfEntity`;
+                // `entityType` is kept as a recognised legacy alias.
+                'authorizedFormOfName', 'typeOfEntity', 'entityType', 'corporateBodyIdentifiers',
                 'datesOfExistence', 'history', 'places', 'legalStatus',
                 'functions', 'mandates', 'internalStructures',
                 'generalContext', 'descriptionIdentifier', 'institutionIdentifier',
@@ -354,7 +362,7 @@ class ImportController extends Controller
         return match ($objectType) {
             'informationObject' => ['legacyId', 'parentId', 'identifier', 'title', 'levelOfDescription'],
             'accession' => ['accessionNumber', 'title', 'acquisitionDate'],
-            'authorityRecord' => ['authorizedFormOfName', 'entityType'],
+            'authorityRecord' => ['authorizedFormOfName', 'typeOfEntity'],
             'authorityRecordRelationship' => ['sourceAuthorizedFormOfName', 'targetAuthorizedFormOfName', 'category'],
             'event' => ['legacyId', 'eventActorName', 'eventType'],
             'repository' => ['authorizedFormOfName'],
