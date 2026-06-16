@@ -104,6 +104,14 @@ class ImportJob implements ShouldQueue
                 }
             }
 
+            // Imported records are written with raw DB inserts (no Eloquent
+            // model events), so nothing reaches Elasticsearch on its own and
+            // browse/search — which read from ES — wouldn't show the import.
+            // Reindex the affected index so the records become visible.
+            if ($this->importedCount > 0) {
+                $this->reindexImported();
+            }
+
             // Clean up temporary file
             @unlink($fullPath);
 
@@ -772,15 +780,48 @@ class ImportJob implements ShouldQueue
         // failed with "Field 'id' doesn't have a default value" and the whole
         // import job crashed before importing anything.
         $this->jobRecordId = $objectId;
+        $objectLabel = [
+            'informationObject' => 'archival descriptions',
+            'authorityRecord' => 'authority records',
+            'taxonomy' => 'terms',
+        ][$this->objectType] ?? $this->objectType;
+
         DB::table('job')->insert([
             'id' => $objectId,
-            'name' => 'App\\Jobs\\ImportJob',
+            // Human-friendly label for /jobs/browse instead of the raw class name.
+            'name' => strtoupper($this->importType).' import — '.$objectLabel,
             'status_id' => self::STATUS_IN_PROGRESS,
             'object_id' => $objectId,
             'user_id' => null,
             'output' => '',
             'completed_at' => null,
         ]);
+    }
+
+    /**
+     * Index the just-imported records into Elasticsearch. The CSV/XML importer
+     * uses raw DB inserts (no Eloquent model events), so nothing reaches ES on
+     * its own — browse/search read from ES and wouldn't show the import. A full
+     * index pass is fine for typical imports; for very large catalogues this
+     * could be narrowed to per-id reindexing.
+     */
+    protected function reindexImported(): void
+    {
+        $index = match ($this->objectType) {
+            'informationObject' => 'informationobject',
+            'authorityRecord' => 'actor',
+            'taxonomy' => 'term',
+            default => null,
+        };
+        if (! $index) {
+            return;
+        }
+        try {
+            \Illuminate\Support\Facades\Artisan::call('ahg:es-reindex', ['--index' => $index]);
+            $this->log("Elasticsearch reindex ({$index}) complete — imported records are now searchable.");
+        } catch (\Throwable $e) {
+            $this->logError('Elasticsearch reindex after import failed (records imported but not yet searchable — run `php artisan ahg:es-reindex`): '.$e->getMessage());
+        }
     }
 
     protected function log(string $message): void
