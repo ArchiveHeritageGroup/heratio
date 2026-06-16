@@ -67,7 +67,15 @@ class ImportJob implements ShouldQueue
         $this->log("Starting {$this->importType} import: {$this->objectType} (update: {$this->updateType})");
 
         try {
-            $fullPath = storage_path('app/'.$this->filePath);
+            // Resolve via the 'local' disk so the root is correct regardless of
+            // Laravel version — Laravel 11 moved the 'local' disk root from
+            // storage/app to storage/app/private, where ImportController's
+            // storeAs(..., 'local') now writes. Fall back to the legacy
+            // storage/app/<path> layout for older uploads.
+            $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($this->filePath);
+            if (! file_exists($fullPath) && file_exists(storage_path('app/'.$this->filePath))) {
+                $fullPath = storage_path('app/'.$this->filePath);
+            }
 
             if (! file_exists($fullPath)) {
                 $this->logError("Import file not found: {$fullPath}");
