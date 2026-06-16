@@ -47,6 +47,12 @@ class ImportJob implements ShouldQueue
 
     protected int $importedCount = 0;
 
+    /** Cached ISAD(G) display-standard term id (-1 = not yet resolved). */
+    protected ?int $isadStandardIdCache = -1;
+
+    /** Cached actor entity-type map: lower(name) => term id. */
+    protected ?array $entityTypeCache = null;
+
     public function __construct(
         string $filePath,
         string $importType,
@@ -338,6 +344,15 @@ class ImportJob implements ShouldQueue
         // Normalise headers: trim whitespace, lowercase
         $headers = array_map(fn ($h) => strtolower(trim($h)), $headers);
 
+        // Authority records (actors) are a different entity with their own
+        // tables and create path - hand off to the dedicated importer.
+        if ($this->objectType === 'authorityRecord') {
+            $this->importAuthorityCsv($handle, $headers, $culture);
+            fclose($handle);
+
+            return;
+        }
+
         // Map CSV column names to database fields
         $columnMap = [
             'legacyid' => '_legacy_id',
@@ -530,7 +545,10 @@ class ImportJob implements ShouldQueue
                     'description_detail_id' => null,
                     'description_identifier' => null,
                     'source_standard' => null,
-                    'display_standard_id' => null,
+                    // Archival descriptions default to ISAD(G) (resolved at
+                    // runtime - the term id is auto-increment and differs per
+                    // install, so it can't be hardcoded).
+                    'display_standard_id' => $this->isadStandardId(),
                     'lft' => $newLft,
                     'rgt' => $newRgt,
                     'source_culture' => $culture,
@@ -612,11 +630,15 @@ class ImportJob implements ShouldQueue
             // display_object_config row). The sector-filtered browse
             // (default_sector) left-joins that table and filters on
             // doc.object_type, so a record with no row is invisible under
-            // any sector view. Done after commit, in parent-before-child
-            // order, so child records can inherit the parent's sector.
+            // any sector view. Archival descriptions imported here are
+            // ISAD(G) records -> the 'archive' sector. We set it directly
+            // rather than via DisplayTypeDetector because that detector's
+            // display-standard map is keyed on stale term ids and would
+            // misfile some rows as 'universal' (which no single-sector
+            // browse shows).
             if ($newId) {
                 try {
-                    \AhgDisplay\Services\DisplayTypeDetector::detectAndSave($newId);
+                    $this->classifyAsArchive($newId);
                 } catch (\Throwable $e) {
                     $this->logError('Sector classification failed for #'.$newId.' (imported but may not appear under a sector-filtered browse): '.$e->getMessage());
                 }
@@ -837,6 +859,138 @@ class ImportJob implements ShouldQueue
             $this->log("Elasticsearch reindex ({$index}) complete — imported records are now searchable.");
         } catch (\Throwable $e) {
             $this->logError('Elasticsearch reindex after import failed (records imported but not yet searchable — run `php artisan ahg:es-reindex`): '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Resolve the ISAD(G) display-standard term id for this install. The
+     * term lives in taxonomy 70 but its id is auto-increment (differs per
+     * install), so we look it up by name and cache it.
+     */
+    protected function isadStandardId(): ?int
+    {
+        if ($this->isadStandardIdCache === -1) {
+            $this->isadStandardIdCache = DB::table('term as t')
+                ->join('term_i18n as ti', 'ti.id', '=', 't.id')
+                ->where('t.taxonomy_id', 70)
+                ->where('ti.name', 'like', 'ISAD(G)%')
+                ->value('t.id');
+        }
+
+        return $this->isadStandardIdCache;
+    }
+
+    /**
+     * Write (or update) the display_object_config row that classifies an
+     * information object into the 'archive' GLAM sector. Mirrors
+     * DisplayTypeDetector::saveType so the sector-filtered browse sees it.
+     */
+    protected function classifyAsArchive(int $objectId): void
+    {
+        DB::table('display_object_config')->updateOrInsert(
+            ['object_id' => $objectId],
+            [
+                'object_type' => 'archive',
+                'updated_at' => date('Y-m-d H:i:s'),
+                'created_at' => DB::raw('COALESCE(created_at, NOW())'),
+            ]
+        );
+    }
+
+    /**
+     * Resolve an actor entity-type name (Person / Corporate body / Family)
+     * to its term id (taxonomy 32, a fixed AtoM system taxonomy). Falls back
+     * to Person, then to any available entity type.
+     */
+    protected function resolveEntityTypeId(?string $name, string $culture): ?int
+    {
+        if ($this->entityTypeCache === null) {
+            $rows = DB::table('term as t')
+                ->join('term_i18n as ti', 'ti.id', '=', 't.id')
+                ->where('t.taxonomy_id', 32)
+                ->whereIn('ti.culture', array_unique([$culture, 'en']))
+                ->pluck('t.id', 'ti.name')
+                ->toArray();
+            $this->entityTypeCache = [];
+            foreach ($rows as $n => $id) {
+                $this->entityTypeCache[strtolower(trim((string) $n))] = (int) $id;
+            }
+        }
+
+        $key = strtolower(trim((string) $name));
+        if ($key !== '' && isset($this->entityTypeCache[$key])) {
+            return $this->entityTypeCache[$key];
+        }
+
+        return $this->entityTypeCache['person'] ?? (reset($this->entityTypeCache) ?: null);
+    }
+
+    /**
+     * Import authority records (actors) from an already-open CSV handle.
+     * Columns follow the AtoM EAC-CPF authority template. Each row is created
+     * via ActorService so the full actor / actor_i18n / slug / object graph
+     * is written consistently with the manual create form.
+     */
+    protected function importAuthorityCsv($handle, array $headers, string $culture): void
+    {
+        // CSV column (lowercased) => ActorService data key.
+        $columnMap = [
+            'authorizedformofname' => 'authorized_form_of_name',
+            'entitytype' => '_entity_type',
+            'corporatebodyidentifiers' => 'corporate_body_identifiers',
+            'datesofexistence' => 'dates_of_existence',
+            'history' => 'history',
+            'places' => 'places',
+            'legalstatus' => 'legal_status',
+            'functions' => 'functions',
+            'mandates' => 'mandates',
+            'internalstructures' => 'internal_structures',
+            'generalcontext' => 'general_context',
+            'descriptionidentifier' => 'description_identifier',
+            'institutionidentifier' => 'institution_responsible_identifier',
+            'rules' => 'rules',
+            'sources' => 'sources',
+            'revisionhistory' => 'revision_history',
+            'maintenancenotes' => 'maintenance_notes',
+            'culture' => '_culture',
+        ];
+
+        $rowNum = 1;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNum++;
+
+            if (count($row) !== count($headers)) {
+                $this->logError("Row {$rowNum}: column count mismatch (expected ".count($headers).', got '.count($row).'). Skipping.');
+
+                continue;
+            }
+
+            try {
+                $data = array_combine($headers, $row);
+                $mapped = [];
+                foreach ($columnMap as $csvCol => $key) {
+                    if (isset($data[$csvCol])) {
+                        $mapped[$key] = trim($data[$csvCol]);
+                    }
+                }
+
+                if (empty($mapped['authorized_form_of_name'])) {
+                    $this->logError("Row {$rowNum}: missing authorizedFormOfName. Skipping.");
+
+                    continue;
+                }
+
+                $rowCulture = ! empty($mapped['_culture']) ? $mapped['_culture'] : $culture;
+                $mapped['entity_type_id'] = $this->resolveEntityTypeId($mapped['_entity_type'] ?? null, $rowCulture);
+                unset($mapped['_entity_type'], $mapped['_culture']);
+
+                $service = new \AhgActorManage\Services\ActorService($rowCulture);
+                $service->create($mapped);
+                $this->importedCount++;
+            } catch (\Throwable $e) {
+                $this->logError("Row {$rowNum}: {$e->getMessage()}");
+            }
         }
     }
 
