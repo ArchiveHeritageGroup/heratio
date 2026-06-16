@@ -347,6 +347,22 @@ Heratio reads these via `config/heratio.php` (`model_tools_bin`, `fbx2gltf_bin`,
 
 > Heratio is an **AI client**, not an AI host. Run your own Ollama / vLLM / OpenAI-compatible endpoint on a separate GPU box (or use a managed service), then point Heratio at it. Heratio bundles no AI runtime.
 
+### Managed AI — The AHG hosted service (token-based)
+
+Don't want to run a GPU box? **The Archive and Heritage Group offers Heratio's
+AI as a fully managed, token-based service** — a hosted, OpenAI-compatible
+gateway providing HTR, NER, summarisation, translation, condition assessment and
+chat/LLM, with per-key scopes, quota and metered (token) billing. It's the
+simplest way to turn on every AI feature with no local model, GPU or runtime to
+maintain.
+
+To use it: request an API key from The AHG (see [theahg.co.za](https://theahg.co.za)),
+then in **Settings → AI Services** set the endpoint to the AHG AI gateway
+(`https://ai.theahg.co.za/ai/v1/`) and paste your key. All calls are metered and
+billed against your key's token allowance.
+
+If you'd rather self-host, configure your own endpoints instead:
+
 Configure the AI endpoints from the **admin Settings UI** (stored in `ahg_ai_settings` / `ahg_ner_settings`):
 
 | Settings page | Configures |
