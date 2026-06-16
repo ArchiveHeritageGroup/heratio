@@ -159,7 +159,20 @@ VALUES
 INSERT IGNORE INTO setting_i18n (id, culture, value)
 SELECT id, 'en', '1'
 FROM setting
-WHERE name IN ('oai_heritage_format_enabled', 'federation_enabled')
+WHERE name = 'oai_heritage_format_enabled'
+AND NOT EXISTS (
+    SELECT 1 FROM setting_i18n si WHERE si.id = setting.id AND si.culture = 'en'
+);
+
+-- Federation ships INSTALLED but DISABLED by default (#1308 follow-up): the
+-- package, tables, routes and menu are all present, but FederationService::
+-- isEnabled() reads this value, so it stays off until an admin enables it in
+-- Settings. Set to '0' on fresh installs only (INSERT IGNORE / NOT EXISTS keeps
+-- an operator's later choice intact on re-run).
+INSERT IGNORE INTO setting_i18n (id, culture, value)
+SELECT id, 'en', '0'
+FROM setting
+WHERE name = 'federation_enabled'
 AND NOT EXISTS (
     SELECT 1 FROM setting_i18n si WHERE si.id = setting.id AND si.culture = 'en'
 );
