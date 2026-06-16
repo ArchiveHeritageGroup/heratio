@@ -12,6 +12,22 @@ class AhgSpectrumServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'spectrum');
 
+        // Share whether Spectrum is enabled so nav/menus can hide ALL Spectrum
+        // entry points when the operator switches it off. Every /admin/spectrum/*
+        // route is 404'd by EnsureSpectrumEnabled, so an un-gated link would land
+        // the user on "page not found". Guarded so a missing/locked ahg_settings
+        // table during install never breaks view rendering.
+        if (! $this->app->runningInConsole()) {
+            try {
+                \Illuminate\Support\Facades\View::share(
+                    'spectrumEnabled',
+                    (new \AhgSpectrum\Services\SpectrumSettings())->isEnabled()
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\View::share('spectrumEnabled', false);
+            }
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgSpectrum\Commands\SpectrumSeedWorkflowConfigs::class,

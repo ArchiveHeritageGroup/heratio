@@ -99,8 +99,9 @@
             @include('theme::partials.menus.main-menu')
           @endif
 
-          {{-- Spectrum Tasks Bell --}}
-          @if($themeData['isAuthenticated'] ?? false)
+          {{-- Spectrum Tasks Bell — hidden when Spectrum is disabled (the
+               /admin/spectrum/* routes 404 via EnsureSpectrumEnabled). --}}
+          @if(($themeData['isAuthenticated'] ?? false) && ($spectrumEnabled ?? false))
             @php
               $spectrumBellCount = 0;
               try {

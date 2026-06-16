@@ -63,7 +63,9 @@
     </li>
     @endif
 
-    {{-- Spectrum Tasks Section --}}
+    {{-- Spectrum Tasks Section — hidden when Spectrum is disabled (its
+         /admin/spectrum/* routes 404 via EnsureSpectrumEnabled). --}}
+    @if($spectrumEnabled ?? false)
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header"><i class="fas fa-tasks me-1"></i>{{ __('Tasks') }}</h6></li>
     <li>
@@ -79,6 +81,7 @@
         <i class="fas fa-tachometer-alt me-2"></i>{{ __('Workflow Dashboard') }}
       </a>
     </li>
+    @endif
 
     {{-- Research Section --}}
     <li><hr class="dropdown-divider"></li>
