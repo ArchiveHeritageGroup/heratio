@@ -294,11 +294,18 @@ class LabelController extends Controller
             'slugs.*' => 'required|string|max:255',
             'barcode_source' => 'sometimes|string|max:50',
             'label_size' => 'sometimes|in:200,300,400',
+            'template_id' => 'sometimes|integer',
             'show_barcode' => 'sometimes|boolean',
             'show_qr' => 'sometimes|boolean',
             'show_title' => 'sometimes|boolean',
             'show_repo' => 'sometimes|boolean',
         ]);
+
+        // #1281: resolve the sheet template (explicit choice, else the default).
+        $template = $request->filled('template_id')
+            ? \AhgLabel\Models\LabelTemplate::find((int) $request->input('template_id'))
+            : null;
+        $template = $template ?: \AhgLabel\Models\LabelTemplate::resolveDefault();
 
         $culture = app()->getLocale() ?? 'en';
         $labels = [];
@@ -378,10 +385,12 @@ class LabelController extends Controller
         }
 
         $labelSize = $validated['label_size'] ?? '300';
-        $showBarcode = $validated['show_barcode'] ?? true;
-        $showQr = $validated['show_qr'] ?? true;
-        $showTitle = $validated['show_title'] ?? true;
-        $showRepo = $validated['show_repo'] ?? true;
+        // Show flags: explicit request value wins, otherwise fall back to the
+        // template's flags (#1281), otherwise on.
+        $showBarcode = $request->has('show_barcode') ? $request->boolean('show_barcode') : (bool) ($template->show_barcode ?? true);
+        $showQr = $request->has('show_qr') ? $request->boolean('show_qr') : (bool) ($template->show_qr ?? false);
+        $showTitle = $request->has('show_title') ? $request->boolean('show_title') : (bool) ($template->show_title ?? true);
+        $showRepo = $request->has('show_repo') ? $request->boolean('show_repo') : (bool) ($template->show_repository ?? false);
 
         return view('label::batch', compact(
             'labels',
@@ -389,7 +398,8 @@ class LabelController extends Controller
             'showBarcode',
             'showQr',
             'showTitle',
-            'showRepo'
+            'showRepo',
+            'template'
         ));
     }
 }
