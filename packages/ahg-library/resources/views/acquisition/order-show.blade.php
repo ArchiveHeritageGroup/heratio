@@ -30,4 +30,148 @@
 </div>
 </div>
 </div>
+
+{{-- #1311 Multi-fund split editor modal --}}
+<div class="modal fade" id="acqSplitModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-code-branch me-2"></i>{{ __('Split line across funds') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-2" id="acqSplitLineTitle"></p>
+        <div class="alert alert-danger d-none" id="acqSplitError"></div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>{{ __('Line total') }}: <strong id="acqSplitLineTotal">0.00</strong></span>
+          <span>{{ __('Allocated') }}: <strong id="acqSplitAllocated">0.00</strong> <span id="acqSplitBalanceBadge" class="badge bg-secondary ms-1">{{ __('Balance') }}: <span id="acqSplitBalance">0.00</span></span></span>
+        </div>
+        <table class="table table-sm" id="acqSplitTable">
+          <thead><tr><th>{{ __('Fund') }}</th><th class="text-end" style="width:30%">{{ __('Amount') }}</th><th style="width:1%"></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="acqSplitAddRow"><i class="fas fa-plus me-1"></i>{{ __('Add fund') }}</button>
+        <p class="text-muted small mt-2 mb-0">{{ __('Leave the table empty to revert this line to its single fund. The amounts must sum to the line total.') }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+        <button type="button" class="btn btn-primary" id="acqSplitSave">{{ __('Save splits') }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+    var orderId = {{ (int) $order->id }};
+    var csrf = '{{ csrf_token() }}';
+    var modalEl = document.getElementById('acqSplitModal');
+    if (!modalEl || typeof bootstrap === 'undefined') { return; }
+    var modal = new bootstrap.Modal(modalEl);
+    var tbody = modalEl.querySelector('#acqSplitTable tbody');
+    var budgets = [];
+    var currentLineId = null;
+    var lineTotal = 0;
+
+    function fmt(n) { return (Number(n) || 0).toFixed(2); }
+
+    function fundOptions(selected) {
+        var html = '<option value="">' + {{ Js::from(__('-- select fund --')) }} + '</option>';
+        budgets.forEach(function (b) {
+            var label = b.fund_name + ' (' + b.budget_code + ')';
+            var sel = (b.budget_code === selected) ? ' selected' : '';
+            html += '<option value="' + b.budget_code + '"' + sel + '>' + label + '</option>';
+        });
+        return html;
+    }
+
+    function addRow(fundCode, amount) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td><select class="form-select form-select-sm acq-split-fund">' + fundOptions(fundCode || '') + '</select></td>' +
+            '<td><input type="number" step="0.01" min="0" class="form-control form-control-sm text-end acq-split-amount" value="' + (amount != null ? fmt(amount) : '') + '"></td>' +
+            '<td><button type="button" class="btn btn-sm btn-outline-danger acq-split-remove"><i class="fas fa-times"></i></button></td>';
+        tbody.appendChild(tr);
+        recalc();
+    }
+
+    function recalc() {
+        var sum = 0;
+        tbody.querySelectorAll('.acq-split-amount').forEach(function (i) { sum += Number(i.value) || 0; });
+        modalEl.querySelector('#acqSplitAllocated').textContent = fmt(sum);
+        var bal = lineTotal - sum;
+        modalEl.querySelector('#acqSplitBalance').textContent = fmt(bal);
+        var badge = modalEl.querySelector('#acqSplitBalanceBadge');
+        badge.className = 'badge ms-1 ' + (Math.abs(bal) < 0.005 ? 'bg-success' : 'bg-warning');
+    }
+
+    tbody.addEventListener('input', function (e) {
+        if (e.target.classList.contains('acq-split-amount')) { recalc(); }
+    });
+    tbody.addEventListener('click', function (e) {
+        var btn = e.target.closest('.acq-split-remove');
+        if (btn) { btn.closest('tr').remove(); recalc(); }
+    });
+    modalEl.querySelector('#acqSplitAddRow').addEventListener('click', function () { addRow('', null); });
+
+    function showError(msg) {
+        var box = modalEl.querySelector('#acqSplitError');
+        box.textContent = msg;
+        box.classList.remove('d-none');
+    }
+    function clearError() {
+        modalEl.querySelector('#acqSplitError').classList.add('d-none');
+    }
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.acq-split-btn');
+        if (!btn) { return; }
+        currentLineId = btn.getAttribute('data-line-id');
+        lineTotal = Number(btn.getAttribute('data-line-total')) || 0;
+        clearError();
+        tbody.innerHTML = '';
+        modalEl.querySelector('#acqSplitLineTitle').textContent = btn.getAttribute('data-line-title') || '';
+        modalEl.querySelector('#acqSplitLineTotal').textContent = fmt(lineTotal);
+
+        fetch('{{ url('/library-manage/acquisition/order') }}/' + orderId + '/line/' + currentLineId + '/funds', {
+            headers: { 'Accept': 'application/json' }
+        }).then(function (r) { return r.json(); }).then(function (data) {
+            budgets = data.budgets || [];
+            if (data.splits && data.splits.length) {
+                data.splits.forEach(function (s) { addRow(s.fund_code, s.amount); });
+            } else {
+                addRow('', null);
+            }
+            recalc();
+            modal.show();
+        }).catch(function () { showError({{ Js::from(__('Could not load fund data.')) }}); modal.show(); });
+    });
+
+    modalEl.querySelector('#acqSplitSave').addEventListener('click', function () {
+        clearError();
+        var splits = [];
+        tbody.querySelectorAll('tr').forEach(function (tr) {
+            var code = tr.querySelector('.acq-split-fund').value;
+            var amt = tr.querySelector('.acq-split-amount').value;
+            if (code !== '' || (amt !== '' && Number(amt) !== 0)) {
+                splits.push({ fund_code: code, amount: amt === '' ? 0 : Number(amt) });
+            }
+        });
+
+        fetch('{{ url('/library-manage/acquisition/order') }}/' + orderId + '/line/' + currentLineId + '/funds', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+            body: JSON.stringify({ splits: splits })
+        }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+          .then(function (res) {
+            if (!res.ok || !res.body.success) {
+                showError(res.body.error || {{ Js::from(__('Save failed.')) }});
+                return;
+            }
+            modal.hide();
+            window.location.reload();
+        }).catch(function () { showError({{ Js::from(__('Save failed.')) }}); });
+    });
+})();
+</script>
 @endsection

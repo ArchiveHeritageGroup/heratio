@@ -366,13 +366,35 @@ class LibraryAcquisitionService
     }
 
     /**
-     * Refresh the committed/spent totals on whatever budget an order is linked to.
+     * Refresh the committed/spent totals on every budget an order touches:
+     * the order's own budget_code (legacy single-fund lines) PLUS every
+     * fund_code referenced by split rows on this order's lines (#1311).
      */
     protected function recalculateBudgetForOrder(int $orderId): void
     {
+        $codes = [];
+
         $code = DB::table('library_order')->where('id', $orderId)->value('budget_code');
         if ($code) {
-            $this->recalculateBudgetByCode($code);
+            $codes[$code] = true;
+        }
+
+        if ($this->hasFundSplitTable()) {
+            $splitCodes = DB::table('library_order_line_fund as f')
+                ->join('library_order_line as l', 'l.id', '=', 'f.order_line_id')
+                ->where('l.order_id', $orderId)
+                ->distinct()
+                ->pluck('f.fund_code')
+                ->all();
+            foreach ($splitCodes as $c) {
+                if ($c) {
+                    $codes[$c] = true;
+                }
+            }
+        }
+
+        foreach (array_keys($codes) as $c) {
+            $this->recalculateBudgetByCode($c);
         }
     }
 
@@ -439,9 +461,24 @@ class LibraryAcquisitionService
         }
         $orderId = (int) $line->order_id;
 
+        // Capture split fund codes before deletion so their budgets refresh.
+        $splitCodes = [];
+        foreach ($this->getLineFundSplits($lineId) as $s) {
+            if ($s->fund_code) {
+                $splitCodes[$s->fund_code] = true;
+            }
+        }
+
         DB::table('library_order_line')->where('id', $lineId)->delete();
+        if ($this->hasFundSplitTable()) {
+            DB::table('library_order_line_fund')->where('order_line_id', $lineId)->delete();
+        }
+
         $this->recalculateOrderTotals($orderId);
         $this->recalculateBudgetForOrder($orderId);
+        foreach (array_keys($splitCodes) as $c) {
+            $this->recalculateBudgetByCode($c);
+        }
 
         return true;
     }
@@ -714,6 +751,17 @@ class LibraryAcquisitionService
     /**
      * Recalculate spent + committed for a budget by its code.
      * Called after every order/receive/cancel action.
+     *
+     * Multi-fund splitting (#1311): a budget's committed/spent now aggregate
+     * two disjoint sources:
+     *   1. Single-fund (legacy) lines whose order.budget_code is this $code AND
+     *      which have NO rows in library_order_line_fund - the whole line_total
+     *      charges here, exactly as before (fast path, behaviour unchanged).
+     *   2. Split portions in library_order_line_fund whose fund_code is this
+     *      $code - each portion's `amount` charges here regardless of which
+     *      order.budget_code the parent line carries.
+     * A line that has split rows is excluded from source (1) so its value is
+     * never double-counted.
      */
     public function recalculateBudgetByCode(string $code): void
     {
@@ -722,23 +770,213 @@ class LibraryAcquisitionService
             return;
         }
 
-        $spent = (float) DB::table('library_order_line as l')
+        $hasSplitTable = $this->hasFundSplitTable();
+
+        // ── Source 1: legacy single-fund lines (no split rows) ────────────────
+        $spentQ = DB::table('library_order_line as l')
             ->join('library_order as o', 'o.id', '=', 'l.order_id')
             ->where('o.budget_code', $code)
             ->whereIn('o.status', ['ordered', 'partial', 'received'])
-            ->where('l.status', 'received')
-            ->sum('l.line_total');
+            ->where('l.status', 'received');
 
-        $committed = (float) DB::table('library_order_line as l')
+        $committedQ = DB::table('library_order_line as l')
             ->join('library_order as o', 'o.id', '=', 'l.order_id')
             ->where('o.budget_code', $code)
-            ->whereNotIn('o.status', ['cancelled'])
-            ->sum('l.line_total');
+            ->whereNotIn('o.status', ['cancelled']);
+
+        if ($hasSplitTable) {
+            $spentQ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('library_order_line_fund as f')
+                    ->whereColumn('f.order_line_id', 'l.id');
+            });
+            $committedQ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('library_order_line_fund as f')
+                    ->whereColumn('f.order_line_id', 'l.id');
+            });
+        }
+
+        $spent     = (float) $spentQ->sum('l.line_total');
+        $committed = (float) $committedQ->sum('l.line_total');
+
+        // ── Source 2: split portions charged directly to this fund_code ───────
+        if ($hasSplitTable) {
+            $spent += (float) DB::table('library_order_line_fund as f')
+                ->join('library_order_line as l', 'l.id', '=', 'f.order_line_id')
+                ->join('library_order as o', 'o.id', '=', 'l.order_id')
+                ->where('f.fund_code', $code)
+                ->whereIn('o.status', ['ordered', 'partial', 'received'])
+                ->where('l.status', 'received')
+                ->sum('f.amount');
+
+            $committed += (float) DB::table('library_order_line_fund as f')
+                ->join('library_order_line as l', 'l.id', '=', 'f.order_line_id')
+                ->join('library_order as o', 'o.id', '=', 'l.order_id')
+                ->where('f.fund_code', $code)
+                ->whereNotIn('o.status', ['cancelled'])
+                ->sum('f.amount');
+        }
 
         DB::table('library_budget')->where('id', $budget->id)->update([
             'spent_amount'     => $spent,
             'committed_amount' => $committed,
             'updated_at'       => now(),
         ]);
+    }
+
+    // ── Multi-fund line splitting (#1311) ────────────────────────────────────
+
+    /**
+     * Whether the split junction table is present (graceful on minimal installs).
+     */
+    protected function hasFundSplitTable(): bool
+    {
+        static $cached = null;
+        if ($cached === null) {
+            try {
+                $cached = \Schema::hasTable('library_order_line_fund');
+            } catch (\Throwable) {
+                $cached = false;
+            }
+        }
+        return $cached;
+    }
+
+    /**
+     * Return the fund-split portions for an order line, oldest first.
+     * Empty array means the line uses the legacy single fund_code path.
+     */
+    public function getLineFundSplits(int $lineId): array
+    {
+        if (!$this->hasFundSplitTable()) {
+            return [];
+        }
+        return DB::table('library_order_line_fund')
+            ->where('order_line_id', $lineId)
+            ->orderBy('id')
+            ->get()
+            ->all();
+    }
+
+    /**
+     * Validate that supplied splits sum to the line's line_total (to the cent).
+     *
+     * $splits is a list of ['fund_code' => string, 'amount' => numeric].
+     * Returns null when valid, otherwise a human-readable error string.
+     */
+    public function validateLineFundSplits(int $lineId, array $splits): ?string
+    {
+        $line = $this->getLine($lineId);
+        if (!$line) {
+            return 'Order line not found.';
+        }
+
+        // An empty set is valid: it clears the split and reverts to single-fund.
+        if (empty($splits)) {
+            return null;
+        }
+
+        $sum = 0.0;
+        foreach ($splits as $i => $s) {
+            $code = trim((string) ($s['fund_code'] ?? ''));
+            if ($code === '') {
+                return 'Fund code is required on every split row.';
+            }
+            if (!$this->getBudgetByCode($code)) {
+                return "Unknown fund code '{$code}'.";
+            }
+            $amount = (float) ($s['amount'] ?? 0);
+            if ($amount < 0) {
+                return 'Split amounts cannot be negative.';
+            }
+            $sum += $amount;
+        }
+
+        $lineTotal = (float) $line->line_total;
+        // Compare to the cent to tolerate float representation noise.
+        if (round($sum, 2) !== round($lineTotal, 2)) {
+            return sprintf(
+                'Fund splits must sum to the line total (%.2f) but sum to %.2f.',
+                $lineTotal,
+                $sum
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * Persist the fund-split portions for a line, replacing any existing rows.
+     *
+     * Validates the sum against line_total first; on failure nothing is written
+     * and the error string is returned. On success returns null and refreshes
+     * every affected budget (old + new fund codes, plus the order's budget_code).
+     *
+     * Passing an empty $splits clears the split and reverts to the single
+     * fund_code stored on the line.
+     */
+    public function saveLineFundSplits(int $lineId, array $splits): ?string
+    {
+        if (!$this->hasFundSplitTable()) {
+            return 'Multi-fund splitting is not available on this installation.';
+        }
+
+        $line = $this->getLine($lineId);
+        if (!$line) {
+            return 'Order line not found.';
+        }
+
+        // Normalise: drop empty rows (blank fund_code AND zero amount).
+        $clean = [];
+        foreach ($splits as $s) {
+            $code   = trim((string) ($s['fund_code'] ?? ''));
+            $amount = (float) ($s['amount'] ?? 0);
+            if ($code === '' && $amount == 0.0) {
+                continue;
+            }
+            $clean[] = ['fund_code' => $code, 'amount' => $amount];
+        }
+
+        $error = $this->validateLineFundSplits($lineId, $clean);
+        if ($error !== null) {
+            return $error;
+        }
+
+        // Capture fund codes touched before and after so every budget refreshes.
+        $affectedCodes = [];
+        foreach ($this->getLineFundSplits($lineId) as $old) {
+            $affectedCodes[$old->fund_code] = true;
+        }
+
+        DB::transaction(function () use ($lineId, $clean, &$affectedCodes) {
+            DB::table('library_order_line_fund')->where('order_line_id', $lineId)->delete();
+            $now = now();
+            foreach ($clean as $s) {
+                DB::table('library_order_line_fund')->insert([
+                    'order_line_id' => $lineId,
+                    'fund_code'     => $s['fund_code'],
+                    'amount'        => $s['amount'],
+                    'created_at'    => $now,
+                ]);
+                $affectedCodes[$s['fund_code']] = true;
+            }
+        });
+
+        // The order's own budget_code may now lose this line's value (it moved
+        // to splits), so refresh it too.
+        if (!empty($line->budget_code)) {
+            $affectedCodes[$line->budget_code] = true;
+        }
+        $orderBudget = DB::table('library_order')->where('id', $line->order_id)->value('budget_code');
+        if ($orderBudget) {
+            $affectedCodes[$orderBudget] = true;
+        }
+
+        foreach (array_keys($affectedCodes) as $code) {
+            $this->recalculateBudgetByCode($code);
+        }
+
+        return null;
     }
 }

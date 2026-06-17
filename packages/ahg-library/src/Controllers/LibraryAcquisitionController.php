@@ -314,6 +314,98 @@ class LibraryAcquisitionController extends Controller
         ]);
     }
 
+    // ── Multi-fund line splitting (#1311) ─────────────────────────────────────
+
+    /**
+     * GET /acquisition/order/{id}/line/{lineId}/funds
+     * Returns the current split portions for a line plus the budgets available
+     * for the order's fiscal year (so the UI can build the fund_code select).
+     */
+    public function lineFunds(int $id, int $lineId): JsonResponse
+    {
+        $order = $this->acq->getOrder($id);
+        if (!$order) {
+            return response()->json(['error' => 'Order not found.'], 404);
+        }
+
+        $line = $this->acq->getLine($lineId);
+        if (!$line || (int) $line->order_id !== $id) {
+            return response()->json(['error' => 'Line not found.'], 404);
+        }
+
+        return response()->json([
+            'success'    => true,
+            'line_id'    => $lineId,
+            'line_total' => (float) $line->line_total,
+            'splits'     => $this->acq->getLineFundSplits($lineId),
+            'budgets'    => $this->budgetsForOrder($order),
+        ]);
+    }
+
+    /**
+     * PUT /acquisition/order/{id}/line/{lineId}/funds
+     * Persist the fund-split portions for a line. The service validates that
+     * the portions sum to the line total before writing anything.
+     */
+    public function saveLineFunds(Request $request, int $id, int $lineId): JsonResponse
+    {
+        $order = $this->acq->getOrder($id);
+        if (!$order) {
+            return response()->json(['error' => 'Order not found.'], 404);
+        }
+
+        $line = $this->acq->getLine($lineId);
+        if (!$line || (int) $line->order_id !== $id) {
+            return response()->json(['error' => 'Line not found.'], 404);
+        }
+
+        if (in_array($order->status, ['received', 'cancelled'])) {
+            return response()->json(['error' => 'Cannot edit fund splits on a received or cancelled order.'], 422);
+        }
+
+        $validated = $request->validate([
+            'splits'             => ['present', 'array'],
+            'splits.*.fund_code' => ['nullable', 'string', 'max:50'],
+            'splits.*.amount'    => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
+        ]);
+
+        $error = $this->acq->saveLineFundSplits($lineId, $validated['splits'] ?? []);
+        if ($error !== null) {
+            return response()->json(['success' => false, 'error' => $error], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'splits'  => $this->acq->getLineFundSplits($lineId),
+            'order'   => $this->acq->getOrder($id),
+        ]);
+    }
+
+    /**
+     * Budgets eligible for an order's funds: matched to the order's fiscal year
+     * when the order_date is known, otherwise all active budgets.
+     */
+    protected function budgetsForOrder(object $order): array
+    {
+        $year = null;
+        if (!empty($order->order_date)) {
+            $year = substr((string) $order->order_date, 0, 4);
+        }
+
+        $budgets = collect($this->acq->listBudgets($year ? ['fiscal_year' => $year] : []));
+
+        // Fall back to all budgets if the fiscal-year filter yields nothing.
+        if ($budgets->isEmpty()) {
+            $budgets = collect($this->acq->listBudgets());
+        }
+
+        return $budgets->map(fn($b) => [
+            'budget_code' => $b->budget_code,
+            'fund_name'   => $b->fund_name,
+            'fiscal_year' => $b->fiscal_year,
+        ])->values()->all();
+    }
+
     // ── Budget CRUD ─────────────────────────────────────────────────────────
 
     public function budgets(): View
