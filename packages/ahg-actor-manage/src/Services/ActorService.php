@@ -815,7 +815,8 @@ class ActorService
                 'culture' => $this->culture,
                 'authorized_form_of_name' => $data['authorized_form_of_name'] ?? null,
                 'dates_of_existence' => $data['dates_of_existence'] ?? null,
-                'history' => $data['history'] ?? null,
+                // #1309: history is rendered raw ({!! !!}) in actor search results; sanitize on save.
+                'history' => \AhgCore\Support\HtmlSanitizer::clean($data['history'] ?? null),
                 'places' => $data['places'] ?? null,
                 'legal_status' => $data['legal_status'] ?? null,
                 'functions' => $data['functions'] ?? null,
@@ -911,6 +912,10 @@ class ActorService
                 if (array_key_exists($field, $data)) {
                     $i18nData[$field] = $data[$field];
                 }
+            }
+            // #1309: history is rendered raw in actor search results; sanitize on save.
+            if (array_key_exists('history', $i18nData)) {
+                $i18nData['history'] = \AhgCore\Support\HtmlSanitizer::clean($i18nData['history']);
             }
             if (! empty($i18nData)) {
                 // Issue #61 Phase 3c: snapshot before, run update, detect overrides.

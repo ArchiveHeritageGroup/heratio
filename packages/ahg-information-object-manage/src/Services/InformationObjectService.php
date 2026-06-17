@@ -289,6 +289,8 @@ class InformationObjectService
             foreach (self::$i18nFields as $field) {
                 $i18nData[$field] = $data[$field] ?? null;
             }
+            // #1309: scope_and_content is rendered raw in browse/search snippets; sanitize on save.
+            $i18nData['scope_and_content'] = \AhgCore\Support\HtmlSanitizer::clean($i18nData['scope_and_content'] ?? null);
             DB::table('information_object_i18n')->insert($i18nData);
 
             // 5. Generate slug. permissive_slug_creation controls whether
@@ -460,6 +462,10 @@ class InformationObjectService
                 if (array_key_exists($field, $data)) {
                     $i18nUpdate[$field] = $data[$field];
                 }
+            }
+            // #1309: scope_and_content is rendered raw in browse/search snippets; sanitize on save.
+            if (array_key_exists('scope_and_content', $i18nUpdate)) {
+                $i18nUpdate['scope_and_content'] = \AhgCore\Support\HtmlSanitizer::clean($i18nUpdate['scope_and_content']);
             }
 
             // #74 encryption_field_access_restrictions: encrypt the two
