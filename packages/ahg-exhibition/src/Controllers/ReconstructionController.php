@@ -84,6 +84,8 @@ class ReconstructionController extends Controller
             'stagesByRecon' => $stagesByRecon,
             'styleByRecon' => $styleByRecon,
             'styleOptions' => $this->styleOptions(),
+            // heratio#1206 - fixed picklists for the optional evidence-layer annotator.
+            'metadataOptions' => app(\AhgExhibition\Services\ReconstructionMetadataService::class)->options(),
         ]);
     }
 
@@ -358,6 +360,62 @@ class ReconstructionController extends Controller
             ->with('success', __('Montage style updated.'));
     }
 
+    // ------------------------------------------------------------------------
+    // heratio#1206 - optional AI "evidence layer" annotator. annotateStage()
+    // returns an AI SUGGESTION (AJAX) the curator reviews; saveStageMetadata()
+    // persists the curator-confirmed JSON. Both are admin-gated at the route.
+    // The AI call routes through the AHG gateway (LlmService) and fails soft.
+    // ------------------------------------------------------------------------
+
+    /**
+     * Admin (AJAX): ask the AI to suggest evidence-layer metadata for a stage from its
+     * caption / body text. Always returns 200 JSON: {ok, metadata?} or {ok:false, error}
+     * so the front end can show the suggestion or a friendly message - never a 500.
+     */
+    public function annotateStage(Request $request, int $id, int $stageId)
+    {
+        $stage = $this->reconstructions->getStage($stageId);
+        if (! $stage || (int) $stage->reconstruction_id !== $id) {
+            return response()->json(['ok' => false, 'error' => __('That rebuild stage could not be found.')], 404);
+        }
+
+        $result = app(\AhgExhibition\Services\ReconstructionMetadataService::class)->suggest($stage);
+
+        if (! ($result['ok'] ?? false)) {
+            return response()->json(['ok' => false, 'error' => $result['error'] ?? __('No suggestion available.')]);
+        }
+
+        return response()->json(['ok' => true, 'metadata' => $result['metadata']]);
+    }
+
+    /**
+     * Admin: persist the curator-confirmed evidence-layer metadata for a stage. The
+     * submitted values are normalised + enum-constrained by the metadata service; an
+     * empty set clears the metadata. Additive - never touches the montage behaviour.
+     */
+    public function saveStageMetadata(Request $request, int $id, int $stageId)
+    {
+        $stage = $this->reconstructions->getStage($stageId);
+        if (! $stage || (int) $stage->reconstruction_id !== $id) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'date_estimate' => ['nullable', 'string', 'max:120'],
+            'evidence_type' => ['nullable', 'string', 'max:64'],
+            'confidence' => ['nullable', 'string', 'max:32'],
+            'source_credibility' => ['nullable', 'string', 'max:32'],
+            'rationale' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $metadata = app(\AhgExhibition\Services\ReconstructionMetadataService::class)->normalise($data);
+        $this->reconstructions->saveStageMetadata($stageId, $metadata);
+
+        return redirect()
+            ->route('exhibition-space.reconstructions.manage')
+            ->with('success', $metadata === null ? __('Evidence metadata cleared.') : __('Evidence metadata saved.'));
+    }
+
     /**
      * Normalise stage rows for the player/admin: resolve each layer's display URL
      * (uploaded image streamed via the route; else the external image_url) and a
@@ -374,6 +432,17 @@ class ReconstructionController extends Controller
                 $src = $s->image_url;
             }
 
+            // heratio#1206 - decode the optional curator-confirmed evidence-layer
+            // metadata JSON so the admin form + the player can read it. Null / absent
+            // / malformed -> null (the stage simply shows no evidence layer).
+            $metadata = null;
+            if (! empty($s->metadata)) {
+                $decoded = is_array($s->metadata) ? $s->metadata : json_decode((string) $s->metadata, true);
+                if (is_array($decoded) && $decoded !== []) {
+                    $metadata = $decoded;
+                }
+            }
+
             $out[] = (object) [
                 'id' => $s->id ?? null,
                 'caption' => $s->caption ?? null,
@@ -383,6 +452,7 @@ class ReconstructionController extends Controller
                 'opacity' => isset($s->opacity) ? max(0.0, min(1.0, (float) $s->opacity)) : 1.0,
                 'has_upload' => ! empty($s->image_path),
                 'image_url' => $s->image_url ?? null,
+                'metadata' => $metadata,
             ];
         }
 

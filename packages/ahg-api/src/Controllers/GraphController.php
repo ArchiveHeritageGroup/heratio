@@ -166,6 +166,86 @@ class GraphController extends Controller
     }
 
     /**
+     * GET /api/v1/graph/{idOrSlug}/federated
+     *
+     * LIVE cross-peer graph aggregation (Federation Query Protocol, north-star
+     * #1204). Returns the local record's graph neighbourhood merged with the
+     * SAME record's neighbourhood fetched live from every active federation
+     * peer's Open Memory Protocol endpoint. Each node carries a `source_peer`
+     * (null = local) so provenance is preserved, and a `federation` block
+     * reports the peers queried, per-peer node counts, and any warnings.
+     *
+     * Delegates to ahg-federation's FederationGraphService, which mirrors
+     * FederatedSearchService's curl_multi parallel-fetch + SSRF guard. It fails
+     * soft: a dead peer or zero peers yields just the local graph + warnings,
+     * never a 500. If ahg-federation is absent the response degrades to the
+     * plain local graph with a warning. Open data; permissive CORS; JSON-LD.
+     */
+    public function federated(Request $request, string $idOrSlug): Response
+    {
+        $serviceClass = \AhgFederation\Services\FederationGraphService::class;
+
+        if (! class_exists($serviceClass)) {
+            // ahg-federation not installed: degrade to the local graph so the
+            // endpoint never hard-fails on a slimmer install.
+            $objectId = is_numeric($idOrSlug)
+                ? (int) $idOrSlug
+                : (int) DB::table('slug')->where('slug', $idOrSlug)->value('object_id');
+
+            $node = $objectId ? $this->loadNode($objectId) : null;
+            if (! $node) {
+                return $this->notFound($idOrSlug, 'application/ld+json');
+            }
+
+            $graph = $this->buildGraph($node);
+            $graph['federation'] = [
+                'mode'          => 'live',
+                'reference'     => $idOrSlug,
+                'peers_queried' => 0,
+                'peers'         => [],
+                'warnings'      => ['Federation is not installed; returning the local graph only.'],
+            ];
+
+            $body = json_encode($graph, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+            return $this->withCors(
+                response($body, 200, ['Content-Type' => 'application/ld+json; charset=utf-8'])
+            );
+        }
+
+        try {
+            /** @var \AhgFederation\Services\FederationGraphService $svc */
+            $svc = app($serviceClass);
+            $aggregated = $svc->aggregate($idOrSlug);
+        } catch (\Throwable $e) {
+            // Last-resort fail-soft: never 500. Fall back to the local graph.
+            $objectId = is_numeric($idOrSlug)
+                ? (int) $idOrSlug
+                : (int) DB::table('slug')->where('slug', $idOrSlug)->value('object_id');
+
+            $node = $objectId ? $this->loadNode($objectId) : null;
+            if (! $node) {
+                return $this->notFound($idOrSlug, 'application/ld+json');
+            }
+
+            $aggregated = $this->buildGraph($node);
+            $aggregated['federation'] = [
+                'mode'          => 'live',
+                'reference'     => $idOrSlug,
+                'peers_queried' => 0,
+                'peers'         => [],
+                'warnings'      => ['Federation aggregation failed: ' . $e->getMessage()],
+            ];
+        }
+
+        $body = json_encode($aggregated, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return $this->withCors(
+            response($body, 200, ['Content-Type' => 'application/ld+json; charset=utf-8'])
+        );
+    }
+
+    /**
      * OPTIONS preflight for the open endpoint.
      */
     public function options(): Response

@@ -170,6 +170,19 @@ Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(funct
     Route::get('dataset.jsonld', [DatasetController::class, 'jsonld'])
         ->name('api.v1.dataset.jsonld');
 
+    // Federation Query Protocol (north-star #1204): LIVE cross-peer graph
+    // aggregation for one record. Two-segment-after-graph path
+    // ("graph/{idOrSlug}/federated"), so the single-segment {idOrSlug}
+    // wildcard below (constraint '[A-Za-z0-9\-_]+', no slash) can NEVER
+    // capture it; registered BEFORE the wildcard regardless, for clarity.
+    // {idOrSlug} is constrained to the id/slug grammar so "federated" can only
+    // ever be the literal trailing segment, never absorbed into the ref.
+    Route::options('graph/{idOrSlug}/federated', [GraphController::class, 'options'])
+        ->where('idOrSlug', '[A-Za-z0-9\-_]+');
+    Route::get('graph/{idOrSlug}/federated', [GraphController::class, 'federated'])
+        ->where('idOrSlug', '[A-Za-z0-9\-_]+')
+        ->name('api.v1.graph.federated');
+
     // Per-entity endpoint, with optional .jsonld/.ttl/.rdf suffix. The
     // wildcard is constrained to an id/slug grammar so it never swallows the
     // literals above.

@@ -215,6 +215,22 @@ class ReconstructionService
         DB::table('ahg_reconstruction_stage')->where('id', $stageId)->update($update);
     }
 
+    /**
+     * heratio#1206 - persist the curator-confirmed AI evidence-layer metadata for a
+     * stage as JSON (or clear it with null). No-op when the optional metadata column
+     * has not been added yet, so the annotator is purely additive.
+     */
+    public function saveStageMetadata(int $stageId, ?array $metadata): void
+    {
+        if (! Schema::hasColumn('ahg_reconstruction_stage', 'metadata')) {
+            return;
+        }
+        DB::table('ahg_reconstruction_stage')->where('id', $stageId)->update([
+            'metadata' => $metadata !== null && $metadata !== [] ? json_encode($metadata) : null,
+            'updated_at' => now(),
+        ]);
+    }
+
     /** Delete a single stage (and best-effort remove its uploaded image). */
     public function deleteStage(int $stageId): void
     {

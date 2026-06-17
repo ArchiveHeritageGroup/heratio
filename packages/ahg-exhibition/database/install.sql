@@ -523,6 +523,7 @@ CREATE TABLE IF NOT EXISTS ahg_reconstruction_stage (
     image_path VARCHAR(1024) NULL COMMENT 'uploaded evidence image, stored path (served via reconstruction.stage.image)',
     image_url VARCHAR(1024) NULL COMMENT 'external / bundled asset URL',
     opacity DECIMAL(4,2) NOT NULL DEFAULT 1.00 COMMENT 'layer translucency in the Assembly stack (0.00-1.00)',
+    metadata JSON NULL COMMENT 'heratio#1206 - optional curator-confirmed AI evidence-layer metadata (date estimate, evidence type, confidence, source credibility)',
     created_at DATETIME NULL,
     updated_at DATETIME NULL,
     INDEX idx_recon_order (reconstruction_id, sort_order)

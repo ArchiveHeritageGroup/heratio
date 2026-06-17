@@ -384,6 +384,15 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                 )');
             }
 
+            // heratio#1206 - optional AI "evidence layer" annotator: a nullable JSON
+            // column holding the curator-confirmed structured provenance metadata for
+            // a stage (date estimate, evidence type, confidence, source credibility).
+            // Additive + optional - the montage works unchanged when it is null.
+            if (Schema::hasTable('ahg_reconstruction_stage')
+                && ! Schema::hasColumn('ahg_reconstruction_stage', 'metadata')) {
+                DB::statement('ALTER TABLE ahg_reconstruction_stage ADD COLUMN metadata JSON NULL');
+            }
+
             // Seed the montage-style dropdown so the admin select reads from the
             // Dropdown Manager (no hardcoded option list). INSERT IGNORE keeps it
             // idempotent across boots.

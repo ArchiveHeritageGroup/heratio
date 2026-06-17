@@ -162,6 +162,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/admin/reconstructions/{id}/stages/{stageId}', [ReconstructionController::class, 'deleteStage'])->name('exhibition-space.reconstructions.stages.delete')->middleware('acl:delete')->whereNumber('id')->whereNumber('stageId');
     Route::post('/admin/reconstructions/{id}/stages/reorder', [ReconstructionController::class, 'reorderStages'])->name('exhibition-space.reconstructions.stages.reorder')->middleware('acl:update')->whereNumber('id');
     Route::post('/admin/reconstructions/{id}/style', [ReconstructionController::class, 'setStyle'])->name('exhibition-space.reconstructions.style')->middleware('acl:update')->whereNumber('id');
+
+    // heratio#1206 - optional AI "evidence layer" annotator. annotate = AI suggestion
+    // (AJAX, read-only, acl:read); metadata = persist the curator-confirmed JSON.
+    Route::post('/admin/reconstructions/{id}/stages/{stageId}/annotate', [ReconstructionController::class, 'annotateStage'])->name('exhibition-space.reconstructions.stages.annotate')->middleware('acl:read')->whereNumber('id')->whereNumber('stageId');
+    Route::post('/admin/reconstructions/{id}/stages/{stageId}/metadata', [ReconstructionController::class, 'saveStageMetadata'])->name('exhibition-space.reconstructions.stages.metadata')->middleware('acl:update')->whereNumber('id')->whereNumber('stageId');
 });
 
 // heratio#1192 - live virtual openings: PUBLIC tokenised event page + RSVP (no login;

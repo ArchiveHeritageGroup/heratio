@@ -206,6 +206,31 @@
               </button>
             </form>
 
+            {{-- heratio#1206 - optional AI evidence-layer annotator, one panel per stage. --}}
+            <div class="accordion accordion-flush recon-meta-accordion mb-2" id="reconMeta-{{ $r->id }}">
+              @foreach($stages as $s)
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed py-2 small" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#reconMetaBody-{{ $s->id }}"
+                            aria-expanded="false" aria-controls="reconMetaBody-{{ $s->id }}">
+                      <i class="fas fa-flask me-2"></i>
+                      {{ __('Evidence layer') }}: {{ $s->caption ?: __('Stage') }} #{{ $s->id }}
+                      @if(!empty($s->metadata))
+                        <span class="badge bg-info-subtle text-info-emphasis ms-2">{{ __('annotated') }}</span>
+                      @endif
+                    </button>
+                  </h2>
+                  <div id="reconMetaBody-{{ $s->id }}" class="accordion-collapse collapse"
+                       data-bs-parent="#reconMeta-{{ $r->id }}">
+                    <div class="accordion-body py-2">
+                      @include('ahg-exhibition::reconstruction._stage-metadata-form', ['r' => $r, 's' => $s, 'metadataOptions' => $metadataOptions])
+                    </div>
+                  </div>
+                </div>
+              @endforeach
+            </div>
+
             {{-- Per-stage edit + delete forms (referenced by the table inputs above) --}}
             @foreach($stages as $s)
               <form id="stage-edit-{{ $s->id }}" method="POST"
@@ -273,4 +298,57 @@
       </div>
     @endforeach
   @endif
+
+  {{-- heratio#1206 - "Suggest with AI" handler for the evidence-layer panels.
+       Calls the annotate route (gateway-backed) and fills the form fields with the
+       suggestion for the curator to review. Fail-soft: any error shows inline. --}}
+  <script nonce="{{ $cspNonce ?? '' }}">
+  (function () {
+    'use strict';
+    var CSRF = '{{ csrf_token() }}';
+
+    function setVal(el, sel, val) {
+      var f = el.querySelector(sel);
+      if (f && typeof val !== 'undefined' && val !== null) { f.value = String(val); }
+    }
+
+    document.querySelectorAll('.recon-meta-suggest').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var form = btn.closest('.recon-meta-form');
+        if (!form) { return; }
+        var url = form.getAttribute('data-annotate-url');
+        var msg = form.querySelector('.recon-meta-msg');
+        var original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Thinking...') }}';
+        if (msg) { msg.classList.add('d-none'); msg.textContent = ''; }
+
+        fetch(url, {
+          method: 'POST',
+          headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+        })
+        .then(function (r) { return r.json().catch(function () { return { ok: false, error: '{{ __('Unexpected response.') }}' }; }); })
+        .then(function (data) {
+          if (!data || !data.ok || !data.metadata) {
+            if (msg) { msg.textContent = (data && data.error) ? data.error : '{{ __('No suggestion available.') }}'; msg.classList.remove('d-none'); }
+            return;
+          }
+          var m = data.metadata;
+          setVal(form, '.recon-meta-date', m.date_estimate);
+          setVal(form, '.recon-meta-type', m.evidence_type);
+          setVal(form, '.recon-meta-conf', m.confidence);
+          setVal(form, '.recon-meta-cred', m.source_credibility);
+          setVal(form, '.recon-meta-why', m.rationale);
+        })
+        .catch(function () {
+          if (msg) { msg.textContent = '{{ __('The AI service could not be reached.') }}'; msg.classList.remove('d-none'); }
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.innerHTML = original;
+        });
+      });
+    });
+  })();
+  </script>
 @endsection

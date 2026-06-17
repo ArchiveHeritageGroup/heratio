@@ -223,6 +223,36 @@
               @if($s->body)
                 <div class="small text-muted">{{ $s->body }}</div>
               @endif
+              {{-- heratio#1206 - read-only evidence-layer metadata, when a curator
+                   has confirmed an AI-assisted assessment for this stage. --}}
+              @if(!empty($s->metadata))
+                @php $m = $s->metadata; @endphp
+                <div class="mt-1 d-flex flex-wrap gap-1 align-items-center recon-evidence">
+                  @if(!empty($m['date_estimate']))
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis" title="{{ __('Date estimate') }}">
+                      <i class="far fa-calendar me-1"></i>{{ $m['date_estimate'] }}
+                    </span>
+                  @endif
+                  @if(!empty($m['evidence_type']))
+                    <span class="badge bg-light text-dark border" title="{{ __('Evidence type') }}">
+                      {{ __(ucfirst(str_replace('_', ' ', $m['evidence_type']))) }}
+                    </span>
+                  @endif
+                  @if(!empty($m['confidence']))
+                    <span class="badge bg-light text-dark border" title="{{ __('Confidence') }}">
+                      {{ __('Confidence') }}: {{ __(ucfirst($m['confidence'])) }}
+                    </span>
+                  @endif
+                  @if(!empty($m['source_credibility']))
+                    <span class="badge bg-light text-dark border" title="{{ __('Source credibility') }}">
+                      {{ __('Source') }}: {{ __(ucfirst(str_replace('_', ' ', $m['source_credibility']))) }}
+                    </span>
+                  @endif
+                </div>
+                @if(!empty($m['rationale']))
+                  <div class="small text-muted fst-italic mt-1">{{ $m['rationale'] }}</div>
+                @endif
+              @endif
             </div>
           </li>
         @endforeach
