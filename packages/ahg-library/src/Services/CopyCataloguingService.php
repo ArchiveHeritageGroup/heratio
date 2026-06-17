@@ -185,6 +185,10 @@ class CopyCataloguingService
             'issn'  => $issn,
             'publisher' => $publisher,
             'publication_place' => $pubPlace,
+            // #1281: persist raw MARC control fields when the parse exposed them.
+            'marc_leader' => ($parsed['leader'] ?? '') !== '' ? $parsed['leader'] : null,
+            'marc_005' => ($parsed['control']['005'] ?? '') !== '' ? $parsed['control']['005'] : null,
+            'marc_008' => ($parsed['control']['008'] ?? '') !== '' ? $parsed['control']['008'] : null,
         ]);
     }
 

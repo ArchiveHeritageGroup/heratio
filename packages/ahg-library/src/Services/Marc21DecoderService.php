@@ -323,6 +323,10 @@ class Marc21DecoderService
             'call_number' => $callNumber,
             'classification_scheme' => $classScheme,
             'material_type' => $this->inferMaterialType($parsed),
+            // #1281: persist the raw MARC control fields we already parsed.
+            'marc_leader' => ($parsed['leader'] ?? '') !== '' ? $parsed['leader'] : null,
+            'marc_005' => ($control['005'] ?? '') !== '' ? $control['005'] : null,
+            'marc_008' => $c008 !== '' ? $c008 : null,
         ]);
     }
 

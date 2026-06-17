@@ -342,6 +342,12 @@ class LibraryService
                 'contents_note' => $data['contents_note'] ?? null,
                 'general_note' => $data['general_note'] ?? null,
                 'bibliography_note' => $data['bibliography_note'] ?? null,
+                // #1281: raw MARC control fields + FRBR override metadata.
+                'marc_leader' => $data['marc_leader'] ?? null,
+                'marc_005' => $data['marc_005'] ?? null,
+                'marc_008' => $data['marc_008'] ?? null,
+                'frbr_override_type' => $data['frbr_override_type'] ?? null,
+                'description' => $data['description'] ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
