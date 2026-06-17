@@ -85,6 +85,16 @@ class ScanInstallCommand extends Command
         $this->addColumn('scan_folder', 'notify_on_failure',
             'ALTER TABLE scan_folder ADD COLUMN notify_on_failure TINYINT(1) NOT NULL DEFAULT 0 AFTER notify_emails');
 
+        // #1281: per-folder path routing + provenance. processed_path / failed_path
+        // override the global config archive/quarantine dirs when set; created_by
+        // records the operator who registered the folder.
+        $this->addColumn('scan_folder', 'processed_path',
+            "ALTER TABLE scan_folder ADD COLUMN processed_path VARCHAR(1024) NULL COMMENT 'archive dir for successful files (default config heratio.scan.archive_path)' AFTER disposition_failure");
+        $this->addColumn('scan_folder', 'failed_path',
+            "ALTER TABLE scan_folder ADD COLUMN failed_path VARCHAR(1024) NULL COMMENT 'quarantine dir for failed files (default config heratio.scan.quarantine_path)' AFTER processed_path");
+        $this->addColumn('scan_folder', 'created_by',
+            'ALTER TABLE scan_folder ADD COLUMN created_by INT NULL AFTER updated_at');
+
         // P6: retry/backoff — track when we last attempted a file so the
         // scheduler can compute whether its next-attempt window has elapsed.
         $this->addColumn('ingest_file', 'last_attempt_at',
@@ -100,9 +110,12 @@ CREATE TABLE `scan_folder` (
   `ingest_session_id` INT NOT NULL,
   `disposition_success` VARCHAR(32) NOT NULL DEFAULT 'move',
   `disposition_failure` VARCHAR(32) NOT NULL DEFAULT 'quarantine',
+  `processed_path` VARCHAR(1024) NULL,
+  `failed_path` VARCHAR(1024) NULL,
   `min_quiet_seconds` INT NOT NULL DEFAULT 10,
   `enabled` TINYINT(1) NOT NULL DEFAULT 1,
   `last_scanned_at` DATETIME NULL,
+  `created_by` INT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -128,6 +141,29 @@ CREATE TABLE `scan_session_token` (
   KEY `ix_scan_token_session` (`ingest_session_id`),
   KEY `ix_scan_token_status` (`status`),
   KEY `ix_scan_token_expires` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL
+        );
+
+        // #1281: per-pass run-history log. One row per watched-folder scan pass,
+        // recording how many files were detected/enqueued/skipped/failed and the
+        // ingest_job opened for the pass. Drives the scan dashboard run history.
+        $this->createTable('scan_event', <<<'SQL'
+CREATE TABLE `scan_event` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `folder_id` INT NOT NULL,
+  `detected` INT NOT NULL DEFAULT 0,
+  `enqueued` INT NOT NULL DEFAULT 0,
+  `skipped_duplicate` INT NOT NULL DEFAULT 0,
+  `skipped_quiet` INT NOT NULL DEFAULT 0,
+  `failed` INT NOT NULL DEFAULT 0,
+  `job_id` INT NULL,
+  `status` VARCHAR(32) NOT NULL DEFAULT 'completed',
+  `message` TEXT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ix_scan_event_folder` (`folder_id`),
+  KEY `ix_scan_event_created` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL
         );

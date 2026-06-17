@@ -46,7 +46,8 @@ class ScanWatchCommand extends Command
             foreach ($list as $folder) {
                 $jobId = null;
                 try {
-                    $count = $this->scanOne($folder, $jobId);
+                    $stats = $this->scanOne($folder, $jobId);
+                    $count = $stats['enqueued'];
                     if ($count > 0) {
                         $this->info("[{$folder->code}] enqueued {$count} new file(s).");
                     }
@@ -54,6 +55,8 @@ class ScanWatchCommand extends Command
                     if ($jobId) {
                         $this->closeJob($folder, (int) $jobId);
                     }
+                    // #1281: per-pass run-history. 'idle' when nothing was on disk.
+                    $this->recordEvent($folder, $jobId, $stats, $stats['detected'] > 0 ? 'completed' : 'idle');
                 } catch (\Throwable $e) {
                     $this->error("[{$folder->code}] ".$e->getMessage());
                     if ($jobId) {
@@ -63,6 +66,7 @@ class ScanWatchCommand extends Command
                             'completed_at' => now(),
                         ]);
                     }
+                    $this->recordEvent($folder, $jobId, [], 'failed', $e->getMessage());
                 }
             }
 
@@ -74,7 +78,13 @@ class ScanWatchCommand extends Command
         return self::SUCCESS;
     }
 
-    protected function scanOne(object $folder, ?int &$jobId = null): int
+    /**
+     * Scan one folder once. Returns the per-pass counters consumed by the
+     * scan_event run-history log.
+     *
+     * @return array{detected:int,enqueued:int,skipped_duplicate:int,skipped_quiet:int,failed:int}
+     */
+    protected function scanOne(object $folder, ?int &$jobId = null): array
     {
         if (! is_dir($folder->path)) {
             throw new \RuntimeException("Watched path is not a directory: {$folder->path}");
@@ -83,6 +93,10 @@ class ScanWatchCommand extends Command
         $minQuiet = max(1, (int) $folder->min_quiet_seconds);
         $now = time();
         $enqueued = 0;
+        $detected = 0;
+        $skippedDuplicate = 0;
+        $skippedQuiet = 0;
+        $failed = 0;
         $jobId = null;
 
         $rii = new \RecursiveIteratorIterator(
@@ -112,8 +126,12 @@ class ScanWatchCommand extends Command
                 continue;
             }
 
+            // A genuine ingest candidate was seen on disk this pass.
+            $detected++;
+
             // Quiet-period check: file must be idle for min_quiet_seconds
             if (($now - $fileInfo->getMTime()) < $minQuiet) {
+                $skippedQuiet++;
                 continue;
             }
 
@@ -128,14 +146,17 @@ class ScanWatchCommand extends Command
                         $this->info("[{$folder->code}] BagIt: enqueued {$result['enqueued']} from {$fileInfo->getFilename()}{$wmsg}");
                     }
                     // Move the bag off so we don't re-process it next pass.
+                    // Honour the folder's processed_path override (#1281) when set.
                     if ($folder->disposition_success === 'move') {
-                        $archive = rtrim(config('heratio.scan.archive_path'), '/').'/'.date('Y/m');
+                        $base = ($folder->processed_path ?? null) ?: config('heratio.scan.archive_path');
+                        $archive = rtrim((string) $base, '/').'/'.date('Y/m');
                         if (! is_dir($archive)) {
                             @mkdir($archive, 0775, true);
                         }
                         @rename($full, $archive.'/'.basename($full));
                     }
                 } catch (\Throwable $e) {
+                    $failed++;
                     $this->warn("[{$folder->code}] BagIt ingest failed for {$fileInfo->getFilename()}: ".$e->getMessage());
                 }
 
@@ -152,6 +173,7 @@ class ScanWatchCommand extends Command
                 ->where('source_hash', $hash)
                 ->exists();
             if ($already) {
+                $skippedDuplicate++;
                 continue;
             }
 
@@ -187,7 +209,36 @@ class ScanWatchCommand extends Command
             $enqueued++;
         }
 
-        return $enqueued;
+        return [
+            'detected' => $detected,
+            'enqueued' => $enqueued,
+            'skipped_duplicate' => $skippedDuplicate,
+            'skipped_quiet' => $skippedQuiet,
+            'failed' => $failed,
+        ];
+    }
+
+    /**
+     * Write one scan_event run-history row for a completed (or failed) pass.
+     */
+    protected function recordEvent(object $folder, ?int $jobId, array $stats, string $status, ?string $message = null): void
+    {
+        try {
+            DB::table('scan_event')->insert([
+                'folder_id' => (int) $folder->id,
+                'detected' => (int) ($stats['detected'] ?? 0),
+                'enqueued' => (int) ($stats['enqueued'] ?? 0),
+                'skipped_duplicate' => (int) ($stats['skipped_duplicate'] ?? 0),
+                'skipped_quiet' => (int) ($stats['skipped_quiet'] ?? 0),
+                'failed' => (int) ($stats['failed'] ?? 0),
+                'job_id' => $jobId,
+                'status' => $status,
+                'message' => $message,
+                'created_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            // Run-history logging must never break the watch loop.
+        }
     }
 
     protected function classifyFile(string $path): string

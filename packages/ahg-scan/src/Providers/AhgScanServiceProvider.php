@@ -57,6 +57,8 @@ class AhgScanServiceProvider extends ServiceProvider
         $this->app->booted(function () {
             try {
                 if (! Schema::hasTable('scan_folder')
+                    || ! Schema::hasTable('scan_event')
+                    || (Schema::hasTable('scan_folder') && ! Schema::hasColumn('scan_folder', 'processed_path'))
                     || (Schema::hasTable('ahg_dropdown') && ! DB::table('ahg_dropdown')->where('taxonomy', 'scan_folder_layout')->exists())) {
                     \Illuminate\Support\Facades\Artisan::call('ahg:scan-install');
                 }

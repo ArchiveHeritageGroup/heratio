@@ -751,7 +751,9 @@ class ProcessScanFile implements ShouldQueue
 
         switch ($folder->disposition_success) {
             case 'move':
-                $archive = rtrim(config('heratio.scan.archive_path'), '/').'/'.date('Y/m');
+                // #1281: per-folder processed_path overrides the global archive dir.
+                $base = ($folder->processed_path ?? null) ?: config('heratio.scan.archive_path');
+                $archive = rtrim((string) $base, '/').'/'.date('Y/m');
                 if (! is_dir($archive)) {
                     @mkdir($archive, 0775, true);
                 }
@@ -782,7 +784,9 @@ class ProcessScanFile implements ShouldQueue
             return;
         }
         $safeReason = preg_replace('/[^a-z0-9_-]+/i', '-', substr($reason, 0, 40)) ?: 'error';
-        $q = rtrim(config('heratio.scan.quarantine_path'), '/').'/'.date('Y/m').'/'.$safeReason;
+        // #1281: per-folder failed_path overrides the global quarantine dir.
+        $qbase = ($folder->failed_path ?? null) ?: config('heratio.scan.quarantine_path');
+        $q = rtrim((string) $qbase, '/').'/'.date('Y/m').'/'.$safeReason;
         if (! is_dir($q)) {
             @mkdir($q, 0775, true);
         }

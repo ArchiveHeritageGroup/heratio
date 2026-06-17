@@ -93,10 +93,13 @@ class WatchedFolderService
                 'ingest_session_id' => $sessionId,
                 'disposition_success' => $data['disposition_success'] ?? 'move',
                 'disposition_failure' => $data['disposition_failure'] ?? 'quarantine',
+                'processed_path' => ($data['processed_path'] ?? null) ?: null,
+                'failed_path' => ($data['failed_path'] ?? null) ?: null,
                 'min_quiet_seconds' => (int) ($data['min_quiet_seconds'] ?? config('heratio.scan.min_quiet_seconds', 10)),
                 'enabled' => (int) ($data['enabled'] ?? 1),
                 'notify_emails' => $data['notify_emails'] ?: null,
                 'notify_on_failure' => (int) ($data['notify_on_failure'] ?? 0),
+                'created_by' => $userId,
                 'created_at' => now(),
             ]);
         });
@@ -116,6 +119,8 @@ class WatchedFolderService
                 'layout' => $data['layout'] ?? $folder->layout,
                 'disposition_success' => $data['disposition_success'] ?? $folder->disposition_success,
                 'disposition_failure' => $data['disposition_failure'] ?? $folder->disposition_failure,
+                'processed_path' => array_key_exists('processed_path', $data) ? ($data['processed_path'] ?: null) : ($folder->processed_path ?? null),
+                'failed_path' => array_key_exists('failed_path', $data) ? ($data['failed_path'] ?: null) : ($folder->failed_path ?? null),
                 'min_quiet_seconds' => (int) ($data['min_quiet_seconds'] ?? $folder->min_quiet_seconds),
                 'enabled' => isset($data['enabled']) ? (int) $data['enabled'] : $folder->enabled,
                 'notify_emails' => array_key_exists('notify_emails', $data) ? ($data['notify_emails'] ?: null) : $folder->notify_emails,

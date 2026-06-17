@@ -142,4 +142,44 @@
         </table>
     </div>
 @endif
+
+<h4 class="mt-4">{{ __('Watched-folder run history') }}</h4>
+@if(empty($runs) || $runs->isEmpty())
+    <p class="text-muted">{{ __('No scan passes recorded yet.') }}</p>
+@else
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>{{ __('When') }}</th>
+                    <th>{{ __('Folder') }}</th>
+                    <th>{{ __('Status') }}</th>
+                    <th class="text-end">{{ __('Detected') }}</th>
+                    <th class="text-end">{{ __('Enqueued') }}</th>
+                    <th class="text-end">{{ __('Dup') }}</th>
+                    <th class="text-end">{{ __('Quiet') }}</th>
+                    <th class="text-end">{{ __('Failed') }}</th>
+                    <th>{{ __('Note') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($runs as $r)
+                    <tr>
+                        <td class="text-nowrap">{{ $r->created_at }}</td>
+                        <td><code>{{ $r->folder_code ?? $r->folder_id }}</code></td>
+                        <td>
+                            <span class="badge bg-{{ $r->status === 'failed' ? 'danger' : ($r->status === 'idle' ? 'secondary' : 'success') }}">{{ $r->status }}</span>
+                        </td>
+                        <td class="text-end">{{ $r->detected }}</td>
+                        <td class="text-end">{{ $r->enqueued }}</td>
+                        <td class="text-end">{{ $r->skipped_duplicate }}</td>
+                        <td class="text-end">{{ $r->skipped_quiet }}</td>
+                        <td class="text-end">{{ $r->failed }}</td>
+                        <td class="small text-muted">{{ \Illuminate\Support\Str::limit($r->message ?? '', 80) }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+@endif
 @endsection

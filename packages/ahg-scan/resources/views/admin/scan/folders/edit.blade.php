@@ -186,6 +186,16 @@
                         <option value="leave" {{ old('disposition_failure', $folder->disposition_failure) === 'leave' ? 'selected' : '' }}>Leave in place</option>
                     </select>
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ __('Processed path') }} <span class="text-muted small">({{ __('optional') }})</span></label>
+                    <input type="text" name="processed_path" class="form-control" value="{{ old('processed_path', $folder->processed_path ?? '') }}" placeholder="{{ __('default: global archive dir') }}">
+                    <div class="form-text">{{ __('Archive dir for successful files. Leave blank to use the global archive path.') }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ __('Failed path') }} <span class="text-muted small">({{ __('optional') }})</span></label>
+                    <input type="text" name="failed_path" class="form-control" value="{{ old('failed_path', $folder->failed_path ?? '') }}" placeholder="{{ __('default: global quarantine dir') }}">
+                    <div class="form-text">{{ __('Quarantine dir for failed files. Leave blank to use the global quarantine path.') }}</div>
+                </div>
             </div>
         </div>
     </div>

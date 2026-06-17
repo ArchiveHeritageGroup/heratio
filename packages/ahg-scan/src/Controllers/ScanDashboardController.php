@@ -65,6 +65,16 @@ class ScanDashboardController extends Controller
             ->limit(20)
             ->get();
 
-        return view('ahg-scan::admin.scan.dashboard', compact('counts', 'last24h', 'doneLast24h', 'folders', 'recent'));
+        // #1281: watched-folder run history (last 20 scan passes).
+        $runs = \Illuminate\Support\Facades\Schema::hasTable('scan_event')
+            ? DB::table('scan_event as e')
+                ->leftJoin('scan_folder as sf', 'sf.id', '=', 'e.folder_id')
+                ->select('e.*', 'sf.code as folder_code')
+                ->orderByDesc('e.id')
+                ->limit(20)
+                ->get()
+            : collect();
+
+        return view('ahg-scan::admin.scan.dashboard', compact('counts', 'last24h', 'doneLast24h', 'folders', 'recent', 'runs'));
     }
 }
