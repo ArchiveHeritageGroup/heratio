@@ -60,6 +60,25 @@ use Illuminate\Support\Facades\Log;
 class ScholarshipService
 {
     /**
+     * Cap on cross-institutional (federated) connections returned. Bounds both
+     * the number of peer hits we explain with the LLM and the rendered list.
+     */
+    protected int $federatedCap = 15;
+
+    /**
+     * Cap on the number of access-point terms we send to the federation search.
+     * The strongest (most-shared) terms first; bounds the peer query size.
+     */
+    protected int $federatedTermCap = 12;
+
+    /**
+     * Cap on how many peer hits we ask the LLM to write a one-line rationale for
+     * per request. The remainder still render (with no AI line) so the section
+     * is never empty just because the model was slow or down.
+     */
+    protected int $federatedExplainCap = 8;
+
+    /**
      * Cap on first-hop neighbour entities fed to the prompt. Keeps the prompt
      * (and gateway cost) bounded on densely-linked records.
      */
@@ -435,6 +454,371 @@ class ScholarshipService
                 'count' => (int) ($group['count'] ?? count($items)),
                 'items' => array_values($items),
             ];
+        }
+
+        return $out;
+    }
+
+    // -----------------------------------------------------------------
+    // Cross-institutional discovery (heratio#1210, federation increment)
+    // -----------------------------------------------------------------
+
+    /**
+     * Discover CROSS-INSTITUTIONAL connections for one record: related records
+     * held by OTHER federation peers, surfaced through the live federated-search
+     * primitive and explained with a grounded one-line AI rationale.
+     *
+     * This is the federation twin of discover(). It is strictly ADDITIVE - it
+     * does not touch the local discovery path. The record's strongest local
+     * access points (its title and the names of its directly-connected people,
+     * subjects, places and records) become the query terms; each peer hit is
+     * turned into a connection {source peer, matched title/url, shared access
+     * points, an AI "why this likely connects" line}.
+     *
+     * FAIL-SOFT by contract: if the federation package is absent, no peers are
+     * configured, a peer times out, or the AI gateway is down, this returns an
+     * empty federated list. It NEVER throws and NEVER 500s. The local discover()
+     * behaviour is unaffected and byte-identical whether or not this is called.
+     *
+     * @return array{
+     *   record: array{id:int,title:?string,slug:?string},
+     *   terms: array<int,string>,
+     *   connections: array<int,array{
+     *     title:string, url:?string, peer_name:string, peer_url:?string,
+     *     shared:array<int,string>, shared_count:int, rationale:?string,
+     *     also_present_in:array<int,string>
+     *   }>,
+     *   peer_stats: array<string,mixed>,
+     *   available: bool,
+     *   ai_available: bool
+     * }
+     */
+    public function discoverFederated(int $objectId): array
+    {
+        $bridge = app(GraphKmBridgeService::class);
+        $title = $bridge->recordTitle($objectId);
+        $slug = $bridge->recordSlug($objectId);
+
+        $empty = [
+            'record' => ['id' => $objectId, 'title' => $title, 'slug' => $slug],
+            'terms' => [],
+            'connections' => [],
+            'peer_stats' => [],
+            'available' => false,
+            'ai_available' => false,
+        ];
+
+        // Federation package must be present (calling a locked service is fine,
+        // but it may not be installed at all). class_exists guards that.
+        $searchClass = \AhgFederation\Services\FederatedSearchService::class;
+        if (! class_exists($searchClass)) {
+            return $empty;
+        }
+
+        // ---- Build the record's strongest access points ----
+        $terms = $this->accessPointTerms($objectId, $title);
+        if (! $terms) {
+            // Nothing to query peers with - fail soft (still "available", just no hits).
+            return array_merge($empty, ['available' => true]);
+        }
+
+        // ---- Live cross-peer search ----
+        try {
+            /** @var \AhgFederation\Services\FederatedSearchService $fed */
+            $fed = app($searchClass);
+            // One combined query (peer search engines OR the terms). Keep it a
+            // single call so we hit each peer once, not once per term.
+            $query = implode(' ', $terms);
+            $result = $fed->search($query, ['limit' => 50]);
+        } catch (\Throwable $e) {
+            Log::info('[scholarship] federated search failed: '.$e->getMessage());
+
+            return array_merge($empty, ['available' => true]);
+        }
+
+        $rows = is_object($result) && property_exists($result, 'results')
+            ? (array) $result->results
+            : (is_array($result) ? ($result['results'] ?? []) : []);
+        $peerStats = is_object($result) && property_exists($result, 'peerStats')
+            ? (array) $result->peerStats
+            : [];
+
+        if (! $rows) {
+            return array_merge($empty, ['available' => true, 'peer_stats' => $peerStats]);
+        }
+
+        // ---- Shape + dedupe + rank ----
+        $connections = $this->shapeFederatedConnections($rows, $terms);
+        if (! $connections) {
+            return array_merge($empty, ['available' => true, 'peer_stats' => $peerStats]);
+        }
+
+        // ---- Explain the top connections with a grounded AI one-liner ----
+        $aiAvailable = $this->explainFederatedConnections($title, $objectId, $connections);
+
+        return [
+            'record' => ['id' => $objectId, 'title' => $title, 'slug' => $slug],
+            'terms' => $terms,
+            'connections' => array_slice($connections, 0, $this->federatedCap),
+            'peer_stats' => $peerStats,
+            'available' => true,
+            'ai_available' => $aiAvailable,
+        ];
+    }
+
+    /**
+     * Collect the record's strongest access-point terms for a federated query:
+     * its title plus the names of its directly-connected people, subjects,
+     * places and records (the cross-collection graph neighbours). Deduped
+     * case-insensitively, short/noisy tokens dropped, capped at $federatedTermCap.
+     *
+     * @return array<int,string>
+     */
+    protected function accessPointTerms(int $objectId, ?string $title): array
+    {
+        $terms = [];
+        $seen = [];
+
+        $push = function (?string $t) use (&$terms, &$seen) {
+            $t = trim((string) $t);
+            // Drop empties, bare ids, and very short tokens that would match
+            // everything across peers.
+            if ($t === '' || mb_strlen($t) < 3 || preg_match('/^#?\d+$/', $t)) {
+                return;
+            }
+            $key = mb_strtolower($t);
+            if (isset($seen[$key])) {
+                return;
+            }
+            $seen[$key] = true;
+            $terms[] = $t;
+        };
+
+        if ($title !== null) {
+            $push($title);
+        }
+
+        try {
+            /** @var RelationshipService $rel */
+            $rel = app(RelationshipService::class);
+            $neighbours = $rel->crossCollectionNeighbours($objectId);
+        } catch (\Throwable $e) {
+            Log::info('[scholarship] access-point lookup failed: '.$e->getMessage());
+            $neighbours = ['groups' => []];
+        }
+
+        // Take the named entities from the strongest groups first (groups already
+        // arrive sorted largest-first from crossCollectionNeighbours).
+        foreach (($neighbours['groups'] ?? []) as $group) {
+            foreach (($group['items'] ?? []) as $item) {
+                $push($item['name'] ?? null);
+                if (count($terms) >= $this->federatedTermCap) {
+                    break 2;
+                }
+            }
+        }
+
+        return array_slice($terms, 0, $this->federatedTermCap);
+    }
+
+    /**
+     * Turn raw federated-search result rows into cross-institutional connection
+     * cards: {title, url, peer name/url, shared access points, shared count}.
+     * Dedupes by peer + normalised title, ranks by shared-term count (then
+     * relevance score). The AI rationale is filled in later by
+     * explainFederatedConnections().
+     *
+     * @param  array<int,array<string,mixed>>  $rows
+     * @param  array<int,string>  $terms
+     * @return array<int,array<string,mixed>>
+     */
+    protected function shapeFederatedConnections(array $rows, array $terms): array
+    {
+        $byKey = [];
+
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+            $title = trim((string) ($row['title'] ?? ''));
+            if ($title === '') {
+                continue;
+            }
+
+            $source = (array) ($row['source'] ?? []);
+            $peerName = trim((string) ($source['peerName'] ?? 'Partner institution'));
+            $peerUrl = $source['peerUrl'] ?? null;
+            $url = $source['originalUrl'] ?? ($row['url'] ?? null);
+
+            // Which of our access-point terms appear in this hit's title /
+            // description? That overlap is the "shared access points" + the rank.
+            $haystack = mb_strtolower($title.' '.((string) ($row['description'] ?? '')));
+            $shared = [];
+            foreach ($terms as $t) {
+                if (mb_strpos($haystack, mb_strtolower($t)) !== false) {
+                    $shared[] = $t;
+                }
+            }
+
+            // "Also present in" pills the federation layer may have stamped.
+            $also = array_values(array_filter(array_map(
+                fn ($p) => trim((string) $p),
+                (array) ($row['also_present_in'] ?? [])
+            )));
+
+            $key = mb_strtolower($peerName.'|'.preg_replace('/\s+/', ' ', $title));
+            $score = (float) ($row['score'] ?? 1.0);
+
+            if (isset($byKey[$key])) {
+                // Keep the richer shared set / higher score on a duplicate.
+                if (count($shared) > count($byKey[$key]['shared'])) {
+                    $byKey[$key]['shared'] = $shared;
+                }
+                $byKey[$key]['shared_count'] = count($byKey[$key]['shared']);
+                $byKey[$key]['_score'] = max($byKey[$key]['_score'], $score);
+                continue;
+            }
+
+            $byKey[$key] = [
+                'title' => $title,
+                'url' => is_string($url) && $url !== '' ? $url : null,
+                'peer_name' => $peerName !== '' ? $peerName : 'Partner institution',
+                'peer_url' => is_string($peerUrl) && $peerUrl !== '' ? $peerUrl : null,
+                'shared' => $shared,
+                'shared_count' => count($shared),
+                'rationale' => null,
+                'also_present_in' => $also,
+                '_score' => $score,
+            ];
+        }
+
+        $connections = array_values($byKey);
+
+        // Rank: most shared access points first, then peer relevance score.
+        usort($connections, function ($a, $b) {
+            if ($a['shared_count'] !== $b['shared_count']) {
+                return $b['shared_count'] <=> $a['shared_count'];
+            }
+
+            return $b['_score'] <=> $a['_score'];
+        });
+
+        // Strip the internal sort key before returning.
+        foreach ($connections as &$c) {
+            unset($c['_score']);
+        }
+        unset($c);
+
+        return $connections;
+    }
+
+    /**
+     * Fill in a grounded one-line "why this likely connects" rationale for the
+     * top connections, using the SAME LlmService gateway path as the local
+     * discover() flow. The model is given ONLY the local record label and the
+     * peer hit's title + shared access points, and is told to ground its line in
+     * those shared terms and never invent. Mutates $connections in place.
+     *
+     * Returns true when the gateway was reached, false otherwise. NEVER throws:
+     * on any failure the connections simply keep their null rationale and still
+     * render (with their verified shared access points).
+     *
+     * @param  array<int,array<string,mixed>>  $connections  (by reference)
+     */
+    protected function explainFederatedConnections(?string $title, int $objectId, array &$connections): bool
+    {
+        $label = $title !== null ? '"'.$title.'"' : ('record #'.$objectId);
+
+        // Only explain the top N; the rest render without an AI line.
+        $explainCount = min($this->federatedExplainCap, count($connections));
+        if ($explainCount === 0) {
+            return false;
+        }
+
+        $lines = [];
+        $lines[] = 'You are a research analyst. A record in our archive, '.$label.', may relate to'
+            .' records held by OTHER institutions found via federated search. For each numbered'
+            .' candidate below, write ONE short sentence explaining why it likely connects to our'
+            .' record.';
+        $lines[] = '';
+        $lines[] = 'HARD CONSTRAINTS:';
+        $lines[] = '1. Ground every sentence ONLY in the shared access points listed for that'
+            .' candidate. Do NOT introduce any person, place, date, organisation or fact not given.';
+        $lines[] = '2. If a candidate shares no meaningful access point, say "Possible match - shared'
+            .' catalogue terms only" for that number.';
+        $lines[] = '3. Keep each line to one sentence. Refer to shared terms by their exact wording.';
+        $lines[] = '';
+        $lines[] = 'CANDIDATES:';
+        for ($i = 0; $i < $explainCount; $i++) {
+            $c = $connections[$i];
+            $shared = $c['shared'] ? implode('; ', $c['shared']) : '(none beyond a catalogue keyword)';
+            $lines[] = ($i + 1).'. "'.$c['title'].'" (held by '.$c['peer_name'].'). Shared access points: '.$shared.'.';
+        }
+        $lines[] = '';
+        $lines[] = 'OUTPUT FORMAT: one line per candidate, in order, each starting with the candidate'
+            .' number and ". ". No preamble, no closing remarks.';
+
+        $prompt = implode("\n", $lines);
+
+        try {
+            $llm = app(\AhgAiServices\Services\LlmService::class);
+        } catch (\Throwable $e) {
+            Log::info('[scholarship] LlmService unavailable (federated): '.$e->getMessage());
+
+            return false;
+        }
+
+        try {
+            $raw = $llm->complete($prompt, [
+                'system_prompt' => 'You are a careful archival research analyst. You ground every'
+                    .' statement in the supplied shared catalogue terms and never invent entities or facts.',
+                'temperature' => 0.2,
+                'max_tokens' => 700,
+                'purpose' => 'generative-scholarship-federated',
+                'data_scope' => 'federated-access-points',
+            ]);
+        } catch (\Throwable $e) {
+            Log::info('[scholarship] AI gateway call failed (federated): '.$e->getMessage());
+
+            return false;
+        }
+
+        if (! is_string($raw) || trim($raw) === '') {
+            return false;
+        }
+
+        $byNumber = $this->parseNumberedLines($raw);
+        foreach ($byNumber as $n => $sentence) {
+            $idx = $n - 1;
+            if ($idx >= 0 && $idx < $explainCount) {
+                $connections[$idx]['rationale'] = $sentence;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Parse a numbered list ("1. ...", "2) ...") into [number => sentence].
+     * Tolerant of bullet noise; ignores lines without a leading number.
+     *
+     * @return array<int,string>
+     */
+    protected function parseNumberedLines(string $raw): array
+    {
+        $out = [];
+        foreach (preg_split('/\r\n|\r|\n/', $raw) as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+            if (preg_match('/^\s*(\d+)\s*[.)]\s*(.+)$/u', $line, $m)) {
+                $n = (int) $m[1];
+                $sentence = trim($m[2]);
+                if ($n > 0 && $sentence !== '') {
+                    $out[$n] = $sentence;
+                }
+            }
         }
 
         return $out;

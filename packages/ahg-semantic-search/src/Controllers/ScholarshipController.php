@@ -9,6 +9,14 @@
  * matching the rest of the semantic-search admin surface. Resolves the record by
  * numeric id or by slug.
  *
+ * It ALSO surfaces CROSS-INSTITUTIONAL connections (heratio#1210, federation
+ * increment): related records held by OTHER federation peers, found live via
+ * ScholarshipService::discoverFederated() (which consumes the federated-search
+ * primitive and explains each hit with a grounded AI one-liner). That section is
+ * strictly additive and fully fail-soft - if the federation package is absent,
+ * no peers are configured, or a peer/the AI gateway is unreachable, it simply
+ * does not appear and the local discovery above is unaffected.
+ *
  * The view carries a visible "AI-generated, grounded in catalogue links - verify
  * before citing" disclaimer; the controller never lets an AI failure 500 the
  * page (the service degrades to an empty insight list).
@@ -38,6 +46,7 @@ namespace AhgSemanticSearch\Controllers;
 use AhgSemanticSearch\Services\ScholarshipService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class ScholarshipController extends Controller
@@ -62,7 +71,18 @@ class ScholarshipController extends Controller
 
         $discovery = $this->service->discover($resolvedId);
 
-        return view('ahg-semantic-search::scholarship', compact('discovery'));
+        // Additive cross-institutional layer. Fully guarded: any failure here
+        // must never affect the local discovery render above, so it falls back
+        // to a null federated payload (the view then omits the section).
+        $federated = null;
+        try {
+            $federated = $this->service->discoverFederated($resolvedId);
+        } catch (\Throwable $e) {
+            Log::info('[scholarship] federated discovery failed for '.$resolvedId.': '.$e->getMessage());
+            $federated = null;
+        }
+
+        return view('ahg-semantic-search::scholarship', compact('discovery', 'federated'));
     }
 
     /**

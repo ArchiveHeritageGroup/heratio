@@ -201,6 +201,36 @@ Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(funct
 
 /*
 |--------------------------------------------------------------------------
+| Endangered-heritage register — /api/v1/endangered (north-star #1205)
+|--------------------------------------------------------------------------
+| The federation EXPOSE side of the "race against loss". A PUBLIC, read-only
+| JSON view of THIS instance's PUBLISHED at-risk register, so PEER instances can
+| query us live and assemble a cross-institution at-risk board (mirrors the
+| federation pattern built for #1204/#1210).
+|
+|   GET /api/v1/endangered    - the published at-risk register as JSON,
+|                               filterable by ?risk= &urgency= &status= &limit=.
+|
+| Serves the SAME published-only, urgency-ordered register the public /at-risk
+| page renders (EndangeredHeritageService::publicRegister), so it can never leak
+| an unpublished record. No API key (open at-risk data society should see);
+| permissive CORS via the explicit headers + api.cors; a light throttle keeps
+| the open door cheap. Fail-soft: a missing register table returns an empty
+| list, never a 500.
+|
+| CATCH-ALL SAFETY: "/api/v1/endangered" is under the "api/" path space, which
+| the single-segment /{slug} information-object catch-all already excludes
+| (its regex is ^(?!api|admin|...)...), so it can never be shadowed.
+*/
+
+Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('endangered', [\AhgApi\Controllers\EndangeredApiController::class, 'options']);
+    Route::get('endangered', [\AhgApi\Controllers\EndangeredApiController::class, 'index'])
+        ->name('api.v1.endangered');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Zero-knowledge discovery — /.well-known/void (root path, NOT /api/v1)
 |--------------------------------------------------------------------------
 | The single URL a standards-aware crawler dereferences when it knows nothing

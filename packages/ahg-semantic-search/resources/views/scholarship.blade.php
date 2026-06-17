@@ -22,6 +22,13 @@
     $secondHop = (int) ($discovery['second_hop_count'] ?? 0);
     $grounded = (int) ($discovery['grounded_entities'] ?? 0);
     $aiAvailable = (bool) ($discovery['ai_available'] ?? false);
+
+    // heratio#1210 federation increment - cross-institutional connections.
+    $federated = $federated ?? null;
+    $fedAvailable = (bool) ($federated['available'] ?? false);
+    $fedConnections = $federated['connections'] ?? [];
+    $fedTerms = $federated['terms'] ?? [];
+    $fedAiAvailable = (bool) ($federated['ai_available'] ?? false);
 @endphp
 
 @section('title', 'Discovered connections - '.$recTitle)
@@ -149,6 +156,123 @@
                 </div>
             </div>
 
+        </div>
+    @endif
+
+    {{-- ================================================================= --}}
+    {{-- Cross-institutional connections (heratio#1210 federation slice).  --}}
+    {{-- Strictly additive: only renders when the federation layer is      --}}
+    {{-- available. Fully fail-soft - absent peers / a peer or AI timeout   --}}
+    {{-- simply yields an empty list, never an error.                       --}}
+    {{-- ================================================================= --}}
+    @if($fedAvailable)
+        <div class="card mt-4 border-primary-subtle">
+            <div class="card-header d-flex align-items-center flex-wrap gap-2">
+                <i class="fas fa-globe me-2 text-primary"></i>
+                <strong>{{ __('Connections across institutions') }}</strong>
+                <span class="badge bg-light text-dark border">{{ __('federated') }}</span>
+                @if(count($fedConnections) > 0)
+                    <span class="badge bg-primary ms-auto">{{ count($fedConnections) }}</span>
+                @endif
+            </div>
+            <div class="card-body">
+
+                <p class="text-muted small">
+                    <i class="fas fa-circle-info me-1"></i>
+                    {{ __('These are related records held by OTHER institutions in the federation, found live by searching their catalogues for this record\'s strongest access points (its title, people, subjects and places). Each rationale is AI-generated and grounded only in the shared catalogue terms shown - verify against the source institution before citing.') }}
+                </p>
+
+                @if(count($fedTerms) > 0)
+                    <div class="mb-3">
+                        <span class="text-uppercase text-muted small fw-semibold me-1">{{ __('Searched on') }}:</span>
+                        @foreach($fedTerms as $term)
+                            <span class="badge text-bg-light border">{{ $term }}</span>
+                        @endforeach
+                    </div>
+                @endif
+
+                @if(count($fedConnections) === 0)
+                    <div class="alert alert-light border mb-0">
+                        <i class="fas fa-circle-info me-2"></i>
+                        {{ __('No related records were found in partner institutions for this record\'s access points. This may mean no peer holds a match, or that no federation peers are currently reachable.') }}
+                    </div>
+                @else
+                    @unless($fedAiAvailable)
+                        <div class="alert alert-info d-flex align-items-start" role="alert">
+                            <i class="fas fa-plug-circle-xmark me-2 mt-1"></i>
+                            <div class="small">
+                                {{ __('The AI service was unreachable, so the "why this connects" lines are not shown. The cross-institutional matches and their shared access points below are unaffected.') }}
+                            </div>
+                        </div>
+                    @endunless
+
+                    <div class="list-group">
+                        @foreach($fedConnections as $fc)
+                            @php
+                                $fcTitle = $fc['title'] ?? __('Untitled record');
+                                $fcUrl = $fc['url'] ?? null;
+                                $fcPeer = $fc['peer_name'] ?? __('Partner institution');
+                                $fcPeerUrl = $fc['peer_url'] ?? null;
+                                $fcShared = $fc['shared'] ?? [];
+                                $fcRationale = $fc['rationale'] ?? null;
+                                $fcAlso = $fc['also_present_in'] ?? [];
+                            @endphp
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <h3 class="h6 mb-1">
+                                        @if(!empty($fcUrl))
+                                            <a href="{{ $fcUrl }}" target="_blank" rel="noopener noreferrer">
+                                                {{ $fcTitle }} <i class="fas fa-up-right-from-square fa-xs ms-1"></i>
+                                            </a>
+                                        @else
+                                            {{ $fcTitle }}
+                                        @endif
+                                    </h3>
+                                    <span class="badge rounded-pill text-bg-primary flex-shrink-0">
+                                        <i class="fas fa-building-columns me-1"></i>
+                                        @if(!empty($fcPeerUrl))
+                                            <a href="{{ $fcPeerUrl }}" target="_blank" rel="noopener noreferrer" class="text-white text-decoration-none">{{ $fcPeer }}</a>
+                                        @else
+                                            {{ $fcPeer }}
+                                        @endif
+                                    </span>
+                                </div>
+
+                                @if($fcRationale)
+                                    <p class="mb-2 small">
+                                        <i class="fas fa-lightbulb me-1 text-warning"></i>{{ $fcRationale }}
+                                    </p>
+                                @endif
+
+                                @if(count($fcShared) > 0)
+                                    <div class="d-flex flex-wrap gap-1 align-items-center">
+                                        <span class="text-uppercase text-muted small fw-semibold me-1">{{ __('Shared access points') }}:</span>
+                                        @foreach($fcShared as $sp)
+                                            <span class="badge text-bg-light border">{{ $sp }}</span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-muted small mb-0">
+                                        <i class="fas fa-circle-info me-1"></i>{{ __('Matched on a shared catalogue keyword only.') }}
+                                    </p>
+                                @endif
+
+                                @if(count($fcAlso) > 0)
+                                    <div class="mt-1">
+                                        @foreach($fcAlso as $also)
+                                            <span class="badge text-bg-secondary">{{ $also }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+            </div>
+            <div class="card-footer text-muted small">
+                {{ __('Cross-institutional matches are retrieved live from federation peers and are not stored. Results may vary between page loads as peers come and go.') }}
+            </div>
         </div>
     @endif
 

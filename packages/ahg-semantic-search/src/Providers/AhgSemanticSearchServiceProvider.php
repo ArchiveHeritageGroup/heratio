@@ -134,6 +134,18 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             // callAfterResolving('router')) so it binds BEFORE the single-segment
             // /{slug} archival-record catch-all in ahg-information-object-manage.
             // See memory/reference_slug_catchall_route_precedence.md.
+            // heratio#1205 - the cross-institution "at risk" board. TWO-segment
+            // path (/at-risk/global) registered BEFORE the single-segment /at-risk
+            // so it binds as the federated board, never as a risk filter on the
+            // local register. Merges this instance's published register with a LIVE
+            // fetch of every active federation peer's /api/v1/endangered (mirrors
+            // the #1204/#1210 federation pattern). Additive - /at-risk is unchanged.
+            $router->middleware('web')
+                ->get('/at-risk/global', [
+                    \AhgSemanticSearch\Controllers\EndangeredHeritageController::class, 'globalRegister',
+                ])
+                ->name('endangered.register.global');
+
             $router->middleware('web')
                 ->get('/at-risk', [
                     \AhgSemanticSearch\Controllers\EndangeredHeritageController::class, 'register',

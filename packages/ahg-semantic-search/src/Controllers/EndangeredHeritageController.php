@@ -232,6 +232,66 @@ class EndangeredHeritageController extends Controller
     }
 
     /**
+     * The PUBLIC, cross-institution "at risk" board (north-star heratio#1205
+     * federation slice). Merges THIS instance's published register with a LIVE
+     * fetch of every active federation peer's /api/v1/endangered, ranked into one
+     * leaderboard with source-institution badges. Additive: the single-instance
+     * /at-risk register is unchanged. Fail-soft - federation absent / a peer down
+     * degrades to local-only with warnings, never a 500.
+     */
+    public function globalRegister(Request $request)
+    {
+        $filters = [
+            'risk' => trim((string) $request->query('risk', '')),
+            'urgency' => trim((string) $request->query('urgency', '')),
+            'status' => trim((string) $request->query('status', '')),
+        ];
+
+        $result = [
+            'items' => [],
+            'peers_queried' => 0,
+            'peers' => [],
+            'warnings' => [],
+            'local_count' => 0,
+            'total_count' => 0,
+        ];
+
+        try {
+            $federated = new \AhgSemanticSearch\Services\FederatedEndangeredService($this->service);
+            $result = $federated->globalRegister($filters);
+        } catch (\Throwable $e) {
+            // Belt-and-braces: the service is already fail-soft, but never let the
+            // board 500 even if instantiation itself fails on a slim install.
+            Log::info('[endangered] global register failed: '.$e->getMessage());
+            $result['warnings'][] = __('The federated register is temporarily unavailable; showing local items only.');
+        }
+
+        // Risk-category chips over the merged board, so the breakdown spans peers.
+        $riskCounts = [];
+        foreach ($result['items'] as $row) {
+            $key = (string) ($row['risk_category'] ?? 'other');
+            $riskCounts[$key] = ($riskCounts[$key] ?? 0) + 1;
+        }
+
+        return view('ahg-semantic-search::endangered.global', [
+            'items' => $result['items'],
+            'peers' => $result['peers'],
+            'peersQueried' => (int) $result['peers_queried'],
+            'warnings' => $result['warnings'],
+            'localCount' => (int) $result['local_count'],
+            'totalCount' => (int) $result['total_count'],
+            'riskCounts' => $riskCounts,
+            'risks' => EndangeredHeritageService::RISK_CATEGORIES,
+            'urgencies' => EndangeredHeritageService::URGENCIES,
+            'statuses' => EndangeredHeritageService::CAPTURE_STATUSES,
+            'riskFilter' => $filters['risk'],
+            'urgencyFilter' => $filters['urgency'],
+            'statusFilter' => $filters['status'],
+            'disclaimer' => EndangeredHeritageService::DISCLAIMER,
+        ]);
+    }
+
+    /**
      * Read-only catalogue title for one information object, used only to give the
      * flag form a friendly label. Existence-guarded; null on any uncertainty.
      */
