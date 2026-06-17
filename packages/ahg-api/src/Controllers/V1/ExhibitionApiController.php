@@ -268,6 +268,72 @@ class ExhibitionApiController extends Controller
     }
 
     /**
+     * PUT /api/v1/exhibitions/{slug}/placements/{id}
+     *
+     * Update a local placement's position/size/dates. Thin wrapper over the same
+     * placePlacement() path storePlacement uses for an in-place update, scoped so
+     * the placement must belong to this exhibition space. Behaves as a merge: any
+     * field omitted from the body keeps its current value, so a caller can PUT
+     * just {starts_at, ends_at} without resetting size or notes. Remote (borrowed)
+     * placements are managed via the /placements/remote endpoint.
+     */
+    public function updatePlacement(Request $request, string $slug, int $id): JsonResponse
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        $placement = DB::table('ahg_exhibition_placement')
+            ->where('id', $id)
+            ->where('exhibition_space_id', (int) $space->id)
+            ->first();
+        if (! $placement) {
+            return response()->json(['error' => 'Placement not found in this exhibition'], 404);
+        }
+        if ((int) ($placement->information_object_id ?? 0) <= 0) {
+            return response()->json([
+                'error' => 'Remote placements are managed via POST /exhibitions/{slug}/placements/remote',
+            ], 422);
+        }
+
+        try {
+            $data = $request->validate([
+                'information_object_id' => 'nullable|integer|min:1',
+                'size_units_used' => 'nullable|numeric|min:0',
+                'starts_at' => 'nullable|date',
+                'ends_at' => 'nullable|date',
+                'exhibition_id' => 'nullable|integer',
+                'notes' => 'nullable|string',
+            ]);
+        } catch (ValidationException $e) {
+            return $this->validationError($e);
+        }
+
+        try {
+            $this->service->placePlacement([
+                'id' => $id,
+                'exhibition_space_id' => (int) $space->id,
+                'information_object_id' => (int) ($data['information_object_id'] ?? $placement->information_object_id),
+                'size_units_used' => array_key_exists('size_units_used', $data)
+                    ? (float) $data['size_units_used']
+                    : (float) ($placement->size_units_used ?? 0),
+                'starts_at' => $data['starts_at'] ?? $placement->starts_at,
+                'ends_at' => $data['ends_at'] ?? $placement->ends_at,
+                'exhibition_id' => $data['exhibition_id'] ?? $placement->exhibition_id,
+                'notes' => $data['notes'] ?? $placement->notes,
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['error' => 'Validation failed', 'messages' => ['placement' => [$e->getMessage()]]], 422);
+        } catch (\RuntimeException $e) {
+            // Capacity overflow / date-order violation for the requested range.
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['id' => $id, 'updated' => true]);
+    }
+
+    /**
      * DELETE /api/v1/exhibitions/{slug}/placements/{id}
      */
     public function destroyPlacement(string $slug, int $id): JsonResponse

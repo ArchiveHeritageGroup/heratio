@@ -1025,6 +1025,8 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'a
         Route::put('exhibitions/{slug}', [ExhibitionApiController::class, 'update']);
         Route::post('exhibitions/{slug}/placements', [ExhibitionApiController::class, 'storePlacement']);
         Route::post('exhibitions/{slug}/placements/remote', [ExhibitionApiController::class, 'storeRemotePlacement']);
+        Route::put('exhibitions/{slug}/placements/{id}', [ExhibitionApiController::class, 'updatePlacement'])
+            ->where('id', '[0-9]+');
     });
     Route::delete('exhibitions/{slug}', [ExhibitionApiController::class, 'destroy'])
         ->middleware('api.auth:delete');
