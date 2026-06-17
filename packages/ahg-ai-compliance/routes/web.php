@@ -12,6 +12,7 @@ use AhgAiCompliance\Controllers\ModelRegistryController;
 use AhgAiCompliance\Controllers\OversightController;
 use AhgAiCompliance\Controllers\PublicKeyController;
 use AhgAiCompliance\Controllers\RiskController;
+use AhgAiCompliance\Controllers\SystemInventoryController;
 use Illuminate\Support\Facades\Route;
 
 // Public verifier endpoint. Stable URL - external auditors / regulators
@@ -31,6 +32,17 @@ Route::middleware(['web', 'auth'])->prefix('admin/ai-compliance')->name('ai-comp
     Route::post('/risk/{id}/incident',     [RiskController::class, 'reportIncident'])->where('id', '[0-9]+')->name('risk.incident');
 });
 // --- END issue #724 ---
+
+// --- BEGIN #1281: EU AI Act system inventory + risk tiering (Art. 6 / 52) ---
+Route::middleware(['web', 'auth'])->prefix('admin/ai-compliance')->name('ai-compliance.')->group(function () {
+    Route::get('/systems',            [SystemInventoryController::class, 'index'])->name('systems.index');
+    Route::get('/systems/new',        [SystemInventoryController::class, 'create'])->name('systems.create');
+    Route::post('/systems',           [SystemInventoryController::class, 'store'])->name('systems.store');
+    Route::get('/systems/{id}/edit',  [SystemInventoryController::class, 'edit'])->where('id', '[0-9]+')->name('systems.edit');
+    Route::put('/systems/{id}',       [SystemInventoryController::class, 'update'])->where('id', '[0-9]+')->name('systems.update');
+    Route::delete('/systems/{id}',    [SystemInventoryController::class, 'destroy'])->where('id', '[0-9]+')->name('systems.destroy');
+});
+// --- END #1281 ---
 
 // --- BEGIN issue #725: Annex IV ---
 // Admin-only CRUD for the AI model registry + Annex IV documentation index.

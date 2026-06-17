@@ -111,6 +111,10 @@ final class AhgAiComplianceServiceProvider extends ServiceProvider
                     $this->runInstallSqlFile(__DIR__ . '/../../database/install-oversight.sql');
                     $this->app->make(OversightService::class)->seedIfEmpty();
                 }
+                if (!Schema::hasTable('ai_system')) {
+                    // #1281 - EU AI Act system inventory + risk tiering (Art. 6 / 52).
+                    $this->runInstallSqlFile(__DIR__ . '/../../database/install-system-inventory.sql');
+                }
             } catch (Throwable $e) {
                 // Boot must never abort. The CI path covers this via
                 // `php artisan migrate`-style smoke after fresh install.
