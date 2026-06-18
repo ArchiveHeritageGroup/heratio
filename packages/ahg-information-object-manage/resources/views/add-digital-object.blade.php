@@ -203,7 +203,7 @@
             <p class="text-muted small mb-2">
               {{ __('Merge multiple TIFF/JPEG/PNG images into a single PDF/A document and link it to this record.') }}
             </p>
-            <a href="{{ url('/preservation/tiff-pdf-merge?io=' . $resource->id) }}"
+            <a href="{{ route('preservation.tiffpdfmerge.index', ['io' => $resource->id]) }}"
                class="btn btn-primary">
               <i class="fas fa-file-pdf me-1"></i>{{ __('Open Merge Tool') }}
             </a>
