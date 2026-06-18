@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\Log;
 
 class ChatbotService
 {
+    /** #1208 glossary injection: max place-names / subject terms surfaced per kind. */
+    private const GLOSSARY_MAX_PER_KIND = 40;
+
     private QdrantRetriever $retriever;
     private \AhgAiServices\Services\GuardrailService $guardrail;
     private ChatbotSkillService $skills;
@@ -160,6 +163,10 @@ class ChatbotService
                 . "knowledge of {$langs} or of topics outside this corpus. If the SOURCES do not cover the "
                 . "question, say so plainly and invite the user to broaden their search, rather than "
                 . "answering from outside the corpus.";
+
+            // #1208 glossary injection: surface the catalogue's OWN controlled
+            // vocabulary (place + subject access points) for the scoped language(s).
+            $systemBase .= $this->glossaryBlock($cultures);
         }
 
         // Inject catalogue context if records were retrieved
@@ -209,6 +216,71 @@ class ChatbotService
             'system' => $systemPrompt,
             'user'   => $turn,
         ];
+    }
+
+    /**
+     * #1208 glossary injection: when the conversation is scoped to one or more
+     * languages, surface the catalogue's OWN controlled vocabulary for those
+     * languages - the place-name and subject access points drawn from the
+     * authority records (via LanguageCorpusService::terms) - so the model uses
+     * the catalogue's spellings and can match a user's wording to a real access
+     * point rather than inventing one. Additive + fail-soft: returns '' when the
+     * corpus service is absent, the scope is empty, injection is disabled, or no
+     * terms are found. Names are de-duplicated case-insensitively across the
+     * selected cultures and capped per kind to keep the prompt budget sane.
+     *
+     * @param  array<int,string>  $cultures  normalised base subtags
+     */
+    private function glossaryBlock(array $cultures): string
+    {
+        if (empty($cultures) || ! config('ahg-ai-chatbot.glossary_injection', true)) {
+            return '';
+        }
+
+        $svcClass = '\\AhgSemanticSearch\\Services\\LanguageCorpusService';
+        if (! class_exists($svcClass)) {
+            return '';
+        }
+
+        try {
+            $svc = new $svcClass();
+            $places = [];
+            $subjects = [];
+            foreach ($cultures as $culture) {
+                foreach ($svc->terms($culture) as $t) {
+                    $name = trim((string) ($t['name'] ?? ''));
+                    if ($name === '') {
+                        continue;
+                    }
+                    $key = mb_strtolower($name);
+                    if (($t['kind'] ?? '') === 'place') {
+                        $places[$key] = $name;
+                    } else {
+                        $subjects[$key] = $name;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            return '';
+        }
+
+        $places   = array_slice(array_values($places), 0, self::GLOSSARY_MAX_PER_KIND);
+        $subjects = array_slice(array_values($subjects), 0, self::GLOSSARY_MAX_PER_KIND);
+        if (empty($places) && empty($subjects)) {
+            return '';
+        }
+
+        $parts = [];
+        if (!empty($places)) {
+            $parts[] = 'Places: ' . implode('; ', $places) . '.';
+        }
+        if (!empty($subjects)) {
+            $parts[] = 'Subjects: ' . implode('; ', $subjects) . '.';
+        }
+
+        return "\n\nGLOSSARY - controlled vocabulary from this catalogue's own authority records for the "
+            . "scoped language(s). Use these spellings, and when the user's wording matches one of these "
+            . "places or subjects, treat it as that access point:\n" . implode("\n", $parts);
     }
 
     /**

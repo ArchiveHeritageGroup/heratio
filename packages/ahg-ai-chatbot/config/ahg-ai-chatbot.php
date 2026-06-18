@@ -81,6 +81,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Glossary injection (heratio#1208)
+    |--------------------------------------------------------------------------
+    | When the conversation is scoped to one or more languages, inject the
+    | catalogue's own controlled vocabulary for those languages (place-name +
+    | subject access points from the authority records, via
+    | LanguageCorpusService::terms) into the system prompt, so the model uses the
+    | catalogue's spellings and matches a user's wording to a real access point.
+    | Additive + fail-soft: no scoped languages, or no in-corpus terms, means no
+    | glossary block. Default on.
+    */
+
+    'glossary_injection'     => (bool) env('AHG_CHATBOT_GLOSSARY_INJECTION', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Default model
     |--------------------------------------------------------------------------
     | Model name passed to LlmService when no user preference is set.

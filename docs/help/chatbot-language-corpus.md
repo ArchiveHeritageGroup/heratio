@@ -59,6 +59,26 @@ the reply. If the language's corpus does not contain anything relevant, the
 assistant says so and invites you to broaden your search rather than answering
 from outside the corpus.
 
+## Glossary injection (the catalogue's own vocabulary)
+
+When the conversation is scoped to one or more languages, the assistant is also
+given a **glossary** drawn from the catalogue's own authority records for those
+languages: the **place-names** and **subject access points** actually used to
+describe the in-language holdings. This means the assistant:
+
+- uses the **catalogue's spellings** of places and subjects rather than a
+  generic or anglicised form, and
+- can **match your wording to a real access point** - if you ask about a place
+  or topic that the collection indexes under a particular term, the assistant
+  recognises it as that access point.
+
+The glossary is built live from the same authority terms shown elsewhere in the
+catalogue (place and subject taxonomies), de-duplicated across the selected
+languages and capped per kind to keep responses fast. It is **additive** - it
+never replaces the cited SOURCES, and a language with no in-corpus place or
+subject terms simply contributes nothing. Administrators can turn it off with
+`AHG_CHATBOT_GLOSSARY_INJECTION=false`.
+
 ## Notes and limits
 
 - Unknown or empty language codes are simply dropped - the conversation stays
@@ -71,8 +91,9 @@ from outside the corpus.
   total number of in-language records considered, so very large unions are
   capped for performance.
 - This increment scopes retrieval and the assistant's role across the selected
-  set. Injecting a language's place-names and community glossary directly into
-  the prompt, and scoping the WhatsApp channel, are planned follow-ups.
+  set, and injects the catalogue's place-name and subject vocabulary for the
+  scoped languages into the prompt (see "Glossary injection" above). Scoping the
+  WhatsApp channel remains a planned follow-up.
 
 ## Privacy
 
