@@ -27,6 +27,7 @@ namespace AhgFederation\Providers;
 
 use AhgFederation\Console\EuropeanaExportCommand;
 use AhgFederation\Console\HarvestCommand;
+use AhgFederation\Console\PeerDiscoverCommand;
 use AhgFederation\Console\SearchCacheCleanCommand;
 use AhgFederation\Console\VocabSyncCommand;
 use AhgFederation\Services\FederationService;
@@ -77,10 +78,33 @@ class AhgFederationServiceProvider extends ServiceProvider
             // real boot.
         }
 
+        // F2 (#1315) peer discovery + governance: add the governance +
+        // discovery-cache columns to federation_peer (idempotent guarded
+        // ALTERs) and seed the trust-level / discovery-status dropdowns.
+        // Probe on a representative new column so re-boots are a cheap no-op;
+        // single outer try/catch keeps CI without a DB green
+        // (reference_ci_schema_hastable.md).
+        try {
+            if (Schema::hasTable('federation_peer') && ! Schema::hasColumn('federation_peer', 'federation_enabled')) {
+                $sqlPath = __DIR__.'/../../database/install_governance.sql';
+                if (is_file($sqlPath)) {
+                    DB::unprepared(file_get_contents($sqlPath));
+                }
+                $seedPath = __DIR__.'/../../database/seed_dropdowns_governance.sql';
+                if (is_file($seedPath) && Schema::hasTable('ahg_dropdown')) {
+                    DB::unprepared(file_get_contents($seedPath));
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fresh install / no DB; columns get created on the next real boot
+            // or by `php artisan ahg:install`.
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 EuropeanaExportCommand::class,
                 HarvestCommand::class,
+                PeerDiscoverCommand::class,
                 SearchCacheCleanCommand::class,
                 VocabSyncCommand::class,
             ]);
@@ -108,6 +132,15 @@ class AhgFederationServiceProvider extends ServiceProvider
                 $schedule->command('ahg:federation-vocab-sync')
                     ->dailyAt('03:00')
                     ->withoutOverlapping(60)
+                    ->when($enabled);
+
+                // F2 (#1315) peer discovery crawl - probe federation-enabled
+                // peers' /open-data/protocol + /open-data/maturity and cache
+                // their advertised capabilities. Daily, gated on the global
+                // federation toggle.
+                $schedule->command('ahg:federation-discover --enabled')
+                    ->dailyAt('03:30')
+                    ->withoutOverlapping(30)
                     ->when($enabled);
 
                 // Europeana EDM publish - weekly Sunday 02:00 SAST per

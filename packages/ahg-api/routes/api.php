@@ -8,6 +8,7 @@ use AhgApi\Controllers\DataSitemapController;
 use AhgApi\Controllers\DatasetController;
 use AhgApi\Controllers\DatasetSchemaController;
 use AhgApi\Controllers\EntityController;
+use AhgApi\Controllers\FederationIndexController;
 use AhgApi\Controllers\FeedController;
 use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\GraphExplorerController;
@@ -861,6 +862,41 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
         ->name('open-data.maturity');
     Route::get('open-data/maturity.json', fn (\Illuminate\Http\Request $request) => app(MaturityController::class)->index($request, true))
         ->name('open-data.maturity.json');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Federation peer index - /open-data/federation (F2, #1315)
+|--------------------------------------------------------------------------
+| The PUBLIC, machine-discoverable list of the peers THIS instance knows and
+| federates with (federation_enabled peers), each with its declared surfaces
+| (graph / endangered / search) and the outcome of this instance's last
+| discovery probe. Where /open-data/protocol declares what THIS instance
+| exposes to peers (the federation block, F1), this endpoint lets an external
+| agent bootstrap peer DISCOVERY from one fetch instead of hardcoding a peer
+| list. Read-only; reads only the federation_peer governance + discovery-cache
+| columns (no peer HTTP here - the cached outcomes come from
+| `php artisan ahg:federation-discover`).
+|
+|   GET /open-data/federation        - content-negotiated (browser -> HTML,
+|                                       everyone else -> JSON).
+|   GET /open-data/federation.json   - the JSON index, explicitly.
+|
+| Read-only; permissive open-data CORS; never 500s (empty index when there are
+| no peers / before the governance columns exist).
+|
+| CATCH-ALL SAFETY: "/open-data/federation" and "/open-data/federation.json"
+| are TWO-segment paths, so the single-segment /{slug} archival-record catch-all
+| cannot capture them (the literal first segment /open-data is itself a
+| registered single-segment public page in ahg-core).
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('open-data/federation', [FederationIndexController::class, 'options']);
+    Route::get('open-data/federation', [FederationIndexController::class, 'index'])
+        ->name('open-data.federation');
+    Route::get('open-data/federation.json', fn (\Illuminate\Http\Request $request) => app(FederationIndexController::class)->index($request, true))
+        ->name('open-data.federation.json');
 });
 
 /*

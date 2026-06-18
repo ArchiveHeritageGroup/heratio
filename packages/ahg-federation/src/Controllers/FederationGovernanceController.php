@@ -1,0 +1,185 @@
+<?php
+
+/**
+ * FederationGovernanceController - admin status + governance surface for the
+ * Federation Query Protocol peer registry (F2, heratio#1315).
+ *
+ *   GET  /federation/governance              read view: each peer's discovery
+ *                                             status (reachable / version /
+ *                                             surfaces / last probed) + its
+ *                                             governance (federation_enabled /
+ *                                             trust_level / rate_limit).
+ *   POST /federation/governance/{id}         save federation_enabled +
+ *                                             trust_level + rate_limit_seconds +
+ *                                             allowed_entity_types for one peer.
+ *   POST /federation/governance/discover     run the discovery crawl now.
+ *
+ * Fresh, UNLOCKED controller - deliberately separate from the LOCKED F3
+ * FederationController / edit-peer.blade.php. It reads / writes only the F2
+ * governance + discovery-cache columns on federation_peer (added by
+ * install_governance.sql); it never touches the connector / harvest config that
+ * the locked peer editor owns. Trust levels + discovery statuses come from the
+ * Dropdown Manager (ahg_dropdown), never hardcoded / ENUM.
+ *
+ * Copyright (C) 2026 Johan Pieterse
+ * Plain Sailing Information Systems
+ * Email: johan@plainsailingisystems.co.za
+ *
+ * @author     Johan Pieterse <johan@plainsailingisystems.co.za>
+ * @copyright  Plain Sailing Information Systems
+ * @license    AGPL-3.0-or-later
+ *
+ * This file is part of Heratio.
+ *
+ * Heratio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Heratio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+namespace AhgFederation\Controllers;
+
+use AhgFederation\Services\PeerDiscoveryService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+class FederationGovernanceController extends Controller
+{
+    /** Read view: peer discovery status + governance. */
+    public function index()
+    {
+        $peers = collect();
+        $hasGovernance = false;
+
+        try {
+            if (Schema::hasTable('federation_peer')) {
+                $hasGovernance = Schema::hasColumn('federation_peer', 'federation_enabled');
+                $peers = DB::table('federation_peer')
+                    ->orderByDesc('id')
+                    ->limit(500)
+                    ->get()
+                    ->map(function ($p) {
+                        $p->declared_surfaces_list = $this->decodeArray($p->declared_surfaces ?? null);
+                        $p->allowed_entity_types_list = $this->decodeArray($p->allowed_entity_types ?? null);
+
+                        return $p;
+                    });
+            }
+        } catch (\Throwable $e) {
+            $peers = collect();
+        }
+
+        return view('ahg-federation::governance', [
+            'peers' => $peers,
+            'hasGovernance' => $hasGovernance,
+            'trustLevels' => $this->dropdown('federation_trust_level'),
+            'surfaces' => PeerDiscoveryService::KNOWN_SURFACES,
+        ]);
+    }
+
+    /** Save per-peer governance. */
+    public function save(Request $request, int $id): RedirectResponse
+    {
+        $validated = $request->validate([
+            'federation_enabled' => ['nullable', 'boolean'],
+            'trust_level' => ['nullable', 'string', 'max:32'],
+            'rate_limit_seconds' => ['nullable', 'integer', 'min:0', 'max:86400'],
+            'allowed_entity_types' => ['nullable', 'array'],
+            'allowed_entity_types.*' => ['string', 'in:graph,endangered,search'],
+        ]);
+
+        try {
+            if (! Schema::hasColumn('federation_peer', 'federation_enabled')) {
+                return back()->with('error', 'Federation governance columns are not installed yet.');
+            }
+
+            $allowed = $validated['allowed_entity_types'] ?? [];
+
+            DB::table('federation_peer')->where('id', $id)->update([
+                'federation_enabled' => $request->boolean('federation_enabled') ? 1 : 0,
+                'trust_level' => $validated['trust_level'] ?: 'basic',
+                'rate_limit_seconds' => $validated['rate_limit_seconds'] ?? null,
+                'allowed_entity_types' => ! empty($allowed) ? json_encode(array_values($allowed)) : null,
+            ]);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Could not save governance: '.$e->getMessage());
+        }
+
+        return back()->with('success', 'Peer governance updated.');
+    }
+
+    /** Run the discovery crawl now and report the summary. */
+    public function discover(PeerDiscoveryService $service): RedirectResponse
+    {
+        try {
+            $summary = $service->discoverAll(false);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Discovery failed: '.$e->getMessage());
+        }
+
+        if (($summary['probed'] ?? 0) === 0) {
+            return back()->with('success', 'No discoverable peers (a peer needs an http(s) base_url).');
+        }
+
+        return back()->with('success', sprintf(
+            'Probed %d peer(s): %d ok, %d unreachable, %d non-compliant.',
+            $summary['probed'],
+            $summary['ok'] ?? 0,
+            $summary['unreachable'] ?? 0,
+            $summary['non_compliant'] ?? 0
+        ));
+    }
+
+    /**
+     * Dropdown values for a taxonomy, falling back to an empty list if the
+     * table / rows are absent (the view supplies a sensible default).
+     *
+     * @return array<int,object>
+     */
+    protected function dropdown(string $taxonomy): array
+    {
+        try {
+            if (! Schema::hasTable('ahg_dropdown')) {
+                return [];
+            }
+
+            return DB::table('ahg_dropdown')
+                ->where('taxonomy', $taxonomy)
+                ->where('is_active', 1)
+                ->orderBy('sort_order')
+                ->get(['code', 'label'])
+                ->all();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    protected function decodeArray($v): array
+    {
+        if (is_array($v)) {
+            return array_values(array_filter(array_map('strval', $v)));
+        }
+        if (is_string($v) && $v !== '') {
+            $decoded = json_decode($v, true);
+            if (is_array($decoded)) {
+                return array_values(array_filter(array_map('strval', $decoded)));
+            }
+        }
+
+        return [];
+    }
+}

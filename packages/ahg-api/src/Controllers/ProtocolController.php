@@ -167,13 +167,16 @@ class ProtocolController extends Controller
             'search'     => $base.'/api/search',
         ], static fn ($v): bool => ! empty($v));
 
-        return [
+        return array_filter([
             'protocol_version' => '1.0',
             'description' => 'The queryable surfaces this instance exposes to federation peers. '
                 .'A peer queries these live over HTTP and merges the answers; all are read-only and '
                 .'expose published data only.',
             'surfaces' => $surfaces,
-        ];
+            // The public peer index: the peers THIS instance knows and federates
+            // with, so an external agent can bootstrap peer discovery (F2 #1315).
+            'peer_index' => $this->resolve('open-data.federation', '/open-data/federation'),
+        ], static fn ($v): bool => $v !== null && $v !== []);
     }
 
     /**

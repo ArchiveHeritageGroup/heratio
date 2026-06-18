@@ -2,6 +2,7 @@
 
 use AhgFederation\Controllers\EuropeanaController;
 use AhgFederation\Controllers\FederationController;
+use AhgFederation\Controllers\FederationGovernanceController;
 use AhgFederation\Middleware\EnsureFederationEnabled;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,14 @@ Route::middleware(['auth', 'admin', EnsureFederationEnabled::class])->prefix('fe
     Route::post('/harvest/run', [FederationController::class, 'runHarvest'])->name('federation.runHarvest');
     Route::get('/log', [FederationController::class, 'log'])->name('federation.log');
     Route::post('/peers/{id}/test', [FederationController::class, 'testPeer'])->name('federation.testPeer');
+
+    // F2 (#1315) peer discovery + governance. Fresh, unlocked controller -
+    // separate from the locked FederationController / edit-peer.blade.php.
+    Route::get('/governance', [FederationGovernanceController::class, 'index'])->name('federation.governance');
+    Route::post('/governance/discover', [FederationGovernanceController::class, 'discover'])->name('federation.governance.discover');
+    Route::post('/governance/{id}', [FederationGovernanceController::class, 'save'])
+        ->whereNumber('id')
+        ->name('federation.governance.save');
 });
 
 // Federated search is anonymous-readable so the GLAM browse page can embed it.
