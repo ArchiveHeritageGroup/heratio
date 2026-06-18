@@ -228,6 +228,13 @@ Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(funct
     Route::options('endangered', [\AhgApi\Controllers\EndangeredApiController::class, 'options']);
     Route::get('endangered', [\AhgApi\Controllers\EndangeredApiController::class, 'index'])
         ->name('api.v1.endangered');
+
+    // heratio#1205 PUSH-MODEL peer inbound: a federation peer POSTs an at-risk
+    // flag here (signed + from a known member). Stored for staff review; never
+    // acted on blind. Tighter throttle than the open GET register.
+    Route::post('endangered/inbound', [\AhgApi\Controllers\EndangeredApiController::class, 'inbound'])
+        ->middleware('throttle:30,1')
+        ->name('api.v1.endangered.inbound');
 });
 
 /*

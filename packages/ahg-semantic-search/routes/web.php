@@ -2,6 +2,7 @@
 
 use AhgSemanticSearch\Controllers\DisplacedHeritageController;
 use AhgSemanticSearch\Controllers\EndangeredHeritageController;
+use AhgSemanticSearch\Controllers\EndangeredInboundController;
 use AhgSemanticSearch\Controllers\RepatriationClaimController;
 use AhgSemanticSearch\Controllers\RepatriationDialogueController;
 use AhgSemanticSearch\Controllers\RepatriationKnowledgeController;
@@ -117,6 +118,14 @@ Route::middleware(['auth', 'admin'])->prefix('endangered')->group(function () {
     Route::post('/{id}/capture-status', [EndangeredHeritageController::class, 'captureStatus'])
         ->where('id', '[0-9]+')
         ->name('endangered.capture-status');
+
+    // heratio#1205 PUSH-MODEL peer inbound - the staff review queue for at-risk
+    // flags pushed to us by federation peers (accept -> shows on the board).
+    Route::get('/inbound', [EndangeredInboundController::class, 'index'])
+        ->name('endangered.inbound');
+    Route::post('/inbound/{id}/review', [EndangeredInboundController::class, 'review'])
+        ->where('id', '[0-9]+')
+        ->name('endangered.inbound.review');
 });
 
 // heratio#1210 - North Star "generative scholarship": curation of the public

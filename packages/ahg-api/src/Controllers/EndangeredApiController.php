@@ -176,6 +176,162 @@ class EndangeredApiController extends Controller
     }
 
     /**
+     * #1205 PUSH-MODEL inbound. A federation peer POSTs an at-risk flag here
+     * instead of waiting for us to pull. The push must come from a KNOWN
+     * federation member AND carry a valid Ed25519 federation signature over the
+     * exact body (T1 FederationVerifier, TOFU-pinned); the require-verified
+     * governance policy and the 'endangered' surface gate are honoured. A valid
+     * push is stored for staff review (never acted on blind, never shown publicly
+     * until accepted). Fail-soft: every rejection is a clean JSON response, never
+     * a 500.
+     */
+    public function inbound(Request $request): JsonResponse
+    {
+        $deny = fn (string $reason, int $code = 422) => response()->json(['accepted' => false, 'reason' => $reason], $code);
+
+        $inboundClass = \AhgSemanticSearch\Services\EndangeredInboundService::class;
+        if (! class_exists($inboundClass) || ! (new $inboundClass)->available()) {
+            return $deny('inbound not available', 503);
+        }
+
+        // Declared peer base_url (header wins, body fallback). Must be known.
+        $peerBaseUrl = trim((string) ($request->header('X-Federation-Peer') ?: $request->input('peer_base_url', '')));
+        if ($peerBaseUrl === '') {
+            return $deny('missing peer base_url');
+        }
+        if (! $this->isKnownPeer($peerBaseUrl)) {
+            return $deny('unknown peer (not a federation member)', 403);
+        }
+
+        // Trust handshake (T1): verify the peer's detached Ed25519 signature over
+        // the EXACT received bytes + TOFU-pin; honour the require-verified policy
+        // and the 'endangered' surface gate (F2 governance).
+        $rawBody = (string) $request->getContent();
+        $headers = $this->lowerHeaders($request);
+        $verification = ['verified' => false, 'key_fingerprint' => null, 'reason' => 'unverifiable'];
+        $requireVerified = false;
+
+        $verifierClass = \AhgFederation\Services\FederationVerifier::class;
+        if (class_exists($verifierClass)) {
+            try {
+                $verification = (new $verifierClass)->verifyResponse($rawBody, $headers, $peerBaseUrl);
+            } catch (\Throwable $e) {
+                Log::info('[endangered-inbound] verify failed: '.$e->getMessage());
+            }
+        }
+        $govClass = \AhgFederation\Services\FederationGovernance::class;
+        if (class_exists($govClass)) {
+            try {
+                $gov = new $govClass;
+                $verdict = $gov->peerAllowedFor($peerBaseUrl, 'endangered', true);
+                if (! ($verdict['allowed'] ?? false)) {
+                    return $deny('peer not allowed for the endangered surface: '.($verdict['reason'] ?? ''), 403);
+                }
+                $requireVerified = $gov->requireVerified();
+            } catch (\Throwable $e) {
+                // Governance unavailable: fall through (signature policy below still applies).
+            }
+        }
+        if ($requireVerified && ! ($verification['verified'] ?? false)) {
+            return $deny('signature required: '.($verification['reason'] ?? 'unverified'), 401);
+        }
+
+        $payload = $this->extractInboundItem($request);
+        if (empty($payload)) {
+            return $deny('no flag payload');
+        }
+
+        $peerName = trim((string) ($request->header('X-Federation-Peer-Name') ?: $this->peerName($peerBaseUrl)));
+        $receipt = (new $inboundClass)->ingest($payload, $peerBaseUrl, $peerName, $verification);
+        if ($receipt === null) {
+            return $deny('could not record the flag (missing reference?)');
+        }
+
+        return response()->json([
+            'accepted'      => true,
+            'review_status' => $receipt['review_status'],
+            'verified'      => (bool) ($verification['verified'] ?? false),
+            'id'            => $receipt['id'],
+        ]);
+    }
+
+    /** Is $baseUrl an enabled, non-self federation member? (normalised on trailing slash). */
+    protected function isKnownPeer(string $baseUrl): bool
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('federation_member')) {
+                return false;
+            }
+            $norm = rtrim(strtolower(trim($baseUrl)), '/');
+
+            return \Illuminate\Support\Facades\DB::table('federation_member')
+                ->where('is_enabled', 1)
+                ->where('is_self', 0)
+                ->get(['base_url'])
+                ->contains(fn ($m) => rtrim(strtolower((string) $m->base_url), '/') === $norm);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /** The federation_member name for a base_url, or '' when unknown. */
+    protected function peerName(string $baseUrl): string
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('federation_member')) {
+                return '';
+            }
+            $norm = rtrim(strtolower(trim($baseUrl)), '/');
+            foreach (\Illuminate\Support\Facades\DB::table('federation_member')->get(['name', 'base_url']) as $m) {
+                if (rtrim(strtolower((string) $m->base_url), '/') === $norm) {
+                    return (string) ($m->name ?? '');
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        return '';
+    }
+
+    /** Lower-cased, flattened request headers for the signature verifier. @return array<string,string> */
+    protected function lowerHeaders(Request $request): array
+    {
+        $out = [];
+        foreach ($request->headers->all() as $key => $values) {
+            $out[strtolower((string) $key)] = is_array($values) ? (string) ($values[0] ?? '') : (string) $values;
+        }
+
+        return $out;
+    }
+
+    /**
+     * Extract a single pushed flag item from the request body. Accepts a bare item
+     * object, {item:{...}}, or {items:[...]} (first item). Returns [] when none.
+     *
+     * @return array<string,mixed>
+     */
+    protected function extractInboundItem(Request $request): array
+    {
+        $body = $request->json()->all();
+        if (! is_array($body)) {
+            return [];
+        }
+        if (isset($body['item']) && is_array($body['item'])) {
+            return $body['item'];
+        }
+        if (isset($body['items']) && is_array($body['items']) && isset($body['items'][0]) && is_array($body['items'][0])) {
+            return $body['items'][0];
+        }
+        // A bare item: must carry something we can use as a reference.
+        if (isset($body['item_ref']) || isset($body['reference'])) {
+            return $body;
+        }
+
+        return [];
+    }
+
+    /**
      * Shape one decorated register row into the stable public JSON contract that
      * peers consume. The slug is turned into an absolute catalogue_url so a peer
      * can link straight back to the holding record on this instance.

@@ -554,6 +554,7 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         // memory/reference_ci_schema_hastable.md).
         $this->bootScholarshipDiscoveryTable();
         $this->bootFederatedDiscoveryCacheTable();
+        $this->bootEndangeredInboundTable();
 
         // heratio#1207 - repatriation-claim / virtual-return workflow. The
         // structured claim records that sit on top of the displaced-heritage
@@ -850,6 +851,54 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             // Never block boot on install failure - log and continue. Federated
             // discovery degrades to live-only (no persistence) when absent.
             Log::warning('ahg-semantic-search federated-discovery-cache boot install skipped: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * heratio#1205 - PUSH-MODEL peer inbound for the endangered network. A
+     * federation peer can POST an at-risk flag to /api/v1/endangered/inbound; the
+     * verified push lands here for staff review (review_status 'pending'), and an
+     * accepted push then surfaces on the cross-institution board. Auto-created on
+     * first boot behind a Schema::hasTable probe in one try/catch (the canonical
+     * package idiom; see memory/reference_ci_schema_hastable.md).
+     */
+    protected function bootEndangeredInboundTable(): void
+    {
+        try {
+            if (Schema::hasTable('endangered_inbound_flag')) {
+                return;
+            }
+
+            Schema::create('endangered_inbound_flag', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->char('dedupe_key', 64);             // sha256(base_url|reference)
+                $table->string('source_peer_base_url', 1024);
+                $table->string('source_peer_name', 512)->nullable();
+                $table->string('reference', 512);           // the peer's item ref/slug
+                $table->string('title', 1024)->nullable();
+                $table->string('risk', 64)->default('other');
+                $table->string('urgency', 64)->default('medium');
+                $table->string('capture_status', 64)->nullable();
+                $table->text('reason')->nullable();
+                $table->string('catalogue_url', 1024)->nullable();
+                $table->json('payload')->nullable();
+                $table->boolean('peer_verified')->default(false);
+                $table->string('key_fingerprint', 128)->nullable();
+                $table->string('review_status', 32)->default('pending'); // pending|accepted|declined
+                $table->timestamp('received_at')->nullable();
+                $table->unsignedBigInteger('reviewed_by')->nullable();
+                $table->timestamp('reviewed_at')->nullable();
+                $table->timestamps();
+
+                $table->unique('dedupe_key', 'uq_endangered_inbound_dedupe');
+                $table->index('review_status', 'ix_endangered_inbound_status');
+            });
+
+            Log::info('ahg-semantic-search: endangered_inbound_flag created (first-boot)');
+        } catch (\Throwable $e) {
+            // Never block boot on install failure - the inbound endpoint just
+            // returns "not available" when the table is absent.
+            Log::warning('ahg-semantic-search endangered-inbound boot install skipped: '.$e->getMessage());
         }
     }
 

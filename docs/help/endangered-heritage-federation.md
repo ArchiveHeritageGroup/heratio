@@ -129,12 +129,39 @@ plain "some partners could not be reached" notice - the board never 500s.
 If the SSRF guard is ever changed in `FederationGraphService` or
 `FederatedSearchService`, mirror the change in `FederatedEndangeredService`.
 
+## Push-model peer inbound
+
+Aggregation is **pull** - we fetch each peer's register on demand. A federation
+peer can also **push** an at-risk flag to us, so a partner that has just
+identified something endangered does not have to wait for us to come asking.
+
+```
+POST /api/v1/endangered/inbound
+```
+
+A push is accepted only when **both** hold:
+
+- it comes from a **known federation member** (matched by `base_url` against the
+  `federation_member` registry - random hosts are rejected), and
+- it carries a valid **Ed25519 federation signature** over the exact request body
+  (the same T1 trust handshake used elsewhere; the peer's key is verified and
+  TOFU-pinned). If this instance's `federation_require_verified` policy is on, an
+  unverifiable push is refused.
+
+The `endangered` surface gate (peer governance) is also applied. A valid push is
+stored as **pending** - it does **not** touch this institution's own register and
+is **not** shown publicly. Staff review the queue at **Admin -> Endangered ->
+Pushed flags** (`/endangered/inbound`): **accepting** a push adds it to the
+cross-institution board (tagged as peer-pushed, with the source peer and its
+verification status); **declining** removes it. An admin notification fires when a
+new push arrives. Re-pushing the same record updates the existing entry rather
+than duplicating it. The whole path is fail-soft - a malformed or unauthorised
+push is a clean rejection, never an error.
+
 ## Deferred follow-ups
 
-This first increment delivers live aggregation plus the unified board.
 Explicitly deferred:
 
 - climate / conflict-zone risk overlays on the board,
-- a push-model peer inbound (peers notifying us of new flags),
 - a dedicated federation cache table (today the cache is the short-lived
   application cache only).

@@ -33,9 +33,11 @@
  * it is never fatal. Federation absent / zero peers / a peer down / bad JSON all
  * degrade to local-only + warnings - this service NEVER throws and NEVER 500s.
  *
- * Scope of this first increment: live aggregation + the unified board it feeds.
+ * Scope: live aggregation + the unified board it feeds, now ALSO blending in
+ * peer PUSHES that a curator accepted (#1205 push-model inbound - see
+ * EndangeredInboundService / the /api/v1/endangered/inbound endpoint).
  * Deferred follow-ups (noted, not built): climate / conflict-zone risk overlays,
- * a push-model peer inbound, and a dedicated federation cache table.
+ * and a dedicated federation cache table.
  *
  * @author     Johan Pieterse <johan@plainsailingisystems.co.za>
  * @copyright  Plain Sailing Information Systems
@@ -249,6 +251,33 @@ class FederatedEndangeredService
             }
         }
 
+        // 2b. heratio#1205 PUSH-MODEL: blend in at-risk flags that PEERS PUSHED to
+        // us and that a curator has ACCEPTED. These are human-vetted (a curator
+        // reviewed the signed push), so they merge regardless of the live verify
+        // policy, tagged pushed=true. Deduped by peer base_url + ref so a pushed
+        // row never doubles a pulled one. Fail-soft.
+        $pushedCount = 0;
+        $inboundClass = \AhgSemanticSearch\Services\EndangeredInboundService::class;
+        if (class_exists($inboundClass)) {
+            try {
+                foreach ((new $inboundClass)->acceptedForBoard() as $row) {
+                    $row = $this->decoratePushedRow($row, $risk, $urgency, $status);
+                    if ($row === null) {
+                        continue; // filtered out
+                    }
+                    $base = (string) ($row['source_peer']['base_url'] ?? '');
+                    $key = 'pushed:'.hash('sha256', strtolower($base).'|'.(string) ($row['item_ref'] ?? ''));
+                    if (isset($merged[$key])) {
+                        continue;
+                    }
+                    $merged[$key] = $row;
+                    $pushedCount++;
+                }
+            } catch (\Throwable $e) {
+                $warnings[] = 'Pushed at-risk flags unavailable: '.$e->getMessage();
+            }
+        }
+
         // 3. Rank: priority score (reuses the local scorer) desc, then urgency
         // weight desc, then title for a stable order.
         $items = array_values($merged);
@@ -284,7 +313,56 @@ class FederatedEndangeredService
             ],
             'warnings'      => $warnings,
             'local_count'   => $localCount,
+            'pushed_count'  => $pushedCount,
             'total_count'   => count($items),
+        ];
+    }
+
+    /**
+     * #1205: decorate an ACCEPTED pushed flag into the board's row shape (labels,
+     * urgency weight, priority via the local scorer) and apply the active filters.
+     * Returns null when the row is filtered out by risk/urgency/status.
+     *
+     * @param  array<string,mixed>  $row
+     * @return array<string,mixed>|null
+     */
+    protected function decoratePushedRow(array $row, string $risk, string $urgency, string $status): ?array
+    {
+        $riskCat = $this->local->normaliseRisk($row['risk_category'] ?? null);
+        $urg = $this->local->normaliseUrgency($row['urgency'] ?? null);
+        $cap = $this->local->normaliseCaptureStatus($row['capture_status'] ?? null);
+
+        if ($risk !== '' && strcasecmp($riskCat, $risk) !== 0) {
+            return null;
+        }
+        if ($urgency !== '' && strcasecmp($urg, $urgency) !== 0) {
+            return null;
+        }
+        if ($status !== '' && strcasecmp($cap, $status) !== 0) {
+            return null;
+        }
+
+        $riskMeta = $this->local->riskMeta($riskCat);
+        $urgMeta = $this->local->urgencyMeta($urg);
+        $capMeta = $this->local->captureStatusMeta($cap);
+
+        return [
+            'item_ref'             => (string) ($row['item_ref'] ?? ''),
+            'title'                => $row['title'] ?? null,
+            'risk_category'        => $riskCat,
+            'risk_label'           => (string) ($riskMeta['label'] ?? ''),
+            'urgency'              => $urg,
+            'urgency_label'        => (string) ($urgMeta['label'] ?? ''),
+            'urgency_weight'       => (int) ($urgMeta['weight'] ?? 0),
+            'capture_status'       => $cap,
+            'capture_status_label' => (string) ($capMeta['label'] ?? ''),
+            'reason'               => $row['reason'] ?? null,
+            'priority_score'       => $this->local->priorityScore(['urgency' => $urg, 'risk_category' => $riskCat, 'capture_status' => $cap]),
+            'flagged_at'           => $row['flagged_at'] ?? null,
+            'catalogue_url'        => $row['catalogue_url'] ?? null,
+            'institution'          => (string) ($row['source_peer']['name'] ?? ''),
+            'source_peer'          => $row['source_peer'] ?? null,
+            'pushed'               => true,
         ];
     }
 
