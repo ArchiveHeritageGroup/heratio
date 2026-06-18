@@ -121,8 +121,39 @@ class FederatedEndangeredService
             $localCount++;
         }
 
-        // 2. Active peers with a usable base_url.
-        $peers = $this->peers();
+        // 2. Active peers with a usable base_url, then apply the F2 surface gate
+        // (#1317): only peers that are federation_enabled AND allowed for the
+        // 'endangered' surface are queried. A gated-out peer is recorded in
+        // warnings (never silently dropped) and never contacted. Governance +
+        // the require-verified policy come from the shared FederationGovernance
+        // helper (ahg-federation); if that package is absent the gate defaults
+        // open (back-compat) so this service stays self-contained.
+        $governance = $this->governance();
+        $allPeers = $this->peers();
+        $peers = [];
+        foreach ($allPeers as $peerId => $peer) {
+            if ($governance === null) {
+                $peers[$peerId] = $peer;
+                continue;
+            }
+            $verdict = $governance->peerAllowedFor((string) $peer->base_url, 'endangered', true);
+            if ($verdict['allowed']) {
+                $peers[$peerId] = $peer;
+            } else {
+                $warnings[] = sprintf(
+                    'Peer %d (%s): skipped for endangered - %s',
+                    $peer->id,
+                    $peer->name,
+                    $verdict['reason']
+                );
+            }
+        }
+
+        // Aggregate trust accounting for the require-verified policy + notice.
+        $requireVerified = $governance !== null ? $governance->requireVerified() : false;
+        $unverifiedRowCount = 0;
+        $droppedUnverifiedCount = 0;
+
         $peerStats = [];
 
         if (! empty($peers)) {
@@ -161,8 +192,48 @@ class FederatedEndangeredService
                     $stat['key_fingerprint'] = $verdict['key_fingerprint'];
                     $stat['trust_reason'] = $verdict['reason'];
 
+                    // Require-verified policy (#1317): when ON, an unverified peer
+                    // contributes NOTHING to the merged board (its rows are
+                    // dropped); the drop is counted + surfaced. Local rows are
+                    // unaffected (they carry source_peer=null).
+                    if ($governance !== null && $governance->shouldDropUnverified($sourcePeer)) {
+                        $peerRows = $this->parsePeerRegister($resp['body'] ?? '', $sourcePeer, $warnings);
+                        $dropped = count($peerRows);
+                        $droppedUnverifiedCount += $dropped;
+                        $stat['dropped_unverified'] = true;
+                        $stat['item_count'] = 0;
+                        $warnings[] = sprintf(
+                            'Peer %d (%s): %d row(s) dropped - unverified and federation_require_verified is ON',
+                            $peer->id,
+                            $peer->name,
+                            $dropped
+                        );
+                        $peerStats[] = $stat;
+
+                        continue;
+                    }
+
+                    // Authenticity-chain link (#1317): each borrowed row's
+                    // source_peer points back to the PEER's own trust dossier /
+                    // authenticity report for the same item_ref.
+                    if ($governance !== null) {
+                        $sourcePeer['trust_dossier_url'] = $governance->trustDossierUrl((string) $peer->base_url, '');
+                        $sourcePeer['authenticity_url'] = $governance->authenticityUrl((string) $peer->base_url, '');
+                    }
+
                     $peerRows = $this->parsePeerRegister($resp['body'] ?? '', $sourcePeer, $warnings);
                     foreach ($peerRows as $row) {
+                        // Per-row trust-dossier link against the row's own item_ref
+                        // (each at-risk row resolves to a different record on the
+                        // peer, so the dossier link is per-row, not per-peer).
+                        if ($governance !== null && isset($row['source_peer']) && is_array($row['source_peer'])) {
+                            $ref = (string) ($row['item_ref'] ?? '');
+                            $row['source_peer']['trust_dossier_url'] = $governance->trustDossierUrl((string) $peer->base_url, $ref);
+                            $row['source_peer']['authenticity_url'] = $governance->authenticityUrl((string) $peer->base_url, $ref);
+                        }
+                        if (($sourcePeer['verified'] ?? false) !== true) {
+                            $unverifiedRowCount++;
+                        }
                         $key = $this->dedupeKey($sourcePeer['id'], (string) ($row['item_ref'] ?? ''));
                         if (isset($merged[$key])) {
                             continue; // already seen this peer+ref
@@ -204,10 +275,58 @@ class FederatedEndangeredService
             'items'         => $items,
             'peers_queried' => count($peerStats),
             'peers'         => $peerStats,
+            // Trust-threshold policy (#1317): mirrors FederationGraphService.
+            'trust' => [
+                'require_verified'         => $requireVerified,
+                'unverified_row_count'     => $unverifiedRowCount,
+                'dropped_unverified_count' => $droppedUnverifiedCount,
+                'notice'                   => $this->trustNotice($requireVerified, $unverifiedRowCount, $droppedUnverifiedCount),
+            ],
             'warnings'      => $warnings,
             'local_count'   => $localCount,
             'total_count'   => count($items),
         ];
+    }
+
+    /**
+     * The shared federation governance helper (ahg-federation), or null when
+     * that package is not installed - in which case this service keeps its
+     * pre-#1317 behaviour (all enabled members queried, no verified policy) so
+     * it stays self-contained and never hard-depends on ahg-federation.
+     */
+    protected function governance(): ?\AhgFederation\Services\FederationGovernance
+    {
+        $class = \AhgFederation\Services\FederationGovernance::class;
+        if (! class_exists($class)) {
+            return null;
+        }
+
+        try {
+            return new $class;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Human-readable aggregate trust notice for the board (#1317). Mirrors
+     * FederationGraphService::trustNotice() but for rows.
+     */
+    protected function trustNotice(bool $requireVerified, int $unverified, int $dropped): ?string
+    {
+        if ($requireVerified) {
+            if ($dropped > 0) {
+                return sprintf('%d result(s) from unverified peers were excluded (federation_require_verified is ON).', $dropped);
+            }
+
+            return null;
+        }
+
+        if ($unverified > 0) {
+            return sprintf('%d result(s) from unverified peers are included and flagged (federation_require_verified is OFF).', $unverified);
+        }
+
+        return null;
     }
 
     // -----------------------------------------------------------------

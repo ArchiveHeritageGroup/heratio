@@ -88,7 +88,60 @@ class FederationGovernanceController extends Controller
             'hasTrust' => $hasTrust,
             'trustLevels' => $this->dropdown('federation_trust_level'),
             'surfaces' => PeerDiscoveryService::KNOWN_SURFACES,
+            // T2 (#1317): the per-instance require-verified policy, read via the
+            // canonical settings helper so the toggle reflects what the live
+            // federation services enforce. Default OFF (back-compat).
+            'requireVerified' => $this->requireVerifiedSetting(),
         ]);
+    }
+
+    /**
+     * Save the per-instance trust-threshold policy (T2 #1317):
+     * federation_require_verified. When ON, the live federation services
+     * (FederationGraphService / FederatedEndangeredService) DROP peer nodes/rows
+     * whose cryptographic verification failed; when OFF they are included but
+     * flagged. Stored in ahg_settings (group 'federation') via the canonical
+     * settings mechanism - never a hardcoded constant. Never throws to the user.
+     */
+    public function savePolicy(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'federation_require_verified' => ['nullable', 'boolean'],
+        ]);
+
+        try {
+            \AhgCore\Services\AhgSettingsService::set(
+                \AhgFederation\Services\FederationGovernance::REQUIRE_VERIFIED_KEY,
+                $request->boolean('federation_require_verified') ? '1' : '0',
+                \AhgFederation\Services\FederationGovernance::SETTINGS_GROUP
+            );
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Could not save the trust policy: '.$e->getMessage());
+        }
+
+        return back()->with('success', $request->boolean('federation_require_verified')
+            ? 'Trust policy saved: only cryptographically-verified peer data will be included.'
+            : 'Trust policy saved: unverified peer data is included but flagged.');
+    }
+
+    /**
+     * Read the per-instance require-verified policy via the canonical settings
+     * helper. Default OFF; never throws.
+     */
+    protected function requireVerifiedSetting(): bool
+    {
+        try {
+            if (class_exists(\AhgCore\Services\AhgSettingsService::class)) {
+                return \AhgCore\Services\AhgSettingsService::getBool(
+                    \AhgFederation\Services\FederationGovernance::REQUIRE_VERIFIED_KEY,
+                    false
+                );
+            }
+        } catch (\Throwable $e) {
+            // fall through
+        }
+
+        return false;
     }
 
     /** Save per-peer governance. */

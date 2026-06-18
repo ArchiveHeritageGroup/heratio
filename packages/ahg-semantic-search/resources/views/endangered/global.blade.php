@@ -66,6 +66,16 @@
         </span>
     </div>
 
+    {{-- Trust-threshold notice (#1317): the require-verified policy outcome.
+         OFF + unverified present => "included and flagged"; ON + dropped =>
+         "excluded". The per-card "unverified" badge below complements this. --}}
+    @if(!empty($trust['notice']))
+        <div class="alert {{ ($trust['require_verified'] ?? false) ? 'alert-secondary' : 'alert-warning' }} d-flex align-items-start mb-4" role="status">
+            <i class="fas fa-shield-halved me-3 mt-1"></i>
+            <div class="small">{{ $trust['notice'] }}</div>
+        </div>
+    @endif
+
     @if(!empty($warnings))
         <div class="alert alert-light border d-flex align-items-start mb-4" role="status">
             <i class="fas fa-triangle-exclamation text-warning me-3 mt-1"></i>
@@ -167,6 +177,24 @@
                                         <i class="fas fa-share-nodes me-1"></i>{{ $institution ?: $peer['name'] }}
                                     </span>
                                     <span class="text-muted small ms-1">{{ __('Partner institution') }}</span>
+                                    {{-- Unverified badge (#1317): when the require-verified
+                                         policy is OFF, peer rows that failed cryptographic
+                                         verification are shown but flagged here. (When ON they
+                                         are dropped upstream and never reach this loop.) --}}
+                                    @if(($peer['verified'] ?? false) !== true)
+                                        <span class="badge rounded-pill text-bg-warning" title="{{ __('This partner did not provide a verifiable signature for this data.') }}">
+                                            <i class="fas fa-shield-halved me-1"></i>{{ __('unverified') }}
+                                        </span>
+                                    @endif
+                                    {{-- Authenticity-chain link (#1317): follow a borrowed
+                                         record back to the partner's own trust dossier. --}}
+                                    @if(!empty($peer['trust_dossier_url']))
+                                        <a href="{{ $peer['trust_dossier_url'] }}" target="_blank" rel="noopener"
+                                           class="small ms-1 text-decoration-none"
+                                           title="{{ __('View this record\'s authenticity chain at the holding institution') }}">
+                                            <i class="fas fa-link me-1"></i>{{ __('trust dossier') }}
+                                        </a>
+                                    @endif
                                 @else
                                     <span class="badge rounded-pill text-bg-secondary">
                                         <i class="fas fa-house me-1"></i>{{ $institution ?: __('This institution') }}

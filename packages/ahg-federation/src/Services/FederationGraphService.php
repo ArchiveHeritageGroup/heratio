@@ -124,8 +124,32 @@ class FederationGraphService
             $nodesByUri[$uri] = $node;
         }
 
-        // 2. Active peers with a usable base_url.
-        $peers = $this->graphPeers();
+        // 2. Active peers with a usable base_url, then apply the F2 surface gate
+        // (#1317): only peers that are federation_enabled AND allowed for the
+        // 'graph' surface are queried. A peer that is gated out is recorded in
+        // warnings (never silently dropped) and never contacted.
+        $governance = new FederationGovernance();
+        $allPeers = $this->graphPeers();
+        $peers = [];
+        foreach ($allPeers as $peerId => $peer) {
+            $verdict = $governance->peerAllowedFor((string) $peer->base_url, 'graph', true);
+            if ($verdict['allowed']) {
+                $peers[$peerId] = $peer;
+            } else {
+                $warnings[] = sprintf(
+                    'Peer %d (%s): skipped for graph - %s',
+                    $peer->id,
+                    $peer->name,
+                    $verdict['reason']
+                );
+            }
+        }
+
+        // Aggregate trust accounting for the require-verified policy + notice.
+        $requireVerified = $governance->requireVerified();
+        $unverifiedNodeCount = 0; // nodes included but unverified (policy OFF)
+        $droppedUnverifiedCount = 0; // nodes dropped (policy ON)
+
         $peerStats = [];
 
         if (! empty($peers)) {
@@ -164,6 +188,36 @@ class FederationGraphService
                     $stat['key_fingerprint'] = $verdict['key_fingerprint'];
                     $stat['trust_reason'] = $verdict['reason'];
 
+                    // Require-verified policy (#1317): when ON, an unverified peer
+                    // contributes NOTHING to the merged graph (its nodes are
+                    // dropped); the drop is counted + surfaced in warnings. Local
+                    // data is unaffected (it is never a peer node).
+                    if ($governance->shouldDropUnverified($sourcePeer)) {
+                        $stat['dropped_unverified'] = true;
+                        $peerNodes = $this->parsePeerGraph($resp['body'] ?? '', $sourcePeer, $warnings);
+                        $dropped = count($peerNodes);
+                        $droppedUnverifiedCount += $dropped;
+                        $stat['node_count'] = 0;
+                        $warnings[] = sprintf(
+                            'Peer %d (%s): %d node(s) dropped - unverified and federation_require_verified is ON',
+                            $peer->id,
+                            $peer->name,
+                            $dropped
+                        );
+                        $peerStats[] = $stat;
+                        continue;
+                    }
+
+                    // Authenticity-chain link (#1317): point each borrowed node back
+                    // to the PEER's own trust dossier / authenticity report for the
+                    // same reference, so a consumer can follow the lineage.
+                    $sourcePeer['trust_dossier_url'] = $governance->trustDossierUrl((string) $peer->base_url, $ref);
+                    $sourcePeer['authenticity_url'] = $governance->authenticityUrl((string) $peer->base_url, $ref);
+
+                    if ($sourcePeer['verified'] !== true) {
+                        $unverifiedNodeCount++;
+                    }
+
                     $peerNodes = $this->parsePeerGraph($resp['body'] ?? '', $sourcePeer, $warnings);
                     foreach ($peerNodes as $uri => $node) {
                         if (isset($nodesByUri[$uri])) {
@@ -200,6 +254,17 @@ class FederationGraphService
                 'total_node_count' => count($graph),
                 'peers_queried'   => count($peerStats),
                 'peers'           => $peerStats,
+                // Trust-threshold policy (#1317). require_verified reflects the
+                // per-instance federation_require_verified setting. When OFF,
+                // unverified peer nodes are INCLUDED but flagged
+                // (source_peer.verified=false) and counted here. When ON, they
+                // are DROPPED and the dropped count is reported.
+                'trust' => [
+                    'require_verified'         => $requireVerified,
+                    'unverified_node_count'    => $unverifiedNodeCount,
+                    'dropped_unverified_count' => $droppedUnverifiedCount,
+                    'notice'                   => $this->trustNotice($requireVerified, $unverifiedNodeCount, $droppedUnverifiedCount),
+                ],
                 'warnings'        => $warnings,
             ],
         ];
@@ -478,6 +543,29 @@ class FederationGraphService
     // -----------------------------------------------------------------
     // Cache keys
     // -----------------------------------------------------------------
+
+    /**
+     * Human-readable aggregate trust notice for the federation block (#1317).
+     * OFF + unverified present: "N node(s) from unverified peers ...". ON +
+     * dropped: "N node(s) from unverified peers were excluded ...". Otherwise
+     * null (nothing to say).
+     */
+    protected function trustNotice(bool $requireVerified, int $unverified, int $dropped): ?string
+    {
+        if ($requireVerified) {
+            if ($dropped > 0) {
+                return sprintf('%d node(s) from unverified peers were excluded (federation_require_verified is ON).', $dropped);
+            }
+
+            return null;
+        }
+
+        if ($unverified > 0) {
+            return sprintf('%d node(s) from unverified peers are included and flagged (federation_require_verified is OFF).', $unverified);
+        }
+
+        return null;
+    }
 
     protected function cacheKey(int $peerId, string $ref): string
     {

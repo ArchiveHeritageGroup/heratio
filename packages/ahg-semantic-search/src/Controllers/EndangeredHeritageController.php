@@ -277,6 +277,9 @@ class EndangeredHeritageController extends Controller
             'items' => $result['items'],
             'peers' => $result['peers'],
             'peersQueried' => (int) $result['peers_queried'],
+            // Trust-threshold policy block (#1317): drives the require-verified
+            // notice + the per-card "unverified" badge on the board.
+            'trust' => $result['trust'] ?? ['require_verified' => false, 'notice' => null],
             'warnings' => $result['warnings'],
             'localCount' => (int) $result['local_count'],
             'totalCount' => (int) $result['total_count'],

@@ -50,6 +50,48 @@
         {{ __('to record whether it advertises the Federation Query Protocol. Enable a peer for federation, set its trust level, an optional per-peer rate limit, and which surfaces it may be queried for.') }}
     </p>
 
+    {{-- T2 (#1317): per-instance trust-threshold policy. When ON, the live
+         federated graph + endangered views DROP peer data that failed
+         cryptographic verification; when OFF they include it but flag it
+         "unverified". This is what makes the federation "verifiable by
+         construction" - the stored verified flag is now ENFORCED here. --}}
+    <div class="card mb-4 border-primary-subtle">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h6 class="mb-1"><i class="bi bi-shield-lock me-2"></i>{{ __('Trust-threshold policy') }}</h6>
+                    <p class="text-muted small mb-0" style="max-width:46rem">
+                        {{ __('When ON, only cryptographically-verified peer data is merged into federated results; unverified peer nodes/rows are dropped. When OFF (default), unverified data is included but clearly flagged. Local data is always included either way.') }}
+                    </p>
+                </div>
+                <form method="POST" action="{{ route('federation.governance.policy') }}" class="m-0">
+                    @csrf
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="form-check form-switch m-0">
+                            <input type="hidden" name="federation_require_verified" value="0">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                   name="federation_require_verified" value="1" id="require-verified"
+                                   @checked(!empty($requireVerified))>
+                            <label class="form-check-label" for="require-verified">
+                                {{ __('Require verified peers') }}
+                            </label>
+                        </div>
+                        <button type="submit" class="atom-btn-white btn-sm">
+                            <i class="bi bi-save me-1"></i>{{ __('Save policy') }}
+                        </button>
+                    </div>
+                    <div class="small mt-1">
+                        @if(!empty($requireVerified))
+                            <span class="badge bg-success">{{ __('ON - unverified peer data excluded') }}</span>
+                        @else
+                            <span class="badge bg-secondary">{{ __('OFF - unverified peer data flagged') }}</span>
+                        @endif
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body p-0">
             @if($peers->isEmpty())
@@ -72,6 +114,30 @@
                             <td>
                                 <strong>{{ $peer->name }}</strong><br>
                                 <small class="text-muted">{{ $peer->base_url }}</small>
+                                {{-- T2 (#1317) "is this peer trusted + for what" summary:
+                                     the enforced state at a glance - federation on/off,
+                                     the surfaces it may be queried for, and whether its key
+                                     is pinned (TOFU). Mirrors exactly what the live services
+                                     enforce. --}}
+                                <div class="mt-2 d-flex flex-wrap gap-1">
+                                    @if(($peer->federation_enabled ?? 0) == 1)
+                                        <span class="badge bg-success"><i class="bi bi-broadcast me-1"></i>{{ __('federated') }}</span>
+                                    @else
+                                        <span class="badge bg-secondary"><i class="bi bi-slash-circle me-1"></i>{{ __('not federated') }}</span>
+                                    @endif
+                                    @if(empty($peer->allowed_entity_types_list))
+                                        <span class="badge bg-light text-dark border" title="{{ __('No surfaces ticked = all advertised surfaces allowed.') }}">{{ __('all surfaces') }}</span>
+                                    @else
+                                        @foreach($peer->allowed_entity_types_list as $s)
+                                            <span class="badge bg-info-subtle text-info-emphasis border">{{ $s }}</span>
+                                        @endforeach
+                                    @endif
+                                    @if($peer->pinned_key_fingerprint ?? null)
+                                        <span class="badge bg-success-subtle text-success-emphasis border"><i class="bi bi-shield-lock me-1"></i>{{ __('key pinned') }}</span>
+                                    @else
+                                        <span class="badge bg-light text-dark border">{{ __('key unpinned') }}</span>
+                                    @endif
+                                </div>
                             </td>
                             <td>
                                 @php($status = $peer->discovery_status ?? 'unknown')

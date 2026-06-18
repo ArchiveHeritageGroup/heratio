@@ -165,6 +165,13 @@ class ProtocolController extends Controller
             'graph'      => $this->resolve('api.v1.graph.show', '/api/v1/graph/{idOrSlug}'),
             'endangered' => $this->resolve('api.v1.endangered', '/api/v1/endangered'),
             'search'     => $base.'/api/search',
+            // Trust-dossier surface (#1317): a borrowed record's authenticity
+            // chain. A consumer that receives a remote node tagged
+            // source_peer.trust_dossier_url follows it here to verify the
+            // record's lineage at the holding peer. Declared so the URL pattern
+            // is discoverable rather than guessed.
+            'trust_dossier' => $base.'/trust-dossier/{idOrSlug}',
+            'authenticity'  => $base.'/authenticity/{idOrSlug}',
         ], static fn ($v): bool => ! empty($v));
 
         return array_filter([

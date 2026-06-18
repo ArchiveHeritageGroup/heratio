@@ -23,6 +23,10 @@ Route::middleware(['auth', 'admin', EnsureFederationEnabled::class])->prefix('fe
     // separate from the locked FederationController / edit-peer.blade.php.
     Route::get('/governance', [FederationGovernanceController::class, 'index'])->name('federation.governance');
     Route::post('/governance/discover', [FederationGovernanceController::class, 'discover'])->name('federation.governance.discover');
+    // T2 (#1317) per-instance trust-threshold policy: the
+    // federation_require_verified toggle. Distinct from the per-peer save
+    // below (which is whereNumber('id')), so the literal 'policy' path is safe.
+    Route::post('/governance/policy', [FederationGovernanceController::class, 'savePolicy'])->name('federation.governance.policy');
     Route::post('/governance/{id}', [FederationGovernanceController::class, 'save'])
         ->whereNumber('id')
         ->name('federation.governance.save');

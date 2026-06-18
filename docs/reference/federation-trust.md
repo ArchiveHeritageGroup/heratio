@@ -162,3 +162,147 @@ peer pubkey doc (keys[])       -> extractKey by kid -> matches local pubkey
 /api/v1/endangered             -> carries X-Federation-* headers, self-verifies
 /open-data/protocol            -> federation.trust block present + correct
 ```
+
+# Federation Enforcement: Verifiable by Construction (T2, heratio#1317)
+
+T1 (above) *established* trust - it stamped every cross-peer node/row with
+`source_peer.verified` and a `key_fingerprint`. F2 (#1315) *stored* per-peer
+governance on `federation_peer` (`federation_enabled`, `trust_level`,
+`rate_limit_seconds`, `allowed_entity_types`). **T2 enforces both at query
+time**, so the federation layer is verifiable by construction: what F2 stored
+and T1 verified is now what the live services actually do. This is the FINAL
+phase of epic #1313, which is now complete.
+
+All of T2 is **additive and fail-soft**: the default policy reproduces today's
+behaviour exactly, every lookup is guarded, local data is never at risk, and
+zero peers degrades to local-only. No new crypto, no new keypair, no new table -
+it reuses the F2 columns, the T1 verified flag, the existing settings mechanism
+(`AhgCore\Services\AhgSettingsService`) and `AhgC2pa\Services\TrustDossierService`'s
+published surface.
+
+## The enforcement helper
+
+`AhgFederation\Services\FederationGovernance` is the single read-side helper both
+live services use (no duplicated governance query):
+
+- `peerAllowedFor($baseUrl, $surface, $defaultEnabledWhenUnconfigured)` - the
+  surface gate.
+- `requireVerified()` / `shouldDropUnverified($sourcePeer)` - the trust-threshold
+  policy.
+- `trustDossierUrl($baseUrl, $ref)` / `authenticityUrl($baseUrl, $ref)` - the
+  authenticity-chain links.
+
+### The `federation_member` <-> `federation_peer` link
+
+The live services (`FederationGraphService`, `FederatedEndangeredService`)
+iterate **`federation_member`** (the lightweight registry: id / name / base_url /
+is_enabled / is_self), while F2 governance lives on **`federation_peer`**. The
+two tables share `base_url`, which is the natural and only stable join key, so
+governance is looked up by normalised `base_url` (trim, lower-case, drop trailing
+slash). A member with **no** matching `federation_peer` row is treated per the
+caller's back-compat default (the services pass `true`: a member that already
+passed `is_enabled=1` in its own table must not be retroactively disabled just
+because governance was never configured).
+
+## 1. Surface gate (`allowed_entity_types` + `federation_enabled`)
+
+Before any peer is contacted, each candidate is checked with
+`peerAllowedFor($peer->base_url, $surface, true)` where `$surface` is `'graph'`
+(in `FederationGraphService`) or `'endangered'` (in `FederatedEndangeredService`).
+A peer is queried only when:
+
+- `federation_enabled = 1`, **AND**
+- `allowed_entity_types` is null/empty (= all surfaces, see below) **OR** contains
+  the surface.
+
+A peer that is gated out is **skipped and noted in `warnings`** (never silently
+dropped), e.g. `Peer 7 (Foo): skipped for graph - surface 'graph' not in this
+peer's allowed_entity_types`. The peer is never contacted.
+
+### Null / empty `allowed_entity_types` => ALL surfaces (the decision)
+
+F2 added `allowed_entity_types` as a **nullable** column, so every pre-F2 row and
+every freshly discovered peer starts `NULL`. Treating `NULL` as "no surfaces
+allowed" would silently break every existing federation the moment T2 shipped - a
+hard regression with no operator action. The governance UI already states *"No
+surfaces ticked = all advertised surfaces allowed"*, so `NULL`/empty = **all** is
+also the least-surprising reading of the stored state. The per-peer
+`federation_enabled` flag (itself default `0` / opt-in) is the real gate;
+`allowed_entity_types` is a *narrowing refinement* on a peer that is already
+enabled. Therefore: **`NULL`/empty = all surfaces; a non-empty list = exactly
+that subset.**
+
+## 2. Trust-threshold policy (`federation_require_verified`)
+
+A single per-instance setting in `ahg_settings`
+(`setting_group = 'federation'`, key `federation_require_verified`), read/written
+via `AhgSettingsService` - **not** a hardcoded constant. **Default OFF** for
+back-compat.
+
+- **OFF (default):** unverified peer data is **included** but flagged. T1 already
+  sets `source_peer.verified=false`; T2 counts them and adds an aggregate notice
+  to the response `federation.trust` block (graph) / `trust` block (endangered):
+  *"N node(s)/result(s) from unverified peers are included and flagged ..."*.
+- **ON:** peer nodes/rows whose `source_peer.verified` is not exactly `true` are
+  **dropped** from the merged result before it is built, and the dropped count is
+  recorded in `warnings` + the `trust` block (*"N ... were excluded ..."*).
+  **Local data (`source_peer === null`) is always included** regardless of the
+  policy.
+
+The policy is exposed as a `trust` sub-block on both service responses:
+`{require_verified, unverified_(node|row)_count, dropped_unverified_count,
+notice}`.
+
+## 3. Authenticity-chain link on borrowed records
+
+For each remote node/row, T2 adds `source_peer.trust_dossier_url` =
+`{peer.base_url}/trust-dossier/{ref}` and `source_peer.authenticity_url` =
+`{peer.base_url}/authenticity/{ref}`, so a consumer can follow a borrowed
+record's lineage to the **peer's own** trust dossier / authenticity report. The
+ref is encoded **per path segment** (slashes preserved) so a multi-segment slug
+(`fonds/series/item`) resolves to one record on the peer. For the endangered
+board the link is built per-row against each row's own `item_ref`.
+
+The `trust_dossier` + `authenticity` surfaces are now declared in
+`/open-data/protocol` under `federation.surfaces` (alongside `graph`,
+`endangered`, `search`), so the URL pattern is **discoverable** rather than
+guessed.
+
+## 4. Admin + consumer surfaces
+
+- **Governance view** (`/federation/governance`, `FederationGovernanceController`
+  + `governance.blade`, both unlocked): a **Trust-threshold policy** card with the
+  `federation_require_verified` toggle + save (`POST
+  /federation/governance/policy` -> `savePolicy()`), and a per-peer *"is this peer
+  trusted + for what"* summary panel - federated on/off, allowed surfaces (or "all
+  surfaces"), and key-pinned state, all at a glance, mirroring exactly what the
+  live services enforce.
+- **Consumer board** (`endangered.global` blade): when the policy is OFF, every
+  peer card that failed verification carries an **"unverified"** badge plus a
+  **"trust dossier"** link to the holding institution's authenticity chain; an
+  aggregate trust notice sits above the board. (When the policy is ON, unverified
+  rows are dropped upstream and never reach the view.)
+
+## Still unadopted (locked)
+
+`FederatedSearchService` is **locked** (F3 SharePoint) and was not edited - the
+`'search'` surface gate is therefore not yet enforced there. It should adopt
+`FederationGovernance` (the same `peerAllowedFor(..., 'search', ...)` +
+`shouldDropUnverified` calls) the next time it is unlocked, exactly as it should
+adopt `FederationVerifier` per T1.
+
+## T2 enforcement smoke
+
+```
+peer fed_enabled=0                         -> skipped for graph (warning, not contacted)
+peer allowed=[endangered], surface=graph   -> skipped for graph (warning)
+peer allowed=NULL, fed_enabled=1           -> allowed (all surfaces)
+no federation_peer row, default=true       -> allowed (back-compat)
+no federation_peer row, default=false      -> denied
+require_verified ON + peer verified=false  -> node/row dropped, counted
+require_verified ON + local (source=null)  -> kept (local always included)
+require_verified OFF + peer verified=false -> kept + flagged + counted
+trustDossierUrl(base, "fonds/item")        -> base/trust-dossier/fonds/item (slashes preserved)
+both services, zero peers                  -> local-only, trust block present, no throw
+setting round-trip via AhgSettingsService  -> group=federation, default OFF
+```
