@@ -74,9 +74,13 @@ class ScholarshipController extends Controller
         // Additive cross-institutional layer. Fully guarded: any failure here
         // must never affect the local discovery render above, so it falls back
         // to a null federated payload (the view then omits the section).
+        // #1210: served through the read-through persistence cache so a page view
+        // no longer pays a live peer + AI round-trip every time; ?refresh=1 forces
+        // a live re-run (and re-persist) for staff who want the latest.
         $federated = null;
         try {
-            $federated = $this->service->discoverFederated($resolvedId);
+            $forceRefresh = (bool) request()->boolean('refresh');
+            $federated = $this->service->discoverFederatedCached($resolvedId, $forceRefresh);
         } catch (\Throwable $e) {
             Log::info('[scholarship] federated discovery failed for '.$resolvedId.': '.$e->getMessage());
             $federated = null;

@@ -54,8 +54,11 @@
 
 namespace AhgSemanticSearch\Services;
 
+use AhgCore\Services\AhgSettingsService;
 use AhgRic\Services\RelationshipService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class ScholarshipService
 {
@@ -564,6 +567,143 @@ class ScholarshipService
             'available' => true,
             'ai_available' => $aiAvailable,
         ];
+    }
+
+    /** Table persisting federated-discovery results (heratio#1210). */
+    protected const FEDERATED_CACHE_TABLE = 'ahg_scholarship_federated_discovery';
+
+    /** Default freshness window (minutes) before a persisted federated discovery is re-run. */
+    protected const FEDERATED_CACHE_DEFAULT_MINUTES = 1440; // 24h - peers + access points change slowly
+
+    /**
+     * heratio#1210 - read-through cache over {@see discoverFederated()}. Federated
+     * discovery is expensive (a live peer round-trip plus a per-connection AI
+     * rationale), so we PERSIST each result and serve it until it ages past the
+     * freshness window:
+     *
+     *   - a fresh persisted row (within the TTL) is returned as-is (cached=true);
+     *   - a missing / expired row triggers ONE live {@see discoverFederated()},
+     *     which is persisted and returned (cached=false);
+     *   - if the live refresh yields nothing usable but a (stale) row exists, the
+     *     stale row is returned (cached=true, stale=true) so a peer outage shows
+     *     last-known results rather than a blank section.
+     *
+     * FAIL-SOFT like discoverFederated(): never throws. When the cache table is
+     * absent it transparently falls back to a live call (no persistence).
+     *
+     * @return array the discoverFederated() shape, plus cached:bool, stale:bool, generated_at:?string
+     */
+    public function discoverFederatedCached(int $objectId, bool $forceRefresh = false): array
+    {
+        $cached = $this->readFederatedCache($objectId);
+
+        if (! $forceRefresh && $cached !== null && ! ($cached['stale'] ?? true)) {
+            return $cached; // fresh hit
+        }
+
+        // Refresh live, then persist. Any failure falls back to the cached row.
+        try {
+            $live = $this->discoverFederated($objectId);
+        } catch (\Throwable $e) {
+            Log::info('[scholarship] federated cache refresh failed for '.$objectId.': '.$e->getMessage());
+            $live = null;
+        }
+
+        // Only persist + serve a live result that actually reached the peers.
+        if (is_array($live) && ($live['available'] ?? false) && ! empty($live['connections'])) {
+            $this->persistFederatedDiscovery($objectId, $live);
+
+            return $live + ['cached' => false, 'stale' => false, 'generated_at' => now()->toDateTimeString()];
+        }
+
+        // Live gave nothing usable: prefer a stale persisted row over a blank.
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        // Nothing persisted and nothing live: return whatever the live call gave
+        // (an empty-but-available payload), tagged uncached.
+        return (is_array($live) ? $live : ['record' => ['id' => $objectId], 'connections' => [], 'available' => false])
+            + ['cached' => false, 'stale' => false, 'generated_at' => null];
+    }
+
+    /**
+     * Read a persisted federated discovery and rebuild the discoverFederated()
+     * shape from it, flagged with cached/stale/generated_at. Returns null when the
+     * table or row is absent. Never throws.
+     *
+     * @return array<string,mixed>|null
+     */
+    protected function readFederatedCache(int $objectId): ?array
+    {
+        try {
+            if (! Schema::hasTable(self::FEDERATED_CACHE_TABLE)) {
+                return null;
+            }
+            $row = DB::table(self::FEDERATED_CACHE_TABLE)->where('information_object_id', $objectId)->first();
+            if ($row === null) {
+                return null;
+            }
+
+            $ttl = max(1, AhgSettingsService::getInt('scholarship_federated_cache_minutes', self::FEDERATED_CACHE_DEFAULT_MINUTES));
+            $generatedAt = $row->generated_at ? \Illuminate\Support\Carbon::parse($row->generated_at) : null;
+            $stale = $generatedAt === null || $generatedAt->diffInMinutes(now()) >= $ttl;
+
+            return [
+                'record' => ['id' => $objectId, 'title' => $row->title, 'slug' => null],
+                'terms' => json_decode((string) ($row->terms ?? '[]'), true) ?: [],
+                'connections' => json_decode((string) ($row->connections ?? '[]'), true) ?: [],
+                'peer_stats' => json_decode((string) ($row->peer_stats ?? '[]'), true) ?: [],
+                'available' => true,
+                'ai_available' => (bool) $row->ai_available,
+                'cached' => true,
+                'stale' => $stale,
+                'generated_at' => $row->generated_at ? (string) $row->generated_at : null,
+            ];
+        } catch (\Throwable $e) {
+            Log::info('[scholarship] federated cache read failed for '.$objectId.': '.$e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * Upsert one federated-discovery result into the cache table. Best effort: a
+     * missing table or any failure is swallowed (federated discovery just stays
+     * live-only). Never throws.
+     *
+     * @param  array<string,mixed>  $result  a discoverFederated() payload
+     */
+    public function persistFederatedDiscovery(int $objectId, array $result): void
+    {
+        try {
+            if (! Schema::hasTable(self::FEDERATED_CACHE_TABLE)) {
+                return;
+            }
+            $connections = is_array($result['connections'] ?? null) ? $result['connections'] : [];
+            $now = now();
+            $values = [
+                'title' => $result['record']['title'] ?? null,
+                'terms' => json_encode($result['terms'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'connections' => json_encode($connections, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'peer_stats' => json_encode($result['peer_stats'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'connection_count' => count($connections),
+                'ai_available' => (bool) ($result['ai_available'] ?? false),
+                'generated_at' => $now,
+                'updated_at' => $now,
+            ];
+
+            $table = DB::table(self::FEDERATED_CACHE_TABLE)->where('information_object_id', $objectId);
+            if ($table->exists()) {
+                $table->update($values); // leave created_at at its original insert time
+            } else {
+                DB::table(self::FEDERATED_CACHE_TABLE)->insert(
+                    $values + ['information_object_id' => $objectId, 'created_at' => $now]
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::info('[scholarship] federated cache persist failed for '.$objectId.': '.$e->getMessage());
+        }
     }
 
     /**

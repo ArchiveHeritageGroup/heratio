@@ -553,6 +553,7 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         // single try/catch so a fresh boot never fatals - see the CI rule in
         // memory/reference_ci_schema_hastable.md).
         $this->bootScholarshipDiscoveryTable();
+        $this->bootFederatedDiscoveryCacheTable();
 
         // heratio#1207 - repatriation-claim / virtual-return workflow. The
         // structured claim records that sit on top of the displaced-heritage
@@ -612,6 +613,7 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 \AhgSemanticSearch\Console\Commands\KmExportGraphCommand::class,
                 \AhgSemanticSearch\Console\Commands\ScholarshipDiscoverCommand::class,
                 \AhgSemanticSearch\Console\Commands\GenerateDiscoveriesCommand::class,
+                \AhgSemanticSearch\Console\Commands\RefreshFederatedDiscoveriesCommand::class,
                 \AhgSemanticSearch\Console\Commands\GenerateResearchLeadsCommand::class,
                 \AhgSemanticSearch\Console\Commands\DisplacedHeritageScanCommand::class,
             ]);
@@ -808,6 +810,46 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             // Discoveries page degrades to on-demand generation when the table
             // is absent.
             Log::warning('ahg-semantic-search scholarship-discovery boot install skipped: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * heratio#1210 - persistence/cache for the CROSS-INSTITUTIONAL (federated)
+     * discovery, which was previously live-only (a peer round-trip + per-connection
+     * AI rationale on every page view). ScholarshipService now reads through this
+     * table: a fresh row is served directly, an expired/missing one triggers one
+     * live refresh that is persisted, and a failed live refresh falls back to the
+     * stale row (so a peer outage shows last-known results, not a blank section).
+     * Auto-created on first boot behind a Schema::hasTable probe in one try/catch
+     * (the canonical package idiom; see memory/reference_ci_schema_hastable.md).
+     */
+    protected function bootFederatedDiscoveryCacheTable(): void
+    {
+        try {
+            if (Schema::hasTable('ahg_scholarship_federated_discovery')) {
+                return;
+            }
+
+            Schema::create('ahg_scholarship_federated_discovery', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->unsignedBigInteger('information_object_id');
+                $table->string('title', 1024)->nullable();
+                $table->json('terms')->nullable();
+                $table->json('connections')->nullable();
+                $table->json('peer_stats')->nullable();
+                $table->unsignedInteger('connection_count')->default(0);
+                $table->boolean('ai_available')->default(false);
+                $table->timestamp('generated_at')->nullable();
+                $table->timestamps();
+
+                $table->unique('information_object_id', 'uq_fed_discovery_io');
+            });
+
+            Log::info('ahg-semantic-search: ahg_scholarship_federated_discovery created (first-boot)');
+        } catch (\Throwable $e) {
+            // Never block boot on install failure - log and continue. Federated
+            // discovery degrades to live-only (no persistence) when absent.
+            Log::warning('ahg-semantic-search federated-discovery-cache boot install skipped: '.$e->getMessage());
         }
     }
 
