@@ -179,7 +179,7 @@ class RepatriationClaimController extends Controller
 
         $data = $this->validateClaim($request, false);
 
-        $ok = $this->service->update((int) $id, $data);
+        $ok = $this->service->update((int) $id, $data, $this->userId($request), $this->actorName($request));
 
         return redirect()
             ->route('repatriation.claims.edit', ['id' => (int) $id])
@@ -202,7 +202,7 @@ class RepatriationClaimController extends Controller
             'claim_status' => 'required|string|max:64',
         ]);
 
-        $ok = $this->service->updateStatus((int) $id, $validated['claim_status']);
+        $ok = $this->service->updateStatus((int) $id, $validated['claim_status'], null, $this->userId($request), $this->actorName($request));
 
         return back()->with($ok ? 'success' : 'error', $ok
             ? __('Claim status updated.')
@@ -276,6 +276,23 @@ class RepatriationClaimController extends Controller
             $user = $request->user();
 
             return $user ? (int) $user->id : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Display name of the acting user, for audit-trail + notification attribution.
+     */
+    protected function actorName(Request $request): ?string
+    {
+        try {
+            $user = $request->user();
+            if (! $user) {
+                return null;
+            }
+
+            return $user->username ?? $user->email ?? null;
         } catch (\Throwable $e) {
             return null;
         }

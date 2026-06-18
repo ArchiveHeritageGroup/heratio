@@ -41,6 +41,25 @@ set can grow without a schema change. Every status change is recorded in an
 **append-only audit trail** (who changed it, when, from and to, and an optional
 note), so the history of a claim is never lost.
 
+**Notifications (both sides).** The two moments that matter are pushed to the
+people who need them, so nobody has to poll the register:
+
+- When a claim is **lodged**, every administrator gets an in-app notification
+  (the holding-institution side), and the claimant receives an email receipt
+  when a contact email is on the claim (the community side).
+- When a claim's **status changes**, administrators and the staff member who
+  originally logged the claim get an in-app notification, and the claimant
+  receives an email naming the from -> to transition.
+
+Each notification deep-links to the claim's staff workspace. The claimant email
+is drawn from the claim's free-text contact field (the first email address found
+there); a claim with no contact email simply gets no email, and a no-op status
+save sends nothing. Every notification path is fail-soft - a mail or in-app
+hiccup never blocks the claim write - and the whole feature can be turned off
+with the `repatriation_notifications` setting (default on). All claim emails
+carry the standing neutral disclaimer: a claim is a documented request and its
+status, never a legal determination.
+
 Around the claim runs a **two-way threaded dialogue** between the holding
 institution and the claimant. Staff post messages from the claim's dialogue
 workspace and choose each message's visibility:
@@ -102,9 +121,10 @@ following are deliberately out of scope and tracked for later:
 - **Virtual-return 3D handoff** - a richer "virtual return" that hands the object's
   3D model / digital surrogate into an origin-context exhibition space from within
   the claim, beyond the current record link.
-- **Notifications** - email / in-app alerts when a new dialogue message is posted
-  or a status changes, for both staff and token holders. Today both sides poll the
-  surface.
+- **Dialogue-message notifications** - alerting both sides when a new dialogue
+  message is posted. Claim *registration* and *status-change* notifications now
+  ship (see "Notifications (both sides)" above); per-message dialogue alerts are
+  the remaining piece.
 - **Self-service claim lodging** - a public, token-or-captcha-gated form that lets
   an origin community lodge a claim directly, before any staff account exists.
   Today staff register the claim.

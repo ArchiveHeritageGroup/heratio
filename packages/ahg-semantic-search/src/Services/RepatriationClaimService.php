@@ -185,7 +185,7 @@ class RepatriationClaimService
         $now = now();
 
         try {
-            return (int) DB::table(self::TABLE)->insertGetId([
+            $id = (int) DB::table(self::TABLE)->insertGetId([
                 'item_ref' => $itemRef,
                 'claimant_community' => $this->clip($data['claimant_community'] ?? null, 512),
                 'origin_place' => $this->clip($data['origin_place'] ?? null, 512),
@@ -203,6 +203,13 @@ class RepatriationClaimService
 
             return null;
         }
+
+        // #1207 notifications: staff in-app + claimant email receipt. Fail-soft.
+        if ($id > 0) {
+            $this->notifyClaimRegistered($id, $userId);
+        }
+
+        return $id;
     }
 
     /**
@@ -251,6 +258,7 @@ class RepatriationClaimService
 
         if ($ok && $before !== $newStatus) {
             $this->logStatusTransition($id, $before, $newStatus, null, $userId, $userName);
+            $this->notifyStatusChanged($id, $before, $newStatus, $userId, $userName);
         }
 
         return $ok;
@@ -290,6 +298,9 @@ class RepatriationClaimService
 
         if ($ok) {
             $this->logStatusTransition($id, $before, $to, $note, $userId, $userName);
+            if ($before !== $to) {
+                $this->notifyStatusChanged($id, $before, $to, $userId, $userName);
+            }
         }
 
         return $ok;
@@ -306,6 +317,32 @@ class RepatriationClaimService
             (new RepatriationDialogueService)->logStatusChange($id, $from, $to, $note, $userId, $userName);
         } catch (\Throwable $e) {
             Log::info('[repatriation] status audit log skipped for '.$id.': '.$e->getMessage());
+        }
+    }
+
+    /**
+     * #1207: fire the "new claim" notifications (staff in-app + claimant email).
+     * Best effort: a notification failure never blocks the claim write.
+     */
+    protected function notifyClaimRegistered(int $id, ?int $userId, ?string $userName = null): void
+    {
+        try {
+            (new RepatriationNotifier)->claimRegistered($id, $userId, $userName);
+        } catch (\Throwable $e) {
+            Log::info('[repatriation] register notification skipped for '.$id.': '.$e->getMessage());
+        }
+    }
+
+    /**
+     * #1207: fire the "status changed" notifications (staff/logger in-app +
+     * claimant email). Best effort: a notification failure never blocks the write.
+     */
+    protected function notifyStatusChanged(int $id, ?string $from, string $to, ?int $userId, ?string $userName): void
+    {
+        try {
+            (new RepatriationNotifier)->claimStatusChanged($id, $from, $to, $userId, $userName);
+        } catch (\Throwable $e) {
+            Log::info('[repatriation] status notification skipped for '.$id.': '.$e->getMessage());
         }
     }
 
