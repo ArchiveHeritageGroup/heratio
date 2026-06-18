@@ -29,6 +29,10 @@
     $fedConnections = $federated['connections'] ?? [];
     $fedTerms = $federated['terms'] ?? [];
     $fedAiAvailable = (bool) ($federated['ai_available'] ?? false);
+    // heratio#1210 persistence/cache freshness: when these results came from the
+    // read-through cache, surface when they were computed and a force-refresh link.
+    $fedGeneratedAt = $federated['generated_at'] ?? null;
+    $fedStale = (bool) ($federated['stale'] ?? false);
 @endphp
 
 @section('title', 'Discovered connections - '.$recTitle)
@@ -172,8 +176,21 @@
                 <strong>{{ __('Connections across institutions') }}</strong>
                 <span class="badge bg-light text-dark border">{{ __('federated') }}</span>
                 @if(count($fedConnections) > 0)
-                    <span class="badge bg-primary ms-auto">{{ count($fedConnections) }}</span>
+                    <span class="badge bg-primary">{{ count($fedConnections) }}</span>
                 @endif
+                <span class="ms-auto d-inline-flex align-items-center gap-2 small text-muted">
+                    @if($fedGeneratedAt)
+                        <span title="{{ __('When these cross-institutional results were last computed') }}">
+                            <i class="fas fa-clock me-1"></i>{{ __('as of') }} {{ \Illuminate\Support\Carbon::parse($fedGeneratedAt)->diffForHumans() }}
+                        </span>
+                        @if($fedStale)
+                            <span class="badge bg-warning text-dark" title="{{ __('A live refresh could not reach the peers, so the last-known results are shown.') }}">{{ __('last known') }}</span>
+                        @endif
+                    @endif
+                    <a href="{{ url()->current() }}?refresh=1" class="btn btn-sm btn-outline-secondary py-0" title="{{ __('Recompute from peers now') }}">
+                        <i class="fas fa-rotate me-1"></i>{{ __('Refresh') }}
+                    </a>
+                </span>
             </div>
             <div class="card-body">
 
