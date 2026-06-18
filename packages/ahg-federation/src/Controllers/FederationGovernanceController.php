@@ -152,7 +152,7 @@ class FederationGovernanceController extends Controller
             'trust_level' => ['nullable', 'string', 'max:32'],
             'rate_limit_seconds' => ['nullable', 'integer', 'min:0', 'max:86400'],
             'allowed_entity_types' => ['nullable', 'array'],
-            'allowed_entity_types.*' => ['string', 'in:graph,endangered,search'],
+            'allowed_entity_types.*' => ['string', 'in:graph,endangered,search,exhibition'],
         ]);
 
         try {

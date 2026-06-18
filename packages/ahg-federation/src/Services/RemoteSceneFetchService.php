@@ -8,36 +8,78 @@
  * and normalises its objects into placement-ready "remote stops", so a curator can borrow a
  * single remote object into a local exhibition as a READ-ONLY, attributed walkthrough stop
  * with a link back to the owning institution. Media (images / 3D models) is referenced by the
- * peer's absolute URL - nothing is harvested or copied here. Read-only by design; cross-node
- * rights/identity enforcement is out of scope (tracked under #1246 / #1155).
+ * peer's absolute URL - nothing is harvested or copied here.
  *
- * This is a NEW service: the existing federation connectors + FederatedSearchService (the
- * search/harvest layer) are deliberately left untouched.
+ * F3 federation twin (heratio#1246 on epic #1313): the raw Http::get() this service used to
+ * fetch a peer scene predated the federation backbone - no SSRF guard, no signature
+ * verification. It now fetches through the shared, audited backbone:
+ *
+ *   - FederationClient::fetchOne()    - SSRF host-guard (cloud-metadata / loopback /
+ *                                       link-local / private / reserved-IP rejection),
+ *                                       FOLLOWLOCATION=false, short cache + per-peer
+ *                                       rate-limit. The same client T1/F1 use for graph,
+ *                                       endangered and search.
+ *   - FederationVerifier::verifyResponse() - verifies the peer's detached
+ *                                       X-Federation-Signature over the EXACT received bytes
+ *                                       and pins its key TOFU. An unsigned / unverifiable peer
+ *                                       scene is NOT an error: it is simply verified=false.
+ *
+ * Every normalised object is stamped with the verification verdict + source_peer (mirroring
+ * how FederationGraphService tags remote nodes), so the borrow side can flag unverified
+ * borrowed objects and the require-verified policy can refuse to place them.
+ *
+ * This is the federated-twin fetch service: the existing federation connectors +
+ * FederatedSearchService (the search/harvest layer) are deliberately left untouched.
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
  * Email: johan@plainsailingisystems.co.za
+ *
+ * @author     Johan Pieterse <johan@plainsailingisystems.co.za>
+ * @copyright  Plain Sailing Information Systems
+ * @license    AGPL-3.0-or-later
  *
  * Licensed under the GNU Affero General Public License v3 or later.
  */
 
 namespace AhgFederation\Services;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class RemoteSceneFetchService
 {
     /**
-     * Fetch + normalise a peer exhibition's scene.json export.
+     * Fetch + verify + normalise a peer exhibition's scene.json export.
      *
-     * @return array{ok:bool, name:?string, slug:?string, source:string, objects:array<int,array<string,mixed>>, error:?string}
+     * The returned array carries the scene-level trust verdict (verified /
+     * key_fingerprint / trust_reason / source_peer) AND stamps the same verdict
+     * onto every normalised object, so a single borrowed object retains its
+     * cryptographic provenance once detached from the scene response.
+     *
+     * @return array{
+     *   ok:bool, name:?string, slug:?string, source:string,
+     *   verified:bool, key_fingerprint:?string, trust_reason:string,
+     *   source_peer:array<string,mixed>, objects:array<int,array<string,mixed>>, error:?string
+     * }
      */
     public function fetchScene(string $baseUrl, string $slug, ?string $apiKey = null, int $timeoutSeconds = 10): array
     {
         $baseUrl = rtrim(trim($baseUrl), '/');
         $slug = trim($slug);
-        $out = ['ok' => false, 'name' => null, 'slug' => $slug, 'source' => $baseUrl, 'objects' => [], 'error' => null];
+
+        $sourcePeer = ['base_url' => $baseUrl, 'name' => null];
+        $out = [
+            'ok' => false,
+            'name' => null,
+            'slug' => $slug,
+            'source' => $baseUrl,
+            'verified' => false,
+            'key_fingerprint' => null,
+            'trust_reason' => 'not_fetched',
+            'source_peer' => $sourcePeer,
+            'objects' => [],
+            'error' => null,
+        ];
 
         if (! $this->isHttpUrl($baseUrl) || $slug === '') {
             $out['error'] = 'invalid peer base URL or slug';
@@ -46,28 +88,71 @@ class RemoteSceneFetchService
         }
 
         $url = $baseUrl.'/exhibition-space/'.rawurlencode($slug).'/scene.json';
-        $headers = ['Accept' => 'application/json'];
+
+        // ---- Fetch via the shared, SSRF-guarded federation backbone (F1 #1314) ----
+        // No raw Http::get() here any more: the SSRF host-guard, FOLLOWLOCATION=false,
+        // cache and per-peer rate-limit all live in FederationClient. A blocked /
+        // errored / rate-limited peer comes back as a non-success status (never fatal).
+        // FederationClient feeds these straight to CURLOPT_HTTPHEADER, so they are
+        // a numeric list of "Name: value" strings (NOT an associative map).
+        $headers = [
+            'Accept: application/json',
+            'User-Agent: Heratio-Federation-Scene/1.0',
+        ];
         if ($apiKey !== null && trim($apiKey) !== '') {
-            $headers['X-API-Key'] = trim($apiKey);   // same per-peer auth header the federation connectors use
+            $headers[] = 'X-API-Key: '.trim($apiKey);   // same per-peer auth header the federation connectors use
         }
 
         try {
-            $resp = Http::withHeaders($headers)
-                ->connectTimeout(min($timeoutSeconds, 5))
-                ->timeout(max(1, $timeoutSeconds))
-                ->get($url);
-            if (! $resp->successful()) {
-                $out['error'] = 'peer HTTP '.$resp->status();
+            $client = (new FederationClient())
+                ->withTimeouts(max(1000, $timeoutSeconds * 1000), min($timeoutSeconds, 5) * 1000)
+                ->withCacheTtl(120)        // short cache: a peer scene is fairly static within a borrow session
+                ->withRateLimit(5)         // per-peer cool-down so the picker cannot hammer a peer
+                ->withHeaders($headers);
 
-                return $out;
-            }
-            $data = $resp->json();
+            $keyHash = substr(hash('sha256', $url), 0, 24);
+            $resp = $client->fetchOne($url, [
+                'base_url'  => $baseUrl,
+                'cache_key' => 'fed:scene:'.$keyHash,
+                'rate_key'  => 'fed:scene:rl:'.substr(hash('sha256', $baseUrl), 0, 24),
+                'headers'   => $headers,
+            ]);
         } catch (\Throwable $e) {
             Log::debug('[ahg-federation] RemoteSceneFetchService: peer scene fetch failed: '.$e->getMessage());
             $out['error'] = 'fetch failed';
+            $out['trust_reason'] = 'fetch_failed';
 
             return $out;
         }
+
+        if (($resp['status'] ?? '') !== 'success') {
+            // SSRF-blocked / timed-out / rate-limited / non-2xx: report, never throw.
+            $code = (int) ($resp['http_code'] ?? 0);
+            $out['error'] = $resp['error'] ?: ($code > 0 ? ('peer HTTP '.$code) : 'peer unreachable');
+            $out['trust_reason'] = 'fetch_failed';
+
+            return $out;
+        }
+
+        $body = (string) ($resp['body'] ?? '');
+        $respHeaders = is_array($resp['headers'] ?? null) ? $resp['headers'] : [];
+
+        // ---- Verify the peer's detached signature + pin its key TOFU (T1 #1316) ----
+        // verifyResponse() is fail-soft: an unsigned peer scene returns
+        // verified=false / reason="unsigned" rather than throwing. We carry the
+        // verdict through so the borrow side can flag / gate on it.
+        $verdict = ['verified' => false, 'key_fingerprint' => null, 'reason' => 'unsigned'];
+        try {
+            $verdict = (new FederationVerifier())->verifyResponse($body, $respHeaders, $baseUrl);
+        } catch (\Throwable $e) {
+            Log::info('[ahg-federation] RemoteSceneFetchService: verify failed: '.$e->getMessage());
+            $verdict = ['verified' => false, 'key_fingerprint' => null, 'reason' => 'error'];
+        }
+        $out['verified'] = (bool) ($verdict['verified'] ?? false);
+        $out['key_fingerprint'] = $verdict['key_fingerprint'] ?? null;
+        $out['trust_reason'] = (string) ($verdict['reason'] ?? 'unsigned');
+
+        $data = json_decode($body, true);
 
         if (! is_array($data) || (($data['format'] ?? null) !== 'ahg-exhibition-scene')) {
             $out['error'] = 'not an ahg-exhibition-scene manifest';
@@ -78,6 +163,17 @@ class RemoteSceneFetchService
         $peerName = trim((string) ($data['exhibition']['name'] ?? '')) ?: $slug;
         $out['name'] = $peerName;
         $out['slug'] = trim((string) ($data['exhibition']['slug'] ?? '')) ?: $slug;
+
+        // source_peer: the provenance envelope the borrow side stamps onto each
+        // stored placement (mirrors FederationGraphService::source_peer).
+        $sourcePeer = [
+            'base_url' => $baseUrl,
+            'name' => $peerName,
+            'verified' => $out['verified'],
+            'key_fingerprint' => $out['key_fingerprint'],
+            'trust_reason' => $out['trust_reason'],
+        ];
+        $out['source_peer'] = $sourcePeer;
 
         foreach (($data['objects'] ?? []) as $o) {
             if (! is_array($o)) {
@@ -98,6 +194,11 @@ class RemoteSceneFetchService
                 'record_url' => $this->absOnly($o['record_url'] ?? null),
                 'peer_name' => $peerName,
                 'peer_base' => $baseUrl,
+                // Cryptographic provenance carried per object so a single borrowed
+                // object keeps its verdict once detached from the scene response.
+                'verified' => $out['verified'],
+                'key_fingerprint' => $out['key_fingerprint'],
+                'source_peer' => $sourcePeer,
             ];
         }
 

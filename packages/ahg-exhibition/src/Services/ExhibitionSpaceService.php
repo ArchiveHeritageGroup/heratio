@@ -441,6 +441,28 @@ class ExhibitionSpaceService
             }
         }
 
+        // F3 federation twin (heratio#1246) - persist the cryptographic provenance
+        // the borrow side stamped onto the normalised object (RemoteSceneFetchService
+        // + FederationVerifier): whether the peer scene's detached signature verified,
+        // the pinned key fingerprint, and the source_peer envelope. So a stored
+        // borrowed object keeps its trust verdict and the builder can badge an
+        // unverified borrow consistently with the #1205/#1210 'unverified' treatment.
+        $clean['verified'] = ! empty($payload['verified']);
+        if (isset($payload['key_fingerprint']) && $payload['key_fingerprint'] !== '') {
+            $clean['key_fingerprint'] = (string) $payload['key_fingerprint'];
+        }
+        if (isset($payload['source_peer']) && is_array($payload['source_peer'])) {
+            // Keep only the small, view-safe provenance envelope.
+            $sp = $payload['source_peer'];
+            $clean['source_peer'] = array_filter([
+                'base_url' => isset($sp['base_url']) ? (string) $sp['base_url'] : null,
+                'name' => isset($sp['name']) ? (string) $sp['name'] : null,
+                'verified' => ! empty($sp['verified']),
+                'key_fingerprint' => isset($sp['key_fingerprint']) ? (string) $sp['key_fingerprint'] : null,
+                'trust_reason' => isset($sp['trust_reason']) ? (string) $sp['trust_reason'] : null,
+            ], static fn ($v) => $v !== null);
+        }
+
         $row = [
             'exhibition_space_id' => $spaceId,
             'information_object_id' => null,
@@ -489,6 +511,10 @@ class ExhibitionSpaceService
             'size_units_used' => 0.0,
             'kind' => $clean['kind'] ?? 'image',
             'thumb_url' => $clean['image_url'] ?? null,
+            // F3 federation twin (heratio#1246): cryptographic-trust provenance so
+            // the builder can badge an unverified borrowed object.
+            'verified' => (bool) ($clean['verified'] ?? false),
+            'key_fingerprint' => $clean['key_fingerprint'] ?? null,
         ];
     }
 
@@ -552,6 +578,10 @@ class ExhibitionSpaceService
                     'spotlight' => (int) ($r->spotlight ?? 0),
                     'display_case' => (int) ($r->display_case ?? 0), 'on_floor' => (int) ($r->on_floor ?? 0),
                     'thumb_url' => $rp['image_url'] ?? null,
+                    // F3 federation twin (heratio#1246): cryptographic-trust provenance
+                    // so the builder badges a reloaded unverified borrowed object too.
+                    'verified' => ! empty($rp['verified']),
+                    'key_fingerprint' => $rp['key_fingerprint'] ?? null,
                 ];
             }
 

@@ -724,10 +724,21 @@
       if (p.remote) {
         g.setAttr('remote', 1);
         g.setAttr('remotePeer', p.remote_peer || '');
+        g.setAttr('verified', p.verified ? 1 : 0);
         var badge = new Konva.Label({ x: -NODE / 2 + 2, y: -NODE / 2 + 2 });
         badge.add(new Konva.Tag({ fill: 'rgba(13,110,253,0.9)', cornerRadius: 3 }));
         badge.add(new Konva.Text({ text: '🌐', fontSize: 11, padding: 2, fill: '#fff' }));   // globe glyph
         g.add(badge);
+        // F3 federation twin (#1246): an UNVERIFIED borrowed object (the peer scene
+        // carried no valid X-Federation-Signature) gets an amber warning badge,
+        // consistent with the #1205/#1210 'unverified' treatment.
+        if (!p.verified) {
+          var warn = new Konva.Label({ x: NODE / 2 - 14, y: -NODE / 2 + 2 });
+          warn.add(new Konva.Tag({ fill: 'rgba(255,193,7,0.95)', cornerRadius: 3 }));
+          warn.add(new Konva.Text({ text: '⚠', fontSize: 11, padding: 2, fill: '#000' }));
+          warn.listening(false);
+          g.add(warn);
+        }
       }
 
       g.on('click tap', function (e) {
@@ -1395,14 +1406,25 @@
             fetchBtn.disabled = false;
             if (!d || !d.ok) { showMsg(d && d.error ? d.error : '{{ __('Could not reach that partner.') }}', 'text-danger'); return; }
             var objs = d.objects || [];
+            // F3 federation twin (#1246): if require_verified is ON and the scene was
+            // unverified, the server withholds its objects + sends a notice.
+            if (d.notice && !objs.length) { showMsg(esc(d.notice), 'text-warning'); return; }
             if (!objs.length) { showMsg('{{ __('That exhibition has no borrowable objects.') }}', 'text-warning'); return; }
-            showMsg(objs.length + ' {{ __('object(s) found - click to borrow:') }}', 'text-success');
+            // Scene-level trust line: green when the peer scene's signature verified, amber when not.
+            var trustCls = d.verified ? 'text-success' : 'text-warning';
+            var trustTxt = d.verified
+              ? '{{ __('Peer scene verified (signed) -') }} '
+              : '{{ __('Peer scene UNVERIFIED (unsigned) - borrowed objects will be flagged. ') }}';
+            showMsg(trustTxt + objs.length + ' {{ __('object(s) found - click to borrow:') }}', trustCls);
             objs.forEach(function (o) {
               var a = document.createElement('button');
               a.type = 'button';
               a.className = 'list-group-item list-group-item-action d-flex align-items-center gap-2 py-1 px-2';
               var thumb = o.image_url ? '<img src="' + esc(o.image_url) + '" style="width:32px;height:32px;object-fit:cover;border-radius:3px;flex:0 0 auto;">' : '<span class="text-muted" style="width:32px;text-align:center;flex:0 0 auto;"><i class="fas fa-cube"></i></span>';
-              a.innerHTML = thumb + '<span class="text-truncate">' + esc(o.title) + '</span>';
+              var trustBadge = o.verified
+                ? '<span class="badge bg-success-subtle text-success border border-success ms-auto" title="{{ __('Cryptographically verified peer object') }}"><i class="fas fa-shield-halved"></i></span>'
+                : '<span class="badge bg-warning-subtle text-warning-emphasis border border-warning ms-auto" title="{{ __('Unverified - the peer scene was not signed') }}"><i class="fas fa-triangle-exclamation"></i></span>';
+              a.innerHTML = thumb + '<span class="text-truncate">' + esc(o.title) + '</span>' + trustBadge;
               a.addEventListener('click', function () { borrowObject(o, a); });
               list.appendChild(a);
             });

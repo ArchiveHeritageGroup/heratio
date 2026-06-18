@@ -339,9 +339,22 @@ class ExhibitionSpaceController extends Controller
     }
 
     /**
-     * heratio#1277 - fetch + normalise a peer institution's exhibition scene.json for the
-     * builder "Borrow from peer" picker. Returns the RemoteSceneFetchService result verbatim
-     * ({ok, name, objects:[...], error}). Never throws to the client (always HTTP 200 + ok flag).
+     * heratio#1277 + F3 federation twin (heratio#1246 on epic #1313) - fetch +
+     * verify + normalise a peer institution's exhibition scene.json for the
+     * builder "Borrow from peer" picker.
+     *
+     * The fetch now runs through the federation backbone (RemoteSceneFetchService
+     * -> FederationClient SSRF-guard + cache + rate-limit -> FederationVerifier
+     * signature verify + TOFU key-pin), and the borrow is GOVERNED:
+     *
+     *   - federation_enabled + peerAllowedFor(base, 'exhibition') gate which peer
+     *     scenes may be borrowed at all (F2 governance, surface-scoped).
+     *   - federation_require_verified (T2): when ON, an unsigned / unverified peer
+     *     scene is refused (objects withheld, flagged); when OFF, it is returned
+     *     but every object carries verified=false so the UI can badge it.
+     *
+     * Resilient: federation module absent -> graceful "not installed" response;
+     * never throws to the client (always HTTP 200 + ok flag).
      */
     public function peerScene(Request $request, string $slug)
     {
@@ -371,8 +384,43 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => false, 'error' => 'A valid peer base URL is required.', 'objects' => []]);
         }
 
+        // ---- Governance gate (F2): is this peer federation-enabled AND allowed
+        // for the 'exhibition' surface? Fail-soft: when the governance service is
+        // absent, fall back to today's behaviour (allow). ----
+        $governance = null;
+        $requireVerified = false;
+        if (class_exists(\AhgFederation\Services\FederationGovernance::class)) {
+            try {
+                $governance = new \AhgFederation\Services\FederationGovernance();
+                $verdict = $governance->peerAllowedFor($base, 'exhibition', true);
+                if (! ($verdict['allowed'] ?? true)) {
+                    return response()->json([
+                        'ok' => false,
+                        'error' => 'This peer is not enabled for exhibition borrowing: '.($verdict['reason'] ?? 'not allowed'),
+                        'objects' => [],
+                    ]);
+                }
+                $requireVerified = $governance->requireVerified();
+            } catch (\Throwable $e) {
+                $governance = null;
+            }
+        }
+
         $result = (new \AhgFederation\Services\RemoteSceneFetchService)
             ->fetchScene($base, (string) $request->input('scene_slug'), $apiKey);
+
+        // ---- Require-verified policy (T2): when ON, an unverified borrowed scene
+        // may not be placed; we withhold its objects and flag why. When OFF, we
+        // return everything but leave verified=false on each object so the builder
+        // badges it (consistent with the #1205/#1210 'unverified' treatment). ----
+        $result['require_verified'] = $requireVerified;
+        if ($requireVerified && ($result['ok'] ?? false) && ! ($result['verified'] ?? false)) {
+            $result['objects'] = [];
+            $result['blocked_unverified'] = true;
+            $result['notice'] = 'This peer scene is not cryptographically verified and federation_require_verified is ON, so its objects cannot be borrowed. Ask the peer to sign its scene export, or turn the policy off to borrow with an unverified flag.';
+        } elseif (($result['ok'] ?? false) && ! ($result['verified'] ?? false)) {
+            $result['notice'] = 'This peer scene is not cryptographically verified - borrowed objects will be flagged as unverified.';
+        }
 
         return response()->json($result);
     }
@@ -393,6 +441,30 @@ class ExhibitionSpaceController extends Controller
             'remote_peer_id' => 'nullable|integer|min:1',
             'remote_ref' => 'nullable|string|max:255',
         ]);
+
+        // F3 federation twin (heratio#1246) require-verified policy (T2), enforced
+        // server-side as defence in depth: even if a client re-POSTs a withheld
+        // unverified payload, an unverified borrowed scene cannot be placed while
+        // federation_require_verified is ON. Fail-soft: no governance service ->
+        // today's behaviour.
+        if (class_exists(\AhgFederation\Services\FederationGovernance::class)) {
+            try {
+                if ((new \AhgFederation\Services\FederationGovernance())->requireVerified()) {
+                    $decoded = json_decode((string) $request->input('remote_payload'), true);
+                    $isVerified = is_array($decoded) && ! empty($decoded['verified']);
+                    if (! $isVerified) {
+                        $msg = 'This borrowed object is not cryptographically verified and federation_require_verified is ON, so it cannot be placed.';
+                        if ($request->ajax() || $request->wantsJson()) {
+                            return response()->json(['ok' => false, 'error' => $msg], 422);
+                        }
+
+                        return back()->with('error', $msg);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Fail-soft: do not block a borrow because the policy check errored.
+            }
+        }
 
         try {
             $placement = $this->service->placeRemotePlacement([
@@ -1049,7 +1121,20 @@ class ExhibitionSpaceController extends Controller
         return response()->json($this->service->iiifManifest($space), 200, ['Access-Control-Allow-Origin' => '*'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
-    /** Open 3D scene manifest (rooms + placements + media URLs) for any 3D viewer. */
+    /**
+     * Open 3D scene manifest (rooms + placements + media URLs) for any 3D viewer.
+     *
+     * Federation twin (F3, heratio#1246 on epic #1313): this is the export a PEER
+     * borrows, so it carries a DETACHED Ed25519 signature in the
+     * X-Federation-Signature header (key id in X-Federation-Key-Id, scheme in
+     * X-Federation-Sig-Alg) over the EXACT response bytes - the SAME signing
+     * scheme T1 (#1316) added to the graph / endangered surfaces. A borrowing
+     * peer fetches this, verifies the detached signature against our published
+     * key, and pins it TOFU before placing the scene. Fail-soft: when the
+     * federation module / signer is unavailable, FederationSigner::attach() is a
+     * no-op and the body is served unsigned (back-compat; the peer treats it as
+     * unverified rather than refusing it outright unless require_verified is ON).
+     */
     public function sceneExport(string $slug)
     {
         $space = $this->service->getBySlug($slug);
@@ -1057,7 +1142,21 @@ class ExhibitionSpaceController extends Controller
             abort(404);
         }
 
-        return response()->json($this->service->sceneManifest($space), 200, ['Access-Control-Allow-Origin' => '*'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $response = response()->json($this->service->sceneManifest($space), 200, ['Access-Control-Allow-Origin' => '*'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        // Sign the EXACT bytes we will transmit so a borrowing peer can verify +
+        // pin our key. Reuses the one shared Ed25519 federation key - no new
+        // crypto, no new keypair. Guarded so a slimmer install (no ahg-federation
+        // / no signer) still serves the scene unsigned rather than 500-ing.
+        try {
+            if (class_exists(\AhgFederation\Services\FederationSigner::class)) {
+                $response = app(\AhgFederation\Services\FederationSigner::class)->attach($response);
+            }
+        } catch (\Throwable $e) {
+            // Fail soft: serve the (unsigned) scene rather than break the export.
+        }
+
+        return $response;
     }
 
     /** schema.org ExhibitionEvent JSON-LD for linked-data discovery. */

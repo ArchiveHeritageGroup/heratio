@@ -39,15 +39,22 @@ class ChatbotController extends Controller
         $sessionId = $this->resolveSessionId($request);
 
         // #1208 (culture = language): an optional ?language[]=/?language=a,b,c (or
-        // ?culture=) on the chat entry scopes the conversation to one or more
-        // languages' corpora. We persist the SET on the session so follow-up turns
-        // stay scoped without re-passing it. An explicit empty value clears the
-        // scope. Unknown / blank codes are dropped; an empty result -> unscoped.
+        // ?culture=) on the chat entry deep-links a scope (e.g. from a record page).
+        // Otherwise a fresh visit to the chat page starts UNSCOPED: the language
+        // scope is a per-conversation choice the user makes here and must NOT
+        // silently carry over from an earlier conversation. For an authenticated
+        // user resolveSessionId() returns a stable per-user hash, so a persisted
+        // scope would otherwise stick to every future chat (the "3 stale items in
+        // the dropdown = wrong session" bug). Clear any prior scope on entry so it
+        // cannot resurface via the message() fallback either. The live selection is
+        // submitted with each turn (see the scripts block), so per-conversation
+        // persistence does not depend on restoring it here.
         $cultures = $this->resolveRequestedCultures($request);
         if ($request->has('language') || $request->has('culture')) {
             $this->setSessionCultures($sessionId, $cultures);
         } else {
-            $cultures = $this->getSessionCultures($sessionId);
+            $cultures = [];
+            $this->setSessionCultures($sessionId, []);
         }
 
         $history       = $this->chatbot->getHistory($sessionId);

@@ -61,7 +61,7 @@ use Illuminate\Support\Facades\Schema;
 class PeerDiscoveryService
 {
     /** Surface keys the Federation Query Protocol may advertise. */
-    public const KNOWN_SURFACES = ['graph', 'endangered', 'search'];
+    public const KNOWN_SURFACES = ['graph', 'endangered', 'search', 'exhibition'];
 
     public function __construct(private FederationClient $client)
     {

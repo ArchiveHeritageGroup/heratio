@@ -165,6 +165,13 @@ class ProtocolController extends Controller
             'graph'      => $this->resolve('api.v1.graph.show', '/api/v1/graph/{idOrSlug}'),
             'endangered' => $this->resolve('api.v1.endangered', '/api/v1/endangered'),
             'search'     => $base.'/api/search',
+            // Exhibition twin surface (F3 #1246): a peer borrows a published
+            // exhibition's signed 3D scene.json (the ahg-exhibition-scene 1.0
+            // manifest) and verifies the detached X-Federation-Signature over it
+            // before placing any borrowed scene/object locally. Declared as the
+            // URL template peers expect from this instance so the surface is
+            // discoverable rather than guessed.
+            'exhibition' => $base.'/exhibition-space/{slug}/scene.json',
             // Trust-dossier surface (#1317): a borrowed record's authenticity
             // chain. A consumer that receives a remote node tagged
             // source_peer.trust_dossier_url follows it here to verify the
