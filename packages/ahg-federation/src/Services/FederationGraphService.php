@@ -91,6 +91,15 @@ class FederationGraphService
     /** Hard cap on peers queried in one aggregation, so the door stays cheap. */
     protected int $maxPeers = 25;
 
+    /** #1204 multi-hop: hard cap on hop depth (BFS rounds) regardless of request. */
+    protected int $maxHops = 3;
+
+    /** #1204 multi-hop: hard cap on total merged nodes, so a walk stays bounded. */
+    protected int $maxTotalNodes = 400;
+
+    /** #1204 multi-hop: cap on local nodes expanded per hop (frontier width). */
+    protected int $maxFrontierPerHop = 25;
+
     /**
      * Aggregate the local + cross-peer graph neighbourhood for one local
      * record.
@@ -268,6 +277,144 @@ class FederationGraphService
                 'warnings'        => $warnings,
             ],
         ];
+    }
+
+    /**
+     * #1204 multi-hop / transitive expansion. Single-hop {@see aggregate()} gives
+     * the record's neighbourhood plus what every peer holds for the SAME
+     * reference. This walks OUTWARD: it takes the local neighbours just
+     * discovered and aggregates each of them in turn (local + cross-peer),
+     * breadth-first, up to $maxHops rounds - so a query reaches "records connected
+     * to my record's neighbours, across the whole federation", not just direct
+     * hits. Every node is tagged with the hop distance at which it was first seen.
+     *
+     * SCOPE (honest bound): the spine that is expanded is the LOCAL graph - each
+     * newly-found local node is re-aggregated (which federates across peers).
+     * A REMOTE peer node is merged but NOT chased on its own peer, because
+     * resolving a peer node's opaque @id back to a reference that peer understands
+     * is a separate cross-peer identity-resolution problem (a documented
+     * follow-up). So this is transitive across our catalogue and one hop into each
+     * peer at every step - broad and safe, without guessing peer-local ids.
+     *
+     * BOUNDED + FAIL-SOFT: hop depth, total node count and per-hop frontier width
+     * are all hard-capped; it reuses aggregate()'s SSRF guard, per-peer cache and
+     * rate-limit, so a walk can never hammer a peer or run away. Never throws.
+     *
+     * @return array same shape as {@see aggregate()}, with federation.mode
+     *               'live-multihop', max_hops, and per-hop node counts.
+     */
+    public function aggregateMultiHop(string $idOrSlug, int $maxHops = 2): array
+    {
+        $maxHops = max(1, min($maxHops, $this->maxHops));
+        if ($maxHops === 1) {
+            // Degenerate case: identical to single-hop, just labelled with the depth.
+            $single = $this->aggregate($idOrSlug);
+            $single['federation']['max_hops'] = 1;
+
+            return $single;
+        }
+
+        $merged = [];      // @id uri => node (carrying its first-seen 'hop')
+        $peerStats = [];   // per-expansion peer stats, tagged with hop
+        $warnings = [];
+        $visited = [];     // local refs already aggregated (cycle guard)
+        $context = ['schema' => 'https://schema.org/'];
+        $localNodeCount = 0;
+        $hopCounts = [];
+
+        $frontier = [(string) $idOrSlug];
+
+        for ($hop = 0; $hop < $maxHops; $hop++) {
+            $next = [];
+            $hopNew = 0;
+
+            foreach ($frontier as $ref) {
+                $key = strtolower(trim((string) $ref));
+                if ($key === '' || isset($visited[$key])) {
+                    continue;
+                }
+                $visited[$key] = true;
+
+                if (count($merged) >= $this->maxTotalNodes) {
+                    $warnings[] = sprintf('Node budget (%d) reached at hop %d; expansion stopped.', $this->maxTotalNodes, $hop);
+                    break 2;
+                }
+
+                $agg = $this->aggregate($ref);
+
+                if ($hop === 0) {
+                    $context = $agg['@context'] ?? $context;
+                    $localNodeCount = (int) ($agg['federation']['local_node_count'] ?? 0);
+                }
+                foreach (($agg['federation']['peers'] ?? []) as $ps) {
+                    $ps['hop'] = $hop;
+                    $peerStats[] = $ps;
+                }
+                foreach (($agg['federation']['warnings'] ?? []) as $w) {
+                    $warnings[] = 'hop ' . $hop . ': ' . $w;
+                }
+
+                foreach (($agg['@graph'] ?? []) as $node) {
+                    $uri = $node['@id'] ?? null;
+                    if ($uri === null || isset($merged[$uri])) {
+                        continue; // keep the shallowest hop a node was first seen at
+                    }
+                    $node['hop'] = $hop;
+                    $merged[$uri] = $node;
+                    $hopNew++;
+
+                    // Schedule a LOCAL, newly-discovered node for the next hop.
+                    // Remote peer nodes are merged but not re-expanded here.
+                    if (($node['source_peer'] ?? null) === null && ($hop + 1) < $maxHops) {
+                        $localRef = $this->localRefFromUri((string) $uri);
+                        if ($localRef !== null && ! isset($visited[strtolower($localRef)])) {
+                            $next[] = $localRef;
+                        }
+                    }
+                }
+            }
+
+            $hopCounts[$hop] = $hopNew;
+            if (empty($next)) {
+                break;
+            }
+            // Bound the frontier width per hop so a hub node cannot explode the walk.
+            $frontier = array_slice(array_values(array_unique($next)), 0, $this->maxFrontierPerHop);
+        }
+
+        $graph = array_values($merged);
+
+        return [
+            '@context'   => $context,
+            '@graph'     => $graph,
+            'federation' => [
+                'mode'             => 'live-multihop',
+                'reference'        => (string) $idOrSlug,
+                'max_hops'         => $maxHops,
+                'local_node_count' => $localNodeCount,
+                'total_node_count' => count($graph),
+                'hop_node_counts'  => $hopCounts,
+                'peers_queried'    => count($peerStats),
+                'peers'            => $peerStats,
+                'warnings'         => $warnings,
+            ],
+        ];
+    }
+
+    /**
+     * Extract a LOCAL graph reference (the trailing id/slug) from a node @id of
+     * the form {base}/api/v1/graph/{ref}. Returns null when the URI does not look
+     * like a graph node, so we never try to re-expand an opaque URI. Only ever
+     * called for local nodes (source_peer === null), so the ref is local.
+     */
+    protected function localRefFromUri(string $uri): ?string
+    {
+        if (! preg_match('~/api/v1/graph/([^/?#]+)~', $uri, $m)) {
+            return null;
+        }
+        $ref = urldecode($m[1]);
+
+        return $ref !== '' ? $ref : null;
     }
 
     // -----------------------------------------------------------------

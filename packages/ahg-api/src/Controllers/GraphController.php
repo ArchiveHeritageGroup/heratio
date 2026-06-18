@@ -216,7 +216,13 @@ class GraphController extends Controller
         try {
             /** @var \AhgFederation\Services\FederationGraphService $svc */
             $svc = app($serviceClass);
-            $aggregated = $svc->aggregate($idOrSlug);
+            // #1204 multi-hop: ?hops=N (N>1) walks the graph transitively across
+            // peers, breadth-first, to N rounds (hard-capped in the service).
+            // Default 1 = the single-hop neighbourhood (unchanged behaviour).
+            $hops = (int) $request->query('hops', 1);
+            $aggregated = $hops > 1
+                ? $svc->aggregateMultiHop($idOrSlug, $hops)
+                : $svc->aggregate($idOrSlug);
         } catch (\Throwable $e) {
             // Last-resort fail-soft: never 500. Fall back to the local graph.
             $objectId = is_numeric($idOrSlug)
