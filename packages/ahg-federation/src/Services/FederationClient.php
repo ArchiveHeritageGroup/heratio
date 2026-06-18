@@ -242,7 +242,10 @@ class FederationClient
             if ($cacheKey !== null) {
                 $cached = Cache::get($cacheKey);
                 if (is_string($cached)) {
-                    $results[$id] = $this->result('success', $cached, null, true, 0, 200);
+                    // Replay the trust headers cached alongside the body (T1
+                    // #1316) so a cache-hit response is still verifiable.
+                    $cachedHdrs = Cache::get($cacheKey.':hdrs');
+                    $results[$id] = $this->result('success', $cached, null, true, 0, 200, is_array($cachedHdrs) ? $cachedHdrs : []);
                     continue;
                 }
             }
@@ -275,8 +278,16 @@ class FederationClient
 
         $multi = curl_multi_init();
         $handles = [];
+        // Per-handle captured response headers (lower-cased name => value). The
+        // federation trust handshake (T1 #1316) needs the peer's
+        // X-Federation-Signature / X-Federation-Key-Id, which only travel as
+        // response headers (detached signature, body untouched). Capturing them
+        // here is additive: callers that ignore 'headers' in the result are
+        // unaffected.
+        $capturedHeaders = [];
 
         foreach ($toFetch as $id => $spec) {
+            $capturedHeaders[$id] = [];
             $handle = curl_init((string) $spec['url']);
             curl_setopt_array($handle, [
                 CURLOPT_RETURNTRANSFER    => true,
@@ -286,6 +297,19 @@ class FederationClient
                 CURLOPT_SSL_VERIFYPEER    => true,
                 CURLOPT_SSL_VERIFYHOST    => 2,
                 CURLOPT_HTTPHEADER        => $spec['headers'] ?? $this->defaultHeaders,
+                CURLOPT_HEADERFUNCTION    => function ($ch, string $headerLine) use (&$capturedHeaders, $id): int {
+                    $len = strlen($headerLine);
+                    $pos = strpos($headerLine, ':');
+                    if ($pos !== false) {
+                        $name = strtolower(trim(substr($headerLine, 0, $pos)));
+                        $value = trim(substr($headerLine, $pos + 1));
+                        if ($name !== '') {
+                            $capturedHeaders[$id][$name] = $value;
+                        }
+                    }
+
+                    return $len;
+                },
             ]);
             curl_multi_add_handle($multi, $handle);
             $handles[$id] = ['handle' => $handle, 'spec' => $spec, 'start' => microtime(true)];
@@ -309,13 +333,15 @@ class FederationClient
             curl_multi_remove_handle($multi, $handle);
             curl_close($handle);
 
+            $respHeaders = $capturedHeaders[$id] ?? [];
+
             if ($error !== '') {
-                $results[$id] = $this->result('error', null, $error, false, $duration, $httpCode);
+                $results[$id] = $this->result('error', null, $error, false, $duration, $httpCode, $respHeaders);
                 continue;
             }
 
             if ($httpCode !== 200) {
-                $results[$id] = $this->result('error', null, 'HTTP '.$httpCode, false, $duration, $httpCode);
+                $results[$id] = $this->result('error', null, 'HTTP '.$httpCode, false, $duration, $httpCode, $respHeaders);
                 continue;
             }
 
@@ -324,8 +350,13 @@ class FederationClient
             if ($cacheKey !== null) {
                 Cache::put($cacheKey, (string) $body, $this->cacheTtlSeconds);
             }
+            // Cache the federation trust headers alongside the body (T1 #1316) so
+            // a cache-hit on a later fetch can still be verified. Same short TTL.
+            if ($cacheKey !== null && ! empty($respHeaders)) {
+                Cache::put($cacheKey.':hdrs', $respHeaders, $this->cacheTtlSeconds);
+            }
 
-            $results[$id] = $this->result('success', (string) $body, null, false, $duration, $httpCode);
+            $results[$id] = $this->result('success', (string) $body, null, false, $duration, $httpCode, $respHeaders);
         }
 
         curl_multi_close($multi);
@@ -358,7 +389,7 @@ class FederationClient
      *
      * @return array<string,mixed>
      */
-    protected function result(string $status, ?string $body, ?string $error, bool $cached, float $durationMs, int $httpCode): array
+    protected function result(string $status, ?string $body, ?string $error, bool $cached, float $durationMs, int $httpCode, array $headers = []): array
     {
         return [
             'status'      => $status,
@@ -367,6 +398,10 @@ class FederationClient
             'cached'      => $cached,
             'duration_ms' => $durationMs,
             'http_code'   => $httpCode,
+            // Lower-cased response headers (name => value). Carries the
+            // federation trust headers (X-Federation-Signature / -Key-Id) for
+            // the consumer-side verifier (T1 #1316). Empty for skipped/blocked.
+            'headers'     => $headers,
         ];
     }
 }

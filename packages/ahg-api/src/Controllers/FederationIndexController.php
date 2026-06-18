@@ -285,6 +285,27 @@ class FederationIndexController extends Controller
         $response->headers->set('Vary', 'Accept');
         $response->headers->set('X-Open-Data', 'true');
 
-        return $response;
+        return $this->signFederation($response);
+    }
+
+    /**
+     * Federation trust handshake (T1, heratio#1316): attach a DETACHED Ed25519
+     * signature header over the EXACT response bytes so a peer can verify this
+     * federation index came from this instance. Reuses the platform's one
+     * Ed25519 key via ahg-federation's FederationSigner; never mutates the body
+     * (back-compat). Fail-soft: unsigned when the signer is absent, never errors.
+     */
+    protected function signFederation(Response $response): Response
+    {
+        $signerClass = \AhgFederation\Services\FederationSigner::class;
+        if (! class_exists($signerClass)) {
+            return $response;
+        }
+
+        try {
+            return app($signerClass)->attach($response);
+        } catch (\Throwable $e) {
+            return $response;
+        }
     }
 }

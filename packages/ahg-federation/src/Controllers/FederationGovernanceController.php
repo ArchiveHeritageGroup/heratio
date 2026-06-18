@@ -61,10 +61,12 @@ class FederationGovernanceController extends Controller
     {
         $peers = collect();
         $hasGovernance = false;
+        $hasTrust = false;
 
         try {
             if (Schema::hasTable('federation_peer')) {
                 $hasGovernance = Schema::hasColumn('federation_peer', 'federation_enabled');
+                $hasTrust = Schema::hasColumn('federation_peer', 'pinned_key_fingerprint');
                 $peers = DB::table('federation_peer')
                     ->orderByDesc('id')
                     ->limit(500)
@@ -83,6 +85,7 @@ class FederationGovernanceController extends Controller
         return view('ahg-federation::governance', [
             'peers' => $peers,
             'hasGovernance' => $hasGovernance,
+            'hasTrust' => $hasTrust,
             'trustLevels' => $this->dropdown('federation_trust_level'),
             'surfaces' => PeerDiscoveryService::KNOWN_SURFACES,
         ]);
@@ -117,6 +120,30 @@ class FederationGovernanceController extends Controller
         }
 
         return back()->with('success', 'Peer governance updated.');
+    }
+
+    /**
+     * Clear a peer's pinned key (federation trust handshake, T1 #1316). The next
+     * successful signature verify re-pins the peer's key Trust-On-First-Use, so
+     * this is the deliberate "the peer rotated its key, trust the new one"
+     * control after a key_mismatch. Idempotent; never throws to the user.
+     */
+    public function clearPin(int $id): RedirectResponse
+    {
+        try {
+            if (! Schema::hasColumn('federation_peer', 'pinned_key_fingerprint')) {
+                return back()->with('error', 'Federation trust columns are not installed yet.');
+            }
+
+            DB::table('federation_peer')->where('id', $id)->update([
+                'pinned_key_fingerprint' => null,
+                'key_pinned_at' => null,
+            ]);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Could not clear the key pin: '.$e->getMessage());
+        }
+
+        return back()->with('success', 'Key pin cleared. The next verified fetch will re-pin the peer key.');
     }
 
     /** Run the discovery crawl now and report the summary. */

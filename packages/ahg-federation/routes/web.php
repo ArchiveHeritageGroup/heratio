@@ -26,6 +26,11 @@ Route::middleware(['auth', 'admin', EnsureFederationEnabled::class])->prefix('fe
     Route::post('/governance/{id}', [FederationGovernanceController::class, 'save'])
         ->whereNumber('id')
         ->name('federation.governance.save');
+    // T1 (#1316) federation trust handshake: clear a peer's TOFU key pin so the
+    // next verified fetch re-pins (the "peer rotated its key" control).
+    Route::post('/governance/{id}/clear-pin', [FederationGovernanceController::class, 'clearPin'])
+        ->whereNumber('id')
+        ->name('federation.governance.clearPin');
 });
 
 // Federated search is anonymous-readable so the GLAM browse page can embed it.

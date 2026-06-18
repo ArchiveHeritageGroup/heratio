@@ -150,6 +150,20 @@ class FederationGraphService
                 ];
 
                 if ($resp['status'] === 'success') {
+                    // Federation trust handshake (T1 #1316): verify the peer's
+                    // detached signature over the EXACT received bytes and pin
+                    // its key TOFU. The verdict (verified + key_fingerprint) is
+                    // stamped onto source_peer so every peer node carries its own
+                    // cryptographic-trust provenance. Best-effort: an unsigned /
+                    // unverifiable peer stays verified=false and still merges
+                    // (T1 establishes trust; T2 decides what to do with it).
+                    $verdict = $this->verifyPeer($resp['body'] ?? '', $resp['headers'] ?? [], (string) $peer->base_url);
+                    $sourcePeer['verified'] = $verdict['verified'];
+                    $sourcePeer['key_fingerprint'] = $verdict['key_fingerprint'];
+                    $stat['verified'] = $verdict['verified'];
+                    $stat['key_fingerprint'] = $verdict['key_fingerprint'];
+                    $stat['trust_reason'] = $verdict['reason'];
+
                     $peerNodes = $this->parsePeerGraph($resp['body'] ?? '', $sourcePeer, $warnings);
                     foreach ($peerNodes as $uri => $node) {
                         if (isset($nodesByUri[$uri])) {
@@ -369,6 +383,24 @@ class FederationGraphService
     protected function peerGraphUrl(string $baseUrl, string $ref): string
     {
         return rtrim($baseUrl, '/') . '/api/v1/graph/' . rawurlencode($ref) . '.jsonld';
+    }
+
+    /**
+     * Verify a peer response via the federation trust handshake (T1 #1316) and
+     * pin its key TOFU. Delegates to FederationVerifier (the SSRF-guarded key
+     * fetch + Ed25519 verify + TOFU pin). Best-effort: any failure yields a
+     * verified=false verdict, never an exception.
+     *
+     * @param  array<string,string>  $headers  peer response headers (lower-cased)
+     * @return array{verified:bool,key_fingerprint:?string,reason:string}
+     */
+    protected function verifyPeer(string $body, array $headers, string $baseUrl): array
+    {
+        try {
+            return (new FederationVerifier())->verifyResponse($body, $headers, $baseUrl);
+        } catch (\Throwable $e) {
+            return ['verified' => false, 'key_fingerprint' => null, 'reason' => 'error'];
+        }
     }
 
     // -----------------------------------------------------------------

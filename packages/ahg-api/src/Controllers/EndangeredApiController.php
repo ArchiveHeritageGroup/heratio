@@ -141,11 +141,38 @@ class EndangeredApiController extends Controller
             'items' => $items,
         ];
 
-        return response()
+        $response = response()
             ->json($payload, 200, [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
             ->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
             ->header('Cache-Control', 'public, max-age=300');
+
+        // Federation trust handshake (T1, heratio#1316): sign the EXACT response
+        // bytes a peer's FederatedEndangeredService receives, as a detached
+        // header. Done last so it covers the final serialised JSON body.
+        return $this->signFederation($response);
+    }
+
+    /**
+     * Attach a DETACHED Ed25519 signature header over the EXACT response bytes
+     * so a federating peer can verify this at-risk register came from this
+     * instance. Reuses the platform's one Ed25519 key via ahg-federation's
+     * FederationSigner (wrapping the inference-receipts signer); never mutates
+     * the JSON body, so a consumer that ignores the header is unaffected.
+     * Fail-soft: unsigned when the signer package is absent, never an error.
+     */
+    protected function signFederation(\Symfony\Component\HttpFoundation\Response $response): \Symfony\Component\HttpFoundation\Response
+    {
+        $signerClass = \AhgFederation\Services\FederationSigner::class;
+        if (! class_exists($signerClass)) {
+            return $response;
+        }
+
+        try {
+            return app($signerClass)->attach($response);
+        } catch (\Throwable $e) {
+            return $response;
+        }
     }
 
     /**

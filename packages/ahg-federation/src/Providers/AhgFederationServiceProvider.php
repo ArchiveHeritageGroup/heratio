@@ -100,6 +100,22 @@ class AhgFederationServiceProvider extends ServiceProvider
             // or by `php artisan ahg:install`.
         }
 
+        // T1 (#1316) federation trust handshake: add the TOFU key-pin columns to
+        // federation_peer (idempotent guarded ALTERs). Probe on the pin column so
+        // re-boots are a cheap no-op; single outer try/catch keeps CI without a
+        // DB green (reference_ci_schema_hastable.md).
+        try {
+            if (Schema::hasTable('federation_peer') && ! Schema::hasColumn('federation_peer', 'pinned_key_fingerprint')) {
+                $sqlPath = __DIR__.'/../../database/install_trust.sql';
+                if (is_file($sqlPath)) {
+                    DB::unprepared(file_get_contents($sqlPath));
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fresh install / no DB; columns get created on the next real boot
+            // or by `php artisan ahg:install`.
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 EuropeanaExportCommand::class,

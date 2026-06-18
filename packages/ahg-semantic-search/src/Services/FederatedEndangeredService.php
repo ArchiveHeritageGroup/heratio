@@ -147,6 +147,20 @@ class FederatedEndangeredService
                 ];
 
                 if ($resp['status'] === 'success') {
+                    // Federation trust handshake (T1 #1316): verify the peer's
+                    // detached signature over the EXACT received bytes and pin
+                    // its key TOFU. The verdict (verified + key_fingerprint) is
+                    // stamped onto source_peer so every cross-peer at-risk row
+                    // carries its own cryptographic-trust provenance. Best-effort:
+                    // an unsigned / unverifiable peer stays verified=false and
+                    // still merges (T1 establishes trust; T2 decides the policy).
+                    $verdict = $this->verifyPeer($resp['body'] ?? '', $resp['headers'] ?? [], (string) $peer->base_url);
+                    $sourcePeer['verified'] = $verdict['verified'];
+                    $sourcePeer['key_fingerprint'] = $verdict['key_fingerprint'];
+                    $stat['verified'] = $verdict['verified'];
+                    $stat['key_fingerprint'] = $verdict['key_fingerprint'];
+                    $stat['trust_reason'] = $verdict['reason'];
+
                     $peerRows = $this->parsePeerRegister($resp['body'] ?? '', $sourcePeer, $warnings);
                     foreach ($peerRows as $row) {
                         $key = $this->dedupeKey($sourcePeer['id'], (string) ($row['item_ref'] ?? ''));
@@ -376,6 +390,30 @@ class FederatedEndangeredService
         }
 
         return $query === [] ? $url : $url.'?'.http_build_query($query);
+    }
+
+    /**
+     * Verify a peer response via the federation trust handshake (T1 #1316) and
+     * pin its key TOFU. Delegates to ahg-federation's FederationVerifier (the
+     * SSRF-guarded key fetch + Ed25519 verify + TOFU pin). Best-effort: any
+     * failure (or ahg-federation absent) yields a verified=false verdict, never
+     * an exception - this service never throws.
+     *
+     * @param  array<string,string>  $headers  peer response headers (lower-cased)
+     * @return array{verified:bool,key_fingerprint:?string,reason:string}
+     */
+    protected function verifyPeer(string $body, array $headers, string $baseUrl): array
+    {
+        $verifierClass = \AhgFederation\Services\FederationVerifier::class;
+        if (! class_exists($verifierClass)) {
+            return ['verified' => false, 'key_fingerprint' => null, 'reason' => 'unsigned'];
+        }
+
+        try {
+            return (new $verifierClass)->verifyResponse($body, $headers, $baseUrl);
+        } catch (\Throwable $e) {
+            return ['verified' => false, 'key_fingerprint' => null, 'reason' => 'error'];
+        }
     }
 
     // -----------------------------------------------------------------

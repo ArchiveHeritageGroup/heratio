@@ -176,7 +176,58 @@ class ProtocolController extends Controller
             // The public peer index: the peers THIS instance knows and federates
             // with, so an external agent can bootstrap peer discovery (F2 #1315).
             'peer_index' => $this->resolve('open-data.federation', '/open-data/federation'),
+            // Federation trust handshake (T1 #1316): the responses this instance
+            // serves to peers carry a DETACHED Ed25519 signature in the
+            // X-Federation-Signature header (key id in X-Federation-Key-Id). A
+            // consumer fetches public_key_url, finds the key matching the kid and
+            // verifies the detached signature over sha256(received bytes). The
+            // SAME key signs inference receipts + C2PA manifests (one key, three
+            // uses) - it is the inference-receipts key, served at the well-known
+            // endpoint below. Every field is defensive: a slimmer install with no
+            // signer simply omits the trust block (array_filter drops nulls).
+            'trust' => $this->trust(),
         ], static fn ($v): bool => $v !== null && $v !== []);
+    }
+
+    /**
+     * The federation trust descriptor (T1 #1316): how a peer verifies the signed
+     * responses this instance serves. Advertises the public-key URL (this
+     * instance's /.well-known/ai-inference-pubkey - the ONE Ed25519 key), the
+     * signing key fingerprint (kid), the signature scheme and the header names.
+     * Returns null when the signer is unavailable so the trust block is omitted
+     * rather than advertising verification this instance cannot back.
+     *
+     * @return array<string,mixed>|null
+     */
+    protected function trust(): ?array
+    {
+        $signerClass = \AhgFederation\Services\FederationSigner::class;
+        $kid = null;
+
+        if (class_exists($signerClass)) {
+            try {
+                $kid = app($signerClass)->keyId();
+            } catch (\Throwable $e) {
+                $kid = null;
+            }
+        }
+
+        if ($kid === null) {
+            return null;
+        }
+
+        return [
+            'signed' => true,
+            'signature_scheme' => \AhgFederation\Services\FederationSigner::SIG_ALG,
+            'public_key_url' => url('/.well-known/ai-inference-pubkey'),
+            'key_fingerprint' => $kid,
+            'signature_header' => \AhgFederation\Services\FederationSigner::HEADER_SIGNATURE,
+            'key_id_header' => \AhgFederation\Services\FederationSigner::HEADER_KEY_ID,
+            'description' => 'Federation responses (graph / endangered / federation index) carry a '
+                .'detached Ed25519 signature over sha256(exact response bytes) in the signature_header. '
+                .'Fetch public_key_url, select the key whose kid matches key_id_header, and verify. The '
+                .'same key signs inference receipts and C2PA manifests.',
+        ];
     }
 
     /**

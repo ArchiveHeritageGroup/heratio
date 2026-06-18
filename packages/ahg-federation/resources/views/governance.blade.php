@@ -61,6 +61,7 @@
                         <tr>
                             <th>{{ __('Peer') }}</th>
                             <th>{{ __('Discovery') }}</th>
+                            <th>{{ __('Trust') }}</th>
                             <th>{{ __('Surfaces') }}</th>
                             <th style="min-width:22rem">{{ __('Governance') }}</th>
                         </tr>
@@ -86,6 +87,29 @@
                                     <div><small class="text-muted">{{ $peer->last_probed_at }}</small></div>
                                 @else
                                     <div><small class="text-muted">{{ __('not yet probed') }}</small></div>
+                                @endif
+                            </td>
+                            <td>
+                                @php($pinned = $peer->pinned_key_fingerprint ?? null)
+                                @if($pinned)
+                                    <span class="badge bg-success" title="{{ __('Peer key pinned (Trust-On-First-Use)') }}">
+                                        <i class="bi bi-shield-lock me-1"></i>{{ __('pinned') }}
+                                    </span>
+                                    <div><small class="text-muted"><code>{{ $pinned }}</code></small></div>
+                                    @if($peer->key_pinned_at ?? null)
+                                        <div><small class="text-muted">{{ __('since') }} {{ $peer->key_pinned_at }}</small></div>
+                                    @endif
+                                    <form method="POST" action="{{ route('federation.governance.clearPin', $peer->id) }}" class="m-0 mt-1"
+                                          onsubmit="return confirm('{{ __('Clear this pinned key? The next verified fetch will re-pin the peer\'s current key (Trust-On-First-Use).') }}');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger" @disabled(! $hasTrust)>
+                                            <i class="bi bi-x-circle me-1"></i>{{ __('Re-pin / clear') }}
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="badge bg-light text-dark border" title="{{ __('No peer key pinned yet; the first verified federated fetch pins it.') }}">
+                                        {{ __('unpinned') }}
+                                    </span>
                                 @endif
                             </td>
                             <td>

@@ -1189,6 +1189,29 @@ class GraphController extends Controller
         // Advertise the open licence stance for crawlers.
         $response->headers->set('X-Open-Data', 'true');
 
-        return $response;
+        return $this->signFederation($response);
+    }
+
+    /**
+     * Federation trust handshake (T1, heratio#1316): attach a DETACHED Ed25519
+     * signature header over the EXACT response bytes so a federating peer can
+     * cryptographically verify this graph came from this instance. Reuses the
+     * platform's one Ed25519 key via ahg-federation's FederationSigner (which
+     * wraps the inference-receipts signer); never mutates the JSON body, so a
+     * consumer that ignores the header is unaffected. Fail-soft: when the signer
+     * package is absent the response is returned unsigned, never an error.
+     */
+    protected function signFederation(Response $response): Response
+    {
+        $signerClass = \AhgFederation\Services\FederationSigner::class;
+        if (! class_exists($signerClass)) {
+            return $response;
+        }
+
+        try {
+            return app($signerClass)->attach($response);
+        } catch (\Throwable $e) {
+            return $response;
+        }
     }
 }
