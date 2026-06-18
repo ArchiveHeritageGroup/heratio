@@ -28,7 +28,7 @@
                   @elseif($job->status === 'failed') <span class="badge bg-danger">{{ __('Failed') }}</span>
                   @else <span class="badge bg-warning text-dark">{{ ucfirst($job->status ?? 'pending') }}</span> @endif
                 </td>
-                <td>{{ strtoupper($job->output_format ?? '-') }}</td>
+                <td>{{ strtoupper($job->output_format ?: pathinfo($job->output_filename ?? '', PATHINFO_EXTENSION)) ?: '-' }}</td>
                 <td>{{ $job->file_count ?? 0 }}</td>
                 <td>{{ $job->output_filename ?? '-' }}</td>
                 <td><small class="text-muted">{{ $job->created_at ?? '' }}</small></td>

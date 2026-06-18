@@ -52,6 +52,15 @@ class TiffPdfMergeController extends Controller
         try {
             if (Schema::hasTable('tiff_pdf_merge_job')) {
                 $jobs = DB::table('tiff_pdf_merge_job')
+                    ->select('tiff_pdf_merge_job.*')
+                    // Real per-job file count; the view read a non-existent
+                    // $job->file_count and always showed 0 (even for jobs with files).
+                    ->selectSub(
+                        DB::table('tiff_pdf_merge_file')
+                            ->whereColumn('merge_job_id', 'tiff_pdf_merge_job.id')
+                            ->selectRaw('count(*)'),
+                        'file_count'
+                    )
                     ->orderByDesc('created_at')
                     ->paginate(25);
             }
