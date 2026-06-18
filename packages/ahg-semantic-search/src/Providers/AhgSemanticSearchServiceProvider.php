@@ -101,6 +101,36 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ->where('claim', '[0-9]+')
                 ->name('repatriation-knowledge.contribute');
 
+            // heratio#1207 - PUBLIC self-service claim lodging. An origin community
+            // lodges a repatriation claim DIRECTLY about a traced object, with no
+            // staff account: the claim lands 'registered' with no staff author and
+            // a notes marker, firing the staff notification for review. Spam is held
+            // off with a honeypot + minimum-dwell check in the controller and route
+            // throttling here. {item} is numeric-only and the path is 3-segment, so
+            // it can never shadow the single-segment /{slug} archival-record
+            // catch-all; bound here (register() + callAfterResolving('router')) for
+            // the same precedence guarantee as the other public repatriation routes.
+            // The /thanks confirmation is registered BEFORE the {item} form so the
+            // literal segment wins over the numeric matcher. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/repatriation/lodge/thanks', [
+                    \AhgSemanticSearch\Controllers\PublicClaimLodgeController::class, 'thanks',
+                ])
+                ->name('repatriation.lodge.thanks');
+            $router->middleware('web')
+                ->get('/repatriation/lodge/{item}', [
+                    \AhgSemanticSearch\Controllers\PublicClaimLodgeController::class, 'form',
+                ])
+                ->where('item', '[0-9]+')
+                ->name('repatriation.lodge.form');
+            $router->middleware(['web', 'throttle:8,1'])
+                ->post('/repatriation/lodge/{item}', [
+                    \AhgSemanticSearch\Controllers\PublicClaimLodgeController::class, 'submit',
+                ])
+                ->where('item', '[0-9]+')
+                ->name('repatriation.lodge.submit');
+
             // heratio#1207 - PUBLIC repatriation dashboard. A read-only aggregate
             // VIEW over the claims register (counts by status, top origin places /
             // communities, virtual-return vs physically-returned split, recent

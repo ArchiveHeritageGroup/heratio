@@ -25,8 +25,21 @@ duplicate them.
 
 An origin community (or their representative) can have a repatriation/return
 **claim** lodged against a displaced item. Staff register the claim from the
-admin claims register, optionally pre-filled from a traced item. Each claim
-carries a status that moves through a neutral state machine:
+admin claims register, optionally pre-filled from a traced item.
+
+**Self-service public lodging.** A community can also lodge a claim **directly,
+with no staff account**. From any object in the public displaced-heritage
+register, a "Lodge a repatriation claim" form lets the claimant give their
+community, a contact email and the grounds for the claim. The submission lands as
+a normal **Registered** claim with no staff author and a note flagging its public
+origin, and it fires the usual staff notification for review (and a receipt email
+to the claimant). The form is item-scoped (you reach it from a traced object, so
+a claim always attaches to a real register entry) and is protected from
+automated abuse by a honeypot field, a minimum-dwell check and request
+throttling - no third-party captcha and no account required, which is the whole
+point of lodging "before any staff account exists".
+
+Each claim carries a status that moves through a neutral state machine:
 
 - **Registered** - a claim has been recorded and is awaiting review.
 - **Under review** - the claim and its documented evidence are being examined.
@@ -125,6 +138,8 @@ following are deliberately out of scope and tracked for later:
   message is posted. Claim *registration* and *status-change* notifications now
   ship (see "Notifications (both sides)" above); per-message dialogue alerts are
   the remaining piece.
-- **Self-service claim lodging** - a public, token-or-captcha-gated form that lets
-  an origin community lodge a claim directly, before any staff account exists.
-  Today staff register the claim.
+- **Object not yet in the register** - self-service lodging is item-scoped, so a
+  community can only lodge against an object already traced in the public
+  displaced-heritage register. A general "claim about an object we cannot find
+  here" intake (which staff would then link to a record) is the remaining piece;
+  staff can still register such a claim directly today.
