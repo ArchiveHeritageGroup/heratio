@@ -248,6 +248,8 @@ Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload');
     // Per-file AJAX stage for the multiFileUpload widget (returns blueimp JSON with tmpName).
     Route::post('/informationobject/{slug}/multiFileUpload/store', [DigitalObjectController::class, 'multiFileUploadStore'])->name('io.multiFileUpload.store')->middleware('acl:create');
+    // Batch title-review step shown after a multiFileUpload import (GET form + POST save).
+    Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpdate', [DigitalObjectController::class, 'multiFileUpdate'])->name('informationobject.multiFileUpdate')->middleware('acl:create');
     // Bulk folder upload — accepts digital_objects[] + relative_paths[] and
     // mirrors the folder structure as child IOs each with their own master DO.
     Route::post('/{slug}/object/addDigitalObject/bulk', [DigitalObjectController::class, 'bulkUpload'])

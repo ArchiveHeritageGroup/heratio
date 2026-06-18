@@ -895,6 +895,88 @@ class DigitalObjectController extends Controller
     }
 
     /**
+     * Batch metadata (title) review for the child records just created by
+     * multiFileUpload(). GET renders one title input per child; POST saves them.
+     * ?items= is the comma-separated list of child slugs created by the import.
+     * Admin-gated like the rest of the digital-object actions.
+     */
+    public function multiFileUpdate(Request $request, string $slug)
+    {
+        $resource = $this->getIO($slug);
+        if (!$resource) {
+            abort(404);
+        }
+        $culture = app()->getLocale();
+
+        // POST — persist the edited titles (only for genuine children of $resource).
+        if ($request->isMethod('post')) {
+            foreach ((array) $request->input('titles', []) as $id => $title) {
+                $id = (int) $id;
+                if ($id <= 0) {
+                    continue;
+                }
+                $isChild = DB::table('information_object')->where('id', $id)->where('parent_id', $resource->id)->exists();
+                if (!$isChild) {
+                    continue;
+                }
+                DB::table('information_object_i18n')->where('id', $id)->where('culture', $culture)
+                    ->update(['title' => trim((string) $title)]);
+            }
+
+            return redirect()->route('informationobject.show', $slug)
+                ->with('success', __('Digital objects imported.'));
+        }
+
+        // GET — build the per-child rows for the review form.
+        $slugs = array_values(array_filter(array_map('trim', explode(',', (string) $request->query('items')))));
+        $informationObjects = [];
+        foreach ($slugs as $childSlug) {
+            $childId = (int) DB::table('slug')->where('slug', $childSlug)->value('object_id');
+            if ($childId <= 0) {
+                continue;
+            }
+            $row = DB::table('information_object as io')
+                ->leftJoin('information_object_i18n as i', function ($j) use ($culture) {
+                    $j->on('i.id', '=', 'io.id')->where('i.culture', '=', $culture);
+                })
+                ->where('io.id', $childId)
+                ->select('io.id', 'io.level_of_description_id', 'i.title')
+                ->first();
+            if (!$row) {
+                continue;
+            }
+
+            $obj = (object) [
+                'id'    => (int) $row->id,
+                'slug'  => $childSlug,
+                'title' => $row->title,
+            ];
+
+            $master = DB::table('digital_object')->where('object_id', $childId)->where('usage_id', 140)->first();
+            if ($master) {
+                $obj->digitalObjectName = $master->name;
+            }
+            $thumb = DB::table('digital_object')->where('object_id', $childId)->where('usage_id', 142)->first();
+            if ($thumb) {
+                $obj->thumbnail = rtrim((string) $thumb->path, '/') . '/' . $thumb->name;
+            }
+            if ($row->level_of_description_id) {
+                $lvl = DB::table('term_i18n')->where('id', $row->level_of_description_id)->where('culture', $culture)->value('name');
+                if ($lvl) {
+                    $obj->levelOfDescription = $lvl;
+                }
+            }
+
+            $informationObjects[] = $obj;
+        }
+
+        return view('ahg-io-manage::multi-file-update', [
+            'resource'           => $resource,
+            'informationObjects' => $informationObjects,
+        ]);
+    }
+
+    /**
      * Convert PHP size string (e.g. 128M) to bytes.
      */
     protected function phpSizeToBytes(string $size): int
