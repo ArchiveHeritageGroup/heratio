@@ -21,11 +21,16 @@
 namespace AhgZ3950\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class SruService
 {
     public const SRU_VERSION = '2.0';
+
+    /** Result count + CQL string of the last searchRetrieve, for request logging. */
+    public int $lastResultCount = 0;
+    public string $lastCql = '';
 
     /**
      * CQL index aliases mapped to library_item / actor / term columns.
@@ -63,6 +68,9 @@ class SruService
         int $maximumRecords = 10,
         string $recordSchema = 'marcxml'
     ): array {
+        $this->lastCql = $cqlQuery;
+        $this->lastResultCount = 0;
+
         try {
             $parsed = $this->parseCql($cqlQuery);
         } catch (Throwable $e) {
@@ -77,26 +85,37 @@ class SruService
         $startRecord = max(1, $startRecord);
         $offset = $startRecord - 1;
 
+        // library_item.description was added by the #1281 backbone migration;
+        // select it only when present so the endpoint never 500s if schema lags.
+        $hasDescription = Schema::hasColumn('library_item', 'description');
+
+        $select = [
+            'library_item.id',
+            'library_item.information_object_id',
+            'library_item.subtitle',
+            'library_item.publisher',
+            'library_item.publication_date',
+            'library_item.isbn',
+            'library_item.issn',
+            'library_item.pagination',
+            'library_item.dimensions',
+            'information_object_i18n.title',
+            'library_item.created_at',
+            'library_item.updated_at',
+        ];
+        if ($hasDescription) {
+            $select[] = 'library_item.description';
+        }
+
         $query = DB::table('library_item')
             ->join('information_object', 'library_item.information_object_id', '=', 'information_object.id')
             ->leftJoin('information_object_i18n', function ($join) {
                 $join->on('information_object_i18n.id', '=', 'information_object.id')
                      ->where('information_object_i18n.culture', '=', 'en');
             })
-            ->select(
-                'library_item.id',
-                'library_item.information_object_id',
-                'library_item.subtitle',
-                'library_item.publisher',
-                'library_item.publication_date',
-                'library_item.isbn',
-                'library_item.issn',
-                'library_item.pagination',
-                'library_item.dimensions',
-                'information_object_i18n.title',
-                'library_item.created_at',
-                'library_item.updated_at'
-            );
+            // Catalogue scoping: SRU exposes the public library catalogue only.
+            ->where('information_object.source_standard', 'library')
+            ->select($select);
 
         foreach ($parsed as $clause) {
             $this->applyClause($query, $clause);
@@ -104,6 +123,7 @@ class SruService
 
         $count = (clone $query)->count('library_item.id');
         $rows = $query->offset($offset)->limit($maximumRecords)->get();
+        $this->lastResultCount = (int) $count;
 
         $records = [];
         foreach ($rows as $row) {
@@ -340,6 +360,10 @@ class SruService
         if ($physical !== '') {
             $marc .= '<datafield tag="300" ind1=" " ind2=" "><subfield code="a">' . htmlspecialchars($physical, ENT_XML1) . '</subfield></datafield>';
         }
+        $description = (string) ($row->description ?? '');
+        if ($description !== '') {
+            $marc .= '<datafield tag="520" ind1=" " ind2=" "><subfield code="a">' . htmlspecialchars($description, ENT_XML1) . '</subfield></datafield>';
+        }
         foreach (array_slice($authors, 1) as $extra) {
             $marc .= '<datafield tag="700" ind1="1" ind2=" "><subfield code="a">' . htmlspecialchars($extra, ENT_XML1) . '</subfield></datafield>';
         }
@@ -367,6 +391,7 @@ class SruService
         if (!empty($row->publication_date)) $xml .= '<dc:date>' . htmlspecialchars((string) $row->publication_date, ENT_XML1) . '</dc:date>';
         if (!empty($row->isbn))    $xml .= '<dc:identifier>urn:isbn:' . htmlspecialchars((string) $row->isbn, ENT_XML1) . '</dc:identifier>';
         if (!empty($row->issn))    $xml .= '<dc:identifier>urn:issn:' . htmlspecialchars((string) $row->issn, ENT_XML1) . '</dc:identifier>';
+        if (!empty($row->description)) $xml .= '<dc:description>' . htmlspecialchars((string) $row->description, ENT_XML1) . '</dc:description>';
         $xml .= '</srw_dc:dc>';
         return $xml;
     }

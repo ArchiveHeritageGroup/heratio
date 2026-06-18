@@ -21,14 +21,16 @@
  * Peers are queried on demand; a short per-(peer, ref) cache only protects the
  * peers from being hammered during a graph walk.
  *
- * Security: cross-peer HTTP is an SSRF risk. The SSRF host-guard here is a
- * replica of the guard in
- * packages/ahg-federation/src/Services/FederatedSearchService.php
- * (createSearchRequest, around line 384) - that file is locked, so the guard
- * is replicated rather than imported. Any change to the guard there should be
- * mirrored here. A peer that fails the guard, errors, or times out is SKIPPED
- * and noted in `warnings`; it is never fatal (fail soft - a dead peer or zero
- * peers returns just the local graph + warnings, never an exception).
+ * Security: cross-peer HTTP is an SSRF risk. As of the F1 unification
+ * (heratio#1314) the SSRF host-guard + curl_multi parallel fetch + cache +
+ * per-peer rate-limit + peer cap live in the shared
+ * AhgFederation\Services\FederationClient; this service delegates all HTTP to
+ * it and keeps only its own graph parsing / merge / provenance logic. The
+ * guard semantics are unchanged (cloud-metadata / loopback / link-local /
+ * private / reserved-IP rejection, FOLLOWLOCATION=false). A peer that fails
+ * the guard, errors, or times out is SKIPPED and noted in `warnings`; it is
+ * never fatal (fail soft - a dead peer or zero peers returns just the local
+ * graph + warnings, never an exception).
  *
  * Rights/scope: a peer's /api/v1/graph endpoint already returns only its
  * PUBLIC, published data (its own publication-status gate). We trust the
@@ -63,7 +65,6 @@
 
 namespace AhgFederation\Services;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -309,11 +310,13 @@ class FederationGraphService
 
     /**
      * Fetch each peer's graph neighbourhood for $ref in parallel. Cache-first
-     * per (peer, ref); rate-limited per peer. Returns peerId => result array:
-     *   ['status' => 'success'|'cached'|'error'|'skipped', 'body' => string|null,
+     * per (peer, ref); rate-limited per peer; SSRF-guarded per peer. The HTTP,
+     * guard, cache and rate-limit machinery now lives in the shared
+     * FederationClient (heratio#1314 F1); this method only builds the per-peer
+     * request specs and translates the client's per-peer results into the
+     * warnings this service surfaces. Returns peerId => result array:
+     *   ['status' => 'success'|'error'|'skipped', 'body' => string|null,
      *    'error' => string|null, 'cached' => bool, 'duration_ms' => float]
-     *
-     * Mirrors the curl_multi loop in FederatedSearchService::runOaiPeers().
      *
      * @param  array<int,object>  $peers
      * @param  array<int,string>  $warnings  (by reference)
@@ -321,138 +324,40 @@ class FederationGraphService
      */
     protected function fetchPeersParallel(array $peers, string $ref, array &$warnings): array
     {
-        $results = [];
-        $toFetch = [];
-
-        // Cache-first + rate-limit gate. A peer with a fresh cache entry is
-        // served from cache and never re-fetched.
-        foreach ($peers as $peerId => $peer) {
-            $cacheKey = $this->cacheKey($peerId, $ref);
-            $cached = Cache::get($cacheKey);
-            if (is_string($cached)) {
-                $results[$peerId] = [
-                    'status'      => 'success',
-                    'body'        => $cached,
-                    'error'       => null,
-                    'cached'      => true,
-                    'duration_ms' => 0,
-                ];
-                continue;
-            }
-
-            // Per-peer rate limit: refuse a live fetch inside the cool-down
-            // window when there is no cached value to serve.
-            $rlKey = $this->rateLimitKey($peerId);
-            if (Cache::get($rlKey)) {
-                $results[$peerId] = [
-                    'status'      => 'skipped',
-                    'body'        => null,
-                    'error'       => 'rate-limited (no cached graph available)',
-                    'cached'      => false,
-                    'duration_ms' => 0,
-                ];
-                $warnings[] = sprintf('Peer %d (%s): rate-limited, skipped', $peer->id, $peer->name);
-                continue;
-            }
-
-            // SSRF guard (replica of FederatedSearchService::createSearchRequest,
-            // see file header). A blocked host is skipped, never fetched.
-            if (! $this->hostAllowed($peer->base_url)) {
-                $results[$peerId] = [
-                    'status'      => 'error',
-                    'body'        => null,
-                    'error'       => 'blocked by SSRF guard',
-                    'cached'      => false,
-                    'duration_ms' => 0,
-                ];
-                $warnings[] = sprintf('Peer %d (%s): blocked by SSRF guard', $peer->id, $peer->name);
-                continue;
-            }
-
-            $toFetch[$peerId] = $peer;
-            // Arm the rate-limit window now so concurrent walks cooperate.
-            Cache::put($rlKey, 1, $this->peerMinIntervalSeconds);
-        }
-
-        if (empty($toFetch)) {
-            return $results;
-        }
-
-        $multi = curl_multi_init();
-        $handles = [];
-
-        foreach ($toFetch as $peerId => $peer) {
-            $url = $this->peerGraphUrl($peer->base_url, $ref);
-            $handle = curl_init($url);
-            curl_setopt_array($handle, [
-                CURLOPT_RETURNTRANSFER     => true,
-                CURLOPT_TIMEOUT_MS         => $this->peerTimeoutMs,
-                CURLOPT_CONNECTTIMEOUT_MS  => min($this->peerConnectTimeoutMs, $this->peerTimeoutMs),
-                CURLOPT_FOLLOWLOCATION     => false, // do NOT follow redirects: a 30x could bounce to an internal host past the guard
-                CURLOPT_SSL_VERIFYPEER     => true,
-                CURLOPT_SSL_VERIFYHOST     => 2,
-                CURLOPT_HTTPHEADER         => [
-                    'Accept: application/ld+json, application/json',
-                    'User-Agent: Heratio-Federation-Graph/1.0',
-                ],
+        $client = (new FederationClient())
+            ->withTimeouts($this->peerTimeoutMs, $this->peerConnectTimeoutMs)
+            ->withCacheTtl($this->cacheTtlSeconds)
+            ->withRateLimit($this->peerMinIntervalSeconds)
+            ->withMaxPeers($this->maxPeers)
+            ->withHeaders([
+                'Accept: application/ld+json, application/json',
+                'User-Agent: Heratio-Federation-Graph/1.0',
             ]);
-            curl_multi_add_handle($multi, $handle);
-            $handles[$peerId] = ['handle' => $handle, 'peer' => $peer, 'start' => microtime(true)];
-        }
 
-        $running = null;
-        do {
-            curl_multi_exec($multi, $running);
-            curl_multi_select($multi);
-        } while ($running > 0);
-
-        foreach ($handles as $peerId => $data) {
-            $handle = $data['handle'];
-            $peer = $data['peer'];
-            $duration = (microtime(true) - $data['start']) * 1000;
-
-            $httpCode = (int) curl_getinfo($handle, CURLINFO_HTTP_CODE);
-            $error = curl_error($handle);
-            $body = curl_multi_getcontent($handle);
-
-            curl_multi_remove_handle($multi, $handle);
-            curl_close($handle);
-
-            if ($error !== '') {
-                $results[$peerId] = [
-                    'status'      => 'error',
-                    'body'        => null,
-                    'error'       => $error,
-                    'cached'      => false,
-                    'duration_ms' => round($duration, 2),
-                ];
-                continue;
-            }
-
-            if ($httpCode !== 200) {
-                $results[$peerId] = [
-                    'status'      => 'error',
-                    'body'        => null,
-                    'error'       => 'HTTP ' . $httpCode,
-                    'cached'      => false,
-                    'duration_ms' => round($duration, 2),
-                ];
-                continue;
-            }
-
-            // Cache the raw body per (peer, ref) for the short TTL.
-            Cache::put($this->cacheKey($peerId, $ref), (string) $body, $this->cacheTtlSeconds);
-
-            $results[$peerId] = [
-                'status'      => 'success',
-                'body'        => (string) $body,
-                'error'       => null,
-                'cached'      => false,
-                'duration_ms' => round($duration, 2),
+        $specs = [];
+        foreach ($peers as $peerId => $peer) {
+            $specs[$peerId] = [
+                'url'       => $this->peerGraphUrl($peer->base_url, $ref),
+                'base_url'  => $peer->base_url,
+                'cache_key' => $this->cacheKey($peerId, $ref),
+                'rate_key'  => $this->rateLimitKey($peerId),
             ];
         }
 
-        curl_multi_close($multi);
+        $results = $client->fetchMany($specs);
+
+        // Surface the same warnings the inline loop used to add.
+        foreach ($results as $peerId => $resp) {
+            if (! isset($peers[$peerId])) {
+                continue;
+            }
+            $peer = $peers[$peerId];
+            if ($resp['status'] === 'skipped' && ! empty($resp['error']) && str_contains((string) $resp['error'], 'rate-limited')) {
+                $warnings[] = sprintf('Peer %d (%s): rate-limited, skipped', $peer->id, $peer->name);
+            } elseif ($resp['status'] === 'error' && ($resp['error'] ?? '') === 'blocked by SSRF guard') {
+                $warnings[] = sprintf('Peer %d (%s): blocked by SSRF guard', $peer->id, $peer->name);
+            }
+        }
 
         return $results;
     }
@@ -464,60 +369,6 @@ class FederationGraphService
     protected function peerGraphUrl(string $baseUrl, string $ref): string
     {
         return rtrim($baseUrl, '/') . '/api/v1/graph/' . rawurlencode($ref) . '.jsonld';
-    }
-
-    // -----------------------------------------------------------------
-    // SSRF guard - REPLICA of FederatedSearchService (locked file)
-    // -----------------------------------------------------------------
-
-    /**
-     * SSRF host-guard. Replica of the block in
-     * FederatedSearchService::createSearchRequest (around line 384): it rejects
-     * the well-known cloud-metadata hostnames/IPs. Extended (defence in depth)
-     * to also reject loopback, link-local, and obviously-internal/private
-     * targets, since a peer graph URL is fetched server-side and is a textbook
-     * SSRF sink. A peer whose base_url fails this guard is SKIPPED.
-     *
-     * Mirror any change to the source guard here (the source file is locked).
-     */
-    protected function hostAllowed(string $baseUrl): bool
-    {
-        $scheme = strtolower((string) parse_url($baseUrl, PHP_URL_SCHEME));
-        if (! in_array($scheme, ['http', 'https'], true)) {
-            return false;
-        }
-
-        $host = strtolower((string) parse_url($baseUrl, PHP_URL_HOST));
-        if ($host === '') {
-            return false;
-        }
-
-        // Cloud-metadata endpoints - the exact set FederatedSearchService blocks.
-        $blockedHosts = ['169.254.169.254', 'metadata.google.internal', 'metadata.internal'];
-        if (in_array($host, $blockedHosts, true)) {
-            return false;
-        }
-
-        // Loopback / unspecified by name.
-        if (in_array($host, ['localhost', 'ip6-localhost', '0.0.0.0', '::1', '[::1]'], true)) {
-            return false;
-        }
-
-        // If the host is a literal IP, reject private / loopback / link-local /
-        // reserved ranges (a peer should be a public catalogue host).
-        $ip = trim($host, '[]');
-        if (filter_var($ip, FILTER_VALIDATE_IP)) {
-            $publicOnly = filter_var(
-                $ip,
-                FILTER_VALIDATE_IP,
-                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
-            );
-            if ($publicOnly === false) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     // -----------------------------------------------------------------

@@ -133,6 +133,46 @@ class ProtocolController extends Controller
             'authentication' => 'none (open data)',
             'count' => count($surfaces),
             'surfaces' => $surfaces,
+            // Federation Query Protocol descriptor (epic heratio#1313, F1).
+            // Declares the queryable surfaces THIS instance exposes to peers so a
+            // peer can discover how to federate with it from this one document.
+            'federation' => $this->federation(),
+        ];
+    }
+
+    /**
+     * The Federation Query Protocol descriptor: the queryable surfaces this
+     * instance exposes for cross-peer federation, plus a protocol version.
+     * Every surface is resolved defensively (Route::has + a literal path
+     * fallback) so a slimmer install advertises only what it actually serves
+     * rather than dead-linking. A surface that resolves to nothing is dropped.
+     *
+     * Peers fetch these over HTTP through the shared FederationClient (the
+     * single SSRF-guarded fetch layer); the URL templates here are the contract
+     * those fetches target.
+     *
+     * @return array<string,mixed>
+     */
+    protected function federation(): array
+    {
+        $base = $this->base();
+
+        // graph + endangered have named routes (resolve to their absolute URL);
+        // search is the cross-peer search contract a federating peer queries
+        // (FederatedSearchService fetches {peer.base_url}/api/search), so it is
+        // declared as the path template peers expect from this instance.
+        $surfaces = array_filter([
+            'graph'      => $this->resolve('api.v1.graph.show', '/api/v1/graph/{idOrSlug}'),
+            'endangered' => $this->resolve('api.v1.endangered', '/api/v1/endangered'),
+            'search'     => $base.'/api/search',
+        ], static fn ($v): bool => ! empty($v));
+
+        return [
+            'protocol_version' => '1.0',
+            'description' => 'The queryable surfaces this instance exposes to federation peers. '
+                .'A peer queries these live over HTTP and merges the answers; all are read-only and '
+                .'expose published data only.',
+            'surfaces' => $surfaces,
         ];
     }
 

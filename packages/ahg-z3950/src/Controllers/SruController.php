@@ -8,6 +8,9 @@
  *   GET /sru?operation=searchRetrieve&query=...&startRecord=&maximumRecords=&recordSchema=
  *
  * Returns SRU 2.0 XML responses. Federated discovery is anonymous; no auth.
+ * Responses are CORS-enabled (discovery layers consume them cross-origin) and
+ * each searchRetrieve is best-effort logged to library_sru_log (an X-API-Key,
+ * if supplied, is logged only as a SHA-256 hint, never the key itself).
  *
  * Copyright (C) 2026 Johan Pieterse - Plain Sailing Information Systems - AGPL-3.0
  */
@@ -18,6 +21,9 @@ use AhgZ3950\Services\SruService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class SruController extends Controller
 {
@@ -49,7 +55,11 @@ class SruController extends Controller
             return $this->diagnostic('mandatoryParameterNotSupplied', 'query', $version);
         }
 
+        $start = microtime(true);
         $result = $this->sru->searchRetrieve($query, $startRecord, $maximumRecords, $recordSchema);
+        $durationMs = round((microtime(true) - $start) * 1000, 1);
+
+        $this->logSearch($request, $durationMs, $result['diagnostic'] ?? null);
 
         if ($result['diagnostic'] !== null) {
             return $this->diagnostic('queryFeatureUnsupported', $result['diagnostic'], $version);
@@ -85,7 +95,7 @@ class SruController extends Controller
         $body .= '</echoedSearchRetrieveRequest>';
         $body .= '</searchRetrieveResponse>';
 
-        return response($body, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+        return $this->xml($body);
     }
 
     private function explain(string $version): Response
@@ -99,7 +109,7 @@ class SruController extends Controller
         $body .= '<recordData>' . $this->sru->explain() . '</recordData>';
         $body .= '</record>';
         $body .= '</explainResponse>';
-        return response($body, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+        return $this->xml($body);
     }
 
     private function diagnostic(string $code, string $details, string $version): Response
@@ -113,6 +123,43 @@ class SruController extends Controller
         $body .= '<details>' . htmlspecialchars($details, ENT_XML1) . '</details>';
         $body .= '</diagnostic></diagnostics>';
         $body .= '</searchRetrieveResponse>';
-        return response($body, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+        return $this->xml($body);
+    }
+
+    /** XML response with CORS headers (discovery layers consume cross-origin). */
+    private function xml(string $body): Response
+    {
+        return response($body, 200)
+            ->header('Content-Type', 'application/xml; charset=UTF-8')
+            ->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+            ->header('Access-Control-Allow-Headers', 'X-API-Key, Content-Type');
+    }
+
+    /**
+     * Best-effort searchRetrieve request log (never breaks the response; the
+     * library_sru_log table lives in ahg-library and may not exist yet). An
+     * X-API-Key, if supplied, is stored only as a SHA-256 prefix.
+     */
+    private function logSearch(Request $request, float $durationMs, ?string $error): void
+    {
+        try {
+            if (! Schema::hasTable('library_sru_log')) {
+                return;
+            }
+            $apiKey = (string) ($request->header('X-API-Key') ?? $request->query('api_key', ''));
+            DB::table('library_sru_log')->insert([
+                'query' => mb_substr((string) $request->query('query', ''), 0, 2000),
+                'cql_query' => mb_substr($this->sru->lastCql, 0, 2000),
+                'result_count' => max(0, $this->sru->lastResultCount),
+                'duration_ms' => $durationMs,
+                'error' => $error !== null ? mb_substr($error, 0, 2000) : null,
+                'remote_addr' => $request->ip(),
+                'api_key_hint' => $apiKey !== '' ? substr(hash('sha256', $apiKey), 0, 16) : null,
+                'created_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::debug('[ahg-z3950] SRU log insert skipped: ' . $e->getMessage());
+        }
     }
 }

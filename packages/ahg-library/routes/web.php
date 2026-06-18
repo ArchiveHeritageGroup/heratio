@@ -42,9 +42,15 @@ Route::prefix('api/sushi/r5')->group(function () {
 Route::get('/library', [LibraryController::class, 'browse'])->name('library.browse');
 Route::get('/library/browse', [LibraryController::class, 'browse'])->name('library.browse.alias');
 
-// #1281 SRU (Search/Retrieve via URL) server - explain + searchRetrieve over the
-// public library catalogue (CORS-enabled, read-only). GET-based per the SRU spec.
-Route::get('/library/sru', [\AhgLibrary\Controllers\SruController::class, 'handle'])->name('library.sru');
+// #1312 SRU consolidation: the duplicate library SRU responder was retired and
+// its strengths merged into the canonical ahg-z3950 /sru endpoint (catalogue
+// scoping, dc:description, CORS, library_sru_log logging). The legacy
+// /library/sru URL now 301-redirects to /sru (query string preserved) so
+// existing discovery-layer bookmarks keep working. (Originally #1281.)
+Route::get('/library/sru', function (\Illuminate\Http\Request $request) {
+    $qs = $request->getQueryString();
+    return redirect('/sru' . ($qs !== null && $qs !== '' ? '?' . $qs : ''), 301);
+})->name('library.sru');
 
 Route::get('/library/cover-image/{isbn}', [LibraryController::class, 'coverImage'])
     ->name('library.cover-image')

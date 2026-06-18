@@ -11,7 +11,7 @@ The module is named "Library cataloguing and management for Heratio" and is orga
 - **Public catalogue** at `/library` (alias `/library/browse`) - anyone can browse and open a record at `/library/{slug}`.
 - **OPAC** at `/opac` - a public-facing catalogue with patron accounts, holds, and renewals (only active when OPAC is enabled).
 - **Staff management** under `/library-manage/...` - cataloguing, acquisitions, serials, circulation, ILL, electronic resources, and reports. These routes require authentication and enforce ACL middleware (`acl:create`, `acl:update`, `acl:delete`) on the actions that change data.
-- **Machine interfaces** - SRU (Search/Retrieve via URL) at `/library/sru`, a SUSHI 5.0 COUNTER server under `/api/sushi/r5/...`, and an ONIX ingest API at `/api/library/ingest/onix`.
+- **Machine interfaces** - SRU (Search/Retrieve via URL) at `/sru` (the legacy `/library/sru` URL 301-redirects here), a SUSHI 5.0 COUNTER server under `/api/sushi/r5/...`, and an ONIX ingest API at `/api/library/ingest/onix`.
 
 Cataloguing data, authority records, acquisitions, serials, circulation, and usage statistics are all held in the module's own `library_*` tables.
 
@@ -61,7 +61,7 @@ Cataloguing data, authority records, acquisitions, serials, circulation, and usa
 
 ### Discovery surfaces
 - **Public catalogue:** browse at `/library`, open a record at `/library/{slug}`.
-- **SRU server:** standards-based search at `/library/sru` (explain + searchRetrieve, read-only, CORS-enabled).
+- **SRU server:** standards-based search at `/sru` (explain + searchRetrieve, read-only, CORS-enabled). The legacy `/library/sru` URL 301-redirects to `/sru`.
 - **OPAC:** at `/opac` with record views, holds, renewals, and an account page; patron self-service login at `/opac/patron/login` gives patrons their own loans, holds, fines, and renew-all.
 
 ### Reports
