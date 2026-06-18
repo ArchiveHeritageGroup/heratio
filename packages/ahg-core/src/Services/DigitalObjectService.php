@@ -1081,7 +1081,11 @@ class DigitalObjectService
             return;
         }
 
-        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$master->object_id;
+        // Files live under the 'r/' shard (uploads_path/r/<object_id>/), matching
+        // upload()/generateImageDerivatives. Without it is_file() always missed
+        // and this no-op'd, so masters created outside upload() (e.g. the
+        // multiFileUpload import) never got derivatives.
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/r/'.$master->object_id;
         $masterPath = $uploadDir.'/'.$master->name;
         if (! is_file($masterPath)) {
             return;
@@ -1098,13 +1102,26 @@ class DigitalObjectService
 
         $isImage = in_array($mediaTypeId, [self::MEDIA_IMAGE]);
 
-        if ($isImage && extension_loaded('gd') && ($makeReference || $makeThumbnail)) {
+        if ($isImage && ($makeReference || $makeThumbnail)) {
             $imageInfo = @getimagesize($masterPath);
-            if (! $imageInfo) {
-                return;
-            }
-            $srcImage = self::createGdImage($masterPath, $imageInfo[2]);
+            $extLow = strtolower(pathinfo($master->name, PATHINFO_EXTENSION));
+            $isTiff = in_array($extLow, ['tif', 'tiff'], true)
+                || (is_array($imageInfo) && in_array((int) ($imageInfo[2] ?? 0), [IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM], true));
+            $srcImage = (! $isTiff && extension_loaded('gd') && is_array($imageInfo))
+                ? self::createGdImage($masterPath, $imageInfo[2])
+                : false;
+
             if (! $srcImage) {
+                // TIFF (GD can't read it) or any GD-undecodable image: derive the
+                // JPEG reference/thumbnail via ImageMagick instead (no-op without
+                // convert), so a TIFF still renders. heratio TIFF-render fix.
+                if ($makeReference) {
+                    self::createImagickDerivative($masterPath, 480, $uploadDir.'/reference_'.$safeName.'.jpg', 'reference_'.$safeName.'.jpg', $masterId, (int) $master->object_id, $webPath, self::USAGE_REFERENCE);
+                }
+                if ($makeThumbnail) {
+                    self::createImagickDerivative($masterPath, 100, $uploadDir.'/thumbnail_'.$safeName.'.jpg', 'thumbnail_'.$safeName.'.jpg', $masterId, (int) $master->object_id, $webPath, self::USAGE_THUMBNAIL);
+                }
+
                 return;
             }
             $srcWidth = imagesx($srcImage);

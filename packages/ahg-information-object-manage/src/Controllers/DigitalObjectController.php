@@ -866,10 +866,16 @@ class DigitalObjectController extends Controller
                         'object_id' => $objectId,
                         'usage_id' => 140, // master
                         'name' => $filename,
-                        'path' => $doDir,
+                        // Web-relative path (matches DigitalObjectService::upload),
+                        // not the absolute $doDir, so URL/IIIF resolution works.
+                        'path' => '/uploads/r/' . $objectId . '/',
                         'byte_size' => filesize($doDir . $filename),
                         'mime_type' => mime_content_type($doDir . $filename),
                     ]);
+
+                    // Generate JPEG reference + thumbnail (incl. TIFF via ImageMagick)
+                    // so imported children render + show thumbnails like normal uploads.
+                    \AhgCore\Services\DigitalObjectService::generateDerivativesForMaster((int) $doObjectId);
                 }
 
                 $slugList[] = $childSlug;
