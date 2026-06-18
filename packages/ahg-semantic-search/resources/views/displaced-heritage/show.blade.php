@@ -182,9 +182,12 @@
         {{ __('This entry is maintained in dialogue with communities and holding institutions. Origin, ownership and lawful-transfer history are matters for qualified staff and the relevant communities to assess together, case by case.') }}
     </p>
 
-    <div class="mt-3">
+    <div class="mt-3 d-flex gap-2">
         <a href="{{ route('displaced-heritage.index') }}" class="btn btn-outline-secondary btn-sm">
             <i class="fas fa-arrow-left me-1"></i>{{ __('Back to the register') }}
+        </a>
+        <a href="{{ route('repatriation.lodge.form', ['item' => $entry['id']]) }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-scale-balanced me-1"></i>{{ __('Lodge a repatriation claim about this object') }}
         </a>
     </div>
 
