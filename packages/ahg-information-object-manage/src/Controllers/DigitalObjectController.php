@@ -783,7 +783,9 @@ class DigitalObjectController extends Controller
             ->where('term_i18n.culture', $culture)
             ->orderBy('level_of_description_sector.display_order')
             ->distinct()
-            ->select('term.id', 'term_i18n.name')
+            // display_order must be SELECTed too: DISTINCT + ORDER BY on a
+            // non-selected column is rejected by MySQL (error 3065).
+            ->select('term.id', 'term_i18n.name', 'level_of_description_sector.display_order')
             ->get();
 
         // Handle POST — process uploaded files and create child IOs
