@@ -129,6 +129,13 @@ return Application::configure(basePath: dirname(__DIR__))
             // researchers POST from the IO show page; no session/CSRF token.
             // Token receipt URL + best-effort email confirmation cover replay.
             'publish-request',
+            // Digital-object AJAX uploads. The AtoM-migrated multiFileUpload
+            // widget (and the single-file uploader) POST files via XHR without a
+            // Laravel CSRF token, so they 419'd ("upload failed"). Both endpoints
+            // are session-auth + acl:create gated, so forgery is blocked at the
+            // auth/authorisation layer. heratio multiFileUpload fix.
+            'informationobject/*/upload',
+            'informationobject/*/multiFileUpload/store',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
