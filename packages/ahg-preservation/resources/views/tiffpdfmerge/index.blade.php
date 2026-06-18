@@ -12,8 +12,14 @@
     </div>
     <p class="text-muted">Merge multiple TIFF or image files into a single PDF or multi-page TIFF document.</p>
 
+    @if($errors->any())
+    <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
+    @endif
+    @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+
     <form method="post" action="{{ Route::has('preservation.tiffpdfmerge.store') ? route('preservation.tiffpdfmerge.store') : '#' }}" enctype="multipart/form-data">
       @csrf
+      @if(!empty($ioId))<input type="hidden" name="io" value="{{ $ioId }}">@endif
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">Merge Configuration</div>
         <div class="card-body">
@@ -30,8 +36,8 @@
               <input type="text" name="output_filename" class="form-control" placeholder="{{ __('merged-output') }}">
             </div>
             <div class="col-12 mb-3">
-              <label class="form-label">Source Files <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <input type="file" name="files[]" class="form-control" multiple accept=".tif,.tiff,.pdf,.jpg,.jpeg,.png">
+              <label class="form-label">Source Files <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <input type="file" name="files[]" class="form-control" multiple required accept=".tif,.tiff,.pdf,.jpg,.jpeg,.png">
               <div class="form-text">Select TIFF, PDF, or image files to merge. Hold Ctrl/Cmd to select multiple.</div>
             </div>
           </div>

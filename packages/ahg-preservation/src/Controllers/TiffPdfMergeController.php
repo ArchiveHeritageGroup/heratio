@@ -29,6 +29,7 @@ namespace AhgPreservation\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -37,9 +38,14 @@ class TiffPdfMergeController extends Controller
     /**
      * TIFF/PDF Merge tool index — form to create a new merge job.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('ahg-preservation::tiffpdfmerge.index');
+        // When the tool is opened from an archival record ("Open Merge Tool"),
+        // carry the IO id through so store() can link the job to that record.
+        $ioId = $request->query('io');
+        $ioId = ($ioId !== null && is_numeric($ioId)) ? (int) $ioId : null;
+
+        return view('ahg-preservation::tiffpdfmerge.index', ['ioId' => $ioId]);
     }
 
     /**
@@ -78,11 +84,155 @@ class TiffPdfMergeController extends Controller
     {
         $request->validate([
             'output_format' => 'required|in:pdf,tiff',
+            'files'         => 'required|array|min:1',
+            'files.*'       => 'file|mimes:tif,tiff,pdf,jpg,jpeg,png|max:204800',
+        ], [
+            'files.required' => 'Select at least one source file to merge.',
         ]);
 
-        // Job creation would happen here via a service
-        return redirect()->route('preservation.tiffpdfmerge.browse')
-            ->with('success', 'Merge job queued successfully.');
+        $format = $request->input('output_format');
+
+        $ioId = $request->input('io');
+        $ioId = ($ioId !== null && is_numeric($ioId)) ? (int) $ioId : null;
+
+        // Sanitise the requested name and force the correct extension.
+        $rawName = trim((string) $request->input('output_filename', '')) ?: 'merged-output';
+        $base    = preg_replace('/[^A-Za-z0-9._-]+/', '-', pathinfo($rawName, PATHINFO_FILENAME)) ?: 'merged-output';
+        $ext     = $format === 'tiff' ? 'tiff' : 'pdf';
+        $outName = $base.'.'.$ext;
+
+        $files = $request->file('files');
+
+        // 1) Create the job row up front (status=processing while we work) so
+        //    it is visible in the browse list even if the merge later fails.
+        $jobId = DB::table('tiff_pdf_merge_job')->insertGetId([
+            'information_object_id' => $ioId,
+            'user_id'         => Auth::id(),
+            'job_name'        => $base,
+            'status'          => 'processing',
+            'total_files'     => count($files),
+            'processed_files' => 0,
+            'output_filename' => $outName,
+            'output_format'   => $format,
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ]);
+
+        // 2) Stage uploads under uploads_path/merges/<jobId>/ and record each file.
+        $workDir = rtrim(config('heratio.uploads_path'), '/').'/merges/'.$jobId;
+        if (! is_dir($workDir)) {
+            @mkdir($workDir, 0775, true);
+        }
+
+        $orderedPaths = [];
+        $idx = 0;
+        foreach ($files as $file) {
+            $idx++;
+            $orig = $file->getClientOriginalName();
+            $safe = $idx.'-'.preg_replace('/[^A-Za-z0-9._-]+/', '-', $orig);
+            $dest = $workDir.'/'.$safe;
+
+            try {
+                $file->move($workDir, $safe);
+            } catch (\Throwable $e) {
+                @copy($file->getRealPath(), $dest);
+            }
+            $orderedPaths[] = $dest;
+
+            DB::table('tiff_pdf_merge_file')->insert([
+                'merge_job_id'      => $jobId,
+                'original_filename' => $orig,
+                'stored_filename'   => $safe,
+                'file_path'         => $dest,
+                'file_size'         => is_file($dest) ? filesize($dest) : 0,
+                'mime_type'         => $file->getClientMimeType(),
+                'page_order'        => $idx,
+                'status'            => 'staged',
+                'checksum_md5'      => is_file($dest) ? md5_file($dest) : null,
+                'created_at'        => now(),
+            ]);
+        }
+
+        // 3) Run the merge synchronously (consistent with the derivative
+        //    pipeline; no queue worker runs on this install).
+        $outPath = $workDir.'/'.$outName;
+        try {
+            $this->runImagickMerge($orderedPaths, $outPath, $format);
+
+            if (! is_file($outPath) || filesize($outPath) === 0) {
+                throw new \RuntimeException('Merge produced no output file.');
+            }
+
+            DB::table('tiff_pdf_merge_job')->where('id', $jobId)->update([
+                'status'          => 'completed',
+                'processed_files' => count($orderedPaths),
+                'output_path'     => $outPath,
+                'completed_at'    => now(),
+                'updated_at'      => now(),
+            ]);
+        } catch (\Throwable $e) {
+            DB::table('tiff_pdf_merge_job')->where('id', $jobId)->update([
+                'status'        => 'failed',
+                'error_message' => mb_substr($e->getMessage(), 0, 2000),
+                'updated_at'    => now(),
+            ]);
+
+            return redirect()->route('preservation.tiffpdfmerge.view', $jobId)
+                ->with('error', 'Merge failed: '.$e->getMessage());
+        }
+
+        return redirect()->route('preservation.tiffpdfmerge.view', $jobId)
+            ->with('success', 'Merge completed: '.$outName);
+    }
+
+    /**
+     * Concatenate the ordered inputs into a single PDF or multi-page TIFF
+     * with ImageMagick. Multi-page PDF/TIFF inputs contribute all their pages.
+     */
+    private function runImagickMerge(array $inputs, string $outPath, string $format): void
+    {
+        if (empty($inputs)) {
+            throw new \RuntimeException('No source files to merge.');
+        }
+
+        $args = [];
+        foreach ($inputs as $in) {
+            if (! is_file($in)) {
+                throw new \RuntimeException('Source file missing: '.basename($in));
+            }
+            $args[] = escapeshellarg($in);
+        }
+
+        $density = '-density 200';
+        if ($format === 'tiff') {
+            $cmd = 'convert '.$density.' '.implode(' ', $args)
+                .' -compress lzw '.escapeshellarg($outPath).' 2>&1';
+        } else {
+            $cmd = 'convert '.$density.' '.implode(' ', $args)
+                .' -quality 90 '.escapeshellarg($outPath).' 2>&1';
+        }
+
+        $output = [];
+        $rc = 0;
+        exec($cmd, $output, $rc);
+
+        if ($rc !== 0) {
+            throw new \RuntimeException('convert exited '.$rc.': '.implode(' ', array_slice($output, 0, 5)));
+        }
+    }
+
+    /**
+     * Stream the completed merge output for download.
+     */
+    public function download(int $id)
+    {
+        $job = DB::table('tiff_pdf_merge_job')->where('id', $id)->first();
+
+        if (! $job || $job->status !== 'completed' || empty($job->output_path) || ! is_file($job->output_path)) {
+            abort(404, 'Merge output not available');
+        }
+
+        return response()->download($job->output_path, $job->output_filename ?: basename($job->output_path));
     }
 
     /**
@@ -176,10 +326,18 @@ class TiffPdfMergeController extends Controller
                 $job = DB::table('tiff_pdf_merge_job')->where('id', $id)->first();
             }
             if ($job && Schema::hasTable('tiff_pdf_merge_file')) {
+                // FK is merge_job_id (not job_id); order column is page_order.
+                // Alias to the names the view reads (filename / size).
                 $sourceFiles = DB::table('tiff_pdf_merge_file')
-                    ->where('job_id', $id)
-                    ->orderBy('sort_order')
-                    ->get();
+                    ->where('merge_job_id', $id)
+                    ->orderBy('page_order')
+                    ->get([
+                        'original_filename as filename',
+                        'file_size as size',
+                        'mime_type',
+                    ]);
+                // The view reads $job->file_count; populate it from the real rows.
+                $job->file_count = $sourceFiles->count();
             }
         } catch (\Exception $e) {
             // ignore

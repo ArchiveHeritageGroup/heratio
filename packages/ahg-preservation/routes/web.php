@@ -40,7 +40,8 @@ Route::middleware('admin')->group(function () {
         Route::get('/', [TiffPdfMergeController::class, 'index'])->name('preservation.tiffpdfmerge.index');
         Route::get('/browse', [TiffPdfMergeController::class, 'browse'])->name('preservation.tiffpdfmerge.browse');
         Route::post('/store', [TiffPdfMergeController::class, 'store'])->name('preservation.tiffpdfmerge.store');
-        Route::get('/{id}', [TiffPdfMergeController::class, 'view'])->name('preservation.tiffpdfmerge.view');
+        Route::get('/{id}/download', [TiffPdfMergeController::class, 'download'])->where('id', '[0-9]+')->name('preservation.tiffpdfmerge.download');
+        Route::get('/{id}', [TiffPdfMergeController::class, 'view'])->where('id', '[0-9]+')->name('preservation.tiffpdfmerge.view');
     });
 
     // TIFF/PDF Merge AJAX API routes (used by add-digital-object)

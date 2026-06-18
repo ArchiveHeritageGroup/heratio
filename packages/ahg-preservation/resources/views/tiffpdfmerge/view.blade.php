@@ -16,6 +16,12 @@
 
     <h1><i class="fas fa-file-pdf me-2"></i>Merge Job #{{ $job->id ?? '' }}</h1>
 
+    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+    @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+    @if(($job->status ?? '') === 'failed' && ($job->error_message ?? null))
+    <div class="alert alert-danger"><strong>{{ __('Error') }}:</strong> {{ $job->error_message }}</div>
+    @endif
+
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">Job Details</div>
       <div class="card-body">
@@ -33,7 +39,7 @@
         </table>
 
         @if(($job->status ?? '') === 'completed' && ($job->output_path ?? null))
-        <a href="{{ $job->output_path }}" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Download Output') }}</a>
+        <a href="{{ route('preservation.tiffpdfmerge.download', $job->id) }}" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Download Output') }}</a>
         @endif
       </div>
     </div>
