@@ -158,11 +158,14 @@ class ChatbotService
             $langs = $this->joinList($labels);
             $corpora = count($labels) > 1 ? 'heritage-language corpora' : 'heritage-language corpus';
             $systemBase .= "\n\nLANGUAGE-CORPUS SCOPE: This conversation is a guide to the {$langs} "
-                . "{$corpora}. The SOURCES below are limited to records held in or about "
-                . "{$langs}. Answer ONLY from those SOURCES and cite them with [N]; do not draw on general "
-                . "knowledge of {$langs} or of topics outside this corpus. If the SOURCES do not cover the "
-                . "question, say so plainly and invite the user to broaden their search, rather than "
-                . "answering from outside the corpus.";
+                . "{$corpora}. The SOURCES below are drawn primarily from records held in or about "
+                . "{$langs}; where little is held in-language, closely related records described in another "
+                . "language are blended in and marked '(related - described in another language)'. Answer "
+                . "from these SOURCES and cite them with [N]: lead with the in-language material and treat any "
+                . "marked cross-language sources as supporting context. Do not draw on general knowledge of "
+                . "{$langs} or of topics outside these SOURCES. If the SOURCES do not cover the question, say "
+                . "so plainly and invite the user to broaden their search, rather than answering from outside "
+                . "these SOURCES.";
 
             // #1208 glossary injection: surface the catalogue's OWN controlled
             // vocabulary (place + subject access points) for the scoped language(s).
@@ -175,7 +178,12 @@ class ChatbotService
             $lines = ["SOURCES — extracted from the Heratio catalogue:\n"];
             foreach (array_slice($records, 0, $this->maxContext) as $i => $rec) {
                 $num = $i + 1;
-                $lines[] = "[{$num}] {$rec['title']}\n   ID: {$rec['identifier']}\n   URL: {$rec['url']}\n   Excerpt: {$rec['excerpt']}";
+                // #1208 soft blend: flag a cross-language source so the model (and its
+                // citations) stay honest about which records are in the scoped language.
+                $mark = (array_key_exists('in_corpus', $rec) && $rec['in_corpus'] === false)
+                    ? ' (related - described in another language)'
+                    : '';
+                $lines[] = "[{$num}] {$rec['title']}{$mark}\n   ID: {$rec['identifier']}\n   URL: {$rec['url']}\n   Excerpt: {$rec['excerpt']}";
             }
             $contextBlock = "\n\n" . implode("\n", $lines);
         }

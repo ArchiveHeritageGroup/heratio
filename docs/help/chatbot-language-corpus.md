@@ -55,9 +55,9 @@ pre-scoped to that single language; you can then add more from the scope panel.
 
 Scoped answers are grounded the same way as normal answers: every claim should
 cite a source record with a `[N]` reference, and the sources are listed beneath
-the reply. If the language's corpus does not contain anything relevant, the
+the reply. If, even after blending (below), nothing relevant is found, the
 assistant says so and invites you to broaden your search rather than answering
-from outside the corpus.
+from outside the sources.
 
 ## Glossary injection (the catalogue's own vocabulary)
 
@@ -78,6 +78,27 @@ languages and capped per kind to keep responses fast. It is **additive** - it
 never replaces the cited SOURCES, and a language with no in-corpus place or
 subject terms simply contributes nothing. Administrators can turn it off with
 `AHG_CHATBOT_GLOSSARY_INJECTION=false`.
+
+## Cross-language blending (sparse languages still get answers)
+
+Some languages have only a handful of described records. If retrieval were
+limited strictly to in-language records, scoping to such a language would return
+almost nothing - even when the catalogue clearly holds relevant material that
+simply happens to be described in another language.
+
+To avoid that, scoped retrieval **blends**: in-language records are the primary
+tier and always come first, but if they do not fill the answer's context window,
+the remaining slots are filled with the **top related records about the same
+topic described in another language**. These cross-language sources are clearly
+**marked "(related - described in another language)"** in the assistant's
+grounding, so its citations stay honest: it leads with the in-language material
+and treats the cross-language records as supporting context.
+
+Blending only adds cross-language records when the in-language ones do not fill
+the window - a language with plenty of its own records is answered entirely from
+them. Administrators can turn blending off with
+`AHG_CHATBOT_CROSS_LANGUAGE_BLEND=false` to restore strict in-language-only
+retrieval.
 
 ## Notes and limits
 

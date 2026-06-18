@@ -96,6 +96,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Cross-language corpus blending (heratio#1208)
+    |--------------------------------------------------------------------------
+    | When a conversation is scoped to one or more languages, keep in-language
+    | records as the primary tier but, if they do not fill the context window,
+    | fill the remaining slots with the top cross-language records about the same
+    | topic (so a sparse language stops returning "nothing in this corpus").
+    | Cross-language sources are marked in the prompt so citations stay honest.
+    | Set false to restore the hard in-corpus filter (in-language records only).
+    */
+
+    'cross_language_blend'   => (bool) env('AHG_CHATBOT_CROSS_LANGUAGE_BLEND', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Default model
     |--------------------------------------------------------------------------
     | Model name passed to LlmService when no user preference is set.

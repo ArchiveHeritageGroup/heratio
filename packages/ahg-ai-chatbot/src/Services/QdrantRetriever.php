@@ -92,19 +92,28 @@ class QdrantRetriever
 
         $scope = $this->resolveCultureScope($culture);
 
-        // Over-fetch when scoped so post-filtering still yields up to $limit hits.
+        // #1208 cross-language corpus blending (soft blend, default on): when the
+        // conversation is scoped, in-language records remain the PRIMARY tier, but
+        // if they do not fill $limit the remaining slots are filled with the top
+        // cross-language records about the same topic, so a sparse language stops
+        // returning "nothing in this corpus". Disable to restore the hard in-corpus
+        // filter (in-language records only).
+        $blend = (bool) config('ahg-ai-chatbot.cross_language_blend', true);
+
+        // Over-fetch when scoped so post-filtering / blending still yields up to
+        // $limit hits (and a cross-language tail to fill from).
         $fetch = $scope === null ? $limit : max($limit * 6, 30);
 
         // Try Qdrant vector search first
         $records = $this->searchQdrant($query, $fetch);
-        $records = $this->applyCultureScope($records, $scope);
+        $records = $this->applyCultureScope($records, $scope, $limit, $blend);
         if (!empty($records)) {
             return ['query' => $query, 'records' => array_slice($records, 0, $limit)];
         }
 
         // Fallback: Elasticsearch keyword search on IO metadata
         $es = $this->searchElasticsearch($query, $fetch);
-        $es = $this->applyCultureScope($es, $scope);
+        $es = $this->applyCultureScope($es, $scope, $limit, $blend);
 
         return ['query' => $query, 'records' => array_slice($es, 0, $limit)];
     }
@@ -165,28 +174,59 @@ class QdrantRetriever
     }
 
     /**
-     * Keep only the hits whose information_object id is in the in-language id set.
-     * Hits carry the IO id as their point id (Qdrant) or carry it on the parsed
-     * record (ES). A hit with no resolvable id is dropped under scope (it cannot be
-     * confirmed in-language). Returns the input unchanged when there is no scope.
+     * Apply the in-language scope to a ranked hit list. Hits carry the IO id as
+     * their point id (Qdrant) or on the parsed record (ES); a hit with no
+     * resolvable id is dropped under scope (it cannot be attributed). Returns the
+     * input unchanged when there is no scope.
+     *
+     * Each retained hit is tagged `in_corpus` (true = described in a selected
+     * language, false = a related cross-language record), so the prompt can label
+     * the two tiers honestly.
+     *
+     * - Hard filter ($blend = false): keep only in-language hits (legacy behaviour).
+     * - Soft blend ($blend = true, #1208): in-language hits first (PRIMARY), then,
+     *   only if they do not fill $limit, fill the remaining slots with the top
+     *   cross-language hits (preserving relevance rank). When in-language hits
+     *   already meet $limit, no cross-language hits are added.
      *
      * @param array<int,array<string,mixed>> $records
      * @param array{bases:array<int,string>,ids:array<int,bool>}|null $scope
      * @return array<int,array<string,mixed>>
      */
-    private function applyCultureScope(array $records, ?array $scope): array
+    private function applyCultureScope(array $records, ?array $scope, int $limit = 0, bool $blend = true): array
     {
         if ($scope === null || empty($records)) {
             return $records;
         }
 
         $ids = $scope['ids'];
-
-        return array_values(array_filter($records, function ($r) use ($ids) {
+        $inCorpus = [];
+        $cross = [];
+        foreach ($records as $r) {
             $id = isset($r['id']) && is_numeric($r['id']) ? (int) $r['id'] : 0;
+            if ($id <= 0) {
+                continue; // unattributable under scope
+            }
+            if (isset($ids[$id])) {
+                $r['in_corpus'] = true;
+                $inCorpus[] = $r;
+            } else {
+                $r['in_corpus'] = false;
+                $cross[] = $r;
+            }
+        }
 
-            return $id > 0 && isset($ids[$id]);
-        }));
+        if (! $blend) {
+            return $inCorpus; // hard in-corpus filter (legacy)
+        }
+
+        // Soft blend: in-language first, fill the remainder with cross-language.
+        $need = $limit > 0 ? $limit - count($inCorpus) : 0;
+        if ($need <= 0) {
+            return $inCorpus;
+        }
+
+        return array_merge($inCorpus, array_slice($cross, 0, $need));
     }
 
     /**
