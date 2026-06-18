@@ -819,6 +819,9 @@ class DigitalObjectController extends Controller
                     'parent_id' => $io->id,
                     'level_of_description_id' => $levelId ?: null,
                     'source_standard' => $io->source_standard ?? null,
+                    // source_culture is NOT NULL with no default; inherit the
+                    // parent's, falling back to the current locale.
+                    'source_culture' => $io->source_culture ?? $culture,
                 ]);
 
                 DB::table('information_object_i18n')->insert([
