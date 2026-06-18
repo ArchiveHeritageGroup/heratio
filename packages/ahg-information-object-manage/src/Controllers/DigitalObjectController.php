@@ -763,15 +763,26 @@ class DigitalObjectController extends Controller
         );
         $maxPostSize = $this->phpSizeToBytes(ini_get('post_max_size'));
 
-        // Upload response path (AJAX endpoint for Uppy)
-        $uploadResponsePath = route('io.digitalobject.upload', $slug) . '?informationObjectId=' . $io->id;
+        // Per-file AJAX upload endpoint. The blueimp uploader stages each file and
+        // expects a JSON {files:[{name,size,tmpName,...}]} response; the form-submit
+        // phase below then consumes tmpName. (Previously this pointed at the single
+        // full-attach endpoint, which redirects + 404s here -> "0 of N uploaded".)
+        $uploadResponsePath = route('io.multiFileUpload.store', $slug);
 
-        // Levels of description
+        // Levels of description, scoped to THIS record's sector (children inherit
+        // the parent's sector) and de-duplicated. Falls back to archive when the
+        // sector is unknown. (Was: every sector's levels, with duplicates.)
+        $sector = $this->resolveSectorForLevels($io);
         $levels = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->join('level_of_description_sector', function ($j) use ($sector) {
+                $j->on('term.id', '=', 'level_of_description_sector.term_id')
+                  ->where('level_of_description_sector.sector', '=', $sector);
+            })
             ->where('term.taxonomy_id', 34)
             ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
+            ->orderBy('level_of_description_sector.display_order')
+            ->distinct()
             ->select('term.id', 'term_i18n.name')
             ->get();
 
@@ -891,6 +902,84 @@ class DigitalObjectController extends Controller
             'k' => $value * 1024,
             default => $value,
         };
+    }
+
+    /**
+     * Per-file AJAX upload for the multiFileUpload widget (blueimp). Stages the
+     * uploaded file under storage/app/uploads/tmp/<tmpName> and returns the
+     * {files:[{name,size,tmpName,...}]} JSON the widget expects; the form-submit
+     * phase of multiFileUpload() then moves each tmpName into a new child record.
+     * Per-file failures are reported in the file object (HTTP 200) so the widget
+     * shows a retry rather than treating the whole batch as dead.
+     */
+    public function multiFileUploadStore(Request $request, string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            return response()->json(['files' => [['error' => 'Record not found']]], 404);
+        }
+
+        $file = $request->file('files') ?? $request->file('file');
+        if (is_array($file)) {
+            $file = $file[0] ?? null;
+        }
+        if (!$file) {
+            $file = collect($request->allFiles())->flatten()->first();
+        }
+        if (!$file) {
+            return response()->json(['files' => [['error' => 'No file received']]], 422);
+        }
+
+        $orig = $file->getClientOriginalName() ?: 'file';
+        try {
+            $tmpDir = storage_path('app/uploads/tmp');
+            if (!is_dir($tmpDir)) {
+                @mkdir($tmpDir, 0775, true);
+            }
+            $tmpName = \Illuminate\Support\Str::uuid()->toString() . '_' . preg_replace('/[^A-Za-z0-9._-]/', '_', $orig);
+            $file->move($tmpDir, $tmpName);
+
+            return response()->json(['files' => [[
+                'name'         => $orig,
+                'size'         => filesize($tmpDir . '/' . $tmpName) ?: 0,
+                'tmpName'      => $tmpName,
+                'url'          => null,
+                'thumbnailUrl' => null,
+            ]]]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[multiFileUpload] temp store failed: ' . $e->getMessage());
+
+            return response()->json(['files' => [['name' => $orig, 'error' => 'Upload failed']]], 200);
+        }
+    }
+
+    /**
+     * Best-effort GLAM sector for a record, to scope its level-of-description
+     * options: prefers display_object_config.object_type, then the sector its
+     * level maps to (non-archive preferred), defaulting to 'archive'. Never throws.
+     */
+    protected function resolveSectorForLevels(object $io): string
+    {
+        $valid = ['archive', 'library', 'museum', 'dam', 'gallery'];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('display_object_config')) {
+                $t = DB::table('display_object_config')->where('object_id', $io->id)->value('object_type');
+                if (in_array($t, $valid, true)) {
+                    return $t;
+                }
+            }
+            if (($io->level_of_description_id ?? null) && \Illuminate\Support\Facades\Schema::hasTable('level_of_description_sector')) {
+                $s = DB::table('level_of_description_sector')->where('term_id', $io->level_of_description_id)->whereNotIn('sector', ['archive'])->value('sector')
+                    ?: DB::table('level_of_description_sector')->where('term_id', $io->level_of_description_id)->value('sector');
+                if (in_array($s, $valid, true)) {
+                    return $s;
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore - default to archive
+        }
+
+        return 'archive';
     }
 
     /**
