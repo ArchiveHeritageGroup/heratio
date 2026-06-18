@@ -140,6 +140,19 @@ PHP_MAJ="$(echo "$PHP_VER" | cut -d. -f1)"
 PHP_MIN="$(echo "$PHP_VER" | cut -d. -f2)"
 [[ "$PHP_MAJ" -ge 8 && "$PHP_MIN" -ge 3 ]] || die "PHP 8.3+ required (found $PHP_VER)"
 
+# Recommended (not required) media tools. The app degrades gracefully without
+# them (derivative generation logs + skips), but uploaded media needs them to
+# get a browser-viewable derivative:
+#   - ImageMagick `convert`: TIFF/JP2 -> JPEG reference + thumbnail. WITHOUT it a
+#     TIFF upload has no renderable derivative and shows blank unless a Cantaloupe
+#     image server is also running.
+#   - ffmpeg: audio/video reference + waveform/poster thumbnails.
+recommend() {
+    command -v "$1" &>/dev/null || warn "recommended tool missing: $1 - $2"
+}
+recommend convert "apt-get install -y imagemagick (needed to render TIFF/JP2 uploads)"
+recommend ffmpeg  "apt-get install -y ffmpeg (needed for audio/video derivatives)"
+
 # Load DB creds from an existing .env before the connectivity check so a re-run
 # authenticates without --db-pass (a populated .env wins over flag defaults).
 if [[ -f .env ]]; then

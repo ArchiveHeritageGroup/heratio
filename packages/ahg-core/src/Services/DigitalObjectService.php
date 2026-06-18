@@ -1150,14 +1150,24 @@ class DigitalObjectService
         // uploads/<id>/ while the DB/viewer expected uploads/r/<id>/ -> 404.
         $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/r/'.$objectId;
 
-        // Load source image
+        // Load source image. GD (and getimagesize) CANNOT read TIFF, so a TIFF
+        // master would otherwise get NO browser-viewable derivative and render
+        // blank wherever a Cantaloupe image server is absent. Detect TIFF (or any
+        // format GD can't decode) and fall back to ImageMagick `convert` for the
+        // reference + thumbnail JPEGs. (Heratio TIFF-render fix.)
         $imageInfo = @getimagesize($masterPath);
-        if (! $imageInfo) {
-            return;
-        }
+        $ext = strtolower(pathinfo($masterPath, PATHINFO_EXTENSION));
+        $isTiff = in_array($ext, ['tif', 'tiff'], true)
+            || (is_array($imageInfo) && in_array((int) ($imageInfo[2] ?? 0), [IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM], true));
 
-        $srcImage = self::createGdImage($masterPath, $imageInfo[2]);
+        $srcImage = (! $isTiff && is_array($imageInfo)) ? self::createGdImage($masterPath, $imageInfo[2]) : false;
+
         if (! $srcImage) {
+            // TIFF, or a format GD cannot decode: derive via ImageMagick instead.
+            // No-op (logged) when convert is unavailable - never fatal.
+            self::createImagickDerivative($masterPath, 480, $uploadDir.'/reference_'.$safeName.'.jpg', 'reference_'.$safeName.'.jpg', $masterId, $objectId, $webPath, self::USAGE_REFERENCE);
+            self::createImagickDerivative($masterPath, 100, $uploadDir.'/thumbnail_'.$safeName.'.jpg', 'thumbnail_'.$safeName.'.jpg', $masterId, $objectId, $webPath, self::USAGE_THUMBNAIL);
+
             return;
         }
 
@@ -1253,6 +1263,66 @@ class DigitalObjectService
             'path' => $webPath,
             'byte_size' => $byteSize,
             'checksum' => $checksum,
+            'checksum_type' => 'md5',
+            'parent_id' => $masterId,
+        ]);
+    }
+
+    /**
+     * Reference / thumbnail derivative via ImageMagick `convert`, for masters GD
+     * cannot decode (TIFF). Downscale-only to $maxDimension, first frame, sRGB
+     * JPEG; then the SAME digital_object row createDerivative() writes. Best
+     * effort: a missing `convert` or a failed conversion writes no row (logged),
+     * never throws. This is what lets a TIFF upload render without Cantaloupe.
+     */
+    protected static function createImagickDerivative(
+        string $masterPath,
+        int $maxDimension,
+        string $outputPath,
+        string $filename,
+        int $masterId,
+        int $objectId,
+        string $webPath,
+        int $usageId
+    ): void {
+        $convert = trim((string) @shell_exec('command -v convert 2>/dev/null'));
+        if ($convert === '') {
+            Log::info('[DigitalObjectService] ImageMagick convert not installed; cannot derive '.$filename.' for DO '.$masterId);
+
+            return;
+        }
+
+        // [0] = first frame of a multi-page TIFF; parsed by ImageMagick itself.
+        @shell_exec(sprintf(
+            '%s %s -auto-orient -resize %dx%d\> -quality 85 -colorspace sRGB %s 2>/dev/null',
+            escapeshellcmd($convert),
+            escapeshellarg($masterPath.'[0]'),
+            $maxDimension, $maxDimension,
+            escapeshellarg($outputPath)
+        ));
+
+        if (! is_file($outputPath) || filesize($outputPath) === 0) {
+            return;
+        }
+
+        $now = now()->format('Y-m-d H:i:s');
+        $derivObjectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitDigitalObject',
+            'created_at' => $now,
+            'updated_at' => $now,
+            'serial_number' => 0,
+        ]);
+
+        DB::table('digital_object')->insert([
+            'id' => $derivObjectId,
+            'object_id' => $objectId,
+            'usage_id' => $usageId,
+            'mime_type' => 'image/jpeg',
+            'media_type_id' => self::MEDIA_IMAGE,
+            'name' => $filename,
+            'path' => $webPath,
+            'byte_size' => filesize($outputPath),
+            'checksum' => md5_file($outputPath),
             'checksum_type' => 'md5',
             'parent_id' => $masterId,
         ]);

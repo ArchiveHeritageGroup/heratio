@@ -75,23 +75,32 @@ class MediaDerivativeService
             return self::generateVideoDerivatives($ffmpeg, $masterId, $master, $masterPath, $uploadDir);
         }
         if (self::isTiff($mime, $ext)) {
-            return self::generatePyramidTiff($masterId, $master, $masterPath, $uploadDir);
+            return self::generateTiffDerivatives($masterId, $master, $masterPath, $uploadDir);
         }
 
         return 0;
     }
 
     /**
-     * Build a pyramidal TIFF for Cantaloupe IIIF delivery. ImageMagick's
-     * `convert` ships a `ptif:` target that generates the standard
-     * multi-resolution Pyramid TIFF the image server's JAI/TurboJPEG
-     * backends can stream tiles from at any zoom level.
+     * Derivatives for a TIFF master. A TIFF is NOT renderable by browsers, so the
+     * old behaviour (only a pyramidal `.ptif` placed in the reference slot) left a
+     * TIFF blank on any install without a running Cantaloupe image server - the
+     * record page's inline "reference image" and the IIIF viewer's documented
+     * "fall back to the JPEG reference" both had nothing to show.
+     *
+     * Fix: generate a flat, browser-viewable JPEG **reference (141)** and JPEG
+     * **thumbnail (142)** from the first frame, so a TIFF renders on ANY install.
+     * The pyramidal TIFF is still produced as a FILE on disk for a Cantaloupe
+     * deep-zoom delegate where one exists, but it is no longer the displayed
+     * reference (the IIIF identifier resolves to the master file, not this slot).
+     * All ImageMagick calls are best-effort; a failure of any one never aborts the
+     * others. Requires ImageMagick `convert`.
      */
-    protected static function generatePyramidTiff(int $masterId, object $master, string $masterPath, string $uploadDir): int
+    protected static function generateTiffDerivatives(int $masterId, object $master, string $masterPath, string $uploadDir): int
     {
         $convert = trim((string) @shell_exec('command -v convert 2>/dev/null'));
         if ($convert === '') {
-            Log::info('[MediaDerivativeService] ImageMagick convert not installed; skipping pyramid TIFF for DO '.$masterId);
+            Log::info('[MediaDerivativeService] ImageMagick convert not installed; skipping TIFF derivatives for DO '.$masterId);
 
             return 0;
         }
@@ -102,27 +111,46 @@ class MediaDerivativeService
             $safe = substr($safe, 7);
         }
 
-        $out = $uploadDir.'/pyramid_'.$safe.'.ptif';
-        $cmd = sprintf(
-            '%s %s -define tiff:tile-geometry=256x256 -compress jpeg -quality 85 ptif:%s 2>/dev/null',
-            escapeshellcmd($convert), escapeshellarg($masterPath), escapeshellarg($out)
-        );
-        @shell_exec($cmd);
-        if (! is_file($out) || filesize($out) === 0) {
-            return 0;
+        // First frame of a (possibly multi-page) TIFF. The [0] suffix is parsed by
+        // ImageMagick itself, so escapeshellarg-quoting the whole token is safe.
+        $src = escapeshellarg($masterPath.'[0]');
+        $created = 0;
+
+        // 1. Browser-viewable JPEG REFERENCE (usage 141) - the inline display image
+        //    and the no-Cantaloupe fallback. Downscaled only (never upscaled).
+        $ref = $uploadDir.'/reference_'.$safe.'.jpg';
+        @shell_exec(sprintf(
+            '%s %s -auto-orient -resize 3000x3000\> -quality 85 -colorspace sRGB %s 2>/dev/null',
+            escapeshellcmd($convert), $src, escapeshellarg($ref)
+        ));
+        if (is_file($ref) && filesize($ref) > 0) {
+            self::insertDerivative($masterId, $master->object_id, 'reference_'.$safe.'.jpg',
+                $master->path, 'image/jpeg', DigitalObjectService::MEDIA_IMAGE, DigitalObjectService::USAGE_REFERENCE, $ref);
+            $created++;
         }
 
-        self::insertDerivative(
-            $masterId, $master->object_id,
-            'pyramid_'.$safe.'.ptif',
-            $master->path,
-            'image/tiff',
-            DigitalObjectService::MEDIA_IMAGE,
-            DigitalObjectService::USAGE_REFERENCE,  // IIIF serves from reference slot
-            $out
-        );
+        // 2. JPEG THUMBNAIL (usage 142) for browse / result lists.
+        $thumb = $uploadDir.'/thumbnail_'.$safe.'.jpg';
+        @shell_exec(sprintf(
+            '%s %s -auto-orient -thumbnail 400x400\> -quality 82 -colorspace sRGB %s 2>/dev/null',
+            escapeshellcmd($convert), $src, escapeshellarg($thumb)
+        ));
+        if (is_file($thumb) && filesize($thumb) > 0) {
+            self::insertDerivative($masterId, $master->object_id, 'thumbnail_'.$safe.'.jpg',
+                $master->path, 'image/jpeg', DigitalObjectService::MEDIA_IMAGE, DigitalObjectService::USAGE_THUMBNAIL, $thumb);
+            $created++;
+        }
 
-        return 1;
+        // 3. Pyramidal TIFF for Cantaloupe deep-zoom (performance optimisation
+        //    where an image server is present). Kept as a FILE only - NOT the
+        //    displayed reference, and not registered as a derivative row.
+        $ptif = $uploadDir.'/pyramid_'.$safe.'.ptif';
+        @shell_exec(sprintf(
+            '%s %s -define tiff:tile-geometry=256x256 -compress jpeg -quality 85 ptif:%s 2>/dev/null',
+            escapeshellcmd($convert), escapeshellarg($masterPath), escapeshellarg($ptif)
+        ));
+
+        return $created;
     }
 
     // ---------------------------------------------------------------
