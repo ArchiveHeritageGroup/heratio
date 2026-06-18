@@ -3,6 +3,7 @@
 use AhgSemanticSearch\Controllers\DisplacedHeritageController;
 use AhgSemanticSearch\Controllers\EndangeredHeritageController;
 use AhgSemanticSearch\Controllers\RepatriationClaimController;
+use AhgSemanticSearch\Controllers\RepatriationDialogueController;
 use AhgSemanticSearch\Controllers\RepatriationKnowledgeController;
 use AhgSemanticSearch\Controllers\ResearchLeadAdminController;
 use AhgSemanticSearch\Controllers\ScholarshipController;
@@ -59,6 +60,30 @@ Route::middleware(['auth', 'admin'])->prefix('repatriation')->group(function () 
     Route::post('/claims/{id}/status', [RepatriationClaimController::class, 'status'])
         ->where('id', '[0-9]+')
         ->name('repatriation.claims.status');
+
+    // heratio#1207 - the STAFF dialogue workspace for one claim: the two-way
+    // threaded dialogue (incl. internal notes), the status audit trail (status
+    // change WITH a note, recorded who/when/from->to), the provenance-trace
+    // links, and the shared-record ACCESS grants (mint / revoke a capability
+    // token for a claimant). Writes go ONLY to the new dialogue / audit / access
+    // tables (and to the claim's status via the claim service, which records the
+    // transition). Admin-gated like the rest of this group.
+    Route::get('/claims/{id}/dialogue', [RepatriationDialogueController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('repatriation.claims.dialogue');
+    Route::post('/claims/{id}/dialogue/message', [RepatriationDialogueController::class, 'message'])
+        ->where('id', '[0-9]+')
+        ->name('repatriation.claims.dialogue.message');
+    Route::post('/claims/{id}/dialogue/status', [RepatriationDialogueController::class, 'status'])
+        ->where('id', '[0-9]+')
+        ->name('repatriation.claims.dialogue.status');
+    Route::post('/claims/{id}/dialogue/grant', [RepatriationDialogueController::class, 'grant'])
+        ->where('id', '[0-9]+')
+        ->name('repatriation.claims.dialogue.grant');
+    Route::post('/claims/{id}/dialogue/revoke/{grant}', [RepatriationDialogueController::class, 'revoke'])
+        ->where('id', '[0-9]+')
+        ->where('grant', '[0-9]+')
+        ->name('repatriation.claims.dialogue.revoke');
 
     // heratio#1207 - admin moderation of community KNOWLEDGE contributions about
     // displaced items / repatriation claims (oral history, provenance,

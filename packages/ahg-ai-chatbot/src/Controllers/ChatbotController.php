@@ -37,10 +37,35 @@ class ChatbotController extends Controller
         }
 
         $sessionId = $this->resolveSessionId($request);
-        $history   = $this->chatbot->getHistory($sessionId);
-        $stats     = $this->chatbot->getStats();
 
-        return view('ahg-ai-chatbot::index', compact('sessionId', 'history', 'stats'));
+        // #1208 (culture = language): an optional ?language[]=/?language=a,b,c (or
+        // ?culture=) on the chat entry scopes the conversation to one or more
+        // languages' corpora. We persist the SET on the session so follow-up turns
+        // stay scoped without re-passing it. An explicit empty value clears the
+        // scope. Unknown / blank codes are dropped; an empty result -> unscoped.
+        $cultures = $this->resolveRequestedCultures($request);
+        if ($request->has('language') || $request->has('culture')) {
+            $this->setSessionCultures($sessionId, $cultures);
+        } else {
+            $cultures = $this->getSessionCultures($sessionId);
+        }
+
+        $history       = $this->chatbot->getHistory($sessionId);
+        $stats         = $this->chatbot->getStats();
+        $cultureLabels = array_map(fn ($c) => $this->chatbot->cultureLabelPublic($c), $cultures);
+
+        // The directory of selectable languages (those with described records),
+        // built the same way /language-corpus does - via LanguageCorpusService.
+        $availableCultures = $this->availableCultures();
+
+        return view('ahg-ai-chatbot::index', compact(
+            'sessionId',
+            'history',
+            'stats',
+            'cultures',
+            'cultureLabels',
+            'availableCultures'
+        ));
     }
 
     /**
@@ -53,7 +78,13 @@ class ChatbotController extends Controller
         }
 
         $request->validate([
-            'message' => 'required|string|max:4000',
+            'message'    => 'required|string|max:4000',
+            // #1208 multi-culture: language/culture may be a single code, a
+            // comma-separated list, OR an array of codes (?language[]=).
+            'language'   => 'nullable',
+            'language.*' => 'nullable|string|max:32',
+            'culture'    => 'nullable',
+            'culture.*'  => 'nullable|string|max:32',
         ]);
 
         $sessionId = $this->resolveSessionId($request);
@@ -63,7 +94,25 @@ class ChatbotController extends Controller
         // viewed. An explicit page_url in the body wins when supplied (e.g. SPA / API callers).
         $pageUrl = $request->input('page_url') ?: $request->headers->get('referer');
 
-        $result = $this->chatbot->dispatch($sessionId, $request->input('message'), $userId, is_string($pageUrl) ? $pageUrl : null);
+        // #1208 (culture = language): scope this turn to one or more language
+        // corpora. A scope supplied on the turn updates the persisted session scope;
+        // otherwise the last persisted scope (set on entry or a prior turn) is reused
+        // so follow-up turns stay scoped. Blank / unknown -> unscoped (downstream).
+        if ($request->has('language') || $request->has('culture')) {
+            $cultures = $this->resolveRequestedCultures($request);
+            $this->setSessionCultures($sessionId, $cultures);
+        } else {
+            $cultures = $this->getSessionCultures($sessionId);
+        }
+
+        $result = $this->chatbot->dispatch(
+            $sessionId,
+            $request->input('message'),
+            $userId,
+            is_string($pageUrl) ? $pageUrl : null,
+            null,
+            $cultures
+        );
 
         if (!($result['success'] ?? false)) {
             return response()->json([
@@ -222,6 +271,103 @@ class ChatbotController extends Controller
     }
 
     // ─── Private helpers ────────────────────────────────────────────
+
+    /**
+     * #1208 multi-culture: the requested language/culture scope SET from the request
+     * (?language[]= array, comma-separated ?language=a,b,c, or single ?language= /
+     * ?culture=, body or query), normalised + de-duplicated to LanguageCorpusService
+     * base subtags. Returns [] for blank / unknown / unusable input (-> unscoped).
+     *
+     * @return array<int,string>
+     */
+    private function resolveRequestedCultures(Request $request): array
+    {
+        // Prefer 'language'; fall back to 'culture'. Each may be a string (possibly
+        // comma-separated) or an array (?language[]=). normaliseCultureScope handles
+        // strings, comma-separated strings AND arrays uniformly.
+        $raw = $request->input('language');
+        if ($raw === null || $raw === '' || (is_array($raw) && count($raw) === 0)) {
+            $raw = $request->input('culture');
+        }
+
+        return $this->chatbot->normaliseCultureScope($raw);
+    }
+
+    /**
+     * Per-chat-session persisted language scope key in the Laravel session. Keyed on
+     * the chatbot session id so different chats (or anonymous vs authed) do not
+     * bleed scope into each other.
+     */
+    private function cultureSessionKey(string $sessionId): string
+    {
+        return 'chatbot_culture:' . $sessionId;
+    }
+
+    /**
+     * Persist (or clear, when empty) the language scope SET for a chat session.
+     *
+     * @param  array<int,string>  $cultures
+     */
+    private function setSessionCultures(string $sessionId, array $cultures): void
+    {
+        $cultures = array_values(array_filter($cultures, fn ($c) => is_string($c) && $c !== ''));
+        try {
+            if (empty($cultures)) {
+                session()->forget($this->cultureSessionKey($sessionId));
+            } else {
+                session()->put($this->cultureSessionKey($sessionId), $cultures);
+            }
+        } catch (\Throwable $e) {
+            // Session store unavailable (e.g. stateless API call) - scope just stays
+            // per-turn rather than persisted. Non-fatal.
+        }
+    }
+
+    /**
+     * The persisted language scope SET for a chat session, or [] when unscoped.
+     * Tolerates a legacy single-string value (pre-multi-culture sessions).
+     *
+     * @return array<int,string>
+     */
+    private function getSessionCultures(string $sessionId): array
+    {
+        try {
+            $v = session()->get($this->cultureSessionKey($sessionId));
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        if (is_array($v)) {
+            return array_values(array_filter($v, fn ($c) => is_string($c) && $c !== ''));
+        }
+        if (is_string($v) && $v !== '') {
+            return [$v]; // legacy single-culture session value
+        }
+
+        return [];
+    }
+
+    /**
+     * #1208 multi-culture: the directory of selectable languages for the chat scope
+     * selector, built the same way /language-corpus does - via LanguageCorpusService
+     * (only languages with described records). Fail-soft: [] when the service is
+     * absent or any lookup fails, so the selector simply does not render.
+     *
+     * @return array<int,array{code:string,label:string,records:int}>
+     */
+    private function availableCultures(): array
+    {
+        $svcClass = '\\AhgSemanticSearch\\Services\\LanguageCorpusService';
+        if (! class_exists($svcClass)) {
+            return [];
+        }
+
+        try {
+            return (new $svcClass())->availableCultures();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
 
     /**
      * Resolve the session ID: caller-supplied token wins; otherwise a signed

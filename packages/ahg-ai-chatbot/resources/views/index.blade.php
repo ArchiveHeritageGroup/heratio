@@ -13,6 +13,47 @@
                 Ask questions about the catalogue in natural language.
                 Responses are grounded in the archival descriptions and cite their sources.
             </p>
+            {{-- #1208 (culture = language): SELECTABLE multi-language scope control.
+                 Pick none = unscoped (whole catalogue); pick one or more languages =
+                 retrieval is constrained to the UNION of those languages' corpora.
+                 The selection is submitted with each turn (see the scripts block). --}}
+            @if (!empty($availableCultures))
+                @php $activeCultures = $cultures ?? []; @endphp
+                <div class="card border-0 bg-light mt-2 mb-0" id="scope-card">
+                    <div class="card-body py-2 px-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-language me-2 text-info"></i>
+                            <span class="small fw-bold text-uppercase text-muted flex-grow-1">
+                                {{ __('Language scope') }}
+                            </span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0" id="scope-clear-btn">
+                                {{ __('All languages') }}
+                            </button>
+                        </div>
+                        <div class="small text-muted mb-2" id="scope-summary">
+                            @if (!empty($activeCultures))
+                                {{ __('Scoped to: :langs. Answers are drawn from records held in or about these languages.', ['langs' => implode(', ', $cultureLabels)]) }}
+                            @else
+                                {{ __('No language selected - searching the whole catalogue. Tick one or more languages to scope the assistant to their corpora.') }}
+                            @endif
+                        </div>
+                        <div class="d-flex flex-wrap gap-2" id="scope-options">
+                            @foreach ($availableCultures as $opt)
+                                <label class="form-check form-check-inline border rounded-pill px-2 py-1 mb-0 bg-white">
+                                    <input class="form-check-input scope-lang"
+                                           type="checkbox"
+                                           value="{{ $opt['code'] }}"
+                                           {{ in_array($opt['code'], $activeCultures, true) ? 'checked' : '' }}>
+                                    <span class="form-check-label small">
+                                        {{ $opt['label'] }}
+                                        <span class="text-muted">({{ number_format($opt['records']) }})</span>
+                                    </span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
         <div class="col-md-4 text-end">
             <span class="badge bg-secondary me-1" id="model-badge">model: –</span>
@@ -171,6 +212,33 @@
     'use strict';
 
     var sessionId = {{ json_encode($sessionId) }};
+    // #1208 (culture = language): the SET of selected language codes is read from the
+    // checkbox control on each turn and threaded onto the POST as language[]=, so
+    // follow-ups stay scoped even when the session store is not sticky. An empty set
+    // means unscoped (whole catalogue).
+    var scopeLabels = {{ json_encode(array_combine(
+        array_map(fn ($o) => $o['code'], $availableCultures ?? []),
+        array_map(fn ($o) => $o['label'], $availableCultures ?? [])
+    ) ?: (object) []) }};
+
+    function selectedCultures() {
+        var codes = [];
+        document.querySelectorAll('.scope-lang:checked').forEach(function (el) { codes.push(el.value); });
+        return codes;
+    }
+
+    function updateScopeSummary() {
+        var summary = document.getElementById('scope-summary');
+        if (!summary) return;
+        var codes = selectedCultures();
+        if (!codes.length) {
+            summary.textContent = {{ json_encode(__('No language selected - searching the whole catalogue. Tick one or more languages to scope the assistant to their corpora.')) }};
+            return;
+        }
+        var labels = codes.map(function (c) { return scopeLabels[c] || c; });
+        summary.textContent = {{ json_encode(__('Scoped to: ')) }} + labels.join(', ') + '.';
+    }
+
     var chatMessages = document.getElementById('chat-messages');
     var chatForm = document.getElementById('chat-form');
     var chatInput = document.getElementById('chat-input');
@@ -273,6 +341,15 @@
         formData.append('message', message);
         formData.append('_session', sessionId);
         formData.append('_token', '{{ csrf_token() }}');
+        // #1208 multi-culture: submit the selected language SET as language[]=.
+        // Always send the key (empty when nothing is ticked) so clearing the scope
+        // mid-conversation is honoured and persists for follow-up turns.
+        var cultures = selectedCultures();
+        if (cultures.length) {
+            cultures.forEach(function (c) { formData.append('language[]', c); });
+        } else {
+            formData.append('language', '');
+        }
 
         fetch('{{ route('chatbot.message') }}', {
             method: 'POST',
@@ -299,6 +376,19 @@
             statusLine.textContent = '';
         });
     });
+
+    // #1208 multi-culture: keep the scope summary in step as the user ticks
+    // languages, and let the "All languages" button clear the whole selection.
+    document.querySelectorAll('.scope-lang').forEach(function (el) {
+        el.addEventListener('change', updateScopeSummary);
+    });
+    var scopeClearBtn = document.getElementById('scope-clear-btn');
+    if (scopeClearBtn) {
+        scopeClearBtn.addEventListener('click', function () {
+            document.querySelectorAll('.scope-lang').forEach(function (el) { el.checked = false; });
+            updateScopeSummary();
+        });
+    }
 
     // Reset button
     document.getElementById('reset-btn').addEventListener('click', function () {

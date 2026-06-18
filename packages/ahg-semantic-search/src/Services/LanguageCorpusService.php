@@ -97,6 +97,14 @@ class LanguageCorpusService
 
     protected const MAX_GLOSSARY = 500;
 
+    /**
+     * Cap for the in-language id set used to scope another surface (the #1208
+     * chatbot). Far larger than MAX_RECORDS - a scoped conversation should see the
+     * whole corpus of a language, not just the first public page - but still
+     * bounded so the set stays cheap to build and to match against.
+     */
+    protected const MAX_SCOPE_IDS = 20000;
+
     /** Snippet cap for the optional gateway translation. */
     protected const MAX_SNIPPET_CHARS = 1200;
 
@@ -404,6 +412,112 @@ class LanguageCorpusService
                 'slug' => isset($r->slug) && $r->slug !== null ? (string) $r->slug : null,
                 'snippet' => $this->clipSnippet($r->scope ?? null),
                 'culture' => (string) $r->culture,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * The information_object ids of every PUBLISHED, non-root record whose
+     * description is written IN the chosen culture(s) - the SAME "holdings in this
+     * language" definition as describedRecords(), returned as a flat id list for
+     * callers that need to scope another surface (e.g. the #1208 chatbot, which
+     * post-filters its retrieval hits to this set so a scoped conversation stays
+     * grounded in the language's corpus). Read-only; never throws; returns [] when
+     * the required tables are absent or nothing is published in the culture(s).
+     *
+     * #1208 multi-culture: accepts a single culture string OR an array of culture
+     * codes. With several cultures the result is the UNION of their in-language id
+     * sets (a record described in ANY of the selected languages is in scope).
+     * Unknown / malformed codes are dropped; an empty / all-unusable selection
+     * returns []. The single-string overload is preserved byte-for-byte.
+     *
+     * Bounded by MAX_SCOPE_IDS so the set stays cheap to build and to match
+     * against, while being far larger than the public-page MAX_RECORDS cap so a
+     * scoped chat sees the real corpus, not just the first page of it. The cap is
+     * applied to the UNION across all selected cultures.
+     *
+     * @param  string|array<int,string>  $culture
+     * @return array<int,int>
+     */
+    public function describedRecordIds($culture): array
+    {
+        // Normalise the input into a de-duplicated list of usable base subtags.
+        $cultures = is_array($culture) ? $culture : [$culture];
+        $bases = [];
+        foreach ($cultures as $c) {
+            $base = $this->sanitiseCulture(is_string($c) ? $c : null);
+            if ($base !== null) {
+                $bases[$base] = true;
+            }
+        }
+        $bases = array_keys($bases);
+
+        if (empty($bases) || ! Schema::hasTable('information_object_i18n') || ! Schema::hasTable('status')) {
+            return [];
+        }
+
+        // Build a WHERE ... IN (?, ?, ...) over the normalised base subtag so a
+        // single query unions all selected languages. Regional variants collapse
+        // onto their base, matching describedRecords()/the directory.
+        $placeholders = implode(',', array_fill(0, count($bases), '?'));
+
+        try {
+            $rows = DB::table('information_object_i18n as i')
+                ->joinSub($this->publishedIdSub(), 'pub', 'pub.object_id', '=', 'i.id')
+                ->whereRaw(
+                    'LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(i.culture,"-",1),"_",1),"@",1)) IN ('.$placeholders.')',
+                    $bases
+                )
+                ->whereRaw("TRIM(COALESCE(i.title,'')) <> ''")
+                ->distinct()
+                ->limit(self::MAX_SCOPE_IDS)
+                ->pluck('i.id');
+        } catch (\Throwable $e) {
+            Log::info('[language-corpus] describedRecordIds failed for '.implode(',', $bases).': '.$e->getMessage());
+
+            return [];
+        }
+
+        $out = [];
+        foreach ($rows as $id) {
+            $out[(int) $id] = true; // de-dupe ids across cultures
+        }
+
+        return array_keys($out);
+    }
+
+    /**
+     * #1208 multi-culture: the language directory as a compact options list for a
+     * scope selector (the chatbot multi-select). Each entry is the base subtag, its
+     * human label and how many published records are described in it - directory
+     * order (richest first, Afrikaans before Dutch). Languages with no described
+     * records are dropped: there is nothing in-corpus to scope a conversation to.
+     * Read-only; never throws; returns [] on any failure.
+     *
+     * @return array<int,array{code:string,label:string,records:int}>
+     */
+    public function availableCultures(): array
+    {
+        try {
+            $languages = $this->languages();
+        } catch (\Throwable $e) {
+            Log::info('[language-corpus] availableCultures failed: '.$e->getMessage());
+
+            return [];
+        }
+
+        $out = [];
+        foreach ($languages as $lang) {
+            $code = (string) ($lang['code'] ?? '');
+            if ($code === '' || (int) ($lang['records'] ?? 0) <= 0) {
+                continue;
+            }
+            $out[] = [
+                'code' => $code,
+                'label' => (string) ($lang['label'] ?? strtoupper($code)),
+                'records' => (int) ($lang['records'] ?? 0),
             ];
         }
 

@@ -118,11 +118,17 @@ class ChatbotService
     /**
      * Retrieve catalogue records relevant to the query.
      *
-     * @return array{records: array, query: sting}
+     * #1208 (culture = language): when $cultures is a non-empty list, retrieval is
+     * constrained to the records described IN any of those languages (the UNION of
+     * their LanguageCorpusService corpora). A null/empty/all-unknown selection
+     * leaves retrieval fully unscoped (unchanged).
+     *
+     * @param  string|array<int,string>|null  $cultures
+     * @return array{records: array, query: string}
      */
-    public function retrieveCatalogue(string $query): array
+    public function retrieveCatalogue(string $query, $cultures = null): array
     {
-        return $this->retriever->search($query, $this->maxContext);
+        return $this->retriever->search($query, $this->maxContext, $cultures);
     }
 
     /**
@@ -133,9 +139,28 @@ class ChatbotService
      * @param array $history Conversation history (oldest first)
      * @return array{system: string, user: string}
      */
-    public function buildRagPrompt(string $userMessage, array $records, array $history = [], ?array $currentRecord = null, string $preservationBlock = ''): array
+    public function buildRagPrompt(string $userMessage, array $records, array $history = [], ?array $currentRecord = null, string $preservationBlock = '', $cultures = null): array
     {
         $systemBase = $this->baseSystemPrompt();
+
+        // #1208 (culture = language): when the conversation is scoped to one or more
+        // languages, tell the model it is a guide to THOSE languages' heritage
+        // corpora and must answer from the SOURCES below (which are already
+        // constrained to records in any of those languages), citing them, rather
+        // than from general knowledge. Additive: unscoped conversations get exactly
+        // the base prompt as before. Multi-culture: every selected language is named.
+        $cultures = $this->normaliseCultureScope($cultures);
+        if (!empty($cultures)) {
+            $labels = array_map(fn ($c) => $this->cultureLabel($c), $cultures);
+            $langs = $this->joinList($labels);
+            $corpora = count($labels) > 1 ? 'heritage-language corpora' : 'heritage-language corpus';
+            $systemBase .= "\n\nLANGUAGE-CORPUS SCOPE: This conversation is a guide to the {$langs} "
+                . "{$corpora}. The SOURCES below are limited to records held in or about "
+                . "{$langs}. Answer ONLY from those SOURCES and cite them with [N]; do not draw on general "
+                . "knowledge of {$langs} or of topics outside this corpus. If the SOURCES do not cover the "
+                . "question, say so plainly and invite the user to broaden their search, rather than "
+                . "answering from outside the corpus.";
+        }
 
         // Inject catalogue context if records were retrieved
         $contextBlock = '';
@@ -243,8 +268,14 @@ PROMPT;
      *   error: string|null
      * }
      */
-    public function dispatch(string $sessionId, string $userMessage, ?int $userId = null, ?string $pageUrl = null, ?string $locale = null): array
+    public function dispatch(string $sessionId, string $userMessage, ?int $userId = null, ?string $pageUrl = null, ?string $locale = null, $cultures = null): array
     {
+        // #1208 (culture = language): normalise the requested culture scope once to
+        // a list of base subtags. An unusable / unknown / empty selection collapses
+        // to an empty list, i.e. fully unscoped - the conversation then behaves
+        // exactly as before (fail soft, never 500).
+        $cultures = $this->normaliseCultureScope($cultures);
+
         // #1273: answer in the visitor's language via the sanctioned MT route
         // (AnswerLocalizer -> gateway /translate), NEVER a qwen "reply in X" prompt.
         // Default to the request locale; prompts stay English, only the reply is translated.
@@ -325,8 +356,8 @@ PROMPT;
             ];
         }
 
-        // RAG retrieval
-        $catalogue = $this->retrieveCatalogue($userMessage);
+        // RAG retrieval - constrained to the selected language corpora when scoped (#1208).
+        $catalogue = $this->retrieveCatalogue($userMessage, $cultures);
         $records   = $catalogue['records'] ?? [];
 
         // Current-page record: if the user is on a catalogue record page, make it the primary
@@ -373,8 +404,8 @@ PROMPT;
             $preservationSources = [];
         }
 
-        // Build prompt
-        $prompts = $this->buildRagPrompt($userMessage, $records, $history, $currentRecord, $preservationBlock);
+        // Build prompt (scoped to the selected language corpora when set).
+        $prompts = $this->buildRagPrompt($userMessage, $records, $history, $currentRecord, $preservationBlock, $cultures);
 
         // LLM dispatch
         $llm = app(\AhgAiServices\Services\LlmService::class);
@@ -537,6 +568,109 @@ PROMPT;
 
             return null;
         }
+    }
+
+    /**
+     * Normalise a requested culture/language scope to a de-duplicated list of base
+     * subtags, using the SAME rules as LanguageCorpusService so the chatbot scope
+     * and the corpus surface agree on what "a language" is.
+     *
+     * #1208 multi-culture: accepts a single culture string, a comma-separated string
+     * ("xh,zu,nso"), or an array of culture codes. Blank / unusable / unknown codes
+     * are dropped. Returns [] for an empty / all-unusable selection or when the
+     * corpus service is unavailable - i.e. fail soft to an unscoped conversation.
+     * Order is preserved (first occurrence wins). Never throws.
+     *
+     * @param  string|array<int,string>|null  $cultures
+     * @return array<int,string>
+     */
+    public function normaliseCultureScope($cultures): array
+    {
+        // Flatten the input to a flat list of candidate codes. A single string may
+        // itself be a comma / pipe / whitespace separated list.
+        $candidates = [];
+        if (is_array($cultures)) {
+            foreach ($cultures as $c) {
+                if (is_string($c)) {
+                    $candidates = array_merge($candidates, preg_split('/[,\|\s]+/', $c) ?: []);
+                }
+            }
+        } elseif (is_string($cultures)) {
+            $candidates = preg_split('/[,\|\s]+/', $cultures) ?: [];
+        }
+
+        $candidates = array_values(array_filter($candidates, fn ($c) => trim((string) $c) !== ''));
+        if (empty($candidates)) {
+            return [];
+        }
+
+        $svcClass = '\\AhgSemanticSearch\\Services\\LanguageCorpusService';
+        if (! class_exists($svcClass)) {
+            return [];
+        }
+
+        try {
+            $svc = new $svcClass();
+            $out = [];
+            foreach ($candidates as $c) {
+                $base = $svc->sanitiseCulture((string) $c);
+                if ($base !== null && ! in_array($base, $out, true)) {
+                    $out[] = $base;
+                }
+            }
+
+            return $out;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Join a list of labels into a natural-language enumeration:
+     * ["A"] -> "A"; ["A","B"] -> "A and B"; ["A","B","C"] -> "A, B and C".
+     *
+     * @param  array<int,string>  $items
+     */
+    private function joinList(array $items): string
+    {
+        $items = array_values(array_filter($items, fn ($i) => trim((string) $i) !== ''));
+        $n = count($items);
+        if ($n === 0) {
+            return '';
+        }
+        if ($n === 1) {
+            return $items[0];
+        }
+        $last = array_pop($items);
+
+        return implode(', ', $items) . ' and ' . $last;
+    }
+
+    /**
+     * Public wrapper over cultureLabel() for callers (e.g. the controller / view)
+     * that need a display label for a scoped culture.
+     */
+    public function cultureLabelPublic(string $culture): string
+    {
+        return $this->cultureLabel($culture);
+    }
+
+    /**
+     * Human label for a culture code (delegates to LanguageCorpusService so labels
+     * stay in step). Falls back to the upper-cased code if the service is absent.
+     */
+    private function cultureLabel(string $culture): string
+    {
+        $svcClass = '\\AhgSemanticSearch\\Services\\LanguageCorpusService';
+        if (class_exists($svcClass)) {
+            try {
+                return (new $svcClass())->label($culture);
+            } catch (\Throwable $e) {
+                // fall through
+            }
+        }
+
+        return strtoupper($culture);
     }
 
     // ─── Admin helpers ────────────────────────────────────────────

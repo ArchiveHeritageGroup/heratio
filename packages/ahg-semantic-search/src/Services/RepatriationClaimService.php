@@ -206,21 +206,35 @@ class RepatriationClaimService
     }
 
     /**
-     * Update an existing claim's editable fields. Returns true on success.
+     * Update an existing claim's editable fields. Returns true on success. When the
+     * status changes as part of the edit, an audit-trail row is appended (who/when/
+     * from->to) via the dialogue service - best effort, never blocks the update.
      *
      * @param  array<string,mixed>  $data
      */
-    public function update(int $id, array $data): bool
+    public function update(int $id, array $data, ?int $userId = null, ?string $userName = null): bool
     {
         if (! $this->available() || $id <= 0) {
             return false;
         }
 
+        // Read the current status BEFORE the write so the audit trail can record
+        // the transition. Read-only; degrades to null on any failure.
+        $before = null;
+        try {
+            $before = DB::table(self::TABLE)->where('id', $id)->value('claim_status');
+            $before = $before !== null ? (string) $before : null;
+        } catch (\Throwable $e) {
+            Log::info('[repatriation] pre-update status read failed for '.$id.': '.$e->getMessage());
+        }
+
+        $newStatus = $this->normaliseStatus($data['claim_status'] ?? 'registered');
+
         $update = [
             'claimant_community' => $this->clip($data['claimant_community'] ?? null, 512),
             'origin_place' => $this->clip($data['origin_place'] ?? null, 512),
             'current_holder' => $this->clip($data['current_holder'] ?? null, 512),
-            'claim_status' => $this->normaliseStatus($data['claim_status'] ?? 'registered'),
+            'claim_status' => $newStatus,
             'evidence_summary' => $this->clipText($data['evidence_summary'] ?? null),
             'contact' => $this->clip($data['contact'] ?? null, 512),
             'notes' => $this->clipText($data['notes'] ?? null),
@@ -228,32 +242,70 @@ class RepatriationClaimService
         ];
 
         try {
-            return DB::table(self::TABLE)->where('id', $id)->update($update) >= 0;
+            $ok = DB::table(self::TABLE)->where('id', $id)->update($update) >= 0;
         } catch (\Throwable $e) {
             Log::warning('[repatriation] update failed for '.$id.': '.$e->getMessage());
 
             return false;
         }
+
+        if ($ok && $before !== $newStatus) {
+            $this->logStatusTransition($id, $before, $newStatus, null, $userId, $userName);
+        }
+
+        return $ok;
     }
 
     /**
-     * Advance just the status of a claim. Returns true on success.
+     * Advance just the status of a claim. Returns true on success. Records the
+     * transition (who/when/from->to + optional note) in the audit trail - best
+     * effort, never blocks the status change.
      */
-    public function updateStatus(int $id, ?string $status): bool
+    public function updateStatus(int $id, ?string $status, ?string $note = null, ?int $userId = null, ?string $userName = null): bool
     {
         if (! $this->available() || $id <= 0) {
             return false;
         }
 
+        $before = null;
         try {
-            return DB::table(self::TABLE)->where('id', $id)->update([
-                'claim_status' => $this->normaliseStatus($status),
+            $before = DB::table(self::TABLE)->where('id', $id)->value('claim_status');
+            $before = $before !== null ? (string) $before : null;
+        } catch (\Throwable $e) {
+            Log::info('[repatriation] pre-status read failed for '.$id.': '.$e->getMessage());
+        }
+
+        $to = $this->normaliseStatus($status);
+
+        try {
+            $ok = DB::table(self::TABLE)->where('id', $id)->update([
+                'claim_status' => $to,
                 'updated_at' => now(),
             ]) >= 0;
         } catch (\Throwable $e) {
             Log::warning('[repatriation] status update failed for '.$id.': '.$e->getMessage());
 
             return false;
+        }
+
+        if ($ok) {
+            $this->logStatusTransition($id, $before, $to, $note, $userId, $userName);
+        }
+
+        return $ok;
+    }
+
+    /**
+     * Append one status-transition row to the audit trail via the dialogue
+     * service. Best effort: a missing audit table or any failure is swallowed so
+     * the claim write is never rolled back by an audit hiccup.
+     */
+    protected function logStatusTransition(int $id, ?string $from, string $to, ?string $note, ?int $userId, ?string $userName): void
+    {
+        try {
+            (new RepatriationDialogueService)->logStatusChange($id, $from, $to, $note, $userId, $userName);
+        } catch (\Throwable $e) {
+            Log::info('[repatriation] status audit log skipped for '.$id.': '.$e->getMessage());
         }
     }
 

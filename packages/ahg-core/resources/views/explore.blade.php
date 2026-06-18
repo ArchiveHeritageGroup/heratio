@@ -18,15 +18,43 @@
 @extends('theme::layouts.1col')
 @section('title', __('Explore this collection'))
 
+{{-- heratio#1211 - apply the visitor's accessibility preferences on first paint
+     (no JS needed). The AccessibilityPreferences middleware shares the resolved
+     body-class string; the always-on applier script keeps it in sync site-wide. --}}
+@section('body-class', $ahgA11yBodyClass ?? '')
+
 @section('content')
 <div class="container py-4" style="max-width:1040px">
 
   <header class="mb-4 text-center">
     <h1 class="mb-2"><i class="fas fa-compass me-2 text-muted"></i>{{ __('Explore this collection') }}</h1>
     <p class="lead text-muted mb-0" style="max-width:760px;margin:0 auto">
-      {{ __('Ask it questions, read it in your language, verify its authenticity, walk its reconstructions, and see how it all connects.') }}
+      {{ __('Ask it questions, read it in your language, walk its exhibitions in 3D, verify its authenticity, and see how it all connects.') }}
     </p>
   </header>
+
+  {{-- heratio#1211 - "every museum for everyone": a small, public, no-account
+       panel that lets any visitor choose their reading language and reading-
+       comfort preferences and have them remembered (session + 1-year cookie),
+       applied across the site. Works without JavaScript. --}}
+  <section class="card border-0 shadow-sm mb-4" aria-labelledby="ahg-access-heading">
+    <div class="card-body">
+      <h2 id="ahg-access-heading" class="h6 text-uppercase text-muted mb-3">
+        <i class="fas fa-universal-access me-1" aria-hidden="true"></i>{{ __('Make this collection easier to use') }}
+      </h2>
+      <div class="row g-3 align-items-start">
+        <div class="col-12 col-lg-7">
+          @includeIf('ahg-core::partials.reading-language-picker', ['rlpRedirect' => request()->getRequestUri()])
+        </div>
+        <div class="col-12 col-lg-5">
+          @includeIf('ahg-core::partials.accessibility-picker', ['apRedirect' => request()->getRequestUri()])
+        </div>
+      </div>
+      <p class="small text-muted mb-0 mt-3">
+        {{ __('Your choices are remembered on this device and applied across the site. No account needed.') }}
+      </p>
+    </div>
+  </section>
 
   @if(empty($cards))
     <div class="alert alert-info text-center" role="note">

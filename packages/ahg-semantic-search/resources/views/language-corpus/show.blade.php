@@ -41,6 +41,15 @@
         <p class="mb-0 text-white-50">
             {{ __('What the collection holds in and about this language - a resource for speakers, learners and researchers.') }}
         </p>
+        {{-- #1208 (culture = language): talk to the corpus. Opens the chatbot scoped
+             to this language so the assistant answers from records held in or about
+             it, citing them. Additive; the chatbot enforces its own access. --}}
+        @if(Route::has('chatbot.index'))
+            <a href="{{ route('chatbot.index', ['language' => $culture]) }}"
+               class="btn btn-light btn-sm mt-3">
+                <i class="fas fa-comments me-1"></i>{{ __('Talk to this corpus') }}
+            </a>
+        @endif
     </div>
 
     {{-- Standing, respectful framing --}}

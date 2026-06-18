@@ -40,6 +40,17 @@ Route::post('/set-locale', function (\Illuminate\Http\Request $request) {
     return $response->cookie('locale', $culture, 60 * 24 * 365, '/', null, true, false, false, 'lax');
 })->name('set-locale');
 
+// heratio#1211 - public accessibility-preference persistence (the a11y cousin of
+// /set-locale and /reading-language). A no-auth POST that records the visitor's
+// reading-comfort preferences (high-contrast / larger-text / reduced-motion) to
+// the session + a 1-year cookie; the AccessibilityPreferences middleware applies
+// them as <body> classes on every subsequent page. Validated against a fixed
+// supported set, CSRF-protected, progressive (works as a plain form post without
+// JS). No DB writes. Single safe public path; never collides with the /{slug}
+// archival-record catch-all (that route matches a single segment only).
+Route::post('/accessibility-preferences', [\AhgCore\Controllers\AccessibilityPreferenceController::class, 'set'])
+    ->name('accessibility.preferences.set');
+
 // Authentication routes
 // #47: POST /login is throttled via the 'login' RateLimiter::for closure
 // in AppServiceProvider (5/min per IP + 5/min per username). GET stays

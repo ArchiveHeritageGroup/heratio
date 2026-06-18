@@ -80,6 +80,20 @@ class ExploreController extends Controller
                 'cta' => __('See what is at risk'),
             ],
             [
+                'route' => 'exhibition-space.index',
+                'icon' => 'fas fa-landmark',
+                'title' => __('Explore the exhibitions'),
+                'desc' => __('Step into this collection\'s exhibitions and walk through them in 3D from anywhere - every public exhibition space, with its walkthrough, wayfinding and catalogue, in one place.'),
+                'cta' => __('Visit the exhibitions'),
+            ],
+            [
+                'route' => 'exhibition.whats-on',
+                'icon' => 'fas fa-calendar-day',
+                'title' => __('What\'s on'),
+                'desc' => __('See the upcoming and live virtual openings across every exhibition space, and join or reserve a place.'),
+                'cta' => __('See what\'s on'),
+            ],
+            [
                 'route' => 'exhibition-space.reconstructions',
                 'icon' => 'fas fa-cubes',
                 'title' => __('Reconstructions gallery'),

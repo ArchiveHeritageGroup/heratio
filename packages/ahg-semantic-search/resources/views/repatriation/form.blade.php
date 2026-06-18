@@ -190,6 +190,10 @@
                 </a>
                 <div class="d-flex gap-2">
                     @if($isEdit && !empty($claim['id']))
+                        <a href="{{ route('repatriation.claims.dialogue', ['id' => $claim['id']]) }}"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-comments me-1"></i>{{ __('Dialogue and shared record') }}
+                        </a>
                         <a href="{{ route('virtual-return.show', ['id' => $claim['id']]) }}"
                            class="btn btn-outline-dark" target="_blank" rel="noopener">
                             <i class="fas fa-person-walking-arrow-right me-1"></i>{{ __('View virtual return') }}

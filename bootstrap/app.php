@@ -80,6 +80,13 @@ return Application::configure(basePath: dirname(__DIR__))
             // Google + Bing can discover archival records via structured
             // data. Silent no-op on non-HTML responses or unknown slugs.
             \AhgInformationObjectManage\Http\Middleware\SchemaJsonLdInjector::class,
+            // heratio#1211 - universal access. Resolves the anonymous visitor's
+            // accessibility preferences (high-contrast / larger-text / reduced-
+            // motion) from session+cookie, shares them to views as a body-class
+            // string, and injects a tiny applier <script> so the classes land on
+            // <body> on EVERY page (including locked layouts we never edit).
+            // Silent no-op when no prefs are set or the response isn't HTML.
+            \App\Http\Middleware\AccessibilityPreferences::class,
         ]);
 
         $middleware->alias([

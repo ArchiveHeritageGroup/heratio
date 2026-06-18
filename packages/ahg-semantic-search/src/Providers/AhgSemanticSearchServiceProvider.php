@@ -126,6 +126,32 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ])
                 ->name('repatriation.dashboard.json');
 
+            // heratio#1207 - the SHARED RECORD surface (pillar 3): a token-gated,
+            // permissioned view of ONE claim that both the holding institution and
+            // the origin community can see. NOT auth-gated - access is a capability
+            // token (repatriation_claim_access) minted by staff. Keyed off the
+            // opaque {token}, never the claim id, so it cannot be enumerated; an
+            // unknown / revoked / expired token resolves to a dignified "link not
+            // active" state. The claimant may post SHARED dialogue messages when the
+            // grant permits it; internal staff notes are never exposed here. Bound
+            // here (register() + callAfterResolving('router')) for the same catch-all
+            // precedence guarantee as the other public repatriation routes; the path
+            // is 3-segment so it can never shadow the single-segment /{slug}
+            // archival-record catch-all anyway. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/repatriation/shared/{token}', [
+                    \AhgSemanticSearch\Controllers\RepatriationSharedRecordController::class, 'show',
+                ])
+                ->where('token', '[A-Za-z0-9]{16,64}')
+                ->name('repatriation.shared.show');
+            $router->middleware('web')
+                ->post('/repatriation/shared/{token}/message', [
+                    \AhgSemanticSearch\Controllers\RepatriationSharedRecordController::class, 'message',
+                ])
+                ->where('token', '[A-Za-z0-9]{16,64}')
+                ->name('repatriation.shared.message');
+
             // heratio#1205 - North Star "race against loss": the PUBLIC, read-only
             // "at risk" register of endangered heritage (PUBLISHED items only),
             // most-urgent first, framing why heritage is endangered and the race
@@ -514,6 +540,15 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         // memory/reference_ci_schema_hastable.md).
         $this->bootRepatriationKnowledgeTable();
 
+        // heratio#1207 - repatriation DIALOGUE + status AUDIT TRAIL + shared-record
+        // ACCESS grants. The two-way threaded conversation on a claim, the
+        // append-only status history, and the token-permissioned shared-record
+        // grants live in repatriation_claim_message / repatriation_claim_status_log
+        // / repatriation_claim_access. Auto-created on first boot behind a
+        // Schema::hasTable probe in a single try/catch (the canonical package idiom
+        // - never fatal a fresh boot; see memory/reference_ci_schema_hastable.md).
+        $this->bootRepatriationDialogueTables();
+
         // heratio#1205 - North Star "race against loss": endangered-heritage
         // register + capture-priority list. The at-risk flags live in
         // endangered_heritage_item. Auto-created on first boot behind a
@@ -877,6 +912,106 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             // Never block boot on install failure - log and continue. The
             // contribution surfaces degrade to the empty-state when absent.
             Log::warning('ahg-semantic-search repatriation-knowledge boot install skipped: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Idempotent first-boot creation of the repatriation dialogue / status-audit /
+     * shared-access tables (heratio#1207).
+     *
+     * Three additive tables drive the conversation around a claim:
+     * repatriation_claim_message (two-way threaded dialogue),
+     * repatriation_claim_status_log (append-only status history), and
+     * repatriation_claim_access (token-permissioned shared-record grants). Each
+     * reference into the claim / catalogue tables is a SOFT reference (NO foreign
+     * key). Prefers the shipped install SQL (one source of truth for all three
+     * CREATE TABLE statements); falls back to a Schema builder create per table if
+     * the SQL file is unreadable. Wrapped in a single try/catch so a missing /
+     * locked DB at boot can never fatal the app - every surface degrades to the
+     * empty-state when a table is absent.
+     */
+    protected function bootRepatriationDialogueTables(): void
+    {
+        try {
+            $haveAll = Schema::hasTable('repatriation_claim_message')
+                && Schema::hasTable('repatriation_claim_status_log')
+                && Schema::hasTable('repatriation_claim_access');
+            if ($haveAll) {
+                return;
+            }
+
+            $sqlPath = __DIR__.'/../../database/install_repatriation_dialogue.sql';
+            $ran = false;
+            if (is_readable($sqlPath)) {
+                $sql = (string) file_get_contents($sqlPath);
+                if (trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                    $ran = true;
+                }
+            }
+
+            // Fallback: build any still-missing table via the Schema builder so a
+            // fresh install gets all three even if the SQL file is unavailable.
+            if (! $ran || ! Schema::hasTable('repatriation_claim_message')) {
+                if (! Schema::hasTable('repatriation_claim_message')) {
+                    Schema::create('repatriation_claim_message', function (Blueprint $table) {
+                        $table->bigIncrements('id');
+                        $table->unsignedBigInteger('claim_id');
+                        $table->string('author_role', 32)->default('institution');
+                        $table->string('author_name', 255)->nullable();
+                        $table->unsignedBigInteger('author_user')->nullable();
+                        $table->unsignedBigInteger('access_id')->nullable();
+                        $table->mediumText('body');
+                        $table->string('visibility', 16)->default('shared');
+                        $table->timestamps();
+
+                        $table->index('claim_id', 'ix_rcm_claim');
+                        $table->index(['claim_id', 'visibility'], 'ix_rcm_claim_vis');
+                        $table->index('access_id', 'ix_rcm_access');
+                    });
+                }
+            }
+            if (! Schema::hasTable('repatriation_claim_status_log')) {
+                Schema::create('repatriation_claim_status_log', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->unsignedBigInteger('claim_id');
+                    $table->string('from_status', 64)->nullable();
+                    $table->string('to_status', 64);
+                    $table->string('note', 1024)->nullable();
+                    $table->unsignedBigInteger('changed_by')->nullable();
+                    $table->string('changed_by_name', 255)->nullable();
+                    $table->timestamps();
+
+                    $table->index('claim_id', 'ix_rcsl_claim');
+                    $table->index(['claim_id', 'id'], 'ix_rcsl_claim_created');
+                });
+            }
+            if (! Schema::hasTable('repatriation_claim_access')) {
+                Schema::create('repatriation_claim_access', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->unsignedBigInteger('claim_id');
+                    $table->string('token', 64);
+                    $table->string('grantee_name', 255)->nullable();
+                    $table->string('grantee_role', 32)->default('claimant');
+                    $table->boolean('can_message')->default(true);
+                    $table->string('status', 16)->default('active');
+                    $table->timestamp('expires_at')->nullable();
+                    $table->unsignedBigInteger('created_by')->nullable();
+                    $table->timestamp('last_seen_at')->nullable();
+                    $table->timestamps();
+
+                    $table->unique('token', 'uq_rca_token');
+                    $table->index('claim_id', 'ix_rca_claim');
+                    $table->index(['claim_id', 'status'], 'ix_rca_claim_status');
+                });
+            }
+
+            Log::info('ahg-semantic-search: repatriation dialogue/audit/access tables created (first-boot)');
+        } catch (\Throwable $e) {
+            // Never block boot on install failure - log and continue. The dialogue,
+            // audit and shared-access surfaces degrade to the empty-state when
+            // their tables are absent.
+            Log::warning('ahg-semantic-search repatriation-dialogue boot install skipped: '.$e->getMessage());
         }
     }
 

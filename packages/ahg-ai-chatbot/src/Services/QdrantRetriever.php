@@ -66,20 +66,127 @@ class QdrantRetriever
     /**
      * Search catalogue records for a query.
      *
+     * #1208 (culture = language): an optional $culture scope constrains the hits
+     * to the records that are described IN the selected language(s) - the SAME
+     * definition the LanguageCorpusService uses (published, non-root
+     * information_object rows whose information_object_i18n.culture base-subtag is
+     * one of the selected languages). $culture may be a single culture string OR an
+     * array of culture codes; with several the scope is the UNION of their corpora
+     * (a record in ANY selected language is in scope). When $culture is
+     * null/empty/all-unknown the behaviour is byte-identical to before (unscoped).
+     *
+     * The live Qdrant payload (written by QdrantIndexCommand) carries slug / title /
+     * parent_id / has_scope but NOT culture - and each point id IS the
+     * information_object id. So we cannot filter inside Qdrant; instead we over-fetch
+     * a candidate pool and post-filter the hits against the in-language id set from
+     * the DB (mirroring LanguageCorpusService). The Elasticsearch fallback applies
+     * the same id-set filter. Both fail soft: if the in-language id set cannot be
+     * resolved we return the unscoped hits rather than an empty result or a 500.
+     *
+     * @param  string|array<int,string>|null  $culture
      * @return array{records: array, query: string}
      */
-    public function search(string $query, int $limit = 0): array
+    public function search(string $query, int $limit = 0, $culture = null): array
     {
         $limit = $limit > 0 ? $limit : $this->topK;
 
+        $scope = $this->resolveCultureScope($culture);
+
+        // Over-fetch when scoped so post-filtering still yields up to $limit hits.
+        $fetch = $scope === null ? $limit : max($limit * 6, 30);
+
         // Try Qdrant vector search first
-        $records = $this->searchQdrant($query, $limit);
+        $records = $this->searchQdrant($query, $fetch);
+        $records = $this->applyCultureScope($records, $scope);
         if (!empty($records)) {
-            return ['query' => $query, 'records' => $records];
+            return ['query' => $query, 'records' => array_slice($records, 0, $limit)];
         }
 
         // Fallback: Elasticsearch keyword search on IO metadata
-        return ['query' => $query, 'records' => $this->searchElasticsearch($query, $limit)];
+        $es = $this->searchElasticsearch($query, $fetch);
+        $es = $this->applyCultureScope($es, $scope);
+
+        return ['query' => $query, 'records' => array_slice($es, 0, $limit)];
+    }
+
+    /**
+     * Resolve a requested culture scope into the normalised list of base subtags +
+     * the UNION set of information_object ids that are described IN any of them (the
+     * LanguageCorpusService definition). Accepts a single culture string OR an array
+     * of culture codes. Returns null when there is no usable scope (no/blank
+     * culture, all codes unknown, the LanguageCorpusService is unavailable, or the
+     * lookup found no in-language records) so callers fall back to fully unscoped
+     * behaviour. Never throws.
+     *
+     * @param  string|array<int,string>|null  $culture
+     * @return array{bases:array<int,string>,ids:array<int,bool>}|null
+     */
+    private function resolveCultureScope($culture): ?array
+    {
+        $requested = is_array($culture) ? $culture : ($culture === null ? [] : [$culture]);
+        if (empty($requested)) {
+            return null;
+        }
+
+        $svcClass = '\\AhgSemanticSearch\\Services\\LanguageCorpusService';
+        if (!class_exists($svcClass)) {
+            return null;
+        }
+
+        try {
+            $svc = new $svcClass();
+
+            // Normalise + de-dupe the requested codes to usable base subtags.
+            $bases = [];
+            foreach ($requested as $c) {
+                $base = $svc->sanitiseCulture(is_string($c) ? $c : null);
+                if ($base !== null) {
+                    $bases[$base] = true;
+                }
+            }
+            $bases = array_keys($bases);
+            if (empty($bases)) {
+                return null; // all unknown / malformed -> unscoped (fail soft)
+            }
+
+            // Union id set across all selected languages (service does the union).
+            $ids = $svc->describedRecordIds($bases);
+            if (empty($ids)) {
+                return null; // nothing published in any selected language -> unscoped
+            }
+
+            return ['bases' => $bases, 'ids' => array_fill_keys($ids, true)];
+        } catch (\Throwable $e) {
+            $label = is_array($culture) ? implode(',', $culture) : (string) $culture;
+            Log::info('[chatbot] culture scope resolve failed for ' . $label . ': ' . $e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * Keep only the hits whose information_object id is in the in-language id set.
+     * Hits carry the IO id as their point id (Qdrant) or carry it on the parsed
+     * record (ES). A hit with no resolvable id is dropped under scope (it cannot be
+     * confirmed in-language). Returns the input unchanged when there is no scope.
+     *
+     * @param array<int,array<string,mixed>> $records
+     * @param array{bases:array<int,string>,ids:array<int,bool>}|null $scope
+     * @return array<int,array<string,mixed>>
+     */
+    private function applyCultureScope(array $records, ?array $scope): array
+    {
+        if ($scope === null || empty($records)) {
+            return $records;
+        }
+
+        $ids = $scope['ids'];
+
+        return array_values(array_filter($records, function ($r) use ($ids) {
+            $id = isset($r['id']) && is_numeric($r['id']) ? (int) $r['id'] : 0;
+
+            return $id > 0 && isset($ids[$id]);
+        }));
     }
 
     /**
@@ -195,6 +302,34 @@ class QdrantRetriever
     }
 
     /**
+     * Map a set of slugs to their information_object ids via the slug table, in one
+     * batched query. Only used by the ES fallback to give hits an id for culture
+     * scoping. Best-effort: returns an empty map on any failure (never throws).
+     *
+     * @param array<int,string> $slugs
+     * @return array<string,int>
+     */
+    private function resolveIdsBySlug(array $slugs): array
+    {
+        $slugs = array_values(array_unique(array_filter($slugs, fn ($s) => is_string($s) && $s !== '')));
+        if (empty($slugs)) {
+            return [];
+        }
+
+        try {
+            $rows = DB::table('slug')->whereIn('slug', $slugs)->select('slug', 'object_id')->get();
+            $out = [];
+            foreach ($rows as $r) {
+                $out[(string) $r->slug] = (int) $r->object_id;
+            }
+
+            return $out;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
      * Parse a Qdrant hit into a canonical record shape.
      */
     private function parseHit(array $hit): array
@@ -256,14 +391,26 @@ class QdrantRetriever
             }
 
             $hits = $response->json('hits.hits') ?? [];
-            return array_map(function ($h) {
+
+            // Resolve information_object ids from slugs in one batched query so the
+            // #1208 culture scope can post-filter ES hits the same way as Qdrant
+            // hits. Best-effort: a missing slug table just leaves id null (the hit
+            // is then dropped only when a culture scope is active).
+            $slugs = array_values(array_filter(array_map(
+                fn ($h) => $h['_source']['slug'] ?? null,
+                $hits
+            )));
+            $idBySlug = $this->resolveIdsBySlug($slugs);
+
+            return array_map(function ($h) use ($idBySlug) {
                 $src = $h['_source'] ?? [];
                 $excerpt = $src['scope_and_content'] ?? $src['description'] ?? '';
                 if (mb_strlen($excerpt) > 350) {
                     $excerpt = mb_substr($excerpt, 0, 347) . '...';
                 }
+                $slug = $src['slug'] ?? null;
                 return [
-                    'id'         => null,
+                    'id'         => ($slug !== null && isset($idBySlug[$slug])) ? $idBySlug[$slug] : null,
                     'title'      => $src['title'] ?? 'Untitled',
                     'identifier' => $src['identifier'] ?? '',
                     'url'        => isset($src['slug']) ? url('/informationobject/' . $src['slug']) : null,
