@@ -583,7 +583,39 @@
         <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
         <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {
-          initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}', '{{ $vType }}');
+          var __vid = '{{ $viewerId }}';
+          var __imgUrl = '{{ url($imgSrc) }}';
+          initIiifViewer(__vid, __imgUrl, {!! json_encode($io->title) !!}, '{{ $vType }}');
+
+          // TIFF / no-Cantaloupe fallback: the OSD + Mirador deep-zoom modes need a
+          // IIIF image server. When none is reachable (e.g. a box without
+          // Cantaloupe), the deep-zoom viewer 404s on info.json; degrade to the
+          // simple-image pane (the JPEG reference) so the image still renders.
+          // Probes this image's info.json and only degrades on a hard failure, so
+          // a working Cantaloupe is completely unaffected.
+          @php $__fallbackJpg = $refUrl ?: $thumbUrl; @endphp
+          @if($__fallbackJpg && in_array($vType, ['openseadragon', 'mirador']))
+          (function () {
+            var info;
+            try {
+              var rel = new URL(__imgUrl, window.location.origin).pathname.replace(/^\//, '');
+              info = window.location.origin + '/iiif/3/' + rel.replace(/\//g, '_SL_') + '/info.json';
+            } catch (e) { return; }
+            function degradeToImage() {
+              ['osd-', 'mirador-'].forEach(function (p) {
+                var el = document.getElementById(p + __vid); if (el) { el.style.display = 'none'; }
+              });
+              var img = document.getElementById('img-' + __vid); if (img) { img.style.display = ''; }
+              var bi = document.getElementById('btn-img-' + __vid); if (bi) { bi.classList.add('active'); }
+              ['btn-osd-', 'btn-mirador-'].forEach(function (b) {
+                var el = document.getElementById(b + __vid); if (el) { el.classList.remove('active'); }
+              });
+            }
+            fetch(info, { method: 'GET' })
+              .then(function (r) { if (!r.ok) { degradeToImage(); } })
+              .catch(function () { degradeToImage(); });
+          })();
+          @endif
         });
         </script>
         @if($splatEmbedUrl)

@@ -1573,28 +1573,28 @@ class InformationObjectController extends Controller
     /**
      * Fetch dropdown options used by edit and create forms.
      */
-    private function getFormDropdowns(string $culture): array
+    private function getFormDropdowns(string $culture, ?string $sector = null): array
     {
-        // Level of description options (taxonomy_id = 34) — RESTRICTED to
-        // archive-sector terms only. Without this filter, museum/library/dam
-        // /gallery LoD terms (Object, Artwork, Photograph, Periodical,
-        // Manuscript, etc.) appeared in the archival edit form, the user
-        // unwittingly picked one, save redirected to the wrong sector show
-        // page, and depending on the sector either 404'd or rendered as the
-        // wrong record type. The IO edit form is for ARCHIVAL records only;
-        // sector-specific records go through their own edit form. INNER JOIN
-        // on level_of_description_sector with sector='archive' ensures only
-        // the nine canonical ISAD levels (Collection, File, Fonds, Item,
-        // Part, Record group, Series, Subfonds, Subseries) are offered.
+        // Level of description options (taxonomy_id = 34), filtered to the
+        // record's SECTOR via level_of_description_sector: an archival record
+        // offers the nine ISAD levels, a museum record offers museum levels,
+        // etc. Without a sector filter every sector's levels appear, the user
+        // picks the wrong one, and save redirects to the wrong sector viewer.
+        // Falls back to 'archive' when the sector is unknown (e.g. a brand-new
+        // top-level record with no context). DISTINCT because a term can carry
+        // duplicate sector-mapping rows (seed drift), which otherwise shows the
+        // same level twice in the dropdown.
+        $sector = in_array($sector, ['archive', 'library', 'museum', 'dam', 'gallery'], true) ? $sector : 'archive';
         $levels = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->join('level_of_description_sector', function ($j) {
+            ->join('level_of_description_sector', function ($j) use ($sector) {
                 $j->on('term.id', '=', 'level_of_description_sector.term_id')
-                  ->where('level_of_description_sector.sector', '=', 'archive');
+                  ->where('level_of_description_sector.sector', '=', $sector);
             })
             ->where('term.taxonomy_id', 34)
             ->where('term_i18n.culture', $culture)
             ->orderBy('level_of_description_sector.display_order')
+            ->distinct()
             ->select('term.id', 'term_i18n.name')
             ->get();
 
@@ -1678,6 +1678,37 @@ class InformationObjectController extends Controller
     }
 
     /**
+     * Best-effort GLAM sector for a record, used to scope the level-of-description
+     * dropdown. Prefers the record's own display_object_config.object_type; falls
+     * back to the sector its current level maps to (preferring a non-archive
+     * sector, mirroring the show-page routing); null when unknown (the caller then
+     * defaults to 'archive'). Read-only, never throws.
+     */
+    private function resolveIoSector(?int $ioId, ?int $levelId): ?string
+    {
+        $valid = ['archive', 'library', 'museum', 'dam', 'gallery'];
+        try {
+            if ($ioId && Schema::hasTable('display_object_config')) {
+                $t = DB::table('display_object_config')->where('object_id', $ioId)->value('object_type');
+                if (in_array($t, $valid, true)) {
+                    return $t;
+                }
+            }
+            if ($levelId && Schema::hasTable('level_of_description_sector')) {
+                $s = DB::table('level_of_description_sector')->where('term_id', $levelId)->whereNotIn('sector', ['archive'])->value('sector')
+                    ?: DB::table('level_of_description_sector')->where('term_id', $levelId)->value('sector');
+                if (in_array($s, $valid, true)) {
+                    return $s;
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore - fall through to null (caller defaults to archive)
+        }
+
+        return null;
+    }
+
+    /**
      * Show the edit form for an information object.
      */
     public function edit(string $slug)
@@ -1749,7 +1780,8 @@ class InformationObjectController extends Controller
             abort(404);
         }
 
-        $dropdowns = $this->getFormDropdowns($culture);
+        // Scope the level-of-description options to THIS record's sector.
+        $dropdowns = $this->getFormDropdowns($culture, $this->resolveIoSector((int) $io->id, $io->level_of_description_id ?? null));
 
         // Museum metadata (CCO fields) — present when this IO has a museum_metadata row
         $museumMetadata = [];
@@ -2132,7 +2164,9 @@ class InformationObjectController extends Controller
             }
         }
 
-        $dropdowns = $this->getFormDropdowns($culture);
+        // New record: honour an explicit ?sector= (e.g. coming from a museum/library
+        // browse) so the level dropdown matches; otherwise defaults to archive.
+        $dropdowns = $this->getFormDropdowns($culture, request()->query('sector'));
 
         // Watermark Settings — only the global pool of custom watermarks
         // is meaningful on a brand-new IO (no per-object rows yet).
