@@ -368,8 +368,13 @@ say "Stage 6/14 - core schema"
 for f in database/core/0*.sql; do
     [[ -f "$f" ]] || continue
     bn="$(basename "$f")"
-    mysql_run "$DB_NAME" < "$f" 2>/tmp/heratio-install-${bn}.err && \
-        ok "loaded $bn" || die "failed loading $bn (see /tmp/heratio-install-${bn}.err)"
+    if mysql_run "$DB_NAME" < "$f" 2>"/tmp/heratio-install-${bn}.err"; then
+        ok "loaded $bn"
+    else
+        warn "----- mysql error output for $bn -----"
+        tail -n 30 "/tmp/heratio-install-${bn}.err" >&2 || true
+        die "failed loading $bn (see /tmp/heratio-install-${bn}.err)"
+    fi
 done
 
 # ============================================================================
