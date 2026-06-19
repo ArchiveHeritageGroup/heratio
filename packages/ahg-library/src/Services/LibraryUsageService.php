@@ -489,7 +489,9 @@ class LibraryUsageService
                             ->where('ioi.culture', '=', app()->getLocale());
                     })
                     ->whereBetween('us.stat_date', [$fromDate, $toDate])
-                    ->select(DB::raw('ANY_VALUE(ioi.title) as item_name'), 'us.metric_type', DB::raw('SUM(us.count) as total_count'))
+                    // MAX() is the portable substitute for MySQL-only ANY_VALUE():
+                    // identical behaviour on MySQL and on SQLite (package test driver).
+                    ->select(DB::raw('MAX(ioi.title) as item_name'), 'us.metric_type', DB::raw('SUM(us.count) as total_count'))
                     ->groupBy('us.library_item_id', 'us.metric_type')
                     ->get();
 

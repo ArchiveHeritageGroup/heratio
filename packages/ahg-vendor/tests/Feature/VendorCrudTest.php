@@ -85,10 +85,26 @@ class VendorCrudTest extends TestCase
             ->value('user_id') ?? 0);
 
         if ($id === 0) {
-            // No seeded admin - fabricate the ACL membership for a synthetic id.
-            // created_by / requested_by have no FK to `user`, so an in-memory
-            // model with this id is sufficient for the controller writes.
-            $id = 999_000_001;
+            // No seeded admin in this DB (CI's freshly-loaded heratio_test
+            // carries no user rows). Mint a real Qubit user through the
+            // object -> actor -> user class-table-inheritance chain so the
+            // acl_user_group.user_id FK (acl_user_group_FK_1 -> user.id) is
+            // satisfied. Rolled back with the surrounding DatabaseTransactions.
+            $id = (int) DB::table('object')->insertGetId([
+                'class_name' => 'QubitUser',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('actor')->insert([
+                'id' => $id,
+                'source_culture' => 'en',
+            ]);
+            DB::table('user')->insert([
+                'id' => $id,
+                'username' => 'test-admin-'.$id,
+                'email' => 'test-admin-'.$id.'@example.test',
+                'active' => 1,
+            ]);
             DB::table('acl_user_group')->insert([
                 'user_id' => $id,
                 'group_id' => self::ADMIN_GROUP,

@@ -39,10 +39,25 @@ class LibraryAcquisitionsApiTest extends TestCase
 
     private function makeUser(bool $admin): User
     {
-        $id = DB::table('users')->insertGetId([
-            'name'     => $admin ? 'Acq API Admin' : 'Acq API Nobody',
-            'email'    => uniqid('acq-api-', true) . '@example.test',
-            'password' => Hash::make('secret'),
+        // The User model maps to `user` (singular, Qubit class-table inheritance),
+        // not Laravel's `users`. Mint a real user through object -> actor -> user
+        // so acl_user_group.user_id's FK (acl_user_group_FK_1 -> user.id) holds in
+        // a freshly-seeded CI test DB. Rolled back with DatabaseTransactions.
+        $id = (int) DB::table('object')->insertGetId([
+            'class_name' => 'QubitUser',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('actor')->insert([
+            'id'             => $id,
+            'source_culture' => 'en',
+        ]);
+        DB::table('user')->insert([
+            'id'            => $id,
+            'username'      => ($admin ? 'acq-api-admin-' : 'acq-api-nobody-') . $id,
+            'email'         => uniqid('acq-api-', true) . '@example.test',
+            'password_hash' => Hash::make('secret'),
+            'active'        => 1,
         ]);
         if ($admin) {
             // AclGroup::ADMINISTRATOR_ID = 100 -> AclService grants every action.

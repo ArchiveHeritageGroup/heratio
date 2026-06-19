@@ -59,6 +59,14 @@ final class StandardMetadataLoaderTest extends TestCase
         $this->container->instance('db.connection', $this->capsule->getConnection());
         $this->container->bind('db.schema', fn () => $this->capsule->getConnection()->getSchemaBuilder());
 
+        // C2paService::autodetectBinary() calls config('heratio.c2patool_bin');
+        // bind a minimal config repository so the helper resolves in this
+        // hand-built (non-Laravel) container instead of throwing
+        // "Target class [config] does not exist".
+        $this->container->instance('config', new \Illuminate\Config\Repository([
+            'heratio' => ['c2patool_bin' => null],
+        ]));
+
         Facade::setFacadeApplication($this->container);
 
         $this->createTables();

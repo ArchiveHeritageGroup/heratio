@@ -53,6 +53,14 @@ class LibraryAcquisitionsApiTest extends AhgLibraryTestCase
 
     private function bootContainer(): void
     {
+        // A prior full-Laravel test in the same process may have left the Facade
+        // root + resolved instances pointing at a torn-down app, so helpers like
+        // config()/auth() fall through to "Target class [config] does not exist".
+        // Reset that state before we install our own minimal container.
+        Facade::clearResolvedInstances();
+        Facade::setFacadeApplication(null);
+        Container::setInstance(null);
+
         $container = new class extends Container {
             public function getLocale(): string { return 'en'; }
             public function runningInConsole(): bool { return true; }

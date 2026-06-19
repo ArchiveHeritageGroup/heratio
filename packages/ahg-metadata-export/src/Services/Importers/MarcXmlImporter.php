@@ -158,6 +158,9 @@ class MarcXmlImporter
                 $desc['error'] = $e->getMessage();
                 $desc['io_id'] = null;
                 $desc['audit_id'] = null;
+                // Keep the result shape stable on the error path: callers (and the
+                // MARC round-trip test) always expect the authority_links_created counter.
+                $desc['authority_links_created'] = 0;
             }
             $out[] = $desc;
         }
