@@ -2,9 +2,9 @@
   "role": "guest",
   "totalPages": 5,
   "uniqueUrls": 5,
-  "pagesWith200": 2,
-  "pagesWithErrors": 3,
-  "totalForms": 28,
-  "totalButtons": 96,
-  "pagesWithJsErrors": 4
+  "pagesWith200": 4,
+  "pagesWithErrors": 1,
+  "totalForms": 25,
+  "totalButtons": 92,
+  "pagesWithJsErrors": 0
 }

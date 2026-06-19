@@ -55,84 +55,81 @@ test.describe('Heratio Discovery Crawler', () => {
     }
   });
 
+  // A multi-page crawl of the live site (login + up to MAX_PAGES_PER_ROLE pages,
+  // each with DOM extraction) legitimately needs more than the 60s default,
+  // especially on the slower firefox/webkit engines. Give it headroom so a slow
+  // (not broken) crawl doesn't trip "Test timeout of 60000ms exceeded".
+  test.beforeEach(() => {
+    test.setTimeout(120_000);
+  });
+
   test.describe.configure({ mode: 'serial' });
 
   /**
    * Helper: Extract forms from a page
    */
   async function extractForms(page: Page): Promise<FormInfo[]> {
-    const forms: FormInfo[] = [];
-    const formElements = await page.locator('form').all();
-    
-    for (const form of formElements) {
-      const action = await form.getAttribute('action') || '';
-      const method = (await form.getAttribute('method') || 'get').toUpperCase();
-      
-      const fields: { name: string; type: string; required: boolean }[] = [];
-      const inputs = await form.locator('input, select, textarea').all();
-      
-      for (const input of inputs) {
-        const tagName = await input.evaluate((el: Element) => el.tagName.toLowerCase());
-        const name = await input.getAttribute('name');
-        const type = (await input.getAttribute('type') || 'text').toLowerCase();
-        const required = await input.getAttribute('required') !== null;
-        
-        if (name && !['_token', '_method', 'csrf_token', 'MAX_FILE_SIZE'].includes(name)) {
-          fields.push({ name, type: `${tagName}:${type}`, required });
-        }
-      }
-      
-      forms.push({ action, method, fields });
-    }
-    
-    return forms;
+    // One in-page evaluate instead of N sequential round-trips per input - the
+    // per-element await loop was the main time sink on form-heavy admin pages
+    // (and the slowest part on firefox/webkit).
+    return await page.evaluate(() => {
+      const skip = ['_token', '_method', 'csrf_token', 'MAX_FILE_SIZE'];
+      return Array.from(document.querySelectorAll('form')).map((form) => {
+        const action = form.getAttribute('action') || '';
+        const method = (form.getAttribute('method') || 'get').toUpperCase();
+        const fields = Array.from(form.querySelectorAll('input, select, textarea'))
+          .map((el) => {
+            const name = el.getAttribute('name');
+            if (!name || skip.includes(name)) return null;
+            const tag = el.tagName.toLowerCase();
+            const type = (el.getAttribute('type') || 'text').toLowerCase();
+            return { name, type: `${tag}:${type}`, required: el.hasAttribute('required') };
+          })
+          .filter((f): f is { name: string; type: string; required: boolean } => f !== null);
+        return { action, method, fields };
+      });
+    });
   }
 
   /**
    * Helper: Extract buttons from a page
    */
   async function extractButtons(page: Page): Promise<ButtonInfo[]> {
-    const buttons: ButtonInfo[] = [];
-    const elements = await page.locator('button, input[type="submit"], input[type="button"]').all();
-    
-    for (const btn of elements) {
-      const text = (await btn.textContent())?.trim() || '';
-      const type = await btn.getAttribute('type') || 'button';
-      const disabled = await btn.isDisabled();
-      
-      if (text) {
-        buttons.push({ text, type, disabled });
-      }
-    }
-    
-    return buttons;
+    return await page.evaluate(() => {
+      return Array.from(document.querySelectorAll('button, input[type="submit"], input[type="button"]'))
+        .map((btn) => {
+          const text = (btn.textContent || (btn as HTMLInputElement).value || '').trim();
+          if (!text) return null;
+          const type = btn.getAttribute('type') || 'button';
+          const disabled = (btn as HTMLButtonElement).disabled === true;
+          return { text, type, disabled };
+        })
+        .filter((b): b is { text: string; type: string; disabled: boolean } => b !== null);
+    });
   }
 
   /**
    * Helper: Extract internal links
    */
   async function extractLinks(page: Page): Promise<string[]> {
-    const links: Set<string> = new Set();
-    const anchors = await page.locator('a[href]').all();
-    
-    for (const anchor of anchors) {
-      const href = await anchor.getAttribute('href');
-      if (href) {
+    return await page.evaluate((baseUrl) => {
+      const host = new URL(baseUrl).hostname;
+      const out = new Set<string>();
+      document.querySelectorAll('a[href]').forEach((a) => {
+        const href = a.getAttribute('href');
+        if (!href) return;
         try {
-          const url = new URL(href, HERATIO_BASE);
-          if (url.hostname === new URL(HERATIO_BASE).hostname) {
-            const normalized = url.pathname + url.search;
-            if (!normalized.startsWith('/#') && !normalized.startsWith('javascript:')) {
-              links.add(normalized);
-            }
+          const u = new URL(href, baseUrl);
+          if (u.hostname === host) {
+            const n = u.pathname + u.search;
+            if (!n.startsWith('/#') && !n.startsWith('javascript:')) out.add(n);
           }
         } catch (e) {
-          // Invalid URL, skip
+          // invalid URL, skip
         }
-      }
-    }
-    
-    return Array.from(links);
+      });
+      return Array.from(out);
+    }, HERATIO_BASE);
   }
 
   /**
@@ -154,9 +151,13 @@ test.describe('Heratio Discovery Crawler', () => {
     
     let response: Response | null = null;
     try {
-      response = await page.goto(url, { 
-        waitUntil: 'networkidle',
-        timeout: 15000 
+      response = await page.goto(url, {
+        // 'domcontentloaded' (not 'networkidle'): the live site keeps long-lived
+        // connections open (analytics beacons, exhibition presence/live-data
+        // polling), so 'networkidle' never settles and the goto burns its full
+        // timeout on every page. The DOM is all the inventory crawl needs.
+        waitUntil: 'domcontentloaded',
+        timeout: 15000
       });
     } catch (e: any) {
       jsErrors.push(`Navigation failed: ${e.message}`);
@@ -293,7 +294,7 @@ test.describe('Heratio Discovery Crawler', () => {
     
     // First login - try direct form at /login
     await page.goto(HERATIO_BASE + '/login');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     
     // Try all possible email inputs with force
     const emailInput = page.locator('input[name="email"]').first();
@@ -352,7 +353,7 @@ test.describe('Heratio Discovery Crawler', () => {
     
     // First login - use force fill like admin
     await page.goto(HERATIO_BASE + '/login');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     
     const emailInput = page.locator('input[name="email"]').first();
     const passwordInput = page.locator('input[name="password"]').first();

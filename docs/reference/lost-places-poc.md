@@ -46,10 +46,24 @@ The place argument is a partial name **or** a place-taxonomy term id.
 - `AhgExhibition\Console\Commands\LostPlaceGatherCommand` - `ahg:lost-place-gather`.
 - Tests: `packages/ahg-exhibition/tests/Feature/LostPlaceGatherTest.php`.
 
+## CLIP discovery - functional today where imagery is indexed
+
+`ahg:lost-place-gather "<place>" --discover` surfaces unlinked look-alike photos
+by seeding from the place's already-linked master images and querying the
+`archive_images` Qdrant index. It works **today** for any place with indexed
+linked imagery - no dependency on #1272.
+
+Validated 2026-06-19 on "Cape Town" (3 linked images -> 50 ranked candidates,
+scores 1.000 exact-dupes down to ~0.61 related). `#1272` (the `.78` GPU embed
+service) is only needed for the *other* seed path: discovering candidates for a
+place that has **no** linked imagery to seed from (text-query or fresh-image
+embedding). That path returns an explicit "needs #1272" note today.
+
 ## Next increments (#1323)
 
-1. **CLIP candidate discovery (#1272)** - surface UNLINKED photos *of* the place
-   (the `.78` GPU embed service is still pending; gather quality depends on it).
+1. **Fresh/text-seed discovery (#1272)** - surface candidates for places with NO
+   linked imagery (the `.78` GPU embed service is still pending). Image-seeded
+   discovery already works (above).
 2. **3D rebuild** - feed gathered imagery to `ahg-3d-model` (TripoSR today;
    photogrammetry / gaussian-splat are GPU-service concerns).
 3. **Present + provenance** - the `ahg-exhibition` reconstruction surfaces with a

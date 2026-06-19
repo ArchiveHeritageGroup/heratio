@@ -1,6 +1,6 @@
 {
   "role": "guest",
-  "timestamp": "2026-03-31T20:31:05.702Z",
+  "timestamp": "2026-06-19T16:58:48.584Z",
   "baseUrl": "https://heratio.theahg.co.za",
   "pagesCrawled": 5,
   "results": [
@@ -9,8 +9,8 @@
       "finalUrl": "https://heratio.theahg.co.za/",
       "status": 200,
       "statusText": "",
-      "title": "Archive",
-      "h1": "Welcome",
+      "title": "Heratio",
+      "h1": "Heritage doesn't fit into a single system - until now.",
       "links": [
         "/",
         "/glam/browse",
@@ -26,51 +26,48 @@
         "/admin/ric/queue",
         "/admin/ric/logs",
         "/admin/ahg-settings/section?section=fuseki",
+        "/articles",
         "/help",
         "/clipboard/view",
         "/clipboard/load",
         "/?sf_culture=en",
         "/?sf_culture=fr",
-        "/?sf_culture=es",
-        "/?sf_culture=nl",
         "/?sf_culture=pt",
         "/?sf_culture=af",
         "/?sf_culture=zu",
+        "/?sf_culture=xh",
+        "/?sf_culture=nr",
+        "/?sf_culture=nso",
+        "/?sf_culture=st",
+        "/?sf_culture=tn",
+        "/?sf_culture=ss",
+        "/?sf_culture=ve",
+        "/?sf_culture=ts",
+        "/?sf_culture=kj",
+        "/?sf_culture=sn",
+        "/?sf_culture=nd",
+        "/?sf_culture=khi",
+        "/?sf_culture=umb",
+        "/?sf_culture=hu",
         "/about",
         "/contact",
         "/user/password-reset",
         "/user/register",
         "/research/register",
         "/research/dashboard",
-        "/favorites/browse",
-        "/feedback/general",
-        "/cart/browse",
-        "/egyptian-boat",
-        "/cat-in-arms",
-        "/glb-2025-11-14-glb-1",
-        "/glb-2025-11-14-glb-3",
-        "/title-of-object",
-        "/hendrik-and-debora-engelbrecht",
-        "/mp3-1963riv-25363-h1030ds001-005-mp3-2",
-        "/historical",
-        "/image-01-1",
-        "/mp3-1963riv-25363-h1030ds001-005-mp3",
-        "/manifest-collection/2/view",
-        "/rosa-engelbrecht-first-born-daughter",
-        "/debora-first-grandchild",
-        "/bernardth-papenvoes-rosa-se-man",
-        "/wild-mushroom-in-natural-habitat-macro-study",
-        "/flower-2",
-        "/flower-more-uner-2",
-        "/engelbrecht-family-bible",
+        "/exhibition-space/benson-collection/walkthrough",
+        "/articles/the-llm-paradox-why-what-model-do-you-use-is-the-wrong-first-question",
+        "/articles/post",
+        "/articles/ai-records-management-it-implementation-guide",
         "/privacy",
-        "/pages/terms-of-use",
+        "/terms",
         "/pages/cookie-policy",
         "/pages/paia",
         "/pages/accessibility",
         "/pages/copyright-notice",
         "/pages/data-governance",
-        "/pages/sitemap"
+        "/pages/sitemap",
+        "/cart"
       ],
       "forms": [
         {
@@ -112,18 +109,7 @@
         {
           "action": "https://heratio.theahg.co.za/login",
           "method": "POST",
-          "fields": [
-            {
-              "name": "email",
-              "type": "input:text",
-              "required": true
-            },
-            {
-              "name": "password",
-              "type": "input:password",
-              "required": true
-            }
-          ]
+          "fields": []
         },
         {
           "action": "https://heratio.theahg.co.za/feedback/general",
@@ -214,16 +200,6 @@
           "disabled": false
         },
         {
-          "text": "Previous",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Next",
-          "type": "button",
-          "disabled": false
-        },
-        {
           "text": "Close",
           "type": "button",
           "disabled": false
@@ -239,44 +215,16 @@
           "disabled": false
         }
       ],
-      "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 403 ()",
-        "Failed to load resource: the server responded with a status of 404 ()"
-      ],
-      "jsErrors": [
-        "Identifier 'DisplayMode' has already been declared",
-        "Identifier 'AHGVoiceCommands' has already been declared"
-      ]
+      "consoleErrors": [],
+      "jsErrors": []
     },
     {
       "url": "https://heratio.theahg.co.za/records/browse",
-      "finalUrl": "https://heratio.theahg.co.za/records/browse",
-      "status": 404,
+      "finalUrl": "https://heratio.theahg.co.za/glam/browse",
+      "status": 200,
       "statusText": "",
-      "title": "404 - Page not found",
-      "h1": "\n      \n      Sorry, page not found\n    ",
+      "title": "GLAM Browser",
+      "h1": "\n              Showing 182 results\n          ",
       "links": [
         "/",
         "/glam/browse",
@@ -292,30 +240,146 @@
         "/admin/ric/queue",
         "/admin/ric/logs",
         "/admin/ahg-settings/section?section=fuseki",
+        "/articles",
         "/help",
         "/clipboard/view",
         "/clipboard/load",
-        "/records/browse?sf_culture=en",
-        "/records/browse?sf_culture=fr",
-        "/records/browse?sf_culture=es",
-        "/records/browse?sf_culture=nl",
-        "/records/browse?sf_culture=pt",
-        "/records/browse?sf_culture=af",
-        "/records/browse?sf_culture=zu",
+        "/glam/browse?sf_culture=en",
+        "/glam/browse?sf_culture=fr",
+        "/glam/browse?sf_culture=pt",
+        "/glam/browse?sf_culture=af",
+        "/glam/browse?sf_culture=zu",
+        "/glam/browse?sf_culture=xh",
+        "/glam/browse?sf_culture=nr",
+        "/glam/browse?sf_culture=nso",
+        "/glam/browse?sf_culture=st",
+        "/glam/browse?sf_culture=tn",
+        "/glam/browse?sf_culture=ss",
+        "/glam/browse?sf_culture=ve",
+        "/glam/browse?sf_culture=ts",
+        "/glam/browse?sf_culture=kj",
+        "/glam/browse?sf_culture=sn",
+        "/glam/browse?sf_culture=nd",
+        "/glam/browse?sf_culture=khi",
+        "/glam/browse?sf_culture=umb",
+        "/glam/browse?sf_culture=hu",
         "/about",
         "/contact",
         "/user/password-reset",
         "/user/register",
         "/research/register",
         "/research/dashboard",
+        "/glam/browse?topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=dam&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=gallery&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=museum&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=library&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&creator=830",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&creator=900569",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=901207",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=901212",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=901059",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=901298",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=901292",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=902996",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=901205",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=901201",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=901608",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&place=901606",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=898",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=905231",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=611",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=892",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=893",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=894",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=896",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=897",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=918",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&subject=919",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&genre=388",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&genre=406",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&genre=1046",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&genre=905186",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&genre=905202",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&genre=905224",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&genre=905241",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&genre=905265",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&genre=905290",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=242",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=905146",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=1161",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=236",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=380",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=434",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=238",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=241",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=237",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&level=299",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&media=image",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&media=application",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&media=video",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&media=audio",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&media=model",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&media=text",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&materialType=monograph",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&circulationStatus=available",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&repo=731",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&repo=982",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&repo=630",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&repo=905206",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&repo=836",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&repo=905173",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&repo=711",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&repo=877",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&repo=900145",
+        "/glam/browse?showAdvanced=1",
+        "/glam/browse?type=archive&showAdvanced=1",
+        "/glam/browse?type=library&showAdvanced=1",
+        "/glam/browse?type=museum&showAdvanced=1",
+        "/glam/browse?type=gallery&showAdvanced=1",
+        "/glam/browse?type=dam&showAdvanced=1",
+        "/glam/print?type=archive&view=card&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/exportCsv?type=archive&view=card&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=grid&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=table&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=full&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=tile&limit=10&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=30&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=50&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=100&sort=lastUpdated&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=date&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=title&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=identifier&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=refcode&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=startdate&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=enddate&dir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=asc&sortDir=asc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&sortDir=desc",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&hasDigital=1",
+        "/zip-6e48z1kc7r40-bugatti-zip",
+        "/xlsx-sample3-xlsx",
+        "/xls-sample3-xls",
+        "/wtv-sample-960x400-ocean-with-audio-wtv",
+        "/word-document",
+        "/wmv-sample-960x400-ocean-with-audio-wmv",
+        "/wild-mushroom-in-natural-habitat-macro-study",
+        "/orbtal-media-esq0ovry-zs-unsplash",
+        "/webp-sample1-webp",
+        "/webp-ahg-demo-banner-1920x600-webp",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&page=1",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&page=2",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&page=3",
+        "/glam/browse?type=archive&topLevel=0&view=card&limit=10&sort=lastUpdated&dir=desc&page=4",
         "/privacy",
-        "/pages/terms-of-use",
+        "/terms",
         "/pages/cookie-policy",
         "/pages/paia",
         "/pages/accessibility",
         "/pages/copyright-notice",
         "/pages/data-governance",
-        "/pages/sitemap"
+        "/pages/sitemap",
+        "/cart"
       ],
       "forms": [
         {
@@ -357,16 +421,167 @@
         {
           "action": "https://heratio.theahg.co.za/login",
           "method": "POST",
+          "fields": []
+        },
+        {
+          "action": "https://heratio.theahg.co.za/glam/browse",
+          "method": "GET",
           "fields": [
             {
-              "name": "email",
+              "name": "query",
               "type": "input:text",
-              "required": true
+              "required": false
             },
             {
-              "name": "password",
-              "type": "input:password",
-              "required": true
+              "name": "title",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "identifier",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "referenceCode",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "scopeAndContent",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "extentAndMedium",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "archivalHistory",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "acquisition",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "creatorSearch",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "subjectSearch",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "placeSearch",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "genreSearch",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "startDate",
+              "type": "input:date",
+              "required": false
+            },
+            {
+              "name": "endDate",
+              "type": "input:date",
+              "required": false
+            },
+            {
+              "name": "rangeType",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "type",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "level",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "repo",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "hasDigital",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "topLevel",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "topLevel",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "showAdvanced",
+              "type": "input:hidden",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "type",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "topLevel",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "view",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "limit",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "dir",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
             }
           ]
         },
@@ -459,6 +674,76 @@
           "disabled": false
         },
         {
+          "text": "Advanced search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Basic",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Content",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Access Points",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Dates",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Filters",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add criterion",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Semantic Search\n    Search",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "10/page",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Sort: Title",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Desc",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Cancel",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search",
+          "type": "submit",
+          "disabled": false
+        },
+        {
           "text": "Close",
           "type": "button",
           "disabled": false
@@ -474,41 +759,16 @@
           "disabled": false
         }
       ],
-      "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 403 ()",
-        "Failed to load resource: the server responded with a status of 404 ()"
-      ],
-      "jsErrors": [
-        "Identifier 'DisplayMode' has already been declared",
-        "Identifier 'AHGVoiceCommands' has already been declared"
-      ]
+      "consoleErrors": [],
+      "jsErrors": []
     },
     {
       "url": "https://heratio.theahg.co.za/records/add",
-      "finalUrl": "https://heratio.theahg.co.za/records/add",
-      "status": 404,
+      "finalUrl": "https://heratio.theahg.co.za/login",
+      "status": 200,
       "statusText": "",
-      "title": "404 - Page not found",
-      "h1": "\n      \n      Sorry, page not found\n    ",
+      "title": "Log in - Heratio",
+      "h1": null,
       "links": [
         "/",
         "/glam/browse",
@@ -524,16 +784,29 @@
         "/admin/ric/queue",
         "/admin/ric/logs",
         "/admin/ahg-settings/section?section=fuseki",
+        "/articles",
         "/help",
         "/clipboard/view",
         "/clipboard/load",
-        "/records/add?sf_culture=en",
-        "/records/add?sf_culture=fr",
-        "/records/add?sf_culture=es",
-        "/records/add?sf_culture=nl",
-        "/records/add?sf_culture=pt",
-        "/records/add?sf_culture=af",
-        "/records/add?sf_culture=zu",
+        "/login?sf_culture=en",
+        "/login?sf_culture=fr",
+        "/login?sf_culture=pt",
+        "/login?sf_culture=af",
+        "/login?sf_culture=zu",
+        "/login?sf_culture=xh",
+        "/login?sf_culture=nr",
+        "/login?sf_culture=nso",
+        "/login?sf_culture=st",
+        "/login?sf_culture=tn",
+        "/login?sf_culture=ss",
+        "/login?sf_culture=ve",
+        "/login?sf_culture=ts",
+        "/login?sf_culture=kj",
+        "/login?sf_culture=sn",
+        "/login?sf_culture=nd",
+        "/login?sf_culture=khi",
+        "/login?sf_culture=umb",
+        "/login?sf_culture=hu",
         "/about",
         "/contact",
         "/user/password-reset",
@@ -541,13 +814,14 @@
         "/research/register",
         "/research/dashboard",
         "/privacy",
-        "/pages/terms-of-use",
+        "/terms",
         "/pages/cookie-policy",
         "/pages/paia",
         "/pages/accessibility",
         "/pages/copyright-notice",
         "/pages/data-governance",
-        "/pages/sitemap"
+        "/pages/sitemap",
+        "/cart"
       ],
       "forms": [
         {
@@ -589,10 +863,20 @@
         {
           "action": "https://heratio.theahg.co.za/login",
           "method": "POST",
+          "fields": []
+        },
+        {
+          "action": "https://heratio.theahg.co.za/login",
+          "method": "POST",
           "fields": [
             {
+              "name": "next",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
               "name": "email",
-              "type": "input:text",
+              "type": "input:email",
               "required": true
             },
             {
@@ -691,6 +975,16 @@
           "disabled": false
         },
         {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
           "text": "Close",
           "type": "button",
           "disabled": false
@@ -706,31 +1000,8 @@
           "disabled": false
         }
       ],
-      "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 403 ()",
-        "Failed to load resource: the server responded with a status of 404 ()"
-      ],
-      "jsErrors": [
-        "Identifier 'DisplayMode' has already been declared",
-        "Identifier 'AHGVoiceCommands' has already been declared"
-      ]
+      "consoleErrors": [],
+      "jsErrors": []
     },
     {
       "url": "https://heratio.theahg.co.za/actor/browse",
@@ -738,7 +1009,7 @@
       "status": 200,
       "statusText": "",
       "title": "Authority records",
-      "h1": "\n                  Showing 340 results\n              ",
+      "h1": "\n                  Showing 345 results\n              ",
       "links": [
         "/",
         "/glam/browse",
@@ -754,22 +1025,333 @@
         "/admin/ric/queue",
         "/admin/ric/logs",
         "/admin/ahg-settings/section?section=fuseki",
+        "/articles",
         "/help",
         "/clipboard/view",
         "/clipboard/load",
         "/actor/browse?sf_culture=en",
         "/actor/browse?sf_culture=fr",
-        "/actor/browse?sf_culture=es",
-        "/actor/browse?sf_culture=nl",
         "/actor/browse?sf_culture=pt",
         "/actor/browse?sf_culture=af",
         "/actor/browse?sf_culture=zu",
+        "/actor/browse?sf_culture=xh",
+        "/actor/browse?sf_culture=nr",
+        "/actor/browse?sf_culture=nso",
+        "/actor/browse?sf_culture=st",
+        "/actor/browse?sf_culture=tn",
+        "/actor/browse?sf_culture=ss",
+        "/actor/browse?sf_culture=ve",
+        "/actor/browse?sf_culture=ts",
+        "/actor/browse?sf_culture=kj",
+        "/actor/browse?sf_culture=sn",
+        "/actor/browse?sf_culture=nd",
+        "/actor/browse?sf_culture=khi",
+        "/actor/browse?sf_culture=umb",
+        "/actor/browse?sf_culture=hu",
         "/about",
         "/contact",
         "/user/password-reset",
         "/user/register",
         "/research/register",
         "/research/dashboard",
+        "/actor/browse?languages=en",
+        "/actor/browse?entityType=133",
+        "/actor/browse?entityType=132",
+        "/actor/browse?entityType=131",
+        "/actor/browse?maintainedBy=901127",
+        "/actor/browse?maintainedBy=902182",
+        "/actor/browse?maintainedBy=902420",
+        "/actor/browse?maintainedBy=902184",
+        "/actor/browse?maintainedBy=902186",
+        "/actor/browse?maintainedBy=902188",
+        "/actor/browse?maintainedBy=901493",
+        "/actor/browse?maintainedBy=902190",
+        "/actor/browse?maintainedBy=901064",
+        "/actor/browse?maintainedBy=901445",
+        "/actor/browse?maintainedBy=902192",
+        "/actor/browse?maintainedBy=902194",
+        "/actor/browse?maintainedBy=901302",
+        "/actor/browse?maintainedBy=901948",
+        "/actor/browse?maintainedBy=902091",
+        "/actor/browse?maintainedBy=901379",
+        "/actor/browse?maintainedBy=901950",
+        "/actor/browse?maintainedBy=902196",
+        "/actor/browse?maintainedBy=902198",
+        "/actor/browse?maintainedBy=902860",
+        "/actor/browse?maintainedBy=902200",
+        "/actor/browse?maintainedBy=902095",
+        "/actor/browse?maintainedBy=902097",
+        "/actor/browse?maintainedBy=902862",
+        "/actor/browse?maintainedBy=902099",
+        "/actor/browse?maintainedBy=902101",
+        "/actor/browse?maintainedBy=901308",
+        "/actor/browse?maintainedBy=902103",
+        "/actor/browse?maintainedBy=902202",
+        "/actor/browse?maintainedBy=902204",
+        "/actor/browse?maintainedBy=902206",
+        "/actor/browse?maintainedBy=901642",
+        "/actor/browse?maintainedBy=901435",
+        "/actor/browse?maintainedBy=902105",
+        "/actor/browse?maintainedBy=902107",
+        "/actor/browse?maintainedBy=901976",
+        "/actor/browse?maintainedBy=902110",
+        "/actor/browse?maintainedBy=901644",
+        "/actor/browse?maintainedBy=901978",
+        "/actor/browse?maintainedBy=902112",
+        "/actor/browse?maintainedBy=900012",
+        "/actor/browse?maintainedBy=902208",
+        "/actor/browse?maintainedBy=901375",
+        "/actor/browse?maintainedBy=901304",
+        "/actor/browse?maintainedBy=901782",
+        "/actor/browse?maintainedBy=901776",
+        "/actor/browse?maintainedBy=902210",
+        "/actor/browse?maintainedBy=902114",
+        "/actor/browse?maintainedBy=901070",
+        "/actor/browse?maintainedBy=901381",
+        "/actor/browse?maintainedBy=902116",
+        "/actor/browse?maintainedBy=902118",
+        "/actor/browse?maintainedBy=901129",
+        "/actor/browse?maintainedBy=901131",
+        "/actor/browse?maintainedBy=901447",
+        "/actor/browse?maintainedBy=901646",
+        "/actor/browse?maintainedBy=901449",
+        "/actor/browse?maintainedBy=901952",
+        "/actor/browse?maintainedBy=901165",
+        "/actor/browse?maintainedBy=905188",
+        "/actor/browse?maintainedBy=901495",
+        "/actor/browse?maintainedBy=1049",
+        "/actor/browse?maintainedBy=901167",
+        "/actor/browse?maintainedBy=902872",
+        "/actor/browse?maintainedBy=902874",
+        "/actor/browse?maintainedBy=902214",
+        "/actor/browse?maintainedBy=901310",
+        "/actor/browse?maintainedBy=902216",
+        "/actor/browse?maintainedBy=901954",
+        "/actor/browse?maintainedBy=901383",
+        "/actor/browse?maintainedBy=901312",
+        "/actor/browse?maintainedBy=902218",
+        "/actor/browse?maintainedBy=901497",
+        "/actor/browse?maintainedBy=901451",
+        "/actor/browse?maintainedBy=901216",
+        "/actor/browse?maintainedBy=902120",
+        "/actor/browse?maintainedBy=902220",
+        "/actor/browse?maintainedBy=901385",
+        "/actor/browse?maintainedBy=901169",
+        "/actor/browse?maintainedBy=902122",
+        "/actor/browse?maintainedBy=902124",
+        "/actor/browse?maintainedBy=902126",
+        "/actor/browse?maintainedBy=902864",
+        "/actor/browse?maintainedBy=901618",
+        "/actor/browse?maintainedBy=901560",
+        "/actor/browse?maintainedBy=902222",
+        "/actor/browse?maintainedBy=902224",
+        "/actor/browse?maintainedBy=901387",
+        "/actor/browse?maintainedBy=901562",
+        "/actor/browse?maintainedBy=902226",
+        "/actor/browse?maintainedBy=902228",
+        "/actor/browse?maintainedBy=901528",
+        "/actor/browse?maintainedBy=901485",
+        "/actor/browse?maintainedBy=901654",
+        "/actor/browse?maintainedBy=901564",
+        "/actor/browse?maintainedBy=902428",
+        "/actor/browse?maintainedBy=901314",
+        "/actor/browse?maintainedBy=902128",
+        "/actor/browse?maintainedBy=901530",
+        "/actor/browse?maintainedBy=901532",
+        "/actor/browse?maintainedBy=902130",
+        "/actor/browse?maintainedBy=900170",
+        "/actor/browse?maintainedBy=901389",
+        "/actor/browse?maintainedBy=901487",
+        "/actor/browse?maintainedBy=901499",
+        "/actor/browse?maintainedBy=902230",
+        "/actor/browse?maintainedBy=902232",
+        "/actor/browse?maintainedBy=901784",
+        "/actor/browse?maintainedBy=901316",
+        "/actor/browse?maintainedBy=901453",
+        "/actor/browse?maintainedBy=901620",
+        "/actor/browse?maintainedBy=901656",
+        "/actor/browse?maintainedBy=913098",
+        "/actor/browse?maintainedBy=901622",
+        "/actor/browse?maintainedBy=901455",
+        "/actor/browse?maintainedBy=902234",
+        "/actor/browse?maintainedBy=901980",
+        "/actor/browse?maintainedBy=901489",
+        "/actor/browse?maintainedBy=902132",
+        "/actor/browse?maintainedBy=902134",
+        "/actor/browse?maintainedBy=901391",
+        "/actor/browse?maintainedBy=901956",
+        "/actor/browse?maintainedBy=902237",
+        "/actor/browse?maintainedBy=901658",
+        "/actor/browse?maintainedBy=902239",
+        "/actor/browse?maintainedBy=902241",
+        "/actor/browse?maintainedBy=902243",
+        "/actor/browse?maintainedBy=901393",
+        "/actor/browse?maintainedBy=902245",
+        "/actor/browse?maintainedBy=901786",
+        "/actor/browse?maintainedBy=901395",
+        "/actor/browse?maintainedBy=901660",
+        "/actor/browse?maintainedBy=902247",
+        "/actor/browse?maintainedBy=902249",
+        "/actor/browse?maintainedBy=902251",
+        "/actor/browse?maintainedBy=902876",
+        "/actor/browse?maintainedBy=901318",
+        "/actor/browse?maintainedBy=901501",
+        "/actor/browse?maintainedBy=901566",
+        "/actor/browse?maintainedBy=902253",
+        "/actor/browse?maintainedBy=902255",
+        "/actor/browse?maintainedBy=901788",
+        "/actor/browse?maintainedBy=902878",
+        "/actor/browse?maintainedBy=901958",
+        "/actor/browse?maintainedBy=902136",
+        "/actor/browse?maintainedBy=901960",
+        "/actor/browse?maintainedBy=902259",
+        "/actor/browse?maintainedBy=901662",
+        "/actor/browse?maintainedBy=902261",
+        "/actor/browse?maintainedBy=902138",
+        "/actor/browse?maintainedBy=901982",
+        "/actor/browse?maintainedBy=901962",
+        "/actor/browse?maintainedBy=901437",
+        "/actor/browse?maintainedBy=901964",
+        "/actor/browse?maintainedBy=902263",
+        "/actor/browse?maintainedBy=901790",
+        "/actor/browse?maintainedBy=902267",
+        "/actor/browse?maintainedBy=902265",
+        "/actor/browse?maintainedBy=902880",
+        "/actor/browse?maintainedBy=1427",
+        "/actor/browse?maintainedBy=901072",
+        "/actor/browse?maintainedBy=901171",
+        "/actor/browse?maintainedBy=901966",
+        "/actor/browse?maintainedBy=902269",
+        "/actor/browse?maintainedBy=902271",
+        "/actor/browse?maintainedBy=902273",
+        "/actor/browse?maintainedBy=901524",
+        "/actor/browse?maintainedBy=902275",
+        "/actor/browse?maintainedBy=901984",
+        "/actor/browse?maintainedBy=902430",
+        "/actor/browse?maintainedBy=902277",
+        "/actor/browse?maintainedBy=902279",
+        "/actor/browse?maintainedBy=902281",
+        "/actor/browse?maintainedBy=902283",
+        "/actor/browse?maintainedBy=902140",
+        "/actor/browse?maintainedBy=902285",
+        "/actor/browse?maintainedBy=902142",
+        "/actor/browse?maintainedBy=902287",
+        "/actor/browse?maintainedBy=901534",
+        "/actor/browse?maintainedBy=902289",
+        "/actor/browse?maintainedBy=901457",
+        "/actor/browse?maintainedBy=902291",
+        "/actor/browse?maintainedBy=902144",
+        "/actor/browse?maintainedBy=902146",
+        "/actor/browse?maintainedBy=902148",
+        "/actor/browse?maintainedBy=902866",
+        "/actor/browse?maintainedBy=902150",
+        "/actor/browse?maintainedBy=902152",
+        "/actor/browse?maintainedBy=902154",
+        "/actor/browse?maintainedBy=901133",
+        "/actor/browse?maintainedBy=902156",
+        "/actor/browse?maintainedBy=902293",
+        "/actor/browse?maintainedBy=901074",
+        "/actor/browse?maintainedBy=901612",
+        "/actor/browse?maintainedBy=901503",
+        "/actor/browse?maintainedBy=902158",
+        "/actor/browse?maintainedBy=901135",
+        "/actor/browse?maintainedBy=902295",
+        "/actor/browse?maintainedBy=901439",
+        "/actor/browse?maintainedBy=901459",
+        "/actor/browse?maintainedBy=901568",
+        "/actor/browse?maintainedBy=901536",
+        "/actor/browse?maintainedBy=901397",
+        "/actor/browse?maintainedBy=902297",
+        "/actor/browse?maintainedBy=902160",
+        "/actor/browse?maintainedBy=902162",
+        "/actor/browse?maintainedBy=901614",
+        "/actor/browse?maintainedBy=902432",
+        "/actor/browse?maintainedBy=901173",
+        "/actor/browse?maintainedBy=901968",
+        "/actor/browse?maintainedBy=902868",
+        "/actor/browse?maintainedBy=901570",
+        "/actor/browse?maintainedBy=901505",
+        "/actor/browse?maintainedBy=901218",
+        "/actor/browse?maintainedBy=901399",
+        "/actor/browse?maintainedBy=901664",
+        "/actor/browse?maintainedBy=901666",
+        "/actor/browse?maintainedBy=901175",
+        "/actor/browse?maintainedBy=902951",
+        "/actor/browse?maintainedBy=901137",
+        "/actor/browse?maintainedBy=902299",
+        "/actor/browse?maintainedBy=901668",
+        "/actor/browse?maintainedBy=901538",
+        "/actor/browse?maintainedBy=901624",
+        "/actor/browse?maintainedBy=901970",
+        "/actor/browse?maintainedBy=902301",
+        "/actor/browse?maintainedBy=902165",
+        "/actor/browse?maintainedBy=901972",
+        "/actor/browse?maintainedBy=901988",
+        "/actor/browse?maintainedBy=902304",
+        "/actor/browse?maintainedBy=901441",
+        "/actor/browse?maintainedBy=901626",
+        "/actor/browse?maintainedBy=902167",
+        "/actor/browse?maintainedBy=901139",
+        "/actor/browse?maintainedBy=902306",
+        "/actor/browse?maintainedBy=901177",
+        "/actor/browse?maintainedBy=901066",
+        "/actor/browse?maintainedBy=901648",
+        "/actor/browse?maintainedBy=901220",
+        "/actor/browse?maintainedBy=901616",
+        "/actor/browse?maintainedBy=901222",
+        "/actor/browse?maintainedBy=901491",
+        "/actor/browse?maintainedBy=901556",
+        "/actor/browse?maintainedBy=901778",
+        "/actor/browse?maintainedBy=901558",
+        "/actor/browse?maintainedBy=901141",
+        "/actor/browse?maintainedBy=901650",
+        "/actor/browse?maintainedBy=901224",
+        "/actor/browse?maintainedBy=901143",
+        "/actor/browse?maintainedBy=901306",
+        "/actor/browse?maintainedBy=901145",
+        "/actor/browse?maintainedBy=901147",
+        "/actor/browse?maintainedBy=901149",
+        "/actor/browse?maintainedBy=901226",
+        "/actor/browse?maintainedBy=902169",
+        "/actor/browse?maintainedBy=901526",
+        "/actor/browse?maintainedBy=901780",
+        "/actor/browse?maintainedBy=901151",
+        "/actor/browse?maintainedBy=901153",
+        "/actor/browse?maintainedBy=901155",
+        "/actor/browse?maintainedBy=901068",
+        "/actor/browse?maintainedBy=902308",
+        "/actor/browse?maintainedBy=901320",
+        "/actor/browse?maintainedBy=901670",
+        "/actor/browse?maintainedBy=902310",
+        "/actor/browse?maintainedBy=901157",
+        "/actor/browse?maintainedBy=901159",
+        "/actor/browse?maintainedBy=1316",
+        "/actor/browse?maintainedBy=902171",
+        "/actor/browse?maintainedBy=902173",
+        "/actor/browse?maintainedBy=901377",
+        "/actor/browse?maintainedBy=902175",
+        "/actor/browse?maintainedBy=901652",
+        "/actor/browse?maintainedBy=901974",
+        "/actor/browse?maintainedBy=902178",
+        "/actor/browse?maintainedBy=902312",
+        "/actor/browse?maintainedBy=901161",
+        "/actor/browse?maintainedBy=901322",
+        "/actor/browse?maintainedBy=901792",
+        "/actor/browse?maintainedBy=901461",
+        "/actor/browse?maintainedBy=901324",
+        "/actor/browse?maintainedBy=901672",
+        "/actor/browse?maintainedBy=901674",
+        "/actor/browse?maintainedBy=901443",
+        "/actor/browse?maintainedBy=901463",
+        "/actor/browse?maintainedBy=901465",
+        "/actor/browse?maintainedBy=901794",
+        "/actor/browse?maintainedBy=901326",
+        "/actor/browse?maintainedBy=901228",
+        "/actor/browse?maintainedBy=902180",
+        "/actor/browse?maintainedBy=902870",
+        "/actor/browse?maintainedBy=901163",
+        "/actor/browse?maintainedBy=902314",
+        "/actor/browse?mediaType=136",
         "/actor/browse?displayMode=list",
         "/actor/browse?displayMode=grid",
         "/actor/browse?displayMode=tree",
@@ -794,15 +1376,16 @@
         "/actor/browse?page=5",
         "/actor/browse?page=6",
         "/actor/browse?page=7",
-        "/actor/browse?page=34",
+        "/actor/browse?page=35",
         "/privacy",
-        "/pages/terms-of-use",
+        "/terms",
         "/pages/cookie-policy",
         "/pages/paia",
         "/pages/accessibility",
         "/pages/copyright-notice",
         "/pages/data-governance",
-        "/pages/sitemap"
+        "/pages/sitemap",
+        "/cart"
       ],
       "forms": [
         {
@@ -844,178 +1427,7 @@
         {
           "action": "https://heratio.theahg.co.za/login",
           "method": "POST",
-          "fields": [
-            {
-              "name": "email",
-              "type": "input:text",
-              "required": true
-            },
-            {
-              "name": "password",
-              "type": "input:password",
-              "required": true
-            }
-          ]
-        },
-        {
-          "action": "https://heratio.theahg.co.za/actor/browse",
-          "method": "GET",
-          "fields": [
-            {
-              "name": "subquery",
-              "type": "input:search",
-              "required": false
-            }
-          ]
-        },
-        {
-          "action": "https://heratio.theahg.co.za/actor/browse",
-          "method": "GET",
-          "fields": [
-            {
-              "name": "so0",
-              "type": "select:text",
-              "required": false
-            },
-            {
-              "name": "sq0",
-              "type": "input:text",
-              "required": false
-            },
-            {
-              "name": "sf0",
-              "type": "select:text",
-              "required": false
-            },
-            {
-              "name": "repository",
-              "type": "select:text",
-              "required": false
-            },
-            {
-              "name": "hasDigitalObject",
-              "type": "select:text",
-              "required": false
-            },
-            {
-              "name": "entityType",
-              "type": "select:text",
-              "required": false
-            },
-            {
-              "name": "emptyField",
-              "type": "select:text",
-              "required": false
-            },
-            {
-              "name": "relatedType",
-              "type": "select:text",
-              "required": false
-            },
-            {
-              "name": "relatedAuthority",
-              "type": "input:text",
-              "required": false
-            }
-          ]
-        },
-        {
-          "action": "https://heratio.theahg.co.za/feedback/general",
-          "method": "POST",
-          "fields": [
-            {
-              "name": "feed_name",
-              "type": "input:hidden",
-              "required": false
-            },
-            {
-              "name": "feed_surname",
-              "type": "input:hidden",
-              "required": false
-            },
-            {
-              "name": "feed_email",
-              "type": "input:hidden",
-              "required": false
-            },
-            {
-              "name": "feed_type_id",
-              "type": "input:hidden",
-              "required": false
-            },
-            {
-              "name": "rating",
-              "type": "input:hidden",
-              "required": false
-            },
-            {
-              "name": "feed_type_id",
-              "type": "select:text",
-              "required": false
-            },
-            {
-              "name": "subject",
-              "type": "input:hidden",
-              "required": false
-            },
-            {
-              "name": "remarks",
-              "type": "textarea:text",
-              "required": true
-            }
-          ]
-        },
-        {
-          "action": "https://heratio.theahg.co.za/glam/browse",
-          "method": "GET",
-          "fields": [
-            {
-              "name": "topLod",
-              "type": "input:hidden",
-              "required": false
-            },
-            {
-              "name": "sort",
-              "type": "input:hidden",
-              "required": false
-            },
-            {
-              "name": "repos",
-              "type": "input:radio",
-              "required": false
-            },
-            {
-              "name": "semantic",
-              "type": "input:checkbox",
-              "required": false
-            },
-            {
-              "name": "query",
-              "type": "input:search",
-              "required": false
-            }
-          ]
-        },
-        {
-          "action": "https://heratio.theahg.co.za/clipboard/save",
-          "method": "POST",
           "fields": []
-        },
-        {
-          "action": "https://heratio.theahg.co.za/login",
-          "method": "POST",
-          "fields": [
-            {
-              "name": "email",
-              "type": "input:text",
-              "required": true
-            },
-            {
-              "name": "password",
-              "type": "input:password",
-              "required": true
-            }
-          ]
         },
         {
           "action": "https://heratio.theahg.co.za/actor/browse",
@@ -1168,6 +1580,31 @@
           "disabled": false
         },
         {
+          "text": "Narrow your results by:",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Language",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Entity type",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Maintained by",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Media type",
+          "type": "button",
+          "disabled": false
+        },
+        {
           "text": "Search",
           "type": "submit",
           "disabled": false
@@ -1178,128 +1615,13 @@
           "disabled": false
         },
         {
-          "text": "Sort by: Name",
+          "text": "Reset",
           "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Direction: Ascending",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Add to clipboard",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Close",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Feedback",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Send Feedback",
-          "type": "submit",
-          "disabled": false
-        },
-        {
-          "text": "Toggle navigation",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Browse",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Search options",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Search in browse page",
-          "type": "submit",
-          "disabled": false
-        },
-        {
-          "text": "Clear all selections",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Save clipboard",
-          "type": "submit",
-          "disabled": false
-        },
-        {
-          "text": "Log in",
-          "type": "button",
-          "disabled": false
-        },
-        {
-          "text": "Log in",
-          "type": "submit",
           "disabled": false
         },
         {
           "text": "Search",
           "type": "submit",
-          "disabled": false
-        },
-        {
-          "text": "Advanced search options",
-          "type": "button",
           "disabled": false
         },
         {
@@ -1378,29 +1700,8 @@
           "disabled": false
         }
       ],
-      "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 404 ()",
-        "Failed to load resource: the server responded with a status of 403 ()",
-        "Failed to load resource: the server responded with a status of 404 ()"
-      ],
-      "jsErrors": [
-        "Identifier 'DisplayMode' has already been declared",
-        "Identifier 'AHGVoiceCommands' has already been declared"
-      ]
+      "consoleErrors": [],
+      "jsErrors": []
     },
     {
       "url": "https://heratio.theahg.co.za/actor/add",
@@ -1424,16 +1725,29 @@
         "/admin/ric/queue",
         "/admin/ric/logs",
         "/admin/ahg-settings/section?section=fuseki",
+        "/articles",
         "/help",
         "/clipboard/view",
         "/clipboard/load",
         "/actor/add?sf_culture=en",
         "/actor/add?sf_culture=fr",
-        "/actor/add?sf_culture=es",
-        "/actor/add?sf_culture=nl",
         "/actor/add?sf_culture=pt",
         "/actor/add?sf_culture=af",
         "/actor/add?sf_culture=zu",
+        "/actor/add?sf_culture=xh",
+        "/actor/add?sf_culture=nr",
+        "/actor/add?sf_culture=nso",
+        "/actor/add?sf_culture=st",
+        "/actor/add?sf_culture=tn",
+        "/actor/add?sf_culture=ss",
+        "/actor/add?sf_culture=ve",
+        "/actor/add?sf_culture=ts",
+        "/actor/add?sf_culture=kj",
+        "/actor/add?sf_culture=sn",
+        "/actor/add?sf_culture=nd",
+        "/actor/add?sf_culture=khi",
+        "/actor/add?sf_culture=umb",
+        "/actor/add?sf_culture=hu",
         "/about",
         "/contact",
         "/user/password-reset",
@@ -1441,13 +1755,14 @@
         "/research/register",
         "/research/dashboard",
         "/privacy",
-        "/pages/terms-of-use",
+        "/terms",
         "/pages/cookie-policy",
         "/pages/paia",
         "/pages/accessibility",
         "/pages/copyright-notice",
         "/pages/data-governance",
-        "/pages/sitemap"
+        "/pages/sitemap",
+        "/cart"
       ],
       "forms": [
         {
@@ -1489,18 +1804,7 @@
         {
           "action": "https://heratio.theahg.co.za/login",
           "method": "POST",
-          "fields": [
-            {
-              "name": "email",
-              "type": "input:text",
-              "required": true
-            },
-            {
-              "name": "password",
-              "type": "input:password",
-              "required": true
-            }
-          ]
+          "fields": []
         },
         {
           "action": "https://heratio.theahg.co.za/feedback/general",
@@ -1606,10 +1910,7 @@
           "disabled": false
         }
       ],
-      "consoleErrors": [
-        "Failed to load resource: the server responded with a status of 403 ()",
-        "Failed to load resource: the server responded with a status of 404 ()"
-      ],
+      "consoleErrors": [],
       "jsErrors": []
     }
   ]

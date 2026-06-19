@@ -268,6 +268,53 @@ class LostPlaceGatherService
         ];
     }
 
+    /**
+     * #1323 3D rebuild: resolve the best on-disk seed image for a place - the
+     * first linked master image whose file actually exists - so it can be fed to
+     * the `ahg-3d-model` TripoSR pipeline. Returns {io_id, path (absolute), rel}
+     * or null when no linked imagery is present on disk.
+     */
+    public function seedImage(int $termId): ?array
+    {
+        $records = $this->recordsForPlace($termId);
+        $ids = array_map(static fn ($r) => $r['id'], $records);
+        if (! $ids) {
+            return null;
+        }
+
+        $rows = DB::table('digital_object')
+            ->whereIn('object_id', $ids)
+            ->whereNull('parent_id')
+            ->where('mime_type', 'like', 'image/%')
+            ->select('object_id', 'path', 'name')
+            ->get();
+
+        foreach ($rows as $row) {
+            // digital_object stores the directory in `path` and the file in `name`;
+            // resolve via the same multi-root layout as QdrantImageIndexCommand
+            // (#1272): NAS storage_path first, then uploads_path + the AtoM mirror.
+            $path = (string) $row->path;
+            $name = (string) $row->name;
+            if ($path === '' || $name === '') {
+                continue;
+            }
+            $rel = ltrim($path, '/').$name;
+            $candidates = [
+                rtrim((string) config('heratio.storage_path', ''), '/').'/'.$rel,
+                rtrim((string) config('heratio.uploads_path', ''), '/').'/'.$rel,
+                '/usr/share/nginx/archive/'.$rel,
+                '/usr/share/nginx/archive/uploads/'.ltrim(str_replace('/uploads/', '', $path), '/').$name,
+            ];
+            foreach ($candidates as $abs) {
+                if (is_file($abs)) {
+                    return ['io_id' => (int) $row->object_id, 'path' => $abs, 'rel' => $rel];
+                }
+            }
+        }
+
+        return null;
+    }
+
     /** Is this place present as a rico:Place node (graph persistence / #1319)? */
     private function existsInRicGraph(string $name): bool
     {

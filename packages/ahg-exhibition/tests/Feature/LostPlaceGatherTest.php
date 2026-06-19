@@ -115,6 +115,27 @@ class LostPlaceGatherTest extends TestCase
         $this->assertStringContainsString('#1272', (string) $d['note']);
     }
 
+    public function test_reconstruct_command_degrades_without_seed_imagery(): void
+    {
+        $placeName = 'Reconstruct Place '.Str::random(6);
+        $termId = $this->makeTerm($placeName);
+        $rec = $this->makeRecord('Text-only record');
+        $relId = (int) DB::table('object')->insertGetId([
+            'class_name' => 'QubitObjectTermRelation', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        DB::table('object_term_relation')->insert(['id' => $relId, 'object_id' => $rec, 'term_id' => $termId]);
+
+        // No on-disk imagery -> command exits cleanly (does not reach TripoSR).
+        $this->artisan('ahg:lost-place-reconstruct', ['place' => $placeName, '--dry-run' => true])
+            ->assertExitCode(0);
+    }
+
+    public function test_reconstruct_command_fails_for_unknown_place(): void
+    {
+        $this->artisan('ahg:lost-place-reconstruct', ['place' => 'No Such Place '.Str::random(8), '--dry-run' => true])
+            ->assertExitCode(1);
+    }
+
     public function test_gather_returns_empty_for_unknown_place(): void
     {
         $result = app(LostPlaceGatherService::class)->gather('No Such Place '.Str::random(8));

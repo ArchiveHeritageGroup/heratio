@@ -22,6 +22,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgExhibition\Console\Commands\LostPlaceGatherCommand::class,
+                \AhgExhibition\Console\Commands\LostPlaceReconstructCommand::class,
             ]);
         }
 
