@@ -21,7 +21,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
 
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb small">
                     <li class="breadcrumb-item"><a href="{{ route('repatriation.dashboard') }}">{{ __('Repatriation') }}</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('displaced-heritage.index') }}">{{ __('Displaced-heritage register') }}</a></li>

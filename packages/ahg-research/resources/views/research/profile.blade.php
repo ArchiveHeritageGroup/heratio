@@ -77,7 +77,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-2 mb-3">
-            <label for="title" class="form-label">Title</label>
+            <label for="title" class="form-label">{{ __('Title') }}</label>
             <select name="title" id="title" class="form-select">
               <option value="">-- Select --</option>
               @foreach(['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'] as $t)

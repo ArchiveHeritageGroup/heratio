@@ -90,7 +90,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">{{ __('Source URL') }} <span class="text-muted small">({{ __('optional') }})</span></label>
-                        <input type="url" name="source_url" maxlength="1000" class="form-control" placeholder="https://...">
+                        <input type="url" name="source_url" maxlength="1000" class="form-control" placeholder="{{ __('https://...') }}">
                     </div>
                 </div>
                 <div class="row g-3 mt-0">

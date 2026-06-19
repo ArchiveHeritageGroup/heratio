@@ -308,7 +308,7 @@
                 <input type="number" id="scScale" class="form-control" min="0.001" max="1000" step="0.05" value="{{ $space->scan_shell_scale ?? 1 }}">
               </div>
               <label class="small text-muted mb-1">{{ __('360 / Matterport embed URL (optional)') }}</label>
-              <input type="url" id="scEmbed" class="form-control form-control-sm mb-2" placeholder="https://my.matterport.com/show/?m=…" value="{{ $space->scan_embed_url ?? '' }}">
+              <input type="url" id="scEmbed" class="form-control form-control-sm mb-2" placeholder="{{ __('https://my.matterport.com/show/?m=…') }}" value="{{ $space->scan_embed_url ?? '' }}">
               <button type="button" id="scMeta" class="btn btn-sm btn-outline-secondary w-100">{{ __('Save scale & embed') }}</button>
               <small class="text-muted d-block mt-1">{{ __('Meshes (glTF/OBJ/STL/PLY) render as the room; point clouds (.pcd, point-cloud .ply) render as points, downsampled for large scans. Embed URL adds a "360 view" button. For .las/.e57, export to PLY or PCD first.') }}</small>
             </div>
@@ -371,9 +371,9 @@
                 @endforelse
                 <option value="">{{ __('Other (enter URL)') }}</option>
               </select>
-              <input id="peerBase" class="form-control form-control-sm mb-2 d-none" placeholder="https://partner.example/" maxlength="500">
+              <input id="peerBase" class="form-control form-control-sm mb-2 d-none" placeholder="{{ __('https://partner.example/') }}" maxlength="500">
               <label class="form-label mb-1">{{ __('Exhibition slug') }}</label>
-              <input id="peerSlug" class="form-control form-control-sm mb-2" placeholder="e.g. founders-gallery" maxlength="255">
+              <input id="peerSlug" class="form-control form-control-sm mb-2" placeholder="{{ __('e.g. founders-gallery') }}" maxlength="255">
               <button type="button" id="peerFetchBtn" class="btn btn-sm btn-outline-primary w-100 mb-2"><i class="fas fa-cloud-arrow-down me-1"></i>{{ __('Fetch objects') }}</button>
               <div id="peerMsg" class="small mb-1"></div>
               <div id="peerObjList" class="list-group list-group-flush small" style="max-height:220px;overflow:auto;"></div>

@@ -93,7 +93,7 @@
                 <label class="form-label small fw-semibold" for="url">{{ __('Page URL') }}</label>
                 <input type="url" class="form-control form-control-sm @error('url') is-invalid @enderror"
                        id="url" name="url" value="{{ old('url') }}" required
-                       placeholder="https://example.org/page">
+                       placeholder="{{ __('https://example.org/page') }}">
                 @error('url')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 <div class="form-text small">{{ __('Only public http/https URLs. Single-page capture.') }}</div>
               </div>

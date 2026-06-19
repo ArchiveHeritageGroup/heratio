@@ -80,7 +80,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>The open heritage graph, at a glance</h1>
+  <h1>{{ __('The open heritage graph, at a glance') }}</h1>
   <p class="lede">A live snapshot of the size and shape of {{ $appName }}'s published open-data graph. Every figure
   is an aggregate count over published records only, served as open data under CC-BY-4.0. This is the human view of
   <code>/data/stats</code>; a machine-readable version is at <a href="{{ $links['json'] ?? url('/data/stats.json') }}">/data/stats.json</a>.</p>
@@ -92,7 +92,7 @@
     </div>
   @endif
 
-  <h2>Headline figures</h2>
+  <h2>{{ __('Headline figures') }}</h2>
   <div class="grid">
     <div class="stat"><div class="num">{{ $fmt($s['published_records'] ?? 0) }}</div><div class="lab">Published records</div></div>
     <div class="stat"><div class="num">{{ $fmt($s['actors_total'] ?? 0) }}</div><div class="lab">People &amp; organisations</div></div>
@@ -103,7 +103,7 @@
   </div>
 
   @if(!empty($levels))
-  <h2>Records by level of description</h2>
+  <h2>{{ __('Records by level of description') }}</h2>
   <div class="bars">
     @foreach($levels as $lv)
       @php $w = $maxLevel > 0 ? max(2, (int) round(((int) $lv['count'] / $maxLevel) * 100)) : 0; @endphp
@@ -116,7 +116,7 @@
   </div>
   @endif
 
-  <h2>People &amp; organisations</h2>
+  <h2>{{ __('People & organisations') }}</h2>
   <div class="bars">
     @php
       $actorRows = [
@@ -136,7 +136,7 @@
     @endforeach
   </div>
 
-  <h2>Subjects, places &amp; genres</h2>
+  <h2>{{ __('Subjects, places & genres') }}</h2>
   <div class="bars">
     @php
       $termRows = [
@@ -155,14 +155,14 @@
     @endforeach
   </div>
 
-  <h2>Connections</h2>
+  <h2>{{ __('Connections') }}</h2>
   <div class="grid">
     <div class="stat"><div class="num">{{ $fmt($s['relation_edges_total'] ?? 0) }}</div><div class="lab">Total relation edges</div></div>
     <div class="stat"><div class="num">{{ $fmt($s['relation_record_to_record'] ?? 0) }}</div><div class="lab">Record-to-record cross-links</div></div>
     <div class="stat"><div class="num">{{ $fmt($s['records_with_uri'] ?? 0) }}</div><div class="lab">Records with a linked-data URI</div></div>
   </div>
 
-  <h2>Descriptive coverage</h2>
+  <h2>{{ __('Descriptive coverage') }}</h2>
   <div class="bars cov">
     @php
       $covRows = [
@@ -182,7 +182,7 @@
     @endforeach
   </div>
 
-  <h2>Explore the graph</h2>
+  <h2>{{ __('Explore the graph') }}</h2>
   <div class="links">
     @if(!empty($links['graphExplorer']))<a href="{{ $links['graphExplorer'] }}">Graph explorer</a>@endif
     @if(!empty($links['catalog']))<a href="{{ $links['catalog'] }}">Data catalogue (DCAT)</a>@endif

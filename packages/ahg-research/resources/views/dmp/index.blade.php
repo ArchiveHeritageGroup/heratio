@@ -63,7 +63,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">{{ __('Language') }}</label>
-                        <input type="text" name="language" class="form-control" maxlength="12" value="{{ old('language', 'en') }}" placeholder="en">
+                        <input type="text" name="language" class="form-control" maxlength="12" value="{{ old('language', 'en') }}" placeholder="{{ __('en') }}">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">{{ __('Contact name') }}</label>

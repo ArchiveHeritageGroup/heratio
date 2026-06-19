@@ -37,7 +37,7 @@
 @endphp
 <div class="container py-4" style="max-width:960px">
 
-  <nav class="mb-3" aria-label="breadcrumb">
+  <nav class="mb-3" aria-label="{{ __('breadcrumb') }}">
     <a href="{{ url('/graph-explorer') }}" class="text-decoration-none small">
       <i class="fas fa-project-diagram me-1"></i>{{ __('Graph explorer') }}
     </a>

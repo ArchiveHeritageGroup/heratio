@@ -92,7 +92,7 @@
                 </div>
                 <div class="col-md-5">
                     <label class="form-label">{{ __('Explicit URL (optional)') }}</label>
-                    <input type="url" name="identifier_url" class="form-control" maxlength="1024" value="{{ old('identifier_url', $output['identifier_url'] ?? '') }}" placeholder="https://...">
+                    <input type="url" name="identifier_url" class="form-control" maxlength="1024" value="{{ old('identifier_url', $output['identifier_url'] ?? '') }}" placeholder="{{ __('https://...') }}">
                 </div>
             </div>
         </div>

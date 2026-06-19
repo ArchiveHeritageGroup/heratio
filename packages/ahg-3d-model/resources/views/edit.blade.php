@@ -272,7 +272,7 @@
                   @endforeach
                 </select></div>
               <div class="col-md-4"><label class="form-label small">{{ __('Scale note') }}</label>
-                <input type="text" class="form-control" name="scale_note" placeholder="e.g. 1:1" value="{{ old('scale_note', $model->scale_note ?? '') }}"></div>
+                <input type="text" class="form-control" name="scale_note" placeholder="{{ __('e.g. 1:1') }}" value="{{ old('scale_note', $model->scale_note ?? '') }}"></div>
               <div class="col-md-4"><label class="form-label small">{{ __('Coordinate system') }}</label>
                 <select class="form-select" name="coordinate_system">
                   <option value="">&mdash;</option>
@@ -296,11 +296,11 @@
                   @endforeach
                 </select></div>
               <div class="col-md-3"><label class="form-label small">{{ __('Texture colour space') }}</label>
-                <input type="text" class="form-control" name="texture_colorspace" placeholder="sRGB / linear" value="{{ old('texture_colorspace', $model->texture_colorspace ?? '') }}"></div>
+                <input type="text" class="form-control" name="texture_colorspace" placeholder="{{ __('sRGB / linear') }}" value="{{ old('texture_colorspace', $model->texture_colorspace ?? '') }}"></div>
               <div class="col-md-3"><label class="form-label small">{{ __('LOD levels') }}</label>
                 <input type="number" class="form-control" name="lod_levels" value="{{ old('lod_levels', $model->lod_levels ?? '') }}"></div>
               <div class="col-md-6"><label class="form-label small">{{ __('PBR maps') }}</label>
-                <input type="text" class="form-control" name="pbr_maps" placeholder="baseColor,normal,metalRough,occlusion,emissive" value="{{ old('pbr_maps', $model->pbr_maps ?? '') }}"></div>
+                <input type="text" class="form-control" name="pbr_maps" placeholder="{{ __('baseColor,normal,metalRough,occlusion,emissive') }}" value="{{ old('pbr_maps', $model->pbr_maps ?? '') }}"></div>
               <div class="col-md-6 d-flex align-items-end gap-3">
                 <div class="form-check"><input class="form-check-input" type="checkbox" name="is_lossless_master" value="1" id="is_lossless_master" @checked($model->is_lossless_master ?? false)><label class="form-check-label small" for="is_lossless_master">{{ __('Lossless master') }}</label></div>
                 <div class="form-check"><input class="form-check-input" type="checkbox" name="is_watertight" value="1" id="is_watertight" @checked($model->is_watertight ?? false)><label class="form-check-label small" for="is_watertight">{{ __('Watertight') }}</label></div>
@@ -324,7 +324,7 @@
               <div class="col-md-2"><label class="form-label small">{{ __('Operator') }}</label>
                 <input type="text" class="form-control" name="capture_operator" value="{{ old('capture_operator', $model->capture_operator ?? '') }}"></div>
               <div class="col-md-3"><label class="form-label small">{{ __('Source count') }}</label>
-                <input type="number" class="form-control" name="source_count" placeholder="e.g. # photos" value="{{ old('source_count', $model->source_count ?? '') }}"></div>
+                <input type="number" class="form-control" name="source_count" placeholder="{{ __('e.g. # photos') }}" value="{{ old('source_count', $model->source_count ?? '') }}"></div>
               <div class="col-md-3"><label class="form-label small">{{ __('Point density') }}</label>
                 <input type="text" class="form-control" name="point_density" value="{{ old('point_density', $model->point_density ?? '') }}"></div>
               <div class="col-md-3"><label class="form-label small">{{ __('Accuracy (mm)') }}</label>
@@ -332,7 +332,7 @@
               <div class="col-md-3"><label class="form-label small">{{ __('Georeference') }}</label>
                 <input type="text" class="form-control" name="georeference" value="{{ old('georeference', $model->georeference ?? '') }}"></div>
               <div class="col-md-6"><label class="form-label small">{{ __('Processing software') }}</label>
-                <input type="text" class="form-control" name="processing_software" placeholder="e.g. Metashape 2.1" value="{{ old('processing_software', $model->processing_software ?? '') }}"></div>
+                <input type="text" class="form-control" name="processing_software" placeholder="{{ __('e.g. Metashape 2.1') }}" value="{{ old('processing_software', $model->processing_software ?? '') }}"></div>
               <div class="col-12"><label class="form-label small">{{ __('Processing notes') }}</label>
                 <textarea class="form-control" name="processing_notes" rows="2">{{ old('processing_notes', $model->processing_notes ?? '') }}</textarea></div>
             </div>
@@ -342,7 +342,7 @@
               <div class="col-md-6"><label class="form-label small">{{ __('Model author / creator') }}</label>
                 <input type="text" class="form-control" name="model_author" value="{{ old('model_author', $model->model_author ?? '') }}"></div>
               <div class="col-md-6"><label class="form-label small">{{ __('Derivation note') }}</label>
-                <input type="text" class="form-control" name="derivation_note" placeholder="raw scan → master → access" value="{{ old('derivation_note', $model->derivation_note ?? '') }}"></div>
+                <input type="text" class="form-control" name="derivation_note" placeholder="{{ __('raw scan → master → access') }}" value="{{ old('derivation_note', $model->derivation_note ?? '') }}"></div>
               <div class="col-md-4"><label class="form-label small">{{ __('Model licence') }}</label>
                 <select class="form-select" name="model_license">
                   <option value="">&mdash;</option>

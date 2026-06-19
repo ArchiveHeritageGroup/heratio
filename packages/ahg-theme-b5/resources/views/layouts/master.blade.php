@@ -34,7 +34,7 @@
     <link rel="search" type="application/opensearchdescription+xml" href="{{ url('/opensearch.xml') }}" title="{{ config('app.name', 'Heratio') }}">
     @if (count(request()->segments()) === 1)
     {{-- oEmbed autodiscovery on record-shaped (single-segment) pages only. --}}
-    <link rel="alternate" type="application/json+oembed" href="{{ url('/oembed') . '?url=' . rawurlencode(request()->fullUrl()) }}" title="oEmbed">
+    <link rel="alternate" type="application/json+oembed" href="{{ url('/oembed') . '?url=' . rawurlencode(request()->fullUrl()) }}" title="{{ __('oEmbed') }}">
     @endif
     {{-- CSS-in-JS libraries (Material-UI / JSS, used by Mirador 3) discover the
          per-request CSP nonce from this meta tag and tag their dynamically

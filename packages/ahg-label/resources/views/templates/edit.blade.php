@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-4">
 
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahglabel.templates.index') }}">{{ __('Label Templates') }}</a></li>
       <li class="breadcrumb-item active">{{ $template ? __('Edit') : __('New') }}</li>

@@ -6,7 +6,7 @@
     <title>Your ticket</title>
 </head>
 <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
-    <h2 style="color: #2563eb;">Your ticket is confirmed</h2>
+    <h2 style="color: #2563eb;">{{ __('Your ticket is confirmed') }}</h2>
 
     <p>Hello {{ $rsvp->name ?? 'there' }},</p>
 

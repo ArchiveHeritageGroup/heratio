@@ -35,7 +35,7 @@
             @csrf
             <div class="col-md-5">
                 <label class="form-label small mb-0">{{ __('Client ID') }}</label>
-                <input type="text" name="client_id" class="form-control form-control-sm" placeholder="APP-XXXXXXXXXXXXXXXX"
+                <input type="text" name="client_id" class="form-control form-control-sm" placeholder="{{ __('APP-XXXXXXXXXXXXXXXX') }}"
                        value="{{ $orcidCreds['client_id'] ?? '' }}" required>
             </div>
             <div class="col-md-5">

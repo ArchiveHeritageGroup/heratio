@@ -23,7 +23,7 @@
 @section('content')
 <div class="container py-4" style="max-width:880px">
 
-  <nav class="mb-3" aria-label="breadcrumb">
+  <nav class="mb-3" aria-label="{{ __('breadcrumb') }}">
     <a href="{{ $urls['record'] }}" class="text-decoration-none small">
       <i class="fas fa-arrow-left me-1"></i>{{ __('Back to the record') }}
     </a>

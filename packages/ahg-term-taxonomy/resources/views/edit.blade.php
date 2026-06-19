@@ -300,7 +300,7 @@
                           @endforeach
                         </select>
                       </td>
-                      <td><input type="url" name="crossMatches[0][target_uri]" class="form-control form-control-sm" placeholder="https://id.loc.gov/authorities/subjects/sh85007034"></td>
+                      <td><input type="url" name="crossMatches[0][target_uri]" class="form-control form-control-sm" placeholder="{{ __('https://id.loc.gov/authorities/subjects/sh85007034') }}"></td>
                       <td><input type="text" name="crossMatches[0][target_label]" class="form-control form-control-sm"></td>
                       <td><input type="text" name="crossMatches[0][target_vocab]" class="form-control form-control-sm" placeholder="LCSH"></td>
                       <td>

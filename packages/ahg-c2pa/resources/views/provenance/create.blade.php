@@ -57,11 +57,11 @@
         </div>
         <div class="col-md-4">
           <label class="form-label">{{ __('Capture device') }}</label>
-          <input type="text" name="capture_device" class="form-control form-control-sm" value="{{ old('capture_device') }}" maxlength="255" placeholder="e.g. Phase One iXG / Artec Leo">
+          <input type="text" name="capture_device" class="form-control form-control-sm" value="{{ old('capture_device') }}" maxlength="255" placeholder="{{ __('e.g. Phase One iXG / Artec Leo') }}">
         </div>
         <div class="col-md-4">
           <label class="form-label">{{ __('Capture software') }}</label>
-          <input type="text" name="capture_software" class="form-control form-control-sm" value="{{ old('capture_software') }}" maxlength="255" placeholder="e.g. Capture One 23">
+          <input type="text" name="capture_software" class="form-control form-control-sm" value="{{ old('capture_software') }}" maxlength="255" placeholder="{{ __('e.g. Capture One 23') }}">
         </div>
         <div class="col-12">
           <label class="form-label">{{ __('Notes') }}</label>

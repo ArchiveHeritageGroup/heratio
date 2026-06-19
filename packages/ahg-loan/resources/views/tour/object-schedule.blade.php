@@ -55,11 +55,11 @@
               <table class="table table-sm mb-0 align-middle">
                 <thead class="table-light">
                   <tr>
-                    <th>Type</th>
-                    <th>Venue / institution</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Status</th>
+                    <th>{{ __('Type') }}</th>
+                    <th>{{ __('Venue / institution') }}</th>
+                    <th>{{ __('Start') }}</th>
+                    <th>{{ __('End') }}</th>
+                    <th>{{ __('Status') }}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -82,7 +82,7 @@
                                 onsubmit="return confirm('Cancel this tour booking and free the window?');"
                                 class="d-inline">
                             @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancel booking">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Cancel booking') }}">
                               <i class="bi bi-x-circle"></i>
                             </button>
                           </form>
@@ -132,17 +132,17 @@
               <label class="form-label">Venue / hosting institution <span class="text-danger">*</span></label>
               <input type="text" name="venue_name" class="form-control" required
                      value="{{ old('venue_name', $attempt['venue_name'] ?? '') }}"
-                     placeholder="e.g. National Gallery, City Museum">
+                     placeholder="{{ __('e.g. National Gallery, City Museum') }}">
             </div>
 
             <div class="row g-2 mb-3">
               <div class="col">
-                <label class="form-label">City</label>
+                <label class="form-label">{{ __('City') }}</label>
                 <input type="text" name="venue_city" class="form-control"
                        value="{{ old('venue_city', $attempt['venue_city'] ?? '') }}">
               </div>
               <div class="col">
-                <label class="form-label">Country</label>
+                <label class="form-label">{{ __('Country') }}</label>
                 <input type="text" name="venue_country" class="form-control"
                        value="{{ old('venue_country', $attempt['venue_country'] ?? '') }}">
               </div>
@@ -162,15 +162,15 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Commitment</label>
+              <label class="form-label">{{ __('Commitment') }}</label>
               <select name="status" class="form-select">
-                <option value="committed" @selected(($attempt['status'] ?? 'committed') === 'committed')>Committed (firm)</option>
-                <option value="tentative" @selected(($attempt['status'] ?? '') === 'tentative')>Tentative (pencilled in)</option>
+                <option value="committed" @selected(($attempt['status'] ?? 'committed') === 'committed')>{{ __('Committed (firm)') }}</option>
+                <option value="tentative" @selected(($attempt['status'] ?? '') === 'tentative')>{{ __('Tentative (pencilled in)') }}</option>
               </select>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Notes</label>
+              <label class="form-label">{{ __('Notes') }}</label>
               <textarea name="notes" class="form-control" rows="2">{{ old('notes', $attempt['notes'] ?? '') }}</textarea>
             </div>
 

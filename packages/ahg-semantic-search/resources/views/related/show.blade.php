@@ -29,7 +29,7 @@
 <div class="container-fluid py-4">
 
     {{-- Breadcrumb back to the source record (when it has a slug) --}}
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb mb-0">
             @if($recordUrl)
                 <li class="breadcrumb-item">

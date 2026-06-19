@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid py-3">
-  <nav aria-label="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb small">
       <li class="breadcrumb-item"><a href="/admin/privacy/index">{{ __('Privacy') }}</a></li>
       <li class="breadcrumb-item active">{{ __('Description privacy') }}</li>
@@ -45,7 +45,7 @@
         <div class="col-md-5">
           <label class="form-label small fw-bold">{{ __('Legal basis reference') }}</label>
           <input type="text" name="legal_basis_reference" class="form-control form-control-sm"
-                 value="{{ optional($profile)->legal_basis_reference }}" placeholder="e.g. POPIA s.37, GDPR Art.17(3)(e)">
+                 value="{{ optional($profile)->legal_basis_reference }}" placeholder="{{ __('e.g. POPIA s.37, GDPR Art.17(3)(e)') }}">
         </div>
         <div class="col-12">
           <label class="form-label small fw-bold">{{ __('Notes') }}</label>

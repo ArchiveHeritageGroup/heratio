@@ -59,7 +59,7 @@
       <div class="col-md-5">
         <label class="form-label small" for="watch-doi">{{ __('DOI') }}</label>
         <input type="text" class="form-control" id="watch-doi" name="doi"
-               placeholder="10.1000/xyz123" maxlength="255">
+               placeholder="{{ __('10.1000/xyz123') }}" maxlength="255">
         <div class="form-text">{{ __('A bare DOI or a doi.org URL. Leave blank to watch by title only.') }}</div>
       </div>
       <div class="col-md-5">

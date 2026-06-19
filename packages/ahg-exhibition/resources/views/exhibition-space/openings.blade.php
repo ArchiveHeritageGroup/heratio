@@ -71,7 +71,7 @@
               <div class="col-5">
                 <label class="form-label" for="ev_currency">{{ __('Currency') }}</label>
                 <input type="text" id="ev_currency" name="currency" class="form-control text-uppercase" maxlength="3"
-                       value="{{ old('currency') }}" placeholder="USD">
+                       value="{{ old('currency') }}" placeholder="{{ __('USD') }}">
               </div>
             </div>
             <div class="mb-3">

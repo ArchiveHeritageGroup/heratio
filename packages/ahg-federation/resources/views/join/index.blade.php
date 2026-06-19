@@ -145,7 +145,7 @@
                             <input type="url" class="form-control @error('base_url') is-invalid @enderror"
                                    id="base_url" name="base_url" maxlength="1024"
                                    value="{{ old('base_url') }}"
-                                   placeholder="https://catalogue.institution.org">
+                                   placeholder="{{ __('https://catalogue.institution.org') }}">
                             @error('base_url')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

@@ -5,7 +5,7 @@
     <title>Booking received</title>
 </head>
 <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
-    <h2 style="color: #2c3e50;">Booking received</h2>
+    <h2 style="color: #2c3e50;">{{ __('Booking received') }}</h2>
 
     <p>Hello {{ trim(($booking->first_name ?? '') . ' ' . ($booking->last_name ?? '')) ?: 'Researcher' }},</p>
 

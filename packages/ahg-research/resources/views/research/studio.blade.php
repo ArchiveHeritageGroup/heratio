@@ -51,13 +51,13 @@
 
                         <div class="col-12 d-none" id="spreadsheet_options">
                             <label class="form-label fw-bold">{{ __('Spreadsheet columns') }}</label>
-                            <input type="text" name="columns_request" class="form-control" placeholder="date, actor, location, event_summary, source_ref">
+                            <input type="text" name="columns_request" class="form-control" placeholder="{{ __('date, actor, location, event_summary, source_ref') }}">
                             <div class="form-text">{{ __('Comma-separated. The model will project source content into these columns.') }}</div>
                         </div>
 
                         <div class="col-12 d-none" id="audio_options">
                             <label class="form-label fw-bold">{{ __('Voice (optional, e.g. f5:my_voice_id)') }}</label>
-                            <input type="text" name="voice_id" class="form-control" placeholder="f5:host">
+                            <input type="text" name="voice_id" class="form-control" placeholder="{{ __('f5:host') }}">
                             <div class="form-text">{{ __('Leave blank for the configured default. TTS endpoint must be set in HERATIO_TTS_ENDPOINT.') }}</div>
                         </div>
                     </div>

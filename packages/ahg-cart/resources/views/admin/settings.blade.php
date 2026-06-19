@@ -109,7 +109,7 @@
           @unless($settings->is_enabled ?? 0)
             <button type="button" class="btn btn-outline-warning"
                     data-bs-toggle="modal" data-bs-target="#dummySaleModal"
-                    data-dummy-title="Sample marketplace listing"
+                    data-dummy-title="{{ __('Sample marketplace listing') }}"
                     data-dummy-price="6500.00"
                     data-dummy-currency="{{ $settings->currency ?? 'ZAR' }}">
               <i class="fas fa-flask me-1"></i> {{ __('Preview dummy sale') }}

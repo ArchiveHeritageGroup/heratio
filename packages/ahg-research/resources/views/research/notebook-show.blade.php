@@ -60,7 +60,7 @@
                                             @csrf
                                             <input type="hidden" name="form_action" value="remove_item">
                                             <input type="hidden" name="item_id" value="{{ $it->id }}">
-                                            <button class="btn btn-sm btn-link p-0 text-danger" title="Remove"><i class="fas fa-times"></i></button>
+                                            <button class="btn btn-sm btn-link p-0 text-danger" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
                                         </form>
                                     </div>
                                 </div>

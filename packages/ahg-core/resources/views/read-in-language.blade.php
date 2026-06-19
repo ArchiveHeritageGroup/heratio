@@ -49,7 +49,7 @@
 @endphp
 <div class="container py-4" style="max-width:1000px">
 
-  <nav aria-label="breadcrumb" class="small mb-2">
+  <nav aria-label="{{ __('breadcrumb') }}" class="small mb-2">
     <a href="{{ url('/read/'.$idOrSlug) }}" class="text-decoration-none">
       <i class="fas fa-globe me-1"></i>{{ __('Read this record in your language') }}
     </a>

@@ -50,7 +50,7 @@
                 <div class="mb-3">
                     <label for="base_url" class="form-label">{{ __('Base URL') }}</label>
                     <input type="url" class="form-control" id="base_url" name="base_url"
-                           placeholder="https://catalogue.example.org"
+                           placeholder="{{ __('https://catalogue.example.org') }}"
                            value="{{ old('base_url', $member->base_url ?? '') }}">
                     <div class="form-text">{{ __('Public catalogue base for this member.') }}</div>
                 </div>

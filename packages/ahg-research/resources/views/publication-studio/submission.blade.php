@@ -207,11 +207,11 @@
                     </div>
                     <div class="mb-2">
                         <label class="form-label small mb-1">{{ __('DOI') }}</label>
-                        <input type="text" name="doi" value="{{ e($submission['doi'] ?? '') }}" class="form-control form-control-sm" placeholder="10.xxxx/xxxxx">
+                        <input type="text" name="doi" value="{{ e($submission['doi'] ?? '') }}" class="form-control form-control-sm" placeholder="{{ __('10.xxxx/xxxxx') }}">
                     </div>
                     <div class="mb-2">
                         <label class="form-label small mb-1">{{ __('Repository / deposit URL') }}</label>
-                        <input type="url" name="repository_url" value="{{ e($submission['repository_url'] ?? '') }}" class="form-control form-control-sm" placeholder="https://">
+                        <input type="url" name="repository_url" value="{{ e($submission['repository_url'] ?? '') }}" class="form-control form-control-sm" placeholder="{{ __('https://') }}">
                     </div>
                     <div class="mb-2">
                         <label class="form-label small mb-1">{{ __('Notes') }}</label>

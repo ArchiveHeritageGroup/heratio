@@ -15,7 +15,7 @@
 @section('body-class', 'view term related-authorities')
 
 @section('content')
-  <nav aria-label="breadcrumb" class="small mb-2">
+  <nav aria-label="{{ __('breadcrumb') }}" class="small mb-2">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item">
         <a href="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id]) }}">{{ $taxonomyName }}</a>

@@ -23,11 +23,11 @@
       </div>
       <div class="col-md-6">
         <label class="form-label">{{ __('Credential') }}</label>
-        <input type="text" name="credential" class="form-control" placeholder="e.g. RICS, ASA, AIC member" value="{{ old('credential', $item->credential ?? '') }}">
+        <input type="text" name="credential" class="form-control" placeholder="{{ __('e.g. RICS, ASA, AIC member') }}" value="{{ old('credential', $item->credential ?? '') }}">
       </div>
       <div class="col-md-6">
         <label class="form-label">{{ __('Professional Body') }}</label>
-        <input type="text" name="professional_body" class="form-control" placeholder="e.g. Royal Institution of Chartered Surveyors" value="{{ old('professional_body', $item->professional_body ?? '') }}">
+        <input type="text" name="professional_body" class="form-control" placeholder="{{ __('e.g. Royal Institution of Chartered Surveyors') }}" value="{{ old('professional_body', $item->professional_body ?? '') }}">
       </div>
       <div class="col-md-6">
         <label class="form-label">{{ __('Accreditation Number') }}</label>

@@ -30,7 +30,7 @@
 <div class="container-fluid py-4">
 
     {{-- Breadcrumb back to the genres landing --}}
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item">
                 <a href="{{ route('genres.index') }}" class="text-decoration-none">

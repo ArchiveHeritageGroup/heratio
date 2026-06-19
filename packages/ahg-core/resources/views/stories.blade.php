@@ -28,7 +28,7 @@
 
       <label class="form-label small mb-1">{{ __('Source web pages (URLs)') }}</label>
       <div class="input-group input-group-sm mb-1">
-        <input type="url" id="srcUrl" class="form-control" placeholder="https://…">
+        <input type="url" id="srcUrl" class="form-control" placeholder="{{ __('https://…') }}">
         <button type="button" id="srcUrlAdd" class="btn btn-outline-secondary"><i class="fas fa-plus"></i></button>
       </div>
       <div id="srcUrlChips" class="d-flex flex-wrap gap-1 mb-3"></div>

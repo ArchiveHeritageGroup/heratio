@@ -283,7 +283,7 @@
               <div class="col-md-6">
                 <label class="form-label small mb-1">{{ __('or Image URL') }}</label>
                 <input type="url" name="image_url" class="form-control form-control-sm" maxlength="1024"
-                       placeholder="https://...">
+                       placeholder="{{ __('https://...') }}">
               </div>
               <div class="col-12">
                 <button type="submit" class="btn btn-sm btn-primary">

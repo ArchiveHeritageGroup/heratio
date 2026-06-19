@@ -23,7 +23,7 @@
 <div class="container-fluid py-4">
 
     {{-- Breadcrumb back to the public repatriation dashboard --}}
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb small mb-0">
             <li class="breadcrumb-item"><a href="{{ route('repatriation.dashboard') }}">{{ __('Repatriation') }}</a></li>
             @if($context)

@@ -5,7 +5,7 @@
     <title>Booking confirmed</title>
 </head>
 <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
-    <h2 style="color: #16a34a;">Booking confirmed</h2>
+    <h2 style="color: #16a34a;">{{ __('Booking confirmed') }}</h2>
 
     <p>Hello {{ trim(($booking->first_name ?? '') . ' ' . ($booking->last_name ?? '')) ?: 'Researcher' }},</p>
 

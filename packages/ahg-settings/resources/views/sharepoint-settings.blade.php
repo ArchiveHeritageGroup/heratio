@@ -39,7 +39,7 @@
 
                 <div class="form-group mb-3">
                     <label for="webhook_public_url">{{ __('Public webhook URL (for Graph subscriptions)') }}</label>
-                    <input type="url" class="form-control" id="webhook_public_url" name="webhook_public_url" value="{{ $settings['webhook_public_url'] ?? '' }}" placeholder="https://psis.theahg.co.za/sharepoint/webhook">
+                    <input type="url" class="form-control" id="webhook_public_url" name="webhook_public_url" value="{{ $settings['webhook_public_url'] ?? '' }}" placeholder="{{ __('https://psis.theahg.co.za/sharepoint/webhook') }}">
                     <small class="form-text text-muted">{{ __('Must be HTTPS, publicly reachable. Graph posts notifications here.') }}</small>
                 </div>
 

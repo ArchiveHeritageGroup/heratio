@@ -76,7 +76,7 @@
             </div>
             <div class="col-md-6">
               <label class="form-label">{{ __('Valuation Method') }}</label>
-              <input type="text" name="valuation_method" class="form-control" placeholder="cost / fair_value / market / depreciated_replacement / nominal" value="{{ old('valuation_method') }}">
+              <input type="text" name="valuation_method" class="form-control" placeholder="{{ __('cost / fair_value / market / depreciated_replacement / nominal') }}" value="{{ old('valuation_method') }}">
             </div>
             <div class="col-md-12">
               <label class="form-label">{{ __('Reason / Notes') }}</label>

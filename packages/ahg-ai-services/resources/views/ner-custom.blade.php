@@ -26,7 +26,7 @@
 @if(session('status'))
 <div class="alert alert-success alert-dismissible fade show">
   <i class="bi bi-check-circle me-2"></i>{{ session('status') }}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
 </div>
 @endif
 
@@ -121,7 +121,7 @@
             <form action="{{ route('admin.ai-services.ner-entities.save') }}" method="post" class="modal-content">
               @csrf
               <input type="hidden" name="id" value="{{ $row->id }}">
-              <div class="modal-header"><h5 class="modal-title">{{ __('Edit entity') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+              <div class="modal-header"><h5 class="modal-title">{{ __('Edit entity') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button></div>
               <div class="modal-body">
                 <div class="row g-3">
                   <div class="col-md-4"><label class="form-label">{{ __('Type') }}</label><input class="form-control" name="entity_type" value="{{ $row->entity_type }}" required></div>
@@ -162,7 +162,7 @@
       @csrf
       <div class="col-md-3">
         <label for="new_entity_type" class="form-label">{{ __('Type') }}</label>
-        <input id="new_entity_type" name="entity_type" class="form-control" placeholder="person, organization, place, ..." required>
+        <input id="new_entity_type" name="entity_type" class="form-control" placeholder="{{ __('person, organization, place, ...') }}" required>
       </div>
       <div class="col-md-4">
         <label for="new_label" class="form-label">{{ __('Label') }}</label>
@@ -170,7 +170,7 @@
       </div>
       <div class="col-md-5">
         <label for="new_target_uri" class="form-label">{{ __('Target URI (optional)') }}</label>
-        <input id="new_target_uri" name="target_uri" class="form-control" placeholder="https://...">
+        <input id="new_target_uri" name="target_uri" class="form-control" placeholder="{{ __('https://...') }}">
       </div>
       <div class="col-md-6">
         <label for="new_aliases" class="form-label">{{ __('Aliases (one per line)') }}</label>

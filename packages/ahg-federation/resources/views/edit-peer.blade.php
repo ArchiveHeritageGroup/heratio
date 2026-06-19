@@ -56,8 +56,8 @@
                         <div class="mb-3">
                             <label for="peer_type" class="form-label">Peer type <span class="text-danger">*</span></label>
                             <select class="form-select" id="peer_type" name="peer_type" required onchange="ahgFederationTogglePeerType()">
-                                <option value="oai_pmh" {{ $peerType === 'oai_pmh' ? 'selected' : '' }}>OAI-PMH repository</option>
-                                <option value="sharepoint_graph_search" {{ $peerType === 'sharepoint_graph_search' ? 'selected' : '' }}>SharePoint (Microsoft Graph search)</option>
+                                <option value="oai_pmh" {{ $peerType === 'oai_pmh' ? 'selected' : '' }}>{{ __('OAI-PMH repository') }}</option>
+                                <option value="sharepoint_graph_search" {{ $peerType === 'sharepoint_graph_search' ? 'selected' : '' }}>{{ __('SharePoint (Microsoft Graph search)') }}</option>
                             </select>
                             <div class="form-text">{{ __('Determines which connector is used at search time. OAI peers also support background harvest.') }}</div>
                         </div>

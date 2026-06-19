@@ -59,7 +59,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">{{ __('URL') }}</label>
-                        <input type="text" name="url" class="form-control" maxlength="500" placeholder="https://...">
+                        <input type="text" name="url" class="form-control" maxlength="500" placeholder="{{ __('https://...') }}">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">{{ __('Status') }}</label>
