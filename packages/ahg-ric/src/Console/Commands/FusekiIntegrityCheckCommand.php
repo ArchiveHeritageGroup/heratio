@@ -26,6 +26,7 @@
 namespace AhgRic\Console\Commands;
 
 use AhgRic\Services\FusekiSyncService;
+use AhgRic\Support\RicGraphManifest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -47,14 +48,10 @@ class FusekiIntegrityCheckCommand extends Command
     protected $signature = 'ahg:fuseki-integrity-check {--quiet-success : Suppress output when there are no discrepancies}';
     protected $description = 'Compare Fuseki graph state to ric_* relational tables; report drift.';
 
-    private const GRAPH_PREFIX = 'urn:ahg:ric:';
-    private const TYPE_TABLES = [
-        'place'         => 'ric_place',
-        'rule'          => 'ric_rule',
-        'activity'      => 'ric_activity',
-        'instantiation' => 'ric_instantiation',
-        'relation'      => 'relation',
-    ];
+    // Entity -> source-table -> IRI mapping now lives in the shared
+    // RicGraphManifest (ADR-0003) so the loader, this check, and the export
+    // cannot drift. Place is ric_place (canonical), and agent (actor) is now
+    // covered too.
 
     public function handle(): int
     {
@@ -69,22 +66,22 @@ class FusekiIntegrityCheckCommand extends Command
         $orphanedInFuseki = [];
 
         try {
-            $fusekiGraphs = $this->listFusekiGraphsByPrefix(self::GRAPH_PREFIX);
+            $fusekiGraphs = $this->listFusekiGraphsByPrefix(RicGraphManifest::URN_PREFIX);
         } catch (\Throwable $e) {
             $this->error('[fuseki-integrity-check] Could not query Fuseki: ' . $e->getMessage());
             return self::FAILURE;
         }
 
         $relationalIds = [];
-        foreach (self::TYPE_TABLES as $entityType => $table) {
-            $ids = DB::table($table)->pluck('id')->all();
+        foreach (RicGraphManifest::TYPES as $entityType => $cfg) {
+            $ids = DB::table($cfg['table'])->pluck($cfg['id'])->all();
             $relationalIds[$entityType] = array_flip(array_map('intval', $ids));
         }
 
         // Pass 1: every relational entity should have a Fuseki graph.
         foreach ($relationalIds as $entityType => $idSet) {
             foreach (array_keys($idSet) as $id) {
-                $expected = self::GRAPH_PREFIX . $entityType . ':' . $id;
+                $expected = RicGraphManifest::iri($entityType, $id);
                 if (in_array($expected, $fusekiGraphs, true)) {
                     $matched++;
                 } else {
@@ -143,12 +140,17 @@ class FusekiIntegrityCheckCommand extends Command
     }
 
     /**
-     * SELECT DISTINCT ?g WHERE { GRAPH ?g {} } FILTER STRSTARTS(STR(?g), $prefix)
-     * Returns the list of graph URIs in Fuseki that start with our prefix.
+     * Returns the distinct entity SUBJECT URIs in Fuseki that start with our
+     * prefix, looking in BOTH the default graph and any named graph.
+     *
+     * fuseki-load writes RiC entities to the DEFAULT graph as subjects
+     * (urn:ahg:ric:<type>:<id>), not as one named graph per entity. The old
+     * `GRAPH ?g {}` form only saw named graphs, so it matched nothing and
+     * reported every entity missing (matched=0). Matching subjects fixes that.
      */
     private function listFusekiGraphsByPrefix(string $prefix): array
     {
-        $sparql = 'SELECT DISTINCT ?g WHERE { GRAPH ?g { ?s ?p ?o } FILTER(STRSTARTS(STR(?g), "' . $prefix . '")) }';
+        $sparql = 'SELECT DISTINCT ?s WHERE { { ?s ?p ?o } UNION { GRAPH ?g { ?s ?p ?o } } FILTER(STRSTARTS(STR(?s), "' . $prefix . '")) }';
         $endpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio') . '/sparql';
 
         $ch = curl_init();
@@ -171,8 +173,8 @@ class FusekiIntegrityCheckCommand extends Command
         $data = json_decode($response, true);
         $graphs = [];
         foreach (($data['results']['bindings'] ?? []) as $row) {
-            if (isset($row['g']['value'])) {
-                $graphs[] = (string) $row['g']['value'];
+            if (isset($row['s']['value'])) {
+                $graphs[] = (string) $row['s']['value'];
             }
         }
         return $graphs;
@@ -183,17 +185,6 @@ class FusekiIntegrityCheckCommand extends Command
      */
     private function parseGraphUri(string $uri): ?array
     {
-        if (!str_starts_with($uri, self::GRAPH_PREFIX)) {
-            return null;
-        }
-        $tail = substr($uri, strlen(self::GRAPH_PREFIX));
-        $parts = explode(':', $tail);
-        if (count($parts) !== 2) {
-            return null;
-        }
-        if (!isset(self::TYPE_TABLES[$parts[0]]) || !ctype_digit($parts[1])) {
-            return null;
-        }
-        return [$parts[0], (int) $parts[1]];
+        return RicGraphManifest::parse($uri);
     }
 }
