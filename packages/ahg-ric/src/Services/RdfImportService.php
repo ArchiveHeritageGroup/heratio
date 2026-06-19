@@ -49,6 +49,9 @@ class RdfImportService
     /** Predicate → mapping descriptor. is_i18n marks i18n columns; bucket selects table. */
     private const IO_PREDICATE_MAP = [
         'rico:name'                  => ['col' => 'title',                              'is_i18n' => true],
+        // RicSerializationService emits rico:title for a record's title; the
+        // importer must accept it so export->import round-trips losslessly (#1321).
+        'rico:title'                 => ['col' => 'title',                              'is_i18n' => true],
         'dc:title'                   => ['col' => 'title',                              'is_i18n' => true],
         'dcterms:title'              => ['col' => 'title',                              'is_i18n' => true],
         'rdfs:label'                 => ['col' => 'title',                              'is_i18n' => true],
