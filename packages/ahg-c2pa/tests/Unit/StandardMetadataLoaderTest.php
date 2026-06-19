@@ -43,6 +43,13 @@ final class StandardMetadataLoaderTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // A prior full-Laravel test in the same process can leave the Facade root
+        // + resolved instances pointing at a torn-down app, so config() falls
+        // through to "Target class [config] does not exist". Reset that state
+        // before installing our minimal container (same fix as the library API test).
+        Facade::clearResolvedInstances();
+        Facade::setFacadeApplication(null);
+        Container::setInstance(null);
         $this->container = new Container();
         Container::setInstance($this->container);
 

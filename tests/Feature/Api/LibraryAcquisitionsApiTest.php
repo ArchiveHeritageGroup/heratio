@@ -83,7 +83,9 @@ class LibraryAcquisitionsApiTest extends TestCase
             ->assertJsonPath('data.attributes.name', 'Test Vendor');
         $id = $create->json('data.id');
 
-        $this->getJson("/api/library/vendors/{$id}")->assertOk()->assertJsonPath('data.id', (string) $id);
+        // Compare id by value: JSON:API id may serialize as int or string across envs.
+        $show = $this->getJson("/api/library/vendors/{$id}")->assertOk();
+        $this->assertSame((string) $id, (string) $show->json('data.id'));
         $this->patchJson("/api/library/vendors/{$id}", ['name' => 'Renamed Vendor'])
             ->assertOk()->assertJsonPath('data.attributes.name', 'Renamed Vendor');
         $this->getJson('/api/library/vendors')->assertOk()->assertJsonStructure(['data', 'meta' => ['total']]);
@@ -97,13 +99,13 @@ class LibraryAcquisitionsApiTest extends TestCase
             'budget_code' => 'TST-B1', 'fund_name' => 'Test Fund', 'fiscal_year' => '2026',
             'allocated_amount' => 5000,
         ]);
-        $create->assertStatus(201)
-            ->assertJsonPath('data.type', 'library-budgets')
-            ->assertJsonPath('data.attributes.available_amount', 5000.0);
+        $create->assertStatus(201)->assertJsonPath('data.type', 'library-budgets');
+        // Money compares by numeric value: a whole DECIMAL may serialize as 5000 or 5000.0.
+        $this->assertSame(5000.0, (float) $create->json('data.attributes.available_amount'));
         $id = $create->json('data.id');
 
-        $this->patchJson("/api/library/budgets/{$id}", ['allocated_amount' => 8000])
-            ->assertOk()->assertJsonPath('data.attributes.available_amount', 8000.0);
+        $patch = $this->patchJson("/api/library/budgets/{$id}", ['allocated_amount' => 8000])->assertOk();
+        $this->assertSame(8000.0, (float) $patch->json('data.attributes.available_amount'));
         $this->deleteJson("/api/library/budgets/{$id}")->assertNoContent();
     }
 
@@ -123,19 +125,20 @@ class LibraryAcquisitionsApiTest extends TestCase
         ]);
         $order->assertStatus(201)
             ->assertJsonPath('data.type', 'library-orders')
-            ->assertJsonPath('data.attributes.total', 200.0)
             ->assertJsonPath('data.relationships.vendor.data.type', 'library-vendors');
+        $this->assertSame(200.0, (float) $order->json('data.attributes.total'));
         $orderId = $order->json('data.id');
 
-        // Budget committed amount reflects the order.
-        $this->getJson('/api/library/budgets/' . $this->budgetId('TST-OB'))
-            ->assertOk()->assertJsonPath('data.attributes.committed_amount', 200.0);
+        // Budget committed amount reflects the order (compare by value).
+        $committed = $this->getJson('/api/library/budgets/' . $this->budgetId('TST-OB'))->assertOk();
+        $this->assertSame(200.0, (float) $committed->json('data.attributes.committed_amount'));
 
         // Add a second line; total recalculates.
         $this->postJson("/api/library/orders/{$orderId}/lines", ['title' => 'Line Two', 'unit_price' => 50, 'quantity' => 1])
             ->assertStatus(201);
         $this->getJson("/api/library/orders/{$orderId}/lines")->assertOk()->assertJsonCount(2, 'data');
-        $this->getJson("/api/library/orders/{$orderId}")->assertOk()->assertJsonPath('data.attributes.total', 250.0);
+        $recalc = $this->getJson("/api/library/orders/{$orderId}")->assertOk();
+        $this->assertSame(250.0, (float) $recalc->json('data.attributes.total'));
 
         $this->deleteJson("/api/library/orders/{$orderId}")->assertNoContent();
     }
