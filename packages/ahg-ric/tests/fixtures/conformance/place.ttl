@@ -1,0 +1,13 @@
+@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix openric: <https://openric.org/ns/v1#> .
+<https://ric.theahg.co.za/ric/place/912150> rdf:type rico:Place .
+<https://ric.theahg.co.za/ric/place/912150> rico:name "Egypt" .
+<https://ric.theahg.co.za/ric/place/912150> rico:description "Ancient Egypt, Nile Valley region. Origin of the 12th Dynasty funeral boat model." .
+<https://ric.theahg.co.za/ric/place/912150> rico:streetAddress "Egypt, North Africa" .
+<https://ric.theahg.co.za/ric/place/912150> openric:localType "country" .
+<https://ric.theahg.co.za/ric/place/912150> owl:sameAs "https://www.geonames.org/357994/egypt.html" .

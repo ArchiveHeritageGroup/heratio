@@ -295,6 +295,7 @@
         sh:message "Instantiation should be linked from a Record via rico:hasInstantiation" ;
         sh:severity sh:Warning ;
         sh:select """
+            PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
             SELECT $this WHERE {
                 $this a rico:Instantiation .
                 FILTER NOT EXISTS {
@@ -380,6 +381,7 @@
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
+            PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
             SELECT ?this WHERE {
                 ?this a rico:Activity ;
                       rico:hasActivityType "ConditionCheck" .
@@ -406,6 +408,7 @@
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
+            PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
             SELECT ?this WHERE {
                 ?this a rico:Activity ;
                       rico:hasActivityType "Valuation" .
@@ -433,6 +436,7 @@
     sh:target [
         a sh:SPARQLTarget ;
         sh:select """
+            PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
             SELECT ?this WHERE {
                 ?this a rico:Activity ;
                       rico:hasActivityType "LoanOut" .
@@ -511,6 +515,7 @@
         sh:message "Record has no parent and is not a top-level fonds" ;
         sh:severity sh:Warning ;
         sh:select """
+            PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
             SELECT $this WHERE {
                 $this a rico:Record .
                 FILTER NOT EXISTS { $this rico:isOrWasPartOf ?parent }
@@ -526,6 +531,7 @@
         sh:message "Agent is not linked to any records or activities" ;
         sh:severity sh:Info ;
         sh:select """
+            PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
             SELECT $this WHERE {
                 { $this a rico:Person } UNION 
                 { $this a rico:CorporateBody } UNION 
@@ -549,6 +555,7 @@
         sh:message "Multiple records share the same identifier" ;
         sh:severity sh:Warning ;
         sh:select """
+            PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
             SELECT $this WHERE {
                 $this rico:identifier ?id .
                 ?other rico:identifier ?id .

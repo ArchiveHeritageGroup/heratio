@@ -1,0 +1,58 @@
+# =============================================================================
+# RiC-O SHACL conformance gate (#1319 / ADR-0003)
+# =============================================================================
+# Validates representative RiC serialization fixtures against the STRICT
+# conformance shapes (sh:Violation-only). A non-conformant fixture - or a
+# shapes regression - FAILS the build. Lightweight: python + pyshacl only,
+# no DB/PHP. The live, DB-backed equivalent is `php artisan ahg:ric-conformance`.
+#
+# When the serializer's RiC output changes, regenerate the fixtures (they ARE
+# the serialization contract) so this gate keeps reflecting real output.
+# =============================================================================
+
+name: RiC Conformance
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  conformance:
+    name: RiC-O SHACL conformance gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install SHACL tooling
+        run: pip install pyshacl rdflib
+
+      - name: Validate RiC serialization fixtures against the conformance shapes
+        run: |
+          set -u
+          shapes=packages/ahg-ric/tools/ric_conformance_shapes.ttl
+          validator=packages/ahg-ric/tools/ric_shacl_validator.py
+          fail=0
+          shopt -s nullglob
+          fixtures=(packages/ahg-ric/tests/fixtures/conformance/*.ttl)
+          if [ ${#fixtures[@]} -eq 0 ]; then
+            echo "::error::no conformance fixtures found"; exit 1
+          fi
+          for f in "${fixtures[@]}"; do
+            echo "== $f =="
+            if python3 "$validator" --validate --file "$f" --shapes "$shapes"; then
+              echo "  conforms"
+            else
+              echo "::error file=$f::does NOT conform to the RiC-O conformance shapes"
+              fail=1
+            fi
+          done
+          exit $fail

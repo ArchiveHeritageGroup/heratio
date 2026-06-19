@@ -105,6 +105,8 @@ class AhgRicServiceProvider extends ServiceProvider
                 \AhgRic\Console\Commands\FusekiInstanceLoadCommand::class,
                 // #1197/#1214: push CIDOC-CRM named graphs into Fuseki
                 \AhgRic\Console\Commands\CrmGraphSyncCommand::class,
+                // #1319: RiC-O SHACL conformance gate
+                \AhgRic\Console\Commands\RicConformanceCommand::class,
             ]);
 
             // #77 phase 2: schedule integrity check from fuseki_integrity_schedule

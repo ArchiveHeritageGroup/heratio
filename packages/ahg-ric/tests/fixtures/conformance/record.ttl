@@ -1,0 +1,10 @@
+@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+<https://ric.theahg.co.za/ric/informationobject/title-of-object> rdf:type rico:Record .
+<https://ric.theahg.co.za/ric/informationobject/title-of-object> rico:type "Record" .
+<https://ric.theahg.co.za/ric/informationobject/title-of-object> rico:title "Title of object" .
+<https://ric.theahg.co.za/ric/informationobject/title-of-object> rico:identifier "2025-11-24/146" .
+<https://ric.theahg.co.za/ric/informationobject/title-of-object> rico:description "Description" .
+<https://ric.theahg.co.za/ric/informationobject/title-of-object> rico:hasExtent "https://www.ica.org/standards/RiC/ontology#Extent" .
+<https://ric.theahg.co.za/ric/informationobject/title-of-object> rico:hasExtent "1x2x3" .

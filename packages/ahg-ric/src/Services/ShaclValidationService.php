@@ -34,6 +34,16 @@ class ShaclValidationService
     }
 
     /**
+     * Path to the STRICT conformance shapes (sh:Violation-only structural rules)
+     * used by the ahg:ric-conformance CI gate - distinct from the advisory
+     * data-quality shapes in ric_shacl_shapes.ttl. See ADR-0003 / #1319.
+     */
+    public function conformanceShapesPath(): string
+    {
+        return __DIR__ . '/../../tools/ric_conformance_shapes.ttl';
+    }
+
+    /**
      * Validate an entity before CRUD operation
      */
     public function validateBeforeSave(array $ricEntity, string $entityType): array
@@ -71,44 +81,64 @@ class ShaclValidationService
     /**
      * Validate JSON-LD against SHACL shapes
      */
-    public function validateAgainstShapes(array $ricEntity): array
+    public function validateAgainstShapes(array $ricEntity, ?string $shapesPath = null): array
     {
+        $shapesPath = $shapesPath ?? $this->shapesPath;
         // Check if Python validator exists
         if (!file_exists($this->validatorScript)) {
             Log::warning('SHACL validator script not found, skipping shape validation');
-            return ['valid' => true, 'violations' => []];
+            return ['valid' => true, 'ran' => false, 'reason' => 'validator script missing', 'violations' => []];
         }
 
         // Convert entity to TTL for validation
         $ttl = $this->toTurtle($ricEntity);
-        $tempFile = tempnam(sys_get_temp_dir(), 'ric_validation_');
+        $tempFile = tempnam(sys_get_temp_dir(), 'ric_validation_') . '.ttl';
         file_put_contents($tempFile, $ttl);
 
+        // The validator's contract: `--validate --file <data> --shapes <shapes>`,
+        // exit 0 = conforms, exit 1 = does NOT conform. (The old `--data` flag
+        // was wrong and the FAIL/Violation string-match never matched its
+        // output, so validation silently passed.)
         $command = sprintf(
-            'python3 %s --data %s --shapes %s 2>&1',
-            escapeshellcmd($this->validatorScript),
+            'python3 %s --validate --file %s --shapes %s 2>&1',
+            escapeshellarg($this->validatorScript),
             escapeshellarg($tempFile),
-            escapeshellarg($this->shapesPath)
+            escapeshellarg($shapesPath)
         );
 
-        $output = shell_exec($command);
-        unlink($tempFile);
+        $output = [];
+        $rc = 0;
+        exec($command, $output, $rc);
+        @unlink($tempFile);
+        $raw = implode("\n", $output);
 
-        // Parse output
+        // A missing pyshacl/rdflib also exits non-zero (import error), which we
+        // must NOT confuse with a real violation. Mark such runs ran=false so
+        // runtime callers degrade gracefully while the CI gate fails loudly.
+        if (preg_match('/No module named|ModuleNotFoundError|pip install pyshacl|Traceback \(most recent/i', $raw)) {
+            Log::warning('[shacl] validator could not run (pyshacl/rdflib missing): ' . mb_substr($raw, 0, 500));
+            return ['valid' => true, 'ran' => false, 'reason' => 'pyshacl/rdflib not installed', 'violations' => [], 'raw_output' => $raw];
+        }
+
+        $conforms = ($rc === 0);
         $violations = [];
-        if (strpos($output, 'FAIL') !== false) {
-            $lines = explode("\n", $output);
-            foreach ($lines as $line) {
-                if (strpos($line, 'Violation') !== false) {
+        if (!$conforms) {
+            foreach ($output as $line) {
+                if (stripos($line, 'violation') !== false || stripos($line, 'Result Path') !== false
+                    || stripos($line, 'Message') !== false || stripos($line, 'Focus') !== false) {
                     $violations[] = trim($line);
                 }
+            }
+            if (empty($violations)) {
+                $violations[] = 'Non-conformant (validator exit ' . $rc . ')';
             }
         }
 
         return [
-            'valid' => empty($violations),
+            'valid' => $conforms,
+            'ran' => true,
             'violations' => $violations,
-            'raw_output' => $output,
+            'raw_output' => $raw,
         ];
     }
 
@@ -218,9 +248,17 @@ class ShaclValidationService
      */
     private function toTurtle(array $entity): string
     {
+        // Declare every prefix the serializers emit. Missing openric:/owl:/skos:
+        // declarations produced malformed Turtle (undeclared-prefix parse error),
+        // which surfaced as a false "non-conformant" for places (openric:localType,
+        // owl:sameAs). openric: is the canonical public namespace (governance pin).
         $ttl = "@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .\n";
         $ttl .= "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n";
         $ttl .= "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n";
+        $ttl .= "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\n";
+        $ttl .= "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n";
+        $ttl .= "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n";
+        $ttl .= "@prefix openric: <https://openric.org/ns/v1#> .\n";
         
         $id = $entity['@id'] ?? '_:b0';
         $type = str_replace('https://www.ica.org/standards/RiC/ontology#', 'rico:', $entity['@type'] ?? 'rico:Thing');

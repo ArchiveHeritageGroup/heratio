@@ -1,0 +1,54 @@
+# =============================================================================
+# RiC-O conformance gate shapes (#1319 / ADR-0003)
+# =============================================================================
+# STRICT, sh:Violation-severity structural rules that the RiC serialization
+# MUST always satisfy. A violation here FAILS the build (ahg:ric-conformance).
+#
+# Scope: serialization correctness (datatypes / node kinds), not data
+# completeness - those advisory data-quality checks live in
+# ric_shacl_shapes.ttl at sh:Warning/sh:Info and are NOT a build gate.
+#
+# This file is intentionally small and ratchets up: add a mandatory rule here
+# only once the serializer is known to satisfy it for all entities.
+# =============================================================================
+
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix :     <https://ric.theahg.co.za/ric/conformance#> .
+
+# A record's literal metadata, when present, MUST be string-typed.
+:RecordConformanceShape a sh:NodeShape ;
+    sh:targetClass rico:Record ;
+    sh:property [
+        sh:path rico:title ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "rico:title MUST be a string literal."
+    ] ;
+    sh:property [
+        sh:path rico:identifier ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "rico:identifier MUST be a string literal."
+    ] .
+
+# Agents (rico:Agent + its subclasses the serializer emits).
+:AgentConformanceShape a sh:NodeShape ;
+    sh:targetClass rico:Agent, rico:Person, rico:CorporateBody, rico:Family ;
+    sh:property [
+        sh:path rico:name ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "rico:name MUST be a string literal."
+    ] .
+
+# Places (rico:Place).
+:PlaceConformanceShape a sh:NodeShape ;
+    sh:targetClass rico:Place ;
+    sh:property [
+        sh:path rico:name ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "rico:name MUST be a string literal."
+    ] .

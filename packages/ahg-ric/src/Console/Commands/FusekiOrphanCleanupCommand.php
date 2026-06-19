@@ -27,6 +27,7 @@ namespace AhgRic\Console\Commands;
 
 use AhgRic\Services\FusekiSyncService;
 use AhgRic\Services\SparqlUpdateService;
+use AhgRic\Support\RicGraphManifest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -54,14 +55,9 @@ class FusekiOrphanCleanupCommand extends Command
     protected $signature = 'ahg:fuseki-orphan-cleanup {--dry-run : Detect orphans + log them but do not DROP}';
     protected $description = 'Detect + purge Fuseki graphs whose entity row no longer exists.';
 
-    private const GRAPH_PREFIX = 'urn:ahg:ric:';
-    private const TYPE_TABLES = [
-        'place'         => 'ric_place',
-        'rule'          => 'ric_rule',
-        'activity'      => 'ric_activity',
-        'instantiation' => 'ric_instantiation',
-        'relation'      => 'relation',
-    ];
+    // Entity -> source-table -> IRI mapping comes from the shared
+    // RicGraphManifest (ADR-0003) so this command, the integrity check, and the
+    // loader stay in lockstep.
 
     public function handle(): int
     {
@@ -76,15 +72,15 @@ class FusekiOrphanCleanupCommand extends Command
 
         // Pass 1: detect + log new orphans
         try {
-            $fusekiGraphs = $this->listFusekiGraphsByPrefix(self::GRAPH_PREFIX);
+            $fusekiGraphs = $this->listFusekiGraphsByPrefix(RicGraphManifest::URN_PREFIX);
         } catch (\Throwable $e) {
             $this->error('[fuseki-orphan-cleanup] Could not query Fuseki: ' . $e->getMessage());
             return self::FAILURE;
         }
 
         $relationalIds = [];
-        foreach (self::TYPE_TABLES as $entityType => $table) {
-            $ids = DB::table($table)->pluck('id')->all();
+        foreach (RicGraphManifest::TYPES as $entityType => $cfg) {
+            $ids = DB::table($cfg['table'])->pluck($cfg['id'])->all();
             $relationalIds[$entityType] = array_flip(array_map('intval', $ids));
         }
 
@@ -135,7 +131,13 @@ class FusekiOrphanCleanupCommand extends Command
             }
 
             try {
-                $upd->executeUpdate('DROP SILENT GRAPH <' . $row->graph_uri . '>');
+                // Entities live as SUBJECTS in the default graph (fuseki-load),
+                // so delete the subject's triples; also DROP any legacy
+                // same-named named graph for backward compatibility.
+                $upd->executeUpdate(
+                    'DELETE WHERE { <' . $row->graph_uri . '> ?p ?o } ; '
+                    . 'DROP SILENT GRAPH <' . $row->graph_uri . '>'
+                );
                 DB::table('ahg_fuseki_orphan_log')
                     ->where('graph_uri', $row->graph_uri)
                     ->update(['purged_at' => now()]);
@@ -179,7 +181,10 @@ class FusekiOrphanCleanupCommand extends Command
      */
     private function listFusekiGraphsByPrefix(string $prefix): array
     {
-        $sparql = 'SELECT DISTINCT ?g WHERE { GRAPH ?g { ?s ?p ?o } FILTER(STRSTARTS(STR(?g), "' . $prefix . '")) }';
+        // Match entity SUBJECTS in the default graph or any named graph (entities
+        // are written to the default graph as subjects, not per-entity named
+        // graphs) - mirrors the fixed FusekiIntegrityCheckCommand.
+        $sparql = 'SELECT DISTINCT ?s WHERE { { ?s ?p ?o } UNION { GRAPH ?g { ?s ?p ?o } } FILTER(STRSTARTS(STR(?s), "' . $prefix . '")) }';
         $endpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio') . '/sparql';
 
         $ch = curl_init();
@@ -202,8 +207,8 @@ class FusekiOrphanCleanupCommand extends Command
         $data = json_decode($response, true);
         $graphs = [];
         foreach (($data['results']['bindings'] ?? []) as $row) {
-            if (isset($row['g']['value'])) {
-                $graphs[] = (string) $row['g']['value'];
+            if (isset($row['s']['value'])) {
+                $graphs[] = (string) $row['s']['value'];
             }
         }
         return $graphs;
@@ -211,17 +216,6 @@ class FusekiOrphanCleanupCommand extends Command
 
     private function parseGraphUri(string $uri): ?array
     {
-        if (!str_starts_with($uri, self::GRAPH_PREFIX)) {
-            return null;
-        }
-        $tail = substr($uri, strlen(self::GRAPH_PREFIX));
-        $parts = explode(':', $tail);
-        if (count($parts) !== 2) {
-            return null;
-        }
-        if (!isset(self::TYPE_TABLES[$parts[0]]) || !ctype_digit($parts[1])) {
-            return null;
-        }
-        return [$parts[0], (int) $parts[1]];
+        return RicGraphManifest::parse($uri);
     }
 }
