@@ -8,8 +8,15 @@ use AhgSemanticSearch\Controllers\RepatriationDialogueController;
 use AhgSemanticSearch\Controllers\RepatriationKnowledgeController;
 use AhgSemanticSearch\Controllers\ResearchLeadAdminController;
 use AhgSemanticSearch\Controllers\ScholarshipController;
+use AhgSemanticSearch\Controllers\GroundingController;
 use AhgSemanticSearch\Controllers\SemanticSearchController;
 use Illuminate\Support\Facades\Route;
+
+// GraphRAG grounding (#1320): KM/agent GETs RiC-graph disambiguation facts to
+// inject into its grounding prompt. Public GET (server-to-server, no CSRF),
+// throttled; 3 path segments so the locked /{slug} catch-all won't intercept it.
+Route::get('/api/ric/ground', [GroundingController::class, 'ground'])
+    ->middleware('throttle:60,1')->name('ric.ground');
 
 Route::middleware('auth')->prefix('semantic-search')->group(function () {
     Route::get('/saved-searches', [SemanticSearchController::class, 'savedSearches'])->name('semantic-search.savedSearches');

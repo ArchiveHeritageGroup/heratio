@@ -103,6 +103,50 @@ class GraphGroundingService
     }
 
     /**
+     * Resolve a free-text query to graph entities and return their grounding
+     * packs + a ready-to-inject grounding block. This is the KM/agent entry
+     * point: vectors retrieve candidates elsewhere; here the ontology graph
+     * disambiguates by name/label match (SparqlQueryService::search) and
+     * returns authoritative facts. Read-only.
+     *
+     * @return array{query:string,entities:array,grounding_text:string}
+     */
+    public function groundQuery(string $query, int $maxEntities = 5): array
+    {
+        $query = trim($query);
+        $sparql = $this->sparql();
+        if ($sparql === null || $query === '') {
+            return ['query' => $query, 'entities' => [], 'grounding_text' => ''];
+        }
+
+        $hits = $sparql->search($query, ['limit' => max(1, $maxEntities * 3)]);
+        $uris = [];
+        foreach (($hits['bindings'] ?? []) as $b) {
+            $u = $this->bindingValue($b['entity'] ?? null);
+            if ($u !== '' && ! in_array($u, $uris, true)) {
+                $uris[] = $u;
+            }
+            if (count($uris) >= $maxEntities) {
+                break;
+            }
+        }
+
+        $packs = [];
+        foreach ($uris as $u) {
+            $p = $this->groundEntity($u);
+            if ($p !== null) {
+                $packs[] = $p;
+            }
+        }
+
+        return [
+            'query' => $query,
+            'entities' => $packs,
+            'grounding_text' => $this->groundingText($packs),
+        ];
+    }
+
+    /**
      * Render one or more grounding packs into a compact, prompt-ready block.
      * The framing tells the model these are authoritative facts to ground on.
      */
