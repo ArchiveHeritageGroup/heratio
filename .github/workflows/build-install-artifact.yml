@@ -114,11 +114,21 @@ jobs:
             --storage-path=/tmp/heratio-storage
 
       - name: Re-run install-bootstrap with -vvv (diagnostic for issue #53)
+        # Diagnostic only: re-runs work bin/install already did, to surface
+        # per-package skip-reasons with -vvv. It must never gate the artifact
+        # build, so it is continue-on-error (#1322).
+        continue-on-error: true
         # bin/install runs heratio:install-bootstrap once with no extra flags, so
         # per-package skip-reasons aren't visible. Re-running here with -vvv (and
         # after a fresh autoload + config:clear) surfaces what's actually
         # happening in CI vs. local. force=true so re-runs are no-ops on success.
         run: |
+          # bin/install runs under sudo and leaves storage/ owned by www-data;
+          # this step runs as the runner user. Reclaim ownership first, else the
+          # first \Log call during package:discover (e.g. a provider's boot-time
+          # auto-install catch) throws on the unwritable laravel.log and aborts
+          # composer's post-autoload-dump package:discover (#1322).
+          sudo chown -R "$(id -u):$(id -g)" storage bootstrap/cache 2>/dev/null || true
           composer dump-autoload --no-dev -o
           php artisan package:discover --ansi || true
           php artisan config:clear || true
