@@ -26,6 +26,7 @@
 namespace AhgRic\Console\Commands;
 
 use AhgRic\Services\SparqlUpdateService;
+use AhgRic\Support\RicGraphManifest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -56,7 +57,7 @@ class FusekiInstanceLoadCommand extends Command
                             {--batch=200 : Entities per Fuseki update request}
                             {--dry-run : Build the SPARQL update and report counts without writing}';
 
-    protected $description = 'Publish actors (rico:Agent) and place terms (rico:Place) into the /openric-model Fuseki default graph (heratio#139).';
+    protected $description = 'Publish RiC entities (agents, places, rules, activities, instantiations, relations) into the Fuseki graph per the projection manifest (ADR-0003; heratio#139/#1319).';
 
     /** RiC-O ontology namespace. */
     private const RICO = 'https://www.ica.org/standards/RiC/ontology#';
@@ -91,6 +92,21 @@ class FusekiInstanceLoadCommand extends Command
             [$ok, $bad] = $this->loadEntities('places', $this->buildPlaceEntities($limit), $batch, $dryRun, $sparql);
             $loaded += $ok;
             $failed += $bad;
+        }
+
+        // RiC-native sidecar types + relations (ADR-0003 manifest). Loaded on a
+        // full run (neither --agents-only nor --places-only).
+        if (!$agentsOnly && !$placesOnly) {
+            foreach ([
+                ['rule', 'ric_rule', 'Rule'],
+                ['activity', 'ric_activity', 'Activity'],
+                ['instantiation', 'ric_instantiation', 'Instantiation'],
+                ['relation', 'relation', 'Relation'],
+            ] as [$type, $table, $ricClass]) {
+                [$ok, $bad] = $this->loadEntities($type, $this->buildTypedEntities($type, $table, $ricClass, $limit), $batch, $dryRun, $sparql);
+                $loaded += $ok;
+                $failed += $bad;
+            }
         }
 
         $this->newLine();
@@ -132,7 +148,7 @@ class FusekiInstanceLoadCommand extends Command
         $entities = [];
         foreach ($q->get() as $row) {
             $ricType = self::AGENT_TYPE_MAP[strtolower(trim((string) ($row->etype ?? '')))] ?? 'Agent';
-            $uri = 'urn:ahg:ric:agent:' . (int) $row->id;
+            $uri = RicGraphManifest::iri('agent', (int) $row->id);
             $entities[] = [
                 'uri'    => $uri,
                 'turtle' => '<' . $uri . '> a rico:' . $ricType
@@ -144,34 +160,65 @@ class FusekiInstanceLoadCommand extends Command
     }
 
     /**
-     * Every place term as a rico:Place instance. serializePlace() reads the
-     * RiC-native ric_place table, not the term taxonomy, so the place turtle
-     * is built directly - type + rico:name is all FusekiPlaceAdapter matches.
+     * Every ric_place row as a rico:Place instance. Canonical Place source is
+     * ric_place (ADR-0003 / RicGraphManifest), NOT the term taxonomy. The
+     * display name comes from the linked term (ric_place.term_id).
      *
      * @return array<int,array{uri:string,turtle:string}>
      */
     private function buildPlaceEntities(?int $limit): array
     {
-        $q = DB::table('term as t')
-            ->join('term_i18n as ti', function ($j) {
+        // Name via the linked term. Join through `term` and match on
+        // term.source_culture (same collation as term_i18n) - NOT on
+        // ric_place.source_culture, which is a different collation and triggers
+        // MySQL error 1267 (illegal mix of collations) on the culture compare.
+        $q = DB::table('ric_place as rp')
+            ->leftJoin('term as t', 't.id', '=', 'rp.term_id')
+            ->leftJoin('term_i18n as ti', function ($j) {
                 $j->on('ti.id', '=', 't.id')->on('ti.culture', '=', 't.source_culture');
             })
-            ->where('t.taxonomy_id', self::PLACE_TAXONOMY_ID)
-            ->whereNotNull('ti.name')
-            ->where('ti.name', '<>', '')
-            ->orderBy('t.id')
-            ->select('t.id', 'ti.name');
+            ->orderBy('rp.id')
+            ->select('rp.id', 'ti.name');
         if ($limit !== null) {
             $q->limit($limit);
         }
 
         $entities = [];
         foreach ($q->get() as $row) {
-            $uri = 'urn:ahg:ric:place:' . (int) $row->id;
+            $uri = RicGraphManifest::iri('place', (int) $row->id);
+            $ttl = '<' . $uri . '> a rico:Place';
+            if (! empty($row->name)) {
+                $ttl .= ' ; rico:name ' . $this->ttlLiteral((string) $row->name);
+            }
+            $ttl .= ' .';
+            $entities[] = ['uri' => $uri, 'turtle' => $ttl];
+        }
+
+        return $entities;
+    }
+
+    /**
+     * Project a RiC-native sidecar table (ric_rule / ric_activity /
+     * ric_instantiation) or the relation table as typed rico nodes per the
+     * manifest. These tables carry no display label, so the baseline is the
+     * typed node (urn:ahg:ric:<type>:<id> a rico:<Class>); richer predicates
+     * (dates, connected entities) are a follow-up.
+     *
+     * @return array<int,array{uri:string,turtle:string}>
+     */
+    private function buildTypedEntities(string $type, string $table, string $ricClass, ?int $limit): array
+    {
+        $q = DB::table($table)->orderBy('id')->select('id');
+        if ($limit !== null) {
+            $q->limit($limit);
+        }
+
+        $entities = [];
+        foreach ($q->get() as $row) {
+            $uri = RicGraphManifest::iri($type, (int) $row->id);
             $entities[] = [
                 'uri'    => $uri,
-                'turtle' => '<' . $uri . '> a rico:Place'
-                          . ' ; rico:name ' . $this->ttlLiteral((string) $row->name) . ' .',
+                'turtle' => '<' . $uri . '> a rico:' . $ricClass . ' .',
             ];
         }
 
