@@ -71,6 +71,32 @@ class VendorCrudTest extends TestCase
         // Two known service types for service-sync + service_type_id filter.
         $this->serviceTypeId = $this->ensureServiceType('TestSvcA '.Str::random(4));
         $this->serviceTypeIdB = $this->ensureServiceType('TestSvcB '.Str::random(4));
+
+        $this->ensureTransactionStatuses();
+    }
+
+    /**
+     * Self-seed the vendor_transaction_status dropdown the controller validates
+     * status changes against. CI's freshly-loaded heratio_test has no package
+     * dropdown seeds, so updateTransactionStatus would reject 'approved' as an
+     * invalid status. Rolled back with DatabaseTransactions; idempotent.
+     */
+    private function ensureTransactionStatuses(): void
+    {
+        foreach (['pending_approval', 'in_progress', 'approved', 'dispatched', 'returned', 'completed', 'cancelled'] as $code) {
+            $exists = DB::table('ahg_dropdown')
+                ->where('taxonomy', 'vendor_transaction_status')->where('code', $code)->exists();
+            if (! $exists) {
+                DB::table('ahg_dropdown')->insert([
+                    'taxonomy' => 'vendor_transaction_status',
+                    'taxonomy_label' => 'Vendor Transaction Status',
+                    'code' => $code,
+                    'label' => ucwords(str_replace('_', ' ', $code)),
+                    'is_active' => 1,
+                ]);
+            }
+        }
+        \AhgCore\Services\AhgSettingsService::clearCache();
     }
 
     /**

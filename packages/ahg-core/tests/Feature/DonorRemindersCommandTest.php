@@ -33,8 +33,13 @@ class DonorRemindersCommandTest extends TestCase
 
     private function makeAgreement(array $overrides = []): int
     {
-        $typeId = DB::table('agreement_type')->value('id');
-        $this->assertNotNull($typeId, 'test DB needs at least one agreement_type row');
+        // Self-seed: CI's freshly-loaded heratio_test carries no agreement_type
+        // rows (not in the base seed set). Use an existing type or mint one so the
+        // test is self-sufficient. Rolled back with DatabaseTransactions.
+        $typeId = (int) (DB::table('agreement_type')->value('id') ?? DB::table('agreement_type')->insertGetId([
+            'name' => 'Test Agreement Type',
+            'slug' => 'test-agreement-type-'.Str::lower(Str::random(6)),
+        ]));
 
         return (int) DB::table('donor_agreement')->insertGetId(array_merge([
             'agreement_number' => 'TEST-'.Str::upper(Str::random(8)),
