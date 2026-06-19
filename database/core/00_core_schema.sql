@@ -1,4 +1,18 @@
--- Heratio core schema — full structure, regenerated from the authoritative
+-- =====================================================================
+-- Attribution - archival data model
+-- ---------------------------------------------------------------------
+-- The core archival schema below (the Qubit data model: object,
+-- information_object, actor, repository, digital_object, event, relation,
+-- the *_i18n translation tables, and the lft/rgt nested-set hierarchy) is
+-- derived from the data model originally created for AtoM (Access to
+-- Memory) by Artefactual Systems Inc. (Copyright (C) 2006-2014 Artefactual
+-- Systems Inc.), released under the GNU Affero General Public License v3.0.
+-- Heratio is an independent Laravel re-implementation, not a fork, and is
+-- likewise licensed under AGPL v3.0. See ACKNOWLEDGMENTS.md for full credit
+-- to Artefactual, the AtoM community, and the International Council on
+-- Archives.
+-- =====================================================================
+-- Heratio core schema - full structure, regenerated from the authoritative
 -- production DB so a fresh install matches the current code (no column drift).
 -- Structure only (no data/triggers/routines); DEFINERs stripped; IF NOT EXISTS.
 SET FOREIGN_KEY_CHECKS=0;

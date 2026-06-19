@@ -34,6 +34,13 @@ class AppServiceProvider extends ServiceProvider
             // otherwise eat /metrics and 404 it (#1137). Unnamed to avoid a
             // route-name collision with the package's own 'observability.metrics'.
             $router->get('/metrics', [\AhgObservability\Http\Controllers\MetricsController::class, 'show']);
+            // Open-source credits / licenses page - the AGPL "Appropriate Legal
+            // Notices" surface (sec 5d) crediting AtoM / Artefactual, the ICA,
+            // and the libraries Heratio builds on, plus the network-use source
+            // offer (sec 13). Single top-level segment, so pre-registered here
+            // to beat the slug catch-all. Public (web middleware for the view).
+            $router->get('/credits', [\App\Http\Controllers\CreditsController::class, 'show'])
+                ->middleware('web')->name('credits');
             $router->middleware(['web', 'auth'])->group(function () use ($router) {
                 $router->get('/z3950/search', [\AhgZ3950\Controllers\Z3950Controller::class, 'search'])->name('z3950.search');
                 $router->post('/z3950/search', [\AhgZ3950\Controllers\Z3950Controller::class, 'searchRun'])->name('z3950.search-run');
