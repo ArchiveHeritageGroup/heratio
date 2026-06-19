@@ -365,6 +365,11 @@ fi
 # 6. Core schema (00→03)
 # ============================================================================
 say "Stage 6/14 - core schema"
+# Diagnostic: capture the server's identity + FK-relevant session state. The
+# core schema loads on every local MySQL 8.0.x we can spin up but 3780s in CI
+# on a valid, byte-identical int FK (build-install + E2E Parity). Surfacing the
+# CI server's version / sql_mode / fk-checks pins down what differs.
+warn "MySQL env: $(mysql_run -N -e "SELECT CONCAT(@@version,' | sql_mode=[',@@sql_mode,'] | fk_checks=',@@foreign_key_checks);" 2>/dev/null)"
 for f in database/core/0*.sql; do
     [[ -f "$f" ]] || continue
     bn="$(basename "$f")"
@@ -373,6 +378,12 @@ for f in database/core/0*.sql; do
     else
         warn "----- mysql error output for $bn -----"
         tail -n 30 "/tmp/heratio-install-${bn}.err" >&2 || true
+        # Show how the server actually materialised the FK pair. The parent
+        # (user_totp_secret) is created before the failing child, so its real
+        # column type/attrs are visible here even after the load aborts.
+        warn "----- SHOW CREATE for the fk_mfa_recovery_user pair (diagnostic) -----"
+        mysql_run "$DB_NAME" -e "SHOW CREATE TABLE user_totp_secret\\G" 2>&1 | head -40 >&2 || true
+        mysql_run "$DB_NAME" -e "SHOW CREATE TABLE user_mfa_recovery_code\\G" 2>&1 | head -40 >&2 || true
         die "failed loading $bn (see /tmp/heratio-install-${bn}.err)"
     fi
 done
