@@ -28,6 +28,7 @@ use AhgRic\Http\Controllers\LinkedDataApiController;
 use AhgRic\Http\Controllers\OaiPmhController;
 use AhgRic\Http\Controllers\KeyRequestController;
 use AhgRic\Http\Controllers\ImportController;
+use AhgRic\Http\Controllers\DatasetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +94,12 @@ Route::prefix('api/ric/v1')->middleware([
     // RiC-native Rules (mandates, laws, policies)
     Route::get('/rules', [LinkedDataApiController::class, 'listRules']);
     Route::get('/rules/{id}', [LinkedDataApiController::class, 'showRule'])->where('id', '[0-9]+');
+
+    // Dataset descriptor (DCAT/VoID) + versioned change log (#1321). The
+    // machine-readable front door: distributions, license, pinned standards,
+    // and a consumer-diffable change feed.
+    Route::get('/dataset', [DatasetController::class, 'dataset'])->name('ric.dataset');
+    Route::get('/changelog', [DatasetController::class, 'changelog'])->name('ric.changelog');
 
     // SPARQL & Graph
     Route::get('/sparql', [LinkedDataApiController::class, 'sparql']);

@@ -19,6 +19,12 @@ class AhgExhibitionServiceProvider extends ServiceProvider
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-exhibition');
 
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgExhibition\Console\Commands\LostPlaceGatherCommand::class,
+            ]);
+        }
+
         $this->migrateSpatialColumns();
     }
 

@@ -91,6 +91,28 @@ class AhgRicServiceProvider extends ServiceProvider
         // Load views
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-ric');
 
+        // #1321 deprecate-not-delete register. Idempotent; probe + create wrapped
+        // in one try (reference_ci_schema_hastable) so a brand-new install never
+        // fatals the provider boot.
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('ric_deprecated_entity')) {
+                \Illuminate\Support\Facades\DB::statement(
+                    'CREATE TABLE IF NOT EXISTS `ric_deprecated_entity` (
+                        `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                        `entity_type` VARCHAR(40) NOT NULL,
+                        `entity_id` INT NOT NULL,
+                        `reason` TEXT NULL,
+                        `superseded_by_iri` VARCHAR(1024) NULL,
+                        `deprecated_by` VARCHAR(190) NULL,
+                        `deprecated_at` DATETIME NOT NULL,
+                        UNIQUE KEY `uq_ric_deprecated` (`entity_type`, `entity_id`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+                );
+            }
+        } catch (\Throwable $e) {
+            // Non-fatal: deprecation emission simply stays inert until the table exists.
+        }
+
         // Register artisan commands (only when running in console — cheap guard).
         if ($this->app->runningInConsole()) {
             $this->commands([

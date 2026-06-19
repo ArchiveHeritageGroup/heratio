@@ -220,7 +220,40 @@ class RicSerializationService
             $record['rico:hasRecordPart'] = $children;
         }
 
-        return $record;
+        return $this->applyDeprecation($record, 'information_object', $ioId);
+    }
+
+    /**
+     * Deprecate-not-delete (#1321 / governance pin section 2): if the entity is
+     * in the deprecation register, stamp owl:deprecated (and dcterms:isReplacedBy
+     * when a successor IRI is recorded) so the export distinguishes a superseded
+     * entity instead of silently dropping it.
+     */
+    private function applyDeprecation(array $entity, string $entityType, int $id): array
+    {
+        try {
+            $info = app(\AhgRic\Services\RicDeprecationService::class)->info($entityType, $id);
+        } catch (\Throwable $e) {
+            return $entity;
+        }
+        if (! $info) {
+            return $entity;
+        }
+
+        if (! isset($entity['@context']) || ! is_array($entity['@context'])) {
+            $entity['@context'] = [];
+        }
+        $entity['@context']['owl'] ??= 'http://www.w3.org/2002/07/owl#';
+        $entity['@context']['dcterms'] ??= 'http://purl.org/dc/terms/';
+        $entity['owl:deprecated'] = true;
+        if (! empty($info->reason)) {
+            $entity['rdfs:comment'] = (string) $info->reason;
+        }
+        if (! empty($info->superseded_by_iri)) {
+            $entity['dcterms:isReplacedBy'] = ['@id' => (string) $info->superseded_by_iri];
+        }
+
+        return $entity;
     }
 
     /**
@@ -509,7 +542,7 @@ class RicSerializationService
             ];
         }
 
-        return $ricPlace;
+        return $this->applyDeprecation($ricPlace, 'place', $placeId);
     }
 
     /**
