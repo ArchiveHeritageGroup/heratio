@@ -22,6 +22,13 @@ class TermApiTest extends TestCase
         if (! \Illuminate\Support\Facades\Route::has('api.term.index')) {
             $this->markTestSkipped('API routes not yet implemented');
         }
+
+        // Authenticate so ApiAuthenticate (api.auth) grants full scopes; the
+        // write endpoints return 401 without a logged-in user or an API key.
+        $user = \Illuminate\Support\Facades\DB::table('users')->first();
+        $model = new \App\Models\User();
+        $model->id = $user->id ?? 1;
+        $this->actingAs($model);
     }
 
     // ========================================================================

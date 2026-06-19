@@ -9722,7 +9722,7 @@ DROP TABLE IF EXISTS `digital_object_metadata`;
 CREATE TABLE IF NOT EXISTS `digital_object_metadata` (
   `id` int NOT NULL AUTO_INCREMENT,
   `digital_object_id` int NOT NULL,
-  `file_type` varchar(44) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'image, pdf, office, video, audio, other',
+  `file_type` varchar(44) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'image, pdf, office, video, audio, other (NULL when metadata is written without a file classification, e.g. EXIF-only updates)',
   `raw_metadata` json DEFAULT NULL COMMENT 'Complete raw metadata as extracted',
   `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `creator` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
