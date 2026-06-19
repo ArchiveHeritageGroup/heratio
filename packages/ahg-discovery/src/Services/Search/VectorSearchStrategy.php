@@ -6,7 +6,7 @@
  * Wraps {@see \AhgSearch\Services\VectorSearchService} so the Discovery pipeline
  * can ablation-test vector contributions independently. Returns hits in the
  * shape Discovery's merger expects:
- *   {object_id, score, source:'vector', slug?, title?}
+ *   {object_id, score, source:'vector', slug?, title?, entity_iri?}
  *
  * Configurable via ahg_settings:
  *   ahg_discovery_vector_enabled    (bool, default 1)
@@ -76,6 +76,9 @@ class VectorSearchStrategy implements SearchStrategyInterface
                 'source' => 'vector',
                 'slug' => $h['slug'] ?? null,
                 'title' => $h['title'] ?? null,
+                // Canonical RiC entity IRI (governance pin / #1319) - join key
+                // into the Fuseki graph for GraphRAG grounding (#1320).
+                'entity_iri' => $h['entity_iri'] ?? null,
             ];
         }
 

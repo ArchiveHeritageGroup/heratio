@@ -191,6 +191,13 @@ class QdrantImageIndexCommand extends Command
                         'object_id'            => (int) $row->object_id, // legacy payload key (existing consumers)
                         'title'                => $meta['title'] ?? null,
                         'slug'                 => $meta['slug'] ?? null,
+                        // Canonical RiC entity IRI of the parent information object
+                        // (governance pin / #1319) - the join key into the Fuseki
+                        // graph for GraphRAG grounding (#1320). An image hit thus
+                        // resolves to its record's authority node.
+                        'entity_iri'           => ($meta['slug'] ?? null)
+                            ? rtrim(config('ric.base_uri', 'https://ric.theahg.co.za/ric'), '/') . '/informationobject/' . $meta['slug']
+                            : null,
                         'thumb_url'            => $meta['slug'] ? '/' . $meta['slug'] : null,
                         'mime_type'            => $row->mime_type ?: ('image/' . ($ext === 'jpg' ? 'jpeg' : $ext)),
                     ],

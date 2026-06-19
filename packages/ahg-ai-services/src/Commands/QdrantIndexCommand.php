@@ -170,6 +170,11 @@ class QdrantIndexCommand extends Command
                         'database'      => $sourceDb,
                         'title'         => $row->title,
                         'slug'          => $row->slug,
+                        // Canonical RiC entity IRI (governance pin / #1319) - the
+                        // join key into the Fuseki graph for GraphRAG grounding (#1320).
+                        'entity_iri'    => $row->slug
+                            ? rtrim(config('ric.base_uri', 'https://ric.theahg.co.za/ric'), '/') . '/informationobject/' . $row->slug
+                            : null,
                         'parent_id'     => $row->parent_id ? (int) $row->parent_id : null,
                         'has_scope'     => ! empty($row->scope_and_content),
                         'has_transcript'=> false,
