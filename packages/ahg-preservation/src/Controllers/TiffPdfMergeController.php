@@ -181,8 +181,42 @@ class TiffPdfMergeController extends Controller
                 ->with('error', 'Merge failed: '.$e->getMessage());
         }
 
+        $successMsg = 'Merge completed: '.$outName;
+
+        // 4) Optionally attach the merged output back to the source archival
+        //    record as a digital object, via the canonical upload path (creates
+        //    object + digital_object master under /uploads/r/<ioId>/ + derivatives).
+        //    A copy is wrapped as an UploadedFile because upload() MOVES the file;
+        //    the job keeps its own output at $outPath for the Download button.
+        if ($ioId && $request->boolean('attach_to_record')) {
+            try {
+                $attachTmp = $workDir.'/attach-'.$outName;
+                if (! @copy($outPath, $attachTmp)) {
+                    throw new \RuntimeException('Could not stage a copy for attachment.');
+                }
+
+                $mime = $format === 'tiff' ? 'image/tiff' : 'application/pdf';
+                $uploaded = new \Illuminate\Http\UploadedFile($attachTmp, $outName, $mime, null, true);
+
+                $masterId = \AhgCore\Services\DigitalObjectService::upload($ioId, $uploaded);
+
+                DB::table('tiff_pdf_merge_job')->where('id', $jobId)->update([
+                    'attach_to_record'         => 1,
+                    'output_digital_object_id' => $masterId,
+                    'updated_at'               => now(),
+                ]);
+
+                @unlink($attachTmp); // upload() already moved it; harmless if gone
+                $successMsg .= ' - attached to record #'.$ioId.'.';
+            } catch (\Throwable $e) {
+                // Merge itself succeeded; surface the attach problem without
+                // failing the job.
+                $successMsg .= ' (merge OK, but attaching to the record failed: '.$e->getMessage().')';
+            }
+        }
+
         return redirect()->route('preservation.tiffpdfmerge.view', $jobId)
-            ->with('success', 'Merge completed: '.$outName);
+            ->with('success', $successMsg);
     }
 
     /**
@@ -347,6 +381,17 @@ class TiffPdfMergeController extends Controller
             abort(404, 'Merge job not found');
         }
 
-        return view('ahg-preservation::tiffpdfmerge.view', compact('job', 'sourceFiles'));
+        // Resolve a link back to the source archival record (if the job is
+        // linked to one) so the view page can offer a "View record" button.
+        $recordSlug = null;
+        if (! empty($job->information_object_id)) {
+            try {
+                $recordSlug = DB::table('slug')->where('object_id', $job->information_object_id)->value('slug');
+            } catch (\Exception $e) {
+                // ignore
+            }
+        }
+
+        return view('ahg-preservation::tiffpdfmerge.view', compact('job', 'sourceFiles', 'recordSlug'));
     }
 }

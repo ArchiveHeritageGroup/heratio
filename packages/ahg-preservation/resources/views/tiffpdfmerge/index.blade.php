@@ -40,6 +40,17 @@
               <input type="file" name="files[]" class="form-control" multiple required accept=".tif,.tiff,.pdf,.jpg,.jpeg,.png">
               <div class="form-text">Select TIFF, PDF, or image files to merge. Hold Ctrl/Cmd to select multiple.</div>
             </div>
+            @if(!empty($ioId))
+            <div class="col-12 mb-1">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="attach_to_record" value="1" id="attachToRecord" checked>
+                <label class="form-check-label" for="attachToRecord">
+                  {{ __('Attach the merged file to the archival record as a digital object') }}
+                  <span class="text-muted">(record #{{ $ioId }})</span>
+                </label>
+              </div>
+            </div>
+            @endif
           </div>
         </div>
       </div>

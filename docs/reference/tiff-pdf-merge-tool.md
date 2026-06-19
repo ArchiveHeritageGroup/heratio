@@ -39,6 +39,18 @@ nothing was merged. `view()` also queried non-existent columns (`job_id`,
 6. The completed output is served by `download()` at
    `preservation.tiffpdfmerge.download` (admin-gated, streams the file with the
    stored filename) - not a static path.
+7. **Attach back to the record.** When the tool was opened from a record and
+   the "Attach the merged file to the archival record" checkbox is ticked
+   (default on), `store()` copies the output and runs it through the canonical
+   `AhgCore\Services\DigitalObjectService::upload($ioId, $uploadedFile)`. That
+   creates the `object` + master `digital_object` row under
+   `/uploads/r/<ioId>/` plus derivatives, exactly like a normal upload. The
+   resulting master id is stored on the job as `output_digital_object_id` and
+   `attach_to_record=1`. A *copy* is wrapped as an `UploadedFile` (test mode)
+   because `upload()` moves the file - the job keeps its own output at
+   `output_path` for the Download button, and the record gets its own copy.
+   The job view page shows an "Attached" badge and a "View Record" button
+   (record slug resolved from the `slug` table).
 
 ## Requirements
 

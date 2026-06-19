@@ -34,12 +34,23 @@
           <tr><th>{{ __('Output Format') }}</th><td>{{ strtoupper($job->output_format ?? '-') }}</td></tr>
           <tr><th>{{ __('Output File') }}</th><td>{{ $job->output_filename ?? '-' }}</td></tr>
           <tr><th>{{ __('Files Merged') }}</th><td>{{ $job->file_count ?? 0 }}</td></tr>
+          @if(!empty($job->information_object_id))
+          <tr><th>{{ __('Source Record') }}</th><td>
+            #{{ $job->information_object_id }}
+            @if(!empty($job->output_digital_object_id))
+              <span class="badge bg-success ms-1"><i class="fas fa-paperclip me-1"></i>{{ __('Attached') }}</span>
+            @endif
+          </td></tr>
+          @endif
           <tr><th>{{ __('Created') }}</th><td>{{ $job->created_at ?? '' }}</td></tr>
           <tr><th>{{ __('Completed') }}</th><td>{{ $job->completed_at ?? '-' }}</td></tr>
         </table>
 
         @if(($job->status ?? '') === 'completed' && ($job->output_path ?? null))
         <a href="{{ route('preservation.tiffpdfmerge.download', $job->id) }}" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Download Output') }}</a>
+        @endif
+        @if(!empty($recordSlug))
+        <a href="{{ url('/'.$recordSlug) }}" class="btn btn-outline-primary"><i class="fas fa-arrow-left me-1"></i>{{ __('View Record') }}</a>
         @endif
       </div>
     </div>
