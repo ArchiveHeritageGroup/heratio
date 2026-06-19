@@ -447,7 +447,9 @@ UNLOCK TABLES;
 -- ────────────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS `user_totp_secret` (
-  `user_id` int unsigned NOT NULL,
+  -- Signed `int` to match user.id and the core schema / production (both
+  -- signed). An unsigned column here makes the child FK below incompatible.
+  `user_id` int NOT NULL,
   `secret` varchar(64) NOT NULL,
   `enabled_at` timestamp NULL DEFAULT NULL,
   `last_used_at` timestamp NULL DEFAULT NULL,
@@ -458,15 +460,17 @@ CREATE TABLE IF NOT EXISTS `user_totp_secret` (
   KEY `idx_enabled_at` (`enabled_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- NOTE: user_id is signed `int` (NOT `int unsigned`) to match the FK target
--- user_totp_secret.user_id. MySQL FK constraints require exact type match
--- including signedness; a mismatch raises error 3780 and aborts the install
--- batch before the tables defined below ever get created. Keep this signed.
+-- NOTE: both user_totp_secret.user_id and the user_id below are signed `int`,
+-- matching the core schema (database/core) and production. MySQL FK constraints
+-- require an exact type match including signedness; a mismatch raises error 3780
+-- and aborts the install. The core schema + prod are the source of truth - if
+-- either side here were `int unsigned` while the other is signed, the install
+-- breaks (this was the build-install / E2E Parity 3780). Keep both signed.
 CREATE TABLE IF NOT EXISTS `user_mfa_recovery_code` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  -- Must match user_totp_secret.user_id (int unsigned) or the FK below raises
-  -- MySQL error 3780 (incompatible referencing column) and aborts the install.
-  `user_id` int unsigned NOT NULL,
+  -- Signed `int` to match user_totp_secret.user_id (signed int); an unsigned
+  -- column here raises FK error 3780 against the signed parent.
+  `user_id` int NOT NULL,
   `code_hash` varchar(255) NOT NULL,
   `used_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
