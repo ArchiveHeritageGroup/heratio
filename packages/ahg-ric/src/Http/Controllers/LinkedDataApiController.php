@@ -761,7 +761,7 @@ class LinkedDataApiController extends Controller
 
         $ricController = new \AhgRic\Controllers\RicController();
         $instanceId = \AhgCore\Services\SettingHelper::get('ahg_ric_instance_id', 'heratio');
-        $baseUri = config('app.url', url('/'));
+        $baseUri = config('ric.base_uri', 'https://ric.theahg.co.za/ric');
 
         // Dispatch by entity type from the URI.
         $graph = null;

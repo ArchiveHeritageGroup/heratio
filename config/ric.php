@@ -43,6 +43,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Canonical entity-IRI base (ontology governance pin, 2026-06-19)
+    |--------------------------------------------------------------------------
+    | THE single source for every RiC entity @id. IRIs are minted as
+    | <base_uri>/<type>/<stable-id> and are permanent once published, so this
+    | must be the stable, dereferenceable public host (= the SPARQL/REST host).
+    | Supersedes the old app.url-based + archives.theahg.co.za + heratio.theahg
+    | minting. The AHG extension predicate namespace (openric:) is the public
+    | https://openric.org/ns/v1# and is fixed in code, not configured here.
+    */
+    'base_uri' => env('RIC_BASE_URI', 'https://ric.theahg.co.za/ric'),
+
+    /*
+    |--------------------------------------------------------------------------
     | External OpenRiC Service (Phase 4.3 split)
     |--------------------------------------------------------------------------
     | When api_url is null (or points at the same host as app.url), Heratio

@@ -13,7 +13,7 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix spectrum: <https://collectionstrust.org.uk/spectrum#> .
 @prefix grap: <https://www.asb.co.za/grap#> .
-@prefix : <https://archives.theahg.co.za/ric/shapes#> .
+@prefix : <https://ric.theahg.co.za/ric/shapes#> .
 
 
 # ============================================================================

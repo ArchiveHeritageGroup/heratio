@@ -59,7 +59,7 @@ class RelationshipService
         $this->fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('ric.fuseki.url', 'http://localhost:3030/ric')) . '/query';
         $this->fusekiUsername = $config['fuseki_username'] ?? config('ric.fuseki.user', '');
         $this->fusekiPassword = $config['fuseki_password'] ?? config('ric.fuseki.password', '');
-        $this->baseUri = $config['ric_base_uri'] ?? 'https://archives.theahg.co.za/ric';
+        $this->baseUri = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');
         $this->instanceId = $config['ric_instance_id'] ?? 'atom-psis';
     }
 

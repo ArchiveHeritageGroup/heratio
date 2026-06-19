@@ -99,7 +99,10 @@ class RicSerializationService
 
     public function __construct()
     {
-        $this->baseUri = config('app.url', 'http://localhost');
+        // Canonical, environment-independent entity-IRI base (governance pin).
+        // NOT config('app.url') - that produced http://localhost/... in CI/dev
+        // and a Heratio-host IRI in prod, so entity IRIs were not stable.
+        $this->baseUri = config('ric.base_uri', 'https://ric.theahg.co.za/ric');
         $this->instanceId = SettingHelper::get('ahg_ric_instance_id', 'default');
         $this->fusekiEndpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio');
     }
@@ -1485,7 +1488,10 @@ class RicSerializationService
         }
         // Common openric extension uses a default namespace - declare lazily
         // when we actually emit a property in it.
-        $declared['openric'] = $declared['openric'] ?? 'http://openric.theahg.co.za/ns/v0.2/openric#';
+        // Canonical openric: namespace = the public OpenRiC community NS, and
+        // MUST match the JSON-LD @context (JsonLdConverter) so the prefix
+        // resolves identically in every serialisation (round-trip safe).
+        $declared['openric'] = $declared['openric'] ?? 'https://openric.org/ns/v1#';
         ksort($declared);
         foreach ($declared as $alias => $uri) {
             $lines[] = '@prefix ' . $alias . ': <' . $uri . '> .';

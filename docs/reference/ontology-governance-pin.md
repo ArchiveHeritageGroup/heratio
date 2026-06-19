@@ -13,15 +13,17 @@ This is deliberately one page. It governs the meaning layer; it does not re-spec
 | Thesauri / controlled vocab | SKOS | W3C Rec (2009) | `term`, `subject`, `place`, authority vocabularies. |
 | Provenance | PROV-O | W3C Rec (2013) | "Who asserted this, when, how, on what basis." Backs `ahg-provenance`. |
 | AI inference provenance | PROV-O + `AhgInferenceReceipt` profile | local profile v1 | Records model, prompt, confidence, human-override for AI-asserted edges. `ahg-provenance-ai`. |
-| Museum bridge | CIDOC-CRM | (pin the exact CRM version in use by `CrmGraphSyncService`) | Cross-walk for museum/object data via `ahg-ric/src/Crm`. |
+| Museum bridge | CIDOC-CRM | **7.1.3** | Cross-walk for museum/object data via `ahg-ric/src/Crm` (`CrmSerializer`, `RicToCrmMapper`; `CrmExportController` emits `X-CRM-Version: 7.1.3`). |
 
 **Rule:** RiC-O is version-pinned at 1.0.2. RiC-O is still maturing and version-churns; a bump is a governed change (section 4), never an automatic `git pull`.
 
 ## 2. Canonical namespaces / IRI policy
 
-- Use the upstream namespace IRIs unchanged (`rico:` = `https://www.ica.org/standards/RiC/ontology#`, `prov:`, `skos:`, `crm:`).
-- AHG-local extensions live under a single, stable AHG namespace and are documented in the OpenRiC spec, never minted ad hoc in code.
-- Entity IRIs are minted from stable identifiers (authority ids), never from mutable labels. An IRI, once published, is permanent; superseded entities are deprecated, not deleted (mirrors the relational read-only-base rule).
+- Use the upstream namespace IRIs unchanged: `rico:` = `https://www.ica.org/standards/RiC/ontology#`, `prov:`, `skos:`, `crm:` = `http://www.cidoc-crm.org/cidoc-crm/` (CIDOC-CRM 7.1.3).
+- **AHG-local extension namespace (single, canonical):** `openric:` = `https://openric.org/ns/v1#`. This is the public OpenRiC community namespace and MUST resolve to this IRI in every serialisation (JSON-LD and Turtle alike). AHG extension predicates/classes live here, documented in the OpenRiC spec, never minted ad hoc in code. (Superseded 2026-06-19: the AHG-hosted `http://openric.theahg.co.za/ns/v0.2/openric#` is deprecated.)
+- **Entity-IRI base (single, canonical, environment-independent):** `https://ric.theahg.co.za/ric/<type>/<stable-id>`, sourced from `config('services.ric.base_uri')` for ALL minting paths. The host equals the published SPARQL/REST host so entity IRIs self-dereference. (Superseded 2026-06-19: `config('app.url')`-based minting - which produced `http://localhost/...` in CI/dev and a Heratio-host IRI in prod - and the `https://archives.theahg.co.za/ric` and dead `https://heratio.theahg.co.za/ric/` bases.)
+- Entity IRIs are minted from stable identifiers (authority ids), never from mutable labels. An IRI, once published, is permanent; superseded entities/IRIs are `owl:deprecated`, not deleted (mirrors the relational read-only-base rule).
+- **Operational hosts are not ontology namespaces:** `https://ric.theahg.co.za` (REST/SPARQL endpoint host) is a service base URL, not a vocabulary IRI. The SHACL shapes graph lives under `https://ric.theahg.co.za/ric/shapes#`.
 
 ## 3. Source of truth and the derived graph
 
@@ -55,3 +57,4 @@ Every AI-asserted edge (NER link, suggested relationship, OCR-derived field) car
 ## Change log
 
 - 2026-06-19 - v1. Initial pin. RiC-O 1.0.2, SKOS, PROV-O, CIDOC-CRM bridge, SHACL conformance gate, change process and export guarantees recorded.
+- 2026-06-19 - v1.1. Namespace consolidation (#1319). Pinned CIDOC-CRM 7.1.3. Consolidated ALL RiC entity-IRI minting onto the single canonical base `https://ric.theahg.co.za/ric` via `config('ric.base_uri')` - superseding the environment-dependent `config('app.url')` minting (which produced `http://localhost/...` in CI/dev), `https://archives.theahg.co.za/ric`, and the dead `https://heratio.theahg.co.za/ric`. Fixed the `openric:` extension namespace to the single public `https://openric.org/ns/v1#` in both JSON-LD and Turtle (was format-dependent: v1 in JSON-LD, AHG-hosted v0.2 in Turtle - a round-trip hazard). SHACL shapes graph moved to `https://ric.theahg.co.za/ric/shapes#`. Migration: Fuseki is a derived projection (section 3) and must be rebuilt under the canonical IRIs; superseded IRIs are `owl:deprecated`, not deleted.

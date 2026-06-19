@@ -524,7 +524,7 @@ class RicController extends Controller
                 'source_db_user' => config('ahg-ric.source_db.user') ?: config('database.connections.mysql.username'),
                 'source_db_pass' => config('ahg-ric.source_db.password') ?: config('database.connections.mysql.password'),
                 'source_db_name' => config('ahg-ric.source_db.name') ?: config('database.connections.mysql.database'),
-                'base_uri'       => config('ahg-ric.base_uri') ?: config('app.url'),
+                'base_uri'       => config('ric.base_uri', 'https://ric.theahg.co.za/ric'),
                 'instance_id'    => config('ahg-ric.instance_id', 'heratio'),
             ],
         ];
@@ -934,7 +934,7 @@ class RicController extends Controller
         // Generate a URI for the new entity
         $slug = \Illuminate\Support\Str::slug($name);
         $uid = substr(md5($name . microtime(true)), 0, 8);
-        $entityUri = "https://heratio.theahg.co.za/ric/" . strtolower($type) . "/{$slug}-{$uid}";
+        $entityUri = rtrim(config('ric.base_uri', 'https://ric.theahg.co.za/ric'), '/') . '/' . strtolower($type) . "/{$slug}-{$uid}";
 
         // Build SPARQL INSERT
         $escapeName = addslashes($name);
@@ -1058,7 +1058,7 @@ class RicController extends Controller
         $fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
         $fusekiUsername  = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
         $fusekiPassword  = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
-        $baseUri         = $config['ric_base_uri'] ?? config('services.ric.base_uri', 'https://archives.theahg.co.za/ric');
+        $baseUri         = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');
         $instanceId      = $config['ric_instance_id'] ?? config('services.ric.instance_id', 'atom-psis');
 
         if ($recordId === 'overview') {
@@ -2512,7 +2512,7 @@ SPARQL;
         $fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
         $fusekiUsername  = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
         $fusekiPassword  = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
-        $baseUri         = $config['ric_base_uri'] ?? config('services.ric.base_uri', 'https://archives.theahg.co.za/ric');
+        $baseUri         = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');
         $instanceId      = $config['ric_instance_id'] ?? config('services.ric.instance_id', 'atom-psis');
 
         // Build graph data
