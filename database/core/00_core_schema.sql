@@ -31016,6 +31016,32 @@ CREATE TABLE IF NOT EXISTS `user_display_preference` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+-- NOTE: defined ahead of user_mfa_recovery_code so fk_mfa_recovery_user
+-- resolves at create time under strict MySQL (build-install-artifact fix).
+--
+-- Table structure for table `user_totp_secret`
+--
+
+DROP TABLE IF EXISTS `user_totp_secret`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `user_totp_secret` (
+  `user_id` int NOT NULL,
+  `secret` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `verified` tinyint(1) NOT NULL DEFAULT '0',
+  `email_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_code_expires` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `enabled_at` timestamp NULL DEFAULT NULL,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `recovery_codes_generated_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  KEY `idx_totp_verified` (`verified`),
+  KEY `idx_enabled_at` (`enabled_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 --
 -- Table structure for table `user_mfa_recovery_code`
 --
@@ -31145,29 +31171,6 @@ CREATE TABLE IF NOT EXISTS `user_security_clearance_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `user_totp_secret`
---
-
-DROP TABLE IF EXISTS `user_totp_secret`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE IF NOT EXISTS `user_totp_secret` (
-  `user_id` int NOT NULL,
-  `secret` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `verified` tinyint(1) NOT NULL DEFAULT '0',
-  `email_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email_code_expires` datetime DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `enabled_at` timestamp NULL DEFAULT NULL,
-  `last_used_at` timestamp NULL DEFAULT NULL,
-  `recovery_codes_generated_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`user_id`),
-  KEY `idx_totp_verified` (`verified`),
-  KEY `idx_enabled_at` (`enabled_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `users`
