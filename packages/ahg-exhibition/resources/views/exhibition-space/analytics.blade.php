@@ -11,7 +11,7 @@
   </div>
   <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
     <span class="small text-muted">{{ __('Period') }}:</span>
-    @foreach(['1' => __('24 hours'), '7' => __('7 days'), '30' => __('30 days'), '90' => __('90 days')] as $d => $lbl)
+    @foreach(['1' => __('24 hours'), '7' => __('7 days'), '30' => __('30 days'), '90' => __('90 days'), '3650' => __('All')] as $d => $lbl)
       <a href="{{ route('exhibition-space.analytics', ['slug' => $space->slug, 'days' => $d]) }}" class="btn btn-sm {{ (int)$days === (int)$d ? 'btn-primary' : 'btn-outline-secondary' }}">{{ $lbl }}</a>
     @endforeach
     <span class="small text-muted ms-2">{{ __('Bucketed by') }} {{ $data['bucket'] }}</span>
