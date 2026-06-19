@@ -255,6 +255,26 @@ class LinkedDataApiController extends Controller
         // converters (and default JSON-LD response) can all consume the same shape.
         $graph = $this->serializer->exportRecordSet($io->id);
 
+        // #1321 validate-on-export hook: ?validate=1 runs the published output
+        // through the RiC-O SHACL shapes and reports conformance via headers.
+        // Fails open (degrades to "unknown") when pyshacl is unavailable.
+        $vHeaders = [];
+        if ($request->boolean('validate')) {
+            try {
+                $report = app(\AhgRic\Services\ShaclValidationService::class)
+                    ->validateAgainstShapes($this->serializer->serializeRecord($io->id));
+                $vHeaders['X-SHACL-Validated'] = ($report['ran'] ?? false) ? 'true' : 'false';
+                $vHeaders['X-SHACL-Conformant'] = ($report['ran'] ?? false)
+                    ? (($report['valid'] ?? false) ? 'true' : 'false')
+                    : 'unknown';
+                if (($report['ran'] ?? false) && ! ($report['valid'] ?? false)) {
+                    $vHeaders['X-SHACL-Violations'] = (string) count($report['violations'] ?? []);
+                }
+            } catch (\Throwable $e) {
+                $vHeaders = ['X-SHACL-Validated' => 'false', 'X-SHACL-Conformant' => 'unknown'];
+            }
+        }
+
         // Content negotiation — ?format= takes precedence over Accept.
         $format = strtolower((string) $request->query('format', ''));
         if (!$format) {
@@ -268,23 +288,23 @@ class LinkedDataApiController extends Controller
             case 'ttl':
             case 'turtle':
                 $body = \AhgRic\Support\JsonLdConverter::toTurtle($graph);
-                return response($body, 200, [
+                return response($body, 200, array_merge([
                     'Content-Type' => 'text/turtle; charset=utf-8',
                     'Content-Disposition' => 'attachment; filename="' . $slug . '-ric.ttl"',
-                ]);
+                ], $vHeaders));
             case 'rdf':
             case 'rdfxml':
             case 'rdf+xml':
                 $body = \AhgRic\Support\JsonLdConverter::toRdfXml($graph);
-                return response($body, 200, [
+                return response($body, 200, array_merge([
                     'Content-Type' => 'application/rdf+xml; charset=utf-8',
                     'Content-Disposition' => 'attachment; filename="' . $slug . '-ric.rdf"',
-                ]);
+                ], $vHeaders));
             default:
-                return response()->json($graph, 200, [
+                return response()->json($graph, 200, array_merge([
                     'Content-Type' => 'application/ld+json',
                     'Content-Disposition' => 'attachment; filename="' . $slug . '-ric.jsonld"',
-                ]);
+                ], $vHeaders));
         }
     }
 

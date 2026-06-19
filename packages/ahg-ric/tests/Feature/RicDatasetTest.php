@@ -99,6 +99,46 @@ class RicDatasetTest extends TestCase
         $this->assertArrayNotHasKey('owl:deprecated', $live);
     }
 
+    public function test_inferred_entity_carries_prov_o_and_is_distinguishable(): void
+    {
+        if (! Schema::hasTable('ric_inferred_assertion')) {
+            $this->markTestSkipped('provenance register not provisioned.');
+        }
+
+        $id = $this->makeRecord();
+        app(\AhgRic\Services\RicProvenanceService::class)->markInferred(
+            'information_object', $id, 'llava:13b', 0.82, 'rico:hasSubject', 'rcpt-abc123'
+        );
+
+        $doc = app(RicSerializationService::class)->serializeRecord($id);
+
+        $this->assertSame('inferred', $doc['ahg:assertionStatus'] ?? null);
+        $this->assertSame('prov:Activity', $doc['prov:wasGeneratedBy']['@type'] ?? null);
+        $this->assertSame('llava:13b', $doc['prov:wasGeneratedBy']['prov:wasAssociatedWith']['rdfs:label'] ?? null);
+        $this->assertSame(0.82, $doc['prov:wasGeneratedBy']['ahg:confidence'] ?? null);
+        $this->assertSame('http://www.w3.org/ns/prov#', $doc['@context']['prov'] ?? null);
+
+        // An asserted-fact record has NO prov: block - that asymmetry is the
+        // distinguishability guarantee.
+        $asserted = app(RicSerializationService::class)->serializeRecord($this->makeRecord());
+        $this->assertArrayNotHasKey('prov:wasGeneratedBy', $asserted);
+        $this->assertArrayNotHasKey('ahg:assertionStatus', $asserted);
+    }
+
+    public function test_export_validate_hook_sets_conformance_headers(): void
+    {
+        $id = $this->makeRecord();
+        $slug = 'rt-export-'.$id;
+        DB::table('slug')->insert(['object_id' => $id, 'slug' => $slug]);
+
+        $res = $this->get('/api/ric/v1/records/'.$slug.'/export?format=jsonld&validate=1');
+        $res->assertOk();
+        // Header is present regardless of whether pyshacl is installed (validated
+        // true/false; conformant true/false/unknown). The hook ran.
+        $this->assertNotNull($res->headers->get('X-SHACL-Validated'));
+        $this->assertContains($res->headers->get('X-SHACL-Conformant'), ['true', 'false', 'unknown']);
+    }
+
     private function makeRecord(): int
     {
         $id = (int) DB::table('object')->insertGetId([

@@ -109,8 +109,28 @@ class AhgRicServiceProvider extends ServiceProvider
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
                 );
             }
+
+            // #1321 AI-assertion provenance register: which entities/edges were
+            // machine-inferred (so export can stamp PROV-O and distinguish them
+            // from asserted fact). Idempotent.
+            if (! \Illuminate\Support\Facades\Schema::hasTable('ric_inferred_assertion')) {
+                \Illuminate\Support\Facades\DB::statement(
+                    'CREATE TABLE IF NOT EXISTS `ric_inferred_assertion` (
+                        `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                        `entity_type` VARCHAR(40) NOT NULL,
+                        `entity_id` INT NOT NULL,
+                        `predicate` VARCHAR(190) NULL,
+                        `model` VARCHAR(190) NOT NULL,
+                        `confidence` DECIMAL(5,4) NULL,
+                        `receipt_id` VARCHAR(190) NULL,
+                        `human_confirmed` VARCHAR(190) NULL,
+                        `created_at` DATETIME NOT NULL,
+                        UNIQUE KEY `uq_ric_inferred` (`entity_type`, `entity_id`, `predicate`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+                );
+            }
         } catch (\Throwable $e) {
-            // Non-fatal: deprecation emission simply stays inert until the table exists.
+            // Non-fatal: deprecation / provenance emission stays inert until the tables exist.
         }
 
         // Register artisan commands (only when running in console — cheap guard).

@@ -220,7 +220,11 @@ class RicSerializationService
             $record['rico:hasRecordPart'] = $children;
         }
 
-        return $this->applyDeprecation($record, 'information_object', $ioId);
+        return $this->applyProvenance(
+            $this->applyDeprecation($record, 'information_object', $ioId),
+            'information_object',
+            $ioId
+        );
     }
 
     /**
@@ -252,6 +256,55 @@ class RicSerializationService
         if (! empty($info->superseded_by_iri)) {
             $entity['dcterms:isReplacedBy'] = ['@id' => (string) $info->superseded_by_iri];
         }
+
+        return $entity;
+    }
+
+    /**
+     * PROV-O distinguishability (#1321 / governance pin section 6): if the entity
+     * is recorded in the AI-assertion register, stamp prov:wasGeneratedBy a
+     * software agent (the model) with its confidence + AhgInferenceReceipt id, and
+     * a top-level ahg:assertionStatus = "inferred". Entities with no such record
+     * are asserted fact and carry no prov: block - that asymmetry is the
+     * distinguishability guarantee, so a consumer never mistakes inference for
+     * documented evidence.
+     */
+    private function applyProvenance(array $entity, string $entityType, int $id): array
+    {
+        try {
+            $prov = app(\AhgRic\Services\RicProvenanceService::class)->forEntity($entityType, $id);
+        } catch (\Throwable $e) {
+            return $entity;
+        }
+        if (! $prov) {
+            return $entity;
+        }
+
+        if (! isset($entity['@context']) || ! is_array($entity['@context'])) {
+            $entity['@context'] = [];
+        }
+        $entity['@context']['prov'] ??= 'http://www.w3.org/ns/prov#';
+        $entity['@context']['ahg'] ??= 'https://openric.org/ns/v1#';
+
+        $activity = [
+            '@type' => 'prov:Activity',
+            'prov:wasAssociatedWith' => [
+                '@type' => 'prov:SoftwareAgent',
+                'rdfs:label' => (string) $prov->model,
+            ],
+        ];
+        if ($prov->confidence !== null) {
+            $activity['ahg:confidence'] = (float) $prov->confidence;
+        }
+        if (! empty($prov->receipt_id)) {
+            $activity['ahg:receiptId'] = (string) $prov->receipt_id;
+        }
+        if (! empty($prov->human_confirmed)) {
+            $activity['ahg:humanConfirmedBy'] = (string) $prov->human_confirmed;
+        }
+
+        $entity['ahg:assertionStatus'] = 'inferred';
+        $entity['prov:wasGeneratedBy'] = $activity;
 
         return $entity;
     }
@@ -542,7 +595,11 @@ class RicSerializationService
             ];
         }
 
-        return $this->applyDeprecation($ricPlace, 'place', $placeId);
+        return $this->applyProvenance(
+            $this->applyDeprecation($ricPlace, 'place', $placeId),
+            'place',
+            $placeId
+        );
     }
 
     /**

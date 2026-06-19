@@ -44,8 +44,27 @@ never deleted and its IRI recycled.
 - Tests: `packages/ahg-ric/tests/Feature/RicDatasetTest.php`,
   `RicRoundTripTest.php`.
 
-## Still open on #1321
+## Validate-on-export (final increment)
 
-- Validate-on-export hook (serialize -> SHACL gate before the response).
-- PROV-O provenance distinguishable in export (AI-asserted edges vs asserted
-  fact), building on the #1319 receipts + `SparqlUpdateService`.
+`GET /api/ric/v1/records/{slug}/export?validate=1` runs the published output
+through the RiC-O SHACL shapes (`ShaclValidationService`) and reports
+conformance via response headers - `X-SHACL-Validated` (did the validator run),
+`X-SHACL-Conformant` (`true`/`false`/`unknown`), `X-SHACL-Violations` (count).
+Fails open: when pyshacl is unavailable, validated=false / conformant=unknown
+and the export still returns.
+
+## PROV-O: AI-asserted vs documented fact (final increment)
+
+The pin (section 6) forbids passing AI inference off as documented fact.
+
+- Register: `ric_inferred_assertion` (entity_type, entity_id, predicate, model,
+  confidence, receipt_id, human_confirmed). Auto-created at provider boot.
+- Service: `AhgRic\Services\RicProvenanceService` - `markInferred()`,
+  `isInferred()`, `forEntity()`, `all()`.
+- Emission: a registered entity exports with `ahg:assertionStatus: "inferred"`
+  and `prov:wasGeneratedBy` -> a `prov:SoftwareAgent` (the model) carrying the
+  confidence + AhgInferenceReceipt id. An entity with NO register row carries no
+  prov: block - **absence = asserted fact**. That asymmetry is the
+  distinguishability guarantee.
+
+#1321 is complete with these two increments.
