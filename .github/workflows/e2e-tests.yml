@@ -135,7 +135,11 @@ jobs:
           done
 
       - name: Run Laravel tests
-        run: php artisan test
+        # --testsuite=All runs the single comprehensive suite. Bare `php artisan
+        # test` runs every <testsuite>, and the "All" suite overlaps the
+        # Unit/Feature/Package suites, so PHPUnit emits "Cannot add file ...
+        # already added" and exits non-zero even when 0 tests fail.
+        run: php artisan test --testsuite=All
 
       - name: Upload test results
         if: always()
