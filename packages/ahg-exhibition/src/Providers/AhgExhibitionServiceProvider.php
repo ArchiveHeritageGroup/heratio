@@ -26,6 +26,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                 \AhgExhibition\Console\Commands\LostPlaceDemoCommand::class,
                 \AhgExhibition\Console\Commands\LostPlaceBuildSpaceCommand::class,
                 \AhgExhibition\Console\Commands\LostPlaceReconstruct3dCommand::class,
+                \AhgExhibition\Console\Commands\CrystalPalaceShellCommand::class,
             ]);
         }
 
