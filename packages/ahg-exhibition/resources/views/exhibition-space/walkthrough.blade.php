@@ -3142,7 +3142,7 @@
       } catch (e) { onDone(); }
     }
     var tourQuick = document.getElementById('wtTourQuick'), tourQuickSel = document.getElementById('wtTourQuickSel');
-    function quickShow(on) { if (tourQuick && isTouch && TOURS.length) tourQuick.style.display = on ? 'block' : 'none'; }
+    function quickShow(on) { if (tourQuick && TOURS.length) tourQuick.style.display = on ? 'block' : 'none'; }
     function tourPlay(forceIdx) {
       if (!TOURS.length) return;
       var rid = currentRoomId();
@@ -3204,10 +3204,11 @@
     applyTourTextVis();
     if (tourTextBtn) tourTextBtn.addEventListener('click', function (e) { e.stopPropagation(); showTourText = !showTourText; applyTourTextVis(); });
     if (tourSelEl) tourSelEl.addEventListener('change', function () { tourStop(); });   // switching tour resets to start
-    // Mobile: if no tour is authored, auto-build a "Full tour" of every object in
-    // order, so mobile always has a tour to launch (#1182). Desktop is untouched
-    // (keeps free-roam), so this only runs on touch devices.
-    if (isTouch && !TOURS.length && STOPS.length) {
+    // If no tour is authored, auto-build a "Full tour" of every object in order so
+    // every walkable space has a tour to launch (#1182) - on desktop too, where it
+    // now powers the floating launcher. Free-roam stays the default; the tour is
+    // simply made available in the picker.
+    if (!TOURS.length && STOPS.length) {
       TOURS = [{ name: '{{ __('Full tour') }}', stops: STOPS.map(function (s) { return { io_id: s.information_object_id, title: s.title || '', narration: '', dwell: 6 }; }) }];
     }
 
@@ -3241,13 +3242,21 @@
       if (mGo) mGo.addEventListener('click', function (e) { e.stopPropagation(); blocker.style.display = 'none'; tourPlay(mSel ? (+mSel.value || 0) : 0); });
       var mExp = document.getElementById('wtMobExplore');
       if (mExp) mExp.addEventListener('click', function (e) { e.stopPropagation(); blocker.style.display = 'none'; });
-      // Populate + wire the floating quick-launch as well, for replay after a tour ends.
-      if (TOURS.length > 1 && tourQuickSel) {
+    }
+
+    // Surface the floating guided-tour launcher on ALL devices (incl. PC/laptop),
+    // so the tour picker ("War room", "Royal room", …) is one click from the
+    // walkthrough instead of buried in the Controls panel. Mobile already leads
+    // with the entry-screen picker; this adds the same launcher for desktop and
+    // is the replay control after a tour ends on any device.
+    if (TOURS.length) {
+      if (TOURS.length > 1 && tourQuickSel && !tourQuickSel.options.length) {
         tourQuickSel.classList.remove('d-none');
         TOURS.forEach(function (t, i) { var o = document.createElement('option'); o.value = i; o.textContent = t.name || ('Tour ' + (i + 1)); tourQuickSel.appendChild(o); });
       }
       var qb = document.getElementById('wtTourQuickBtn');
       if (qb) qb.addEventListener('click', function (e) { e.stopPropagation(); tourPlay(tourQuickSel ? (+tourQuickSel.value || 0) : 0); });
+      if (!isTouch) quickShow(true);   // desktop: show now (mobile shows it via its entry flow / replay)
     }
 
     // Preview deep-link (?tour=N) from the builder "Preview" button: skip the entry
