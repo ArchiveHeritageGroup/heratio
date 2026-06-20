@@ -322,6 +322,8 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Thinking...') }}';
         if (msg) { msg.classList.add('d-none'); msg.textContent = ''; }
+        var oldBadge = form.querySelector('.recon-meta-method');
+        if (oldBadge) { oldBadge.classList.add('d-none'); }
 
         fetch(url, {
           method: 'POST',
@@ -339,6 +341,21 @@
           setVal(form, '.recon-meta-conf', m.confidence);
           setVal(form, '.recon-meta-cred', m.source_credibility);
           setVal(form, '.recon-meta-why', m.rationale);
+          // #1206 show whether the suggestion was read from the IMAGE (vision) or the caption (text).
+          var badge = form.querySelector('.recon-meta-method');
+          if (!badge && msg && msg.parentNode) {
+            badge = document.createElement('span');
+            badge.className = 'badge recon-meta-method';
+            msg.parentNode.insertBefore(badge, msg.nextSibling);
+          }
+          if (badge) {
+            var isVision = data.method === 'vision';
+            badge.className = 'badge recon-meta-method ' + (isVision ? 'bg-info-subtle text-info-emphasis' : 'bg-secondary-subtle text-secondary-emphasis');
+            badge.innerHTML = isVision
+              ? '<i class="fas fa-eye me-1"></i>{{ __('Read from the image') }}'
+              : '<i class="fas fa-font me-1"></i>{{ __('Read from the caption') }}';
+            badge.title = isVision ? '{{ __('The AI read the stage image (vision model).') }}' : '{{ __('No image on this stage - the AI read the caption text.') }}';
+          }
         })
         .catch(function () {
           if (msg) { msg.textContent = '{{ __('The AI service could not be reached.') }}'; msg.classList.remove('d-none'); }
