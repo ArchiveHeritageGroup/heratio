@@ -385,7 +385,7 @@ class ReconstructionController extends Controller
             return response()->json(['ok' => false, 'error' => $result['error'] ?? __('No suggestion available.')]);
         }
 
-        return response()->json(['ok' => true, 'metadata' => $result['metadata']]);
+        return response()->json(['ok' => true, 'method' => $result['method'] ?? 'text', 'metadata' => $result['metadata']]);
     }
 
     /**
