@@ -46,6 +46,31 @@ The place argument is a partial name **or** a place-taxonomy term id.
 - `AhgExhibition\Console\Commands\LostPlaceGatherCommand` - `ahg:lost-place-gather`.
 - Tests: `packages/ahg-exhibition/tests/Feature/LostPlaceGatherTest.php`.
 
+## Pilot: Crystal Palace (real PD evidence pack)
+
+`php artisan ahg:lost-place-demo` builds a runnable pilot from **public-domain
+Wikimedia Commons** evidence for a genuinely vanished place - the Crystal Palace
+(Sydenham), destroyed by fire 30 November 1936:
+
+```
+php artisan ahg:lost-place-demo --count=14            # download + catalogue PD evidence
+php artisan ahg:lost-place-demo --remove              # reverse it (records, relations, files)
+```
+
+What it does (idempotent, reversible; descriptive User-Agent per Wikimedia policy):
+1. Pulls candidate files from a Commons category + its subcategories, keeps only
+   **public-domain / CC0** images, downloads them to
+   `{storage_path}/uploads/lost-place-demo/<slug>/`.
+2. Catalogues them as **one lost-place record** (a `rico:Record`) linked to a
+   place access point, with each image a master `digital_object`.
+3. Flags the record **`owl:deprecated`** (destroyed - deprecate-not-delete, #1321)
+   so its RiC export distinguishes a vanished subject from a live one.
+
+Verified 2026-06-20: 129 candidates -> 14 PD images -> coverage **WORKABLE**;
+the reconstruct seed resolves to a real photo; the record exports
+`owl:deprecated=true`. Actual TripoSR 3D generation still needs the gateway
+endpoint live; CLIP discovery on the new images needs them indexed (#1272).
+
 ## CLIP discovery - functional today where imagery is indexed
 
 `ahg:lost-place-gather "<place>" --discover` surfaces unlinked look-alike photos
