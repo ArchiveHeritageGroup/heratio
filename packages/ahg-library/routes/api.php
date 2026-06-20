@@ -27,7 +27,11 @@ use AhgLibrary\Controllers\ResolverController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api/library')
-    ->middleware(['api.auth:read', 'api.ratelimit'])
+    // SubstituteBindings is required for implicit route-model binding
+    // ({vendor}/{budget}/{order} -> the type-hinted model). These routes are
+    // loaded standalone (not via the global `api` group), so without it every
+    // PUT/PATCH/GET-by-id received an empty model and silently no-op'd.
+    ->middleware(['api.auth:read', 'api.ratelimit', \Illuminate\Routing\Middleware\SubstituteBindings::class])
     ->group(function () {
         // Vendors
         Route::get('vendors', [LibraryVendorApiController::class, 'index']);
