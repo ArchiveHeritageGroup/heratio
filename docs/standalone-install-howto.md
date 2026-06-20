@@ -103,7 +103,7 @@ cd /usr/share/nginx/heratio
 sudo COMPOSER_ALLOW_SUPERUSER=1 bin/install \
   --domain=192.0.2.50 \
   --admin-email=admin@heratio.local \
-  --admin-password='HeratioDev2026'
+  --admin-password='change-this-strong-password'
 ```
 
 Then browse **`http://192.0.2.50/login`** and sign in with `admin@heratio.local` / the password you set.
