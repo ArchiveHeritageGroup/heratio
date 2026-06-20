@@ -48,7 +48,8 @@ class LostPlaceReconstruct3dCommand extends Command
                             {--place=Crystal Palace : the lost place (built via lost-place-demo + build-space)}
                             {--format=glb : output format: glb | splat | usdz}
                             {--scale=5 : scan-shell fit scale (room metres)}
-                            {--structure-image= : absolute path to a specific building photo to use as the seed}';
+                            {--structure-image= : absolute path to a specific building photo to use as the seed}
+                            {--multi=0 : use up to N angled building photos for multi-view reconstruction (needs the multi-image gateway/worker)}';
 
     protected $description = 'Lost Places POC (#1323): generate the 3D structure on the GPU backend + set it as the room scan_shell.';
 
@@ -76,19 +77,35 @@ class LostPlaceReconstruct3dCommand extends Command
             return self::FAILURE;
         }
 
-        // Seed image: an explicit building photo, else the best linked image on disk.
-        $seedPath = (string) $this->option('structure-image');
-        if ($seedPath === '') {
+        // Seed: a single explicit photo, N angled views (--multi), else the best linked image.
+        $multi = max(0, (int) $this->option('multi'));
+        $seedPaths = [];
+        $explicit = (string) $this->option('structure-image');
+        if ($explicit !== '') {
+            $seedPaths = [$explicit];
+        } else {
             $place_term = $gather->resolvePlace($place);
-            $seed = $place_term ? $gather->seedImage((int) $place_term->term_id) : null;
-            $seedPath = $seed['path'] ?? '';
+            if ($place_term && $multi > 1) {
+                $seedPaths = $gather->seedImages((int) $place_term->term_id, $multi);
+            } elseif ($place_term) {
+                $seed = $gather->seedImage((int) $place_term->term_id);
+                $seedPaths = isset($seed['path']) ? [$seed['path']] : [];
+            }
         }
-        if ($seedPath === '' || ! is_file($seedPath)) {
+        $seedPaths = array_values(array_filter($seedPaths, 'is_file'));
+        if (! $seedPaths) {
             $this->error('No on-disk building photo to seed the structure from.');
 
             return self::FAILURE;
         }
-        $this->line('Seed image: '.$seedPath);
+        if (count($seedPaths) > 1) {
+            $this->line('Seed images ('.count($seedPaths).' views, multi-view reconstruction):');
+            foreach ($seedPaths as $p) {
+                $this->line('  - '.$p);
+            }
+        } else {
+            $this->line('Seed image: '.$seedPaths[0]);
+        }
 
         if (! class_exists('Ahg3dModel\\Services\\GatewayImageTo3dService')) {
             $this->error('ahg-3d-model GatewayImageTo3dService not available.');
@@ -97,7 +114,7 @@ class LostPlaceReconstruct3dCommand extends Command
         }
         $gpu = app('Ahg3dModel\\Services\\GatewayImageTo3dService');
         $this->info('Generating 3D structure on the GPU backend (gateway image-to-3d / TRELLIS) - this can take a while...');
-        $asset = $gpu->generate($seedPath, $format);
+        $asset = $gpu->generate(count($seedPaths) > 1 ? $seedPaths : $seedPaths[0], $format);
         if (! $asset) {
             $this->warn('  The GPU 3D service returned nothing (endpoint unavailable or auth/scope). Wiring is ready - re-run when it is live.');
 

@@ -43,13 +43,24 @@ class GatewayImageTo3dService
     private const EXT = ['glb' => 'glb', 'splat' => 'ply', 'usdz' => 'usdz'];
 
     /**
-     * Generate a 3D asset from a single image via the gateway GPU backend.
+     * Generate a 3D asset from one image, or from several angled views of the
+     * same subject (multi-view reconstruction).
      *
+     * Pass a single path for single-image, or an array of paths for multi-view.
+     * Multi-view attaches several `image` parts; the gateway forwards them all to
+     * TRELLIS `run_multi_image` for a sharper, more complete structure. Degrades
+     * safely to single-image against a gateway/worker that only reads one part.
+     *
+     * @param  string|array<int,string>  $imagePaths
      * @return array{bytes:string,ext:string}|null  null on any failure (fail-soft)
      */
-    public function generate(string $imagePath, string $format = 'glb'): ?array
+    public function generate(string|array $imagePaths, string $format = 'glb'): ?array
     {
-        if (! is_file($imagePath)) {
+        $paths = array_values(array_filter(
+            is_array($imagePaths) ? $imagePaths : [$imagePaths],
+            'is_file'
+        ));
+        if (! $paths) {
             return null;
         }
         $format = in_array($format, self::FORMATS, true) ? $format : 'glb';
@@ -61,10 +72,12 @@ class GatewayImageTo3dService
         }
 
         try {
-            $resp = Http::withToken($key)
-                ->timeout((int) (AhgSettingsService::get('image_to_3d.timeout') ?: 900))
-                ->attach('image', file_get_contents($imagePath), basename($imagePath))
-                ->post($base.'/image-to-3d', ['format' => $format]);
+            $req = Http::withToken($key)
+                ->timeout((int) (AhgSettingsService::get('image_to_3d.timeout') ?: 900));
+            foreach ($paths as $p) {                       // 1 part = single-image; N parts = multi-view
+                $req = $req->attach('image', file_get_contents($p), basename($p));
+            }
+            $resp = $req->post($base.'/image-to-3d', ['format' => $format]);
         } catch (\Throwable $e) {
             return null;
         }

@@ -315,6 +315,58 @@ class LostPlaceGatherService
         return null;
     }
 
+    /**
+     * Up to $limit on-disk image paths for the place - angled views for
+     * multi-view 3D reconstruction (#1323). Same multi-root resolution as
+     * seedImage(); returns absolute paths, best (largest) first when sizes known.
+     *
+     * @return array<int,string>
+     */
+    public function seedImages(int $termId, int $limit = 6): array
+    {
+        $records = $this->recordsForPlace($termId);
+        $ids = array_map(static fn ($r) => $r['id'], $records);
+        if (! $ids) {
+            return [];
+        }
+
+        $rows = DB::table('digital_object')
+            ->whereIn('object_id', $ids)
+            ->whereNull('parent_id')
+            ->where('mime_type', 'like', 'image/%')
+            ->select('path', 'name')
+            ->get();
+
+        $paths = [];
+        foreach ($rows as $row) {
+            $path = (string) $row->path;
+            $name = (string) $row->name;
+            if ($path === '' || $name === '') {
+                continue;
+            }
+            $rel = ltrim($path, '/').$name;
+            $candidates = [
+                rtrim((string) config('heratio.storage_path', ''), '/').'/'.$rel,
+                rtrim((string) config('heratio.uploads_path', ''), '/').'/'.$rel,
+                '/usr/share/nginx/archive/'.$rel,
+                '/usr/share/nginx/archive/uploads/'.ltrim(str_replace('/uploads/', '', $path), '/').$name,
+            ];
+            foreach ($candidates as $abs) {
+                if (is_file($abs)) {
+                    $paths[$abs] = (int) @filesize($abs);
+                    break;
+                }
+            }
+            if (count($paths) >= max(1, $limit)) {
+                break;
+            }
+        }
+
+        arsort($paths);                              // largest (richest) views first
+
+        return array_slice(array_keys($paths), 0, max(1, $limit));
+    }
+
     /** Is this place present as a rico:Place node (graph persistence / #1319)? */
     private function existsInRicGraph(string $name): bool
     {
