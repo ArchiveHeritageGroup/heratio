@@ -75,6 +75,16 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ->where('id', '[0-9]+')
                 ->name('virtual-return.show');
 
+            // heratio#1207 - 3D handoff. Provision (idempotently) the origin-context
+            // exhibition room holding the object's 3D model and send the visitor into
+            // its walkthrough. Two-segment numeric path: never shadows /{slug}.
+            $router->middleware('web')
+                ->get('/virtual-return/{id}/walk', [
+                    \AhgSemanticSearch\Controllers\VirtualReturnController::class, 'walk',
+                ])
+                ->where('id', '[0-9]+')
+                ->name('virtual-return.walk');
+
             // heratio#1207 - PUBLIC community KNOWLEDGE contribution on one
             // repatriation claim. A member of a source community, a descendant, a
             // researcher or any knowledgeable person can contribute knowledge
@@ -923,6 +933,8 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
     {
         try {
             if (Schema::hasTable('displaced_heritage_claim')) {
+                $this->ensureVirtualReturnColumn();   // heratio#1207 additive column on existing installs
+
                 return;
             }
 
@@ -958,11 +970,32 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 });
             }
 
+            $this->ensureVirtualReturnColumn();   // heratio#1207
+
             Log::info('ahg-semantic-search: displaced_heritage_claim created (first-boot)');
         } catch (\Throwable $e) {
             // Never block boot on install failure - log and continue. The claim
             // workflow degrades to the empty-state when the table is absent.
             Log::warning('ahg-semantic-search repatriation-claim boot install skipped: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * heratio#1207 - additive: cache the provisioned origin-context exhibition space
+     * on the claim, so a virtual-return walkthrough reuses the same room. Guarded +
+     * fail-soft; safe on every boot.
+     */
+    protected function ensureVirtualReturnColumn(): void
+    {
+        try {
+            if (Schema::hasTable('displaced_heritage_claim')
+                && ! Schema::hasColumn('displaced_heritage_claim', 'virtual_return_space_id')) {
+                Schema::table('displaced_heritage_claim', function (Blueprint $table) {
+                    $table->unsignedBigInteger('virtual_return_space_id')->nullable()->after('claim_status');
+                });
+            }
+        } catch (\Throwable $e) {
+            Log::info('ahg-semantic-search: virtual_return_space_id column ensure skipped: '.$e->getMessage());
         }
     }
 

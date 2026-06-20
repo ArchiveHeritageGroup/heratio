@@ -28,6 +28,11 @@
 @section('content')
 <div class="container-fluid py-4">
 
+    {{-- heratio#1207 - notice when a walkable 3D return was requested but unavailable --}}
+    @if(session('vr_notice'))
+        <div class="alert alert-info" role="status">{{ session('vr_notice') }}</div>
+    @endif
+
     {{-- Hero: the object placed back in its origin context --}}
     <div class="p-4 p-md-5 mb-4 rounded-3 bg-dark text-white">
         <div class="d-flex align-items-center mb-2">
@@ -120,6 +125,15 @@
                         <p class="text-muted small">
                             {{ __('The published record hosts the object\'s description and any digital surrogate or 3D view.') }}
                         </p>
+                        {{-- heratio#1207 3D handoff: walk the object's 3D model in an origin-context room --}}
+                        @if(!empty($canWalk) && !empty($walkUrl))
+                            <p class="text-muted small mb-2">
+                                {{ __('This object has a 3D model. Step into a virtual return - the object placed in a room set in its place of origin.') }}
+                            </p>
+                            <a href="{{ $walkUrl }}" class="btn btn-success mb-2">
+                                <i class="fas fa-vr-cardboard me-1"></i>{{ __('Walk the virtual return (3D)') }}
+                            </a>
+                        @endif
                         <a href="{{ $recordUrl }}" class="btn btn-dark mt-auto">
                             <i class="fas fa-up-right-from-square me-1"></i>{{ __('Open the object record') }}
                         </a>

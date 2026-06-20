@@ -96,6 +96,17 @@ class VirtualReturnController extends Controller
             Log::info('[virtual-return] knowledge read failed for '.$claimId.': '.$e->getMessage());
         }
 
+        // heratio#1207 - 3D handoff. When the published item carries a 3D model (or
+        // splat), offer a walkable "virtual return": the object placed in an origin-
+        // context exhibition room. Probe is fail-soft; the button is simply omitted
+        // when there is no 3D to hand over.
+        $canWalk = false;
+        try {
+            $canWalk = app(\AhgSemanticSearch\Services\VirtualReturnSpaceService::class)->canWalk($context);
+        } catch (\Throwable $e) {
+            Log::info('[virtual-return] walk probe failed for '.$claimId.': '.$e->getMessage());
+        }
+
         return view('ahg-semantic-search::virtual-return.show', [
             'claim' => $context['claim'] ?? [],
             'item' => $context['item'] ?? null,
@@ -103,6 +114,36 @@ class VirtualReturnController extends Controller
             'disclaimer' => (string) ($context['disclaimer'] ?? RepatriationClaimService::DISCLAIMER),
             'claimId' => $claimId,
             'knowledge' => $knowledge,
+            'canWalk' => $canWalk,
+            'walkUrl' => route('virtual-return.walk', ['id' => $claimId]),
         ]);
+    }
+
+    /**
+     * heratio#1207 - provision (idempotently) the origin-context exhibition space
+     * holding the object's 3D model and send the visitor into its walkthrough. When
+     * there is nothing to hand over (unpublished / no 3D model), it returns to the
+     * virtual-return page with a gentle notice rather than erroring.
+     */
+    public function walk($id)
+    {
+        $claimId = (int) $id;
+        if ($claimId <= 0) {
+            abort(404);
+        }
+
+        $result = null;
+        try {
+            $result = app(\AhgSemanticSearch\Services\VirtualReturnSpaceService::class)->provisionFor($claimId);
+        } catch (\Throwable $e) {
+            Log::info('[virtual-return] walk provisioning failed for '.$claimId.': '.$e->getMessage());
+        }
+
+        if (! is_array($result) || empty($result['slug'])) {
+            return redirect()->route('virtual-return.show', ['id' => $claimId])
+                ->with('vr_notice', __('A walkable 3D return is not available for this object yet.'));
+        }
+
+        return redirect()->route('exhibition-space.walkthrough', ['slug' => $result['slug']]);
     }
 }
