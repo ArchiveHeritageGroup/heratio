@@ -725,7 +725,7 @@ class ExhibitionSpaceService
 
         // 2) Inspect the primary digital object to detect 3D / PDF / Gaussian-splat masters.
         $splatUrl = null;   // #1193 in-room splats: surfaced as a side-channel so the legacy
-        $splatCenter = null; $splatRadius = null; $splatViewUrl = null;   // walkthrough still shows
+        $splatCenter = null; $splatRadius = null; $splatViewUrl = null; $splatFormat = null;   // walkthrough still shows
                             // the flat thumbnail (kind=image) while the ESM/GaussianSplats3D
                             // walkthrough renders object-scale splats composited in-room (sized/
                             // centred from sidecar bounds) and links scene-scale ones to the viewer.
@@ -739,14 +739,19 @@ class ExhibitionSpaceService
             $ext = strtolower(pathinfo((string) ($do->name ?: $do->path), PATHINFO_EXTENSION));
             $url = $this->buildDoUrl($do->path, $do->name);
             $threeD = ['glb', 'gltf', 'obj', 'stl', 'usdz', 'ply'];
-            if (in_array($ext, ['splat', 'ksplat'], true)) {
+            // A Gaussian-splat .ply (3DGS: per-vertex f_dc_*/scale_*/rot_*) renders as a true
+            // colored splat via GaussianSplats3D, NOT as a point cloud - route it to the splat
+            // path carrying its real format so the client uses SceneFormat.Ply (#1323).
+            $isSplatPly = $ext === 'ply' && $this->isGaussianSplatPly($do, $informationObjectId);
+            if (in_array($ext, ['splat', 'ksplat'], true) || $isSplatPly) {
                 $splatUrl = $url;   // fall through to the image fallback for `kind`/thumbnail
+                $splatFormat = $ext; // splat | ksplat | ply -> SceneFormat on the client
                 $splatViewUrl = '/splat/do/'.$do->id;   // standalone full-page viewer (scene-scale splats link here)
                 // Bounds (centre + radius) so the in-room renderer can fit the splat to a real-world
                 // size instead of its native (often huge) capture scale. Sidecar-cached, so cheap.
                 try {
-                    $abs = rtrim((string) config('heratio.uploads_path'), '/').'/'.$informationObjectId.'/'.$do->name;
-                    $b = app(\AhgCore\Services\GaussianSplatService::class)->computeBounds($abs, $ext);
+                    $abs = $this->splatAbsPath($do, $informationObjectId);
+                    $b = $abs ? app(\AhgCore\Services\GaussianSplatService::class)->computeBounds($abs, $ext) : null;
                     if (is_array($b) && ! empty($b['radius'])) { $splatCenter = $b['center']; $splatRadius = (float) $b['radius']; }
                 } catch (\Throwable $e) { /* fit falls back to a small default client-side */ }
             } elseif (in_array($ext, $threeD, true)) {
@@ -761,10 +766,40 @@ class ExhibitionSpaceService
         //    the legacy viewer) while carrying splat_url + bounds for the splat-capable walkthrough.
         $img = $this->bestImageUrl($informationObjectId);
         if ($img) {
-            return ['kind' => 'image', 'model_url' => null, 'image_url' => $img, 'doc_url' => null, 'format' => $splatUrl ? 'splat' : 'image', 'splat_url' => $splatUrl, 'splat_center' => $splatCenter, 'splat_radius' => $splatRadius, 'splat_view_url' => $splatViewUrl];
+            return ['kind' => 'image', 'model_url' => null, 'image_url' => $img, 'doc_url' => null, 'format' => $splatFormat ?: ($splatUrl ? 'splat' : 'image'), 'splat_url' => $splatUrl, 'splat_center' => $splatCenter, 'splat_radius' => $splatRadius, 'splat_view_url' => $splatViewUrl];
         }
 
-        return ['kind' => 'other', 'model_url' => null, 'image_url' => null, 'doc_url' => null, 'format' => $splatUrl ? 'splat' : null, 'splat_url' => $splatUrl, 'splat_center' => $splatCenter, 'splat_radius' => $splatRadius, 'splat_view_url' => $splatViewUrl];
+        return ['kind' => 'other', 'model_url' => null, 'image_url' => null, 'doc_url' => null, 'format' => $splatFormat ?: ($splatUrl ? 'splat' : null), 'splat_url' => $splatUrl, 'splat_center' => $splatCenter, 'splat_radius' => $splatRadius, 'splat_view_url' => $splatViewUrl];
+    }
+
+    /** Multi-root absolute path for a digital object's master file (standard {ioId}/{name} or stored path). */
+    private function splatAbsPath(object $do, int $ioId): ?string
+    {
+        $name = (string) ($do->name ?? '');
+        $path = (string) ($do->path ?? '');
+        foreach ([
+            rtrim((string) config('heratio.uploads_path'), '/').'/'.$ioId.'/'.$name,
+            rtrim((string) config('heratio.storage_path'), '/').'/'.ltrim($path, '/').$name,
+            rtrim((string) config('heratio.uploads_path'), '/').'/'.ltrim($path, '/').$name,
+        ] as $abs) {
+            if ($abs !== '' && is_file($abs)) {
+                return $abs;
+            }
+        }
+
+        return null;
+    }
+
+    /** A .ply is a 3D-Gaussian-splat (not a plain point cloud) when its header declares the splat attrs. */
+    private function isGaussianSplatPly(object $do, int $ioId): bool
+    {
+        $abs = $this->splatAbsPath($do, $ioId);
+        if (! $abs) {
+            return false;
+        }
+        $head = @file_get_contents($abs, false, null, 0, 2048) ?: '';
+
+        return str_contains($head, 'f_dc_0') || (str_contains($head, 'scale_0') && str_contains($head, 'rot_0'));
     }
 
     private function normalizeUploadPath(?string $p): ?string
