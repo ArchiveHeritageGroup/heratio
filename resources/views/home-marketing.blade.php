@@ -32,6 +32,27 @@
     </a>
   </section>
 
+  {{-- #1323 Featured walkthroughs strip — curated 3D twins, incl. Lost Places. --}}
+  <section class="container pt-2">
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <a href="{{ route('exhibition-space.walkthrough', ['slug' => 'the-crystal-palace-reconstruction']) }}"
+           class="d-block text-decoration-none" aria-label="{{ __('Walk the reconstructed Crystal Palace') }}">
+          <div class="d-flex align-items-center gap-2 py-2 px-3 rounded-3 border h-100"
+               style="background:linear-gradient(135deg,#0f2027 0%,#2c5364 100%);color:#fff;transition:transform .15s ease;"
+               onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+            <i class="fas fa-landmark" style="font-size:1.6rem;opacity:.95;" aria-hidden="true"></i>
+            <div class="flex-grow-1">
+              <h3 class="h6 fw-bold mb-0 text-white">{{ __('The Crystal Palace') }} <span class="badge bg-light text-dark align-middle">{{ __('Lost place') }}</span></h3>
+              <p class="mb-0 small text-white-50">{{ __('A vanished building reconstructed in 3D from public-domain photographs.') }}</p>
+            </div>
+            <span class="btn btn-light btn-sm flex-shrink-0">{{ __('Walk it') }} <i class="fas fa-arrow-right ms-1"></i></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
   @php
     $homeParts = $page ? preg_split('/<!--\s*HERATIO_MIDPAGE\s*-->/', (string) ($page->content ?? ''), 2) : [''];
     $heroPart = $homeParts[0] ?? '';
