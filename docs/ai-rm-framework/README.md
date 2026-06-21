@@ -1,7 +1,8 @@
-# AI for Records & Archives - Framework Workbook
+# AI RAM Framework
 
-A single, authoritative working resource ("the workbook") for introducing AI/ML into
-records and archives management at scale. It is vendor- and jurisdiction-agnostic and
+The **AI RAM Framework** - the AI framework for **R**ecords **a**nd **A**rchives
+**M**anagement - is a single, authoritative working resource for introducing AI/ML
+into records and archives management at scale. It is vendor- and jurisdiction-agnostic and
 is written for a mixed international audience of AI specialists and non-specialist
 records, legal, and executive readers.
 
@@ -10,11 +11,11 @@ This folder consolidates everything in one place:
 | File | What it is | Use it as |
 |---|---|---|
 | `workbook.md` | The workbook/bible - principles, architecture, components, governance, roadmap, **fillable tick-sheets**, the compliance control catalog, and links to the supporting articles | Day-to-day working document: read it, then fill in the checklists for your own pilot |
-| `Industry-AI-RAM-Framework.docx` | The same framework as a formatted document (Heading styles, auto Table of Contents, diagram placeholders) | The shareable / printable / procurement-annex version |
+| `AI-RAM-Framework.docx` | The same framework as a formatted document (Heading styles, auto Table of Contents, diagram placeholders) | The shareable / printable / procurement-annex version |
 | `diagrams.md` | The figure set as renderable Mermaid source (11 figures) | Drop into docs, slides, or articles; restyle freely |
 | `cornerstone-article.md` | A readable, public-facing flagship article drawn from the framework | Publish as the "hub" article the other AI articles link to |
 | `linkedin-marketing.md` | 7 ready-to-post LinkedIn drafts, each pointing to the articles page | Post manually on a 3-4 day cadence to drive traffic to `/articles` |
-| `toolkit.md` / `AI-RM-Framework-Toolkit.docx` | The **implementation toolkit** - ~20 fillable worksheets, checklists, matrices and templates covering the whole journey (Start -> Govern -> Comply -> Pilot -> Procure -> Prove -> Operate -> Sustain -> Retire) | Attach the .docx to the cornerstone article as the downloadable toolkit bundle; fill in per pilot |
+| `toolkit.md` / `AI-RAM-Framework-Toolkit.docx` | The **implementation toolkit** - ~20 fillable worksheets, checklists, matrices and templates covering the whole journey (Start -> Govern -> Comply -> Pilot -> Procure -> Prove -> Operate -> Sustain -> Retire) | Attach the .docx to the cornerstone article as the downloadable toolkit bundle; fill in per pilot |
 
 ## How the pieces relate
 

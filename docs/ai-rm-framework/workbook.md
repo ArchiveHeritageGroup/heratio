@@ -1,5 +1,6 @@
-# AI for Records & Archives - the Workbook
+# AI RAM Framework: the Workbook
 
+> The **AI RAM Framework** (AI for Records and Archives Management).
 > A working reference for introducing AI/ML into records and archives management at
 > scale (shared drives, file shares, email stores), with governance, privacy, legal
 > defensibility, and operational adoption built in. Vendor- and jurisdiction-agnostic.

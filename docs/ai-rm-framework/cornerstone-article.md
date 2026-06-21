@@ -15,7 +15,8 @@ shares, email stores, scanned boxes. The content is valuable, often legally sign
 and almost entirely undiscoverable. AI can change that. The hard part was never the model.
 It is doing it **without losing control of governance, privacy, or the evidence trail.**
 
-So we wrote the framework we wished existed: vendor- and jurisdiction-agnostic, written
+So we wrote the framework we wished existed - the **AI RAM Framework** (AI for Records
+and Archives Management): vendor- and jurisdiction-agnostic, written
 for both AI specialists and the records, legal, and executive readers who have to sign it
 off. It is built to be used three ways: an internal business case, a procurement annex,
 and an operational checklist for pilot and rollout.

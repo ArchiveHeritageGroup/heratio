@@ -1,4 +1,4 @@
-# Framework diagram set
+# AI RAM Framework: Diagram Set
 
 Eleven figures as renderable Mermaid source. They render natively on GitHub and in most
 markdown viewers, and can be exported (SVG/PNG) or restyled for slides and articles.

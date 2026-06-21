@@ -1,11 +1,12 @@
 ---
-title: "AI for Records & Archives - Implementation Toolkit"
+title: "AI RAM Framework: Implementation Toolkit"
 subtitle: "Fillable worksheets, checklists, matrices and templates - end to end"
 ---
 
-# AI for Records & Archives: Implementation Toolkit
+# AI RAM Framework: Implementation Toolkit
 
-A companion to the framework workbook. These are the working artefacts: copy each
+A companion to the **AI RAM Framework** workbook (AI for Records and Archives
+Management). These are the working artefacts: copy each
 one into your own pilot workspace and fill the bracketed `[ ]` fields and `- [ ]`
 checkboxes. Vendor- and jurisdiction-agnostic; replace examples with your own
 regimes, numbers and names. Nothing here is a legal opinion - have your own legal
@@ -277,5 +278,88 @@ For an export / transfer package:
 
 ---
 
-*Cross-references: controls C-PRV-01..C-AUD-01 are defined in the framework
+## Part J - Enhancements
+
+Optional artefacts that round out the toolkit beyond the core journey.
+
+### J1. Glossary (plain-language)
+
+- **RAM** - Records and Archives Management.
+- **Provenance** - the machine-readable record of what produced an output, who/what
+  ran it, when, with which model/version and how confident.
+- **PROV-O** - the W3C standard vocabulary for expressing provenance.
+- **DPIA** - Data Protection Impact Assessment: a documented risk assessment for
+  higher-risk processing of personal data.
+- **RoPA** - Record of Processing Activities: the register of what personal data is
+  processed, why, and under what basis.
+- **NER** - Named-Entity Recognition: automatically finding people, places,
+  organisations etc. in text.
+- **Confidence threshold** - the score above which AI output is auto-accepted and
+  below which it is sent for human review.
+- **Drift** - a change over time in the data a model sees, which can erode accuracy.
+- **Human-in-the-loop** - a person validates high-risk AI decisions; AI assists, it
+  does not arbitrate.
+- **Chain of custody** - an unbroken, evidenced record of who held a record and what
+  was done to it.
+- Add local terms: `[ ]`
+
+### J2. Stakeholder / RACI matrix
+
+R = Responsible, A = Accountable, C = Consulted, I = Informed.
+
+| Activity | Records Mgr | Legal | IT/Security | Risk | Model Owner | Reviewers | Exec sponsor |
+|---|---|---|---|---|---|---|---|
+| Approve a model for production | C | C | C | C | R | I | A |
+| Sign a phase gate | C | C | C | C | C | I | A/R |
+| Run a DPIA | C | A/R | C | C | C | I | I |
+| Resolve review queues | A | I | I | I | C | R | I |
+| Authorise disposal at scale | A/R | C | I | C | I | C | I |
+| Incident response | C | C | R | A | C | I | I |
+
+(Adjust to your structure.)
+
+### J3. Bias / fairness assessment worksheet
+
+- Model + version assessed: `[ ]`
+- Decisions it influences: `[ ]`
+- Groups that could be disadvantaged (by language, region, era, format, community): `[ ]`
+- Evidence checked (per-group precision/recall, error patterns): `[ ]`
+- Disparities found: `[ ]`
+- Mitigations (re-balance data, threshold per class, human review): `[ ]`
+- Residual concern + who accepts it: `[ ]`  Re-assess date: `[ ]`
+
+### J4. Change-management / training and communications plan
+
+- [ ] Audiences identified (curators, IT, leadership, the public)
+- [ ] Key messages per audience: `[ ]`
+- [ ] Training for reviewers on the human-in-the-loop SOP
+- [ ] "What the AI does and does not do" explainer published
+- [ ] Feedback channel for staff: `[ ]`
+- [ ] Go-live comms + FAQ ready
+- [ ] Adoption measure (e.g. % staff trained, queue uptake): `[ ]`
+
+### J5. Model retirement / sunset checklist
+
+- [ ] Reason for retirement (replaced / drifted / risk / deprecated dependency): `[ ]`
+- [ ] Replacement model + cutover plan: `[ ]`
+- [ ] Provenance of past inferences preserved (do not delete history)
+- [ ] Model card archived with a retired status + date
+- [ ] Endpoints / jobs disabled; keys revoked
+- [ ] Stakeholders informed: `[ ]`  Retired by / date: `[ ]`
+
+### J6. Vendor security / due-diligence questionnaire
+
+- Certifications held (ISO 27001 / SOC 2 / other): `[ ]`
+- Data residency + sub-processors: `[ ]`
+- Encryption in transit and at rest: `[ ]`
+- Access control + admin audit logging: `[ ]`
+- Breach-notification commitment + window: `[ ]`
+- Penetration-test cadence + last date: `[ ]`
+- Data-deletion / return on exit: `[ ]`
+- Model-training use of our data (allowed? opt-out?): `[ ]`
+- Signed DPA / confidentiality in place? `- [ ]`
+
+---
+
+*Cross-references: controls C-PRV-01..C-AUD-01 are defined in the AI RAM Framework
 workbook, section 8 (the compliance control catalog) and visualised in Figure 10.*
