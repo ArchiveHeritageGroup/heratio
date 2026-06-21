@@ -20,6 +20,7 @@ use App\Http\Controllers\Controller;
 use App\Services\BlogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BlogAdminController extends Controller
 {
@@ -55,7 +56,22 @@ class BlogAdminController extends Controller
         return view('admin.articles.form', [
             'article' => null,
             'groups'  => $this->blog->distinctGroups(),
+            'attachmentKinds' => $this->attachmentKinds(),
         ]);
+    }
+
+    /**
+     * Attachment "Type" options from the Dropdown Manager (taxonomy
+     * blog_attachment_kind), so types are managed at /admin/dropdowns rather
+     * than hardcoded. Empty collection falls back to guide/template in the view.
+     */
+    private function attachmentKinds()
+    {
+        return DB::table('ahg_dropdown')
+            ->where('taxonomy', 'blog_attachment_kind')
+            ->where('is_active', 1)
+            ->orderBy('sort_order')->orderBy('label')
+            ->get(['code', 'label', 'is_default']);
     }
 
     // ── Comment moderation ───────────────────────────────────────────────────
@@ -114,6 +130,7 @@ class BlogAdminController extends Controller
             'article'     => $article,
             'groups'      => $this->blog->distinctGroups(),
             'attachments' => $this->blog->listAttachments($id),
+            'attachmentKinds' => $this->attachmentKinds(),
         ]);
     }
 

@@ -37,15 +37,14 @@
                             <label for="excerpt" class="form-label">{{ __('Excerpt') }}</label>
                             <textarea name="excerpt" id="excerpt" rows="2" class="form-control" maxlength="500" placeholder="{{ __('Short summary shown on cards and listings') }}">{{ $val('excerpt') }}</textarea>
                         </div>
-                        <div class="mb-2 d-flex justify-content-between align-items-center">
-                            <label for="body" class="form-label mb-0">{{ __('Body') }} <small class="text-muted">({{ __('Markdown') }})</small></label>
-                            <span>
-                                <input type="file" id="inlineImage" accept="image/*" class="d-none">
-                                <button type="button" class="btn btn-sm btn-outline-secondary" id="insertImageBtn"><i class="fas fa-image me-1"></i>{{ __('Insert image') }}</button>
-                            </span>
+                        <div class="mb-2">
+                            <label for="body" class="form-label mb-0">{{ __('Body') }} <small class="text-muted">({{ __('Markdown or visual - toggle in the editor') }})</small></label>
                         </div>
-                        <textarea name="body" id="body" rows="18" class="form-control font-monospace" style="font-size:.9rem;">{{ $val('body') }}</textarea>
-                        <div class="form-text">{{ __('Markdown supported. Use the Insert image button to upload and embed an image.') }}</div>
+                        {{-- Toast UI dual editor (Markdown + WYSIWYG tabs). The textarea stays as the
+                             form field (hidden); the editor's Markdown is synced into it on submit. --}}
+                        <textarea name="body" id="body" class="d-none">{{ $val('body') }}</textarea>
+                        <div id="bodyEditor"></div>
+                        <div class="form-text">{{ __('Switch between the Markdown and visual (WYSIWYG) tabs. Bold, italic, headings, lists, tables, links, quotes, code and image upload are on the toolbar.') }}</div>
 
                         <div class="mt-3">
                             <label for="attachments_label" class="form-label">{{ __('Downloads intro message') }}</label>
@@ -162,9 +161,14 @@
                     <div class="col-md-2">
                         <label for="att_kind" class="form-label">{{ __('Type') }}</label>
                         <select name="kind" id="att_kind" class="form-select">
-                            <option value="guide">{{ __('Guide') }}</option>
-                            <option value="template">{{ __('Template') }}</option>
+                            @forelse(($attachmentKinds ?? collect()) as $k)
+                                <option value="{{ $k->code }}" @selected(($k->is_default ?? 0))>{{ __($k->label) }}</option>
+                            @empty
+                                <option value="guide">{{ __('Guide') }}</option>
+                                <option value="template">{{ __('Template') }}</option>
+                            @endforelse
                         </select>
+                        <div class="form-text"><a href="{{ url('/admin/dropdowns') }}" target="_blank" rel="noopener">{{ __('Manage types') }}</a></div>
                     </div>
                     <div class="col-md-3">
                         <label for="att_title" class="form-label">{{ __('Title') }}</label>
@@ -192,35 +196,42 @@
     @endif
 </div>
 
+@push('css')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@toast-ui/editor@3/dist/toastui-editor.min.css">
+@endpush
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/@toast-ui/editor@3/dist/toastui-editor-all.min.js"></script>
 <script>
 (function () {
-    const btn = document.getElementById('insertImageBtn');
-    const file = document.getElementById('inlineImage');
-    const body = document.getElementById('body');
-    if (!btn || !file || !body) return;
+    if (!window.toastui || !toastui.Editor) return;
+    var ta = document.getElementById('body');
+    var holder = document.getElementById('bodyEditor');
+    if (!ta || !holder) return;
 
-    btn.addEventListener('click', () => file.click());
-    file.addEventListener('change', async () => {
-        if (!file.files.length) return;
-        const fd = new FormData();
-        fd.append('image', file.files[0]);
-        fd.append('_token', '{{ csrf_token() }}');
-        btn.disabled = true;
-        try {
-            const res = await fetch('{{ route('admin.articles.upload-image') }}', { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } });
-            if (!res.ok) throw new Error('upload failed');
-            const data = await res.json();
-            const snippet = '\n![](' + data.url + ')\n';
-            const pos = body.selectionStart ?? body.value.length;
-            body.value = body.value.slice(0, pos) + snippet + body.value.slice(pos);
-        } catch (e) {
-            alert('{{ __('Image upload failed.') }}');
-        } finally {
-            btn.disabled = false;
-            file.value = '';
+    var editor = new toastui.Editor({
+        el: holder,
+        height: '520px',
+        initialEditType: 'markdown',   // opens in Markdown; one click to the WYSIWYG tab
+        previewStyle: 'vertical',
+        initialValue: ta.value,
+        usageStatistics: false,
+        hooks: {
+            // Reuse the existing inline-image upload endpoint for drag/drop + toolbar image.
+            addImageBlobHook: function (blob, callback) {
+                var fd = new FormData();
+                fd.append('image', blob);
+                fd.append('_token', '{{ csrf_token() }}');
+                fetch('{{ route('admin.articles.upload-image') }}', { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } })
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) { callback(d.url, ''); })
+                    .catch(function () { alert('{{ __('Image upload failed.') }}'); });
+            }
         }
     });
+
+    // Sync the editor's Markdown back into the form field before the article saves.
+    var form = ta.closest('form');
+    if (form) { form.addEventListener('submit', function () { ta.value = editor.getMarkdown(); }); }
 })();
 </script>
 @endpush
