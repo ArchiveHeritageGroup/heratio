@@ -38,7 +38,7 @@ and an operational checklist for pilot and rollout.
 A layered reference architecture; an end-to-end pipeline (crawl, OCR, entity extraction,
 classification, sensitivity detection, human review, retention, access) with a provenance
 event at every stage; a governance model with named roles and decision gates; a phased
-roadmap from pilot to production; and, crucially, the **working tick-sheets** — a minimum
+roadmap from pilot to production; and, crucially, the **working tick-sheets** - a minimum
 viable deployment checklist, a vendor and acceptance-test pack, and a compliance control
 catalog that maps regulatory obligations to concrete controls and recommended
 configuration.

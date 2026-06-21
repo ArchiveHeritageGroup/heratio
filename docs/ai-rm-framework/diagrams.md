@@ -7,7 +7,7 @@ the specialist and the lay reader; captions carry the plain-language reading.
 
 ---
 
-## Figure 1 — The problem and the outcome
+## Figure 1 - The problem and the outcome
 
 *Conceptual before/after. For: lay readers and executives.*
 
@@ -28,25 +28,25 @@ flowchart LR
 
 ---
 
-## Figure 2 — Layered reference architecture
+## Figure 2 - Layered reference architecture
 
 *Stacked layers. Policy/control flows down; evidence/provenance flows up.*
 
 ```mermaid
 flowchart TB
-  L1["Regulatory & policy — obligations, file-plan, retention authorities"]
-  L2["Governance — committee, risk register, model registry, gates"]
-  L3["Ingest & provenance — crawlers, snapshot+hash, OCR, provenance capture"]
-  L4["Intelligence — NER, classification, sensitivity, embeddings, model serving"]
-  L5["Control & lifecycle — ECM/EDRMS, retention enforcement, secure transfer, ACLs"]
-  L6["Human UX & review — provenance timeline, diff viewer, review queues, audit export"]
+  L1["Regulatory & policy - obligations, file-plan, retention authorities"]
+  L2["Governance - committee, risk register, model registry, gates"]
+  L3["Ingest & provenance - crawlers, snapshot+hash, OCR, provenance capture"]
+  L4["Intelligence - NER, classification, sensitivity, embeddings, model serving"]
+  L5["Control & lifecycle - ECM/EDRMS, retention enforcement, secure transfer, ACLs"]
+  L6["Human UX & review - provenance timeline, diff viewer, review queues, audit export"]
   L1 --> L2 --> L3 --> L4 --> L5 --> L6
   L6 -. "evidence up" .-> L1
 ```
 
 ---
 
-## Figure 3 — Ingest-to-access pipeline
+## Figure 3 - Ingest-to-access pipeline
 
 *Left-to-right data flow; a provenance event is emitted at every stage.*
 
@@ -71,7 +71,7 @@ flowchart LR
 
 ---
 
-## Figure 4 — Provenance event model (PROV-O)
+## Figure 4 - Provenance event model (PROV-O)
 
 *W3C PROV triad. Plain reading: what produced this, who or what ran it, when, how confident.*
 
@@ -85,7 +85,7 @@ graph LR
 
 ---
 
-## Figure 5 — Human-in-the-loop review workflow
+## Figure 5 - Human-in-the-loop review workflow
 
 *Where a human stays in control of high-risk actions.*
 
@@ -103,7 +103,7 @@ flowchart TD
 
 ---
 
-## Figure 6 — Governance roles and decision gates
+## Figure 6 - Governance roles and decision gates
 
 *Who owns which gate.*
 
@@ -122,7 +122,7 @@ flowchart TB
 
 ---
 
-## Figure 7 — Phased implementation roadmap
+## Figure 7 - Phased implementation roadmap
 
 *Timeline with deliverables. For: executives.*
 
@@ -143,7 +143,7 @@ gantt
 
 ---
 
-## Figure 8 — Sensitivity and PII handling decision flow
+## Figure 8 - Sensitivity and PII handling decision flow
 
 *Makes privacy-by-design concrete.*
 
@@ -160,7 +160,7 @@ flowchart TD
 
 ---
 
-## Figure 9 — Deployment topologies and data residency
+## Figure 9 - Deployment topologies and data residency
 
 *Where the data physically lives and who holds the keys.*
 
@@ -182,7 +182,7 @@ flowchart TB
 
 ---
 
-## Figure 10 — Regime-to-control mapping matrix
+## Figure 10 - Regime-to-control mapping matrix
 
 *The legal-mapping annex made visual. Mermaid is weak at matrices, so this figure is a
 table; a designer can render it as a heatmap.*
@@ -195,7 +195,7 @@ table; a designer can render it as a heatmap.*
 
 ---
 
-## Figure 11 — Model governance lifecycle
+## Figure 11 - Model governance lifecycle
 
 *How the AI is kept accurate and accountable over time.*
 

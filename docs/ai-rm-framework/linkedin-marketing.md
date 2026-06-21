@@ -3,13 +3,13 @@
 Ready-to-post drafts. Every post points to the articles page:
 **https://heratio.theahg.co.za/articles**
 
-These are **drafts to post manually** from the company/personal page — review and adjust
+These are **drafts to post manually** from the company/personal page - review and adjust
 voice before publishing. Suggested cadence: lead with Post 1 (launch), then one themed
 post every 3-4 days. Reusable hashtag bank at the bottom.
 
 ---
 
-## Post 1 — Launch (framework + workbook)
+## Post 1 - Launch (framework + workbook)
 
 Most organisations are sitting on decades of records they cannot find: shared drives,
 email, scanned boxes. The blocker for using AI on them was never the model. It was doing
@@ -29,7 +29,7 @@ https://heratio.theahg.co.za/articles
 
 ---
 
-## Post 2 — The records-management crisis
+## Post 2 - The records-management crisis
 
 Your expensive records management system is probably half empty.
 
@@ -45,7 +45,7 @@ https://heratio.theahg.co.za/articles
 
 ---
 
-## Post 3 — Provenance and trust
+## Post 3 - Provenance and trust
 
 "Can I trust what the AI told me about this record?"
 
@@ -61,7 +61,7 @@ https://heratio.theahg.co.za/articles
 
 ---
 
-## Post 4 — Compliance (access-to-information + AI regulation)
+## Post 4 - Compliance (access-to-information + AI regulation)
 
 AI in a gallery, library, archive, or museum is not exempt from the law.
 
@@ -77,7 +77,7 @@ https://heratio.theahg.co.za/articles
 
 ---
 
-## Post 5 — The digital twin (product)
+## Post 5 - The digital twin (product)
 
 What if you could walk through your collection, not just search it?
 
@@ -91,7 +91,7 @@ https://heratio.theahg.co.za/articles
 
 ---
 
-## Post 6 — The future / a culture you can talk to
+## Post 6 - The future / a culture you can talk to
 
 The archive of the future is not a building. It is not even a database.
 
@@ -104,7 +104,7 @@ https://heratio.theahg.co.za/articles
 
 ---
 
-## Post 7 — The LLM paradox (for the technical crowd)
+## Post 7 - The LLM paradox (for the technical crowd)
 
 "What model do you use?" is the wrong first question.
 

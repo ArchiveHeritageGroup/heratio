@@ -1,4 +1,4 @@
-# AI for Records & Archives — the Workbook
+# AI for Records & Archives - the Workbook
 
 > A working reference for introducing AI/ML into records and archives management at
 > scale (shared drives, file shares, email stores), with governance, privacy, legal
@@ -28,23 +28,32 @@ section 8 is the compliance control catalog; section 9 links the supporting read
 
 ## 2. Architecture
 
-A layered, minimal-dependence architecture suitable for hybrid deployments — see
+A layered, minimal-dependence architecture suitable for hybrid deployments - see
 **Figure 2** (`diagrams.md`). Policy and control flow down the layers; evidence and
 provenance flow back up.
 
-- **Regulatory & policy** — obligations, file-plan, retention authorities, classification.
-- **Governance** — committee, risk register, model registry, performance gates.
-- **Ingest & provenance** — crawlers, snapshot store (file hash + URI), OCR, token-level
-  provenance, ingest manifest, the `queue_for_ingest` tick-box.
-- **Intelligence** — NER, classification, sensitivity detectors, dedupe, embeddings /
-  semantic search, model serving.
-- **Control & lifecycle** — ECM/EDRMS integration, retention enforcement (human-acknowledged),
-  secure transfer, ACLs.
-- **Human UX & review** — provenance timeline, diff viewer, review queues, audit exports.
+- **Regulatory & policy** - obligations, file-plan, retention authorities, classification.
+  The source of truth for what the law and the institution require; every layer above must
+  honour these constraints.
+- **Governance** - committee, risk register, model registry, performance gates. Where people
+  hold the AI to account: the committee approves models for production, and the gates keep an
+  unproven model away from live records.
+- **Ingest & provenance** - crawlers, snapshot store (file hash + URI), OCR, token-level
+  provenance, ingest manifest, the `queue_for_ingest` tick-box. The controlled front door:
+  content comes in without altering the originals, and each step is stamped with provenance.
+- **Intelligence** - NER, classification, sensitivity detectors, dedupe, embeddings /
+  semantic search, model serving. The machine work of understanding the content; deliberately
+  swappable, so models can be upgraded without disturbing the layers around it.
+- **Control & lifecycle** - ECM/EDRMS integration, retention enforcement (human-acknowledged),
+  secure transfer, ACLs. Turns decisions into action inside the systems of record, and
+  controls who can see what.
+- **Human UX & review** - provenance timeline, diff viewer, review queues, audit exports.
+  Where people work with the system: it makes the AI's reasoning visible and produces the
+  audit evidence regulators and auditors ask for.
 
 ## 3. The pipeline
 
-The document journey end to end — see **Figure 3**. A provenance event is emitted at
+The document journey end to end - see **Figure 3**. A provenance event is emitted at
 every stage, so any later assertion can be traced back to its source.
 
 Source stores → crawler/ingest → snapshot + hash → OCR → NER/classification →
@@ -53,24 +62,34 @@ ECM/retention → access & export.
 
 ## 4. Key components
 
-- **Crawler & ingest** — read-only, least-privilege, incremental; uploader `queue_for_ingest`
-  flag; snapshot store (hash + object-store URI) for reproducibility.
-- **OCR & text extraction** — layout-aware, page/offset provenance; raw OCR kept as a
-  first-class artefact (never overwrite originals).
-- **NER / classification** — tuned to local file plans; confidence thresholds drive the
-  workflow path; the model registry records training-data provenance and metrics.
-- **Sensitivity & privacy** — PII/special-category detectors early; policy-driven
-  redaction or limited-indexing — see **Figure 8**.
-- **Provenance store** — append-only events (processing jobs, reviews, policy decisions)
-  for audit and replay.
-- **Human review & workflows** — low-confidence / high-risk items surfaced; diff viewer
-  raw → canonical — see **Figure 5**.
-- **APIs & integration** — ingest, provenance, review, search, audit, access-requests;
-  adapters to common ECM/EDRMS.
+- **Crawler & ingest** - reads from the source stores without modifying them, under
+  least-privilege access, picking up only what is new or changed on each pass; an uploader
+  `queue_for_ingest` tick-box gives a single auditable point of entry; a snapshot store
+  records each file's hash + object-store URI so any result can be reproduced and verified.
+- **OCR & text extraction** - layout-aware OCR that understands page structure (columns,
+  tables, headings) and records where each character sits (page + offset), so every word
+  traces back to its place on the page; raw OCR is kept as a first-class artefact, never
+  written over the original.
+- **NER / classification** - entity recognition and classifiers trained on the
+  organisation's own material and file plan, not a generic vocabulary; configurable
+  confidence thresholds route uncertain items to a human; a model registry records each
+  model's training-data provenance, evaluation sets and metrics.
+- **Sensitivity & privacy** - detectors for personal and special-category data (names, IDs,
+  health, financial) run early, before content is indexed; policy then decides whether to
+  index, limit, redact or withhold - see **Figure 8**.
+- **Provenance store** - append-only events (processing jobs, reviews, policy decisions)
+  that are never edited or deleted, stored as structured JSON so any record's full history
+  can be audited and replayed.
+- **Human review & workflows** - low-confidence or high-risk items are surfaced to a curator
+  rather than actioned automatically; a diff viewer shows raw vs canonical text and reviewer
+  edits so corrections stay transparent - see **Figure 5**.
+- **APIs & integration** - ingest, provenance, review, search, audit, and access-request
+  endpoints, plus adapters to the systems records already live in (common ECM/EDRMS), so the
+  pipeline augments the estate rather than replacing it.
 
 ## 5. Provenance and evidence
 
-The spine of trust — see **Figure 4** (PROV-O). Store provenance at event granularity
+The spine of trust - see **Figure 4** (PROV-O). Store provenance at event granularity
 (ingest, transform, classification, redaction, export). Each event: timestamp (ISO 8601
 UTC), agent id, action type, inputs, outputs, optional signature, job id. Sign logs with a
 server key and support a chain-of-custody export. A worked schema is in section 10.
@@ -79,12 +98,12 @@ server key and support a chain-of-custody export. A worked schema is in section 
 
 See **Figure 6**.
 
-- **AI Governance Committee** — Records Manager, Legal, IT/Security, Risk, Business Unit.
+- **AI Governance Committee** - Records Manager, Legal, IT/Security, Risk, Business Unit.
   Approves models for production, reviews bias/drift, signs phase gates.
-- **Model Owner / Data Steward** — dataset curation, labelled evaluation sets, performance.
-- **Reviewers / Curators** — resolve review queues, authoritatively approve retention and
+- **Model Owner / Data Steward** - dataset curation, labelled evaluation sets, performance.
+- **Reviewers / Curators** - resolve review queues, authoritatively approve retention and
   transfers.
-- **Platform Ops / SRE** — model serving, scaling, backups, incident response.
+- **Platform Ops / SRE** - model serving, scaling, backups, incident response.
 
 The roadmap (Phases 0-3) is **Figure 7**; the model governance loop is **Figure 11**.
 
@@ -114,11 +133,11 @@ placeholder with your own value.
 
 ### 7.3 Acceptance tests (demonstrate during the pilot)
 
-- [ ] **Ingest manifest** — upload 1000 files with `queue_for_ingest` set; all queued, provenance entries created
-- [ ] **OCR fidelity** — OCR 50 scanned documents; measure character accuracy; provenance links output to source pages
-- [ ] **Classification accuracy** — vendor evaluation CSV meets precision/recall thresholds for target categories
-- [ ] **Review workflow** — 200 low-confidence jobs; reviewers resolve 95% in the UI with exportable audit reports
-- [ ] **Access-to-information scenario** — locate 20 named-record requests within SLA; export the provenance chain for each
+- [ ] **Ingest manifest** - upload 1000 files with `queue_for_ingest` set; all queued, provenance entries created
+- [ ] **OCR fidelity** - OCR 50 scanned documents; measure character accuracy; provenance links output to source pages
+- [ ] **Classification accuracy** - vendor evaluation CSV meets precision/recall thresholds for target categories
+- [ ] **Review workflow** - 200 low-confidence jobs; reviewers resolve 95% in the UI with exportable audit reports
+- [ ] **Access-to-information scenario** - locate 20 named-record requests within SLA; export the provenance chain for each
 
 ### 7.4 Regime-to-control mapping checklist
 
@@ -160,7 +179,7 @@ recommended configuration. This catalog is also a live, queryable feature
 | C-GOV-02 | Human-in-the-Loop Review | governance | confidence-threshold queues; reviewer roles; recorded decisions |
 | C-AUD-01 | Tamper-Evident Audit & Chain-of-Custody | audit | append-only signed log store; chain-of-custody export (METS / bagit) |
 
-**Example regime mappings** (interchangeable — add your own):
+**Example regime mappings** (interchangeable - add your own):
 
 | Regime | Obligation | Control |
 |---|---|---|
@@ -172,11 +191,19 @@ recommended configuration. This catalog is also a live, queryable feature
 
 ## 9. Metrics & KPIs
 
-- Classification precision and recall per file-plan category
-- Time-to-discovery (median reduction pre/post pilot)
-- Access-to-information response SLA achievement rate
-- Review backlog size and reviewer throughput
-- Model drift indicators and retraining frequency
+- **Classification precision and recall, per file-plan category** - precision is how often
+  a category is assigned correctly, recall is how much of each category is actually found;
+  broken down per category so weak spots are visible rather than hidden in an average.
+- **Time-to-discovery** - the median time to locate a record, compared before and after the
+  pilot to show the real-world speed gain in plain terms.
+- **Access-to-information response SLA achievement rate** - the share of requests answered
+  within their statutory deadline; the headline measure of legal responsiveness.
+- **Review backlog size and reviewer throughput** - how much is waiting for human review and
+  how fast reviewers clear it, so the human-in-the-loop step is resourced before it becomes a
+  bottleneck.
+- **Model drift indicators and retraining frequency** - shifts over time in the data the
+  model sees, and how often retraining is triggered, so accuracy is monitored rather than
+  assumed to hold.
 
 ## 10. Worked provenance JSON (schema fragment)
 
@@ -209,18 +236,18 @@ into a reading path:
 **Why it matters (the problem)**
 - The Crisis of Records Management: From Shared Drives to EDRMS Solutions
 - How Records Management Lost Its Way in the 90s and 00s
-- Why Your Fancy Records Management System Sits Empty (And What to Do About It) — *carries a tick-sheet*
+- Why Your Fancy Records Management System Sits Empty (And What to Do About It) - *carries a tick-sheet*
 - The Digital Preservation Paradox
 
 **The AI approach**
-- Implementing AI in Records Management — *carries a template/attachment*
+- Implementing AI in Records Management - *carries a template/attachment*
 - AI Records Management: IT Implementation Guide
 - The LLM Paradox: Why "What Model Do You Use?" Is the Wrong First Question
 - Perfect Is the Enemy of Accessible: Archives in the Age of AI-Assisted Processing
 
 **Trust, governance and compliance**
 - What Proper Authority Resolution Looks Like in Archival AI  (→ section 5, Figure 4)
-- What the EU AI Act Means for Galleries, Libraries, Archives and Museums — *carries a tick-sheet* (→ section 8)
+- What the EU AI Act Means for Galleries, Libraries, Archives and Museums - *carries a tick-sheet* (→ section 8)
 - In 2026, data-protection law stopped moving in one direction (→ section 8)
 - When the System Goes Silent: An Estimated R5 Million Lesson in IT Disaster Preparedness
 
