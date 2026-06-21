@@ -14,6 +14,7 @@ This folder consolidates everything in one place:
 | `diagrams.md` | The figure set as renderable Mermaid source (11 figures) | Drop into docs, slides, or articles; restyle freely |
 | `cornerstone-article.md` | A readable, public-facing flagship article drawn from the framework | Publish as the "hub" article the other AI articles link to |
 | `linkedin-marketing.md` | 7 ready-to-post LinkedIn drafts, each pointing to the articles page | Post manually on a 3-4 day cadence to drive traffic to `/articles` |
+| `toolkit.md` / `AI-RM-Framework-Toolkit.docx` | The **implementation toolkit** - ~20 fillable worksheets, checklists, matrices and templates covering the whole journey (Start -> Govern -> Comply -> Pilot -> Procure -> Prove -> Operate -> Sustain -> Retire) | Attach the .docx to the cornerstone article as the downloadable toolkit bundle; fill in per pilot |
 
 ## How the pieces relate
 
