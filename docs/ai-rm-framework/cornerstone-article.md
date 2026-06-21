@@ -1,12 +1,14 @@
 ---
-title: "An Industry Framework for AI in Records and Archives"
+title: "The Model Was Never the Hard Part: A Framework for AI in Records and Archives"
 article_group: "The Future"
 status: draft
-summary: "A practical, vendor-neutral framework for putting AI to work in records and archives without losing control of governance, privacy, or the evidence trail."
+summary: "The framework we wished existed - so we wrote it. Vendor-neutral, jurisdiction-neutral, and free."
 attachments_label: "Download the framework workbook"
 ---
 
-# An Industry Framework for AI in Records and Archives
+# The Model Was Never the Hard Part: A Framework for AI in Records and Archives
+
+*The framework we wished existed - so we wrote it. Vendor-neutral, jurisdiction-neutral, and free.*
 
 Most organisations are sitting on decades of unstructured records: shared drives, file
 shares, email stores, scanned boxes. The content is valuable, often legally significant,
