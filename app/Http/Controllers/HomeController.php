@@ -45,7 +45,7 @@ class HomeController extends Controller
             // Latest published demo-site articles for the landing Articles strip.
             $latestArticles = [];
             try {
-                $latestArticles = (new \App\Services\BlogService())->listPublished(3);
+                $latestArticles = (new \AhgArticles\Services\BlogService())->listPublished(3);
             } catch (\Throwable $e) {
                 // blog_post may not exist on a non-demo install; degrade silently.
             }

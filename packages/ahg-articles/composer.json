@@ -1,0 +1,19 @@
+{
+    "name": "ahg/articles",
+    "description": "Heratio Articles: institution-publishable articles/news with a dual Markdown/WYSIWYG editor and downloadable guides & templates.",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "authors": [
+        { "name": "Johan Pieterse", "email": "johan@plainsailingisystems.co.za" }
+    ],
+    "autoload": {
+        "psr-4": { "AhgArticles\\": "src/" }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgArticles\\Providers\\AhgArticlesServiceProvider"
+            ]
+        }
+    }
+}

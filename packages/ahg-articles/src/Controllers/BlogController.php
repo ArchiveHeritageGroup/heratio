@@ -14,9 +14,10 @@
  * (at your option) any later version.
  */
 
-namespace App\Http\Controllers;
+namespace AhgArticles\Controllers;
 
-use App\Services\BlogService;
+use App\Http\Controllers\Controller;
+use AhgArticles\Services\BlogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -39,7 +40,7 @@ class BlogController extends Controller
             $group = null;
         }
 
-        return view('articles.index', [
+        return view('articles::index', [
             'articles'     => $this->blog->paginatePublished($group ?: null),
             'groups'       => $groups,
             'activeGroup'  => $group,
@@ -63,7 +64,7 @@ class BlogController extends Controller
             $article->view_count = (int) ($article->view_count ?? 0) + 1;
         }
 
-        return view('articles.show', [
+        return view('articles::show', [
             'article'     => $article,
             'bodyHtml'    => $article->body ? Str::markdown($article->body) : '',
             'comments'    => $this->blog->listApprovedComments((int) $article->id),

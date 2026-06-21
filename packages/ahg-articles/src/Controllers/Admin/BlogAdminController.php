@@ -14,10 +14,10 @@
  * (at your option) any later version.
  */
 
-namespace App\Http\Controllers\Admin;
+namespace AhgArticles\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\BlogService;
+use AhgArticles\Services\BlogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +44,7 @@ class BlogAdminController extends Controller
     {
         $this->guard();
 
-        return view('admin.articles.index', [
+        return view('articles::admin.index', [
             'articles' => $this->blog->listAll(),
         ]);
     }
@@ -53,7 +53,7 @@ class BlogAdminController extends Controller
     {
         $this->guard();
 
-        return view('admin.articles.form', [
+        return view('articles::admin.form', [
             'article' => null,
             'groups'  => $this->blog->distinctGroups(),
             'attachmentKinds' => $this->attachmentKinds(),
@@ -80,7 +80,7 @@ class BlogAdminController extends Controller
     {
         $this->guard();
 
-        return view('admin.articles.comments', [
+        return view('articles::admin.comments', [
             'comments' => $this->blog->listAllComments(),
         ]);
     }
@@ -126,7 +126,7 @@ class BlogAdminController extends Controller
             abort(404);
         }
 
-        return view('admin.articles.form', [
+        return view('articles::admin.form', [
             'article'     => $article,
             'groups'      => $this->blog->distinctGroups(),
             'attachments' => $this->blog->listAttachments($id),

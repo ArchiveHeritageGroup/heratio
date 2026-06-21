@@ -197,16 +197,27 @@
 </div>
 
 @push('css')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@toast-ui/editor@3/dist/toastui-editor.min.css">
+<link rel="stylesheet" href="{{ asset('vendor/toastui/toastui-editor.min.css').'?v=322' }}">
 @endpush
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/@toast-ui/editor@3/dist/toastui-editor.min.js"></script>
+{{-- Toast UI is a UMD bundle: if an AMD loader (define.amd) is present on the page
+     it would register as a module and never set window.toastui. Hide define across
+     the script so it takes the browser-global branch. --}}
+<script>window.__tuiD=window.define;window.__tuiE=window.exports;window.__tuiM=window.module;window.define=undefined;window.exports=undefined;window.module=undefined;</script>
+<script src="{{ asset('vendor/toastui/toastui-editor-all.min.js').'?v=322' }}"></script>
+<script>window.define=window.__tuiD;window.exports=window.__tuiE;window.module=window.__tuiM;</script>
 <script>
 (function () {
-    if (!window.toastui || !toastui.Editor) return;
     var ta = document.getElementById('body');
     var holder = document.getElementById('bodyEditor');
     if (!ta || !holder) return;
+    if (!window.toastui || !toastui.Editor) {
+        holder.innerHTML = '<div class="alert alert-warning mb-0">Editor failed to load. Edit Markdown below.</div>';
+        ta.classList.remove('d-none');
+        ta.classList.add('form-control', 'font-monospace');
+        ta.rows = 18;
+        return;
+    }
 
     var editor = new toastui.Editor({
         el: holder,

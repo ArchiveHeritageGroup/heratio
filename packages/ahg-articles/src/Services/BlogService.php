@@ -14,7 +14,7 @@
  * (at your option) any later version.
  */
 
-namespace App\Services;
+namespace AhgArticles\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
