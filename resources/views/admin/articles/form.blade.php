@@ -200,7 +200,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@toast-ui/editor@3/dist/toastui-editor.min.css">
 @endpush
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/@toast-ui/editor@3/dist/toastui-editor-all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@toast-ui/editor@3/dist/toastui-editor.min.js"></script>
 <script>
 (function () {
     if (!window.toastui || !toastui.Editor) return;
