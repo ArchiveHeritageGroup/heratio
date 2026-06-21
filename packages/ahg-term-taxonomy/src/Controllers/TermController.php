@@ -197,6 +197,12 @@ class TermController extends Controller
 
         $term = $this->termService->getBySlug($slug, $culture);
 
+        // Fallback: a term with no slug row is still reachable by numeric id (the tree
+        // view links such terms by id to avoid an empty-slug 500).
+        if (! $term && ctype_digit($slug)) {
+            $term = $this->termService->getById((int) $slug, $culture);
+        }
+
         if (! $term) {
             abort(404);
         }
@@ -1806,7 +1812,9 @@ class TermController extends Controller
             'id' => (int) $t->id,
             'parent_id' => (int) $t->parent_id,
             'text' => (string) ($t->name ?? ''),
-            'slug' => (string) ($t->slug ?? ''),
+            // Fall back to the id when a term has no slug row, so the tree links never
+            // render an empty slug (which throws UrlGenerationException on term.show).
+            'slug' => (string) ($t->slug ?? '') ?: (string) $t->id,
             'children' => ((int) $t->child_count) > 0,
         ])->values();
 

@@ -713,6 +713,13 @@ class ExportController extends Controller
 
     private function getDescendants($io, string $culture)
     {
+        // A record with no nested-set bounds (null lft/rgt) has no computable
+        // descendants; guard so where('lft', '>', null) cannot throw "illegal
+        // operator and value combination".
+        if ($io->lft === null || $io->rgt === null) {
+            return collect();
+        }
+
         return DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
             ->where('information_object.lft', '>', $io->lft)
