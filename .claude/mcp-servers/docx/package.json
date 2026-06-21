@@ -1,0 +1,19 @@
+{
+  "name": "docx-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for DOCX: Markdown->Word, Word->text, Word/Markdown->PDF (pandoc + LibreOffice)",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "AGPL-3.0-or-later",
+  "author": "Johan Pieterse / Plain Sailing iSystems"
+}

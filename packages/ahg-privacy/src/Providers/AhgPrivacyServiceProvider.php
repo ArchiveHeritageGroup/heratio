@@ -89,6 +89,20 @@ class AhgPrivacyServiceProvider extends ServiceProvider
             ]);
         }
 
+        // Compliance Control Catalog - regime -> obligation -> control mapping
+        // (vendor/jurisdiction-agnostic). Probe + install in one outer try per the
+        // reference_ci_schema_hastable rule; seed via INSERT IGNORE so it stays
+        // idempotent on every boot.
+        try {
+            if (! Schema::hasTable('ahg_compliance_control')) {
+                $this->installSqlFile(__DIR__.'/../../database/install-control-catalog.sql');
+            }
+        } catch (Throwable $e) {
+            Log::warning('ahg-privacy: Compliance Control Catalog install probe/install failed', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         // heratio#1199 - Phase 5: compliance-autopilot retention-schedule
         // proposals. Probe + install live inside one outer try per the
         // reference_ci_schema_hastable rule.

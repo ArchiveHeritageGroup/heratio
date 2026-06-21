@@ -2,6 +2,7 @@
 
 use AhgPrivacy\Controllers\Article30Controller;
 use AhgPrivacy\Controllers\ComplianceAutopilotController;
+use AhgPrivacy\Controllers\ComplianceControlController;
 use AhgPrivacy\Controllers\DescriptionPrivacyController;
 use AhgPrivacy\Controllers\DpiaController;
 use AhgPrivacy\Controllers\EmbeddedFindingsController;
@@ -13,6 +14,13 @@ Route::get('/privacyAdmin', fn () => redirect('/admin/privacy/index'));
 Route::get('/privacyAdmin/{action}', fn (string $action) => redirect('/admin/privacy/'.\Illuminate\Support\Str::kebab($action)));
 
 Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(function () {
+    // ------------------------------------------------------------------
+    // Compliance Control Catalog - regime -> obligation -> control mapping
+    // (vendor- and jurisdiction-agnostic). Admin index + queryable JSON artefact.
+    // ------------------------------------------------------------------
+    Route::get('/control-catalog', [ComplianceControlController::class, 'index'])->name('ahgprivacy.control-catalog');
+    Route::get('/control-catalog.json', [ComplianceControlController::class, 'json'])->name('ahgprivacy.control-catalog.json');
+
     // ------------------------------------------------------------------
     // Issue #1108: field-level structured redaction on archival descriptions
     // ------------------------------------------------------------------
