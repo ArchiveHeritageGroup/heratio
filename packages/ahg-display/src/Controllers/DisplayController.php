@@ -1195,10 +1195,14 @@ class DisplayController extends Controller
         if ($this->parentId) {
             // Use MPTT lft/rgt range to include the record itself and all descendants
             $ancestor = DB::table('information_object')->where('id', $this->parentId)->select('lft', 'rgt')->first();
-            if ($ancestor) {
+            if ($ancestor && $ancestor->lft !== null && $ancestor->rgt !== null) {
+                // MPTT range: the record itself + all descendants.
                 $query->where('io.lft', '>=', $ancestor->lft)
                       ->where('io.rgt', '<=', $ancestor->rgt);
             } else {
+                // No ancestor row, or it has no nested-set bounds (null lft/rgt):
+                // fall back to direct children so where('lft','>=',null) cannot throw
+                // "illegal operator and value combination".
                 $query->where('io.parent_id', $this->parentId);
             }
         } elseif ($this->topLevelOnly === '1') {
