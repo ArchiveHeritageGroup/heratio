@@ -184,10 +184,14 @@
       </div>
 
       @auth
-      {{-- Room appearance & setup - moved below the plan so the left toolbar stays short; tiled across the width. --}}
-      <div class="row g-3 mt-1">
+      {{-- Room appearance & setup - collapsed by default so the page stays short; equal-height tiles. --}}
+      <button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-bs-toggle="collapse" data-bs-target="#roomSettings" aria-expanded="false" aria-controls="roomSettings">
+        <i class="fas fa-sliders-h me-1"></i>{{ __('Room & scene settings') }}<i class="fas fa-chevron-down ms-1 small"></i>
+      </button>
+      <div class="collapse mt-2" id="roomSettings">
+      <div class="row g-3">
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-map me-1"></i>{{ __('Floorplan') }}</strong></div>
             <div class="card-body">
               <form method="POST" action="{{ route('exhibition-space.builder.floorplan', ['slug' => $space->slug]) }}" enctype="multipart/form-data">
@@ -204,7 +208,7 @@
         </div>
 
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-image me-1"></i>{{ __('Ceiling') }}</strong></div>
             <div class="card-body">
               {{-- Preview of the current ceiling so you can see what is set (updates on upload). --}}
@@ -232,7 +236,7 @@
         </div>
 
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-paint-roller me-1"></i>{{ __('Wall painting') }}</strong></div>
             <div class="card-body">
               <label class="form-label small mb-1">{{ __('Apply to') }}</label>
@@ -262,7 +266,7 @@
         </div>
 
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-image me-1"></i>{{ __('Floor image') }}</strong></div>
             <div class="card-body">
               <p class="small text-muted mb-2">{{ __('Upload a tileable photo (marble, parquet, mosaic) - it repeats across the floor as 2x2 m tiles. Replaces the default marble until cleared.') }}</p>
@@ -293,7 +297,7 @@
         </div>
 
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-cube me-1"></i>{{ __('Photoreal capture') }}</strong></div>
             <div class="card-body">
               <p class="small text-muted mb-2">{{ __('Back this room with a photoreal scan (photogrammetry mesh or point cloud). It renders inside the 3D walkthrough; your object placements and the live overlay stay on top.') }}</p>
@@ -316,7 +320,7 @@
         </div>
 
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-ruler-combined me-1"></i>{{ __('Room size (m)') }}</strong></div>
             <div class="card-body">
               <div class="row g-1 mb-2">
@@ -331,7 +335,7 @@
         </div>
 
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-grip-lines-vertical me-1"></i>{{ __('Interior walls') }}</strong></div>
             <div class="card-body">
               <button type="button" id="wallAdd" class="btn btn-sm btn-outline-primary w-100 mb-2"><i class="fas fa-plus me-1"></i>{{ __('Add wall') }}</button>
@@ -343,7 +347,7 @@
 
         {{-- heratio#1151 - open-standard exports + embed --}}
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-share-nodes me-1"></i>{{ __('Share & interoperability') }}</strong></div>
             <div class="card-body small">
               <p class="text-muted mb-2">{{ __('Open-standard exports so other systems and institutions can consume this twin.') }}</p>
@@ -359,7 +363,7 @@
 
         {{-- heratio#1277 federated twin - borrow a peer institution's object (read-only) --}}
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-people-arrows me-1"></i>{{ __('Borrow from a partner') }}</strong></div>
             <div class="card-body small">
               <p class="text-muted mb-2">{{ __('Borrow a single object from a partner institution\'s published exhibition. It shows read-only, attributed "Courtesy of ...", and links back to the owner. Nothing is copied - media stays on the partner.') }}</p>
@@ -383,7 +387,7 @@
 
         {{-- authored audio guided tour --}}
         <div class="col-md-6 col-xl-3">
-          <div class="card mb-0">
+          <div class="card mb-0 h-100">
             <div class="card-header py-2"><strong><i class="fas fa-route me-1"></i>{{ __('Guided tour (audio)') }}</strong></div>
             <div class="card-body small">
               <p class="text-muted mb-2">{{ __('Build routes of objects with a script the guide reads aloud. Visitors pick a tour and press Play in the walkthrough.') }}</p>
@@ -420,6 +424,7 @@
           </div>
         </div>
       </div>
+      </div>{{-- /#roomSettings collapse --}}
       @endauth
     </div>
   </div>
@@ -636,9 +641,9 @@
       document.getElementById('selControls').classList.remove('d-none');
       document.getElementById('selTitle').textContent = g.getAttr('titleText') || '';
       document.getElementById('selSize').value = g.getAttr('sizeUnits') != null ? g.getAttr('sizeUnits') : 0;
-      var is3d = g.getAttr('objKind') === '3d';
-      document.getElementById('tiltControls').classList.toggle('d-none', !is3d);
-      if (is3d) {
+      var canTilt = g.getAttr('objKind') === '3d' || g.getAttr('isSplat');   // splats need orientation too
+      document.getElementById('tiltControls').classList.toggle('d-none', !canTilt);
+      if (canTilt) {
         var tx = g.getAttr('tiltX'); var tz = g.getAttr('tiltZ');
         document.getElementById('tiltX').value = (tx === null || tx === undefined) ? '' : tx;
         document.getElementById('tiltZ').value = (tz === null || tz === undefined) ? '' : tz;
@@ -682,6 +687,7 @@
       g.setAttr('titleText', p.title);
       g.setAttr('sizeUnits', p.size_units_used != null ? p.size_units_used : 0);
       g.setAttr('objKind', p.kind || null);
+      g.setAttr('isSplat', !!p.splat);
       g.setAttr('wallKey', p.wall_or_zone || '');
       g.setAttr('tiltX', (p.tilt_x === null || p.tilt_x === undefined) ? null : p.tilt_x);
       g.setAttr('tiltZ', (p.tilt_z === null || p.tilt_z === undefined) ? null : p.tilt_z);

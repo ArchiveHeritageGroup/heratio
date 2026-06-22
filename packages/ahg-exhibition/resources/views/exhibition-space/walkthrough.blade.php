@@ -1431,6 +1431,9 @@
     // OBJ/STL/PLY are usually Z-up so default to -90 X; glTF stays upright.
     function effTiltX(s) {
       if (s.tilt_x !== null && s.tilt_x !== undefined) return s.tilt_x;
+      // Splats already get a 180-deg upright flip in loadSplat - don't add the mesh Z-up -90 on top
+      // (that net 90-deg is what tipped them over). Curator fine-tunes via the Builder tilt control.
+      if (s.splat_url) return 0;
       var e = modelExt(s);
       return (e === 'obj' || e === 'stl' || e === 'ply') ? -90 : 0;
     }

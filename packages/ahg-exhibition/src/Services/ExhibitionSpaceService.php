@@ -603,6 +603,7 @@ class ExhibitionSpaceService
                 'view_x' => $r->view_x !== null ? (float) $r->view_x : null,
                 'view_y' => $r->view_y !== null ? (float) $r->view_y : null,
                 'kind' => $media['kind'],
+                'splat' => ! empty($media['splat_url']),   // 3DGS splats need the orientation/tilt controls too
                 'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
                 'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
