@@ -1611,6 +1611,18 @@
       var disp = new THREE.Vector3(wp.x, ph + target * 0.5, wp.z);
       var off = new THREE.Vector3(center[0], center[1], center[2]).multiplyScalar(sc).applyQuaternion(q);
       var pos = disp.clone().sub(off);
+      // A DropInViewer splat is not raycastable, so it can't be clicked/described/spotlit on its
+      // own. Add an invisible box at the splat's display position+size as the click target, carrying
+      // the placement (userData.stop) exactly like a model - so click-for-info, narrate (T) and
+      // spotlight all work for splats too.
+      var splatProxy = new THREE.Mesh(
+        new THREE.BoxGeometry(target, target, target),
+        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+      );
+      splatProxy.position.copy(disp);
+      splatProxy.userData.stop = s;
+      if (room) { addToRoom(room, splatProxy); } else { scene.add(splatProxy); }
+      pickables.push(splatProxy);
       _splatQueue.push({
         type: 'add',
         roomId: room ? room.id : null,   // #1278 so a room-leave can detach exactly this scene
