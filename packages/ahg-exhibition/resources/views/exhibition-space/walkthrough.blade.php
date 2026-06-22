@@ -1593,7 +1593,8 @@
       pumpSplatQueue();
     }
     function loadSplat(s, wp, room) {
-      var ph = addPedestal(wp.x, wp.z, 0.6, room);   // stand the capture on a pedestal like other objects
+      // on_floor: stand the splat straight on the floor (no pedestal), like the model path; else pedestal.
+      var ph = s.on_floor ? 0 : addPedestal(wp.x, wp.z, 0.6, room);
       // Fit the splat to a real-world size from its sidecar bounding-sphere radius, so the native
       // (often huge) capture scale doesn't matter. Target = Builder "Size (units)" metres, else
       // ~0.8 m; curators tune Size/scale/tilt per object. Diameter (2*radius) maps to target.
