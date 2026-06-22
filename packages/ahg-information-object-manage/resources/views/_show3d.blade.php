@@ -49,6 +49,10 @@ $viewerId = 'viewer-' . uniqid(); @endphp
             <span>{{ __('Loading 3D model...') }}</span>
           </div>
         </model-viewer>
+      @elseif($ext === 'ply')
+        {{-- A 3D Gaussian-splat .ply cannot be rendered by model-viewer or PLYLoader;
+             use the GaussianSplats3D splat viewer (#1193). --}}
+        @include('ahg-3d-model::_splat-viewer', ['splatUrl' => $fullPath, 'height' => '100%', 'title' => $resource->name])
       @else
         <div id="@php echo $viewerId; @endphp-threejs" style="width:100%;height:100%;border-radius:8px;"></div>
         <script src="/plugins/ahg3DModelPlugin/web/vendor/threejs/three.min.js"></script>

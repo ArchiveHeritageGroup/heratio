@@ -272,7 +272,10 @@ class TreeviewService
             ->select('id', 'parent_id', 'lft', 'rgt')
             ->first();
 
-        if (!$node || $node->parent_id == self::ROOT_ID) {
+        // No node, the root, or a node without MPTT positioning (null lft/rgt):
+        // siblings are computed from lft/rgt, so guard against where('lft','>',null)
+        // which throws "illegal operator and value combination".
+        if (!$node || $node->parent_id == self::ROOT_ID || $node->lft === null || $node->rgt === null) {
             return ['items' => [], 'hasMore' => false];
         }
 
