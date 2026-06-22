@@ -712,6 +712,39 @@ class ExhibitionSpaceService
             ->first();
         if ($model && ! empty($model->file_path)) {
             $murl = $this->normalizeUploadPath($model->file_path);
+            $mext = strtolower(pathinfo((string) $model->file_path, PATHINFO_EXTENSION));
+            $mabs = $this->modelAbsPath($murl);
+            // A Gaussian splat captured/reconstructed as a 3D model (3DGS .ply, or .splat/.ksplat)
+            // must render via GaussianSplats3D in-room, NOT through PLYLoader - which would draw the
+            // raw splat centres as an unlit point cloud and effectively show nothing. Route it to
+            // the splat side-channel with sidecar bounds so the walkthrough composites it just like
+            // the record page does. Regular meshes / point clouds (glb/obj/stl/mesh-ply) untouched.
+            $isSplat = in_array($mext, ['splat', 'ksplat'], true)
+                || ($mext === 'ply' && $mabs && $this->plyIsGaussianSplat($mabs));
+            if ($isSplat) {
+                $center = null;
+                $radius = null;
+                try {
+                    $b = $mabs ? app(\AhgCore\Services\GaussianSplatService::class)->computeBounds($mabs, $mext) : null;
+                    if (is_array($b) && ! empty($b['radius'])) {
+                        $center = $b['center'];
+                        $radius = (float) $b['radius'];
+                    }
+                } catch (\Throwable $e) { /* client falls back to a small default fit */ }
+
+                return [
+                    'kind' => 'image',   // legacy viewer shows the thumbnail; splat-capable walkthrough composites in-room
+                    'model_url' => null,
+                    'model_oversize' => false,
+                    'image_url' => $this->normalizeUploadPath($model->poster_image ?: $model->thumbnail) ?: $this->thumbnailUrl($informationObjectId),
+                    'doc_url' => null,
+                    'format' => $mext,   // -> model_format -> SceneFormat.Ply/Splat/KSplat on the client
+                    'splat_url' => $murl,
+                    'splat_center' => $center,
+                    'splat_radius' => $radius,
+                    'splat_view_url' => null,
+                ];
+            }
 
             return [
                 'kind' => '3d',
@@ -778,6 +811,8 @@ class ExhibitionSpaceService
         $name = (string) ($do->name ?? '');
         $path = (string) ($do->path ?? '');
         foreach ([
+            // object-id digital objects are written one shard deeper than their /uploads/r/ URL
+            rtrim((string) config('heratio.uploads_path'), '/').'/r/'.$ioId.'/'.$name,
             rtrim((string) config('heratio.uploads_path'), '/').'/'.$ioId.'/'.$name,
             rtrim((string) config('heratio.storage_path'), '/').'/'.ltrim($path, '/').$name,
             rtrim((string) config('heratio.uploads_path'), '/').'/'.ltrim($path, '/').$name,
@@ -788,6 +823,42 @@ class ExhibitionSpaceService
         }
 
         return null;
+    }
+
+    /**
+     * Resolve a public model/splat URL to its real on-disk path across this install's storage
+     * layouts, read-only (used for bounds + splat detection). Tries <storage_path>/<rel> first,
+     * then rebases /uploads(/r)/ onto <uploads_path>. Returns null when nothing is readable.
+     */
+    private function modelAbsPath(?string $webUrl): ?string
+    {
+        if ($webUrl === null || $webUrl === '' || str_starts_with($webUrl, 'http')) {
+            return null;
+        }
+        $rel = ltrim($webUrl, '/');
+        $candidates = [rtrim((string) config('heratio.storage_path'), '/').'/'.$rel];
+        if (preg_match('#^uploads/r/(.+)$#', $rel, $m)) {
+            $candidates[] = rtrim((string) config('heratio.uploads_path'), '/').'/'.$m[1];
+            $candidates[] = rtrim((string) config('heratio.uploads_path'), '/').'/r/'.$m[1];
+        } elseif (preg_match('#^uploads/(.+)$#', $rel, $m)) {
+            $candidates[] = rtrim((string) config('heratio.uploads_path'), '/').'/'.$m[1];
+        }
+        foreach ($candidates as $abs) {
+            if ($abs !== '' && is_file($abs)) {
+                return $abs;
+            }
+        }
+
+        return null;
+    }
+
+    /** True when a .ply file carries the 3D Gaussian-splat signature (per-vertex f_dc/scale/rot, no faces). */
+    private function plyIsGaussianSplat(string $abs): bool
+    {
+        $head = @file_get_contents($abs, false, null, 0, 2048) ?: '';
+
+        return (str_contains($head, 'f_dc_0') || (str_contains($head, 'scale_0') && str_contains($head, 'rot_0')))
+            && ! preg_match('/element\s+face/i', $head);
     }
 
     /** A .ply is a 3D-Gaussian-splat (not a plain point cloud) when its header declares the splat attrs. */
