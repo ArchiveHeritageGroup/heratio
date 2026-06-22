@@ -705,6 +705,16 @@ class ExhibitionSpaceService
 
     public function getObjectMedia(int $informationObjectId): array
     {
+        // 0) A curator-uploaded Gaussian-splat digital object is the highest-fidelity 3D for a
+        //    record and is exactly what the record page renders; prefer it over an auto-generated
+        //    object_3d_model reconstruction so the walkthrough matches the record (the auto-gen
+        //    splat is often low-opacity/tiny-scale and shows as faint specks). Served through the
+        //    splat stream endpoint when its /uploads URL does not resolve (object-id media sits a
+        //    shard deeper than its public URL).
+        if ($splat = $this->digitalObjectSplatMedia($informationObjectId)) {
+            return $splat;
+        }
+
         // 1) Dedicated 3D model row wins.
         $model = DB::table('object_3d_model')
             ->where('object_id', $informationObjectId)
@@ -859,6 +869,63 @@ class ExhibitionSpaceService
 
         return (str_contains($head, 'f_dc_0') || (str_contains($head, 'scale_0') && str_contains($head, 'rot_0')))
             && ! preg_match('/element\s+face/i', $head);
+    }
+
+    /**
+     * Media descriptor for a record's primary Gaussian-splat DIGITAL OBJECT (.splat/.ksplat or a
+     * 3DGS .ply), or null when there isn't one. Lets the walkthrough prefer a curator-uploaded
+     * splat over an auto-generated object_3d_model. Served through the splat stream endpoint when
+     * the public /uploads URL does not resolve (object-id media sits a shard deeper than its URL),
+     * mirroring the record page. Read-only - touches no upload path.
+     */
+    private function digitalObjectSplatMedia(int $ioId): ?array
+    {
+        // The splat is the 3D MASTER file (e.g. master_model.ply), while reference/thumbnail
+        // digital objects are preview PNGs - so select by splat extension, master first, rather
+        // than by usage priority (which would pick the PNG).
+        $do = DB::table('digital_object')
+            ->where('object_id', $ioId)
+            ->where(function ($q) {
+                $q->where('name', 'like', '%.ply')
+                    ->orWhere('name', 'like', '%.splat')
+                    ->orWhere('name', 'like', '%.ksplat');
+            })
+            ->orderByRaw('FIELD(usage_id, 140, 141, 142)')
+            ->select('id', 'path', 'name')
+            ->first();
+        if (! $do || empty($do->name)) {
+            return null;
+        }
+        $ext = strtolower(pathinfo((string) ($do->name ?: $do->path), PATHINFO_EXTENSION));
+        $isSplat = in_array($ext, ['splat', 'ksplat'], true)
+            || ($ext === 'ply' && $this->isGaussianSplatPly($do, $ioId));
+        if (! $isSplat) {
+            return null;
+        }
+        $svc = app(\AhgCore\Services\GaussianSplatService::class);
+        $center = null;
+        $radius = null;
+        try {
+            $abs = $this->splatAbsPath($do, $ioId);
+            $b = $abs ? $svc->computeBounds($abs, $ext) : null;
+            if (is_array($b) && ! empty($b['radius'])) {
+                $center = $b['center'];
+                $radius = (float) $b['radius'];
+            }
+        } catch (\Throwable $e) { /* client falls back to a small default fit */ }
+
+        return [
+            'kind' => 'image',
+            'model_url' => null,
+            'model_oversize' => false,
+            'image_url' => $this->bestImageUrl($ioId),
+            'doc_url' => null,
+            'format' => $ext,   // -> model_format -> SceneFormat on the client
+            'splat_url' => $svc->digitalObjectServedUrl($do) ?? url('/splat/do/'.$do->id.'/raw'),
+            'splat_center' => $center,
+            'splat_radius' => $radius,
+            'splat_view_url' => '/splat/do/'.$do->id,
+        ];
     }
 
     /** A .ply is a 3D-Gaussian-splat (not a plain point cloud) when its header declares the splat attrs. */
