@@ -66,8 +66,37 @@ class GaussianSplatController extends Controller
 
         return view('ahg-core::splat-viewer', [
             'splat' => (object) ['title' => $do->name, 'format' => $ext],
-            'fileUrl' => $this->service->digitalObjectUrl($do),
+            // Prefer the static nginx URL when the file is reachable there (unchanged for existing
+            // splats); otherwise stream it - object-id media is stored a shard deeper than its URL.
+            'fileUrl' => $this->service->digitalObjectServedUrl($do) ?? url('/splat/do/'.$do->id.'/raw'),
             'bounds' => $this->service->computeBounds($this->service->digitalObjectPath($do), $ext),
+        ]);
+    }
+
+    /**
+     * Stream the raw splat bytes for a digital object, resolved to its real on-disk location
+     * across storage layouts. Used as the viewer source when the public /uploads URL does not
+     * resolve (object-id media written to <uploads_path>/r/<id>/). Range-capable via BinaryFile
+     * response so large scenes load progressively. Read-only - touches no upload path.
+     */
+    public function rawDigitalObject(int $id)
+    {
+        $do = \Illuminate\Support\Facades\DB::table('digital_object')->where('id', $id)->first();
+        if (! $do || ! $do->name) {
+            abort(404);
+        }
+        $ext = strtolower(pathinfo((string) $do->name, PATHINFO_EXTENSION));
+        if (! in_array($ext, ['splat', 'ksplat', 'ply'], true)) {
+            abort(404);
+        }
+        $fs = $this->service->digitalObjectFsPath($do);
+        if ($fs === '' || ! is_readable($fs)) {
+            abort(404);
+        }
+
+        return response()->file($fs, [
+            'Content-Type' => 'application/octet-stream',
+            'Cache-Control' => 'public, max-age=86400',
         ]);
     }
 }

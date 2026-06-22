@@ -295,6 +295,10 @@ Route::get('/splat/{slug}', [\AhgCore\Controllers\GaussianSplatController::class
 // Render a splat uploaded as a digital object on a record. Two-segment, catch-all-safe.
 Route::get('/splat/do/{id}', [\AhgCore\Controllers\GaussianSplatController::class, 'showDigitalObject'])
     ->whereNumber('id')->name('splats.do');
+// Raw splat bytes, resolved to the real on-disk location (object-id media is stored a shard
+// deeper than its public /uploads URL). Range-capable so large scenes stream progressively.
+Route::get('/splat/do/{id}/raw', [\AhgCore\Controllers\GaussianSplatController::class, 'rawDigitalObject'])
+    ->whereNumber('id')->name('splats.do.raw');
 
 // Public "Explore" hub: one landing page that makes this collection's public
 // capabilities discoverable in one place (ask the collection, read a record in

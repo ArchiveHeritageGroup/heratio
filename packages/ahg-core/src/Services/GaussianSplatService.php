@@ -117,10 +117,8 @@ class GaussianSplatService
      */
     public function isGaussianPly(object $do): bool
     {
-        $url = $this->digitalObjectUrl($do);
-        // /uploads is served from <storage_path>/uploads (nginx alias), so the file is there.
-        $fs = rtrim((string) config('heratio.storage_path'), '/').$url;
-        if (! is_readable($fs)) {
+        $fs = $this->digitalObjectFsPath($do);
+        if ($fs === '' || ! is_readable($fs)) {
             return false;
         }
         $head = @file_get_contents($fs, false, null, 0, 4096) ?: '';
@@ -149,7 +147,58 @@ class GaussianSplatService
     /** Absolute filesystem path for a splat uploaded as a digital object. */
     public function digitalObjectPath(object $do): string
     {
-        return rtrim((string) config('heratio.storage_path'), '/').$this->digitalObjectUrl($do);
+        return $this->digitalObjectFsPath($do);
+    }
+
+    /**
+     * Resolve the actual on-disk path of a digital-object splat across the storage layouts this
+     * platform supports, WITHOUT changing how anything is written. Tries the historical assumption
+     * first (so any file that resolves today keeps resolving identically), then two additive
+     * fallbacks for installs where the public /uploads/r/ alias points at <uploads_path>:
+     *   1. <storage_path><url>                         - legacy assumption (unchanged behaviour)
+     *   2. <uploads_path>/<rest-after-/uploads/r/>     - served layout (AtoM-style media lives here)
+     *   3. <uploads_path>/r/<object_id>/<name>         - object-id media, written one shard deeper
+     * Returns the first readable candidate, or the legacy path as a default for string callers.
+     */
+    public function digitalObjectFsPath(object $do): string
+    {
+        $url = $this->digitalObjectUrl($do);
+        $storage = rtrim((string) config('heratio.storage_path'), '/');
+        $uploads = rtrim((string) config('heratio.uploads_path'), '/');
+        $name = ltrim((string) ($do->name ?? ''), '/');
+
+        $candidates = [$storage.$url];
+        if (preg_match('#^/uploads/r/(.+)$#', $url, $m)) {
+            $candidates[] = $uploads.'/'.$m[1];
+        }
+        if (! empty($do->object_id) && $name !== '') {
+            $candidates[] = $uploads.'/r/'.$do->object_id.'/'.$name;
+        }
+        foreach ($candidates as $c) {
+            if ($c !== '' && is_readable($c)) {
+                return $c;
+            }
+        }
+
+        return $storage.$url;
+    }
+
+    /**
+     * The public /uploads URL for a digital-object splat IF the file is actually reachable there
+     * (i.e. it sits where the nginx alias resolves). Returns null when the file lives a shard
+     * deeper than the recorded URL (object-id media) and therefore must be streamed instead of
+     * linked. Keeps working splats on their exact static nginx URL - no behaviour change for them.
+     */
+    public function digitalObjectServedUrl(object $do): ?string
+    {
+        $url = $this->digitalObjectUrl($do);
+        $uploads = rtrim((string) config('heratio.uploads_path'), '/');
+        if (preg_match('#^/uploads/r/(.+)$#', $url, $m) && is_readable($uploads.'/'.$m[1])) {
+            return $url;
+        }
+        $fs = rtrim((string) config('heratio.storage_path'), '/').$url;
+
+        return is_readable($fs) ? $url : null;
     }
 
     /** Absolute filesystem path for a legacy stored splat file. */
