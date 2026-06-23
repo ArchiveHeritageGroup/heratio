@@ -10,9 +10,9 @@ class RefreshFacetCacheCommand extends Command
 {
     protected $signature = 'ahg:refresh-facet-cache
         {--facet= : Only rebuild specified facet_type (subjects, places, level, repository, etc.)}
-        {--connection=atom : Source DB connection}';
+        {--connection= : Source DB connection — defaults to this DB discovery_db_connection setting, else atom}';
 
-    protected $description = 'Rebuild display_facet_cache from atom (or chosen) DB — counts per term per facet_type';
+    protected $description = 'Rebuild display_facet_cache from this DB own discovery corpus (ahg_settings.discovery_db_connection), or a chosen --connection';
 
     public function handle(): int
     {
@@ -22,6 +22,15 @@ class RefreshFacetCacheCommand extends Command
             return self::FAILURE;
         }
         $conn = (string) $this->option('connection');
+        if ($conn === '') {
+            // No explicit --connection: honor THIS database's own discovery corpus
+            // (ahg_settings.discovery_db_connection) so every install builds facets
+            // from its own data. Only heratio (the demo) pins this to 'atom' to
+            // showcase the shared ANC corpus; every other app stays self-contained.
+            $conn = (string) (DB::table('ahg_settings')
+                ->where('setting_key', 'discovery_db_connection')
+                ->value('setting_value') ?: 'atom');
+        }
         $only = $this->option('facet');
 
         // Map facet_type → (taxonomy_id, ahg_io_facet_denorm.taxonomy_id) per ADR-0001.
