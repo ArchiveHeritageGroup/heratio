@@ -320,7 +320,7 @@
       @elseif($masterMediaType === 'image' || in_array($masterMime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/tiff', 'image/svg+xml']))
         {{-- OpenSeadragon + Mirador resizable viewer --}}
         @php $viewerId = 'iiif-viewer-' . $item->id; $imgSrc = $masterUrl ?: $refUrl; @endphp
-        <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex justify-content-between align-items-center mb-2" style="position:relative;z-index:10;">
           <div class="btn-group btn-group-sm" role="group">
             <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="{{ __('OpenSeadragon Deep Zoom') }}">
               <i class="fas fa-search-plus me-1"></i>{{ __('Deep Zoom') }}
@@ -337,8 +337,8 @@
             <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
           </div>
         </div>
-        <div id="osd-{{ $viewerId }}" style="width:100%;height:400px;background:#1a1a1a;border-radius:8px;"></div>
-        <div id="mirador-{{ $viewerId }}" style="width:100%;height:400px;border-radius:8px;display:none;overflow:hidden;"></div>
+        <div id="osd-{{ $viewerId }}" style="position:relative;width:100%;height:400px;background:#1a1a1a;border-radius:8px;overflow:hidden;"></div>
+        <div id="mirador-{{ $viewerId }}" style="position:relative;width:100%;height:400px;border-radius:8px;display:none;overflow:hidden;"></div>
         <div id="img-{{ $viewerId }}" style="display:none;" class="text-center">
           <a href="{{ $imgSrc }}" target="_blank">
             <img src="{{ $refUrl ?: $thumbUrl ?: $masterUrl }}" alt="{{ $item->title }}" class="img-fluid img-thumbnail" style="max-height:400px;">
@@ -1149,7 +1149,7 @@
           {{-- Image: OpenSeadragon + Mirador resizable viewer (matching AtoM) --}}
           @php $viewerId = 'iiif-viewer-' . $item->id; $imgSrc = $masterUrl ?: $refUrl; @endphp
 
-          <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-2" style="position:relative;z-index:10;">
             <div class="btn-group btn-group-sm" role="group">
               <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="{{ __('OpenSeadragon Deep Zoom') }}">
                 <i class="fas fa-search-plus me-1"></i>{{ __('Deep Zoom') }}
@@ -1172,10 +1172,10 @@
           </div>
 
           {{-- OSD container --}}
-          <div id="osd-{{ $viewerId }}" style="width:100%;height:450px;background:#1a1a1a;border-radius:8px;"></div>
+          <div id="osd-{{ $viewerId }}" style="position:relative;width:100%;height:450px;background:#1a1a1a;border-radius:8px;overflow:hidden;"></div>
 
           {{-- Mirador container (hidden) --}}
-          <div id="mirador-{{ $viewerId }}" style="width:100%;height:450px;border-radius:8px;display:none;"></div>
+          <div id="mirador-{{ $viewerId }}" style="position:relative;width:100%;height:450px;border-radius:8px;display:none;overflow:hidden;"></div>
 
           {{-- Simple image (hidden) --}}
           <div id="img-{{ $viewerId }}" style="display:none;" class="text-center">
