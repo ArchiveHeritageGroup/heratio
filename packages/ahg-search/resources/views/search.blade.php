@@ -271,12 +271,19 @@
           @foreach($pager->getResults() as $result)
             <div class="list-group-item">
               <div class="d-flex align-items-start">
-                {{-- Digital object icon --}}
-                @if(!empty($result['hasDigitalObject']))
-                  <span class="text-primary me-2 mt-1" title="{{ __('Has digital object') }}">
-                    <i class="fas fa-file-image" aria-hidden="true"></i>
-                  </span>
-                @endif
+                {{-- Leading visual: real thumbnail when available, else a type icon --}}
+                @php $__thumb = $result['thumbnailPath'] ?? null; $__hasDo = !empty($result['hasDigitalObject']); @endphp
+                <div class="me-3 mt-1 flex-shrink-0" style="width:56px;">
+                  @if($__thumb)
+                    <a href="/{{ $result['slug'] ?? '' }}">
+                      <img src="{{ $__thumb }}" alt="" class="img-thumbnail" style="width:56px;height:56px;object-fit:cover;" loading="lazy">
+                    </a>
+                  @else
+                    <span class="d-inline-flex align-items-center justify-content-center bg-light border rounded text-secondary" style="width:56px;height:56px;" title="{{ $__hasDo ? __('Has digital object') : __('Record') }}">
+                      <i class="fas {{ $__hasDo ? 'fa-file-image' : 'fa-file-lines' }} fa-lg" aria-hidden="true"></i>
+                    </span>
+                  @endif
+                </div>
 
                 <div class="flex-grow-1">
                   <h5 class="mb-1">

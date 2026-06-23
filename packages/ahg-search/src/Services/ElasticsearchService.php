@@ -1148,11 +1148,27 @@ class ElasticsearchService
         // Check digital objects
         $ioIds = $rows->pluck('id')->toArray();
         $doIds = [];
+        $thumbMap = [];
         if (! empty($ioIds)) {
             $doIds = DB::table('digital_object')
                 ->whereIn('object_id', $ioIds)
                 ->pluck('object_id')
                 ->toArray();
+
+            // Real thumbnail per result: prefer the thumbnail derivative (142),
+            // fall back to the reference (141); only when it is an image file.
+            $thumbRows = DB::table('digital_object')
+                ->whereIn('object_id', $ioIds)
+                ->whereIn('usage_id', [142, 141])
+                ->whereNotNull('path')
+                ->where('name', 'REGEXP', '\\.(jpe?g|png|gif|webp|bmp|tiff?)$')
+                ->orderByRaw('FIELD(usage_id, 142, 141)')
+                ->get(['object_id', 'path', 'name']);
+            foreach ($thumbRows as $tr) {
+                if (! isset($thumbMap[$tr->object_id])) {
+                    $thumbMap[$tr->object_id] = rtrim($tr->path, '/').'/'.$tr->name;
+                }
+            }
         }
 
         $hits = [];
@@ -1165,6 +1181,7 @@ class ElasticsearchService
                 'levelName' => $levelNames[$row->level_of_description_id] ?? null,
                 'repositoryName' => $repoNames[$row->repository_id] ?? null,
                 'hasDigitalObject' => in_array($row->id, $doIds),
+                'thumbnailPath' => $thumbMap[$row->id] ?? null,
                 'dates' => null,
                 'snippet' => null,
                 'highlighted_title' => e($row->title ?: '[Untitled]'),
