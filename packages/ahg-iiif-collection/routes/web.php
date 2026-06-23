@@ -38,6 +38,13 @@ Route::get('/iiif-auth/logout-success', function () { return view('ahg-iiif-coll
 Route::get('/iiif-viewer/{slug}', [IiifCollectionController::class, 'viewer'])->name('iiif.viewer');
 Route::get('/iiif-compare', [IiifCollectionController::class, 'compare'])->name('iiif.compare');
 
+// Public load-probe: the Mirador workspace plugin GETs this on every viewer
+// load to restore a saved layout. Authenticated users get their own rows;
+// anonymous viewers get an empty list (200) instead of a 401, so the public
+// viewer/compare pages don't log a spurious console error. Save/update/delete
+// stay auth-gated in the api/iiif/workspace group below.
+Route::get('/api/iiif/workspace', [WorkspaceController::class, 'index'])->name('iiif.workspace.api.index');
+
 // --- BEGIN issue #695: IIIF Change Discovery 1.0 ---
 // Activity-streams OrderedCollection of manifest lifecycle changes.
 // nginx routes /iiif/ to Cantaloupe, but /iiif/discovery/ is anchored
@@ -117,7 +124,8 @@ Route::middleware('auth')->group(function () {
     // Mirador workspace persistence (issue #699) - REST API
     // Session-auth gated; each user only ever sees their own rows.
     Route::prefix('api/iiif/workspace')->group(function () {
-        Route::get('/', [WorkspaceController::class, 'index'])->name('iiif.workspace.api.index');
+        // GET / (index) moved to a public route above so the anonymous Mirador
+        // load-probe returns [] (200) instead of 401. Writes stay auth-gated:
         Route::post('/', [WorkspaceController::class, 'store'])->name('iiif.workspace.api.store');
         Route::get('/{id}', [WorkspaceController::class, 'show'])->whereNumber('id')->name('iiif.workspace.api.show');
         Route::put('/{id}', [WorkspaceController::class, 'update'])->whereNumber('id')->name('iiif.workspace.api.update');

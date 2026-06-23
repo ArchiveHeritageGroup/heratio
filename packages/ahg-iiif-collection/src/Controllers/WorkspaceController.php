@@ -40,7 +40,11 @@ class WorkspaceController extends Controller
     {
         $userId = (int) Auth::id();
         if (!$userId) {
-            return response()->json(['error' => 'unauthenticated'], 401);
+            // Anonymous viewers have no saved workspaces. Return an empty list
+            // (200) rather than 401 so the Mirador workspace plugin's load-time
+            // probe on public viewer/compare pages doesn't log a console error.
+            // Identical payload to an authenticated user with zero saved rows.
+            return response()->json(['data' => []]);
         }
 
         return response()->json([
