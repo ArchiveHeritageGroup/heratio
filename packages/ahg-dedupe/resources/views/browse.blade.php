@@ -200,13 +200,16 @@ document.addEventListener('DOMContentLoaded', function () {
             if (checked.length === 0) return;
             if (!confirm('Dismiss ' + checked.length + ' duplicate pair(s) as false positives?')) return;
             var ids = Array.from(checked).map(function(cb) { return cb.dataset.id; });
-            ids.forEach(function(id) {
-                fetch('{{ url("/admin/dedupe/dismiss") }}/' + id, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'Content-Type': 'application/json' },
-                });
-            });
-            setTimeout(function() { location.reload(); }, 500);
+            dismissSelected.disabled = true;
+            // #1324: one audited batch action instead of N per-row requests.
+            fetch('{{ route("dedupe.bulk-dismiss") }}', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: ids }),
+            })
+            .then(function(r) { return r.json(); })
+            .then(function() { location.reload(); })
+            .catch(function() { dismissSelected.disabled = false; alert('Bulk dismiss failed.'); });
         });
     }
 

@@ -8,6 +8,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/dedupe/browse', [DedupeController::class, 'browse'])->name('dedupe.browse');
     Route::get('/admin/dedupe/compare/{id}', [DedupeController::class, 'compare'])->name('dedupe.compare')->whereNumber('id');
     Route::post('/admin/dedupe/dismiss/{id}', [DedupeController::class, 'dismiss'])->name('dedupe.dismiss')->whereNumber('id');
+    Route::post('/admin/dedupe/bulk-dismiss', [DedupeController::class, 'bulkDismiss'])->name('dedupe.bulk-dismiss');
     Route::get('/admin/dedupe/rules', [DedupeController::class, 'rules'])->name('dedupe.rules');
     Route::get('/admin/dedupe/report', [DedupeController::class, 'report'])->name('dedupe.report');
 

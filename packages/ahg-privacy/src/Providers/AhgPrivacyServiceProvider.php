@@ -144,6 +144,7 @@ class AhgPrivacyServiceProvider extends ServiceProvider
                 \AhgPrivacy\Console\Commands\ScanIoCommand::class,
                 \AhgPrivacy\Console\Commands\Article30ExportCommand::class,
                 \AhgPrivacy\Console\Commands\ScanEmbeddedBackfillCommand::class,
+                \AhgPrivacy\Console\Commands\DsarPackageCommand::class,
             ]);
 
             // Daily 09:00 sweep — the command itself short-circuits when

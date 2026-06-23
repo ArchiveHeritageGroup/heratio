@@ -310,6 +310,39 @@ class DedupeController extends Controller
     }
 
     /**
+     * Bulk-dismiss many duplicate candidates in one audited action (#1324).
+     * Mirrors dismiss() per row (status='dismissed' + reviewer + timestamp) so
+     * the per-record decision is written for every selected item. Already-
+     * dismissed rows are skipped, so the returned count is the real delta.
+     */
+    public function bulkDismiss(Request $request)
+    {
+        if (! $this->tablesExist()) {
+            return response()->json(['error' => 'Duplicate detection tables not configured.'], 500);
+        }
+
+        $ids = array_values(array_filter(array_map('intval', (array) $request->input('ids', []))));
+        if (empty($ids)) {
+            return response()->json(['error' => 'No duplicates selected.'], 422);
+        }
+
+        $count = DB::table('ahg_duplicate_detection')
+            ->whereIn('id', $ids)
+            ->where('status', '!=', 'dismissed')
+            ->update([
+                'status'      => 'dismissed',
+                'reviewed_by' => Auth::id(),
+                'reviewed_at' => now(),
+            ]);
+
+        return response()->json([
+            'success'   => true,
+            'dismissed' => $count,
+            'message'   => trans_choice(':count duplicate dismissed.|:count duplicates dismissed.', $count, ['count' => $count]),
+        ]);
+    }
+
+    /**
      * Rules — list all detection rules.
      */
     public function rules()
