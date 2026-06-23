@@ -17,8 +17,12 @@ FUSEKI_QUERY = f"{FUSEKI_ENDPOINT}/query"
 ES_ENDPOINT = os.environ.get('ES_ENDPOINT', 'http://localhost:9200')
 ATOM_BASE_URL = os.environ.get('ATOM_BASE_URL', 'https://psis.theahg.co.za')
 
-ES_INDEX_IO = 'atom_psis_qubitinformationobject'
-ES_INDEX_ACTOR = 'atom_psis_qubitactor'
+# Index names must match this instance's OpenSearch prefix (config/search.yml
+# index.name). The old 'atom_psis_*' literals 404 on this cluster. Env-overridable
+# per deployment; default to Heratio's own index. Set ES_INDEX_IO / ES_INDEX_ACTOR
+# to the ANC pilot corpus (atom_*) if this service should mirror Discovery's corpus.
+ES_INDEX_IO = os.environ.get('ES_INDEX_IO', 'heratio_qubitinformationobject')
+ES_INDEX_ACTOR = os.environ.get('ES_INDEX_ACTOR', 'heratio_qubitactor')
 
 PREFIXES = """
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
