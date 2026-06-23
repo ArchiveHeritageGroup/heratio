@@ -424,6 +424,7 @@ class DisplayController extends Controller
                 $query->orderBy('io.identifier', $safeSortDir);
                 break;
             case 'date':
+            case 'lastUpdated':          // settings vocabulary: "Most recent"
                 $query->orderBy('io.id', $safeSortDir);
                 break;
             case 'relevance':
@@ -445,6 +446,7 @@ class DisplayController extends Controller
                 $query->orderByRaw("MAX(evt_sort.end_date) $safeSortDir");
                 $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug', 'li_wk.work_key');
                 break;
+            case 'alphabetic':           // settings vocabulary: "Alphabetic"
             default:
                 $query->orderBy('i18n.title', $safeSortDir);
         }
@@ -729,6 +731,7 @@ class DisplayController extends Controller
                 $query->orderBy('io.identifier', $safeSortDir);
                 break;
             case 'date':
+            case 'lastUpdated':          // settings vocabulary: "Most recent"
                 $query->orderBy('io.id', $safeSortDir);
                 break;
             case 'startdate':
@@ -741,6 +744,7 @@ class DisplayController extends Controller
                 $query->orderByRaw("MAX(evt_sort.end_date) $safeSortDir");
                 $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug');
                 break;
+            case 'alphabetic':           // settings vocabulary: "Alphabetic"
             default:
                 $query->orderBy('i18n.title', $safeSortDir);
         }
@@ -818,8 +822,10 @@ class DisplayController extends Controller
             'identifier' => 'io.identifier',
             'refcode' => 'io.identifier',
             'date' => 'io.id',
+            'lastUpdated' => 'io.id',       // settings vocabulary: "Most recent"
             'startdate' => 'io.id',
             'enddate' => 'io.id',
+            'alphabetic' => 'i18n.title',   // settings vocabulary: "Alphabetic"
             default => 'i18n.title'
         };
         $query->orderBy($sortColumn, $sortDir === 'desc' ? 'desc' : 'asc');
