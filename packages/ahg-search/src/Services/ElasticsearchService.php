@@ -1164,9 +1164,18 @@ class ElasticsearchService
                 ->where('name', 'REGEXP', '\\.(jpe?g|png|gif|webp|bmp|tiff?)$')
                 ->orderByRaw('FIELD(usage_id, 142, 141)')
                 ->get(['object_id', 'path', 'name']);
+            $uploadsRoot = rtrim((string) config('heratio.storage_path', '/mnt/nas/heratio'), '/');
             foreach ($thumbRows as $tr) {
-                if (! isset($thumbMap[$tr->object_id])) {
-                    $thumbMap[$tr->object_id] = rtrim($tr->path, '/').'/'.$tr->name;
+                if (isset($thumbMap[$tr->object_id])) {
+                    continue;
+                }
+                $url = rtrim($tr->path, '/').'/'.$tr->name;
+                // Only emit a thumbnail whose file actually exists on disk, so a
+                // missing derivative falls back to the icon instead of a broken
+                // <img> (CSP blocks an inline onerror fallback). /uploads/* maps
+                // to {storage_path}/uploads/* via the nginx alias.
+                if (str_starts_with($url, '/uploads/') && is_file($uploadsRoot.$url)) {
+                    $thumbMap[$tr->object_id] = $url;
                 }
             }
         }

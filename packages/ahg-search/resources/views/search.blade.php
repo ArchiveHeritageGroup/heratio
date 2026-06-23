@@ -271,8 +271,13 @@
           @foreach($pager->getResults() as $result)
             <div class="list-group-item">
               <div class="d-flex align-items-start">
-                {{-- Leading visual: real thumbnail when available, else a type icon --}}
-                @php $__thumb = $result['thumbnailPath'] ?? null; $__hasDo = !empty($result['hasDigitalObject']); @endphp
+                {{-- Leading visual: a real thumbnail (only set when the file
+                     exists on disk, see ElasticsearchService) else a type icon. --}}
+                @php
+                  $__thumb = $result['thumbnailPath'] ?? null;
+                  $__hasDo = !empty($result['hasDigitalObject']);
+                  $__icon  = $__hasDo ? 'fa-file-image' : 'fa-file-lines';
+                @endphp
                 <div class="me-3 mt-1 flex-shrink-0" style="width:56px;">
                   @if($__thumb)
                     <a href="/{{ $result['slug'] ?? '' }}">
@@ -280,7 +285,7 @@
                     </a>
                   @else
                     <span class="d-inline-flex align-items-center justify-content-center bg-light border rounded text-secondary" style="width:56px;height:56px;" title="{{ $__hasDo ? __('Has digital object') : __('Record') }}">
-                      <i class="fas {{ $__hasDo ? 'fa-file-image' : 'fa-file-lines' }} fa-lg" aria-hidden="true"></i>
+                      <i class="fas {{ $__icon }} fa-lg" aria-hidden="true"></i>
                     </span>
                   @endif
                 </div>
