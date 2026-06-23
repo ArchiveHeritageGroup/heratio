@@ -1014,6 +1014,9 @@ class ElasticsearchService
                 $join->on('status.object_id', '=', 'io.id')
                     ->where('status.type_id', '=', 158);
             })
+            // information_object has no created_at/updated_at - they live on the
+            // CTI parent `object` (object.id = io.id). Join it for date filter/sort.
+            ->leftJoin('object', 'object.id', '=', 'io.id')
             ->where('io.id', '!=', 1) // exclude root
             ->where(function ($q) {
                 $q->where('status.status_id', '=', 160)
@@ -1051,10 +1054,10 @@ class ElasticsearchService
 
         // Date range filter
         if ($dateFrom) {
-            $qb->where('io.created_at', '>=', $dateFrom);
+            $qb->where('object.created_at', '>=', $dateFrom);
         }
         if ($dateTo) {
-            $qb->where('io.created_at', '<=', $dateTo);
+            $qb->where('object.created_at', '<=', $dateTo);
         }
 
         // Has digital object filter
@@ -1063,13 +1066,13 @@ class ElasticsearchService
                 $qb->whereExists(function ($sub) {
                     $sub->select(DB::raw(1))
                         ->from('digital_object')
-                        ->whereColumn('digital_object.information_object_id', 'io.id');
+                        ->whereColumn('digital_object.object_id', 'io.id');
                 });
             } else {
                 $qb->whereNotExists(function ($sub) {
                     $sub->select(DB::raw(1))
                         ->from('digital_object')
-                        ->whereColumn('digital_object.information_object_id', 'io.id');
+                        ->whereColumn('digital_object.object_id', 'io.id');
                 });
             }
         }
@@ -1079,7 +1082,7 @@ class ElasticsearchService
             $qb->whereExists(function ($sub) use ($mediaType) {
                 $sub->select(DB::raw(1))
                     ->from('digital_object')
-                    ->whereColumn('digital_object.information_object_id', 'io.id')
+                    ->whereColumn('digital_object.object_id', 'io.id')
                     ->where('digital_object.media_type_id', '=', $mediaType);
             });
         }
@@ -1097,10 +1100,10 @@ class ElasticsearchService
                 $qb->orderBy('io_i18n.title', 'desc');
                 break;
             case 'dateAsc':
-                $qb->orderBy('io.created_at', 'asc');
+                $qb->orderBy('object.created_at', 'asc');
                 break;
             case 'dateDesc':
-                $qb->orderBy('io.created_at', 'desc');
+                $qb->orderBy('object.created_at', 'desc');
                 break;
             case 'identifierAsc':
                 $qb->orderBy('io.identifier', 'asc');
@@ -1109,7 +1112,7 @@ class ElasticsearchService
                 $qb->orderBy('io.identifier', 'desc');
                 break;
             case 'lastUpdated':
-                $qb->orderBy('io.updated_at', 'desc');
+                $qb->orderBy('object.updated_at', 'desc');
                 break;
             default: // relevance — for DB just use title
                 $qb->orderBy('io_i18n.title', 'asc');
@@ -1124,10 +1127,12 @@ class ElasticsearchService
                 'io.identifier',
                 'io.level_of_description_id',
                 'io.repository_id',
-                'io.created_at',
-                'io.updated_at',
+                'object.created_at',
+                'object.updated_at',
             ])
-            ->groupBy('io.id')
+            // List every selected column so the dedupe groupBy satisfies
+            // ONLY_FULL_GROUP_BY (matches the GLAM browse pattern).
+            ->groupBy('io.id', 'io_i18n.title', 'slug.slug', 'io.identifier', 'io.level_of_description_id', 'io.repository_id', 'object.created_at', 'object.updated_at')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get();
@@ -1145,8 +1150,8 @@ class ElasticsearchService
         $doIds = [];
         if (! empty($ioIds)) {
             $doIds = DB::table('digital_object')
-                ->whereIn('information_object_id', $ioIds)
-                ->pluck('information_object_id')
+                ->whereIn('object_id', $ioIds)
+                ->pluck('object_id')
                 ->toArray();
         }
 
