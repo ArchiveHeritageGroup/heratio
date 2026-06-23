@@ -24,6 +24,24 @@
   $to   = min(($page ?? 1) * ($limit ?? 30), $total ?? 0);
 @endphp
 
+{{-- ========== TOP SEARCH BLOCK ========== --}}
+{{-- Keep the query visible and refinable on the results page instead of only
+     inside the Semantic Search modal. Preserves all active filters. --}}
+<form method="GET" action="{{ route('glam.browse') }}" class="mb-3">
+  @foreach(($fp ?? []) as $__k => $__v)
+    @if(!in_array($__k, ['query','page'], true) && $__v !== null && $__v !== '')
+      <input type="hidden" name="{{ $__k }}" value="{{ is_array($__v) ? implode(',', $__v) : $__v }}">
+    @endif
+  @endforeach
+  <div class="input-group input-group-lg">
+    <span class="input-group-text"><i class="fas fa-search" aria-hidden="true"></i></span>
+    <input type="text" class="form-control" name="query"
+           value="{{ $fp['query'] ?? ($queryFilter ?? '') }}"
+           placeholder="{{ __('Search the catalogue...') }}" aria-label="{{ __('Search') }}">
+    <button class="btn atom-btn-secondary" type="submit">{{ __('Search') }}</button>
+  </div>
+</form>
+
 {{-- ========== TITLE SECTION ========== --}}
 <div class="multiline-header d-flex align-items-center mb-3">
   <i class="fas fa-folder-open fa-2x text-muted me-3" aria-hidden="true"></i>

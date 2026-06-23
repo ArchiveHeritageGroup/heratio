@@ -1,28 +1,30 @@
 @php $doc = $hit->getData(); @endphp
 
 <article class="search-result row g-0 p-3 border-bottom">
-  @if(!empty($doc['hasDigitalObject']))
-    @php // Get thumbnail or generic icon path
-        $imagePath = '';
-        if (
-            isset($doc['digitalObject']['thumbnailPath'])
-            && !empty($doc['digitalObject']['thumbnailPath'])
-        ) {
-            $imagePath = $doc['digitalObject']['thumbnailPath'];
-        } else {
-            $imagePath = '/images/generic-icon-' . ($doc['digitalObject']['mediaTypeId'] ?? 'default') . '.png';
-        }
-        $altText = $doc['digitalObject']['digitalObjectAltText']
-            ?? strip_tags($doc['i18n'][$culture]['title'] ?? $doc['title'] ?? '');
-    @endphp
-    <div class="col-12 col-lg-3 pb-2 pb-lg-0 pe-lg-3">
-      <a href="{{ route('informationobject.show', ['slug' => $doc['slug']]) }}">
-        <img src="{{ $imagePath }}" alt="{{ $altText }}" class="img-thumbnail">
-      </a>
-    </div>
-  @endif
+  @php
+    // Leading visual for every result row: a real thumbnail when the digital
+    // object exposes one, otherwise a type icon (media icon for records with a
+    // digital object, document icon for the rest). Avoids the broken
+    // generic-icon-*.png path and gives text-only records a visual too.
+    $__thumb = (!empty($doc['hasDigitalObject']) && !empty($doc['digitalObject']['thumbnailPath']))
+        ? $doc['digitalObject']['thumbnailPath'] : null;
+    $__alt = $doc['digitalObject']['digitalObjectAltText']
+        ?? strip_tags($doc['i18n'][$culture]['title'] ?? $doc['title'] ?? '');
+    $__icon = !empty($doc['hasDigitalObject']) ? 'fa-image' : 'fa-file-lines';
+  @endphp
+  <div class="col-12 col-lg-2 pb-2 pb-lg-0 pe-lg-3 text-center">
+    <a href="{{ route('informationobject.show', ['slug' => $doc['slug']]) }}" class="d-inline-block text-decoration-none">
+      @if($__thumb)
+        <img src="{{ $__thumb }}" alt="{{ $__alt }}" class="img-thumbnail" style="max-height:72px;object-fit:cover;">
+      @else
+        <span class="d-inline-flex align-items-center justify-content-center bg-light border rounded" style="width:56px;height:56px;" title="{{ !empty($doc['hasDigitalObject']) ? __('Has digital object') : __('Record') }}">
+          <i class="fas {{ $__icon }} fa-lg text-secondary" aria-hidden="true"></i>
+        </span>
+      @endif
+    </a>
+  </div>
 
-  <div class="col-12{{ empty($doc['hasDigitalObject']) ? '' : ' col-lg-9' }} d-flex flex-column gap-1">
+  <div class="col-12 col-lg-10 d-flex flex-column gap-1">
     <div class="d-flex align-items-center gap-2">
       @php
         $title = $doc['i18n'][$culture]['title'] ?? $doc['title'] ?? __('Untitled');
