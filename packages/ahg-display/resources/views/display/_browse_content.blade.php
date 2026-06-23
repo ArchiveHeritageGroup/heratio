@@ -12,12 +12,12 @@
       'dam'     => ['icon' => 'fa-images',   'color' => 'danger',  'label' => 'Photo/DAM'],
   ];
   $sortLabels = $sortLabels ?? [
-      'date'       => 'Date modified',
-      'title'      => 'Title',
-      'identifier' => 'Identifier',
-      'refcode'    => 'Reference code',
-      'startdate'  => 'Start date',
-      'enddate'    => 'End date',
+      'lastUpdated' => 'Date created',
+      'alphabetic'  => 'Title',
+      'identifier'  => 'Identifier',
+      'refcode'     => 'Reference code',
+      'startdate'   => 'Start date',
+      'enddate'     => 'End date',
   ];
   $fp   = $filterParams ?? [];
   $from = (($page ?? 1) - 1) * ($limit ?? 30) + 1;
@@ -273,11 +273,11 @@
 
   {{-- Sort dropdown --}}
   <div class="dropdown ms-auto">
-    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">Sort: {{ $sortLabels[$sort ?? 'title'] ?? 'Title' }}</button>
+    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">Sort: {{ $sortLabels[$sort ?? 'lastUpdated'] ?? 'Date created' }}</button>
     <ul class="dropdown-menu dropdown-menu-end">
       @foreach($sortLabels as $sKey => $sLabel)
         <li>
-          <a class="dropdown-item {{ ($sort ?? 'title') === $sKey ? 'active' : '' }}"
+          <a class="dropdown-item {{ ($sort ?? 'lastUpdated') === $sKey ? 'active' : '' }}"
              href="{{ glamBrowseUrl($fp, ['sort' => $sKey]) }}">
             {{ $sLabel }}
           </a>
