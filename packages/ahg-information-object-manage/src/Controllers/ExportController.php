@@ -241,6 +241,9 @@ class ExportController extends Controller
     public function ocrTxt(string $slug)
     {
         $io = $this->getOcrIo($slug);
+        if ($io instanceof \Illuminate\Http\RedirectResponse) {
+            return $io;
+        }
         $body = $this->renderOcr($io, 'exportTxt');
 
         return response($body, 200)
@@ -254,6 +257,9 @@ class ExportController extends Controller
     public function ocrAlto(string $slug)
     {
         $io = $this->getOcrIo($slug);
+        if ($io instanceof \Illuminate\Http\RedirectResponse) {
+            return $io;
+        }
         $body = $this->renderOcr($io, 'exportAlto');
 
         return response($body, 200)
@@ -267,6 +273,9 @@ class ExportController extends Controller
     public function ocrHocr(string $slug)
     {
         $io = $this->getOcrIo($slug);
+        if ($io instanceof \Illuminate\Http\RedirectResponse) {
+            return $io;
+        }
         $body = $this->renderOcr($io, 'exportHocr');
 
         return response($body, 200)
@@ -280,6 +289,9 @@ class ExportController extends Controller
     public function ocrPageXml(string $slug)
     {
         $io = $this->getOcrIo($slug);
+        if ($io instanceof \Illuminate\Http\RedirectResponse) {
+            return $io;
+        }
         $body = $this->renderOcr($io, 'exportPageXml');
 
         return response($body, 200)
@@ -301,7 +313,11 @@ class ExportController extends Controller
         }
         $hasOcr = DB::table('iiif_ocr_text')->where('object_id', $io->id)->exists();
         if (!$hasOcr) {
-            abort(404);
+            // No OCR for this record. The export menu is gated on the same
+            // check, so this only fires on stale links / direct URLs - send
+            // the user back with a clear message instead of a bare 404.
+            return redirect()->route('informationobject.show', $io->slug)
+                ->with('error', 'No OCR text is available for this record.');
         }
         return $io;
     }

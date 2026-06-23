@@ -163,7 +163,7 @@
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marc'))
         <a href="{{ route('informationobject.export.marc', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-file-export me-1"></i> {{ __('MARC21 (binary .mrc)') }}</a>
       @endif
-      @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ocr.txt'))
+      @if($__objId && \Illuminate\Support\Facades\Route::has('informationobject.export.ocr.txt') && \Illuminate\Support\Facades\DB::table('iiif_ocr_text')->where('object_id', $__objId)->exists())
         <h6 class="list-group-item small text-uppercase text-muted mb-0 mt-2 bg-light">{{ __('OCR Text') }}</h6>
         <a href="{{ route('informationobject.export.ocr.txt', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-file-alt me-1"></i> {{ __('Plain text (.txt)') }}</a>
         <a href="{{ route('informationobject.export.ocr.alto', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-file-code me-1"></i> {{ __('ALTO XML') }}</a>
