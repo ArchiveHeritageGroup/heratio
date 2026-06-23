@@ -276,7 +276,6 @@
                 @php
                   $__thumb = $result['thumbnailPath'] ?? null;
                   $__hasDo = !empty($result['hasDigitalObject']);
-                  $__icon  = $__hasDo ? 'fa-file-image' : 'fa-file-lines';
                 @endphp
                 <div class="me-3 mt-1 flex-shrink-0" style="width:56px;">
                   @if($__thumb)
@@ -284,8 +283,20 @@
                       <img src="{{ $__thumb }}" alt="" class="img-thumbnail" style="width:56px;height:56px;object-fit:cover;" loading="lazy">
                     </a>
                   @else
+                    {{-- Inline SVG fallback: renders regardless of which icon font
+                         subset the theme bundle loads (FA6 free omits fa-file-image). --}}
                     <span class="d-inline-flex align-items-center justify-content-center bg-light border rounded text-secondary" style="width:56px;height:56px;" title="{{ $__hasDo ? __('Has digital object') : __('Record') }}">
-                      <i class="fas {{ $__icon }} fa-lg" aria-hidden="true"></i>
+                      @if($__hasDo)
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                          <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                          <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>
+                        </svg>
+                      @else
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                          <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z"/>
+                          <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1"/>
+                        </svg>
+                      @endif
                     </span>
                   @endif
                 </div>
