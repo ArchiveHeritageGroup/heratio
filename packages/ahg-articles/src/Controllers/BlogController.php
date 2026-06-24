@@ -40,10 +40,19 @@ class BlogController extends Controller
             $group = null;
         }
 
+        // Whitelisted sort + view mode (default newest-first tiles).
+        $sort = $request->query('sort');
+        if (! in_array($sort, ['latest', 'oldest', 'title', 'popular'], true)) {
+            $sort = 'latest';
+        }
+        $view = $request->query('view') === 'list' ? 'list' : 'tile';
+
         return view('articles::index', [
-            'articles'     => $this->blog->paginatePublished($group ?: null),
+            'articles'     => $this->blog->paginatePublished($group ?: null, 9, $sort),
             'groups'       => $groups,
             'activeGroup'  => $group,
+            'activeSort'   => $sort,
+            'activeView'   => $view,
         ]);
     }
 

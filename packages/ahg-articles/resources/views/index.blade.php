@@ -25,12 +25,84 @@
         </div>
     @endif
 
+    {{-- Toolbar: sort + Tile/List view toggle (links keep group + each other
+         in the query string; no inline JS so it works under the site CSP). --}}
+    @php
+        $sortLabels = [
+            'latest'  => __('Newest first'),
+            'oldest'  => __('Oldest first'),
+            'title'   => __('Title (A-Z)'),
+            'popular' => __('Most read'),
+        ];
+        $baseParams = array_filter(['group' => $activeGroup ?? null]);
+    @endphp
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-sort me-1"></i>{{ __('Sort') }}: {{ $sortLabels[$activeSort] ?? __('Newest first') }}
+            </button>
+            <ul class="dropdown-menu">
+                @foreach($sortLabels as $key => $label)
+                    <li>
+                        <a class="dropdown-item {{ $activeSort === $key ? 'active' : '' }}"
+                           href="{{ route('articles.index', array_merge($baseParams, ['sort' => $key, 'view' => $activeView])) }}">{{ $label }}</a>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+        <div class="btn-group" role="group" aria-label="{{ __('View mode') }}">
+            <a href="{{ route('articles.index', array_merge($baseParams, ['sort' => $activeSort, 'view' => 'tile'])) }}"
+               class="btn btn-sm {{ $activeView === 'tile' ? 'btn-primary' : 'btn-outline-primary' }}" title="{{ __('Tiles') }}">
+                <i class="fas fa-th-large me-1"></i>{{ __('Tiles') }}
+            </a>
+            <a href="{{ route('articles.index', array_merge($baseParams, ['sort' => $activeSort, 'view' => 'list'])) }}"
+               class="btn btn-sm {{ $activeView === 'list' ? 'btn-primary' : 'btn-outline-primary' }}" title="{{ __('List') }}">
+                <i class="fas fa-list me-1"></i>{{ __('List') }}
+            </a>
+        </div>
+    </div>
+
     @if($articles->isEmpty())
         <div class="alert alert-light border text-center text-muted py-5">
             <i class="fas fa-newspaper fa-2x mb-2 d-block"></i>{{ __('No articles published yet.') }}
         </div>
     @endif
 
+    @if($activeView === 'list')
+    {{-- List view --}}
+    <div class="list-group shadow-sm">
+        @foreach($articles as $post)
+            <div class="list-group-item d-flex gap-3 align-items-start py-3">
+                @if($post->cover_image)
+                    <a href="{{ route('articles.show', $post->slug) }}" class="flex-shrink-0">
+                        <img src="{{ $post->cover_image }}" alt="{{ $post->title }}" style="width:120px;height:80px;object-fit:cover;" class="rounded">
+                    </a>
+                @endif
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <h2 class="h5 mb-1">
+                            <a href="{{ route('articles.show', $post->slug) }}" class="text-decoration-none">{{ $post->title }}</a>
+                        </h2>
+                        @if($post->article_group)<span class="badge bg-primary flex-shrink-0">{{ $post->article_group }}</span>@endif
+                    </div>
+                    <div class="text-muted small mb-1">
+                        @if($post->published_at){{ \Carbon\Carbon::parse($post->published_at)->format('d M Y') }}@endif
+                        @if($post->author) &middot; {{ $post->author }}@endif
+                        &middot; <i class="fas fa-eye me-1"></i>{{ number_format($post->view_count ?? 0) }} {{ trans_choice('read|reads', (int) ($post->view_count ?? 0)) }}
+                        @if(($post->attachment_count ?? 0) > 0) &middot; <i class="fas fa-paperclip me-1"></i>{{ $post->attachment_count }}@endif
+                    </div>
+                    @if($post->excerpt)
+                        <p class="mb-2">{{ \Illuminate\Support\Str::limit($post->excerpt, 220) }}</p>
+                    @endif
+                    <a href="{{ route('articles.show', $post->slug) }}" class="btn btn-sm btn-outline-primary">{{ __('Read more') }}</a>
+                    @if($isAdmin)
+                        <a href="{{ route('admin.articles.edit', $post->id) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}"><i class="fas fa-pen"></i></a>
+                    @endif
+                </div>
+            </div>
+        @endforeach
+    </div>
+    @else
     {{-- 3-per-row card grid --}}
     <div class="row g-4">
         @foreach($articles as $post)
@@ -77,6 +149,7 @@
             </div>
         @endforeach
     </div>
+    @endif
 
     @if($articles->hasPages())
         <div class="mt-4 d-flex justify-content-center">

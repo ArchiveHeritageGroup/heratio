@@ -82,16 +82,32 @@ class BlogService
      * Paginated published posts for the public index (3-per-row grid),
      * newest first, optionally filtered to a single group.
      */
-    public function paginatePublished(?string $group = null, int $perPage = 9)
+    public function paginatePublished(?string $group = null, int $perPage = 9, string $sort = 'latest')
     {
-        return DB::table('blog_post')
+        $q = DB::table('blog_post')
             ->select('blog_post.*')
             ->selectSub($this->attachmentCountSub(), 'attachment_count')
             ->where('status', 'published')
-            ->when($group, fn ($q) => $q->where('article_group', $group))
-            ->orderByRaw('COALESCE(published_at, created_at) DESC')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->when($group, fn ($q) => $q->where('article_group', $group));
+
+        switch ($sort) {
+            case 'oldest':
+                $q->orderByRaw('COALESCE(published_at, created_at) ASC');
+                break;
+            case 'title':
+                $q->orderBy('title');
+                break;
+            case 'popular':
+                $q->orderByDesc('view_count')
+                    ->orderByRaw('COALESCE(published_at, created_at) DESC');
+                break;
+            case 'latest':
+            default:
+                $q->orderByRaw('COALESCE(published_at, created_at) DESC');
+                break;
+        }
+
+        return $q->paginate($perPage)->withQueryString();
     }
 
     /** Every post (admin list), newest first. */
