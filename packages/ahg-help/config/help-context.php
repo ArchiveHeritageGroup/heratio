@@ -25,6 +25,8 @@ return [
         'admin/dropdowns'       => 'ahg-settings-user-guide',
         'admin/reports'         => 'reports-dashboard-user-guide',
 
+        'research/quotas'       => 'researcher-quotas-user-guide',
+        'research/workspaces'   => 'research-workspace-files-user-guide',
         'research/annotations'  => 'research-annotations',
         'research/claim'        => 'research-claim-ledger',
         'research/dmp'          => 'research-dmp-builder',
