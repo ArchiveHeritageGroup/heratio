@@ -3,6 +3,31 @@
 @section('title', 'Clipboard')
 @section('body-class', 'clipboard view')
 
+@php
+  // ahg_is_plugin_enabled() is used below to gate the Portable Export button.
+  // It is also defined in _action-icons.blade.php, but that partial is not
+  // included on the standalone clipboard page, so define it here too (guarded)
+  // to avoid a "Call to undefined function" fatal when the clipboard has items.
+  if (!function_exists('ahg_is_plugin_enabled')) {
+      function ahg_is_plugin_enabled(string $pluginName): bool
+      {
+          static $cache = [];
+          if (isset($cache[$pluginName])) {
+              return $cache[$pluginName];
+          }
+          try {
+              $cache[$pluginName] = \Illuminate\Support\Facades\DB::table('atom_plugin')
+                  ->where('name', $pluginName)
+                  ->where('is_enabled', 1)
+                  ->exists();
+          } catch (\Exception $e) {
+              $cache[$pluginName] = false;
+          }
+          return $cache[$pluginName];
+      }
+  }
+@endphp
+
 @section('content')
 
   {{-- Page header --}}
