@@ -218,4 +218,55 @@ class HelpArticleService
             ->map(fn ($r) => (array) $r)
             ->all();
     }
+
+    /**
+     * Resolve the most relevant help article for the current page (#1332).
+     *
+     * Matching order: an exact route-name override (config help-context.routes)
+     * wins; otherwise the longest matching URL-path prefix (help-context.paths).
+     * The resolved slug is validated against a real, published, visible article
+     * (admin-only articles are filtered out for guests), so a stale map entry
+     * yields null rather than a broken link.
+     *
+     * @return array{slug:string,title:string,url:string}|null
+     */
+    public static function contextualFor(?string $routeName, ?string $path): ?array
+    {
+        $slug = null;
+
+        $byName = (array) config('help-context.routes', []);
+        if ($routeName !== null && isset($byName[$routeName])) {
+            $slug = $byName[$routeName];
+        }
+
+        if ($slug === null) {
+            $normalized = '/'.ltrim((string) $path, '/');
+            $bestLen = -1;
+            foreach ((array) config('help-context.paths', []) as $prefix => $candidate) {
+                $p = '/'.trim((string) $prefix, '/');
+                if ($p === '/') {
+                    continue;
+                }
+                if (str_starts_with($normalized, $p) && strlen($p) > $bestLen) {
+                    $slug = $candidate;
+                    $bestLen = strlen($p);
+                }
+            }
+        }
+
+        if ($slug === null) {
+            return null;
+        }
+
+        $article = self::getBySlug((string) $slug);
+        if ($article === null) {
+            return null;
+        }
+
+        return [
+            'slug'  => (string) $slug,
+            'title' => (string) ($article['title'] ?? 'Help'),
+            'url'   => route('help.article', ['slug' => $slug]),
+        ];
+    }
 }

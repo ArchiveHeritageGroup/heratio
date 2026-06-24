@@ -1,6 +1,7 @@
 <?php
 
 use AhgIngest\Controllers\IngestController;
+use AhgIngest\Controllers\ChunkedUploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'admin'])->prefix('ingest')->group(function () {
@@ -16,4 +17,10 @@ Route::middleware(['auth', 'admin'])->prefix('ingest')->group(function () {
     // SharePoint manual-path picker (v2 ingest plan, step D)
     Route::get('/{id}/sharepoint/browse', [IngestController::class, 'browseSharePoint'])->name('ingest.sharepoint.browse');
     Route::post('/{id}/sharepoint/import', [IngestController::class, 'importFromSharePoint'])->name('ingest.sharepoint.import');
+
+    // #1328 Resumable / chunked web upload for large (>1GB) files
+    Route::post('/{id}/chunk', [ChunkedUploadController::class, 'chunk'])->name('ingest.chunk');
+    Route::get('/{id}/chunk/status', [ChunkedUploadController::class, 'status'])->name('ingest.chunk.status');
+    Route::post('/{id}/chunk/complete', [ChunkedUploadController::class, 'complete'])->name('ingest.chunk.complete');
+    Route::post('/{id}/chunk/abort', [ChunkedUploadController::class, 'abort'])->name('ingest.chunk.abort');
 });

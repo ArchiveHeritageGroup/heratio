@@ -218,6 +218,7 @@ class AhgResearchServiceProvider extends ServiceProvider
                 ['research_funding', 'install_research_funding.sql', 'seed_research_funding_dropdowns.sql'], // #1222 Research Funding tracker (awarded-funding ledger)
                 ['research_team_member', 'install_research_team.sql', 'seed_research_team_dropdowns.sql'], // #1222 Research Team & Collaborators register
                 ['research_milestone', 'install_research_milestones.sql', 'seed_research_milestones_dropdowns.sql'], // #1222 Research Milestones & Deliverables tracker
+                ['research_quota_policy', 'install_quota.sql', 'seed_quota_dropdowns.sql'], // #1325 Researcher quotas + workspace files
                 // #1240 Time Machine - read-only reconstruction, no table.
             ];
             foreach ($installs as [$table, $file, $seed]) {

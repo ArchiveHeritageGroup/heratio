@@ -85,6 +85,17 @@
             </li>
           @endif
 
+          {{-- Contextual help for the current page (#1332) --}}
+          @if(!empty($contextualHelp))
+          <li class="nav-item d-flex flex-column">
+            <a class="nav-link d-flex align-items-center p-0" href="{{ $contextualHelp['url'] }}" id="contextual-help-link">
+              <i class="fas fa-2x fa-fw fa-question-circle text-info px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Help for this page') }}: {{ $contextualHelp['title'] }}" aria-hidden="true"></i>
+              <span class="d-lg-none mx-1" aria-hidden="true">{{ __('Help for this page') }}</span>
+              <span class="visually-hidden">{{ __('Help for this page') }}: {{ $contextualHelp['title'] }}</span>
+            </a>
+          </li>
+          @endif
+
           {{-- Help Center --}}
           <li class="nav-item d-flex flex-column">
             <a class="nav-link d-flex align-items-center p-0" href="{{ url('/help') }}" id="help-center-menu">

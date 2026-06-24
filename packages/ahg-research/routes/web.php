@@ -19,6 +19,8 @@ use AhgResearch\Controllers\ResearchLectureController;
 use AhgResearch\Controllers\ResearchTargetJournalController;
 use AhgResearch\Controllers\ResearchTrainingController;
 use AhgResearch\Controllers\ResearchWorkspaceController;
+use AhgResearch\Controllers\ResearchWorkspaceFileController;
+use AhgResearch\Controllers\ResearchQuotaController;
 use AhgResearch\Controllers\ResearchValidationQueueController;
 use AhgResearch\Controllers\ResearchEntityResolutionController;
 use AhgResearch\Controllers\ResearchOdrlPoliciesController;
@@ -198,6 +200,12 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::get('/generateFindingAid', [ResearchExportsController::class, 'generateFindingAid'])->name('generateFindingAid');
     Route::match(['get', 'post'], '/workspaces', [ResearchWorkspaceController::class, 'workspaces'])->name('workspaces');
     Route::match(['get', 'post'], '/workspaces/{id}', [ResearchWorkspaceController::class, 'viewWorkspace'])->name('viewWorkspace')->where('id', '[0-9]+');
+
+    // #1325 Researcher workspace files (storage-quota enforced uploads/downloads)
+    Route::get('/workspaces/{workspaceId}/files', [ResearchWorkspaceFileController::class, 'index'])->name('workspace.files')->where('workspaceId', '[0-9]+');
+    Route::post('/workspaces/{workspaceId}/files', [ResearchWorkspaceFileController::class, 'store'])->name('workspace.files.store')->where('workspaceId', '[0-9]+');
+    Route::get('/workspaces/{workspaceId}/files/{fileId}/download', [ResearchWorkspaceFileController::class, 'download'])->name('workspace.files.download')->where(['workspaceId' => '[0-9]+', 'fileId' => '[0-9]+']);
+    Route::delete('/workspaces/{workspaceId}/files/{fileId}', [ResearchWorkspaceFileController::class, 'destroy'])->name('workspace.files.destroy')->where(['workspaceId' => '[0-9]+', 'fileId' => '[0-9]+']);
 
     // Validation Queue (extracted to ResearchValidationQueueController - stage 7, issue #1269)
     Route::get('/validationQueue', [ResearchValidationQueueController::class, 'validationQueue'])->name('validationQueue');
@@ -405,6 +413,10 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::match(['get', 'post'], '/adminStatistics', [ResearchAdminReferenceController::class, 'adminStatistics'])->name('adminStatistics');
     Route::match(['get', 'post'], '/institutions', [ResearchAdminReferenceController::class, 'institutions'])->name('institutions');
     Route::match(['get', 'post'], '/activities', [ResearchController::class, 'activities'])->name('activities');
+
+    // #1325 Researcher quota administration (usage vs limit + policy CRUD)
+    Route::get('/quotas', [ResearchQuotaController::class, 'index'])->name('adminQuotas');
+    Route::post('/quotas', [ResearchQuotaController::class, 'store'])->name('adminQuotas.store');
 });
 
 /*

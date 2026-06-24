@@ -114,6 +114,36 @@
                         </button>
                     </div>
                 </form>
+
+                {{-- #1328 Resumable / chunked upload for large (>1GB) single files
+                     (TIFF/JP2/video/3D). Sends the file in small chunks so it is not
+                     bounded by post_max_size, resumes after an interruption, and on
+                     completion is ingested into this session's target record. --}}
+                <div class="card mb-4 border-primary">
+                    <div class="card-header d-flex align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-server me-2"></i>{{ __('Large file (resumable upload)') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">{{ __('For a single large digital object that exceeds the normal upload limit. The file is sent in chunks and can resume after a dropped connection; when finished it is ingested into this session\'s target record.') }}</p>
+                        <div id="rz-drop" class="border border-2 border-dashed rounded p-4 text-center mb-3">
+                            <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                            <p class="mb-1">{{ __('Choose a large file') }}</p>
+                            <input type="file" class="form-control mt-2" id="rz-file">
+                        </div>
+                        <div id="rz-progress-wrap" class="mb-2" style="display:none;">
+                            <div class="d-flex justify-content-between small">
+                                <span id="rz-status">{{ __('Uploading...') }}</span><span id="rz-pct">0%</span>
+                            </div>
+                            <div class="progress" style="height:1.25rem;">
+                                <div id="rz-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div id="rz-result"></div>
+                        <button type="button" class="btn btn-primary" id="rz-start" disabled>
+                            <i class="fas fa-upload me-1"></i>{{ __('Start resumable upload') }}
+                        </button>
+                    </div>
+                </div>
             </div>
 
             @if($spEnabled)
@@ -366,5 +396,109 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadSites();
 });
+</script>
+
+<script>
+// #1328 - resumable chunked uploader (custom protocol, no external dependency).
+(function () {
+    var fileEl   = document.getElementById('rz-file');
+    var startBtn = document.getElementById('rz-start');
+    if (!fileEl || !startBtn) { return; }
+    var wrap     = document.getElementById('rz-progress-wrap');
+    var bar      = document.getElementById('rz-bar');
+    var pctEl    = document.getElementById('rz-pct');
+    var statusEl = document.getElementById('rz-status');
+    var resultEl = document.getElementById('rz-result');
+
+    var sessionId = {{ (int) ($session->id ?? 0) }};
+    var meta      = document.querySelector('meta[name="csrf-token"]');
+    var token     = meta ? meta.getAttribute('content') : '';
+    var base      = '{{ url('ingest') }}/' + sessionId + '/chunk';
+    var CHUNK     = 8 * 1024 * 1024; // 8 MB parts
+
+    fileEl.addEventListener('change', function () {
+        startBtn.disabled = !fileEl.files.length;
+        resultEl.innerHTML = '';
+    });
+
+    function uploadId(file) {
+        var key = 'rz_' + sessionId + '_' + file.name + '_' + file.size;
+        var id = localStorage.getItem(key);
+        if (!id) {
+            id = 'u' + Date.now().toString(36) + Math.floor(Math.random() * 1e9).toString(36);
+            localStorage.setItem(key, id);
+        }
+        return { id: id, key: key };
+    }
+
+    function post(url, fd) {
+        return fetch(url, { method: 'POST', headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' }, body: fd });
+    }
+
+    async function postRetry(makeFd, tries) {
+        for (var t = 0; t < tries; t++) {
+            try { var r = await post(base, makeFd()); if (r.ok) { return; } } catch (e) {}
+            await new Promise(function (res) { setTimeout(res, 800 * (t + 1)); });
+        }
+        throw new Error('A chunk failed to upload.');
+    }
+
+    function setPct(p) { var v = Math.round(p * 100); bar.style.width = v + '%'; pctEl.textContent = v + '%'; }
+
+    startBtn.addEventListener('click', async function () {
+        var file = fileEl.files[0];
+        if (!file) { return; }
+        startBtn.disabled = true; fileEl.disabled = true; wrap.style.display = ''; resultEl.innerHTML = '';
+        bar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+
+        var u = uploadId(file);
+        var total = Math.max(1, Math.ceil(file.size / CHUNK));
+        var done = [];
+        try {
+            var s = await fetch(base + '/status?upload_id=' + encodeURIComponent(u.id), { headers: { 'Accept': 'application/json' } });
+            if (s.ok) { var sj = await s.json(); done = sj.received || []; }
+        } catch (e) {}
+
+        try {
+            for (var i = 0; i < total; i++) {
+                if (done.indexOf(i) !== -1) { setPct((i + 1) / total); continue; }
+                statusEl.textContent = 'Uploading chunk ' + (i + 1) + ' of ' + total + '...';
+                var blob = file.slice(i * CHUNK, Math.min((i + 1) * CHUNK, file.size));
+                var idx = i;
+                await postRetry(function () {
+                    var fd = new FormData();
+                    fd.append('upload_id', u.id);
+                    fd.append('chunk_index', idx);
+                    fd.append('total_chunks', total);
+                    fd.append('chunk', blob, file.name + '.part' + idx);
+                    return fd;
+                }, 3);
+                setPct((i + 1) / total);
+            }
+            statusEl.textContent = 'Assembling and ingesting...';
+            var fd = new FormData();
+            fd.append('upload_id', u.id);
+            fd.append('file_name', file.name);
+            fd.append('total_chunks', total);
+            var cr = await post(base + '/complete', fd);
+            var cj = await cr.json();
+            if (cr.ok && cj.ok) {
+                localStorage.removeItem(u.key);
+                bar.className = 'progress-bar bg-success';
+                statusEl.textContent = 'Done';
+                resultEl.innerHTML = '<div class="alert alert-success mt-2">' +
+                    'File uploaded and ingested (record #' + (cj.io_id || '?') + ').</div>';
+            } else {
+                throw new Error((cj && cj.error) ? cj.error : 'The upload could not be completed.');
+            }
+        } catch (e) {
+            bar.className = 'progress-bar bg-danger';
+            statusEl.textContent = 'Failed';
+            resultEl.innerHTML = '<div class="alert alert-danger mt-2">' + (e.message || 'Upload failed.') +
+                ' Select the same file and start again to resume.</div>';
+            fileEl.disabled = false; startBtn.disabled = false;
+        }
+    });
+})();
 </script>
 @endsection

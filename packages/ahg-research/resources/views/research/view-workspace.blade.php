@@ -31,6 +31,7 @@
         </span>
     </div>
     <div class="d-flex gap-2">
+        <a href="{{ route('research.workspace.files', $workspace->id) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Workspace files') }}"><i class="fas fa-folder-open me-1"></i>{{ __('Files') }}</a>
         @if(in_array($myRole, ['owner', 'admin']))
             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editWorkspaceModal" title="{{ __('Edit workspace') }}"><i class="fas fa-pencil-alt"></i></button>
         @endif

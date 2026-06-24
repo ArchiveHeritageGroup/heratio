@@ -80,6 +80,16 @@ class ReplicationPackController extends Controller
         }
         [$project] = $this->projectContext($projectId);
 
+        // #1325 - enforce the researcher's download quota before building.
+        $rid = (int) ($this->packs->currentResearcherId() ?? 0);
+        if ($rid > 0) {
+            $check = app(\AhgResearch\Services\ResearchQuotaService::class)->checkDownload($rid, $projectId);
+            if (! ($check['allowed'] ?? true)) {
+                return redirect()->route('research.replication.index', $projectId)
+                    ->with('error', $check['message'] ?? __('Download quota exceeded.'));
+            }
+        }
+
         $built = $this->packs->build($project);
         if ($built === null) {
             return redirect()->route('research.replication.index', $projectId)
@@ -90,6 +100,11 @@ class ReplicationPackController extends Controller
 
         // Best-effort audit line; never blocks the download.
         $this->packs->logBuild($projectId, $this->packs->currentResearcherId());
+        // #1325 - count this download toward the researcher's quota.
+        if ($rid > 0) {
+            app(\AhgResearch\Services\ResearchQuotaService::class)
+                ->logDownload($rid, $projectId, $projectId, 'Replication pack');
+        }
 
         // Stream then delete the temp ZIP.
         return response()->download($absPath, $downloadName, [

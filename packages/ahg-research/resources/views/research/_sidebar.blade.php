@@ -22,7 +22,7 @@
     $atLeast = fn ($n) => $lvlCur >= $n;
     // Administration is collapsed by default - an admin is often here as a
     // researcher, not to administer. Auto-expand only when on an admin page.
-    $adminActives = ['researchers', 'bookings', 'rooms', 'seats', 'equipment', 'retrievalQueue', 'walkIn', 'adminTypes', 'adminStatistics', 'institutions', 'activities'];
+    $adminActives = ['researchers', 'bookings', 'rooms', 'seats', 'equipment', 'retrievalQueue', 'walkIn', 'adminTypes', 'adminStatistics', 'institutions', 'activities', 'adminQuotas'];
     $adminOpen = in_array($active, $adminActives, true);
 @endphp
 
@@ -233,6 +233,10 @@
     <a href="{{ route('research.adminTypes') }}"
        class="list-group-item list-group-item-action {{ $active === 'adminTypes' ? 'active' : '' }}">
         <i class="fas fa-tags me-2"></i>{{ __('Researcher Types') }}
+    </a>
+    <a href="{{ route('research.adminQuotas') }}"
+       class="list-group-item list-group-item-action {{ $active === 'adminQuotas' ? 'active' : '' }}">
+        <i class="fas fa-hdd me-2"></i>{{ __('Quotas') }}
     </a>
     <a href="{{ route('research.adminStatistics') }}"
        class="list-group-item list-group-item-action {{ $active === 'adminStatistics' ? 'active' : '' }}">

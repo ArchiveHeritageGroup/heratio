@@ -104,6 +104,9 @@ class ProjectExportController extends Controller
         if ($project instanceof \Illuminate\Http\RedirectResponse) {
             return $project;
         }
+        if ($block = $this->downloadQuotaBlock($researcher, $projectId)) {
+            return $block;
+        }
 
         $bundle = $this->export->assemble($projectId);
         $path   = $this->export->buildZip($projectId, $bundle);
@@ -115,6 +118,7 @@ class ProjectExportController extends Controller
         }
 
         $this->export->logExport($projectId, 'zip', $this->exporterName($researcher));
+        $this->logDownloadQuota($researcher, $projectId, 'zip');
 
         $download = $this->export->formatFilename($bundle, 'markdown', $projectId);
         $download = preg_replace('/\.md$/', '.zip', $download);
@@ -174,6 +178,9 @@ class ProjectExportController extends Controller
         if ($project instanceof \Illuminate\Http\RedirectResponse) {
             return $project;
         }
+        if ($block = $this->downloadQuotaBlock($researcher, $projectId)) {
+            return $block;
+        }
 
         try {
             $bundle  = $this->export->assemble($projectId);
@@ -181,6 +188,7 @@ class ProjectExportController extends Controller
             $name    = $this->export->formatFilename($bundle, $format, $projectId);
 
             $this->export->logExport($projectId, $format, $this->exporterName($researcher));
+            $this->logDownloadQuota($researcher, $projectId, $format);
 
             return new StreamedResponse(function () use ($content) {
                 echo $content;
@@ -194,6 +202,35 @@ class ProjectExportController extends Controller
             return redirect()
                 ->route('research.export.index', $projectId)
                 ->with('error', __('That export could not be produced. Please try again.'));
+        }
+    }
+
+    /**
+     * #1325 - block an export download when the researcher is over their
+     * download quota. Returns a redirect to bounce on, or null when within quota.
+     */
+    private function downloadQuotaBlock(?object $researcher, int $projectId): ?\Illuminate\Http\RedirectResponse
+    {
+        $rid = (int) ($researcher->id ?? 0);
+        if ($rid <= 0) {
+            return null;
+        }
+        $check = app(\AhgResearch\Services\ResearchQuotaService::class)->checkDownload($rid, $projectId);
+        if (! ($check['allowed'] ?? true)) {
+            return redirect()->route('research.export.index', $projectId)
+                ->with('error', $check['message'] ?? __('Download quota exceeded.'));
+        }
+
+        return null;
+    }
+
+    /** #1325 - count a successful export download toward the researcher's quota. */
+    private function logDownloadQuota(?object $researcher, int $projectId, string $format): void
+    {
+        $rid = (int) ($researcher->id ?? 0);
+        if ($rid > 0) {
+            app(\AhgResearch\Services\ResearchQuotaService::class)
+                ->logDownload($rid, $projectId, $projectId, 'Project export ('.$format.')');
         }
     }
 
