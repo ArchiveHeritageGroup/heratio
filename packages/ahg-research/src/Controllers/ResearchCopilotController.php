@@ -12,6 +12,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\CollaborationService;
 use AhgResearch\Services\ResearchCopilotService;
 use AhgResearch\Services\ResearchService;
@@ -26,6 +27,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class ResearchCopilotController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private ResearchCopilotService $service,
         private ResearchService $research,
@@ -63,11 +66,22 @@ class ResearchCopilotController extends Controller
             return response()->json(['ok' => false, 'error' => 'You cannot save to that workspace.'], 403);
         }
 
-        return response()->json($this->service->saveAnswer(
+        $result = $this->service->saveAnswer(
             (int) $data['workspace_id'], $researcherId,
             $data['question'], $data['answer'], $data['sources'] ?? [],
             isset($data['project_id']) ? (int) $data['project_id'] : null
-        ));
+        );
+
+        $this->logResearchActivity(
+            'update',
+            'copilot',
+            (int) $data['workspace_id'],
+            $data['question'],
+            ['method' => 'ResearchCopilotController@saveAjax'],
+            isset($data['project_id']) ? (int) $data['project_id'] : null
+        );
+
+        return response()->json($result);
     }
 
     /** Saved answers for a workspace the researcher can see. */

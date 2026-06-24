@@ -15,6 +15,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchLectureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,8 @@ use Illuminate\Support\Facades\Schema;
 
 class ResearchLectureController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(private ResearchLectureService $service)
     {
     }
@@ -51,6 +54,8 @@ class ResearchLectureController extends Controller
         $data = $this->validateLecture($request);
         $data['researcher_id'] = $this->researcherId();
         $id = $this->service->createLecture($data);
+
+        $this->logResearchActivity('create', 'lecture', (int) $id, $data['title'] ?? null, ['method' => 'ResearchLectureController@store']);
 
         return redirect()->route('research.lecture-builder.show', $id)->with('success', __('Lecture created.'));
     }
@@ -84,6 +89,8 @@ class ResearchLectureController extends Controller
         $this->assertOwner($lecture);
         $this->service->updateLecture($id, $this->validateLecture($request));
 
+        $this->logResearchActivity('update', 'lecture', $id, $lecture['title'] ?? null, ['method' => 'ResearchLectureController@update']);
+
         return redirect()->route('research.lecture-builder.show', $id)->with('success', __('Lecture updated.'));
     }
 
@@ -94,6 +101,8 @@ class ResearchLectureController extends Controller
         $this->assertOwner($lecture);
         $this->service->deleteLecture($id);
 
+        $this->logResearchActivity('delete', 'lecture', $id, $lecture['title'] ?? null, ['method' => 'ResearchLectureController@destroy']);
+
         return redirect()->route('research.lecture-builder.index')->with('success', __('Lecture deleted.'));
     }
 
@@ -103,6 +112,8 @@ class ResearchLectureController extends Controller
         abort_if(! $lecture, 404);
         $this->assertOwner($lecture);
         $this->service->setStatus($id, (string) $request->input('status', 'draft'));
+
+        $this->logResearchActivity('update', 'lecture', $id, $lecture['title'] ?? null, ['method' => 'ResearchLectureController@setStatus', 'status' => (string) $request->input('status', 'draft')]);
 
         return back()->with('success', __('Status updated.'));
     }
@@ -115,6 +126,8 @@ class ResearchLectureController extends Controller
         abort_if(! $lecture, 404);
         $this->assertOwner($lecture);
         $this->service->createSection($lectureId, $this->validateSection($request));
+
+        $this->logResearchActivity('create', 'lecture', $lectureId, $lecture['title'] ?? null, ['method' => 'ResearchLectureController@storeSection']);
 
         return back()->with('success', __('Section added.'));
     }
@@ -138,6 +151,8 @@ class ResearchLectureController extends Controller
         $this->assertOwner($this->service->getLecture((int) $section['lecture_id']));
         $this->service->updateSection($id, $this->validateSection($request));
 
+        $this->logResearchActivity('update', 'lecture', (int) $section['lecture_id'], null, ['method' => 'ResearchLectureController@updateSection', 'section_id' => $id]);
+
         return redirect()->route('research.lecture-builder.show', (int) $section['lecture_id'])
             ->with('success', __('Section saved.'));
     }
@@ -148,6 +163,8 @@ class ResearchLectureController extends Controller
         abort_if(! $section, 404);
         $this->assertOwner($this->service->getLecture((int) $section['lecture_id']));
         $this->service->deleteSection($id);
+
+        $this->logResearchActivity('delete', 'lecture', (int) $section['lecture_id'], null, ['method' => 'ResearchLectureController@destroySection', 'section_id' => $id]);
 
         return back()->with('success', __('Section removed.'));
     }
@@ -166,12 +183,16 @@ class ResearchLectureController extends Controller
             'sort_order'    => 'nullable|integer',
         ]));
 
+        $this->logResearchActivity('create', 'lecture', $lectureId, $lecture['title'] ?? null, ['method' => 'ResearchLectureController@storeResource']);
+
         return back()->with('success', __('Resource added.'));
     }
 
     public function destroyResource(int $id)
     {
         $this->service->deleteResource($id);
+
+        $this->logResearchActivity('delete', 'lecture', null, null, ['method' => 'ResearchLectureController@destroyResource', 'resource_id' => $id]);
 
         return back()->with('success', __('Resource removed.'));
     }

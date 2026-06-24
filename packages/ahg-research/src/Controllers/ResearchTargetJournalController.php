@@ -15,11 +15,14 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchTargetJournalService;
 use Illuminate\Http\Request;
 
 class ResearchTargetJournalController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(private ResearchTargetJournalService $service)
     {
     }
@@ -45,6 +48,8 @@ class ResearchTargetJournalController extends Controller
     {
         $id = $this->service->create($this->validateData($request));
 
+        $this->logResearchActivity('create', 'target_journal', (int) $id, $request->input('title'), ['method' => 'ResearchTargetJournalController@store']);
+
         return redirect()->route('research.target-journal.show', $id)->with('success', __('Journal added to the directory.'));
     }
 
@@ -69,6 +74,8 @@ class ResearchTargetJournalController extends Controller
         abort_if(! $this->service->get($id), 404);
         $this->service->update($id, $this->validateData($request));
 
+        $this->logResearchActivity('update', 'target_journal', $id, $request->input('title'), ['method' => 'ResearchTargetJournalController@update']);
+
         return redirect()->route('research.target-journal.show', $id)->with('success', __('Journal updated.'));
     }
 
@@ -76,12 +83,16 @@ class ResearchTargetJournalController extends Controller
     {
         $this->service->delete($id);
 
+        $this->logResearchActivity('delete', 'target_journal', $id, null, ['method' => 'ResearchTargetJournalController@destroy']);
+
         return redirect()->route('research.target-journal.index')->with('success', __('Journal removed from the directory.'));
     }
 
     public function seedDhet()
     {
         $n = $this->service->seedDhetStarter();
+
+        $this->logResearchActivity('create', 'target_journal', null, null, ['method' => 'ResearchTargetJournalController@seedDhet', 'seeded' => $n]);
 
         return redirect()->route('research.target-journal.index')
             ->with('success', __(':n DHET-accredited journals seeded/updated (South-African accreditation module).', ['n' => $n]));

@@ -25,6 +25,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchMilestoneService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -50,6 +51,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchMilestoneController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private ResearchMilestoneService $milestones,
         private ResearchService $research,
@@ -109,6 +112,8 @@ class ResearchMilestoneController extends Controller
                 ->with('error', 'Could not add the milestone. Please try again.');
         }
 
+        $this->logResearchActivity('create', 'milestone', (int) $id, $data['title'] ?? null, ['method' => 'ResearchMilestoneController@store'], $projectId);
+
         return redirect()->route('research.milestones.show', [$projectId, $id])
             ->with('success', 'Milestone saved.');
     }
@@ -159,6 +164,8 @@ class ResearchMilestoneController extends Controller
                 ->with('error', 'Could not save the milestone.');
         }
 
+        $this->logResearchActivity('update', 'milestone', $milestoneId, $data['title'] ?? null, ['method' => 'ResearchMilestoneController@update'], $projectId);
+
         return redirect()->route('research.milestones.show', [$projectId, $milestoneId])
             ->with('success', 'Milestone saved.');
     }
@@ -195,6 +202,10 @@ class ResearchMilestoneController extends Controller
         $this->projectContext($projectId);
 
         $ok = $this->milestones->deleteMilestone($milestoneId, $projectId);
+
+        if ($ok) {
+            $this->logResearchActivity('delete', 'milestone', $milestoneId, null, ['method' => 'ResearchMilestoneController@destroy'], $projectId);
+        }
 
         return redirect()->route('research.milestones.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Milestone removed.' : 'Could not remove the milestone.');

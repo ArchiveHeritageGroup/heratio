@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -53,6 +54,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ResearchSavedSearchesController extends Controller
 {
+    use LogsResearchActivity;
     use ResearchControllerHelpers;
 
     protected ResearchService $service;
@@ -75,8 +77,10 @@ class ResearchSavedSearchesController extends Controller
                     'name' => $request->input('name'),
                     'search_query' => $request->input('search_query'),
                 ]);
+                $this->logResearchActivity('create', 'saved_search', null, $request->input('name'), ['method' => 'ResearchSavedSearchesController@savedSearches']);
             } elseif ($action === 'delete') {
                 $this->service->deleteSavedSearch((int) $request->input('id'), $researcher->id);
+                $this->logResearchActivity('delete', 'saved_search', (int) $request->input('id'), null, ['method' => 'ResearchSavedSearchesController@savedSearches']);
             }
             return redirect()->route('research.savedSearches');
         }
@@ -118,6 +122,8 @@ class ResearchSavedSearchesController extends Controller
             'name' => $request->input('name'),
             'search_query' => $searchQuery,
         ]);
+
+        $this->logResearchActivity('create', 'saved_search', null, $request->input('name'), ['method' => 'ResearchSavedSearchesController@storeSavedSearch']);
 
         if ($isAjax) {
             return response()->json(['success' => true]);
@@ -251,6 +257,8 @@ class ResearchSavedSearchesController extends Controller
         if (!$researcher) return redirect()->route('researcher.register');
 
         $this->service->deleteSavedSearch($id, $researcher->id);
+
+        $this->logResearchActivity('delete', 'saved_search', $id, null, ['method' => 'ResearchSavedSearchesController@destroySavedSearch']);
 
         return redirect()->route('research.savedSearches')->with('success', 'Saved search deleted');
     }

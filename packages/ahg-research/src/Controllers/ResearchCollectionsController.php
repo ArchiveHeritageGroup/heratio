@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -53,6 +54,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ResearchCollectionsController extends Controller
 {
+    use LogsResearchActivity;
     use ResearchControllerHelpers;
 
     protected ResearchService $service;
@@ -247,6 +249,8 @@ class ResearchCollectionsController extends Controller
             $this->service->addToCollection($collectionId, $objectId);
         }
 
+        $this->logResearchActivity('create', 'collection', (int) $collectionId, $name, ['method' => 'ResearchCollectionsController@createCollectionAjax']);
+
         return response()->json([
             'success' => true,
             'message' => 'Collection created',
@@ -284,6 +288,8 @@ class ResearchCollectionsController extends Controller
             'description' => $request->input('description'),
         ]);
 
+        $this->logResearchActivity('create', 'collection', (int) $id, $request->input('name'), ['method' => 'ResearchCollectionsController@storeCollection']);
+
         return redirect()->route('research.viewCollection', $id)
             ->with('success', 'Collection created');
     }
@@ -306,6 +312,7 @@ class ResearchCollectionsController extends Controller
                 'description' => trim($request->input('description')),
                 'is_public' => $request->input('is_public') ? 1 : 0,
             ]);
+            $this->logResearchActivity('update', 'collection', (int) $id, $name, ['method' => 'ResearchCollectionsController@updateCollection']);
             return redirect()->route('research.viewCollection', $id)->with('success', 'Collection updated');
         }
 
@@ -325,6 +332,8 @@ class ResearchCollectionsController extends Controller
 
         DB::table('research_collection_item')->where('collection_id', $id)->delete();
         DB::table('research_collection')->where('id', $id)->delete();
+
+        $this->logResearchActivity('delete', 'collection', (int) $id, $collection->name ?? null, ['method' => 'ResearchCollectionsController@destroyCollection']);
 
         return redirect()->route('research.collections')->with('success', 'Collection deleted');
     }

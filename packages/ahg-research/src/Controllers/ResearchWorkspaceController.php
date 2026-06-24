@@ -3,6 +3,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class ResearchWorkspaceController extends Controller
 {
+    use LogsResearchActivity;
     use ResearchControllerHelpers;
 
     protected ResearchService $service;
@@ -69,6 +71,7 @@ class ResearchWorkspaceController extends Controller
                         'description' => trim($request->input('collection_description')),
                         'is_public' => $request->input('is_public') ? 1 : 0,
                     ]);
+                    $this->logResearchActivity('create', 'workspace', null, $name, ['method' => 'ResearchWorkspaceController@workspace', 'item' => 'collection']);
                     return redirect()->route('research.workspace')->with('success', 'Collection created successfully.');
                 }
             }
@@ -142,6 +145,8 @@ class ResearchWorkspaceController extends Controller
         if (!$researcher) return response()->json(['error' => 'no_researcher'], 404);
 
         $this->service->updateResearcher($researcher->id, ['experience_level' => $level]);
+
+        $this->logResearchActivity('update', 'workspace', (int) $researcher->id, null, ['method' => 'ResearchWorkspaceController@saveExperienceLevel', 'experience_level' => $level]);
 
         return response()->json(['ok' => true, 'level' => $level]);
     }

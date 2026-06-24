@@ -15,6 +15,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchTrainingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,8 @@ use Illuminate\Support\Facades\Schema;
 
 class ResearchTrainingController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(private ResearchTrainingService $service)
     {
     }
@@ -44,6 +47,8 @@ class ResearchTrainingController extends Controller
         $d = $this->validateCourse($request);
         $d['researcher_id'] = $this->researcherId();
         $id = $this->service->createCourse($d);
+
+        $this->logResearchActivity('create', 'training', (int) $id, $request->input('title'), ['method' => 'ResearchTrainingController@store']);
 
         return redirect()->route('research.training.show', $id)->with('success', __('Course created.'));
     }
@@ -80,6 +85,8 @@ class ResearchTrainingController extends Controller
         $this->assertOwner($course);
         $this->service->updateCourse($id, $this->validateCourse($request));
 
+        $this->logResearchActivity('update', 'training', $id, $request->input('title'), ['method' => 'ResearchTrainingController@update']);
+
         return redirect()->route('research.training.show', $id)->with('success', __('Course updated.'));
     }
 
@@ -90,6 +97,8 @@ class ResearchTrainingController extends Controller
         $this->assertOwner($course);
         $this->service->deleteCourse($id);
 
+        $this->logResearchActivity('delete', 'training', $id, null, ['method' => 'ResearchTrainingController@destroy']);
+
         return redirect()->route('research.training.index')->with('success', __('Course deleted.'));
     }
 
@@ -99,6 +108,8 @@ class ResearchTrainingController extends Controller
         abort_if(! $course, 404);
         $this->assertOwner($course);
         $this->service->setCourseStatus($id, (string) $request->input('status', 'draft'));
+
+        $this->logResearchActivity('update', 'training', $id, null, ['method' => 'ResearchTrainingController@setStatus', 'status' => (string) $request->input('status', 'draft')]);
 
         return back()->with('success', __('Status updated.'));
     }
@@ -111,6 +122,8 @@ class ResearchTrainingController extends Controller
         abort_if(! $course, 404);
         $this->assertOwner($course);
         $this->service->createModule($courseId, $this->validateModule($request));
+
+        $this->logResearchActivity('create', 'training', $courseId, $request->input('title'), ['method' => 'ResearchTrainingController@storeModule', 'item' => 'module']);
 
         return back()->with('success', __('Module added.'));
     }
@@ -135,6 +148,8 @@ class ResearchTrainingController extends Controller
         $this->assertOwner($this->service->getCourse((int) $module['course_id']));
         $this->service->updateModule($id, $this->validateModule($request));
 
+        $this->logResearchActivity('update', 'training', (int) $module['course_id'], $request->input('title'), ['method' => 'ResearchTrainingController@updateModule', 'item' => 'module', 'module_id' => $id]);
+
         return redirect()->route('research.training.show', (int) $module['course_id'])->with('success', __('Module saved.'));
     }
 
@@ -144,6 +159,8 @@ class ResearchTrainingController extends Controller
         abort_if(! $module, 404);
         $this->assertOwner($this->service->getCourse((int) $module['course_id']));
         $this->service->deleteModule($id);
+
+        $this->logResearchActivity('delete', 'training', (int) $module['course_id'], null, ['method' => 'ResearchTrainingController@destroyModule', 'item' => 'module', 'module_id' => $id]);
 
         return back()->with('success', __('Module removed.'));
     }
@@ -188,6 +205,8 @@ class ResearchTrainingController extends Controller
             'questions' => $questions,
         ]);
 
+        $this->logResearchActivity('update', 'training', $courseId, $request->input('title'), ['method' => 'ResearchTrainingController@saveAssessment', 'item' => 'assessment', 'questions' => count($questions)]);
+
         return redirect()->route('research.training.show', $courseId)->with('success', __('Assessment saved (:n questions).', ['n' => count($questions)]));
     }
 
@@ -204,6 +223,8 @@ class ResearchTrainingController extends Controller
             'user_id'       => 'nullable|integer',
         ]));
 
+        $this->logResearchActivity('create', 'training', $courseId, $request->input('learner_name'), ['method' => 'ResearchTrainingController@enrol', 'item' => 'enrolment']);
+
         return back()->with('success', __('Learner enrolled.'));
     }
 
@@ -214,6 +235,8 @@ class ResearchTrainingController extends Controller
         $courseId = (int) $enrol['course_id'];
         $this->assertOwner($this->service->getCourse($courseId));
         $this->service->deleteEnrolment($id);
+
+        $this->logResearchActivity('delete', 'training', $courseId, null, ['method' => 'ResearchTrainingController@destroyEnrolment', 'item' => 'enrolment', 'enrolment_id' => $id]);
 
         return redirect()->route('research.training.show', $courseId)->with('success', __('Enrolment removed.'));
     }
@@ -242,6 +265,8 @@ class ResearchTrainingController extends Controller
         abort_if(! $this->service->getEnrolment($enrolmentId), 404);
         $this->service->markModule($enrolmentId, $moduleId, (bool) $request->input('completed', 1));
 
+        $this->logResearchActivity('update', 'training', $enrolmentId, null, ['method' => 'ResearchTrainingController@completeModule', 'item' => 'module_progress', 'module_id' => $moduleId]);
+
         return back()->with('success', __('Progress saved.'));
     }
 
@@ -264,6 +289,8 @@ class ResearchTrainingController extends Controller
         abort_if(! $this->service->getEnrolment($enrolmentId), 404);
         $answers = array_map('intval', (array) $request->input('answer', []));
         $result = $this->service->submitAssessment($enrolmentId, $answers);
+
+        $this->logResearchActivity('update', 'training', $enrolmentId, null, ['method' => 'ResearchTrainingController@submitAssessment', 'item' => 'assessment_submission', 'score' => $result['score'] ?? null, 'passed' => $result['passed'] ?? null]);
 
         $msg = __('You scored :s%.', ['s' => $result['score']]);
         if ($result['passed'] && ! empty($result['certificate_no'])) {

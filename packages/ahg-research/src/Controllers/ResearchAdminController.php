@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -51,6 +52,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ResearchAdminController extends Controller
 {
+    use LogsResearchActivity;
     use ResearchControllerHelpers;
 
     protected ResearchService $service;
@@ -99,11 +101,25 @@ class ResearchAdminController extends Controller
             if ($action === 'approve') {
                 $this->service->approveResearcher($id, Auth::id());
                 $provisioner->updateUser($researcher->user_id, ['active' => 1]);
+                $this->logResearchActivity(
+                    'approve',
+                    'research_admin',
+                    $id,
+                    trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null,
+                    ['method' => 'ResearchAdminController@viewResearcher', 'action' => 'approve']
+                );
                 return redirect()->route('research.viewResearcher', $id)->with('success', 'Approved');
             } elseif ($action === 'suspend') {
                 DB::table('research_researcher')->where('id', $id)->update(['status' => 'suspended']);
                 // Also deactivate the linked account, consistent with suspendResearcher().
                 $provisioner->deactivateUser($researcher->user_id);
+                $this->logResearchActivity(
+                    'update',
+                    'research_admin',
+                    $id,
+                    trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null,
+                    ['method' => 'ResearchAdminController@viewResearcher', 'action' => 'suspend']
+                );
                 return redirect()->route('research.viewResearcher', $id)->with('success', 'Suspended');
             }
         }
@@ -149,6 +165,14 @@ class ResearchAdminController extends Controller
         $this->service->approveResearcher($id, Auth::id());
         app(\AhgResearch\Contracts\UserProvisionerInterface::class)->updateUser($researcher->user_id, ['active' => 1]);
 
+        $this->logResearchActivity(
+            'approve',
+            'research_admin',
+            $id,
+            trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null,
+            ['method' => 'ResearchAdminController@approveResearcher']
+        );
+
         return redirect()->route('research.viewResearcher', $id)
             ->with('success', 'Researcher approved and account activated');
     }
@@ -175,6 +199,14 @@ class ResearchAdminController extends Controller
             'id_verified_at' => $verified ? now() : null,
             'updated_at'     => now(),
         ]);
+
+        $this->logResearchActivity(
+            'update',
+            'research_admin',
+            $id,
+            trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null,
+            ['method' => 'ResearchAdminController@verifyResearcher', 'verified' => $verified]
+        );
 
         return redirect()->back()->with('success', $verified
             ? 'Researcher marked as verified'
@@ -217,6 +249,14 @@ class ResearchAdminController extends Controller
         DB::table('research_researcher')->where('id', $id)->delete();
         app(\AhgResearch\Contracts\UserProvisionerInterface::class)->deactivateUser($researcher->user_id);
 
+        $this->logResearchActivity(
+            'reject',
+            'research_admin',
+            $id,
+            trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null,
+            ['method' => 'ResearchAdminController@rejectResearcher']
+        );
+
         return redirect()->route('research.researchers')
             ->with('success', 'Researcher registration rejected and archived');
     }
@@ -233,6 +273,14 @@ class ResearchAdminController extends Controller
         app(\AhgResearch\Contracts\UserProvisionerInterface::class)
             ->setPassword($researcher->user_id, $newPassword);
 
+        $this->logResearchActivity(
+            'update',
+            'research_admin',
+            $id,
+            trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null,
+            ['method' => 'ResearchAdminController@resetPassword']
+        );
+
         return redirect()->route('research.viewResearcher', $id)
             ->with('success', 'Password reset. New password: <strong>' . e($newPassword) . '</strong> - share this with the researcher securely.');
     }
@@ -248,6 +296,14 @@ class ResearchAdminController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         app(\AhgResearch\Contracts\UserProvisionerInterface::class)->deactivateUser($researcher->user_id);
+
+        $this->logResearchActivity(
+            'update',
+            'research_admin',
+            $id,
+            trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null,
+            ['method' => 'ResearchAdminController@suspendResearcher', 'action' => 'suspend']
+        );
 
         return redirect()->route('research.viewResearcher', $id)
             ->with('success', 'Researcher suspended');

@@ -25,6 +25,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchEthicsService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -49,6 +50,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchEthicsController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private ResearchEthicsService $ethics,
         private ResearchService $research,
@@ -119,6 +122,8 @@ class ResearchEthicsController extends Controller
                 ->with('error', 'Could not create the ethics record. Please try again.');
         }
 
+        $this->logResearchActivity('create', 'ethics', (int) $id, $data['title'] ?? null, ['method' => 'ResearchEthicsController@store'], $projectId);
+
         return redirect()->route('research.ethics.show', [$projectId, $id])
             ->with('success', 'Ethics record saved.');
     }
@@ -172,6 +177,8 @@ class ResearchEthicsController extends Controller
                 ->with('error', 'Could not save the ethics record.');
         }
 
+        $this->logResearchActivity('update', 'ethics', (int) $ethicsId, $data['title'] ?? null, ['method' => 'ResearchEthicsController@update'], $projectId);
+
         return redirect()->route('research.ethics.show', [$projectId, $ethicsId])
             ->with('success', 'Ethics record saved.');
     }
@@ -212,6 +219,10 @@ class ResearchEthicsController extends Controller
         $this->projectContext($projectId);
 
         $ok = $this->ethics->deleteRecord($ethicsId, $projectId);
+
+        if ($ok) {
+            $this->logResearchActivity('delete', 'ethics', (int) $ethicsId, null, ['method' => 'ResearchEthicsController@destroy'], $projectId);
+        }
 
         return redirect()->route('research.ethics.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Ethics record deleted.' : 'Could not delete the record.');

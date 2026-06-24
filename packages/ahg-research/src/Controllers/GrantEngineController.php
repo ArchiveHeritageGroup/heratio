@@ -25,6 +25,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\GrantEngineService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -47,6 +48,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class GrantEngineController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private GrantEngineService $grant,
         private ResearchService $research,
@@ -126,6 +129,8 @@ class GrantEngineController extends Controller
                 ->with('error', 'Could not start the grant draft. Please try again.');
         }
 
+        $this->logResearchActivity('create', 'grant', (int) $id, $data['title'] ?? null, ['method' => 'GrantEngineController@store'], $projectId);
+
         return redirect()->route('research.grant.edit', [$projectId, $id])
             ->with('success', 'Grant draft started. Sections were pre-filled from your project material - edit each one below.');
     }
@@ -181,6 +186,8 @@ class GrantEngineController extends Controller
             return redirect()->route('research.grant.index', $projectId)
                 ->with('error', 'Could not save the grant draft.');
         }
+
+        $this->logResearchActivity('update', 'grant', $draftId, $data['title'] ?? null, ['method' => 'GrantEngineController@update'], $projectId);
 
         return redirect()->route('research.grant.edit', [$projectId, $draftId])
             ->with('success', 'Grant draft saved.');
@@ -302,6 +309,10 @@ class GrantEngineController extends Controller
             $data
         );
 
+        if ($id) {
+            $this->logResearchActivity('create', 'grant', (int) $id, $data['title'] ?? null, ['method' => 'GrantEngineController@storeCall'], $projectId);
+        }
+
         return redirect()->route('research.grant.calls', $projectId)
             ->with($id ? 'success' : 'error', $id ? 'Grant call tracked.' : 'Could not track the call.');
     }
@@ -321,6 +332,10 @@ class GrantEngineController extends Controller
 
         $ok = $this->grant->updateCall($callId, $researcher ? (int) $researcher->id : null, $data);
 
+        if ($ok) {
+            $this->logResearchActivity('update', 'grant', $callId, null, ['method' => 'GrantEngineController@updateCall'], $projectId);
+        }
+
         return redirect()->route('research.grant.calls', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Call updated.' : 'Could not update the call.');
     }
@@ -334,6 +349,10 @@ class GrantEngineController extends Controller
         [$project, $researcher] = $this->projectContext($projectId);
 
         $ok = $this->grant->deleteCall($callId, $researcher ? (int) $researcher->id : null);
+
+        if ($ok) {
+            $this->logResearchActivity('delete', 'grant', $callId, null, ['method' => 'GrantEngineController@destroyCall'], $projectId);
+        }
 
         return redirect()->route('research.grant.calls', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Call removed.' : 'Could not remove the call.');

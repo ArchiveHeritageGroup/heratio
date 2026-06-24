@@ -26,6 +26,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ClaimLedgerService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -44,6 +45,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ClaimLedgerController extends Controller
 {
+    use LogsResearchActivity;
+
     protected ClaimLedgerService $ledger;
     protected ResearchService $research;
 
@@ -175,6 +178,7 @@ class ClaimLedgerController extends Controller
             return redirect()->route('research.claims.index', $projectId)
                 ->with('error', 'Could not create the claim.');
         }
+        $this->logResearchActivity('create', 'claim_ledger', (int) $id, $validated['text'] ?? null, ['method' => 'ClaimLedgerController@store'], $projectId);
         return redirect()->route('research.claims.show', [$projectId, $id])
             ->with('success', 'Claim added to the ledger.');
     }
@@ -204,6 +208,9 @@ class ClaimLedgerController extends Controller
         ]);
 
         $ok = $this->ledger->updateClaim($projectId, $claimId, $validated);
+        if ($ok) {
+            $this->logResearchActivity('update', 'claim_ledger', $claimId, $validated['text'] ?? null, ['method' => 'ClaimLedgerController@update'], $projectId);
+        }
         return redirect()->route('research.claims.show', [$projectId, $claimId])
             ->with($ok ? 'success' : 'error', $ok ? 'Claim updated.' : 'Could not update the claim.');
     }
@@ -219,6 +226,9 @@ class ClaimLedgerController extends Controller
         $request->validate(['status' => 'required|string|max:46']);
         $ok = $this->ledger->setStatus($projectId, $claimId, (string) $request->input('status'));
 
+        if ($ok) {
+            $this->logResearchActivity('update', 'claim_ledger', $claimId, null, ['method' => 'ClaimLedgerController@setStatus', 'status' => (string) $request->input('status')], $projectId);
+        }
         return redirect()->back()
             ->with($ok ? 'success' : 'error', $ok ? 'Status updated.' : 'Could not update status.');
     }
@@ -248,6 +258,9 @@ class ClaimLedgerController extends Controller
             $validated['note'] ?? null
         );
 
+        if ($ok) {
+            $this->logResearchActivity('update', 'claim_ledger', $claimId, null, ['method' => 'ClaimLedgerController@attachEvidence'], $projectId);
+        }
         return redirect()->route('research.claims.show', [$projectId, $claimId])
             ->with($ok ? 'success' : 'error', $ok ? 'Evidence attached.' : 'Could not attach evidence.');
     }
@@ -261,6 +274,9 @@ class ClaimLedgerController extends Controller
         $this->context($projectId);
 
         $ok = $this->ledger->detachEvidence($projectId, $claimId, $evidenceId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'claim_ledger', $claimId, null, ['method' => 'ClaimLedgerController@detachEvidence'], $projectId);
+        }
         return redirect()->route('research.claims.show', [$projectId, $claimId])
             ->with($ok ? 'success' : 'error', $ok ? 'Evidence detached.' : 'Could not detach evidence.');
     }
@@ -274,6 +290,9 @@ class ClaimLedgerController extends Controller
         $this->context($projectId);
 
         $ok = $this->ledger->deleteClaim($projectId, $claimId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'claim_ledger', $claimId, null, ['method' => 'ClaimLedgerController@destroy'], $projectId);
+        }
         return redirect()->route('research.claims.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Claim deleted.' : 'Could not delete the claim.');
     }

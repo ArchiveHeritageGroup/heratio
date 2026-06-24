@@ -26,6 +26,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchService;
 use AhgResearch\Services\WritingStudioService;
 use Illuminate\Http\Request;
@@ -43,6 +44,8 @@ use Illuminate\Support\Facades\DB;
  */
 class WritingStudioController extends Controller
 {
+    use LogsResearchActivity;
+
     protected WritingStudioService $studio;
     protected ResearchService $research;
 
@@ -127,6 +130,7 @@ class WritingStudioController extends Controller
             return redirect()->route('research.writing.index', $projectId)
                 ->with('error', 'Could not create the document.');
         }
+        $this->logResearchActivity('create', 'writing', (int) $id, $validated['title'] ?? null, ['method' => 'WritingStudioController@store', 'item' => 'document'], $projectId);
         return redirect()->route('research.writing.edit', [$projectId, $id])
             ->with('success', 'Document created. Start writing.');
     }
@@ -177,6 +181,9 @@ class WritingStudioController extends Controller
         ]);
 
         $ok = $this->studio->updateDoc($projectId, $docId, $validated);
+        if ($ok) {
+            $this->logResearchActivity('update', 'writing', $docId, $validated['title'] ?? null, ['method' => 'WritingStudioController@update', 'item' => 'document'], $projectId);
+        }
         return redirect()->route('research.writing.edit', [$projectId, $docId])
             ->with($ok ? 'success' : 'error', $ok ? 'Document updated.' : 'Could not update the document.');
     }
@@ -190,6 +197,9 @@ class WritingStudioController extends Controller
         $this->context($projectId);
 
         $ok = $this->studio->deleteDoc($projectId, $docId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'writing', $docId, null, ['method' => 'WritingStudioController@destroy', 'item' => 'document'], $projectId);
+        }
         return redirect()->route('research.writing.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Document deleted.' : 'Could not delete the document.');
     }
@@ -215,6 +225,9 @@ class WritingStudioController extends Controller
         ]);
 
         $id = $this->studio->addSection($docId, $validated);
+        if ($id) {
+            $this->logResearchActivity('create', 'writing', (int) $id, $validated['heading'] ?? null, ['method' => 'WritingStudioController@addSection', 'item' => 'section', 'doc_id' => $docId], $projectId);
+        }
         return redirect()->route('research.writing.edit', [$projectId, $docId])
             ->with($id ? 'success' : 'error', $id ? 'Section added.' : 'Could not add the section.');
     }
@@ -236,6 +249,9 @@ class WritingStudioController extends Controller
         ]);
 
         $ok = $this->studio->saveSection($docId, $sectionId, $validated);
+        if ($ok) {
+            $this->logResearchActivity('update', 'writing', $sectionId, $validated['heading'] ?? null, ['method' => 'WritingStudioController@saveSection', 'item' => 'section', 'doc_id' => $docId], $projectId);
+        }
         return redirect()->route('research.writing.edit', [$projectId, $docId])
             ->with($ok ? 'success' : 'error', $ok ? 'Section saved.' : 'Could not save the section.');
     }
@@ -249,6 +265,9 @@ class WritingStudioController extends Controller
         $this->context($projectId);
 
         $ok = $this->studio->deleteSection($docId, $sectionId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'writing', $sectionId, null, ['method' => 'WritingStudioController@deleteSection', 'item' => 'section', 'doc_id' => $docId], $projectId);
+        }
         return redirect()->route('research.writing.edit', [$projectId, $docId])
             ->with($ok ? 'success' : 'error', $ok ? 'Section deleted.' : 'Could not delete the section.');
     }
@@ -277,6 +296,9 @@ class WritingStudioController extends Controller
         }
 
         $ok = $this->studio->appendToSection($docId, (int) $validated['section_id'], $reference);
+        if ($ok) {
+            $this->logResearchActivity('update', 'writing', (int) $validated['section_id'], null, ['method' => 'WritingStudioController@citeClaim', 'item' => 'section', 'doc_id' => $docId, 'claim_id' => (int) $validated['claim_id']], $projectId);
+        }
         return redirect()->route('research.writing.edit', [$projectId, $docId])
             ->with($ok ? 'success' : 'error', $ok ? 'Claim cited into the section.' : 'Could not cite the claim.');
     }
@@ -301,6 +323,9 @@ class WritingStudioController extends Controller
         }
 
         $ok = $this->studio->appendToSection($docId, (int) $validated['section_id'], $reference);
+        if ($ok) {
+            $this->logResearchActivity('update', 'writing', (int) $validated['section_id'], null, ['method' => 'WritingStudioController@pullSource', 'item' => 'section', 'doc_id' => $docId, 'source_id' => (int) $validated['source_id']], $projectId);
+        }
         return redirect()->route('research.writing.edit', [$projectId, $docId])
             ->with($ok ? 'success' : 'error', $ok ? 'Source pulled into the section.' : 'Could not pull the source.');
     }
@@ -320,6 +345,9 @@ class WritingStudioController extends Controller
         $request->validate(['note' => 'nullable|string|max:1000']);
 
         $v = $this->studio->saveVersion($projectId, $docId, $request->input('note'), (int) Auth::id());
+        if ($v) {
+            $this->logResearchActivity('create', 'writing', $docId, null, ['method' => 'WritingStudioController@saveVersion', 'item' => 'version', 'version' => $v], $projectId);
+        }
         return redirect()->route('research.writing.versions', [$projectId, $docId])
             ->with($v ? 'success' : 'error', $v ? ('Version ' . $v . ' saved.') : 'Could not save a version.');
     }

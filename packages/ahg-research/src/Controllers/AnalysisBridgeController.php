@@ -26,6 +26,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\AnalysisBridgeService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -43,6 +44,8 @@ use Illuminate\Support\Facades\DB;
  */
 class AnalysisBridgeController extends Controller
 {
+    use LogsResearchActivity;
+
     protected AnalysisBridgeService $bridge;
     protected ResearchService $research;
 
@@ -170,6 +173,7 @@ class AnalysisBridgeController extends Controller
             return redirect()->route('research.analysis.index', $projectId)
                 ->with('error', 'Could not register the result.');
         }
+        $this->logResearchActivity('create', 'analysis_bridge', (int) $id, $validated['title'] ?? null, ['method' => 'AnalysisBridgeController@store'], $projectId);
         return redirect()->route('research.analysis.show', [$projectId, $id])
             ->with('success', 'Result registered with its provenance.');
     }
@@ -197,6 +201,9 @@ class AnalysisBridgeController extends Controller
         $artifact = $request->hasFile('artifact') ? $request->file('artifact') : null;
 
         $ok = $this->bridge->updateResult($projectId, $resultId, $validated, $artifact);
+        if ($ok) {
+            $this->logResearchActivity('update', 'analysis_bridge', $resultId, $validated['title'] ?? null, ['method' => 'AnalysisBridgeController@update'], $projectId);
+        }
         return redirect()->route('research.analysis.show', [$projectId, $resultId])
             ->with($ok ? 'success' : 'error', $ok ? 'Result updated.' : 'Could not update the result.');
     }
@@ -210,6 +217,9 @@ class AnalysisBridgeController extends Controller
         $this->context($projectId);
 
         $ok = $this->bridge->deleteResult($projectId, $resultId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'analysis_bridge', $resultId, null, ['method' => 'AnalysisBridgeController@destroy'], $projectId);
+        }
         return redirect()->route('research.analysis.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Result deleted.' : 'Could not delete the result.');
     }
@@ -255,6 +265,9 @@ class AnalysisBridgeController extends Controller
             (string) $validated['relationship'],
             $validated['note'] ?? null
         );
+        if ($ok) {
+            $this->logResearchActivity('update', 'analysis_bridge', $resultId, null, ['method' => 'AnalysisBridgeController@linkClaim'], $projectId);
+        }
         return redirect()->route('research.analysis.show', [$projectId, $resultId])
             ->with($ok ? 'success' : 'error', $ok ? 'Claim linked.' : 'Could not link the claim.');
     }
@@ -268,6 +281,9 @@ class AnalysisBridgeController extends Controller
         $this->context($projectId);
 
         $ok = $this->bridge->unlinkClaim($projectId, $resultId, $linkId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'analysis_bridge', $resultId, null, ['method' => 'AnalysisBridgeController@unlinkClaim'], $projectId);
+        }
         return redirect()->route('research.analysis.show', [$projectId, $resultId])
             ->with($ok ? 'success' : 'error', $ok ? 'Link removed.' : 'Could not remove the link.');
     }
@@ -293,6 +309,9 @@ class AnalysisBridgeController extends Controller
             (string) $validated['label'],
             $validated['body'] ?? null
         );
+        if ($id) {
+            $this->logResearchActivity('create', 'analysis_bridge', (int) $id, $validated['label'] ?? null, ['method' => 'AnalysisBridgeController@addCode'], $projectId);
+        }
         return redirect()->route('research.analysis.index', $projectId)
             ->with($id ? 'success' : 'error', $id ? 'Saved.' : 'Could not save.');
     }
@@ -306,6 +325,9 @@ class AnalysisBridgeController extends Controller
         $this->context($projectId);
 
         $ok = $this->bridge->deleteCode($projectId, $codeId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'analysis_bridge', $codeId, null, ['method' => 'AnalysisBridgeController@deleteCode'], $projectId);
+        }
         return redirect()->route('research.analysis.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Removed.' : 'Could not remove.');
     }

@@ -26,6 +26,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ArgumentBuilderService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -46,6 +47,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ArgumentBuilderController extends Controller
 {
+    use LogsResearchActivity;
+
     protected ArgumentBuilderService $builder;
     protected ResearchService $research;
 
@@ -132,6 +135,9 @@ class ArgumentBuilderController extends Controller
                 ->with('error', 'Could not save the argument.');
         }
         $ok = $this->builder->updateArgument($projectId, (int) $argument->id, $validated);
+        if ($ok) {
+            $this->logResearchActivity('update', 'argument', (int) $argument->id, $validated['title'] ?? null, ['method' => 'ArgumentBuilderController@update'], $projectId);
+        }
         return redirect()->route('research.argument.show', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Argument saved.' : 'Could not save the argument.');
     }
@@ -164,6 +170,9 @@ class ArgumentBuilderController extends Controller
             $validated['note'] ?? null
         );
 
+        if ($id) {
+            $this->logResearchActivity('create', 'argument', (int) $argument->id, $validated['slot'] ?? null, ['method' => 'ArgumentBuilderController@addStep'], $projectId);
+        }
         return redirect()->route('research.argument.show', $projectId)
             ->with($id ? 'success' : 'error', $id ? 'Step added.' : 'Could not add the step (check the slot is valid).');
     }
@@ -190,6 +199,9 @@ class ArgumentBuilderController extends Controller
             ? (int) $validated['assertion_id'] : null;
 
         $ok = $this->builder->attachClaim($projectId, (int) $argument->id, $stepId, $assertionId);
+        if ($ok) {
+            $this->logResearchActivity('update', 'argument', $stepId, null, ['method' => 'ArgumentBuilderController@attachClaim'], $projectId);
+        }
         return redirect()->route('research.argument.show', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Claim updated on step.' : 'Could not update the claim.');
     }
@@ -213,6 +225,9 @@ class ArgumentBuilderController extends Controller
         }
 
         $ok = $this->builder->updateStepNote($projectId, (int) $argument->id, $stepId, $validated['note'] ?? null);
+        if ($ok) {
+            $this->logResearchActivity('update', 'argument', $stepId, null, ['method' => 'ArgumentBuilderController@updateStep'], $projectId);
+        }
         return redirect()->route('research.argument.show', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Note saved.' : 'Could not save the note.');
     }
@@ -232,6 +247,9 @@ class ArgumentBuilderController extends Controller
         }
 
         $ok = $this->builder->removeStep($projectId, (int) $argument->id, $stepId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'argument', $stepId, null, ['method' => 'ArgumentBuilderController@removeStep'], $projectId);
+        }
         return redirect()->route('research.argument.show', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Step removed.' : 'Could not remove the step.');
     }
@@ -257,6 +275,9 @@ class ArgumentBuilderController extends Controller
         }
 
         $ok = $this->builder->reorderSteps($projectId, (int) $argument->id, $order);
+        if ($ok) {
+            $this->logResearchActivity('update', 'argument', (int) $argument->id, null, ['method' => 'ArgumentBuilderController@reorder'], $projectId);
+        }
         return redirect()->route('research.argument.show', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Order updated.' : 'Could not reorder the steps.');
     }

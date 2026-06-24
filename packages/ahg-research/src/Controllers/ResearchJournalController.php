@@ -16,6 +16,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchJournalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,8 @@ use Illuminate\Support\Facades\Schema;
 
 class ResearchJournalController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(private ResearchJournalService $service)
     {
     }
@@ -55,6 +58,8 @@ class ResearchJournalController extends Controller
         $data = $this->validateJournal($request);
         $data['researcher_id'] = $this->researcherId();
         $id = $this->service->createJournal($data);
+
+        $this->logResearchActivity('create', 'journal', (int) $id, $data['title'] ?? null, ['method' => 'ResearchJournalController@store']);
 
         return redirect()->route('research.journal-builder.show', $id)
             ->with('success', __('Journal created.'));
@@ -92,6 +97,8 @@ class ResearchJournalController extends Controller
         $this->assertOwner($journal);
         $this->service->updateJournal($id, $this->validateJournal($request));
 
+        $this->logResearchActivity('update', 'journal', (int) $id, $journal['title'] ?? null, ['method' => 'ResearchJournalController@update']);
+
         return redirect()->route('research.journal-builder.show', $id)
             ->with('success', __('Journal updated.'));
     }
@@ -102,6 +109,8 @@ class ResearchJournalController extends Controller
         abort_if(! $journal, 404);
         $this->assertOwner($journal);
         $this->service->deleteJournal($id);
+
+        $this->logResearchActivity('delete', 'journal', (int) $id, $journal['title'] ?? null, ['method' => 'ResearchJournalController@destroy']);
 
         return redirect()->route('research.journal-builder.index')
             ->with('success', __('Journal deleted.'));
@@ -128,6 +137,8 @@ class ResearchJournalController extends Controller
         $this->assertOwner($journal);
         $this->service->createIssue($journalId, $this->validateIssue($request));
 
+        $this->logResearchActivity('create', 'journal', (int) $journalId, $journal['title'] ?? null, ['method' => 'ResearchJournalController@storeIssue', 'entity' => 'issue']);
+
         return back()->with('success', __('Issue added.'));
     }
 
@@ -138,6 +149,8 @@ class ResearchJournalController extends Controller
         $this->assertOwner($this->service->getJournal((int) $issue['journal_id']));
         $this->service->updateIssue($id, $this->validateIssue($request));
 
+        $this->logResearchActivity('update', 'journal', (int) $id, $issue['title'] ?? null, ['method' => 'ResearchJournalController@updateIssue', 'entity' => 'issue', 'journal_id' => (int) $issue['journal_id']]);
+
         return back()->with('success', __('Issue updated.'));
     }
 
@@ -147,6 +160,8 @@ class ResearchJournalController extends Controller
         abort_if(! $issue, 404);
         $this->assertOwner($this->service->getJournal((int) $issue['journal_id']));
         $this->service->deleteIssue($id);
+
+        $this->logResearchActivity('delete', 'journal', (int) $id, $issue['title'] ?? null, ['method' => 'ResearchJournalController@destroyIssue', 'entity' => 'issue', 'journal_id' => (int) $issue['journal_id']]);
 
         return back()->with('success', __('Issue removed; its articles were unassigned.'));
     }
@@ -174,6 +189,8 @@ class ResearchJournalController extends Controller
         abort_if(! $journal, 404);
         $this->assertOwner($journal);
         $id = $this->service->createArticle($journalId, $this->validateArticle($request));
+
+        $this->logResearchActivity('create', 'journal', (int) $id, $request->input('title'), ['method' => 'ResearchJournalController@storeArticle', 'entity' => 'article', 'journal_id' => (int) $journalId]);
 
         return redirect()->route('research.journal-builder.article-edit', $id)
             ->with('success', __('Article saved.'));
@@ -203,6 +220,8 @@ class ResearchJournalController extends Controller
         $this->assertOwner($this->service->getJournal((int) $article['journal_id']));
         $this->service->updateArticle($id, $this->validateArticle($request));
 
+        $this->logResearchActivity('update', 'journal', (int) $id, $article['title'] ?? null, ['method' => 'ResearchJournalController@updateArticle', 'entity' => 'article', 'journal_id' => (int) $article['journal_id']]);
+
         return redirect()->route('research.journal-builder.article-edit', $id)
             ->with('success', __('Article saved.'));
     }
@@ -213,6 +232,8 @@ class ResearchJournalController extends Controller
         abort_if(! $article, 404);
         $this->assertOwner($this->service->getJournal((int) $article['journal_id']));
         $this->service->deleteArticle($id);
+
+        $this->logResearchActivity('delete', 'journal', (int) $id, $article['title'] ?? null, ['method' => 'ResearchJournalController@destroyArticle', 'entity' => 'article', 'journal_id' => (int) $article['journal_id']]);
 
         return redirect()->route('research.journal-builder.show', (int) $article['journal_id'])
             ->with('success', __('Article deleted.'));

@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Contracts\UserProvisionerInterface;
 use AhgResearch\Services\ResearchService;
@@ -61,6 +62,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ResearchRegistrationController extends Controller
 {
+    use LogsResearchActivity;
     use ResearchControllerHelpers;
 
     protected ResearchService $service;
@@ -117,10 +119,12 @@ class ResearchRegistrationController extends Controller
                     DB::table('research_researcher')
                         ->where('id', $existingResearcher->id)
                         ->update($data);
+                    $this->logResearchActivity('update', 'registration', (int) $existingResearcher->id, trim($request->input('first_name') . ' ' . $request->input('last_name')) ?: null, ['method' => 'ResearchRegistrationController@register']);
                     return redirect()->route('research.registrationComplete')
                         ->with('success', 'Re-registration submitted for review');
                 } else {
                     $this->service->registerResearcher($data);
+                    $this->logResearchActivity('create', 'registration', null, trim($request->input('first_name') . ' ' . $request->input('last_name')) ?: null, ['method' => 'ResearchRegistrationController@register']);
                     return redirect()->route('research.registrationComplete')
                         ->with('success', 'Registration submitted');
                 }
@@ -240,6 +244,8 @@ class ResearchRegistrationController extends Controller
                 ]);
                 DB::commit();
 
+                $this->logResearchActivity('create', 'registration', null, trim($request->input('first_name') . ' ' . $request->input('last_name')) ?: ($email ?: null), ['method' => 'ResearchRegistrationController@publicRegister']);
+
                 return redirect()->route('research.registrationComplete')
                     ->with('success', 'Registration successful! Pending approval.');
             } catch (\Exception $e) {
@@ -303,6 +309,7 @@ class ResearchRegistrationController extends Controller
                     DB::table('research_researcher')
                         ->where('id', $researcher->id)
                         ->update($data);
+                    $this->logResearchActivity('update', 'registration', (int) $researcher->id, trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null, ['method' => 'ResearchRegistrationController@renewal']);
                     return redirect()->route('research.registrationComplete')
                         ->with('success', 'Re-registration submitted for review');
                 } catch (\Exception $e) {
@@ -329,6 +336,7 @@ class ResearchRegistrationController extends Controller
                 'status' => 'pending',
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
+            $this->logResearchActivity('create', 'registration', (int) $researcher->id, trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null, ['method' => 'ResearchRegistrationController@renewal', 'request_type' => 'renewal']);
             return redirect()->route('research.profile')
                 ->with('success', 'Renewal request submitted. You will be notified when reviewed.');
         }

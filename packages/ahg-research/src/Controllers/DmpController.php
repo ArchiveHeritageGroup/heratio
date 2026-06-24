@@ -25,6 +25,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\DmpService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -46,6 +47,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class DmpController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private DmpService $dmp,
         private ResearchService $research,
@@ -98,6 +101,8 @@ class DmpController extends Controller
             return redirect()->route('research.dmp.index', $projectId)
                 ->with('error', 'Could not create the data management plan. Please try again.');
         }
+
+        $this->logResearchActivity('create', 'dmp', (int) $id, $data['title'] ?? null, ['method' => 'DmpController@store'], $projectId);
 
         return redirect()->route('research.dmp.edit', [$projectId, $id])
             ->with('success', 'Data management plan created. Fill in each maDMP section below.');
@@ -169,6 +174,8 @@ class DmpController extends Controller
                 ->with('error', 'Could not save the data management plan.');
         }
 
+        $this->logResearchActivity('update', 'dmp', $dmpId, $data['title'] ?? null, ['method' => 'DmpController@update'], $projectId);
+
         return redirect()->route('research.dmp.edit', [$projectId, $dmpId])
             ->with('success', 'Data management plan saved.');
     }
@@ -207,6 +214,10 @@ class DmpController extends Controller
         $this->projectContext($projectId);
 
         $ok = $this->dmp->deletePlan($dmpId, $projectId);
+
+        if ($ok) {
+            $this->logResearchActivity('delete', 'dmp', $dmpId, null, ['method' => 'DmpController@destroy'], $projectId);
+        }
 
         return redirect()->route('research.dmp.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Data management plan deleted.' : 'Could not delete the plan.');

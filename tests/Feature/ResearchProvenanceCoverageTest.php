@@ -30,30 +30,19 @@ class ResearchProvenanceCoverageTest extends TestCase
     private const MUTATION_RE = '/function\s+(store|update|destroy|delete|accept|reject|approve|create|save|merge)\w*\s*\(/i';
 
     /**
-     * Research controllers that mutate state but do NOT yet write
-     * research_activity_log. Backlog for #1326 (28 as of 2026-06-23).
-     * Burn this down — and NEVER add a new controller here.
+     * Research controllers that mutate state but do NOT yet leave a human-action
+     * trail. Backlog for #1326 - now DRAINED (all 28 wired via the
+     * LogsResearchActivity trait, 2026-06-24). Keep empty; NEVER add to it -
+     * a new mutating controller must log from day one.
      */
-    private array $activityLogBacklog = [
-        'AnalysisBridgeController', 'ArgumentBuilderController', 'ClaimLedgerController',
-        'DmpController', 'GrantEngineController', 'MethodStudioController',
-        'PublicationStudioController', 'QuestionBuilderController', 'ResearchAdminController',
-        'ResearchAnnotationsController', 'ResearchCollectionsController', 'ResearchCopilotController',
-        'ResearchEthicsController', 'ResearchFundingController', 'ResearchJournalController',
-        'ResearchJournalEntryController', 'ResearchLectureController', 'ResearchMemoryController',
-        'ResearchMilestoneController', 'ResearchOutputController', 'ResearchRegistrationController',
-        'ResearchSavedSearchesController', 'ResearchTargetJournalController', 'ResearchTeamController',
-        'ResearchTrainingController', 'ResearchWorkspaceController', 'ReviewStudioController',
-        'WritingStudioController',
-    ];
+    private array $activityLogBacklog = [];
 
     /**
      * Services that call external bibliographic enrichment (Crossref / OpenAlex)
-     * but do NOT yet log to ahg_ai_inference. Backlog for #1326 bullet 2.
+     * but do NOT yet log to ahg_ai_inference. Backlog for #1326 bullet 2 -
+     * now DRAINED (both route through InferenceService, 2026-06-24).
      */
-    private array $enrichmentProvenanceBacklog = [
-        'FieldAlertService', 'ImpactTrackingService',
-    ];
+    private array $enrichmentProvenanceBacklog = [];
 
     public function test_no_new_research_controller_mutates_without_activity_log(): void
     {
@@ -61,7 +50,13 @@ class ResearchProvenanceCoverageTest extends TestCase
         $offenders = [];
         foreach (glob($dir.'/*.php') as $file) {
             $src = file_get_contents($file);
-            if (preg_match(self::MUTATION_RE, $src) && ! str_contains($src, 'research_activity_log')) {
+            // A controller leaves a human-action trail if it writes the table
+            // directly OR uses the LogsResearchActivity trait (the canonical,
+            // DRY mechanism added for #1326).
+            $logs = str_contains($src, 'research_activity_log')
+                || str_contains($src, 'logResearchActivity')
+                || str_contains($src, 'LogsResearchActivity');
+            if (preg_match(self::MUTATION_RE, $src) && ! $logs) {
                 $offenders[] = basename($file, '.php');
             }
         }

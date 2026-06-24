@@ -531,6 +531,7 @@ class FieldAlertService
             }
 
             $msg = $resp->json('message');
+            $this->recordEnrichmentInference('crossref', $doi, self::CROSSREF_BASE . '/works/' . rawurlencode($doi), is_array($msg) ? $msg : []);
             return is_array($msg) ? $msg : [];
         } catch (\Throwable $e) {
             Log::debug('FieldAlerts Crossref fetch failed', ['doi' => $doi, 'error' => $e->getMessage()]);
@@ -552,10 +553,42 @@ class FieldAlertService
             }
 
             $json = $resp->json();
+            $this->recordEnrichmentInference('openalex', $doi, self::OPENALEX_BASE . '/works/doi:' . rawurlencode($doi), is_array($json) ? $json : []);
             return is_array($json) ? $json : [];
         } catch (\Throwable $e) {
             Log::debug('FieldAlerts OpenAlex fetch failed', ['doi' => $doi, 'error' => $e->getMessage()]);
             return [];
+        }
+    }
+
+    /**
+     * Record a bibliographic-enrichment call (Crossref/OpenAlex) to the
+     * provenance log (ahg_ai_inference via InferenceService), #1326. These are
+     * public, deterministic APIs - NOT routed through the AHG AI gateway - but
+     * every external enrichment must still leave an auditable inference row.
+     * Best-effort: never breaks the enrichment that triggered it.
+     *
+     * @param array<string,mixed> $payload
+     */
+    private function recordEnrichmentInference(string $source, string $doi, string $endpoint, array $payload): void
+    {
+        try {
+            app(\AhgProvenanceAi\Services\InferenceService::class)->record(
+                new \AhgProvenanceAi\DTO\InferenceRecord(
+                    serviceName: 'ENRICHMENT',
+                    modelName: $source,
+                    modelVersion: 'public-api',
+                    inputHash: hash('sha256', $doi),
+                    outputHash: hash('sha256', json_encode($payload) ?: ''),
+                    targetEntityType: 'doi',
+                    targetEntityId: 0,
+                    targetField: 'bibliographic_enrichment',
+                    endpoint: $endpoint,
+                    inputExcerpt: mb_substr($doi, 0, 500),
+                )
+            );
+        } catch (\Throwable $e) {
+            // Provenance logging is best-effort; never break enrichment.
         }
     }
 

@@ -25,6 +25,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchFundingService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -50,6 +51,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchFundingController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private ResearchFundingService $funding,
         private ResearchService $research,
@@ -118,6 +121,8 @@ class ResearchFundingController extends Controller
                 ->with('error', 'Could not create the funding record. Please try again.');
         }
 
+        $this->logResearchActivity('create', 'funding', (int) $id, $data['title'] ?? null, ['method' => 'ResearchFundingController@store'], $projectId);
+
         return redirect()->route('research.funding.show', [$projectId, $id])
             ->with('success', 'Funding record saved.');
     }
@@ -170,6 +175,8 @@ class ResearchFundingController extends Controller
                 ->with('error', 'Could not save the funding record.');
         }
 
+        $this->logResearchActivity('update', 'funding', (int) $fundingId, $data['title'] ?? null, ['method' => 'ResearchFundingController@update'], $projectId);
+
         return redirect()->route('research.funding.show', [$projectId, $fundingId])
             ->with('success', 'Funding record saved.');
     }
@@ -209,6 +216,10 @@ class ResearchFundingController extends Controller
         $this->projectContext($projectId);
 
         $ok = $this->funding->deleteRecord($fundingId, $projectId);
+
+        if ($ok) {
+            $this->logResearchActivity('delete', 'funding', (int) $fundingId, null, ['method' => 'ResearchFundingController@destroy'], $projectId);
+        }
 
         return redirect()->route('research.funding.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Funding record deleted.' : 'Could not delete the record.');

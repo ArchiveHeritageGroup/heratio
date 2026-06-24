@@ -25,6 +25,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchService;
 use AhgResearch\Services\ResearchTeamService;
 use Illuminate\Http\Request;
@@ -51,6 +52,8 @@ use Illuminate\Validation\ValidationException;
  */
 class ResearchTeamController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private ResearchTeamService $team,
         private ResearchService $research,
@@ -116,6 +119,8 @@ class ResearchTeamController extends Controller
                 ->with('error', 'Could not add the team member. Please try again.');
         }
 
+        $this->logResearchActivity('create', 'team', (int) $id, $data['person_name'] ?? null, ['method' => 'ResearchTeamController@store'], $projectId);
+
         return redirect()->route('research.team.show', [$projectId, $id])
             ->with('success', 'Team member saved.');
     }
@@ -166,6 +171,8 @@ class ResearchTeamController extends Controller
                 ->with('error', 'Could not save the team member.');
         }
 
+        $this->logResearchActivity('update', 'team', $memberId, $data['person_name'] ?? null, ['method' => 'ResearchTeamController@update'], $projectId);
+
         return redirect()->route('research.team.show', [$projectId, $memberId])
             ->with('success', 'Team member saved.');
     }
@@ -203,6 +210,10 @@ class ResearchTeamController extends Controller
         $this->projectContext($projectId);
 
         $ok = $this->team->deleteMember($memberId, $projectId);
+
+        if ($ok) {
+            $this->logResearchActivity('delete', 'team', $memberId, null, ['method' => 'ResearchTeamController@destroy'], $projectId);
+        }
 
         return redirect()->route('research.team.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Team member removed.' : 'Could not remove the member.');

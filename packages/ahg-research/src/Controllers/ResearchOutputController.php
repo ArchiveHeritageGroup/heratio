@@ -25,6 +25,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchOutputService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -47,6 +48,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchOutputController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private ResearchOutputService $outputs,
         private ResearchService $research,
@@ -114,6 +117,8 @@ class ResearchOutputController extends Controller
                 ->with('error', 'Could not create the research output. Please try again.');
         }
 
+        $this->logResearchActivity('create', 'output', (int) $id, $data['title'] ?? null, ['method' => 'ResearchOutputController@store'], $projectId);
+
         return redirect()->route('research.outputs.show', [$projectId, $id])
             ->with('success', 'Research output recorded.');
     }
@@ -166,6 +171,8 @@ class ResearchOutputController extends Controller
                 ->with('error', 'Could not save the research output.');
         }
 
+        $this->logResearchActivity('update', 'output', $outputId, $data['title'] ?? null, ['method' => 'ResearchOutputController@update'], $projectId);
+
         return redirect()->route('research.outputs.show', [$projectId, $outputId])
             ->with('success', 'Research output saved.');
     }
@@ -205,6 +212,10 @@ class ResearchOutputController extends Controller
         $this->projectContext($projectId);
 
         $ok = $this->outputs->deleteOutput($outputId, $projectId);
+
+        if ($ok) {
+            $this->logResearchActivity('delete', 'output', $outputId, null, ['method' => 'ResearchOutputController@destroy'], $projectId);
+        }
 
         return redirect()->route('research.outputs.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Research output deleted.' : 'Could not delete the output.');

@@ -557,6 +557,7 @@ class ImpactTrackingService
             }
 
             $json = $resp->json();
+            $this->recordEnrichmentInference('openalex', $doi, self::OPENALEX_BASE . '/works/doi:' . rawurlencode($doi), is_array($json) ? $json : []);
             return is_array($json) ? $json : [];
         } catch (\Throwable $e) {
             Log::debug('ImpactTracking OpenAlex fetch failed', ['doi' => $doi, 'error' => $e->getMessage()]);
@@ -599,6 +600,7 @@ class ImpactTrackingService
             if (! is_array($results)) {
                 return [];
             }
+            $this->recordEnrichmentInference('openalex', $doi, self::OPENALEX_BASE . '/works?filter=cites', $results);
 
             $out = [];
             foreach ($results as $r) {
@@ -655,6 +657,7 @@ class ImpactTrackingService
             if (! is_array($events)) {
                 return [];
             }
+            $this->recordEnrichmentInference('crossref', $doi, self::CROSSREF_EVENTS_BASE . '/events', $events);
 
             $out = [];
             foreach ($events as $ev) {
@@ -683,6 +686,37 @@ class ImpactTrackingService
         } catch (\Throwable $e) {
             Log::debug('ImpactTracking Crossref Event Data fetch failed', ['doi' => $doi, 'error' => $e->getMessage()]);
             return [];
+        }
+    }
+
+    /**
+     * Record a bibliographic-enrichment call (Crossref/OpenAlex) to the
+     * provenance log (ahg_ai_inference via InferenceService), #1326. These are
+     * public, deterministic APIs - NOT routed through the AHG AI gateway - but
+     * every external enrichment must still leave an auditable inference row.
+     * Best-effort: never breaks the enrichment that triggered it.
+     *
+     * @param array<mixed> $payload
+     */
+    private function recordEnrichmentInference(string $source, string $doi, string $endpoint, array $payload): void
+    {
+        try {
+            app(\AhgProvenanceAi\Services\InferenceService::class)->record(
+                new \AhgProvenanceAi\DTO\InferenceRecord(
+                    serviceName: 'ENRICHMENT',
+                    modelName: $source,
+                    modelVersion: 'public-api',
+                    inputHash: hash('sha256', $doi),
+                    outputHash: hash('sha256', json_encode($payload) ?: ''),
+                    targetEntityType: 'doi',
+                    targetEntityId: 0,
+                    targetField: 'impact_enrichment',
+                    endpoint: $endpoint,
+                    inputExcerpt: mb_substr($doi, 0, 500),
+                )
+            );
+        } catch (\Throwable $e) {
+            // Provenance logging is best-effort; never break enrichment.
         }
     }
 

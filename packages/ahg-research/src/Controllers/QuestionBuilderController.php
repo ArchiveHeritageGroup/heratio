@@ -18,6 +18,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\QuestionBuilderService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -27,6 +28,8 @@ use Illuminate\Support\Facades\DB;
 
 class QuestionBuilderController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private QuestionBuilderService $service,
         private ResearchService $research,
@@ -129,6 +132,15 @@ class QuestionBuilderController extends Controller
         if (! $result['ok']) {
             return back()->withInput()->with('error', $result['error'] ?? 'Could not save the brief.');
         }
+
+        $this->logResearchActivity(
+            'update',
+            'question',
+            null,
+            $validated['primary_question'] ?? null,
+            ['method' => 'QuestionBuilderController@save', 'version_no' => $result['version_no'] ?? null],
+            $projectId
+        );
 
         return redirect()
             ->route('research.question.builder', $projectId)

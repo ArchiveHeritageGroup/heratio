@@ -26,6 +26,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchMemoryService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -51,6 +52,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchMemoryController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private ResearchMemoryService $service,
         private ResearchService $research,
@@ -135,6 +138,8 @@ class ResearchMemoryController extends Controller
                 ->with('error', __('Could not save the memory item. Please try again.'));
         }
 
+        $this->logResearchActivity('create', 'memory', (int) $id, $data['title'] ?? null, ['method' => 'ResearchMemoryController@store'], $projectId);
+
         return redirect()->route('research.memory.index', $projectId)
             ->with('success', __('Memory item saved.'));
     }
@@ -183,6 +188,8 @@ class ResearchMemoryController extends Controller
 
         $this->service->update((int) $researcher->id, $id, $data);
 
+        $this->logResearchActivity('update', 'memory', $id, $data['title'] ?? null, ['method' => 'ResearchMemoryController@update'], $projectId);
+
         return redirect()->route('research.memory.index', $projectId)
             ->with('success', __('Memory item updated.'));
     }
@@ -208,6 +215,8 @@ class ResearchMemoryController extends Controller
 
         $this->service->setStatus((int) $researcher->id, $id, $status);
 
+        $this->logResearchActivity('update', 'memory', $id, $item->title ?? null, ['method' => 'ResearchMemoryController@status', 'status' => $status], $projectId);
+
         return redirect()->route('research.memory.index', $projectId)
             ->with('success', __('Status updated.'));
     }
@@ -221,6 +230,8 @@ class ResearchMemoryController extends Controller
         }
 
         $this->service->delete((int) $researcher->id, $id);
+
+        $this->logResearchActivity('delete', 'memory', $id, null, ['method' => 'ResearchMemoryController@destroy'], $projectId);
 
         return redirect()->route('research.memory.index', $projectId)
             ->with('success', __('Memory item removed.'));
@@ -268,6 +279,8 @@ class ResearchMemoryController extends Controller
             return redirect()->route('research.memory.index', $projectId)
                 ->with('error', __('Could not accept the suggestion. Please try again.'));
         }
+
+        $this->logResearchActivity('accept', 'memory', (int) $id, $suggestion['title'] ?? null, ['method' => 'ResearchMemoryController@accept', 'signature' => $signature], $projectId);
 
         return redirect()->route('research.memory.index', $projectId)
             ->with('success', __('Suggestion accepted into memory.'));

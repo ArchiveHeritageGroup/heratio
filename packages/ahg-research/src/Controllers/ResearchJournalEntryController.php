@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -47,6 +48,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ResearchJournalEntryController extends Controller
 {
+    use LogsResearchActivity;
     use ResearchControllerHelpers;
 
     protected ResearchService $service;
@@ -108,6 +110,7 @@ class ResearchJournalEntryController extends Controller
                     'entry_date' => $request->input('entry_date') ?: date('Y-m-d'),
                     'created_at' => date('Y-m-d H:i:s'),
                 ]);
+                $this->logResearchActivity('create', 'journal_entry', null, $request->input('title'), ['method' => 'ResearchJournalEntryController@journal'], $request->input('project_id') ?: null);
                 return redirect()->route('research.journal')->with('success', 'Journal entry created');
             }
         }
@@ -143,6 +146,7 @@ class ResearchJournalEntryController extends Controller
                     ->where('id', $id)
                     ->where('researcher_id', $researcher->id)
                     ->delete();
+                $this->logResearchActivity('delete', 'journal_entry', $id, $entry->title ?? null, ['method' => 'ResearchJournalEntryController@journalEntry']);
                 return redirect()->route('research.journal')->with('success', 'Entry deleted');
             }
             $content = $this->service->sanitizeHtml($request->input('content', ''));
@@ -158,6 +162,7 @@ class ResearchJournalEntryController extends Controller
                 'entry_date' => $request->input('entry_date') ?: $entry->entry_date,
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
+            $this->logResearchActivity('update', 'journal_entry', $id, $request->input('title', $entry->title ?? null), ['method' => 'ResearchJournalEntryController@journalEntry'], $request->input('project_id') ?: null);
             return redirect()->route('research.journalEntry', $id)->with('success', 'Entry updated');
         }
 

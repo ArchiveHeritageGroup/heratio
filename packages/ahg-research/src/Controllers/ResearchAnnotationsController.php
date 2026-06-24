@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -44,6 +45,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ResearchAnnotationsController extends Controller
 {
+    use LogsResearchActivity;
     use ResearchControllerHelpers;
 
     protected ResearchService $service;
@@ -64,6 +66,13 @@ class ResearchAnnotationsController extends Controller
 
             if ($action === 'delete') {
                 $this->service->deleteAnnotation((int) $request->input('id'), $researcher->id);
+                $this->logResearchActivity(
+                    'delete',
+                    'annotation',
+                    ((int) $request->input('id')) ?: null,
+                    null,
+                    ['method' => 'ResearchAnnotationsController@annotations', 'action' => 'delete']
+                );
                 return redirect()->route('research.annotations')->with('success', 'Note deleted');
             }
 
@@ -92,6 +101,13 @@ class ResearchAnnotationsController extends Controller
                         'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
                         'created_at' => date('Y-m-d H:i:s'),
                     ]);
+                    $this->logResearchActivity(
+                        'create',
+                        'annotation',
+                        null,
+                        trim($request->input('title')) ?: null,
+                        ['method' => 'ResearchAnnotationsController@annotations', 'action' => 'create']
+                    );
                     return redirect()->route('research.annotations')->with('success', 'Note created');
                 }
             }
@@ -123,6 +139,13 @@ class ResearchAnnotationsController extends Controller
                             'content_format' => in_array($contentFormat, ['text', 'html']) ? $contentFormat : 'text',
                             'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
                         ]);
+                    $this->logResearchActivity(
+                        'update',
+                        'annotation',
+                        $id ?: null,
+                        trim($request->input('title')) ?: null,
+                        ['method' => 'ResearchAnnotationsController@annotations', 'action' => 'update']
+                    );
                     return redirect()->route('research.annotations')->with('success', 'Note updated');
                 }
             }
@@ -188,6 +211,13 @@ class ResearchAnnotationsController extends Controller
                 'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
+            $this->logResearchActivity(
+                'create',
+                'annotation',
+                null,
+                trim($request->input('title')) ?: null,
+                ['method' => 'ResearchAnnotationsController@storeAnnotation']
+            );
             return redirect()->route('research.annotations')->with('success', 'Note created');
         }
 
@@ -220,6 +250,13 @@ class ResearchAnnotationsController extends Controller
                     'content_format' => in_array($contentFormat, ['text', 'html']) ? $contentFormat : 'text',
                     'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
                 ]);
+            $this->logResearchActivity(
+                'update',
+                'annotation',
+                $id,
+                trim($request->input('title')) ?: null,
+                ['method' => 'ResearchAnnotationsController@updateAnnotation']
+            );
             return redirect()->route('research.annotations')->with('success', 'Note updated');
         }
 
@@ -233,6 +270,14 @@ class ResearchAnnotationsController extends Controller
         if (!$researcher) return redirect()->route('researcher.register');
 
         $this->service->deleteAnnotation($id, $researcher->id);
+
+        $this->logResearchActivity(
+            'delete',
+            'annotation',
+            $id,
+            null,
+            ['method' => 'ResearchAnnotationsController@destroyAnnotation']
+        );
 
         return redirect()->route('research.annotations')->with('success', 'Note deleted');
     }

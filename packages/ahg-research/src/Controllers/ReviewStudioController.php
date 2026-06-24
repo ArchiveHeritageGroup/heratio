@@ -26,6 +26,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchService;
 use AhgResearch\Services\ReviewStudioService;
 use Illuminate\Http\Request;
@@ -47,6 +48,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ReviewStudioController extends Controller
 {
+    use LogsResearchActivity;
+
     protected ReviewStudioService $studio;
     protected ResearchService $research;
 
@@ -140,6 +143,10 @@ class ReviewStudioController extends Controller
             isset($validated['thread_id']) && $validated['thread_id'] !== null ? (int) $validated['thread_id'] : null,
         );
 
+        if ($id) {
+            $this->logResearchActivity('create', 'review', (int) $id, null, ['method' => 'ReviewStudioController@storeComment', 'item' => 'comment'], $projectId);
+        }
+
         return redirect()->route('research.review.index', $projectId)
             ->with($id ? 'success' : 'error', $id ? 'Comment posted.' : 'Could not post the comment.');
     }
@@ -155,6 +162,10 @@ class ReviewStudioController extends Controller
         $resolved = (bool) $request->input('resolved', 1);
         $ok = $this->studio->setResolved($projectId, $commentId, $resolved);
 
+        if ($ok) {
+            $this->logResearchActivity('update', 'review', $commentId, null, ['method' => 'ReviewStudioController@resolveComment', 'item' => 'comment', 'resolved' => $resolved], $projectId);
+        }
+
         return redirect()->back()
             ->with($ok ? 'success' : 'error', $ok ? ($resolved ? 'Thread resolved.' : 'Thread reopened.') : 'Could not update the thread.');
     }
@@ -168,6 +179,9 @@ class ReviewStudioController extends Controller
         $this->context($projectId);
 
         $ok = $this->studio->deleteComment($projectId, $commentId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'review', $commentId, null, ['method' => 'ReviewStudioController@destroyComment', 'item' => 'comment'], $projectId);
+        }
         return redirect()->route('research.review.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Comment deleted.' : 'Could not delete the comment.');
     }
@@ -188,6 +202,7 @@ class ReviewStudioController extends Controller
 
         $redirect = redirect()->route('research.review.index', $projectId);
         if ($result['ok']) {
+            $this->logResearchActivity('create', 'review', null, null, ['method' => 'ReviewStudioController@runReviewer', 'item' => 'reviewer_run', 'persona' => $validated['persona']], $projectId);
             return $redirect->with('success', $result['message'] ?? 'Reviewer simulation complete.');
         }
         // Graceful degrade: clear message, comment half untouched.
@@ -228,6 +243,9 @@ class ReviewStudioController extends Controller
         $this->context($projectId);
 
         $ok = $this->studio->deleteRun($projectId, $runId);
+        if ($ok) {
+            $this->logResearchActivity('delete', 'review', $runId, null, ['method' => 'ReviewStudioController@destroyRun', 'item' => 'reviewer_run'], $projectId);
+        }
         return redirect()->route('research.review.index', $projectId)
             ->with($ok ? 'success' : 'error', $ok ? 'Reviewer run deleted.' : 'Could not delete the run.');
     }

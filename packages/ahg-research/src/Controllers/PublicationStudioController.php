@@ -22,6 +22,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\PublicationStudioService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -30,6 +31,8 @@ use Illuminate\Support\Facades\DB;
 
 class PublicationStudioController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private PublicationStudioService $service,
     ) {}
@@ -104,6 +107,15 @@ class PublicationStudioController extends Controller
             return back()->withInput()->with('error', $result['error'] ?? 'Could not create the submission.');
         }
 
+        $this->logResearchActivity(
+            'create',
+            'publication',
+            (int) $result['id'],
+            $validated['manuscript_title'] ?? ($validated['venue_name'] ?? null),
+            ['method' => 'PublicationStudioController@storeSubmission'],
+            $projectId
+        );
+
         return redirect()
             ->route('research.publication.submission', [$projectId, $result['id']])
             ->with('success', 'Submission created.');
@@ -160,6 +172,15 @@ class PublicationStudioController extends Controller
 
         $this->service->updateSubmissionMeta($projectId, $submissionId, $validated);
 
+        $this->logResearchActivity(
+            'update',
+            'publication',
+            $submissionId,
+            $validated['manuscript_title'] ?? ($validated['venue_name'] ?? null),
+            ['method' => 'PublicationStudioController@updateSubmission'],
+            $projectId
+        );
+
         return $this->backToSubmission($projectId, $submissionId, 'Submission updated.');
     }
 
@@ -173,6 +194,17 @@ class PublicationStudioController extends Controller
 
         $to = (string) $request->input('to', '');
         $result = $this->service->transition($projectId, $submissionId, $to);
+
+        if ($result['ok']) {
+            $this->logResearchActivity(
+                'update',
+                'publication',
+                $submissionId,
+                null,
+                ['method' => 'PublicationStudioController@transition', 'to' => $to],
+                $projectId
+            );
+        }
 
         return $this->backToSubmission(
             $projectId,
@@ -192,6 +224,15 @@ class PublicationStudioController extends Controller
         }
         $validated = $request->validate(['label' => 'required|string|max:255']);
         $this->service->addRequirement($submissionId, $validated['label']);
+
+        $this->logResearchActivity(
+            'create',
+            'publication',
+            $submissionId,
+            $validated['label'],
+            ['method' => 'PublicationStudioController@addRequirement'],
+            $projectId
+        );
 
         return $this->backToSubmission($projectId, $submissionId, 'Requirement added.');
     }
@@ -213,6 +254,15 @@ class PublicationStudioController extends Controller
             $validated['note'] ?? null
         );
 
+        $this->logResearchActivity(
+            'update',
+            'publication',
+            $submissionId,
+            null,
+            ['method' => 'PublicationStudioController@updateRequirement', 'requirement_id' => $reqId],
+            $projectId
+        );
+
         return $this->backToSubmission($projectId, $submissionId, 'Checklist updated.');
     }
 
@@ -223,6 +273,15 @@ class PublicationStudioController extends Controller
             return $project;
         }
         $this->service->deleteRequirement($submissionId, $reqId);
+
+        $this->logResearchActivity(
+            'delete',
+            'publication',
+            $submissionId,
+            null,
+            ['method' => 'PublicationStudioController@deleteRequirement', 'requirement_id' => $reqId],
+            $projectId
+        );
 
         return $this->backToSubmission($projectId, $submissionId, 'Requirement removed.');
     }
@@ -243,6 +302,17 @@ class PublicationStudioController extends Controller
         ]);
 
         $ok = $this->service->addResponse($submissionId, $validated, Auth::id());
+
+        if ($ok) {
+            $this->logResearchActivity(
+                'create',
+                'publication',
+                $submissionId,
+                $validated['reviewer_label'] ?? null,
+                ['method' => 'PublicationStudioController@addResponse'],
+                $projectId
+            );
+        }
 
         return $this->backToSubmission(
             $projectId,

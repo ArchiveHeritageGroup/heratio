@@ -25,6 +25,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\MethodStudioService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -46,6 +47,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class MethodStudioController extends Controller
 {
+    use LogsResearchActivity;
+
     public function __construct(
         private MethodStudioService $studio,
         private ResearchService $research,
@@ -122,6 +125,15 @@ class MethodStudioController extends Controller
                 ->with('error', 'Could not start the method protocol. Please try again.');
         }
 
+        $this->logResearchActivity(
+            'create',
+            'method',
+            (int) $id,
+            $data['title'] ?? null,
+            ['method' => 'MethodStudioController@store'],
+            $projectId
+        );
+
         return redirect()->route('research.method.edit', [$projectId, $id])
             ->with('success', 'Method protocol started from the template. Fill in each area below.');
     }
@@ -176,6 +188,15 @@ class MethodStudioController extends Controller
             return redirect()->route('research.method.index', $projectId)
                 ->with('error', 'Could not save the method protocol.');
         }
+
+        $this->logResearchActivity(
+            'update',
+            'method',
+            $protocolId,
+            $data['title'] ?? null,
+            ['method' => 'MethodStudioController@update'],
+            $projectId
+        );
 
         return redirect()->route('research.method.edit', [$projectId, $protocolId])
             ->with('success', 'Method protocol saved.');
