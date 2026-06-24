@@ -50,7 +50,11 @@ sudo apt-get install -y \
   php8.3-cli php8.3-fpm php8.3-mysql php8.3-mbstring php8.3-xml \
   php8.3-curl php8.3-intl php8.3-gd php8.3-zip php8.3-bcmath \
   mysql-server nginx-full \
+  imagemagick \
   git curl unzip openssl
+# imagemagick (`convert`) generates image thumbnail/reference derivatives - the
+# scheduled `ahg:regen-derivatives` sweep (see Section 4) needs it; without it
+# digital objects show a type icon instead of a thumbnail.
 # redis-server is OPTIONAL - only if you switch cache/queue to redis; the
 # installer does not require it.
 
@@ -251,25 +255,32 @@ sudo systemctl enable --now heratio-queue-worker@1.service
 ```
 
 Verify with `systemctl status heratio-queue-worker@1` and
-`journalctl -u heratio-queue-worker@1 -f`. Also run the scheduler every minute
-for periodic tasks (e.g. in `/etc/cron.d/heratio-schedule`):
+`journalctl -u heratio-queue-worker@1 -f`.
 
-```cron
-* * * * * www-data cd /usr/share/nginx/heratio && php artisan schedule:run >> /dev/null 2>&1
+### Scheduler (cron) — required
+
+Heratio's periodic work runs through **one cron entrypoint**. Install it as
+`/etc/cron.d/heratio-schedule` so the Laravel scheduler ticks every minute (as
+`www-data`):
+
+```bash
+echo '* * * * * www-data cd /usr/share/nginx/heratio && /usr/bin/php8.3 artisan schedule:run >> /var/log/heratio-schedule.log 2>&1' \
+  | sudo tee /etc/cron.d/heratio-schedule
+sudo touch /var/log/heratio-schedule.log && sudo chown www-data:adm /var/log/heratio-schedule.log
 ```
 
-This single entrypoint drives **all** of Heratio's periodic work - search
-indexing, facet-cache refresh, preservation/fixity, and the **image
-derivative/thumbnail regeneration** sweep (`ahg:regen-derivatives`, weekly) plus
-the 3D model thumbnail jobs. They are registered in code (see
-`CronSchedulerService::getDefaultSchedules()`), not as separate cron files, so
-wiring this one line is enough; list them with `php artisan schedule:list` or
-the in-app Cron monitor. Without this cron line, **no thumbnails get
-backfilled** and `schedule:list` entries never fire.
+**Without this one line, none of Heratio's scheduled tasks fire** — image
+**thumbnail/derivative regeneration** (`ahg:regen-derivatives`, weekly) never
+backfills, search index and facet caches drift, and preservation/fixity,
+3D-model thumbnails, AI batch jobs and DOI sync all stay dormant. Every job is
+registered in code (`CronSchedulerService::getDefaultSchedules()`, ~40 entries),
+**not** as separate cron files, so this single line wires them all. Inspect with
+`php artisan schedule:list` or the in-app **Cron monitor** (admin).
 
-> **Prerequisite for derivatives:** `ahg:regen-derivatives` needs ImageMagick
-> (`apt install imagemagick`); 3D thumbnails need Blender. Missing tools make
-> those jobs no-op with errors in the log, but the rest of the app runs fine.
+> **Prerequisite for derivatives:** `ahg:regen-derivatives` needs **ImageMagick**
+> (installed in Section 3); 3D thumbnails additionally need **Blender** (Section
+> 8). Missing tools make only those jobs no-op (logged); the rest of the app
+> runs fine.
 
 Full reference: `docs/queue-worker-deployment.md` and `docs/reference/cron-setup.md`.
 
