@@ -70,6 +70,20 @@ if ($this->app->runningInConsole()) {
 
 Each registration appears in `php artisan schedule:list` and fires whenever `/etc/cron.d/heratio-schedule` ticks the minute that matches its cron expression.
 
+## Default scheduled tasks (`getDefaultSchedules()`)
+
+Most of Heratio's periodic work is **not** a `/etc/cron.d/` file and **not** a hand-written `Schedule::command()` call. It is a DB-driven catalogue defined in `AhgCore\Services\CronSchedulerService::getDefaultSchedules()` (~40 entries across categories: Search & Indexing, Cache, Digital Objects, Preservation, AI & NLP, DOI, etc.). `CronSchedulerService` registers every entry against Laravel's scheduler, so they all fire through the **same single entrypoint** (`/etc/cron.d/heratio-schedule` -> `schedule:run`). There is nothing per-task to install; wiring the entrypoint is enough.
+
+See them with `php artisan schedule:list` or the in-app **Cron monitor** (admin). Digital-object media tasks worth knowing:
+
+| Slug | Command | Cadence | Notes |
+|---|---|---|---|
+| `regen-derivatives` | `ahg:regen-derivatives --type=all` | Sun 04:00 | Idempotent **only-missing** sweep - backfills thumbnail (142) + reference (141) derivatives for masters that lack them. `--force` re-encodes all. Runs after the 02:00 demo-reset so it never collides with the DB restore. |
+| `3d-derivatives` | `ahg:3d-derivatives` | hourly | Thumbnails for 3D models (GLB/GLTF/OBJ/STL) via Blender. |
+| `3d-multiangle` | `ahg:3d-multiangle` | daily 03:00 | Multi-angle preview renders for 3D models. |
+
+**Dependency:** `ahg:regen-derivatives` shells out to ImageMagick (`convert`); without it every raster derivative fails with "no images defined". Install with `apt install imagemagick` (see `docs/MEDIA-PROCESSING-COMPARISON.md`). Encrypted-at-rest masters carrying Heratio's own `AHG_ENC_DERIV_v1` envelope are transparently decrypted to a temp file before `convert` runs; foreign envelopes (e.g. `AHG-ENC-V2`) cannot be read and fall back to a type icon.
+
 ## Verify a registration is wired
 
 ```bash

@@ -258,7 +258,20 @@ for periodic tasks (e.g. in `/etc/cron.d/heratio-schedule`):
 * * * * * www-data cd /usr/share/nginx/heratio && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Full reference: `docs/queue-worker-deployment.md`.
+This single entrypoint drives **all** of Heratio's periodic work - search
+indexing, facet-cache refresh, preservation/fixity, and the **image
+derivative/thumbnail regeneration** sweep (`ahg:regen-derivatives`, weekly) plus
+the 3D model thumbnail jobs. They are registered in code (see
+`CronSchedulerService::getDefaultSchedules()`), not as separate cron files, so
+wiring this one line is enough; list them with `php artisan schedule:list` or
+the in-app Cron monitor. Without this cron line, **no thumbnails get
+backfilled** and `schedule:list` entries never fire.
+
+> **Prerequisite for derivatives:** `ahg:regen-derivatives` needs ImageMagick
+> (`apt install imagemagick`); 3D thumbnails need Blender. Missing tools make
+> those jobs no-op with errors in the log, but the rest of the app runs fine.
+
+Full reference: `docs/queue-worker-deployment.md` and `docs/reference/cron-setup.md`.
 
 ---
 
