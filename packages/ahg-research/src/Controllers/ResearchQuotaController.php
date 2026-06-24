@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchQuotaService;
 use AhgResearch\Services\ResearchService;
@@ -50,6 +51,7 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchQuotaController extends Controller
 {
+    use LogsResearchActivity;
     use ResearchControllerHelpers;
 
     protected ResearchQuotaService $quota;
@@ -105,7 +107,9 @@ class ResearchQuotaController extends Controller
         $action = $request->input('form_action');
 
         if ($action === 'delete') {
-            DB::table('research_quota_policy')->where('id', (int) $request->input('policy_id'))->delete();
+            $policyId = (int) $request->input('policy_id');
+            DB::table('research_quota_policy')->where('id', $policyId)->delete();
+            $this->logResearchActivity('delete', 'quota_policy', $policyId, null, ['method' => 'ResearchQuotaController@store']);
 
             return redirect()->route('research.adminQuotas')->with('success', 'Quota policy deleted.');
         }
@@ -148,12 +152,14 @@ class ResearchQuotaController extends Controller
 
         if ($existing) {
             DB::table('research_quota_policy')->where('id', $existing->id)->update($data);
+            $this->logResearchActivity('update', 'quota_policy', (int) $existing->id, $scope.':'.$scopeKey, ['method' => 'ResearchQuotaController@store', 'period' => $period]);
 
             return redirect()->route('research.adminQuotas')->with('success', 'Quota policy updated.');
         }
 
         $data['created_at'] = now();
-        DB::table('research_quota_policy')->insert($data);
+        $newId = (int) DB::table('research_quota_policy')->insertGetId($data);
+        $this->logResearchActivity('create', 'quota_policy', $newId, $scope.':'.$scopeKey, ['method' => 'ResearchQuotaController@store', 'period' => $period]);
 
         return redirect()->route('research.adminQuotas')->with('success', 'Quota policy created.');
     }
