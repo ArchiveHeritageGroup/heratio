@@ -60,7 +60,17 @@ class DerivativeService
 
     public function __construct()
     {
-        $this->uploadsBasePath = rtrim(config('heratio.uploads_path'), '/');
+        // Digital-object paths are stored as "/uploads/..." and that tree is
+        // served by nginx from {storage_path}/uploads, so masters and the
+        // derivatives we write must be anchored at storage_path - NOT at
+        // heratio.uploads_path, which on some installs points at a separate
+        // archive root (e.g. /mnt/nas/heratio/archive) where these files do
+        // not exist. On a default install the two are equal, so this is a
+        // no-op there and a fix where they diverge.
+        $this->uploadsBasePath = rtrim(
+            (string) (config('heratio.storage_path') ?: config('heratio.uploads_path')),
+            '/'
+        );
     }
 
     /**
@@ -211,26 +221,61 @@ class DerivativeService
             return $result;
         }
 
-        $baseDir = $this->uploadsBasePath.'/'.ltrim($master->path, '/');
+        // Encrypted-at-rest masters carry the AHG-ENC- envelope and cannot be
+        // read by the ImageMagick CLI. Decrypt to a private temp file and use
+        // that as the generation source; the derivatives themselves stay
+        // plaintext, matching the existing thumbnail/reference convention (and
+        // how they are served from search/the viewer).
+        $sourcePath = $masterPath;
+        $tmpSource = null;
+        $enc = app(\AhgCore\Services\EncryptionService::class);
+        if ($enc->isFileEncrypted($masterPath)) {
+            $plain = $enc->streamFileDecrypted($masterPath);
+            if ($plain === null) {
+                $result['errors'][] = 'Failed to decrypt encrypted master: '.$masterPath;
 
-        // Generate thumbnail
-        $thumbFilename = pathinfo($master->name, PATHINFO_FILENAME).'_142.'.$this->getOutputExtension($master->name);
-        $thumbPath = $baseDir.$thumbFilename;
-        if ($this->generateThumbnail($masterPath, $thumbPath)) {
-            $this->upsertDerivativeRecord($master, self::USAGE_THUMBNAIL, $thumbFilename, $thumbPath);
-            $result['thumbnail'] = true;
-        } else {
-            $result['errors'][] = 'Failed to generate thumbnail';
+                return $result;
+            }
+            $tmpSource = tempnam(sys_get_temp_dir(), 'ahgderiv_');
+            if ($tmpSource === false || @file_put_contents($tmpSource, $plain) === false) {
+                if (is_string($tmpSource)) {
+                    @unlink($tmpSource);
+                }
+                $result['errors'][] = 'Failed to stage decrypted master for derivative generation';
+
+                return $result;
+            }
+            // convert sniffs the input format from content, so no extension is
+            // needed on the temp file.
+            $sourcePath = $tmpSource;
         }
 
-        // Generate reference
-        $refFilename = pathinfo($master->name, PATHINFO_FILENAME).'_141.'.$this->getOutputExtension($master->name);
-        $refPath = $baseDir.$refFilename;
-        if ($this->generateReference($masterPath, $refPath)) {
-            $this->upsertDerivativeRecord($master, self::USAGE_REFERENCE, $refFilename, $refPath);
-            $result['reference'] = true;
-        } else {
-            $result['errors'][] = 'Failed to generate reference image';
+        try {
+            $baseDir = $this->uploadsBasePath.'/'.ltrim($master->path, '/');
+
+            // Generate thumbnail
+            $thumbFilename = pathinfo($master->name, PATHINFO_FILENAME).'_142.'.$this->getOutputExtension($master->name);
+            $thumbPath = $baseDir.$thumbFilename;
+            if ($this->generateThumbnail($sourcePath, $thumbPath)) {
+                $this->upsertDerivativeRecord($master, self::USAGE_THUMBNAIL, $thumbFilename, $thumbPath);
+                $result['thumbnail'] = true;
+            } else {
+                $result['errors'][] = 'Failed to generate thumbnail';
+            }
+
+            // Generate reference
+            $refFilename = pathinfo($master->name, PATHINFO_FILENAME).'_141.'.$this->getOutputExtension($master->name);
+            $refPath = $baseDir.$refFilename;
+            if ($this->generateReference($sourcePath, $refPath)) {
+                $this->upsertDerivativeRecord($master, self::USAGE_REFERENCE, $refFilename, $refPath);
+                $result['reference'] = true;
+            } else {
+                $result['errors'][] = 'Failed to generate reference image';
+            }
+        } finally {
+            if ($tmpSource !== null) {
+                @unlink($tmpSource);
+            }
         }
 
         return $result;

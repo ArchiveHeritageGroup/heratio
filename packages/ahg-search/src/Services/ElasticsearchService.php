@@ -1157,16 +1157,38 @@ class ElasticsearchService
 
             // Real thumbnail per result: prefer the thumbnail derivative (142),
             // fall back to the reference (141); only when it is an image file.
-            $thumbRows = DB::table('digital_object')
+            //
+            // Derivatives are linked to their master by parent_id, and the master
+            // carries object_id (the IO). The derivative row's own object_id is
+            // usually NULL (182 of 371 thumbnails here), so a plain object_id
+            // match misses them and the row shows a placeholder. Resolve the
+            // master chain (object_id 140 -> id) and also honour the legacy case
+            // where a derivative carries object_id directly.
+            $masterRows = DB::table('digital_object')
                 ->whereIn('object_id', $ioIds)
+                ->where('usage_id', 140)
+                ->get(['id', 'object_id']);
+            $masterToIo = [];
+            foreach ($masterRows as $mr) {
+                $masterToIo[$mr->id] = $mr->object_id;
+            }
+
+            $thumbRows = DB::table('digital_object')
                 ->whereIn('usage_id', [142, 141])
                 ->whereNotNull('path')
                 ->where('name', 'REGEXP', '\\.(jpe?g|png|gif|webp|bmp|tiff?)$')
+                ->where(function ($q) use ($masterToIo, $ioIds) {
+                    $q->whereIn('parent_id', array_keys($masterToIo) ?: [0])
+                        ->orWhereIn('object_id', $ioIds);
+                })
                 ->orderByRaw('FIELD(usage_id, 142, 141)')
-                ->get(['object_id', 'path', 'name']);
+                ->get(['object_id', 'parent_id', 'path', 'name']);
             $uploadsRoot = rtrim((string) config('heratio.storage_path', '/mnt/nas/heratio'), '/');
             foreach ($thumbRows as $tr) {
-                if (isset($thumbMap[$tr->object_id])) {
+                // Map the derivative back to its IO: direct object_id when set,
+                // otherwise via the master it hangs off (parent_id).
+                $ioId = $tr->object_id ?: ($masterToIo[$tr->parent_id] ?? null);
+                if (! $ioId || isset($thumbMap[$ioId])) {
                     continue;
                 }
                 $url = rtrim($tr->path, '/').'/'.$tr->name;
@@ -1175,7 +1197,7 @@ class ElasticsearchService
                 // <img> (CSP blocks an inline onerror fallback). /uploads/* maps
                 // to {storage_path}/uploads/* via the nginx alias.
                 if (str_starts_with($url, '/uploads/') && is_file($uploadsRoot.$url)) {
-                    $thumbMap[$tr->object_id] = $url;
+                    $thumbMap[$ioId] = $url;
                 }
             }
         }

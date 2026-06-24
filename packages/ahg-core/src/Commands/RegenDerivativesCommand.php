@@ -26,7 +26,7 @@ class RegenDerivativesCommand extends Command
 
     public function handle(DerivativeService $derivatives): int
     {
-        $masters = $this->collectMasters();
+        $masters = $this->collectMasters($derivatives);
         $this->info("regenerating derivatives for {$masters->count()} masters");
 
         $results = [];
@@ -52,9 +52,9 @@ class RegenDerivativesCommand extends Command
         return $failed === 0 ? self::SUCCESS : self::FAILURE;
     }
 
-    protected function collectMasters(): \Illuminate\Support\Collection
+    protected function collectMasters(DerivativeService $derivatives): \Illuminate\Support\Collection
     {
-        $q = DB::table('digital_object as do')->where('do.usage_id', 1); // 1 = master
+        // Single-slug mode always targets that record's master directly.
         if ($slug = $this->option('slug')) {
             $ioId = DB::table('slug')->where('slug', $slug)->value('object_id');
             if (! $ioId) {
@@ -62,8 +62,32 @@ class RegenDerivativesCommand extends Command
 
                 return collect();
             }
-            $q->where('do.object_id', $ioId);
+            $q = DB::table('digital_object as do')
+                ->where('do.usage_id', DerivativeService::USAGE_MASTER) // 140 = master
+                ->where('do.object_id', $ioId);
+            if ($this->option('only-externals')) {
+                $q->whereNotNull('do.path')->where('do.path', 'like', 'http%');
+            }
+
+            return $q->select('do.id', 'do.object_id', 'do.path', 'do.name')->get();
         }
+
+        // Default (no --force): idempotent sweep - only masters that are still
+        // missing a thumbnail and/or reference derivative. Lets this run safely
+        // on a cron without re-encoding the whole corpus every time.
+        if (! $this->option('force')) {
+            $missing = $derivatives->getMastersWithMissingDerivatives(100000);
+            if ($this->option('only-externals')) {
+                $missing = $missing->filter(
+                    fn ($m) => str_starts_with((string) $m->path, 'http')
+                )->values();
+            }
+
+            return $missing; // rows expose ->id (master digital_object id)
+        }
+
+        // --force: every master, regenerate regardless of existing derivatives.
+        $q = DB::table('digital_object as do')->where('do.usage_id', DerivativeService::USAGE_MASTER);
         if ($this->option('only-externals')) {
             $q->whereNotNull('do.path')->where('do.path', 'like', 'http%');
         }
