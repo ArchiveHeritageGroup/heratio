@@ -21,7 +21,7 @@ class ApplySectorProfileCommand extends Command
 {
     protected $signature = 'ahg:apply-sector-profile
         {sector : Sector code: archive|museum|gallery|library|dam|research}
-        {--with-sample : Also load sample content for the sector (not yet implemented)}';
+        {--with-sample : Also load representative sample content for the sector}';
 
     protected $description = 'Apply a sector site profile (theme + identifier mask + sector default) over the install';
 
@@ -53,7 +53,16 @@ class ApplySectorProfileCommand extends Command
         $this->line("  identifier mask: {$r['mask']} (enabled)");
 
         if ($this->option('with-sample')) {
-            $this->warn('  --with-sample: sample content is not implemented yet (planned follow-up slice).');
+            try {
+                $s = app(\AhgCore\Services\SectorSampleService::class)->load($sector);
+                if (! empty($s['note'])) {
+                    $this->warn('  sample content: '.$s['note']);
+                } else {
+                    $this->line("  sample content: created {$s['created']}, skipped {$s['skipped']} (existing), media {$s['media']}");
+                }
+            } catch (\Throwable $e) {
+                $this->warn('  sample content failed: '.$e->getMessage());
+            }
         }
 
         $this->info("Sector profile '{$r['sector']}' applied. Re-run any time to switch sectors.");

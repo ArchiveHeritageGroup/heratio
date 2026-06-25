@@ -10,6 +10,7 @@ namespace AhgCore\Controllers;
 
 use AhgCore\Services\AclService;
 use AhgCore\Services\SectorProfileService;
+use AhgCore\Services\SectorSampleService;
 use AhgCore\Support\SectorProfiles;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -56,9 +57,19 @@ class SectorProfileController extends Controller
             return redirect()->route('admin.sector-profile')->with('error', $e->getMessage());
         }
 
-        return redirect()->route('admin.sector-profile')->with(
-            'success',
-            "Applied the {$r['label']} profile — {$r['theme_count']} theme settings + identifier mask {$r['mask']}. Re-run any time to switch sectors."
-        );
+        $msg = "Applied the {$r['label']} profile - {$r['theme_count']} theme settings + identifier mask {$r['mask']}. Re-run any time to switch sectors.";
+
+        if ($request->boolean('with_sample')) {
+            try {
+                $s = app(SectorSampleService::class)->load($sector);
+                $msg .= empty($s['note'])
+                    ? " Sample content: {$s['created']} created, {$s['skipped']} already present, {$s['media']} with media."
+                    : " Sample content: {$s['note']}.";
+            } catch (\Throwable $e) {
+                $msg .= ' (Sample content could not be loaded: '.$e->getMessage().')';
+            }
+        }
+
+        return redirect()->route('admin.sector-profile')->with('success', $msg);
     }
 }

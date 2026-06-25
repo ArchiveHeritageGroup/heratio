@@ -42,6 +42,13 @@
           @endforeach
         </select>
       </div>
+      <div class="col-md-auto">
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" name="with_sample" id="with_sample" value="1">
+          <label class="form-check-label" for="with_sample">{{ __('Also load sample content') }}</label>
+          <div class="form-text">{{ __('A few representative published records for the sector (idempotent).') }}</div>
+        </div>
+      </div>
       <div class="col-auto">
         <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>{{ __('Apply profile') }}</button>
       </div>
