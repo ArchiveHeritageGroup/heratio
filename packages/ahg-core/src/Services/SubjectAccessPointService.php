@@ -99,11 +99,13 @@ class SubjectAccessPointService
                 'updated_at' => now(),
                 'serial_number' => 0,
             ]);
+            // object_term_relation has no source_culture column in the Heratio
+            // schema (id/object_id/term_id/start_date/end_date) - inserting it
+            // throws 1054. Match every other call site: object_id + term_id only.
             DB::table('object_term_relation')->insert([
                 'id' => $relationObjectId,
                 'object_id' => $informationObjectId,
                 'term_id' => $termId,
-                'source_culture' => $culture,
             ]);
             $inserted++;
         }
