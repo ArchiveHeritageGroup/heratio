@@ -154,6 +154,8 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Console\Commands\SplatSetupCommand::class,
                 // #1205 capture / at-risk register (endangered-heritage capture network)
                 \AhgCore\Console\Commands\CapturePriorityCommand::class,
+                // #1331 sector site profiles (theme + identifier mask + sector_default)
+                \AhgCore\Console\Commands\ApplySectorProfileCommand::class,
                 // #1333 hierarchy closure-table build/verify (nested-set replacement)
                 \AhgCore\Console\Commands\BuildClosureCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,

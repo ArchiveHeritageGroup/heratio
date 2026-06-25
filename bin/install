@@ -9,6 +9,11 @@
 #   sudo bin/install
 #   sudo bin/install --domain=mysite.example --admin-email=admin@mysite.example
 #   sudo bin/install --non-interactive --admin-password='hunter2'
+#   sudo bin/install --sector=museum        # apply a sector site profile (#1331)
+#
+# --sector=<archive|museum|gallery|library|dam|research> applies an opinionated
+#   theme + identifier mask + sector_default after seeding (defaults only, no
+#   package removal; re-applicable via `php artisan ahg:apply-sector-profile`).
 #
 # Stages (each idempotent):
 #   1. Preflight     - check PHP/MySQL/Node/Composer/git/curl + ES; on a fresh
@@ -56,6 +61,7 @@ SKIP_ES=0
 SKIP_NGINX=0
 NON_INTERACTIVE=0
 FRESH=0
+SECTOR=""   # #1331 optional sector site profile: archive|museum|gallery|library|dam|research
 # The bundled nginx vhost is http-only, so default APP_URL to http and DISABLE
 # secure cookies - secure cookies over http are dropped by the browser, which
 # breaks the CSRF session and yields 419 "Page Expired" on every form POST
@@ -81,6 +87,7 @@ while [[ $# -gt 0 ]]; do
         --https)            APP_SCHEME="https"; SECURE_COOKIE="true" ;;
         --non-interactive)  NON_INTERACTIVE=1 ;;
         --fresh)            FRESH=1 ;;
+        --sector=*)         SECTOR="${1#*=}" ;;
         -h|--help)
             grep -E '^# ' "$0" | sed 's/^# \?//' | head -40
             exit 0
@@ -413,6 +420,18 @@ if php artisan ahg:help-ingest-all --no-interaction >/tmp/heratio-install-help.o
     ok "help articles ingested ($(grep -oE '[0-9]+ ingested, [0-9]+ failed, [0-9]+ total' /tmp/heratio-install-help.out | head -1))"
 else
     warn "help ingest produced errors (see /tmp/heratio-install-help.out) - continuing"
+fi
+
+# Optional sector site profile (#1331) - applies theme palette + identifier mask
+# + sector_default over the install. Defaults-only and re-applicable later via
+# `php artisan ahg:apply-sector-profile <sector>`, so a failure is non-fatal.
+if [[ -n "$SECTOR" ]]; then
+    say "Stage 8b - sector site profile ($SECTOR)"
+    if php artisan ahg:apply-sector-profile "$SECTOR" --no-interaction 2>&1 | tail -6; then
+        ok "sector profile '$SECTOR' applied"
+    else
+        warn "sector profile '$SECTOR' failed - apply later: php artisan ahg:apply-sector-profile <sector>"
+    fi
 fi
 
 # ============================================================================
