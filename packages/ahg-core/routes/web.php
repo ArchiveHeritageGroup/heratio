@@ -53,6 +53,13 @@ Route::middleware('auth')->group(function () {
 Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::class, 'show'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('stories.show');
 
+// heratio#1331 - admin "Apply sector profile" UI (existing installs); same engine
+// as bin/install --sector. Admin-gated (auth group + canAdmin in the controller).
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/sector-profile', [\AhgCore\Controllers\SectorProfileController::class, 'index'])->name('admin.sector-profile');
+    Route::post('/admin/sector-profile', [\AhgCore\Controllers\SectorProfileController::class, 'apply'])->name('admin.sector-profile.apply');
+});
+
 // heratio#1205 - capture / at-risk register (admin): the records most in need of digitisation or
 // most at risk of loss, ranked by transparent catalogue signals (no master surrogate, poor/fragile
 // condition, endangerment flags). The detection-and-triage foundation of the capture network.

@@ -346,7 +346,9 @@ class LibraryService
                 'marc_leader' => $data['marc_leader'] ?? null,
                 'marc_005' => $data['marc_005'] ?? null,
                 'marc_008' => $data['marc_008'] ?? null,
-                'frbr_override_type' => $data['frbr_override_type'] ?? null,
+                // Column is NOT NULL DEFAULT 'none'; an explicit null violates the
+                // constraint (the default only applies when the column is omitted).
+                'frbr_override_type' => $data['frbr_override_type'] ?? 'none',
                 'description' => $data['description'] ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
