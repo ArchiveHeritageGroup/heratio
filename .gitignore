@@ -91,6 +91,12 @@ docs/READVERTISEMENT*.pdf
 /docs/images/Dr. Benson/
 /UNILISA Calll for papers.jpg
 
+# FS-Scotland indexer (heratio#1336): register scans + project brief are source
+# material fed to the HTR indexer at runtime - never commit the binaries (194MB
+# of JPEGs + the .docx brief). The fs-metadata-capture extension CODE stays tracked.
+/fs-metadata-capture/images/
+/fs-metadata-capture/*.docx
+
 # heratio#1183 point-cloud host symlinks (provisioned by ahg:pointcloud-setup)
 /public/pointclouds
 /public/vendor/potree

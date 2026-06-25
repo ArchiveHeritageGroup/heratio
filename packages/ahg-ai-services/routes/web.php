@@ -1,6 +1,7 @@
 <?php
 
 use AhgAiServices\Controllers\AiController;
+use AhgAiServices\Controllers\FsIndexerController;
 use AhgAiServices\Controllers\PhaseOneController;
 use AhgAiServices\Controllers\SuggestedConnectionsController;
 use Illuminate\Support\Facades\Route;
@@ -119,6 +120,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
     Route::get('/htr/bulk-annotate', [AiController::class, 'htrBulkAnnotate'])->name('admin.ai.htr.bulkAnnotate');
     Route::post('/htr/bulk-annotate/load', [AiController::class, 'htrBulkAnnotateLoad'])->name('admin.ai.htr.bulkAnnotateLoad');
     Route::post('/htr/bulk-annotate/save', [AiController::class, 'htrBulkAnnotateSave'])->name('admin.ai.htr.bulkAnnotateSave');
+
+    // FS-Scotland indexer — run trained-HTR extraction over a DGS folder + Data Safe CSV
+    Route::get('/htr/fs-index', [FsIndexerController::class, 'page'])->name('admin.ai.htr.fsIndex');
+    Route::post('/htr/fs-index/run', [FsIndexerController::class, 'run'])->name('admin.ai.htr.fsIndexRun');
+    Route::post('/htr/fs-index/csv', [FsIndexerController::class, 'csv'])->name('admin.ai.htr.fsIndexCsv');
+    Route::get('/htr/fs-index/image', [FsIndexerController::class, 'image'])->name('admin.ai.htr.fsIndexImage');
+    Route::post('/htr/fs-index/fields', [FsIndexerController::class, 'imageFields'])->name('admin.ai.htr.fsIndexFields');
+    Route::post('/htr/fs-index/csv-rows', [FsIndexerController::class, 'csvFromRows'])->name('admin.ai.htr.fsIndexCsvRows');
+    Route::post('/htr/fs-index/save', [FsIndexerController::class, 'saveCorrections'])->name('admin.ai.htr.fsIndexSave');
 
     // FS Overlay Annotate — cloned from bulk-annotate for overlay positioning tests
     Route::get('/htr/fs-overlay', [AiController::class, 'htrFsOverlay'])->name('admin.ai.htr.fsOverlay');

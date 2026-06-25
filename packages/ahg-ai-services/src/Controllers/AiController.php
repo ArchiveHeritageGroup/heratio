@@ -3202,7 +3202,7 @@ PY;
         // SECURITY: $path is request-controlled and is served back (incl. a raw
         // fallback below), so confine it to the known image roots - mirrors
         // htrServeImage() - or it is an arbitrary file read (.env, /etc/passwd).
-        $allowed = ['/opt/ahg-ai/', '/tmp/', '/mnt/', '/usr/share/nginx/heratio/FamilySearch/'];
+        $allowed = ['/opt/ahg-ai/', '/tmp/', '/mnt/', '/usr/share/nginx/heratio/FamilySearch/', base_path('fs-metadata-capture').'/'];
         $real = realpath($path);
         $ok = false;
         foreach ($allowed as $prefix) {
@@ -3451,17 +3451,20 @@ PY;
             return response()->json(['success' => false, 'error' => 'Crop failed']);
         }
 
-        // Overwrite the original file with cropped version
-        imagejpeg($crop, $imagePath, 92);
-
-        // Clear old cache, write new cache with updated mtime
+        // Non-destructive: never overwrite the source scan. The original may
+        // sit on a read-only filesystem (php-fpm ProtectSystem) and overwriting
+        // it would destroy the other records on a multi-record register page.
+        // Persist the crop to the cache key the viewer reads, so it displays the
+        // crop without touching the original (clearing the cache restores it).
+        // heratio#1336.
         @unlink($oldCachePath);
-        $newCacheKey = md5($imagePath . filemtime($imagePath));
-        $newCachePath = "{$cacheDir}/{$newCacheKey}.jpg";
-        imagejpeg($crop, $newCachePath, 92);
+        $ok = @imagejpeg($crop, $oldCachePath, 92);
         imagedestroy($crop);
+        if (! $ok) {
+            return response()->json(['success' => false, 'error' => 'Could not write crop cache (check storage/app/cropped-cache permissions)']);
+        }
 
-        $newInfo = @getimagesize($imagePath);
+        $newInfo = @getimagesize($oldCachePath);
 
         return response()->json([
             'success' => true,
@@ -4964,7 +4967,7 @@ PY;
         }
 
         // Security: only allow images from known paths
-        $allowed = ['/opt/ahg-ai/', '/tmp/', '/mnt/', '/usr/share/nginx/heratio/FamilySearch/'];
+        $allowed = ['/opt/ahg-ai/', '/tmp/', '/mnt/', '/usr/share/nginx/heratio/FamilySearch/', base_path('fs-metadata-capture').'/'];
         $ok = false;
         foreach ($allowed as $prefix) {
             if (str_starts_with(realpath($path), $prefix)) { $ok = true; break; }

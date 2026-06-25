@@ -73,6 +73,45 @@
   </div>
 </div>
 
+{{-- FamilySearch Data Safe export bar (only for fs-scotland-* templates) --}}
+<div class="card mb-3 border-primary" id="ba-fs-bar" style="display:none;">
+  <div class="card-body py-2">
+    <div class="row align-items-end g-2">
+      <div class="col-auto"><span class="badge bg-primary"><i class="fas fa-id-card me-1"></i>{{ __('FamilySearch Data Safe') }}</span></div>
+      <div class="col-md-3">
+        <label class="form-label small fw-bold mb-0">{{ __('Collection ID') }}</label>
+        <input type="text" id="ba-fs-collection" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-bold mb-0">{{ __('PPQ ID') }}</label>
+        <input type="text" id="ba-fs-ppq" class="form-control form-control-sm">
+      </div>
+      <div class="col-auto">
+        <label class="form-label small fw-bold mb-0">{{ __('Records / image') }}</label>
+        <select id="ba-fs-records" class="form-select form-select-sm" onchange="fsSetRecords()">
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-bold mb-0">{{ __('Image Type (this image — no record)') }}</label>
+        <select id="ba-fs-imagetype" class="form-select form-select-sm" onchange="fsSetImageType(this.value)">
+          <option value="">{{ __('(has a record — key fields)') }}</option>
+          <option value="No Extractable Data Image">No Extractable Data Image</option>
+          <option value="Blank Image">Blank Image</option>
+          <option value="Duplicate Image">Duplicate Image</option>
+          <option value="Unreadable Image">Unreadable Image</option>
+          <option value="Other Image">Other Image</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-sm btn-primary" onclick="fsDownloadDataSafeCsv()"><i class="fas fa-file-csv me-1"></i>{{ __('Download Data Safe CSV') }}</button>
+      </div>
+      <div class="col-12"><span id="ba-fs-status" class="small text-muted"></span></div>
+    </div>
+  </div>
+</div>
+
 {{-- Main workspace --}}
 <div class="row g-3" id="ba-workspace" style="display:none;">
   {{-- Image canvas --}}
@@ -221,7 +260,126 @@
     'R2 Name', 'R2 Birth Date', 'R2 Event Date', 'R2 Father', 'R2 Mother',
     'R3 Name', 'R3 Birth Date', 'R3 Event Date', 'R3 Father', 'R3 Mother',
     'R4 Name', 'R4 Birth Date', 'R4 Event Date', 'R4 Father', 'R4 Mother',
+    // FamilySearch Data Safe (Scotland) field labels -> mapped to FS system
+    // names via FS_SYS for the Data Safe CSV export. heratio#1336.
+    'Groom Surname', 'Groom Forename', 'Bride Surname', 'Bride Forename',
+    'Surname', 'Forename', 'Father', 'Mother',
+    'Event Day', 'Event Month', 'Birth Day', 'Birth Month', 'Birth Year',
   ];
+
+  // FamilySearch Data Safe: human box label -> Data Safe system name. Drives the
+  // "Download Data Safe CSV" export from the fs-scotland-* templates (#1336).
+  // (Event date is the event itself for Birth/Marriage/Death; Baptism keeps a
+  // separate Birth date -> PR_BIR_*.)
+  // Box label -> Data Safe system name (full Data Safe matrix). Marriage uses
+  // Groom*=principal (PR_*), Bride*=spouse (SP_*); other events use the plain
+  // labels. Event date is the event itself (EVENT_*); Baptism adds Birth date
+  // (PR_BIR_*) and Burial adds Death date (PR_DEA_*).
+  const FS_SYS = {
+    // principal
+    'Forename': 'PR_NAME_GN_ORIG', 'Surname': 'PR_NAME_SURN_ORIG',
+    'Sex': 'PR_SEX_CODE_ORIG', 'Age': 'PR_AGE_ORIG',
+    'Occupation': 'PR_OCCUPATION_ORIG', 'Marital Status': 'PR_MARITAL_STATUS_ORIG',
+    'Father Forename': 'PR_FTHR_NAME_GN_ORIG', 'Father Surname': 'PR_FTHR_NAME_SURN_ORIG',
+    'Mother Forename': 'PR_MTHR_NAME_GN_ORIG', 'Mother Surname': 'PR_MTHR_NAME_SURN_ORIG',
+    // marriage groom (principal) aliases
+    'Groom Forename': 'PR_NAME_GN_ORIG', 'Groom Surname': 'PR_NAME_SURN_ORIG',
+    'Groom Age': 'PR_AGE_ORIG', 'Groom Occupation': 'PR_OCCUPATION_ORIG',
+    'Groom Marital Status': 'PR_MARITAL_STATUS_ORIG',
+    'Groom Father Forename': 'PR_FTHR_NAME_GN_ORIG', 'Groom Father Surname': 'PR_FTHR_NAME_SURN_ORIG',
+    'Groom Mother Forename': 'PR_MTHR_NAME_GN_ORIG', 'Groom Mother Surname': 'PR_MTHR_NAME_SURN_ORIG',
+    // spouse (bride for marriage)
+    'Spouse Forename': 'SP_NAME_GN_ORIG', 'Spouse Surname': 'SP_NAME_SURN_ORIG',
+    'Bride Forename': 'SP_NAME_GN_ORIG', 'Bride Surname': 'SP_NAME_SURN_ORIG',
+    'Bride Age': 'SP_AGE_ORIG', 'Bride Occupation': 'SP_OCCUPATION_ORIG',
+    'Bride Marital Status': 'SP_MARITAL_STATUS_ORIG',
+    'Bride Father Forename': 'SP_FTHR_NAME_GN_ORIG', 'Bride Father Surname': 'SP_FTHR_NAME_SURN_ORIG',
+    'Bride Mother Forename': 'SP_MTHR_NAME_GN_ORIG', 'Bride Mother Surname': 'SP_MTHR_NAME_SURN_ORIG',
+    'Spouse Age': 'SP_AGE_ORIG', 'Spouse Occupation': 'SP_OCCUPATION_ORIG',
+    'Spouse Marital Status': 'SP_MARITAL_STATUS_ORIG',
+    // dates
+    'Event Day': 'EVENT_DAY_ORIG', 'Event Month': 'EVENT_MONTH_ORIG', 'Event Year': 'EVENT_YEAR_ORIG',
+    'Birth Day': 'PR_BIR_DAY_ORIG', 'Birth Month': 'PR_BIR_MONTH_ORIG', 'Birth Year': 'PR_BIR_YEAR_ORIG',
+    'Death Day': 'PR_DEA_DAY_ORIG', 'Death Month': 'PR_DEA_MONTH_ORIG', 'Death Year': 'PR_DEA_YEAR_ORIG',
+  };
+  // Full per-record field set by event type (Data Safe matrix). One CSV record
+  // per block on the image; FS_RECORD_NBR increments 0,1,2… within the image.
+  const FS_RECORD_FIELDS = {
+    Marriage: ['Event Day','Event Month','Event Year',
+      'Groom Forename','Groom Surname','Groom Age','Groom Occupation','Groom Marital Status',
+      'Groom Father Forename','Groom Father Surname','Groom Mother Forename','Groom Mother Surname',
+      'Bride Forename','Bride Surname','Bride Age','Bride Occupation','Bride Marital Status',
+      'Bride Father Forename','Bride Father Surname','Bride Mother Forename','Bride Mother Surname'],
+    Birth: ['Event Day','Event Month','Event Year','Forename','Surname','Sex',
+      'Father Forename','Father Surname','Mother Forename','Mother Surname'],
+    Baptism: ['Event Day','Event Month','Event Year','Birth Day','Birth Month','Birth Year',
+      'Forename','Surname','Sex','Father Forename','Father Surname','Mother Forename','Mother Surname'],
+    Death: ['Event Day','Event Month','Event Year','Forename','Surname','Sex','Age',
+      'Occupation','Marital Status','Father Forename','Father Surname','Mother Forename','Mother Surname',
+      'Spouse Forename','Spouse Surname'],
+    Burial: ['Event Day','Event Month','Event Year','Death Day','Death Month','Death Year',
+      'Forename','Surname','Sex','Age','Occupation','Marital Status',
+      'Father Forename','Father Surname','Mother Forename','Mother Surname','Spouse Forename','Spouse Surname'],
+  };
+  const FS_EVENT_TYPE = {
+    'fs-scotland-marriage': 'Marriage', 'fs-scotland-birth': 'Birth',
+    'fs-scotland-death': 'Death', 'fs-scotland-baptism': 'Baptism', 'fs-scotland-burial': 'Burial',
+  };
+  function isFsTemplate(t) { return !!FS_EVENT_TYPE[t]; }
+  // The base label behind a possibly record-prefixed label ("R2 Groom Surname" -> "Groom Surname").
+  function fsBaseLabel(label) { const m = String(label).match(/^R\d+\s+(.*)$/); return m ? m[1] : label; }
+
+  // Allow every record-prefixed FS label through shouldSkip() (which gates on
+  // ALLOWED_FIELDS). Up to 8 records (blocks) per image.
+  (function () {
+    const set = new Set();
+    Object.values(FS_RECORD_FIELDS).forEach(arr => arr.forEach(f => set.add(f)));
+    set.forEach(f => { for (let n = 1; n <= 8; n++) ALLOWED_FIELDS.push('R' + n + ' ' + f); });
+  })();
+
+  // Generate flat box positions for N record bands: each record gets the full
+  // field set, auto-gridded within its band. Rough starting layout - the
+  // operator drags to the real columns and "Sync to server" saves it per form
+  // type (then reused on every image of that type).
+  function fsGenerateFields(eventType, nRecords) {
+    const base = FS_RECORD_FIELDS[eventType] || [];
+    const out = {};
+    const cols = 3;
+    const rows = Math.ceil(base.length / cols);
+    const band = Math.min(0.92 / Math.max(1, nRecords), 0.30);
+    for (let r = 0; r < nRecords; r++) {
+      const top = 0.04 + r * band;
+      const cellH = (band * 0.92) / rows;
+      base.forEach((f, idx) => {
+        const c = idx % cols, rr = Math.floor(idx / cols);
+        out['R' + (r + 1) + ' ' + f] = {
+          x: 0.02 + c * 0.325, y: top + rr * cellH,
+          w: 0.30, h: Math.max(0.018, cellH * 0.8),
+        };
+      });
+    }
+    return out;
+  }
+
+  // Populate the active FS template's fields for the current "records per image" count.
+  function fsEnsureFields() {
+    const t = document.getElementById('ba-form-type').value;
+    if (!isFsTemplate(t)) return;
+    const n = parseInt(document.getElementById('ba-fs-records') ? document.getElementById('ba-fs-records').value : '1', 10) || 1;
+    FORM_TEMPLATES[t].fields = fsGenerateFields(FS_EVENT_TYPE[t], n);
+  }
+
+  // Records-per-image changed: regenerate the bands and re-apply to the image.
+  window.fsSetRecords = function () {
+    fsEnsureFields();
+    const t = document.getElementById('ba-form-type').value;
+    if (!isFsTemplate(t) || typeof images === 'undefined' || !img || !images[imgIdx]) return;
+    currentFormType = t;
+    COLUMNS = Object.keys(FORM_TEMPLATES[t].fields).filter(c => !shouldSkip(c));
+    const e = images[imgIdx];
+    COLUMNS.forEach(c => { if (!e.fields[c]) e.fields[c] = ''; });
+    loadSavedPositions(() => { applyFormTemplate(t); buildFieldList(); redraw(); });
+  };
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
     'Residence Place': 'Duration of last Illness',
@@ -589,6 +747,36 @@
         'Text Block': { x: 0.02, y: 0.02, w: 0.96, h: 0.96 },
       }
     },
+    // ── FamilySearch Data Safe (Scotland) templates (heratio#1336) ──
+    // Multi-record: `fields` is generated at runtime by fsGenerateFields() for
+    // the chosen "records per image" count (each block = one Data Safe record),
+    // using the full per-event field set in FS_RECORD_FIELDS. The operator drags
+    // the boxes and "Sync to server" saves the real layout per form type.
+    'fs-scotland-marriage': {
+      label: 'FamilySearch Data Safe — Scotland Marriage',
+      detect: ['marriage', 'married', 'when married', 'spinster', 'bachelor', 'register of marriages'],
+      anchor: ['marriage'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
+    },
+    'fs-scotland-birth': {
+      label: 'FamilySearch Data Safe — Scotland Birth',
+      detect: ['birth', 'born', 'when and where born', 'register of births'],
+      anchor: ['birth'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
+    },
+    'fs-scotland-death': {
+      label: 'FamilySearch Data Safe — Scotland Death',
+      detect: ['death', 'died', 'when and where died', 'deceased', 'register of deaths'],
+      anchor: ['death'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
+    },
+    'fs-scotland-baptism': {
+      label: 'FamilySearch Data Safe — Scotland Baptism',
+      detect: ['baptism', 'baptised', 'baptized', 'christened'],
+      anchor: ['baptism'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
+    },
+    'fs-scotland-burial': {
+      label: 'FamilySearch Data Safe — Scotland Burial',
+      detect: ['burial', 'buried', 'interment', 'interred'],
+      anchor: ['burial'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
+    },
     'manual': {
       label: 'Manual positioning (no template)',
       detect: [],
@@ -606,6 +794,8 @@
       sel.appendChild(opt);
     }
     sel.addEventListener('change', function() {
+      fsUpdateBar();
+      fsEnsureFields(); // generate FS record-band fields before they're read
       if (img && images[imgIdx]) {
         const newType = this.value === 'auto' ? 'sa-death-generic' : this.value;
         currentFormType = newType;
@@ -628,7 +818,94 @@
         });
       }
     });
+    fsUpdateBar(); // reflect initial selection
   })();
+
+  // ── FamilySearch Data Safe (#1336): show the export bar for fs-scotland-*,
+  // and export one Data Safe row per image (entry.fields -> FS system names via
+  // FS_SYS, base fields from the filename), normalised server-side. ──
+  function fsUpdateBar() {
+    const t = document.getElementById('ba-form-type').value;
+    const bar = document.getElementById('ba-fs-bar');
+    if (bar) bar.style.display = isFsTemplate(t) ? '' : 'none';
+  }
+
+  // Mark the CURRENT image as a non-record of a given FS Image Type (No
+  // Extractable Data / Blank / Duplicate / Unreadable / Other). Stored on the
+  // image; the Data Safe export emits it as a non-record row (no event fields,
+  // Language 'und'). Per the FamilySearch rules, every image needs a row.
+  window.fsSetImageType = function(v) {
+    const st = document.getElementById('ba-fs-status');
+    if (typeof images === 'undefined' || !images || !images[imgIdx]) {
+      if (st) st.textContent = 'Load an image first.';
+      return;
+    }
+    images[imgIdx]._imageType = v;
+    const nm = images[imgIdx].fname || 'image';
+    if (st) st.textContent = v
+      ? ('Marked "' + nm + '" as ' + v + ' (no record) — it will be in the CSV with Language "und".')
+      : ('"' + nm + '" set back to a data record.');
+  };
+
+  window.fsDownloadDataSafeCsv = function() {
+    const t = document.getElementById('ba-form-type').value;
+    const st = document.getElementById('ba-fs-status');
+    if (!isFsTemplate(t)) { if (st) st.textContent = 'Select a FamilySearch Data Safe form type first.'; return; }
+    if (!images || !images.length) { if (st) st.textContent = 'No images loaded.'; return; }
+    const eventType = FS_EVENT_TYPE[t];
+    const coll = document.getElementById('ba-fs-collection').value.trim();
+    const ppq = document.getElementById('ba-fs-ppq').value.trim();
+    const base = (fname, dgs, imgNbr) => ({ _src: fname, FS_COLLECTION_ID: coll, FS_PPQ_ID: ppq, FS_DIGITAL_FILM_NBR: dgs, FS_IMAGE_NBR: imgNbr });
+    const rows = [];
+    images.forEach(entry => {
+      const fname = entry.fname || '';
+      const dgs = (fname.match(/(\d{9})/) || [])[1] || '';
+      let imgNbr = (fname.match(/_(\d{1,5})\.[A-Za-z]+$/) || fname.match(/(\d{1,5})\.[A-Za-z]+$/) || [])[1] || '';
+      if (imgNbr) imgNbr = imgNbr.padStart(5, '0');
+
+      // Non-record image (operator marked an Image Type): no event fields,
+      // Language 'und', Event Type blank - per the FamilySearch rules.
+      if (entry._imageType) {
+        rows.push(Object.assign(base(fname, dgs, imgNbr), {
+          EVENT_TYPE: '', FS_IMAGE_TYPE: entry._imageType, FS_LANGUAGE: 'und', FS_RECORD_NBR: '',
+        }));
+        return;
+      }
+
+      // Group the R{n} fields into one Data Safe record per block.
+      const f = entry.fields || {};
+      const recs = {};
+      Object.keys(f).forEach(label => {
+        const m = label.match(/^R(\d+)\s+(.*)$/);
+        if (!m) return;
+        const sys = FS_SYS[m[2]];
+        const val = (f[label] || '').toString().trim();
+        if (sys && val) { (recs[m[1]] = recs[m[1]] || {})[sys] = val; }
+      });
+      // One CSV row per block that has a name; FS_RECORD_NBR resets per image.
+      let rnbr = 0;
+      Object.keys(recs).sort((a, b) => a - b).forEach(n => {
+        const rec = recs[n];
+        const hasName = rec.PR_NAME_GN_ORIG || rec.PR_NAME_SURN_ORIG || rec.SP_NAME_GN_ORIG || rec.SP_NAME_SURN_ORIG;
+        if (!hasName) return; // rule: a record is only created when there is a name
+        rows.push(Object.assign(base(fname, dgs, imgNbr), {
+          EVENT_TYPE: eventType, FS_LANGUAGE: 'en', FS_IMAGE_TYPE: '', FS_RECORD_NBR: String(rnbr++),
+        }, rec));
+      });
+    });
+    if (!rows.length) { if (st) st.textContent = 'Nothing to export - key at least one name, or set an Image Type.'; return; }
+    const dgsName = (document.getElementById('ba-folder').value.split('/').filter(Boolean).pop() || 'export');
+    if (st) st.textContent = 'Building CSV for ' + rows.length + ' image(s)…';
+    fetch('{{ route("admin.ai.htr.fsIndexCsvRows") }}', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+      body: JSON.stringify({ rows, dgs: dgsName, normalize: true }),
+    }).then(r => r.blob()).then(b => {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+      a.download = 'fs-scotland-' + dgsName + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      if (st) st.textContent = 'Downloaded Data Safe CSV (' + rows.length + ' rows).';
+    }).catch(e => { if (st) st.textContent = 'Export failed: ' + e.message; });
+  };
 
   // Auto-detect form type from first image OCR
   function detectFormType(ocrWords) {
@@ -671,6 +948,18 @@
 
     currentFormType = templateKey;
     document.getElementById('ba-form-type').value = templateKey;
+
+    // FS: restore the records-per-image count from the saved layout (highest
+    // R{n} in savedPositions) so every saved band reappears, then regenerate the
+    // band fields before COLUMNS is rebuilt. Without this a multi-record layout
+    // collapses to 1 record on reload and looks like the save was lost. #1336.
+    if (isFsTemplate(templateKey)) {
+      let maxR = 1;
+      Object.keys(savedPositions || {}).forEach(k => { const m = k.match(/^R(\d+)\s/); if (m) maxR = Math.max(maxR, +m[1]); });
+      const recSel = document.getElementById('ba-fs-records');
+      if (recSel) recSel.value = String(Math.min(maxR, 8));
+      fsEnsureFields();
+    }
 
     // Rebuild COLUMNS from the template's fields so the correct fields appear
     if (tpl.fields && Object.keys(tpl.fields).length > 0) {
@@ -1212,37 +1501,45 @@
   }
 
   // Reset saved positions (start fresh)
-  // Migrate all localStorage positions to server (one-time sync)
-  window.baMigrateToServer = function() {
-    let count = 0;
+  // Save the current layout (and any localStorage positions) to the server, and
+  // report the REAL result - awaited, status-checked, no blocking alert. The old
+  // version fired POSTs without awaiting and always claimed success, so a 419
+  // (stale CSRF) silently lost the layout. #1336.
+  window.baMigrateToServer = async function() {
+    const btn = document.getElementById('ba-migrate-btn');
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+    const fsStatus = document.getElementById('ba-fs-status');
+    const setStatus = m => { if (fsStatus) fsStatus.textContent = m; };
+    const save = (formType, positions) => fetch('{{ route("admin.ai.htr.fsOverlaySavePositions") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+      body: JSON.stringify({ form_type: formType, positions }),
+    }).then(r => r.ok).catch(() => false);
+
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Syncing...';
+    const jobs = [];
+    // Current in-memory layout first (the most up-to-date).
+    if (currentFormType && Object.keys(savedPositions).length) jobs.push(save(currentFormType, savedPositions));
+    // Plus any localStorage-only layouts (e.g. saved while the session was expired).
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (!key.startsWith('fs-overlay-pos-')) continue;
-      try {
-        const positions = JSON.parse(localStorage.getItem(key));
-        // Extract form type from key: fs-overlay-pos-sa-death-1894 → sa-death-1894
-        const formType = key.replace('fs-overlay-pos-', '').replace(/_/g, '-');
-        fetch('{{ route("admin.ai.htr.fsOverlaySavePositions") }}', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
-          body: JSON.stringify({ form_type: formType, positions }),
-        });
-        count++;
-      } catch(e) {}
+      if (!key || !key.startsWith('fs-overlay-pos-')) continue;
+      if (key === 'fs-overlay-pos-' + currentFormType) continue;
+      try { jobs.push(save(key.replace('fs-overlay-pos-', ''), JSON.parse(localStorage.getItem(key)))); } catch (e) {}
     }
-    // Also save current positions
-    if (currentFormType && Object.keys(savedPositions).length) {
-      fetch('{{ route("admin.ai.htr.fsOverlaySavePositions") }}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
-        body: JSON.stringify({ form_type: currentFormType, positions: savedPositions }),
-      });
-      count++;
+    const results = await Promise.all(jobs);
+    const ok = results.filter(Boolean).length, fail = results.length - ok;
+    btn.disabled = false;
+    if (fail === 0 && ok > 0) {
+      btn.innerHTML = '<i class="fas fa-check me-1"></i>Synced (' + ok + ')';
+      setStatus('Saved ' + ok + ' layout(s) to the server.');
+    } else if (ok > 0) {
+      btn.innerHTML = '<i class="fas fa-cloud-upload-alt me-1"></i>Sync to server';
+      setStatus('Saved ' + ok + ', FAILED ' + fail + ' (session may have expired - refresh and retry).');
+    } else {
+      btn.innerHTML = '<i class="fas fa-cloud-upload-alt me-1"></i>Sync to server';
+      setStatus(jobs.length ? 'Save FAILED (session expired? refresh the page and retry).' : 'Nothing to sync - position some boxes first.');
     }
-    const btn = document.getElementById('ba-migrate-btn');
-    btn.innerHTML = '<i class="fas fa-check me-1"></i>Synced (' + count + ')';
-    btn.disabled = true;
-    alert('Synced ' + count + ' form type position(s) to server.');
   };
 
   window.baResetPositions = function() {
@@ -1320,7 +1617,7 @@
         h: cropRect.h,
       }),
     })
-    .then(r => r.json())
+    .then(async r => { const t = await r.text(); try { return JSON.parse(t); } catch (e) { return { success: false, error: 'Server error ' + r.status }; } })
     .then(data => {
       doBtn.disabled = false;
       doBtn.classList.add('d-none');
@@ -1536,13 +1833,22 @@
         btn.innerHTML = '<i class="fas fa-brain me-1"></i>Done (' + count + ')';
         setTimeout(() => { btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise'; }, 5000);
       } else {
-        alert(data.error || 'Recognition failed');
+        // Non-blocking: no alert box. When there are no boxes (e.g. an
+        // unreadable image), nudge the operator to mark its Image Type instead.
+        const msg = (data.error || 'Recognition failed');
+        const st = document.getElementById('ba-fs-status');
+        const hint = /no annotations/i.test(msg)
+          ? 'No boxes to recognise — if the image has no record, set its Image Type (right) to add it to the CSV.'
+          : msg;
+        if (st) st.textContent = hint; else { btn.title = hint; }
+        btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise';
       }
     })
     .catch(err => {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise';
-      alert('Error: ' + err.message);
+      const st = document.getElementById('ba-fs-status');
+      if (st) st.textContent = 'Recognise error: ' + err.message; else btn.title = err.message;
     });
   };
 
@@ -1950,6 +2256,10 @@
     const entry = images[imgIdx];
     const container = document.getElementById('ba-fields');
     container.innerHTML = '';
+
+    // Reflect this image's FS Image Type marking (non-record) in the selector.
+    const itSel = document.getElementById('ba-fs-imagetype');
+    if (itSel && entry) itSel.value = entry._imageType || '';
 
     // Fields to clear (don't pre-fill from CSV — user reads from document)
     const CLEAR_FIELDS = ['Event Date'];
