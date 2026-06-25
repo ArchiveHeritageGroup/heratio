@@ -9,6 +9,7 @@
 namespace AhgRdm\Controllers;
 
 use AhgRdm\Services\DatasetService;
+use AhgRdm\Services\PopiaScanService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -70,7 +71,24 @@ class DatasetController extends Controller
             'dataset'  => $dataset,
             'files'    => $this->service->files($id),
             'statuses' => $statuses,
+            'findings' => DB::table('rdm_scan_finding')->where('dataset_id', $id)->orderByRaw("FIELD(category,'special_category','personal'), method")->get(),
         ]);
+    }
+
+    public function scan(int $id)
+    {
+        abort_unless($this->service->get($id), 404);
+
+        // Queue it: the deterministic pass is instant but NER hits the gateway
+        // and can exceed request limits, so run off-thread. Mark 'scanning' now
+        // for immediate UI feedback; the worker sets the verdict when done.
+        DB::table('rdm_dataset')->where('id', $id)->update(['status' => 'scanning', 'updated_at' => now()]);
+        \AhgRdm\Jobs\ScanDatasetJob::dispatch($id);
+
+        return redirect()->route('rdm.datasets.show', $id)->with(
+            'success',
+            'POPIA scan queued — deterministic PII first, then AI-suggested names. Refresh in a moment for the findings.'
+        );
     }
 
     public function deposit(Request $request, int $id)

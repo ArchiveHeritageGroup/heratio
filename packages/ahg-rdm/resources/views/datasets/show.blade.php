@@ -7,15 +7,31 @@
 @php
   $statusLabel = optional($statuses->firstWhere('code', $dataset->status))->label ?? $dataset->status;
   $statusColor = optional($statuses->firstWhere('code', $dataset->status))->color ?? '#6c757d';
+  $verdictColors = ['CLEAR' => '#198754', 'PERSONAL' => '#fd7e14', 'SPECIAL_CATEGORY' => '#dc3545'];
 @endphp
 
 <div class="d-flex align-items-center justify-content-between mb-3">
   <h1 class="h4 mb-0"><i class="fas fa-database me-2"></i>{{ $dataset->title }}</h1>
-  <a href="{{ route('rdm.datasets.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('All datasets') }}</a>
+  <div class="d-flex gap-2">
+    @if ($files->count() > 0)
+      <form method="POST" action="{{ route('rdm.datasets.scan', $dataset->id) }}">
+        @csrf
+        <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-user-shield me-1"></i>{{ __('Run POPIA scan') }}</button>
+      </form>
+    @endif
+    <a href="{{ route('rdm.datasets.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('All datasets') }}</a>
+  </div>
 </div>
 
 @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+
+@if ($dataset->status === 'scanning')
+  <div class="alert alert-info d-flex align-items-center">
+    <span class="spinner-border spinner-border-sm me-2"></span>
+    {{ __('POPIA scan in progress — reload this page in a moment to see the findings.') }}
+  </div>
+@endif
 
 <div class="card mb-3">
   <div class="card-body">
@@ -23,12 +39,51 @@
       <div class="col-md-3"><span class="text-muted">{{ __('Status') }}:</span>
         <span class="badge" style="background:{{ $statusColor }}">{{ $statusLabel }}</span></div>
       <div class="col-md-4"><span class="text-muted">{{ __('Project') }}:</span> {{ $dataset->project_title ?? '—' }}</div>
-      <div class="col-md-3"><span class="text-muted">{{ __('DOI') }}:</span> {{ $dataset->doi ?? '—' }}</div>
+      <div class="col-md-3"><span class="text-muted">{{ __('POPIA verdict') }}:</span>
+        @if ($dataset->verdict)
+          <span class="badge" style="background:{{ $verdictColors[$dataset->verdict] ?? '#6c757d' }}">{{ $dataset->verdict }}</span>
+        @else <span class="text-muted">{{ __('not scanned') }}</span> @endif
+      </div>
       <div class="col-md-2"><span class="text-muted">{{ __('Files') }}:</span> {{ $files->count() }}</div>
     </div>
     @if ($dataset->description)<p class="mt-2 mb-0">{{ $dataset->description }}</p>@endif
   </div>
 </div>
+
+@if ($dataset->verdict)
+<div class="card mb-3">
+  <div class="card-header fw-bold d-flex justify-content-between">
+    <span><i class="fas fa-user-shield me-1"></i>{{ __('POPIA scan findings') }}</span>
+    <span class="small text-muted">{{ __('AI/regex findings are suggestions — a human confirms each before open access (next step)') }}</span>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-sm mb-0 align-middle">
+      <thead><tr>
+        <th>{{ __('File') }}</th><th>{{ __('Type') }}</th><th>{{ __('Category') }}</th>
+        <th>{{ __('Sample') }}</th><th>{{ __('Confidence') }}</th><th>{{ __('Method') }}</th>
+      </tr></thead>
+      <tbody>
+        @forelse ($findings as $f)
+          <tr @class(['table-danger' => $f->category === 'special_category'])>
+            <td class="small">{{ $f->file_name }}</td>
+            <td><code class="small">{{ $f->type }}</code></td>
+            <td>
+              @if ($f->category === 'special_category')
+                <span class="badge bg-danger">{{ __('special category') }}</span>
+              @else <span class="badge bg-warning text-dark">{{ __('personal') }}</span>@endif
+            </td>
+            <td class="small"><code>{{ $f->sample }}</code></td>
+            <td class="small">{{ $f->confidence }}</td>
+            <td class="small text-muted">{{ $f->method }}@if ($f->method !== 'deterministic') <span class="text-info">({{ __('AI-suggested') }})</span>@endif</td>
+          </tr>
+        @empty
+          <tr><td colspan="6" class="text-center text-success py-3"><i class="fas fa-check-circle me-1"></i>{{ __('No PII detected — verdict CLEAR.') }}</td></tr>
+        @endforelse
+      </tbody>
+    </table>
+  </div>
+</div>
+@endif
 
 <div class="card mb-3">
   <div class="card-header fw-bold">{{ __('Deposit files') }}</div>

@@ -38,7 +38,14 @@ class AhgRdmServiceProvider extends ServiceProvider
         // next boot on failure); mirrors the ahg-research/ahg-display pattern.
         $this->app->booted(function () {
             try {
-                if (! Schema::hasTable('rdm_dataset')) {
+                // Run install.sql when any rdm table is missing OR the verdict
+                // column hasn't been added yet (install.sql is fully idempotent:
+                // CREATE IF NOT EXISTS + a guarded ADD COLUMN), so an existing
+                // install picks up the #1339 findings table + verdict column.
+                $needsInstall = ! Schema::hasTable('rdm_dataset')
+                    || ! Schema::hasTable('rdm_scan_finding')
+                    || ! Schema::hasColumn('rdm_dataset', 'verdict');
+                if ($needsInstall) {
                     $sql = @file_get_contents(__DIR__.'/../database/install.sql');
                     if (is_string($sql) && trim($sql) !== '') {
                         DB::unprepared($sql);

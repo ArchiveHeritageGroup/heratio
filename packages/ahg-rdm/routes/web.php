@@ -17,4 +17,5 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/research/datasets', [DatasetController::class, 'store'])->name('rdm.datasets.store');
     Route::get('/research/datasets/{id}', [DatasetController::class, 'show'])->name('rdm.datasets.show')->where('id', '[0-9]+');
     Route::post('/research/datasets/{id}/deposit', [DatasetController::class, 'deposit'])->name('rdm.datasets.deposit')->where('id', '[0-9]+');
+    Route::post('/research/datasets/{id}/scan', [DatasetController::class, 'scan'])->name('rdm.datasets.scan')->where('id', '[0-9]+');
 });
