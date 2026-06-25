@@ -1517,6 +1517,23 @@
     }).then(r => r.ok).catch(() => false);
 
     btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Syncing...';
+
+    // savedPositions must be a plain object - a stray [] eats string-keyed writes.
+    if (! savedPositions || typeof savedPositions !== 'object' || Array.isArray(savedPositions)) savedPositions = {};
+
+    // Capture the CURRENT position of EVERY placed box. Template/auto-grid boxes
+    // live in `annotations` but were never written to savedPositions, so a plain
+    // Sync used to persist only the boxes the operator had dragged - the rest
+    // reverted to the grid on reload ("Sync not saving field positions"). Snapshot
+    // all annotations into savedPositions so Sync saves the full visible layout. #1331.
+    if (typeof annotations !== 'undefined' && Array.isArray(annotations) && imgNatW > 0 && imgNatH > 0) {
+      annotations.forEach(function (a) {
+        if (a && a.label && a.w > 0 && a.h > 0) {
+          savedPositions[a.label] = { x: a.x / imgNatW, y: a.y / imgNatH, w: a.w / imgNatW, h: a.h / imgNatH };
+        }
+      });
+    }
+
     const jobs = [];
     // Current in-memory layout first (the most up-to-date).
     if (currentFormType && Object.keys(savedPositions).length) jobs.push(save(currentFormType, savedPositions));
@@ -2544,12 +2561,16 @@
     })
     .then(r => r.json())
     .then(data => {
-      savedPositions = data.positions || {};
+      // load-positions returns [] (PHP empty array) when nothing is saved. An
+      // ARRAY silently drops string-keyed writes on JSON.stringify (savedPositions
+      // ['Groom Surname']=... vanishes), which is why layouts never persisted -
+      // coerce to a plain object. #1331.
+      savedPositions = (data.positions && typeof data.positions === 'object' && !Array.isArray(data.positions)) ? data.positions : {};
       // Fallback: merge localStorage positions if server is empty
       if (!Object.keys(savedPositions).length) {
         try {
           const ls = JSON.parse(localStorage.getItem('fs-overlay-pos-' + currentFormType) || '{}');
-          if (Object.keys(ls).length) {
+          if (ls && typeof ls === 'object' && !Array.isArray(ls) && Object.keys(ls).length) {
             savedPositions = ls;
             console.log('[FS Overlay] Loaded positions from localStorage fallback');
           }
@@ -2559,9 +2580,10 @@
       if (cb) cb();
     })
     .catch(() => {
-      // Server unreachable — try localStorage
+      // Server unreachable — try localStorage (coerce to a plain object).
       try {
-        savedPositions = JSON.parse(localStorage.getItem('fs-overlay-pos-' + currentFormType) || '{}');
+        const ls = JSON.parse(localStorage.getItem('fs-overlay-pos-' + currentFormType) || '{}');
+        savedPositions = (ls && typeof ls === 'object' && !Array.isArray(ls)) ? ls : {};
       } catch(e) { savedPositions = {}; }
       if (cb) cb();
     });
