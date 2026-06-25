@@ -235,19 +235,30 @@ class SeedScaleCorpusCommand extends Command
         $this->warn("Purging {$n} scale-test IOs and all CTI children...");
         $t0 = microtime(true);
 
-        foreach ($ids->chunk(5000) as $batch) {
-            $chunkIds = $batch->all();
-            DB::transaction(function () use ($chunkIds) {
-                DB::table('status')->whereIn('object_id', $chunkIds)->delete();
-                DB::table('slug')->whereIn('object_id', $chunkIds)->delete();
-                DB::table('information_object_i18n')->whereIn('id', $chunkIds)->delete();
-                DB::table('information_object')->whereIn('id', $chunkIds)->delete();
-                if (DB::getSchemaBuilder()->hasTable('information_object_closure')) {
-                    DB::table('information_object_closure')->whereIn('descendant_id', $chunkIds)->delete();
-                    DB::table('information_object_closure')->whereIn('ancestor_id', $chunkIds)->delete();
-                }
-                DB::table('object')->whereIn('id', $chunkIds)->delete();
-            });
+        $hasClosure = DB::getSchemaBuilder()->hasTable('information_object_closure');
+
+        // FK checks off so the explicit per-table deletes don't fan out across
+        // the many ON DELETE CASCADE references to object/information_object
+        // (some child FK columns are unindexed -> a full scan per delete). The
+        // SCALE corpus only touches these six tables, so we delete them directly.
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        try {
+            foreach ($ids->chunk(5000) as $batch) {
+                $chunkIds = $batch->all();
+                DB::transaction(function () use ($chunkIds, $hasClosure) {
+                    DB::table('status')->whereIn('object_id', $chunkIds)->delete();
+                    DB::table('slug')->whereIn('object_id', $chunkIds)->delete();
+                    DB::table('information_object_i18n')->whereIn('id', $chunkIds)->delete();
+                    if ($hasClosure) {
+                        DB::table('information_object_closure')->whereIn('descendant', $chunkIds)->delete();
+                        DB::table('information_object_closure')->whereIn('ancestor', $chunkIds)->delete();
+                    }
+                    DB::table('information_object')->whereIn('id', $chunkIds)->delete();
+                    DB::table('object')->whereIn('id', $chunkIds)->delete();
+                });
+            }
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }
 
         $elapsed = round(microtime(true) - $t0, 1);
