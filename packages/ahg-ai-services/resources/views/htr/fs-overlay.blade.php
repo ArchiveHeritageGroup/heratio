@@ -147,6 +147,10 @@
           <input class="form-check-input" type="checkbox" id="ba-auto-recog" onchange="baToggleAutoRecog(this.checked)" style="cursor:pointer">
           <label class="form-check-label small" for="ba-auto-recog" style="cursor:pointer">{{ __('Auto') }}</label>
         </div>
+        <div class="form-check form-switch d-inline-block me-1" style="vertical-align:middle">
+          <input class="form-check-input" type="checkbox" id="ba-numbers-only" onchange="baToggleNumbers()" style="cursor:pointer">
+          <label class="form-check-label small" for="ba-numbers-only" style="cursor:pointer" title="{{ __('Show only the box number on the image (field names stay in the list on the right)') }}">{{ __('Numbers only') }}</label>
+        </div>
         <button class="btn btn-sm btn-outline-success" onclick="baDonutPrefill()" id="ba-donut-btn" title="{{ __('Donut: pre-fill ILM fields from document image') }}"><i class="fas fa-file-invoice me-1"></i>{{ __('Donut') }}</button>
         <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="{{ __('HTR: recognise text in drawn boxes') }}"><i class="fas fa-brain me-1"></i>{{ __('Recognise') }}</button>
         <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="{{ __('OCR the form to detect printed labels') }}"><i class="fas fa-eye me-1"></i>{{ __('Detect labels') }}</button>
@@ -1677,6 +1681,12 @@
     localStorage.setItem('fs-overlay-auto-recog', on ? 'true' : 'false');
   };
 
+  // "Numbers only" toggle - redraw the canvas (redraw is IIFE-scoped, so the
+  // inline onchange must call this global wrapper, not redraw() directly).
+  window.baToggleNumbers = function() {
+    redraw();
+  };
+
   // ── Recognise: send field crops to HTR service ──
   window.baRecognise = function() {
     const entry = images[imgIdx];
@@ -2622,8 +2632,10 @@
       ctx.lineWidth = isActive ? 3 : 1.5;
       ctx.strokeRect(ann.x * scale, ann.y * scale, ann.w * scale, ann.h * scale);
 
-      // Label background (bigger, bolder)
-      const labelText = (i + 1) + '. ' + displayLabel(ann.label);
+      // Label background (bigger, bolder). "Numbers only" toggle draws just the
+      // box number on the image (the field names stay in the right-hand list).
+      const numbersOnly = document.getElementById('ba-numbers-only')?.checked;
+      const labelText = numbersOnly ? String(i + 1) : ((i + 1) + '. ' + displayLabel(ann.label));
       ctx.font = (isActive ? 'bold 14px' : '13px') + ' sans-serif';
       const tw = ctx.measureText(labelText).width + 12;
       ctx.fillStyle = color;

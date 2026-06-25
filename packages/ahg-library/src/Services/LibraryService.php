@@ -302,7 +302,7 @@ class LibraryService
             // 5. Create library_item record
             $libraryItemId = DB::table('library_item')->insertGetId([
                 'information_object_id' => $id,
-                'material_type' => $data['material_type'] ?: 'monograph',
+                'material_type' => ($data['material_type'] ?? '') ?: 'monograph',
                 'subtitle' => $data['subtitle'] ?? null,
                 'responsibility_statement' => $data['responsibility_statement'] ?? null,
                 'call_number' => $data['call_number'] ?? null,
@@ -528,6 +528,11 @@ class LibraryService
                 if (array_key_exists($field, $data)) {
                     $libraryData[$field] = $data[$field];
                 }
+            }
+            // material_type is NOT NULL; never let a blank form value overwrite a
+            // real value with '' on edit (mirror the create-path default).
+            if (isset($libraryData['material_type'])) {
+                $libraryData['material_type'] = $libraryData['material_type'] ?: 'monograph';
             }
             if (!empty($libraryData)) {
                 $libraryData['updated_at'] = now();
