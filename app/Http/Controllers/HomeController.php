@@ -57,7 +57,7 @@ class HomeController extends Controller
         $browseMenuId = DB::table('menu')->where('name', 'browse')->value('id');
         $browseItems = collect();
         if ($browseMenuId) {
-            $browseItems = DB::table('menu')
+            $bq = DB::table('menu')
                 ->leftJoin('menu_i18n as mi_cur', function ($j) use ($culture) {
                     $j->on('menu.id', '=', 'mi_cur.id')->where('mi_cur.culture', '=', $culture);
                 })
@@ -65,9 +65,10 @@ class HomeController extends Controller
                     $j->on('menu.id', '=', 'mi_fb.id')->where('mi_fb.culture', '=', $fallback);
                 })
                 ->where('menu.parent_id', $browseMenuId)
-                ->orderBy('menu.lft')
-                ->select('menu.path', DB::raw('COALESCE(mi_cur.label, mi_fb.label) AS label'))
-                ->get();
+                ->select('menu.path', DB::raw('COALESCE(mi_cur.label, mi_fb.label) AS label'));
+            // #1333 read-swap: order by the closure sibling-order (COALESCE falls back to lft).
+            $browseItems = app(\AhgCore\Services\HierarchyQueryService::class)
+                ->applySiblingOrder($bq, 'menu', 'menu.id', 'menu.lft')->get();
         }
 
         // Static pages menu — children of the "staticPagesMenu" menu item.
@@ -75,7 +76,7 @@ class HomeController extends Controller
         $staticPagesMenuId = DB::table('menu')->where('name', 'staticPagesMenu')->value('id');
         $staticPages = collect();
         if ($staticPagesMenuId) {
-            $staticPages = DB::table('menu')
+            $sq = DB::table('menu')
                 ->leftJoin('menu_i18n as mi_cur', function ($j) use ($culture) {
                     $j->on('menu.id', '=', 'mi_cur.id')->where('mi_cur.culture', '=', $culture);
                 })
@@ -83,9 +84,10 @@ class HomeController extends Controller
                     $j->on('menu.id', '=', 'mi_fb.id')->where('mi_fb.culture', '=', $fallback);
                 })
                 ->where('menu.parent_id', $staticPagesMenuId)
-                ->orderBy('menu.lft')
-                ->select(DB::raw('COALESCE(mi_cur.label, mi_fb.label) AS title'), 'menu.path as slug')
-                ->get();
+                ->select(DB::raw('COALESCE(mi_cur.label, mi_fb.label) AS title'), 'menu.path as slug');
+            // #1333 read-swap: order by the closure sibling-order (COALESCE falls back to lft).
+            $staticPages = app(\AhgCore\Services\HierarchyQueryService::class)
+                ->applySiblingOrder($sq, 'menu', 'menu.id', 'menu.lft')->get();
         }
 
         // Popular this week (from access_log)

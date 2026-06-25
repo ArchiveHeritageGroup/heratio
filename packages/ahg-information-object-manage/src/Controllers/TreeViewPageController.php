@@ -220,6 +220,11 @@ class TreeViewPageController extends Controller
 
         $width = $node->rgt - $node->lft + 1;
 
+        // #1333: capture the moved node's ancestor chain BEFORE any mutation so
+        // we can fire a single ES ancestor-delta after commit.
+        $hierarchy = app(\AhgCore\Services\HierarchyQueryService::class);
+        $oldAncestors = $hierarchy->ancestorIds('information_object', (int) $id);
+
         DB::beginTransaction();
         try {
             // Step 1: temporarily negate the moved subtree's lft/rgt so
@@ -280,7 +285,21 @@ class TreeViewPageController extends Controller
                 ],
             ]);
 
+            // #1333 dual-write: true reparent - move the closure subtree and
+            // re-derive sibling order for the old and new parents.
+            $closureSvc = app(\AhgCore\Services\ClosureMaintenanceService::class);
+            $closureSvc->moveNode('information_object', (int) $id, (int) $newParentId);
+            $closureSvc->resyncSiblingOrder('information_object', $node->parent_id !== null ? (int) $node->parent_id : null);
+            $closureSvc->resyncSiblingOrder('information_object', (int) $newParentId);
+
             DB::commit();
+
+            // #1333: one async _update_by_query repoints the `ancestors` of the
+            // whole moved subtree in ES (the delta is identical for every node in
+            // the subtree). Best-effort - never fails the move.
+            $newAncestors = $hierarchy->ancestorIds('information_object', (int) $id);
+            app(\AhgSearch\Services\ElasticsearchService::class)
+                ->updateSubtreeAncestorsOnMove((int) $id, $oldAncestors, $newAncestors);
 
             return response()->json([
                 'ok' => true,

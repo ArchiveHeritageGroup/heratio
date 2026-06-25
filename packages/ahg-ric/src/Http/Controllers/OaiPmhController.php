@@ -189,9 +189,13 @@ XML;
             // Only "fonds:N" supported — descendants of fonds N via parent chain
             if (preg_match('/^fonds:(\d+)$/', $set, $m)) {
                 $fondsId = (int) $m[1];
-                $fonds = DB::table('information_object')->where('id', $fondsId)->first(['lft', 'rgt']);
-                if (!$fonds) $this->oaiError('badArgument', "Unknown set: {$set}");
-                $q->whereBetween('io.lft', [$fonds->lft, $fonds->rgt]);
+                if (!DB::table('information_object')->where('id', $fondsId)->exists()) {
+                    $this->oaiError('badArgument', "Unknown set: {$set}");
+                }
+                // Descendants of the fonds (incl. self) - closure when built,
+                // else lft/rgt range. heratio#1333 read-swap.
+                app(\AhgCore\Services\HierarchyQueryService::class)
+                    ->scopeDescendants($q, 'information_object', $fondsId, 'io.id', true);
             } else {
                 $this->oaiError('badArgument', "Unsupported set spec: {$set}");
             }

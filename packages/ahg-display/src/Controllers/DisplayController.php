@@ -1199,18 +1199,13 @@ class DisplayController extends Controller
         }
 
         if ($this->parentId) {
-            // Use MPTT lft/rgt range to include the record itself and all descendants
-            $ancestor = DB::table('information_object')->where('id', $this->parentId)->select('lft', 'rgt')->first();
-            if ($ancestor && $ancestor->lft !== null && $ancestor->rgt !== null) {
-                // MPTT range: the record itself + all descendants.
-                $query->where('io.lft', '>=', $ancestor->lft)
-                      ->where('io.rgt', '<=', $ancestor->rgt);
-            } else {
-                // No ancestor row, or it has no nested-set bounds (null lft/rgt):
-                // fall back to direct children so where('lft','>=',null) cannot throw
-                // "illegal operator and value combination".
-                $query->where('io.parent_id', $this->parentId);
-            }
+            // #1333 read-swap: the record itself + all descendants via the closure
+            // table. scopeDescendants uses the closure when built, and falls back
+            // to the lft/rgt range, then to direct children when there are no
+            // nested-set bounds - so this is identical to the old MPTT logic
+            // pre-build and a drift-correcting superset once the closure exists.
+            app(\AhgCore\Services\HierarchyQueryService::class)
+                ->scopeDescendants($query, 'information_object', (int) $this->parentId, 'io.id', true);
         } elseif ($this->topLevelOnly === '1') {
             $query->where('io.parent_id', 1);
         }

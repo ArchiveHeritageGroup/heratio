@@ -219,6 +219,10 @@ class EmailCaptureService
                     'source_culture' => $culture,
                 ]);
 
+                // #1333 dual-write: maintain the closure tree alongside lft/rgt.
+                app(\AhgCore\Services\ClosureMaintenanceService::class)
+                    ->addNode('information_object', $objectId, 1);
+
                 // 3. information_object_i18n
                 DB::table('information_object_i18n')->insert([
                     'id' => $objectId,

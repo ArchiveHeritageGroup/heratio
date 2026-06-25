@@ -622,6 +622,11 @@ class DataMigrationService
 
         DB::table('information_object')->insert($ioData);
 
+        // #1333 dual-write: maintain the closure tree alongside lft/rgt. No-op
+        // until the closure tables exist; lft/rgt stay authoritative for now.
+        app(\AhgCore\Services\ClosureMaintenanceService::class)
+            ->addNode('information_object', (int) $objectId, (int) $ioData['parent_id']);
+
         // Insert i18n
         $i18nData = ['id' => $objectId, 'culture' => $culture];
         foreach ($i18nFields as $f) {

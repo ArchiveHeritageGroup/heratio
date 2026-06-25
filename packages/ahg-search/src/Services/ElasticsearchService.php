@@ -100,6 +100,64 @@ class ElasticsearchService
     }
 
     /**
+     * #1333: keep the closure-derived `ancestors` array correct after a subtree
+     * move with ONE async _update_by_query (an ancestor-delta), instead of
+     * reindexing the whole subtree. Every doc in the moved subtree (those whose
+     * `ancestors` contains $movedId, plus $movedId itself) has the moved node's
+     * OLD ancestor chain removed and the NEW chain added - the delta is identical
+     * for the whole subtree because they all share the moved node's prefix.
+     *
+     * Fires with conflicts=proceed + wait_for_completion=false so ES runs it
+     * server-side asynchronously and the move request doesn't block. Best-effort:
+     * never throws into the caller (an ES hiccup must not fail a reparent).
+     *
+     * @param  list<int>  $oldAncestors  moved node's ancestor ids BEFORE the move
+     * @param  list<int>  $newAncestors  moved node's ancestor ids AFTER the move (new parent + its chain)
+     * @return array{ok:bool,status?:int,task?:mixed,error?:string}
+     */
+    public function updateSubtreeAncestorsOnMove(int $movedId, array $oldAncestors, array $newAncestors): array
+    {
+        // No-op when nothing actually changed (e.g. reorder under the same parent).
+        sort($oldAncestors);
+        sort($newAncestors);
+        if ($oldAncestors === $newAncestors) {
+            return ['ok' => true, 'status' => 0];
+        }
+
+        $url = "{$this->host}/{$this->indexPrefix}qubitinformationobject/_update_by_query?conflicts=proceed&wait_for_completion=false";
+        $body = [
+            'query' => ['bool' => [
+                'minimum_should_match' => 1,
+                'should' => [
+                    ['term' => ['ancestors' => $movedId]],
+                    ['term' => ['_id' => (string) $movedId]],
+                ],
+            ]],
+            'script' => [
+                'lang' => 'painless',
+                'source' =>
+                    'if (ctx._source.ancestors == null) { ctx._source.ancestors = []; } '
+                    .'for (def a : params.remove) { ctx._source.ancestors.removeIf(x -> x == a); } '
+                    .'for (def a : params.add) { if (!ctx._source.ancestors.contains(a)) { ctx._source.ancestors.add(a); } }',
+                'params' => [
+                    'remove' => array_values(array_map('intval', $oldAncestors)),
+                    'add' => array_values(array_map('intval', $newAncestors)),
+                ],
+            ],
+        ];
+
+        try {
+            $resp = Http::timeout(10)->post($url, $body);
+
+            return ['ok' => $resp->successful(), 'status' => $resp->status(), 'task' => $resp->json('task')];
+        } catch (\Throwable $e) {
+            \Log::warning('[ES] ancestor-delta update_by_query failed: '.$e->getMessage(), ['moved' => $movedId]);
+
+            return ['ok' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
      * Search across all main indices (IO, actor, repository, term).
      */
     public function globalSearch(string $query, string $culture = 'en', int $from = 0, int $size = 30): array

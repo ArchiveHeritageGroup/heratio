@@ -558,6 +558,12 @@ class ImportJob implements ShouldQueue
                     'source_culture' => $culture,
                 ]);
 
+                // #1333 dual-write: maintain the closure tree alongside lft/rgt
+                // (transactional with the insert). No-op until the closure tables
+                // exist; lft/rgt remain authoritative until reads are swapped.
+                app(\AhgCore\Services\ClosureMaintenanceService::class)
+                    ->addNode('information_object', (int) $objectId, (int) $parentId);
+
                 // Separate i18n fields from structural fields
                 $i18nFields = [
                     'title', 'alternate_title', 'edition', 'extent_and_medium',
@@ -735,11 +741,11 @@ class ImportJob implements ShouldQueue
 
             $width = $record->rgt - $record->lft + 1;
 
-            // Collect descendant IDs
-            $descendantIds = DB::table('information_object')
-                ->whereBetween('lft', [$record->lft, $record->rgt])
-                ->pluck('id')
-                ->toArray();
+            // Collect descendant IDs (incl. self). Closure when built (also
+            // catches null-lft orphans the nested-set range misses), else lft/rgt.
+            // heratio#1333 read-swap; the gap-close below stays nested-set.
+            $descendantIds = app(\AhgCore\Services\HierarchyQueryService::class)
+                ->descendantIds('information_object', (int) $id, true);
 
             // Delete related records
             DB::table('information_object_i18n')->whereIn('id', $descendantIds)->delete();
@@ -747,6 +753,16 @@ class ImportJob implements ShouldQueue
             DB::table('information_object')->whereIn('id', $descendantIds)->delete();
             DB::table('slug')->whereIn('object_id', $descendantIds)->delete();
             DB::table('object')->whereIn('id', $descendantIds)->delete();
+
+            // #1333 dual-write: closure rows for the deleted subtree cascade via
+            // the ON DELETE CASCADE FK on information_object_closure; the sibling
+            // sidecar has no FK, so clear its rows for the deleted ids.
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order')) {
+                DB::table('ahg_node_sibling_order')
+                    ->where('entity', 'information_object')
+                    ->whereIn('node_id', $descendantIds)
+                    ->delete();
+            }
 
             // Close nested set gap
             DB::table('information_object')

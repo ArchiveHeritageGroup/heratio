@@ -118,24 +118,13 @@ class DocumentPriorService
      */
     private function compute(int $fondsId): array
     {
-        // Find every IO under the fonds via MPTT lft/rgt range.
-        $fonds = DB::table('information_object')->where('id', $fondsId)->first(['id', 'lft', 'rgt']);
-        if (! $fonds) {
-            return ['fonds_id' => $fondsId, 'io_count' => 0, 'distribution' => []];
-        }
-
-        $lft = (int) ($fonds->lft ?? 0);
-        $rgt = (int) ($fonds->rgt ?? 0);
-
-        if ($lft <= 0 || $rgt <= 0) {
-            // Fall back to a direct parent_id walk (rare; happens if MPTT not rebuilt).
+        // Every IO under the fonds (incl. the fonds itself). Closure table when
+        // built (scales + independent of MPTT integrity), else lft/rgt range;
+        // parent_id walk as the final fallback. heratio#1333 read-swap.
+        $ioIds = app(\AhgCore\Services\HierarchyQueryService::class)
+            ->descendantIds('information_object', $fondsId, true);
+        if (empty($ioIds)) {
             $ioIds = $this->descendantsByParentWalk($fondsId);
-        } else {
-            $ioIds = DB::table('information_object')
-                ->whereBetween('lft', [$lft, $rgt])
-                ->pluck('id')
-                ->map(fn ($v) => (int) $v)
-                ->all();
         }
 
         if (empty($ioIds)) {

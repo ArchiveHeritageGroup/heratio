@@ -96,8 +96,11 @@ class ExportCsvCommand extends Command
                 'io.parent_id',
                 DB::raw("COALESCE(ps.name, 'Draft') as publication_status"),
                 DB::raw("'{$culture}' as culture"),
-            ])
-            ->orderBy('io.lft');
+            ]);
+        // #1333 read-swap: hierarchical export order via the closure sibling-order
+        // (COALESCE falls back to io.lft, so output is identical pre-build).
+        $query = app(\AhgCore\Services\HierarchyQueryService::class)
+            ->applySiblingOrder($query, 'information_object', 'io.id', 'io.lft');
 
         $count = 0;
         $query->chunk(500, function ($rows) use ($output, &$count) {

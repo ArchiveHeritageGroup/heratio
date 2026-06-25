@@ -312,6 +312,10 @@ class MenuService
                 'serial_number' => 0,
             ]);
 
+            // #1333 dual-write: maintain the menu closure tree alongside lft/rgt.
+            app(\AhgCore\Services\ClosureMaintenanceService::class)
+                ->addNode('menu', (int) $newId, (int) $parentId);
+
             // Step 3: Insert i18n record
             $i18nData = [
                 'id' => $newId,
@@ -444,6 +448,15 @@ class MenuService
                 ->where('rgt', '<=', $node->rgt)
                 ->delete();
 
+            // #1333 dual-write: menu_closure rows cascade via the FK; clear the
+            // FK-less sibling sidecar for the deleted subtree.
+            if (! empty($subtreeIds) && \Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order')) {
+                DB::table('ahg_node_sibling_order')
+                    ->where('entity', 'menu')
+                    ->whereIn('node_id', $subtreeIds)
+                    ->delete();
+            }
+
             // Step 3: Close the gap
             DB::table('menu')
                 ->where('lft', '>', $node->rgt)
@@ -541,6 +554,13 @@ class MenuService
         DB::table('menu')
             ->where('id', $id)
             ->update(['parent_id' => $newParentId]);
+
+        // #1333 dual-write: true reparent - move the menu closure subtree and
+        // re-derive sibling order for the old and new parents.
+        $closureSvc = app(\AhgCore\Services\ClosureMaintenanceService::class);
+        $closureSvc->moveNode('menu', (int) $id, (int) $newParentId);
+        $closureSvc->resyncSiblingOrder('menu', $node->parent_id !== null ? (int) $node->parent_id : null);
+        $closureSvc->resyncSiblingOrder('menu', (int) $newParentId);
 
         return true;
     }

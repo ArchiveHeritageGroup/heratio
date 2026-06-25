@@ -284,6 +284,12 @@ class InformationObjectService
             }
             DB::table('information_object')->insert($ioInsert);
 
+            // #1333 dual-write: maintain the closure tree alongside lft/rgt
+            // (transactional with the insert). No-op until the closure tables
+            // exist; lft/rgt stay authoritative until reads are swapped.
+            app(\AhgCore\Services\ClosureMaintenanceService::class)
+                ->addNode('information_object', (int) $objectId, (int) $parentId);
+
             // 4. Insert i18n record
             $i18nData = ['id' => $objectId, 'culture' => $culture];
             foreach (self::$i18nFields as $field) {
@@ -551,11 +557,11 @@ class InformationObjectService
 
             $width = $record->rgt - $record->lft + 1;
 
-            // Collect all descendant IDs (nested set)
-            $descendantIds = DB::table('information_object')
-                ->whereBetween('lft', [$record->lft, $record->rgt])
-                ->pluck('id')
-                ->toArray();
+            // Collect all descendant IDs (incl. self). Closure when built (also
+            // catches null-lft orphans the nested-set range misses), else lft/rgt.
+            // heratio#1333 read-swap; the gap-close below stays nested-set.
+            $descendantIds = app(\AhgCore\Services\HierarchyQueryService::class)
+                ->descendantIds('information_object', (int) $id, true);
 
             if (empty($descendantIds)) {
                 return;
@@ -643,6 +649,15 @@ class InformationObjectService
             DB::table('object')
                 ->whereIn('id', $descendantIds)
                 ->delete();
+
+            // #1333 dual-write: closure rows for the deleted subtree cascade via
+            // the ON DELETE CASCADE FK; clear the FK-less sibling sidecar.
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order')) {
+                DB::table('ahg_node_sibling_order')
+                    ->where('entity', 'information_object')
+                    ->whereIn('node_id', $descendantIds)
+                    ->delete();
+            }
 
             // Close the gap in the nested set
             DB::table('information_object')

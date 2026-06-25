@@ -418,6 +418,10 @@ abstract class SectorCsvImporter
                 'source_culture' => $this->culture,
             ]);
 
+            // #1333 dual-write: maintain the closure tree alongside lft/rgt.
+            app(\AhgCore\Services\ClosureMaintenanceService::class)
+                ->addNode('information_object', (int) $objectId, (int) $parentId);
+
             // Create i18n record
             $i18nMap = $this->getI18nFieldMap($data);
             $i18nData = ['id' => $objectId, 'culture' => $this->culture];

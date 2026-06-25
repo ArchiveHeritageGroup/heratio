@@ -116,12 +116,13 @@ class SuggestedConnectionsService
             ->whereIn('t.taxonomy_id', self::ACCESS_POINT_TAXONOMIES);
 
         if ($ancestorId !== null) {
-            $anc = DB::table('information_object')->where('id', $ancestorId)->first(['lft', 'rgt']);
-            if ($anc) {
-                $query->join('information_object as ioa', 'ioa.id', '=', 'a.object_id')
-                      ->join('information_object as iob', 'iob.id', '=', 'b.object_id')
-                      ->whereBetween('ioa.lft', [$anc->lft, $anc->rgt])
-                      ->whereBetween('iob.lft', [$anc->lft, $anc->rgt]);
+            // Both objects must be under the ancestor (incl. self). Closure when
+            // built (also catches null-lft orphans), else lft/rgt. heratio#1333.
+            $descIds = app(\AhgCore\Services\HierarchyQueryService::class)
+                ->descendantIds('information_object', $ancestorId, true);
+            if (! empty($descIds)) {
+                $query->whereIn('a.object_id', $descIds)
+                      ->whereIn('b.object_id', $descIds);
             }
         }
 

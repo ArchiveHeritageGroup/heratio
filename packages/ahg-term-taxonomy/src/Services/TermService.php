@@ -237,6 +237,10 @@ class TermService
                 'source_culture' => $culture,
             ]);
 
+            // #1333 dual-write: maintain the term closure tree alongside lft/rgt.
+            app(\AhgCore\Services\ClosureMaintenanceService::class)
+                ->addNode('term', (int) $objectId, (int) $parentId);
+
             // Insert into term_i18n table
             DB::table('term_i18n')->insert([
                 'id' => $objectId,
@@ -469,12 +473,11 @@ class TermService
 
             $width = $term->rgt - $term->lft + 1;
 
-            // Collect all descendant IDs (nested set: lft between this node's lft and rgt)
-            $descendantIds = DB::table('term')
-                ->where('taxonomy_id', $term->taxonomy_id)
-                ->whereBetween('lft', [$term->lft, $term->rgt])
-                ->pluck('id')
-                ->toArray();
+            // Collect all descendant term IDs (incl. self). Closure when built
+            // (subtree stays within the taxonomy as parent_id chains do; also
+            // catches null-lft orphans), else lft/rgt. heratio#1333 read-swap.
+            $descendantIds = app(\AhgCore\Services\HierarchyQueryService::class)
+                ->descendantIds('term', (int) $termId, true);
 
             // Delete notes (note_i18n first, then note)
             $noteIds = DB::table('note')
@@ -516,6 +519,15 @@ class TermService
             DB::table('object')
                 ->whereIn('id', $descendantIds)
                 ->delete();
+
+            // #1333 dual-write: term_closure rows cascade via the FK; clear the
+            // FK-less sibling sidecar for the deleted subtree.
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order')) {
+                DB::table('ahg_node_sibling_order')
+                    ->where('entity', 'term')
+                    ->whereIn('node_id', $descendantIds)
+                    ->delete();
+            }
 
             // Close the gap in the nested set (only within the same taxonomy)
             DB::table('term')

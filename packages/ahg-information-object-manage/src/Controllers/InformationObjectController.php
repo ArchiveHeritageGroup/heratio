@@ -116,6 +116,11 @@ class InformationObjectController extends Controller
             'rgt'            => null,
             'source_culture' => $culture,
         ]);
+
+        // #1333 dual-write: maintain the term closure tree alongside parent_id.
+        app(\AhgCore\Services\ClosureMaintenanceService::class)
+            ->addNode('term', (int) $termId, (int) $parentId);
+
         DB::table('term_i18n')->insert([
             'id'      => $termId,
             'culture' => $culture,
@@ -2115,6 +2120,10 @@ class InformationObjectController extends Controller
                     'source_culture'          => $culture,
                 ]);
 
+                // #1333 dual-write: maintain the closure tree alongside lft/rgt.
+                app(\AhgCore\Services\ClosureMaintenanceService::class)
+                    ->addNode('information_object', (int) $newObjId, (int) $newParent);
+
                 // Copy all i18n fields verbatim — title gets " (copy)" appended
                 // so the cataloguer can spot the duplicate at a glance.
                 $i18nFields = [
@@ -2911,6 +2920,11 @@ class InformationObjectController extends Controller
                     'rgt'                     => $newRgt,
                     'source_culture'          => $culture,
                 ]);
+
+                // #1333 dual-write: maintain the closure tree alongside lft/rgt.
+                app(\AhgCore\Services\ClosureMaintenanceService::class)
+                    ->addNode('information_object', (int) $childId, (int) $ioId);
+
                 DB::table('information_object_i18n')->insert([
                     'id'      => $childId,
                     'culture' => $culture,
@@ -3607,11 +3621,11 @@ class InformationObjectController extends Controller
         // InformationObjectService::delete (which v1.52.24 wrapped).
         \AhgCore\Support\AuditLog::captureDelete((int) $ioId, 'information_object', \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $ioId, app()->getLocale()));
 
-        // Collect all descendant IDs (nested set: lft between this node's lft and rgt)
-        $descendantIds = DB::table('information_object')
-            ->whereBetween('lft', [$record->lft, $record->rgt])
-            ->pluck('id')
-            ->toArray();
+        // Collect all descendant IDs (incl. self). Closure when built (also
+        // catches null-lft orphans the nested-set range misses), else lft/rgt.
+        // heratio#1333 read-swap; the gap-close below stays nested-set.
+        $descendantIds = app(\AhgCore\Services\HierarchyQueryService::class)
+            ->descendantIds('information_object', (int) $ioId, true);
 
         // Delete i18n rows for all descendants
         DB::table('information_object_i18n')

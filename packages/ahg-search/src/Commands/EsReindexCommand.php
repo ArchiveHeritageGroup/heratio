@@ -553,6 +553,12 @@ class EsReindexCommand extends Command
                         'updatedAt' => ! empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
                         'sourceCulture' => $row->source_culture ?? 'en',
                         'lft' => $row->lft,
+                        // #1333: closure-derived ancestor ids (excl. self) so ES can
+                        // filter a subtree by `ancestors: <id>`; kept correct after a
+                        // subtree move via ElasticsearchService::updateSubtreeAncestorsOnMove().
+                        // Closure when built, lft/rgt fallback.
+                        'ancestors' => app(\AhgCore\Services\HierarchyQueryService::class)
+                            ->ancestorIds('information_object', (int) $row->id),
                         'i18n' => $this->buildI18n($i18nGroup, [
                             'title' => 'title',
                             'scopeAndContent' => 'scope_and_content',

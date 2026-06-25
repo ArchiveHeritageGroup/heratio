@@ -154,6 +154,8 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Console\Commands\SplatSetupCommand::class,
                 // #1205 capture / at-risk register (endangered-heritage capture network)
                 \AhgCore\Console\Commands\CapturePriorityCommand::class,
+                // #1333 hierarchy closure-table build/verify (nested-set replacement)
+                \AhgCore\Console\Commands\BuildClosureCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,
@@ -504,6 +506,26 @@ class AhgCoreServiceProvider extends ServiceProvider
             // open (no enforcement) when the table is missing; install
             // retries on next boot.
             \Log::warning('[ahg-core] voice_usage install failed: '.$e->getMessage());
+        }
+
+        // #1333: hierarchy closure tables (information_object/term/menu).
+        // New tables only - base tables are not altered. Gated on the first
+        // closure table; populate with `php artisan ahg:build-closure --all`.
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('information_object_closure')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_closure.sql');
+                if (is_string($sql) && trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            }
+            if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_node_sibling_order.sql');
+                if (is_string($sql) && trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] closure-table install failed: '.$e->getMessage());
         }
 
         // #673 Phase 2: cron-monitoring tables (ahg_cron_run +

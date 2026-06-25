@@ -409,6 +409,11 @@ class TreeviewService
                     'rgt' => DB::raw('(rgt * -1) + ' . $offset),
                 ]);
 
+            // #1333 dual-write: same-parent reorder leaves the closure tree
+            // unchanged; only the sibling order moves. Re-derive it from lft.
+            app(\AhgCore\Services\ClosureMaintenanceService::class)
+                ->resyncSiblingOrder('information_object', $node->parent_id !== null ? (int) $node->parent_id : null);
+
             DB::commit();
 
             return true;
