@@ -9,6 +9,7 @@
 namespace AhgRdm\Controllers;
 
 use AhgRdm\Services\DatasetService;
+use AhgRdm\Services\PopiaGateService;
 use AhgRdm\Services\PopiaScanService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -68,11 +69,44 @@ class DatasetController extends Controller
             ->get(['code', 'label', 'color']);
 
         return view('ahg-rdm::datasets.show', [
-            'dataset'  => $dataset,
-            'files'    => $this->service->files($id),
-            'statuses' => $statuses,
-            'findings' => DB::table('rdm_scan_finding')->where('dataset_id', $id)->orderByRaw("FIELD(category,'special_category','personal'), method")->get(),
+            'dataset'      => $dataset,
+            'files'        => $this->service->files($id),
+            'statuses'     => $statuses,
+            'findings'     => DB::table('rdm_scan_finding')->where('dataset_id', $id)->orderByRaw("FIELD(category,'special_category','personal'), method")->get(),
+            'gate'         => app(PopiaGateService::class)->gateStatus($id),
+            'dispositions' => DB::table('ahg_dropdown')->where('taxonomy', 'rdm_disposition')->orderBy('sort_order')->get(['code', 'label', 'color']),
         ]);
+    }
+
+    public function resolveFinding(Request $request, int $id, int $fid)
+    {
+        abort_unless($this->service->get($id), 404);
+        $request->validate([
+            'decision' => 'required|in:confirm,dismiss',
+            'note'     => 'nullable|string|max:500',
+        ]);
+
+        try {
+            app(PopiaGateService::class)->resolveFinding($fid, $request->input('decision'), $request->input('note'), (int) auth()->id());
+        } catch (\Throwable $e) {
+            return redirect()->route('rdm.datasets.show', $id)->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('rdm.datasets.show', $id)->with('success', 'Finding '.($request->input('decision') === 'dismiss' ? 'dismissed' : 'confirmed').'.');
+    }
+
+    public function setDisposition(Request $request, int $id)
+    {
+        abort_unless($this->service->get($id), 404);
+        $request->validate(['disposition' => 'required|in:restrict,embargo,de-identify,release']);
+
+        try {
+            $r = app(PopiaGateService::class)->setDisposition($id, $request->input('disposition'), (int) auth()->id());
+        } catch (\Throwable $e) {
+            return redirect()->route('rdm.datasets.show', $id)->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('rdm.datasets.show', $id)->with('success', "Disposition set to {$r['disposition']} (status {$r['status']}).");
     }
 
     public function scan(int $id)

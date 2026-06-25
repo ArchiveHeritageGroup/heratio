@@ -44,15 +44,21 @@ class AhgRdmServiceProvider extends ServiceProvider
                 // install picks up the #1339 findings table + verdict column.
                 $needsInstall = ! Schema::hasTable('rdm_dataset')
                     || ! Schema::hasTable('rdm_scan_finding')
-                    || ! Schema::hasColumn('rdm_dataset', 'verdict');
+                    || ! Schema::hasColumn('rdm_dataset', 'verdict')
+                    || ! Schema::hasColumn('rdm_dataset', 'disposition');
                 if ($needsInstall) {
                     $sql = @file_get_contents(__DIR__.'/../database/install.sql');
                     if (is_string($sql) && trim($sql) !== '') {
                         DB::unprepared($sql);
                     }
                 }
-                if (Schema::hasTable('ahg_dropdown')
-                    && ! DB::table('ahg_dropdown')->where('taxonomy', 'dataset_status')->exists()) {
+                // INSERT IGNORE seed; re-run when EITHER taxonomy is missing so a
+                // later-added group (e.g. rdm_disposition, #1340) is picked up on
+                // an install that already had dataset_status.
+                if (Schema::hasTable('ahg_dropdown') && (
+                    ! DB::table('ahg_dropdown')->where('taxonomy', 'dataset_status')->exists()
+                    || ! DB::table('ahg_dropdown')->where('taxonomy', 'rdm_disposition')->exists()
+                )) {
                     $seed = @file_get_contents(__DIR__.'/../database/seed_dropdowns.sql');
                     if (is_string($seed) && trim($seed) !== '') {
                         DB::unprepared($seed);

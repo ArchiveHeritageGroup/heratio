@@ -51,16 +51,47 @@
 </div>
 
 @if ($dataset->verdict)
+{{-- Human gate (#1340): disposition + the open-access block. --}}
+<div class="card mb-3 border-warning">
+  <div class="card-header fw-bold bg-warning-subtle"><i class="fas fa-gavel me-1"></i>{{ __('Human gate — disposition') }}</div>
+  <div class="card-body">
+    <p class="small mb-2">
+      {{ __('Unresolved findings') }}: <strong>{{ $gate['pending'] }}</strong> ·
+      {{ __('confirmed PII') }}: <strong>{{ $gate['confirmed_pii'] }}</strong> ·
+      {{ __('dismissed') }}: <strong>{{ $gate['dismissed'] }}</strong>
+    </p>
+    @if ($dataset->disposition)
+      <p class="mb-2"><span class="text-muted">{{ __('Current disposition') }}:</span>
+        <span class="badge bg-dark">{{ $dataset->disposition }}</span></p>
+    @endif
+    @unless ($gate['can_release'])
+      <div class="alert alert-warning py-2 small mb-2"><i class="fas fa-lock me-1"></i>{{ __('Open release is blocked until every PERSONAL/SPECIAL finding is resolved and none remain confirmed as PII. You can still restrict, embargo, or de-identify.') }}</div>
+    @endunless
+    <form method="POST" action="{{ route('rdm.datasets.disposition', $dataset->id) }}" class="row g-2 align-items-end">
+      @csrf
+      <div class="col-auto">
+        <label for="disposition" class="form-label small mb-0">{{ __('Apply disposition') }}</label>
+        <select name="disposition" id="disposition" class="form-select form-select-sm">
+          @foreach ($dispositions as $d)
+            <option value="{{ $d->code }}" @disabled($d->code === 'release' && ! $gate['can_release'])>{{ $d->label }}@if ($d->code === 'release' && ! $gate['can_release']) — {{ __('blocked') }}@endif</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-auto"><button type="submit" class="btn btn-sm btn-dark">{{ __('Apply') }}</button></div>
+    </form>
+  </div>
+</div>
+
 <div class="card mb-3">
   <div class="card-header fw-bold d-flex justify-content-between">
     <span><i class="fas fa-user-shield me-1"></i>{{ __('POPIA scan findings') }}</span>
-    <span class="small text-muted">{{ __('AI/regex findings are suggestions — a human confirms each before open access (next step)') }}</span>
+    <span class="small text-muted">{{ __('AI/regex findings are suggestions — confirm or dismiss each (provenance is recorded)') }}</span>
   </div>
   <div class="card-body p-0">
     <table class="table table-sm mb-0 align-middle">
       <thead><tr>
         <th>{{ __('File') }}</th><th>{{ __('Type') }}</th><th>{{ __('Category') }}</th>
-        <th>{{ __('Sample') }}</th><th>{{ __('Confidence') }}</th><th>{{ __('Method') }}</th>
+        <th>{{ __('Sample') }}</th><th>{{ __('Method') }}</th><th>{{ __('Review') }}</th>
       </tr></thead>
       <tbody>
         @forelse ($findings as $f)
@@ -73,8 +104,24 @@
               @else <span class="badge bg-warning text-dark">{{ __('personal') }}</span>@endif
             </td>
             <td class="small"><code>{{ $f->sample }}</code></td>
-            <td class="small">{{ $f->confidence }}</td>
-            <td class="small text-muted">{{ $f->method }}@if ($f->method !== 'deterministic') <span class="text-info">({{ __('AI-suggested') }})</span>@endif</td>
+            <td class="small text-muted">{{ $f->method }}@if ($f->method !== 'deterministic') <span class="text-info">({{ __('AI') }})</span>@endif</td>
+            <td class="small">
+              @if ($f->review_status === 'pending')
+                <form method="POST" action="{{ route('rdm.datasets.finding.resolve', [$dataset->id, $f->id]) }}" class="d-inline">
+                  @csrf
+                  <input type="hidden" name="decision" value="confirm">
+                  <button class="btn btn-outline-danger btn-sm py-0">{{ __('Confirm PII') }}</button>
+                </form>
+                <form method="POST" action="{{ route('rdm.datasets.finding.resolve', [$dataset->id, $f->id]) }}" class="d-inline">
+                  @csrf
+                  <input type="hidden" name="decision" value="dismiss">
+                  <button class="btn btn-outline-secondary btn-sm py-0">{{ __('Dismiss') }}</button>
+                </form>
+              @else
+                <span @class(['badge', 'bg-danger' => $f->review_status === 'confirmed', 'bg-secondary' => $f->review_status === 'dismissed'])>{{ $f->review_status }}</span>
+                <span class="text-muted">· {{ \Illuminate\Support\Str::limit((string) $f->reviewed_at, 16, '') }}@if ($f->reviewed_by) · #{{ $f->reviewed_by }}@endif</span>
+              @endif
+            </td>
           </tr>
         @empty
           <tr><td colspan="6" class="text-center text-success py-3"><i class="fas fa-check-circle me-1"></i>{{ __('No PII detected — verdict CLEAR.') }}</td></tr>

@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS rdm_dataset (
     -- POPIA scan verdict (CLEAR | PERSONAL | SPECIAL_CATEGORY), set by PopiaScanService.
     verdict         VARCHAR(32) NULL,
     scanned_at      TIMESTAMP NULL,
+    -- Human-gate disposition (#1340): restrict|embargo|de-identify|release.
+    -- 'release' (open) is blocked while any PERSONAL/SPECIAL finding is unresolved.
+    disposition     VARCHAR(40) NULL,
+    disposition_by  INT NULL,
+    disposition_at  TIMESTAMP NULL,
     doi             VARCHAR(255) NULL,
     created_by      INT NULL,                       -- auth user id of the depositor
     created_at      TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -52,7 +57,10 @@ CREATE TABLE IF NOT EXISTS rdm_scan_finding (
     sample          VARCHAR(255) NULL,              -- MASKED
     confidence      VARCHAR(20) NOT NULL DEFAULT 'high',     -- high | medium | low (AI-suggested = medium/low)
     method          VARCHAR(20) NOT NULL DEFAULT 'deterministic',
-    review_status   VARCHAR(20) NOT NULL DEFAULT 'pending',  -- pending|confirmed|dismissed (set by the human gate)
+    review_status   VARCHAR(20) NOT NULL DEFAULT 'pending',  -- pending|confirmed|dismissed (set by the human gate, #1340)
+    reviewed_by     INT NULL,
+    reviewed_at     TIMESTAMP NULL,
+    decision_note   VARCHAR(500) NULL,
     created_at      TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY idx_rdm_finding_dataset (dataset_id),
@@ -63,4 +71,13 @@ CREATE TABLE IF NOT EXISTS rdm_scan_finding (
 -- scanned_at columns (the CREATE above is skipped when the table exists).
 SET @c := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'rdm_dataset' AND column_name = 'verdict');
 SET @s := IF(@c = 0, 'ALTER TABLE rdm_dataset ADD COLUMN verdict VARCHAR(32) NULL AFTER status, ADD COLUMN scanned_at TIMESTAMP NULL AFTER verdict', 'SELECT 1');
+PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- #1340 human-gate columns (guarded for installs that predate them).
+SET @c := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'rdm_dataset' AND column_name = 'disposition');
+SET @s := IF(@c = 0, 'ALTER TABLE rdm_dataset ADD COLUMN disposition VARCHAR(40) NULL AFTER scanned_at, ADD COLUMN disposition_by INT NULL AFTER disposition, ADD COLUMN disposition_at TIMESTAMP NULL AFTER disposition_by', 'SELECT 1');
+PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'rdm_scan_finding' AND column_name = 'reviewed_by');
+SET @s := IF(@c = 0, 'ALTER TABLE rdm_scan_finding ADD COLUMN reviewed_by INT NULL AFTER review_status, ADD COLUMN reviewed_at TIMESTAMP NULL AFTER reviewed_by, ADD COLUMN decision_note VARCHAR(500) NULL AFTER reviewed_at', 'SELECT 1');
 PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
