@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Idempotent: core schema already creates this on fresh install.
+        if (Schema::hasTable('cron_schedule')) {
+            return;
+        }
+
         Schema::create('cron_schedule', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug', 120)->unique();

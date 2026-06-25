@@ -1683,9 +1683,17 @@
 
   // "Numbers only" toggle - redraw the canvas (redraw is IIFE-scoped, so the
   // inline onchange must call this global wrapper, not redraw() directly).
+  // Persisted so the choice sticks across page loads / images.
   window.baToggleNumbers = function() {
+    try { localStorage.setItem('fs-overlay-numbers-only', document.getElementById('ba-numbers-only').checked ? '1' : '0'); } catch (e) {}
     redraw();
   };
+  // Restore the saved preference on load (the checkbox exists even while the
+  // workspace is hidden; redraw later reads it).
+  try {
+    var _noChk = document.getElementById('ba-numbers-only');
+    if (_noChk && localStorage.getItem('fs-overlay-numbers-only') === '1') _noChk.checked = true;
+  } catch (e) {}
 
   // ── Recognise: send field crops to HTR service ──
   window.baRecognise = function() {

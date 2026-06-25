@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# post-merge - keep the DB schema in lock-step with pulled code.
+#
+# Fires after every successful `git pull` / `git merge`. Applies any new
+# package migrations so the database never drifts behind freshly-pulled code -
+# the "SQLSTATE[42S22] Unknown column 'marc_leader'" class of bug, where new
+# code inserts columns a stale schema doesn't have.
+#
+# All Heratio migrations are idempotent (hasTable/hasColumn guards), so this is
+# safe to run on every pull, including when nothing schema-related changed.
+#
+# Requires `git config core.hooksPath hooks` (set by bin/install). The deploy
+# script (heratio-deploy.sh) also migrates explicitly; running here too is
+# harmless (the second pass is a no-op).
+#
+# Copyright (C) 2026 Johan Pieterse
+# Plain Sailing Information Systems
+# Email: johan@plainsailingisystems.co.za
+# License: AGPL-3.0-or-later
+
+set -uo pipefail
+
+# Resolve to the repo root regardless of where git invoked us from.
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+cd "$ROOT" || exit 0
+
+# Skip on a checkout that can't run the app (bare clone, CI lint job, no DB).
+[ -f artisan ] || exit 0
+PHP="$(command -v php || true)"
+[ -n "$PHP" ] || exit 0
+
+# Prefer running as www-data so migrate-created files (logs, cache) aren't
+# left root-owned when an operator pulls as root.
+RUN=""
+if [ "$(id -u)" = "0" ] && command -v sudo >/dev/null 2>&1 && id www-data >/dev/null 2>&1; then
+    RUN="sudo -u www-data"
+fi
+
+echo "[post-merge] applying DB migrations (idempotent)..."
+if $RUN $PHP artisan migrate --force; then
+    echo "[post-merge] migrations applied."
+else
+    echo "[post-merge] WARNING: migrate reported errors - run '$PHP artisan migrate:status'."
+fi
+
+# Clear cached config/routes/views so they don't reference a pre-migration
+# schema or stale paths after the pull.
+$RUN $PHP artisan optimize:clear >/dev/null 2>&1 || true
+
+exit 0

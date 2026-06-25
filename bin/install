@@ -25,6 +25,7 @@
 #   5. DB create     - CREATE DATABASE heratio (skipped if exists; --fresh drops+recreates)
 #   6. Core schema   - load database/core/0[0-3]_*.sql via mysql
 #   7. Plugin schema - php artisan heratio:install-bootstrap --pass=2
+#   7b. Migrations   - php artisan migrate --force (idempotent package deltas)
 #   8. Seeds         - load database/seeds/0[0-7]_*.sql via mysql
 #   9. Admin user    - create admin (user row + admin ACL group 100)
 #   10. Storage      - mkdir HERATIO_UPLOADS_PATH/HERATIO_BACKUPS_PATH
@@ -212,6 +213,15 @@ if [[ "$SKIP_ES" -eq 0 ]]; then
 fi
 
 ok "preflight passed (PHP $PHP_VER, $(node -v), $(composer --version | head -1))"
+
+# Activate the in-repo git hooks (hooks/) for this clone. This wires up:
+#   - hooks/pre-commit  : locked-paths enforcement
+#   - hooks/post-merge  : auto-runs `migrate --force` after every `git pull`,
+#                         so the DB schema never drifts behind pulled code.
+# Idempotent; skipped on a non-git (tarball) deployment.
+if [ -d .git ] && command -v git >/dev/null 2>&1; then
+    git config core.hooksPath hooks && ok "git hooks activated (core.hooksPath=hooks)"
+fi
 
 # ============================================================================
 # Collect required user-facing values
@@ -401,6 +411,20 @@ done
 say "Stage 7/14 - plugin schema (heratio:install-bootstrap --pass=2)"
 php artisan heratio:install-bootstrap --pass=2
 ok "plugin schemas loaded"
+
+# ============================================================================
+# 7b. Package migrations (artisan migrate)
+# ============================================================================
+# The core + package install.sql files build the bulk schema, but individual
+# packages add incremental columns/tables via Laravel migrations (e.g. the
+# ahg-library MARC fields marc_leader/marc_005/marc_008/frbr_override_type,
+# #1281). Those NEVER reach an install unless `migrate` runs - a bare schema
+# load + pull leaves new code inserting columns the DB doesn't have ("Unknown
+# column 'marc_leader'"). All migrations are idempotent (hasTable/hasColumn
+# guards), so this is safe on the freshly-built core schema; non-fatal so a
+# single bad migration doesn't abort the whole install.
+say "Stage 7b/14 - package migrations (artisan migrate --force)"
+php artisan migrate --force && ok "migrations applied" || warn "some migrations reported errors - review with 'php artisan migrate:status'"
 
 # ============================================================================
 # 8. Seeds (00→07)

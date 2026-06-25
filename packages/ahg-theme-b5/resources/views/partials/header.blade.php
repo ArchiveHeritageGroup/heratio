@@ -85,24 +85,29 @@
             </li>
           @endif
 
-          {{-- Contextual help for the current page (#1332) --}}
-          @if(!empty($contextualHelp))
-          <li class="nav-item d-flex flex-column">
-            <a class="nav-link d-flex align-items-center p-0" href="{{ $contextualHelp['url'] }}" id="contextual-help-link">
-              <i class="fas fa-2x fa-fw fa-question-circle text-info px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Help for this page') }}: {{ $contextualHelp['title'] }}" aria-hidden="true"></i>
-              <span class="d-lg-none mx-1" aria-hidden="true">{{ __('Help for this page') }}</span>
-              <span class="visually-hidden">{{ __('Help for this page') }}: {{ $contextualHelp['title'] }}</span>
+          {{-- Help: one nav icon, with the page-specific article (#1332) and the
+               Help Center under a dropdown so there aren't two help icons. --}}
+          <li class="nav-item dropdown d-flex flex-column">
+            <a class="nav-link d-flex align-items-center p-0" href="{{ url('/help') }}" id="help-center-menu" role="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+              <i class="fas fa-2x fa-fw fa-question-circle px-0 px-lg-2 py-2" title="{{ __('Help') }}" aria-hidden="true"></i>
+              <span class="d-lg-none mx-1" aria-hidden="true">{{ __('Help') }}</span>
+              <span class="visually-hidden">{{ __('Help') }}</span>
             </a>
-          </li>
-          @endif
-
-          {{-- Help Center --}}
-          <li class="nav-item d-flex flex-column">
-            <a class="nav-link d-flex align-items-center p-0" href="{{ url('/help') }}" id="help-center-menu">
-              <i class="fas fa-2x fa-fw fa-question-circle px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Help Center') }}" aria-hidden="true"></i>
-              <span class="d-lg-none mx-1" aria-hidden="true">{{ __('Help Center') }}</span>
-              <span class="visually-hidden">{{ __('Help Center') }}</span>
-            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="help-center-menu">
+              @if(!empty($contextualHelp))
+              <li>
+                <a class="dropdown-item" href="{{ $contextualHelp['url'] }}" id="contextual-help-link">
+                  <i class="fas fa-circle-info me-2 text-info"></i>{{ __('Help for this page') }}: {{ $contextualHelp['title'] }}
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              @endif
+              <li>
+                <a class="dropdown-item" href="{{ url('/help') }}">
+                  <i class="fas fa-book me-2"></i>{{ __('Help Center') }}
+                </a>
+              </li>
+            </ul>
           </li>
 
           {{-- Main menu (Add / Manage / Import / Admin) - after Help Center, matching AtoM --}}
