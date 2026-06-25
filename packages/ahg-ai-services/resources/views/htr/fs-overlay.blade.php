@@ -1403,6 +1403,9 @@
 
   // ── OCR labels: detect printed form labels and position boxes there ──
   function ocrAndPlace(entry) {
+    // Capture the form type this OCR run is for; its async response must not
+    // clobber a different/restored layout if the operator switches templates.
+    const _ocrStartedFor = currentFormType;
     document.getElementById('ba-image-name').textContent += ' — OCR detecting labels...';
 
     // Send ALL allowed fields for detection, not just ones with CSV data
@@ -1418,6 +1421,14 @@
     })
     .then(r => r.json())
     .then(data => {
+      // #1331/#1336: ignore a stale OCR result. If the operator switched form
+      // types since this run started, or the active template is an FS Data Safe
+      // one (which uses the saved manual layout, not printed-label OCR), this
+      // late response would wipe the restored/saved positions ("Sync not saving").
+      if (currentFormType !== _ocrStartedFor || isFsTemplate(currentFormType)) {
+        console.log('[FS Overlay] OCR result ignored (form type changed or FS template)');
+        return;
+      }
       if (data.success && data.positions) {
         // Apply OCR-detected positions
         const positions = data.positions;
