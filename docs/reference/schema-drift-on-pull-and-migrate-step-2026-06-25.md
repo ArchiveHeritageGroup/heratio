@@ -59,6 +59,36 @@ code update.
 - **Verify a column exists:**
   `php artisan tinker --execute='echo \Schema::hasColumn("library_item","marc_leader")?"OK":"MISSING";'`
 
+## Correction (2026-06-25): migrate runs at Stage 9b, not 7b
+
+A clean `.60` install validation exposed two ordering/guard bugs in the first cut:
+
+1. **Stage placement.** Running `migrate` at 7b (right after the plugin schema,
+   *before* seeds + admin) breaks **data-seeding migrations**: e.g.
+   `2026_05_12_000002_seed_acl_permissions` inserts `acl_permission` rows for ACL
+   groups + the admin user that don't exist until Stage 8/9, so it fails. Laravel
+   `migrate` aborts on the first failure, skipping every later migration
+   (including `add_marc_fields` → `marc_leader`) — reproducing the original bug on
+   a *fresh* install. Fix: the migrate stage moved to **9b, after Stage 8 seeds +
+   Stage 9 admin**. Schema-additive migrations are order-independent and still
+   apply there.
+
+2. **Unguarded duplicate create.**
+   `2026_05_30_000003_create_library_trading_partners_table` did an unguarded
+   `Schema::create('library_trading_partner')`, but that table is also created by
+   `database/core/00_core_schema.sql` (Stage 6) → `SQLSTATE[42S01] ... already
+   exists (1050)`, aborting migrate again. Fix: `Schema::hasTable` guard so it
+   defers to the core-schema table. (Audit confirmed it was the only colliding
+   unguarded create; the migration name is plural `..._partners` but the table is
+   singular `library_trading_partner`, which is why an earlier name-based grep
+   missed it.)
+
+Lesson reinforced: `migrate` aborts on the first failing migration, so a single
+unguarded/duplicate create or out-of-order data migration silently drops the rest.
+Keep every migration idempotent, and run migrate only once its data prerequisites
+(seeds, admin) exist. Verified on `.60`: after both fixes, migrate runs clean
+(0 pending) and `library_item` has `marc_leader/marc_005/marc_008`.
+
 ## Principle
 
 Schema changes must travel with the code that needs them. Any column or table a

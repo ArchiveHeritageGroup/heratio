@@ -8,6 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Idempotent: `library_trading_partner` is also created by the core
+        // schema (database/core/00_core_schema.sql), loaded before migrations
+        // run on a fresh install. Without this guard the unguarded create
+        // aborts `migrate` with "table already exists" (1050), which then skips
+        // every later migration (incl. the library MARC columns). Guard so the
+        // migration defers to the already-present core-schema table.
+        if (Schema::hasTable('library_trading_partner')) {
+            return;
+        }
+
         Schema::create('library_trading_partner', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('vendor_id')->nullable()->index();
