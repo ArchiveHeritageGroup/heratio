@@ -169,3 +169,56 @@ Verdict: the closure mechanism is correct + feasible + fast at 322k. The
 migration is technically sound at scale and READY if/when a 322k corpus lands in
 Heratio. It does NOT establish that Heratio (381 rows today) NEEDS it now -
 that's the finish-vs-shelve decision.
+
+## Real 340k corpus + maintenance scale gate (2026-06-25) — PASS
+
+Dev is disposable (clone-back from prod), so a REAL ~340k corpus was generated
+in the live `heratio_dev` DB (not a throwaway DB) to exercise the actual code
+paths, via a new reusable command `php artisan ahg:seed-scale-corpus
+{count=340000} {--chunk=} {--build-closure} {--verify} {--purge}`
+(`AhgCore\Console\Commands\SeedScaleCorpusCommand`). It builds a realistic
+archival forest (fonds->subfonds->series->file->item), assigning lft/rgt by DFS
+construction (no rebuild) with roots at parent_id=NULL and lft past the global
+max(rgt) so existing rows are untouched. Every node is a full CTI record
+(object + information_object + _i18n + slug + published status), batch-inserted
+with FOREIGN_KEY_CHECKS off (post-order flush => a child can precede its parent
+in a batch; the forest is internally consistent). All marked identifier/slug
+`SCALE-<id>` / `scale-<id>` for clean `--purge`.
+
+Built: 340,500 synthetic IOs (340,886 total), closure 1,637,859 rows, max depth 4.
+
+**Functional parity (set-based, ALL nodes, not a sample):**
+- closure self-rows == node count (340,886) ✅
+- SCALE descendant-count mismatches (nested-set vs closure): **0 / 340,500** ✅
+- SCALE descendant-edge sum: nested-set 1,296,166 == closure 1,296,166 (exact) ✅
+- The only 4 mismatches are in the pre-existing 386-row data: root id=1 (362 vs
+  365) + 3 rows with degenerate/negative nested-set width (rgt<=lft). The legacy
+  nested set is the corrupted side; closure (from parent_id) is correct. Exactly
+  the fragility #1333 removes.
+
+**Read parity + perf at 340k:** descendants of a fonds 499==499 (~1.3ms);
+ancestors of a deep leaf 4==4 (<1ms). Closure matches nested-set and is as fast
+(PRIMARY + idx_ioc_anc_depth_desc / idx_ioc_desc_depth).
+
+**Maintenance layer verified at 340k (was only proven on 381 rows before):**
+- `addNode`: 9.2ms, new node's closure ancestor chain correct (depth chain +
+  self), inside a rolled-back txn.
+- `moveNode`: 15ms, closure-row delta `S*(newPrefix-oldPrefix)` held EXACTLY
+  (moved a 57-node series subtree from under a subfonds to under a fonds =>
+  delta -57), and a reverse move restored the closure to the exact prior count.
+  No global renumber.
+
+**Operational finding:** a single base-row IO DELETE is slow at 340k because the
+delete fans out across the many FK ON DELETE CASCADE references to
+information_object.id / object.id (some child FK columns are unindexed => full
+scans per delete). `removeNode`'s own closure cleanup is fine; it is the base
+delete cascade that is expensive. Bulk teardown must chunk (the seeder `--purge`
+does, in 5k batches). Candidate follow-up: index the hot FK child columns.
+
+**P4 (maintenance + query swap) status: COMPLETE and scale-verified.** Maintenance
+is wired into every write path (IO create / reparent, gallery, menu, term,
+importers); descendant reads route through HierarchyQueryService; ES
+ancestor-delta fires on move. Remaining for #1333 overall: the deferred
+`orderBy('lft')` EXPORT-ordering swaps (applySiblingOrder; low benefit + ordering
+risk, in locked packages) and the shelved decision to retire lft/rgt (Heratio is
+381 real rows; closure proven ready at scale but not yet NEEDED).

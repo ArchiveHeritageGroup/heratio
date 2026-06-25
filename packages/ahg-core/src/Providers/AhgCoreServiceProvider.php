@@ -158,6 +158,8 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Console\Commands\ApplySectorProfileCommand::class,
                 // #1333 hierarchy closure-table build/verify (nested-set replacement)
                 \AhgCore\Console\Commands\BuildClosureCommand::class,
+                // #1333 production-scale synthetic corpus generator (dev stress test)
+                \AhgCore\Console\Commands\SeedScaleCorpusCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,
