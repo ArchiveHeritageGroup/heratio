@@ -34,6 +34,7 @@
 #   9b. Migrations   - php artisan migrate --force (after seeds+admin; idempotent)
 #   10. Storage      - mkdir HERATIO_UPLOADS_PATH/HERATIO_BACKUPS_PATH
 #   11. Elasticsearch - php artisan ahg:es-reindex --drop  (--skip-es to skip)
+#   11b. Facet cache - php artisan ahg:display-reindex (GLAM browse facets)
 #   12. Nginx        - render config/nginx/heratio.conf.template, link, reload
 #                       (--skip-nginx to skip)
 #   13. Smoke test   - curl / (expect 200/301/302)
@@ -545,6 +546,22 @@ else
         warn "ES not reachable at $ES_HOST - skipping reindex"
     fi
 fi
+
+# ============================================================================
+# 11b. GLAM browse facet cache (display_facet_cache)
+# ============================================================================
+# Populates the glam_type / creator / subject / place / genre / level /
+# repository / media_type facet rows (published + _all variants) so the
+# /glam/browse left sidebar shows per-type rows on first load instead of only
+# "All". The display_facet_cache table is created by core schema (stage 6) but
+# is never filled on install, and there is no live fallback for the unfiltered
+# landing page - so without this the GLAM Type facet is empty. Use
+# ahg:display-reindex (writes glam_type); ahg:refresh-facet-cache does NOT.
+# Idempotent; non-fatal.
+say "Stage 11b/14 - GLAM browse facet cache (display_facet_cache)"
+php artisan ahg:display-reindex 2>&1 | tail -3 \
+    && ok "facet cache built" \
+    || warn "ahg:display-reindex returned non-zero - build later: php artisan ahg:display-reindex"
 
 # ============================================================================
 # 12. Nginx

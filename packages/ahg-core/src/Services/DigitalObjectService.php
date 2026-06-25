@@ -354,6 +354,9 @@ class DigitalObjectService
 
         if ($isImage && extension_loaded('gd')) {
             self::generateImageDerivatives($masterId, $objectId, $masterPath, $safeName, $webPath);
+        } elseif ($mimeType === 'application/pdf') {
+            // Rasterise page 0 into a real JPEG thumbnail instead of a grey icon.
+            self::generatePdfDerivatives($masterId, $objectId, $masterPath, $safeName, $webPath, $uploadDir, $mimeType);
         } else {
             self::generateGenericDerivatives($masterId, $objectId, $mimeType, $safeName, $webPath, $uploadDir);
         }
@@ -1146,6 +1149,8 @@ class DigitalObjectService
                 );
             }
             imagedestroy($srcImage);
+        } elseif ($mimeType === 'application/pdf') {
+            self::generatePdfDerivatives($masterId, (int) $master->object_id, $masterPath, $safeName, $webPath, $uploadDir, $mimeType);
         } else {
             self::generateGenericDerivatives($masterId, $master->object_id, $mimeType, $safeName, $webPath, $uploadDir);
         }
@@ -1300,7 +1305,8 @@ class DigitalObjectService
         int $masterId,
         int $objectId,
         string $webPath,
-        int $usageId
+        int $usageId,
+        ?int $density = null
     ): void {
         $convert = trim((string) @shell_exec('command -v convert 2>/dev/null'));
         if ($convert === '') {
@@ -1309,10 +1315,14 @@ class DigitalObjectService
             return;
         }
 
-        // [0] = first frame of a multi-page TIFF; parsed by ImageMagick itself.
+        // [0] = first frame of a multi-page TIFF / first page of a PDF; parsed
+        // by ImageMagick itself. -density (BEFORE the input) sets the raster DPI
+        // for vector sources like PDF - without it ImageMagick renders at 72dpi
+        // and the page is fuzzy. Ignored/harmless for raster TIFFs.
         @shell_exec(sprintf(
-            '%s %s -auto-orient -resize %dx%d\> -quality 85 -colorspace sRGB %s 2>/dev/null',
+            '%s %s %s -auto-orient -resize %dx%d\> -quality 85 -colorspace sRGB %s 2>/dev/null',
             escapeshellcmd($convert),
+            $density ? '-density '.(int) $density : '',
             escapeshellarg($masterPath.'[0]'),
             $maxDimension, $maxDimension,
             escapeshellarg($outputPath)
@@ -1343,6 +1353,41 @@ class DigitalObjectService
             'checksum_type' => 'md5',
             'parent_id' => $masterId,
         ]);
+    }
+
+    /**
+     * Rasterise page 0 of a PDF into real JPEG reference + thumbnail child rows
+     * (usage 141/142) via ImageMagick, instead of the generic grey "PDF" icon.
+     * Requires `convert` + Ghostscript; falls back to the generic icon when the
+     * rasterisation is unavailable or blocked (e.g. an ImageMagick PDF policy),
+     * so the upload never fails and the record always shows something.
+     */
+    protected static function generatePdfDerivatives(
+        int $masterId,
+        int $objectId,
+        string $masterPath,
+        string $safeName,
+        string $webPath,
+        string $uploadDir,
+        string $mimeType
+    ): void {
+        $convert = trim((string) @shell_exec('command -v convert 2>/dev/null'));
+        if ($convert !== '') {
+            // 150dpi gives a crisp page-1 render; createImagickDerivative reads [0].
+            self::createImagickDerivative($masterPath, 480, $uploadDir.'/reference_'.$safeName.'.jpg', 'reference_'.$safeName.'.jpg', $masterId, $objectId, $webPath, self::USAGE_REFERENCE, 150);
+            self::createImagickDerivative($masterPath, 100, $uploadDir.'/thumbnail_'.$safeName.'.jpg', 'thumbnail_'.$safeName.'.jpg', $masterId, $objectId, $webPath, self::USAGE_THUMBNAIL, 150);
+        }
+
+        // If convert is missing, or produced nothing (e.g. an ImageMagick PDF
+        // policy blocked it), fall back to the legacy grey "PDF" icon so the
+        // record still has a reference + thumbnail.
+        $haveDeriv = DB::table('digital_object')
+            ->where('parent_id', $masterId)
+            ->whereIn('usage_id', [self::USAGE_REFERENCE, self::USAGE_THUMBNAIL])
+            ->exists();
+        if (! $haveDeriv) {
+            self::generateGenericDerivatives($masterId, $objectId, $mimeType, $safeName, $webPath, $uploadDir);
+        }
     }
 
     /**

@@ -566,10 +566,14 @@
     </div>
   </section>
 
-  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+  @endif {{-- end ric_view_mode toggle --}}
+
+  {{-- RiC Context / OpenRiC / Validate — only in RiC view mode, mirroring the
+       IO show page. Previously this sat inside the @else (standard/CDWA) branch,
+       so it wrongly showed on the standard view and was hidden in RiC view. --}}
+  @if(session('ric_view_mode') === 'ric' && class_exists(\AhgRic\Controllers\RicEntityController::class))
     @include('ahg-ric::_ric-entities-panel', ['record' => $artwork, 'recordType' => 'record'])
   @endif
-  @endif {{-- end ric_view_mode toggle --}}
 @endsection
 
 {{-- ============================================================ --}}
@@ -637,5 +641,34 @@
 @endsection
 
 @section('after-content')
+  {{-- Horizontal Actions toolbar - parity with the IO / museum sector show
+       pages (which render `<ul class="actions">` in after-content). The gallery
+       previously had only the sidebar context card here, so the standard
+       sector Actions bar was missing. Same inline ACL gating as the sidebar. --}}
+  @auth
+    @php
+      $canUpdate = \AhgCore\Services\AclService::check($artwork, 'update');
+      $canDelete = \AhgCore\Services\AclService::check($artwork, 'delete');
+    @endphp
+    @if($canUpdate || $canDelete)
+    <ul class="actions mb-3 nav gap-2">
+      @if($canUpdate)
+        <li><a href="{{ route('gallery.edit', $artwork->slug) }}" class="btn atom-btn-outline-light"><i class="fas fa-edit me-1"></i>{{ __('Edit') }}</a></li>
+      @endif
+      @if($canDelete)
+        <li>
+          <form action="{{ route('gallery.destroy', $artwork->slug) }}" method="POST"
+                onsubmit="return confirm('{{ __('Are you sure you want to delete this artwork?') }}');">
+            @csrf
+            <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</button>
+          </form>
+        </li>
+      @endif
+      @if($canUpdate)
+        <li><a href="{{ route('gallery.create') }}" class="btn atom-btn-outline-light"><i class="fas fa-plus me-1"></i>{{ __('Add new') }}</a></li>
+      @endif
+    </ul>
+    @endif
+  @endauth
   @include('ahg-core::partials._ner-modal', ['objectId' => $artwork->id, 'objectTitle' => $artwork->title])
 @endsection

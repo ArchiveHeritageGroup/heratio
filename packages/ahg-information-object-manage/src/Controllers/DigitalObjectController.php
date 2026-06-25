@@ -82,6 +82,29 @@ class DigitalObjectController extends Controller
         ]);
     }
 
+    /**
+     * Validation ceiling (KB) for a single uploaded digital object, derived
+     * from PHP's own upload_max_filesize so the controller never rejects a
+     * file PHP would accept. public/.user.ini ships this at 256M; raising it
+     * there (per the install guide) raises this cap automatically. Replaces a
+     * hardcoded 100 MB cap that rejected 100-256 MB GLAM masters.
+     */
+    private function phpUploadMaxKb(): int
+    {
+        $raw = (string) ini_get('upload_max_filesize');
+        $raw = $raw !== '' ? $raw : '256M';
+        $num = (int) $raw;
+        $bytes = match (strtolower(substr($raw, -1))) {
+            'g' => $num * 1024 ** 3,
+            'm' => $num * 1024 ** 2,
+            'k' => $num * 1024,
+            default => $num,
+        };
+        $kb = (int) floor($bytes / 1024);
+
+        return $kb > 0 ? $kb : 262144; // fallback 256 MB
+    }
+
     public function upload(Request $request, string $slug)
     {
         $hasFile = $request->hasFile('digital_object');
@@ -99,7 +122,10 @@ class DigitalObjectController extends Controller
             ]);
         } else {
             $request->validate([
-                'digital_object' => 'required|file|max:102400', // 100 MB
+                // Cap tracks PHP's upload_max_filesize (public/.user.ini ships
+                // 256M) instead of a hardcoded 100 MB - so 100-256 MB GLAM
+                // masters are no longer rejected before reaching PHP.
+                'digital_object' => 'required|file|max:'.$this->phpUploadMaxKb(),
             ]);
         }
 
