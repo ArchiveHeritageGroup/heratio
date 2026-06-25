@@ -163,4 +163,36 @@
       syncToServer(items);
     }
   });
+
+  // Wire the header "Clear all selections" button (#clipboard-clear-btn).
+  // The AtoM bundle only binds #clipboard-clear / #node_clearClipboard, and the
+  // old clipboard.js that bound this id is no longer enqueued - so the button
+  // was dead. Delegated so it works regardless of dropdown render timing.
+  // Resets localStorage AND clears the server (authoritative); the local reset
+  // sticks even if the server POST fails (this script has no merge that could
+  // resurrect it).
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('#clipboard-clear-btn');
+    if (!btn) return;
+    e.preventDefault();
+
+    var fresh = {};
+    TYPES.forEach(function (t) { fresh[t] = []; });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+    updateBadge(fresh);
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var token = (csrfMeta && csrfMeta.getAttribute('content')) || btn.getAttribute('data-csrf');
+    var url = btn.getAttribute('data-clear-url') || '/clipboard/clear';
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': token,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({})
+    }).then(function () { window.location.reload(); })
+      .catch(function () { window.location.reload(); });
+  });
 })();
