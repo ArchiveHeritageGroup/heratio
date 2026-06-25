@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "562197f32ebf8e9fed1f4a512ff89e7d",
+    "content-hash": "938733bf7ed9265758ef89f336ca8599",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -459,9 +459,10 @@
             "dist": {
                 "type": "path",
                 "url": "packages/ahg-biblio-bf",
-                "reference": "2c6dda836e1590fe9d833e94a79829e9ae0c5873"
+                "reference": "6ffa0cb8fd643ceda04af9a4879d7ab801db7bf5"
             },
             "require": {
+                "easyrdf/easyrdf": "^1.1",
                 "php": "^8.3"
             },
             "type": "heratio-plugin",
@@ -1156,7 +1157,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/ahg-federation",
-                "reference": "2da6b7b09a25c2ca02c28bfb4b8d4b5ba15d18bd"
+                "reference": "17676590bc74679762525b01d45a4f3225d207f0"
             },
             "require": {
                 "ahg/core": "@dev",
@@ -1169,7 +1170,10 @@
             "extra": {
                 "laravel": {
                     "providers": [
-                        "AhgFederation\\Providers\\AhgFederationServiceProvider"
+                        "AhgFederation\\Providers\\AhgFederationServiceProvider",
+                        "AhgFederation\\Providers\\AhgUnionCatalogueServiceProvider",
+                        "AhgFederation\\Providers\\AhgFederationLoanServiceProvider",
+                        "AhgFederation\\Providers\\AhgFederationJoinServiceProvider"
                     ]
                 }
             },
@@ -1848,7 +1852,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/ahg-library",
-                "reference": "1fc26728a686059a509114cb889bbe8baa907650"
+                "reference": "624f6b0b73636f08d07b854c1ad00125e29eb30f"
             },
             "require": {
                 "ahg/core": "@dev"
@@ -1864,6 +1868,11 @@
             "autoload": {
                 "psr-4": {
                     "AhgLibrary\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "AhgLibrary\\Tests\\": "tests/"
                 }
             },
             "description": "Library cataloguing and management for Heratio",
@@ -2590,6 +2599,42 @@
                 }
             },
             "description": "Heratio RadManage package (migrated from ahgRadManagePlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/rdm",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-rdm",
+                "reference": "8cb7ffb7793be65a49c2d85c148b6b4f161c1575"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "ahg/information-object-manage": "@dev",
+                "ahg/ingest": "@dev",
+                "ahg/research": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgRdm\\AhgRdmServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgRdm\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Heratio AHG RDM - sovereign research-data-management module (datasets, POPIA scan, FAIR deposit). Thin orchestration over ahg-ingest, ahg-research, ahg-ai-services, ahg-core.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -4385,6 +4430,81 @@
                 }
             ],
             "time": "2025-10-31T18:51:33+00:00"
+        },
+        {
+            "name": "easyrdf/easyrdf",
+            "version": "1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/easyrdf/easyrdf.git",
+                "reference": "c7b0a9dbcb211eb7de03ee99ff5b52d17f2a8e64"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/easyrdf/easyrdf/zipball/c7b0a9dbcb211eb7de03ee99ff5b52d17f2a8e64",
+                "reference": "c7b0a9dbcb211eb7de03ee99ff5b52d17f2a8e64",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "ext-pcre": "*",
+                "ext-xmlreader": "*",
+                "lib-libxml": "*",
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "code-lts/doctum": "^5",
+                "ml/json-ld": "~1.0",
+                "phpunit/phpunit": "^7",
+                "semsol/arc2": "^2.4",
+                "squizlabs/php_codesniffer": "3.*",
+                "zendframework/zend-http": "~2.3"
+            },
+            "suggest": {
+                "ml/json-ld": "~1.0",
+                "semsol/arc2": "~2.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EasyRdf\\": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Nicholas Humfrey",
+                    "email": "njh@aelius.com",
+                    "homepage": "http://www.aelius.com/njh/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Alexey Zakhlestin",
+                    "email": "indeyets@gmail.com",
+                    "homepage": "http://indeyets.ru/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "EasyRdf is a PHP library designed to make it easy to consume and produce RDF.",
+            "homepage": "http://www.easyrdf.org/",
+            "keywords": [
+                "Linked Data",
+                "RDF",
+                "Semantic Web",
+                "Turtle",
+                "rdfa",
+                "sparql"
+            ],
+            "support": {
+                "forum": "http://groups.google.com/group/easyrdf/",
+                "issues": "http://github.com/easyrdf/easyrdf/issues",
+                "source": "https://github.com/easyrdf/easyrdf/tree/1.1.1"
+            },
+            "time": "2020-12-02T08:47:31+00:00"
         },
         {
             "name": "egulias/email-validator",
@@ -15117,6 +15237,7 @@
         "ahg/rad-manage": 20,
         "ahg/records-manage": 20,
         "ahg/reports": 20,
+        "ahg/rdm": 20,
         "ahg/repository-manage": 20,
         "ahg/request-publish": 20,
         "ahg/research": 20,

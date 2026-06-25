@@ -532,6 +532,17 @@ chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 find storage bootstrap/cache -type d -exec chmod 775 {} \; 2>/dev/null || true
 ok "storage + bootstrap/cache owned by www-data (web-writable)"
 
+# Give www-data a writable config dir so `sudo -u www-data php artisan tinker`
+# works for operators. Tinker's psysh REPL writes to $HOME/.config/psysh; if
+# www-data's home (typically /var/www) isn't writable it throws "Writing to
+# directory .../.config/psysh is not allowed" - harmless but it logs an error.
+WWW_HOME="$(getent passwd www-data | cut -d: -f6)"
+if [[ -n "$WWW_HOME" && "$WWW_HOME" != "/" && "$WWW_HOME" != "/nonexistent" ]]; then
+    mkdir -p "$WWW_HOME/.config/psysh" 2>/dev/null \
+        && chown -R www-data:www-data "$WWW_HOME/.config" 2>/dev/null \
+        && ok "www-data config dir ready ($WWW_HOME/.config) - artisan tinker works as www-data"
+fi
+
 # ============================================================================
 # 11. Elasticsearch
 # ============================================================================

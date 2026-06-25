@@ -105,6 +105,7 @@
         "ahg/rad-manage": "@dev",
         "ahg/records-manage": "@dev",
         "ahg/reports": "@dev",
+        "ahg/rdm": "@dev",
         "ahg/repository-manage": "@dev",
         "ahg/request-publish": "@dev",
         "ahg/research": "@dev",
