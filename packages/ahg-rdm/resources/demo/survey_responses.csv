@@ -1,0 +1,4 @@
+participant_name,sa_id_number,email,phone,stress_score,age
+Thandi Mokoena,8001015009087,alice@example.ac.za,0821234567,High,27
+Sipho Dlamini,9202045012088,sipho@uni.ac.za,0739876543,Medium,45
+Lerato Khumalo,7506154800089,lerato@example.org,0824445566,Low,38

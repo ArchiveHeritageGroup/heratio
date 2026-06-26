@@ -33,6 +33,12 @@ class AhgRdmServiceProvider extends ServiceProvider
         Route::middleware('web')->group(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'ahg-rdm');
 
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgRdm\Console\Commands\RdmDemoCommand::class,
+            ]);
+        }
+
         // First-boot install: create rdm_dataset/rdm_dataset_file if missing and
         // seed the dataset_status dropdown. Idempotent + best-effort (retries
         // next boot on failure); mirrors the ahg-research/ahg-display pattern.

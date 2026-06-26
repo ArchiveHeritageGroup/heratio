@@ -40,11 +40,9 @@ class DatasetReleaseService
 
         $out = ['disposition' => $disposition];
 
-        if ($disposition === 'release') {
-            // Gate is already proven clear by PopiaGateService; open it + mint DOI.
-            $out['doi'] = $this->mintDoi($datasetId, (int) $ds->io_parent_id);
-        } else {
-            // restrict / de-identify -> indefinite prohibition; embargo -> until a date.
+        // Access policies: 'release' is open (policies already cleared above);
+        // restrict/de-identify -> indefinite prohibition; embargo -> until a date.
+        if ($disposition !== 'release') {
             $dateTo = null;
             if ($disposition === 'embargo') {
                 $dateTo = $embargoUntil ?: now()->addYear()->format('Y-m-d H:i:s');
@@ -53,6 +51,11 @@ class DatasetReleaseService
             $this->restrict($ioIds, $dateTo, $userId);
             $out['policies'] = count($ioIds) * 2; // use + reproduce per IO
         }
+
+        // Mint a DOI for ANY finalised disposition - a restricted/embargoed dataset
+        // is still a citable record (public metadata, gated files); access is
+        // controlled by the ODRL policies above, independently of the DOI.
+        $out['doi'] = $this->mintDoi($datasetId, (int) $ds->io_parent_id);
 
         return $out;
     }
