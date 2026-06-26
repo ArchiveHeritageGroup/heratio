@@ -62,7 +62,12 @@
     </p>
     @if ($dataset->disposition)
       <p class="mb-2"><span class="text-muted">{{ __('Current disposition') }}:</span>
-        <span class="badge bg-dark">{{ $dataset->disposition }}</span></p>
+        <span class="badge bg-dark">{{ $dataset->disposition }}</span>
+        @if ($dataset->doi)
+          · <span class="text-muted">{{ __('DOI') }}:</span> <code>{{ $dataset->doi }}</code>
+        @endif
+        · <a href="{{ route('rdm.datasets.landing', $dataset->id) }}" target="_blank">{{ __('Public landing') }} <i class="fas fa-external-link-alt small"></i></a>
+      </p>
     @endif
     @unless ($gate['can_release'])
       <div class="alert alert-warning py-2 small mb-2"><i class="fas fa-lock me-1"></i>{{ __('Open release is blocked until every PERSONAL/SPECIAL finding is resolved and none remain confirmed as PII. You can still restrict, embargo, or de-identify.') }}</div>
@@ -77,8 +82,13 @@
           @endforeach
         </select>
       </div>
+      <div class="col-auto">
+        <label for="embargo_until" class="form-label small mb-0">{{ __('Embargo until') }} <span class="text-muted">({{ __('if embargo') }})</span></label>
+        <input type="date" name="embargo_until" id="embargo_until" class="form-control form-control-sm">
+      </div>
       <div class="col-auto"><button type="submit" class="btn btn-sm btn-dark">{{ __('Apply') }}</button></div>
     </form>
+    <div class="form-text">{{ __('Release mints a DataCite DOI and opens access. Restrict/embargo applies ODRL access policies to the dataset records.') }}</div>
   </div>
 </div>
 

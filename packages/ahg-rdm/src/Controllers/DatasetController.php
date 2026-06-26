@@ -98,15 +98,45 @@ class DatasetController extends Controller
     public function setDisposition(Request $request, int $id)
     {
         abort_unless($this->service->get($id), 404);
-        $request->validate(['disposition' => 'required|in:restrict,embargo,de-identify,release']);
+        $request->validate([
+            'disposition'   => 'required|in:restrict,embargo,de-identify,release',
+            'embargo_until' => 'nullable|date',
+        ]);
 
         try {
-            $r = app(PopiaGateService::class)->setDisposition($id, $request->input('disposition'), (int) auth()->id());
+            $r = app(PopiaGateService::class)->setDisposition($id, $request->input('disposition'), (int) auth()->id(), $request->input('embargo_until'));
         } catch (\Throwable $e) {
             return redirect()->route('rdm.datasets.show', $id)->with('error', $e->getMessage());
         }
 
-        return redirect()->route('rdm.datasets.show', $id)->with('success', "Disposition set to {$r['disposition']} (status {$r['status']}).");
+        $msg = "Disposition set to {$r['disposition']} (status {$r['status']}).";
+        if (! empty($r['doi'])) {
+            $msg .= " DOI: {$r['doi']}.";
+        }
+        if (! empty($r['embargo_until'])) {
+            $msg .= " Embargo until {$r['embargo_until']}.";
+        }
+        if (! empty($r['policies'])) {
+            $msg .= " {$r['policies']} access policies applied.";
+        }
+
+        return redirect()->route('rdm.datasets.show', $id)->with('success', $msg);
+    }
+
+    /** Public citable landing page (metadata + DOI citation + access status; no gated binaries). */
+    public function landing(int $id)
+    {
+        $dataset = $this->service->get($id);
+        abort_unless($dataset, 404);
+
+        $year = $dataset->created_at ? substr((string) $dataset->created_at, 0, 4) : date('Y');
+
+        return view('ahg-rdm::datasets.landing', [
+            'dataset'   => $dataset,
+            'year'      => $year,
+            'doiUrl'    => $dataset->doi ? 'https://doi.org/'.$dataset->doi : null,
+            'fileCount' => $this->service->files($id)->count(),
+        ]);
     }
 
     public function scan(int $id)

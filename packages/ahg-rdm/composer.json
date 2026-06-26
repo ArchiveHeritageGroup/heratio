@@ -9,7 +9,8 @@
         "ahg/research": "@dev",
         "ahg/information-object-manage": "@dev",
         "ahg/ai-services": "@dev",
-        "ahg/pdf-tools": "@dev"
+        "ahg/pdf-tools": "@dev",
+        "ahg/doi-manage": "@dev"
     },
     "autoload": {
         "psr-4": {

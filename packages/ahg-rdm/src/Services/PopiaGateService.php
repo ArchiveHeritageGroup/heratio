@@ -53,7 +53,7 @@ class PopiaGateService
      *
      * @return array{disposition:string, status:string}
      */
-    public function setDisposition(int $datasetId, string $disposition, ?int $userId): array
+    public function setDisposition(int $datasetId, string $disposition, ?int $userId, ?string $embargoUntil = null): array
     {
         if (! in_array($disposition, self::DISPOSITIONS, true)) {
             throw new \InvalidArgumentException("Invalid disposition '{$disposition}'.");
@@ -79,9 +79,19 @@ class PopiaGateService
             'updated_at'     => now(),
         ]);
 
-        $this->logProvenance($datasetId, "disposition -> {$disposition} (status {$status})", 'human-gate', $userId, "dataset:{$datasetId}");
+        // #1341 side-effects: ODRL access/embargo on the dataset's IOs, and a
+        // DataCite DOI on open release.
+        $effects = app(DatasetReleaseService::class)->apply($datasetId, $disposition, $userId, $embargoUntil);
 
-        return ['disposition' => $disposition, 'status' => $status];
+        $this->logProvenance(
+            $datasetId,
+            "disposition -> {$disposition} (status {$status})".(! empty($effects['doi']) ? ", doi {$effects['doi']}" : ''),
+            'human-gate',
+            $userId,
+            "dataset:{$datasetId}"
+        );
+
+        return array_merge(['disposition' => $disposition, 'status' => $status], $effects);
     }
 
     /**

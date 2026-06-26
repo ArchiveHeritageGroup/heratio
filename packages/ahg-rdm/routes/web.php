@@ -21,3 +21,9 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/research/datasets/{id}/findings/{fid}/resolve', [DatasetController::class, 'resolveFinding'])->name('rdm.datasets.finding.resolve')->where(['id' => '[0-9]+', 'fid' => '[0-9]+']);
     Route::post('/research/datasets/{id}/disposition', [DatasetController::class, 'setDisposition'])->name('rdm.datasets.disposition')->where('id', '[0-9]+');
 });
+
+// Public citable landing page (#1341) - no auth: a DOI resolves here. Metadata +
+// citation + access-status only; binaries stay gated by the disposition/ODRL.
+Route::middleware('web')->group(function () {
+    Route::get('/research/datasets/{id}/landing', [DatasetController::class, 'landing'])->name('rdm.datasets.landing')->where('id', '[0-9]+');
+});
