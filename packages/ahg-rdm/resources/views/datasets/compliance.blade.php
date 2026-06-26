@@ -6,7 +6,10 @@
 @section('content')
 <div class="d-flex align-items-center justify-content-between mb-3">
   <h1 class="h4 mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('RDM Compliance Scoreboard') }}</h1>
-  <a href="{{ route('rdm.datasets.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('All datasets') }}</a>
+  <div class="d-flex gap-2">
+    <a href="{{ route('rdm.datasets.dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-gauge-high me-1"></i>{{ __('Dashboard') }}</a>
+    <a href="{{ route('rdm.datasets.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('All datasets') }}</a>
+  </div>
 </div>
 
 {{-- Summary strip --}}

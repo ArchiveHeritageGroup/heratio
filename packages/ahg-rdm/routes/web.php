@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 // from the locked /{slug} catch-all, and every route here is >=2 segments).
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/research/datasets', [DatasetController::class, 'index'])->name('rdm.datasets.index');
+    Route::get('/research/datasets/dashboard', [DatasetController::class, 'dashboard'])->name('rdm.datasets.dashboard');
     Route::get('/research/datasets/compliance', [DatasetController::class, 'compliance'])->name('rdm.datasets.compliance');
     Route::get('/research/datasets/create', [DatasetController::class, 'create'])->name('rdm.datasets.create');
     Route::post('/research/datasets', [DatasetController::class, 'store'])->name('rdm.datasets.store');

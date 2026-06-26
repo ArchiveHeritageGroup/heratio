@@ -7,6 +7,7 @@
 <div class="d-flex align-items-center justify-content-between mb-3">
   <h1 class="h4 mb-0"><i class="fas fa-database me-2"></i>{{ __('Research Datasets') }}</h1>
   <div class="d-flex gap-2">
+    <a href="{{ route('rdm.datasets.dashboard') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-gauge-high me-1"></i>{{ __('Dashboard') }}</a>
     <a href="{{ route('rdm.datasets.compliance') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-clipboard-check me-1"></i>{{ __('Compliance scoreboard') }}</a>
     <a href="{{ route('rdm.datasets.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>{{ __('New dataset') }}</a>
   </div>

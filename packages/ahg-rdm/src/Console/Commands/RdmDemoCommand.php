@@ -120,6 +120,7 @@ class RdmDemoCommand extends Command
         $this->line("DOI          : ".($ds->doi ?: '(none)'));
         $this->line("Landing page : {$base}/research/datasets/{$datasetId}/landing");
         $this->line("Dataset (admin): {$base}/research/datasets/{$datasetId}");
+        $this->line("Dashboard    : {$base}/research/datasets/dashboard");
         $this->line("Compliance   : {$base}/research/datasets/compliance");
         $this->newLine();
         $this->line("Punchline: every one of those synthetic SA ID numbers would, on Figshare, be on a foreign");

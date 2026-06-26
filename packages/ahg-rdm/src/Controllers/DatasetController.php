@@ -9,6 +9,7 @@
 namespace AhgRdm\Controllers;
 
 use AhgRdm\Services\ComplianceReportService;
+use AhgRdm\Services\DashboardService;
 use AhgRdm\Services\DatasetService;
 use AhgRdm\Services\DmpLinkService;
 use AhgRdm\Services\PopiaGateService;
@@ -31,6 +32,14 @@ class DatasetController extends Controller
     {
         return view('ahg-rdm::datasets.index', [
             'datasets' => $this->service->list(),
+        ]);
+    }
+
+    /** Full RDM dashboard (#1337 Feature 3): KPI roll-up + charts + gate backlog. */
+    public function dashboard()
+    {
+        return view('ahg-rdm::datasets.dashboard', [
+            'd' => app(DashboardService::class)->overview(),
         ]);
     }
 
