@@ -51,7 +51,8 @@ class AhgRdmServiceProvider extends ServiceProvider
                 $needsInstall = ! Schema::hasTable('rdm_dataset')
                     || ! Schema::hasTable('rdm_scan_finding')
                     || ! Schema::hasColumn('rdm_dataset', 'verdict')
-                    || ! Schema::hasColumn('rdm_dataset', 'disposition');
+                    || ! Schema::hasColumn('rdm_dataset', 'disposition')
+                    || ! Schema::hasColumn('rdm_dataset', 'dmp_id');
                 if ($needsInstall) {
                     $sql = @file_get_contents(__DIR__.'/../database/install.sql');
                     if (is_string($sql) && trim($sql) !== '') {

@@ -81,3 +81,10 @@ PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 SET @c := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'rdm_scan_finding' AND column_name = 'reviewed_by');
 SET @s := IF(@c = 0, 'ALTER TABLE rdm_scan_finding ADD COLUMN reviewed_by INT NULL AFTER review_status, ADD COLUMN reviewed_at TIMESTAMP NULL AFTER reviewed_by, ADD COLUMN decision_note VARCHAR(500) NULL AFTER reviewed_at', 'SELECT 1');
 PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- #1337 Feature 1: link a dataset to a Data Management Plan (FK-by-convention to
+-- research_dmp.id, the ahg-research DMP-builder slice). Nullable - a dataset can
+-- exist before a DMP is authored. Guarded for installs that predate the column.
+SET @c := (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'rdm_dataset' AND column_name = 'dmp_id');
+SET @s := IF(@c = 0, 'ALTER TABLE rdm_dataset ADD COLUMN dmp_id INT NULL AFTER project_id, ADD KEY idx_rdm_dataset_dmp (dmp_id)', 'SELECT 1');
+PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;

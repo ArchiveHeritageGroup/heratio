@@ -50,6 +50,76 @@
   </div>
 </div>
 
+{{-- Data Management Plan (#1337 Feature 1): orchestrates the ahg-research DMP builder. --}}
+@if ($dmp['available'])
+<div class="card mb-3">
+  <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+    <span><i class="fas fa-clipboard-list me-1"></i>{{ __('Data Management Plan') }}</span>
+    @if ($dmp['linked'])
+      <span class="badge bg-info text-dark">{{ __('linked') }}</span>
+    @else
+      <span class="badge bg-light text-dark border">{{ __('not linked') }}</span>
+    @endif
+  </div>
+  <div class="card-body">
+    @if (! $dmp['project_id'])
+      <p class="small text-muted mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('Link this dataset to a research project to attach a Data Management Plan.') }}</p>
+    @elseif ($dmp['linked'])
+      @php $pct = $dmp['completeness']['pct'] ?? 0; @endphp
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <div>
+          <strong>{{ $dmp['linked']['title'] }}</strong>
+          <span class="badge bg-secondary ms-1">{{ $dmp['linked']['status'] }}</span>
+          @if ($dmp['linked']['funder'])<span class="text-muted small ms-1">· {{ __('Funder') }}: {{ $dmp['linked']['funder'] }}</span>@endif
+        </div>
+        <div class="d-flex gap-2">
+          @if ($dmp['show_url'])<a href="{{ $dmp['show_url'] }}" class="btn btn-outline-primary btn-sm" target="_blank">{{ __('Open DMP') }} <i class="fas fa-external-link-alt small"></i></a>@endif
+          <form method="POST" action="{{ route('rdm.datasets.dmp.unlink', $dataset->id) }}" onsubmit="return confirm('{{ __('Unlink this DMP from the dataset?') }}')">
+            @csrf @method('DELETE')
+            <button class="btn btn-outline-secondary btn-sm">{{ __('Unlink') }}</button>
+          </form>
+        </div>
+      </div>
+      <div class="progress" style="height:6px" role="progressbar" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-success" style="width: {{ $pct }}%"></div>
+      </div>
+      <div class="form-text">{{ __('Plan completeness') }}: {{ $dmp['completeness']['filled'] ?? 0 }}/{{ $dmp['completeness']['total'] ?? 0 }} {{ __('sections') }} ({{ $pct }}%)</div>
+    @else
+      @if (! empty($dmp['plans']))
+        <form method="POST" action="{{ route('rdm.datasets.dmp.link', $dataset->id) }}" class="row g-2 align-items-end mb-3">
+          @csrf
+          <div class="col-md-8">
+            <label class="form-label small mb-0">{{ __('Link an existing plan') }}</label>
+            <select name="dmp_id" class="form-select form-select-sm" required>
+              @foreach ($dmp['plans'] as $p)
+                <option value="{{ $p['id'] }}">{{ $p['title'] }} — {{ $p['status'] }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-auto"><button class="btn btn-primary btn-sm">{{ __('Link') }}</button></div>
+        </form>
+        <hr class="my-2">
+      @endif
+      <form method="POST" action="{{ route('rdm.datasets.dmp.link', $dataset->id) }}" class="row g-2 align-items-end">
+        @csrf
+        <div class="col-md-6">
+          <label class="form-label small mb-0">{{ __('Create a new DMP') }}</label>
+          <input type="text" name="new_title" class="form-control form-control-sm" placeholder="{{ __('e.g.') }} DMP — {{ \Illuminate\Support\Str::limit($dataset->title, 40) }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small mb-0">{{ __('Funder') }} <span class="text-muted">({{ __('optional') }})</span></label>
+          <input type="text" name="funder" class="form-control form-control-sm" placeholder="{{ __('e.g. NRF, Wellcome') }}">
+        </div>
+        <div class="col-auto"><button class="btn btn-outline-primary btn-sm">{{ __('Create & link') }}</button></div>
+        @if ($dmp['index_url'])
+          <div class="form-text">{{ __('Or manage every plan for this project in the') }} <a href="{{ $dmp['index_url'] }}" target="_blank">{{ __('DMP builder') }}</a>.</div>
+        @endif
+      </form>
+    @endif
+  </div>
+</div>
+@endif
+
 @if ($dataset->verdict)
 {{-- Human gate (#1340): disposition + the open-access block. --}}
 <div class="card mb-3 border-warning">

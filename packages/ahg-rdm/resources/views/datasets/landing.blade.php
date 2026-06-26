@@ -41,6 +41,10 @@
       <p class="small mb-2"><span class="text-muted">{{ __('DOI') }}:</span> <code>{{ $dataset->doi }}</code></p>
     @endif
 
+    @if (! empty($dmp['linked']))
+      <p class="small mb-2"><span class="text-muted"><i class="fas fa-clipboard-list me-1"></i>{{ __('Data management') }}:</span> {{ __('Governed by a Data Management Plan') }} <span class="badge bg-light text-dark border">{{ $dmp['linked']['status'] }}</span></p>
+    @endif
+
     @if ($isOpen)
       <div class="alert alert-success py-2 small mb-0"><i class="fas fa-lock-open me-1"></i>{{ __('This dataset is openly available. Sign in to access the files.') }}</div>
     @elseif ($access[0] === 'Embargoed')

@@ -14,7 +14,7 @@
   @foreach ([
     ['total','Datasets','#0d6efd'], ['flagged','POPIA-flagged','#dc3545'],
     ['restricted','Restricted/embargoed','#fd7e14'], ['open','Open (published)','#198754'],
-    ['unreviewed','Awaiting review','#6c757d'],
+    ['unreviewed','Awaiting review','#6c757d'], ['dmp_linked','DMP-linked','#0dcaf0'],
   ] as [$k,$label,$color])
     <div class="col">
       <div class="card text-center"><div class="card-body py-2">
@@ -89,7 +89,17 @@
               @else <span class="badge bg-light text-dark">{{ $r->status }}</span>@endif
             </td>
             <td class="small">@if ($r->doi)<a href="https://doi.org/{{ $r->doi }}" target="_blank"><code>{{ $r->doi }}</code></a>@else <span class="text-muted">—</span>@endif</td>
-            <td class="small">@if ($r->project_title){{ \Illuminate\Support\Str::limit($r->project_title, 30) }}@else <span class="text-muted">{{ __('unlinked') }}</span>@endif</td>
+            <td class="small">
+              @if (! empty($r->dmp_id))
+                <span class="badge bg-info text-dark" title="{{ $r->dmp_title }}"><i class="fas fa-clipboard-list me-1"></i>{{ __('DMP') }}: {{ $r->dmp_status }}</span>
+                @if ($r->project_title)<div class="text-muted">{{ \Illuminate\Support\Str::limit($r->project_title, 24) }}</div>@endif
+              @elseif ($r->project_title)
+                {{ \Illuminate\Support\Str::limit($r->project_title, 28) }}
+                <div><span class="badge bg-light text-dark border">{{ __('no DMP') }}</span></div>
+              @else
+                <span class="text-muted">{{ __('unlinked') }}</span>
+              @endif
+            </td>
           </tr>
         @empty
           <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No datasets match.') }}</td></tr>
@@ -98,5 +108,5 @@
     </table>
   </div>
 </div>
-<p class="small text-muted mt-2">{{ __('DMP linkage (Feature 1) is shown via the linked research project for now.') }}</p>
+<p class="small text-muted mt-2">{{ __('DMP linkage (Feature 1): a dataset can be governed by a machine-actionable Data Management Plan authored in the research portal; the badge shows the plan status.') }}</p>
 @endsection

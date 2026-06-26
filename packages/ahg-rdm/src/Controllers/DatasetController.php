@@ -10,6 +10,7 @@ namespace AhgRdm\Controllers;
 
 use AhgRdm\Services\ComplianceReportService;
 use AhgRdm\Services\DatasetService;
+use AhgRdm\Services\DmpLinkService;
 use AhgRdm\Services\PopiaGateService;
 use AhgRdm\Services\PopiaScanService;
 use App\Http\Controllers\Controller;
@@ -89,7 +90,54 @@ class DatasetController extends Controller
             'findings'     => DB::table('rdm_scan_finding')->where('dataset_id', $id)->orderByRaw("FIELD(category,'special_category','personal'), method")->get(),
             'gate'         => app(PopiaGateService::class)->gateStatus($id),
             'dispositions' => DB::table('ahg_dropdown')->where('taxonomy', 'rdm_disposition')->orderBy('sort_order')->get(['code', 'label', 'color']),
+            'dmp'          => app(DmpLinkService::class)->context($dataset),
         ]);
+    }
+
+    /**
+     * Link a Data Management Plan to the dataset (#1337 Feature 1). A non-empty
+     * 'new_title' creates a fresh maDMP in the research portal and links it;
+     * otherwise an existing 'dmp_id' from the dataset's project is linked.
+     */
+    public function linkDmp(Request $request, int $id)
+    {
+        abort_unless($this->service->get($id), 404);
+        $svc = app(DmpLinkService::class);
+
+        if (trim((string) $request->input('new_title')) !== '') {
+            $request->validate([
+                'new_title' => 'required|string|max:255',
+                'funder'    => 'nullable|string|max:255',
+            ]);
+            $dmpId = $svc->createAndLink($id, [
+                'title'  => $request->input('new_title'),
+                'funder' => $request->input('funder'),
+            ], (int) auth()->id());
+
+            return redirect()->route('rdm.datasets.show', $id)->with(
+                $dmpId ? 'success' : 'error',
+                $dmpId
+                    ? 'Data Management Plan created and linked. Complete its sections in the research portal.'
+                    : 'Could not create a DMP - link this dataset to a research project first.'
+            );
+        }
+
+        $request->validate(['dmp_id' => 'required|integer']);
+        $ok = $svc->link($id, (int) $request->input('dmp_id'), (int) auth()->id());
+
+        return redirect()->route('rdm.datasets.show', $id)->with(
+            $ok ? 'success' : 'error',
+            $ok ? 'Data Management Plan linked.' : "Could not link that plan - it must belong to this dataset's project."
+        );
+    }
+
+    /** Detach the DMP from the dataset (the plan is left intact). */
+    public function unlinkDmp(int $id)
+    {
+        abort_unless($this->service->get($id), 404);
+        app(DmpLinkService::class)->unlink($id);
+
+        return redirect()->route('rdm.datasets.show', $id)->with('success', 'Data Management Plan unlinked.');
     }
 
     public function resolveFinding(Request $request, int $id, int $fid)
@@ -150,6 +198,7 @@ class DatasetController extends Controller
             'year'      => $year,
             'doiUrl'    => $dataset->doi ? 'https://doi.org/'.$dataset->doi : null,
             'fileCount' => $this->service->files($id)->count(),
+            'dmp'       => app(DmpLinkService::class)->context($dataset),
         ]);
     }
 

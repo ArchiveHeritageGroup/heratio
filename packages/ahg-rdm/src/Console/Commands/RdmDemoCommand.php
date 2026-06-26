@@ -50,6 +50,23 @@ class RdmDemoCommand extends Command
         $datasetId = $svc->create(self::TITLE, 'Synthetic social-science/health study for the POPIA scan demo. No real personal data.', $projectId, $userId);
         $this->info("Created dataset #{$datasetId}".($projectId ? " (project #{$projectId})" : ' (no project)'));
 
+        // Feature 1 (#1337): attach a Data Management Plan. Pure orchestration -
+        // the maDMP is authored by the ahg-research DMP builder; the dataset just
+        // references it. Skips cleanly when the DMP slice isn't installed.
+        if ($projectId) {
+            $dmpId = app(\AhgRdm\Services\DmpLinkService::class)->createAndLink($datasetId, [
+                'title'         => 'DMP — POPIA RDM Demo Study',
+                'funder'        => 'NRF',
+                'contact_name'  => 'Demo PI',
+                'contact_email' => 'demo.pi@up.ac.za',
+            ], $userId);
+            if ($dmpId) {
+                $this->line("Linked Data Management Plan #{$dmpId} (maDMP, status draft).");
+            } else {
+                $this->line('DMP builder not installed - dataset left without a DMP.');
+            }
+        }
+
         // 1. Deposit the synthetic files (copies, since deposit moves the staged file).
         $files = [];
         foreach ([
@@ -99,6 +116,7 @@ class RdmDemoCommand extends Command
         $this->info('=== DEMO COMPLETE ===');
         $this->line("Verdict      : {$ds->verdict}");
         $this->line("Disposition  : {$ds->disposition}  (status {$ds->status})");
+        $this->line("DMP linked   : ".(! empty($ds->dmp_id) ? "#{$ds->dmp_id} (maDMP)" : '(none)'));
         $this->line("DOI          : ".($ds->doi ?: '(none)'));
         $this->line("Landing page : {$base}/research/datasets/{$datasetId}/landing");
         $this->line("Dataset (admin): {$base}/research/datasets/{$datasetId}");
@@ -135,12 +153,18 @@ class RdmDemoCommand extends Command
 
     private function purge(): void
     {
-        $ids = DB::table('rdm_dataset')->where('title', self::TITLE)->pluck('id');
-        foreach ($ids as $id) {
-            DB::table('rdm_scan_finding')->where('dataset_id', $id)->delete();
-            DB::table('rdm_dataset_file')->where('dataset_id', $id)->delete();
-            DB::table('rdm_dataset')->where('id', $id)->delete();
+        $rows = DB::table('rdm_dataset')->where('title', self::TITLE)->get(['id', 'dmp_id']);
+        foreach ($rows as $row) {
+            DB::table('rdm_scan_finding')->where('dataset_id', $row->id)->delete();
+            DB::table('rdm_dataset_file')->where('dataset_id', $row->id)->delete();
+            DB::table('rdm_dataset')->where('id', $row->id)->delete();
+            // Remove the demo's own DMP (created by --fresh) so re-runs don't pile up.
+            if (! empty($row->dmp_id) && \Illuminate\Support\Facades\Schema::hasTable('research_dmp')) {
+                DB::table('research_dmp_section')->where('dmp_id', $row->dmp_id)->delete();
+                DB::table('research_dmp')->where('id', $row->dmp_id)->delete();
+            }
         }
+        $ids = $rows->pluck('id');
         if ($ids->count()) {
             $this->line("Purged {$ids->count()} prior demo dataset(s).");
         }
