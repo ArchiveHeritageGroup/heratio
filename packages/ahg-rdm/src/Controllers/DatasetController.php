@@ -8,6 +8,7 @@
 
 namespace AhgRdm\Controllers;
 
+use AhgRdm\Services\ComplianceReportService;
 use AhgRdm\Services\DatasetService;
 use AhgRdm\Services\PopiaGateService;
 use AhgRdm\Services\PopiaScanService;
@@ -29,6 +30,19 @@ class DatasetController extends Controller
     {
         return view('ahg-rdm::datasets.index', [
             'datasets' => $this->service->list(),
+        ]);
+    }
+
+    public function compliance(Request $request)
+    {
+        $filters = array_filter($request->only(['institution', 'verdict', 'disposition']));
+        $svc = app(ComplianceReportService::class);
+
+        return view('ahg-rdm::datasets.compliance', [
+            'rows'         => $svc->rows($filters),
+            'institutions' => $svc->institutions(),
+            'summary'      => $svc->summary($filters),
+            'filters'      => $filters,
         ]);
     }
 

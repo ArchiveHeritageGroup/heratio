@@ -129,6 +129,9 @@
         @if($hasPrivacy)
         <li><a href="{{ url('/admin/privacy/dashboard') }}"><i class="fas fa-user-shield me-2"></i>{{ __('Privacy & Data Protection') }}</a></li>
         @endif
+        @if($hasResearch && \Illuminate\Support\Facades\Route::has('rdm.datasets.compliance'))
+        <li><a href="{{ route('rdm.datasets.compliance') }}"><i class="fas fa-clipboard-check me-2"></i>{{ __('RDM Compliance') }}</a></li>
+        @endif
         @if($hasResearch)
         <li><a href="{{ url('/research/dashboard') }}"><i class="fas fa-graduation-cap me-2"></i>{{ __('Research') }}</a></li>
         @endif
