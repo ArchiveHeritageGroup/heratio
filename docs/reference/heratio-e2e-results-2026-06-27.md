@@ -484,3 +484,86 @@ the exemplar; its public SEARCH is the leak.
   returns the draft `test-opensearch`; published search still returns hits.
   DEFERRED (#1367 stays open): multi-tenant scope filter on the ES paths; gating the public
   unauth `pageindex/api` (LLM-query) + `discovery/click` (log write) + `discovery/build` (acl).
+
+---
+
+## T8 — Rights / compliance / records / jurisdiction (heaviest security tranche)
+
+### Functional smoke (anon HTTP) — GREEN
+42 routes, 18 modules, 0 server errors. Sensitive admin surfaces (rights/doi/records/
+clearance/cdpa/audit) all deny anon (403); privacy/icip/ipsas/naz/nmmz/donor/workflow 302.
+
+### Static audit (18 modules, 5 parallel agents)
+
+**🔴 ahg-privacy — FAIL (the standout).** Highest-sensitivity package, weakest control:
+**zero `acl:` anywhere** (group is `['dp.enabled','auth']` only). Every record — DSAR,
+breach, complaint, consent, ROPA, DPIA, Article-30, PII corpus — is read+edit+delete by
+ANY authenticated user via bare `where('id',$id)` (`PrivacyController.php` DSAR `:975`,
+breach `:370`, ROPA `:1352`, etc.). Only the data-subject self-service `dsarStatus` is
+ownership-gated. POPIA DSAR/breach IDOR.
+
+**🔴 Anon contact-PII leaks (public {slug} show):**
+- **ahg-donor-manage** — public `/donor/{slug}` + `/donor/browse` render donor
+  **address/email/telephone** to anon (`show.blade.php:153-256`; only edit links are
+  `@auth`). VERIFIED live: `donor/rock-art-research-institute` → 200 leaking PII. Plus
+  agreement IDOR (any authed user reads/edits/deletes any agreement — donor contact +
+  financial terms; lying "ACL checked in controller" comment, `DonorController.php:307,431,502`).
+- **ahg-rights-holder-manage** — public `/rightsholder/browse` + `/rightsholder/{slug}`
+  render rights-holder email/phone/address to anon (latent on dev — no data).
+
+**🔴 Authenticated IDOR / access-control:**
+- **ahg-icip** — 8 sacred-data mutators (communities/consent/TK-labels/**access-restrictions
+  on sacred objects**) missing `acl:` (controller comment lies), any authed user alters them.
+- **ahg-extended-rights** — `apiCheck`/`apiEmbargo` IDOR (any authed reads any object's
+  embargo incl. `internal_note`); `delete()` missing slug↔object ownership.
+- **ahg-rights-holder-manage** — `lift-embargo` is a state-changing **GET**, auth-only no
+  `acl:` → any authed user lifts ANY embargo; `embargo.show` IDOR read.
+- **ahg-version-control** — read (list/show/diff) lacks clearance/publication check → any
+  authed user with `version.list` reads **classified/draft** record snapshots (restore IS
+  clearance-gated; viewing the same history isn't).
+- **ahg-naz** — reads under `auth` only (no admin), researcher PII to any authed user
+  (inconsistent with sibling NMMZ's `auth,admin`).
+- **ahg-workflow** — approve/reject task IDOR (no `assigned_to` check; within admin).
+
+**🔴 Separation-of-duties:**
+- **ahg-records-manage** — no maker-checker on irreversible destruction (one admin/editor
+  drives initiate→clear→execute + self-issues the destruction certificate); destruction
+  available to EDITOR group, not administrators-only.
+- **ahg-security-clearance (tier C)** — reviewer≠requester not enforced; admin can raise own
+  clearance (admin-gated, low impact).
+
+**🟡 Broken/stub (extends #1357):** ahg-doi-manage — config UI wired to wrong store (saved
+creds never reach minting), Test Connection dead (GET vs POST), single mint/deactivate/sync
+are no-op success stubs, report export inert, plaintext DataCite password. ahg-privacy 2
+dead-route 500s. ahg-audit-trail `audit.compare` → 500 (missing view). ahg-donor broken
+`agreement.show` ref. ahg-workflow many orphan routes.
+
+**🟢 Exemplary / clean:**
+- **ahg-audit-trail — tamper-evident** (SHA-256 hash-chain + Ed25519 + DB triggers blocking
+  UPDATE/DELETE on signed rows). Only cleanup-tier defects.
+- **ahg-security-clearance** — structurally sound (MFA/OTP/WebAuthn ownership-scoped,
+  escalation admin+acl-gated). Only help + self-approval (tier C).
+- Stubs: ahg-rights (#620), ahg-doi (#562 schema-only), ahg-narssa (CLI-only).
+
+**🟢 Jurisdiction pluggability — PASS all 6** (composer auto-discovery, none hard-wired
+SA-default; a SA deployment omits the Zimbabwe NAZ/NMMZ packages). Caveat: no runtime
+per-tenant toggle once installed.
+
+**🟡 Dropdowns:** systemic — jurisdiction modules use **0 `ahg_dropdown`** (~350 hardcoded
+options; NMMZ worst at 121); records-manage destruction action_type hardcoded; doi-manage
+levels. **Help:** all unwired (extends #1350). **Theme:** PASS everywhere.
+
+### T8 verdict
+Functional GREEN; the richest access-control tranche — privacy zero-acl IDOR (lead), two
+anon contact-PII leaks (donor verified live), icip sacred-object mutation gaps, embargo/
+version-control/naz IDOR, records-manage destruction separation-of-duties. audit-trail is
+the exemplar.
+
+## Fix applied (2026-06-27, #1370 anon contact-PII — partial)
+- **ahg-donor-manage** — `donor/browse` + `donor/{slug}` show now require `auth` (anon can't
+  harvest donor address/email/phone). Verified: anon `donor/rock-art-research-institute` →
+  302, PII gone. Agreement add/edit/delete gained `acl:create/update/delete` (closing the
+  write IDOR; the "ACL checked in controller" comment was false).
+- **ahg-rights-holder-manage** — `rightsholder/browse` + `rightsholder/{slug}` now require auth.
+  DEFERRED (#1370 stays open): agreement READ (`agreementView`) still readable by any authed
+  staff (financial/PII; lower severity — needs an acl-read/admin decision).

@@ -3,7 +3,9 @@
 use AhgDonorManage\Controllers\DonorController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/donor/browse', [DonorController::class, 'browse'])->name('donor.browse');
+// Donor records carry contact PII (address/email/phone) — staff-only read surface;
+// gate browse + show under auth so anon can't harvest donor contacts (#1370).
+Route::get('/donor/browse', [DonorController::class, 'browse'])->name('donor.browse')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('/donor/add', [DonorController::class, 'create'])->name('donor.create');
@@ -17,14 +19,14 @@ Route::middleware('admin')->group(function () {
     Route::delete('/donor/{slug}/delete', [DonorController::class, 'destroy'])->name('donor.destroy')->middleware('acl:delete');
 });
 
-Route::get('/donor/{slug}', [DonorController::class, 'show'])->name('donor.show')
+Route::get('/donor/{slug}', [DonorController::class, 'show'])->name('donor.show')->middleware('auth')
     ->where('slug', '(?!browse|add|agreements|agreement|index|view|dashboard)[a-z0-9\-]+');
 
 Route::middleware('auth')->group(function () {
     Route::get('/donor/agreements', [DonorController::class, 'agreementDashboard'])->name('donor.agreements');
-    Route::match(['get', 'post'], '/donor/agreement/add', [DonorController::class, 'agreementAdd'])->name('donor.agreement.add'); // ACL check in controller for POST only
-    Route::match(['get', 'post'], '/donor/agreement/{id}/edit', [DonorController::class, 'agreementEdit'])->name('donor.agreement.edit')->whereNumber('id'); // ACL check in controller for POST only
-    Route::match(['get', 'post', 'delete'], '/donor/agreement/{id}/delete', [DonorController::class, 'agreementDelete'])->name('donor.agreement.delete')->whereNumber('id'); // ACL check in controller for POST/DELETE only
+    Route::match(['get', 'post'], '/donor/agreement/add', [DonorController::class, 'agreementAdd'])->name('donor.agreement.add')->middleware('acl:create'); // #1370: route-gate; the in-controller ACL comment was not enforced
+    Route::match(['get', 'post'], '/donor/agreement/{id}/edit', [DonorController::class, 'agreementEdit'])->name('donor.agreement.edit')->whereNumber('id')->middleware('acl:update'); // #1370
+    Route::match(['get', 'post', 'delete'], '/donor/agreement/{id}/delete', [DonorController::class, 'agreementDelete'])->name('donor.agreement.delete')->whereNumber('id')->middleware('acl:delete'); // #1370
     Route::get('/donor/agreement/reminders', [DonorController::class, 'agreementReminders'])->name('donor.agreement.reminders');
     Route::get('/donor/agreement/{id}', [DonorController::class, 'agreementView'])->name('donor.agreement.view')->whereNumber('id');
     Route::get('/donor/agreement/autocomplete-accessions', [DonorController::class, 'agreementAutocompleteAccessions'])->name('donor.agreement.autocomplete-accessions');

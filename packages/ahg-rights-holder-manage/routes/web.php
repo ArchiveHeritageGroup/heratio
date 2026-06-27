@@ -7,7 +7,9 @@ use AhgRightsHolderManage\Controllers\RightsController;
 use AhgRightsHolderManage\Controllers\RightsHolderController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/rightsholder/browse', [RightsHolderController::class, 'browse'])->name('rightsholder.browse');
+// Rights-holders carry contact PII (email/phone/address) — gate the read surface
+// under auth so anon can't harvest contacts (#1370).
+Route::get('/rightsholder/browse', [RightsHolderController::class, 'browse'])->name('rightsholder.browse')->middleware('auth');
 
 // Redirect hyphenated variant to canonical URL
 Route::redirect('/rights-holder/browse', '/rightsholder/browse', 301);
@@ -65,4 +67,4 @@ Route::middleware('admin')->group(function () {
     Route::get('/rights-admin/tk-labels', [RightsAdminController::class, 'tkLabels'])->name('rights-admin.tk-labels');
 });
 
-Route::get('/rightsholder/{slug}', [RightsHolderController::class, 'show'])->name('rightsholder.show');
+Route::get('/rightsholder/{slug}', [RightsHolderController::class, 'show'])->name('rightsholder.show')->middleware('auth');
