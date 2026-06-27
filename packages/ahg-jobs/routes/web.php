@@ -32,7 +32,9 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['web', 'auth'])->prefix('jobs')->name('jobs.')->group(function () {
+// #1382: jobs hold output/download_path + a global clear-inactive — admin-gate to
+// match ahg-jobs-manage's /admin/jobs surface (was bare auth = any user read/delete all).
+Route::middleware(['web', 'auth', 'admin'])->prefix('jobs')->name('jobs.')->group(function () {
     Route::get('/', [JobsController::class, 'browse'])->name('browse');
     Route::get('/show/{id}', [JobsController::class, 'show'])->name('show');
     Route::post('/clear-inactive', [JobsController::class, 'clearInactive'])->name('clear-inactive');

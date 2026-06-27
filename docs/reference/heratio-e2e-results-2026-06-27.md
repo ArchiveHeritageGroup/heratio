@@ -731,3 +731,15 @@ the exemplars.
   confirmation, complaint) stay `auth`-only with the existing in-controller ownership
   (`dsarStatus` scopes by created_by/requestor_email; dsarRequestStore binds created_by).
   Verified: management routes carry RequireAdmin, self-service routes don't; anon still 302.
+
+## Fixes applied (2026-06-27, #1382 + #1383 ops gating)
+- **#1382 ahg-jobs — NOT a live vuln (corrected).** route:list has ZERO Ahg\Jobs\JobsController
+  routes; `ahg/jobs` declares no provider + isn't in the root composer require (only
+  ahg/jobs-manage is); `/jobs` is 404. The T10 "live IDOR" was a static false positive — the
+  package isn't loaded. The route group was nonetheless admin-gated defensively.
+- **#1383 ahg-backup** — `download`/`restore`/`doRestore`/`destroy`/`saveSettings` now call
+  `requireAdministrator()` (`AclService::isAdministrator`, ADMINISTRATOR group only) → the
+  full-DB-dump + restore are administrators-only, no longer reachable by the EDITOR-inclusive
+  `canAdmin` gate. `saveSettings` rejects a `backup_path` inside a web-served dir (/uploads or
+  public/) — closes the anon-dump-via-repoint risk. Restore server-side maker-checker (typed
+  confirm) deferred — needs a coordinated restore.blade change; #1383 stays open for it.

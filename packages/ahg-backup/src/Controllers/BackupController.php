@@ -28,6 +28,7 @@ namespace AhgBackup\Controllers;
 use AhgBackup\Mail\BackupCompletedMail;
 use AhgBackup\Mail\BackupFailedMail;
 use AhgBackup\Services\BinaryLogArchiver;
+use AhgCore\Services\AclService;
 use AhgCore\Services\AhgSettingsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -597,8 +598,21 @@ class BackupController extends Controller
     /**
      * Save backup settings.
      */
+    /**
+     * Backup dumps are the entire DB (all PII) and restore overwrites it +
+     * untars over the codebase — administrators only, NOT the editor-inclusive
+     * `admin`/canAdmin gate the route group uses (#1383).
+     */
+    private function requireAdministrator(): void
+    {
+        if (! AclService::isAdministrator()) {
+            abort(403, 'Backup download / restore / delete is restricted to administrators.');
+        }
+    }
+
     public function saveSettings(Request $request)
     {
+        $this->requireAdministrator();
         $request->validate([
             'backup_path' => 'required|string|max:500',
             'backup_max_backups' => 'required|integer|min:1|max:999',
@@ -608,6 +622,15 @@ class BackupController extends Controller
             'backup_notify_on_success' => 'nullable|boolean',
             'backup_notify_on_failure' => 'nullable|boolean',
         ]);
+
+        // #1383: never let backups land in a web-served directory — repointing
+        // backup_path into /uploads or public/ would expose full-PII DB dumps to anon.
+        $newPath = rtrim((string) $request->input('backup_path'), '/');
+        foreach (array_filter([rtrim((string) config('heratio.uploads_path'), '/'), rtrim(public_path(), '/')]) as $webRoot) {
+            if ($newPath === $webRoot || str_starts_with($newPath.'/', $webRoot.'/') || str_contains($newPath, '/uploads/')) {
+                return back()->withInput()->with('error', 'Backup path may not be inside a web-served directory (/uploads or public/).');
+            }
+        }
 
         AhgSettingsService::set('backup_path', $request->input('backup_path'), 'backup');
         AhgSettingsService::set('backup_max_backups', $request->input('backup_max_backups'), 'backup');
@@ -627,6 +650,7 @@ class BackupController extends Controller
      */
     public function restore()
     {
+        $this->requireAdministrator();
         $dbConfig = config('database.connections.mysql');
         $backupPath = $this->getBackupPath();
         $backups = $this->listBackups();
@@ -675,6 +699,7 @@ class BackupController extends Controller
      */
     public function doRestore(Request $request)
     {
+        $this->requireAdministrator();
         $request->validate([
             'backup_id' => 'required|string',
             'components' => 'required|array|min:1',
@@ -816,6 +841,7 @@ class BackupController extends Controller
      */
     public function download(string $id)
     {
+        $this->requireAdministrator();
         $backups = $this->listBackups();
         $backup = collect($backups)->firstWhere('id', $id);
 
@@ -831,6 +857,7 @@ class BackupController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->requireAdministrator();
         $backups = $this->listBackups();
         $backup = collect($backups)->firstWhere('id', $id);
 
