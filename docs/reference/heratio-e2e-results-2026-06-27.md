@@ -756,3 +756,14 @@ the exemplars.
   GET that let any authed user lift ANY embargo) now carries `acl:update`. The
   GET→POST/CSRF conversion + the embargo.show read-IDOR + the ahg-extended-rights (LOCKED)
   apiCheck/apiEmbargo/delete/tk-labels parts remain — #1372 stays open for those.
+
+## Fixes applied (2026-06-27, #1366 + #1373)
+- **#1366 ahg-access-request** — `view()` now requires owner-or-admin
+  (`user_id === auth()->id() || AclService::canAdmin`) → closes the IDOR where any authed
+  user read any request's justification/requester/target-classification by id. (The
+  wrong-table workflow bug — writes security_access_request, reads access_request — is
+  functional and remains; #1366 stays open for it.)
+- **#1373 ahg-version-control** — list/show/diff now call `assertClearedForClassified()`:
+  if the record is classified (object_security_classification active), require
+  `ClearanceCheck::canUserRestore()` (the same clearance-level check restore uses) → a
+  version.list holder can no longer read classified record snapshots they couldn't view live.

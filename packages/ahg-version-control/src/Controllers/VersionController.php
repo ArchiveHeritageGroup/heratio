@@ -14,6 +14,7 @@
 namespace AhgVersionControl\Controllers;
 
 use AhgVersionControl\Services\AclCheck;
+use AhgVersionControl\Services\ClearanceCheck;
 use AhgVersionControl\Services\DiffComputer;
 use AhgVersionControl\Services\InsufficientClearanceException;
 use AhgVersionControl\Services\RestoreService;
@@ -46,6 +47,7 @@ class VersionController extends Controller
     {
         $this->assertEntity($entity, $id);
         $this->requireAclAction(AclCheck::ACTION_LIST);
+        $this->assertClearedForClassified($entity, $id);
         $config = self::ENTITY_TABLE_MAP[$entity];
 
         $page = max(1, (int) $request->query('page', 1));
@@ -87,6 +89,7 @@ class VersionController extends Controller
     {
         $this->assertEntity($entity, $id);
         $this->requireAclAction(AclCheck::ACTION_LIST);
+        $this->assertClearedForClassified($entity, $id);
         $config = self::ENTITY_TABLE_MAP[$entity];
 
         $row = DB::table($config['version_table'])
@@ -158,10 +161,30 @@ class VersionController extends Controller
         }
     }
 
+    /**
+     * #1373: reading version history/diffs exposes full record snapshots. When the
+     * record is classified, the reader must meet its clearance — the same gate
+     * restore() applies (object_security_classification + ClearanceCheck), so a
+     * version.list holder can't read snapshots of a record they couldn't view live.
+     */
+    private function assertClearedForClassified(string $entity, int $id): void
+    {
+        $isClassified = DB::table('object_security_classification')
+            ->where('object_id', $id)->where('active', 1)->exists();
+        if (! $isClassified) {
+            return;
+        }
+        $userId = (int) (auth()->id() ?? 0) ?: null;
+        if (! (new ClearanceCheck)->canUserRestore($userId, $id)) {
+            abort(403, 'Insufficient security clearance to view this record\'s version history.');
+        }
+    }
+
     public function diff(string $entity, int $id, int $v1, int $v2, DiffComputer $computer)
     {
         $this->assertEntity($entity, $id);
         $this->requireAclAction(AclCheck::ACTION_DIFF);
+        $this->assertClearedForClassified($entity, $id);
         $config = self::ENTITY_TABLE_MAP[$entity];
 
         $snap1 = DB::table($config['version_table'])->where($config['fk'], $id)->where('version_number', $v1)->value('snapshot');

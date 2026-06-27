@@ -26,6 +26,7 @@
 namespace AhgAccessRequest\Controllers;
 
 use AhgAccessRequest\Services\AccessRequestService;
+use AhgCore\Services\AclService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -96,6 +97,15 @@ class AccessRequestController extends Controller
     {
         $accessRequest = $this->service->getRequest((int) $id);
         abort_unless($accessRequest, 404);
+
+        // Ownership gate (#1366): a request exposes the requester's identity +
+        // justification + the target record's classification. Only the owner or an
+        // admin/approver may view it (was unguarded — any authed user by id).
+        abort_unless(
+            (int) ($accessRequest->user_id ?? 0) === (int) auth()->id()
+                || AclService::canAdmin(auth()->id()),
+            403
+        );
 
         return view('ahg-access-request::view', compact('accessRequest'));
     }
