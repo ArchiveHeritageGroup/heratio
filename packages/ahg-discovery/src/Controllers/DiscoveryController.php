@@ -575,6 +575,12 @@ class DiscoveryController extends Controller
             ->where('ioi.culture', $culture)
             ->where('ioi.title', 'like', "%{$query}%")
             ->where('ioi.id', '!=', 1)
+            // Guests: published-only, no draft-title suggestions to anon (#1367).
+            ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s) {
+                $s->select(DB::raw(1))->from('status as pub_st')
+                    ->whereColumn('pub_st.object_id', 'ioi.id')
+                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+            }))
             ->select('ioi.title as label', 'slug.slug', DB::raw("'Archival description' as type"))
             ->orderByRaw('CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END', [$query.'%'])
             ->limit(5)->get();
@@ -896,6 +902,16 @@ class DiscoveryController extends Controller
                     ->orWhere('ioi.scope_and_content', 'like', "%{$query}%");
             });
 
+        // Guests see only published records (status 158/160) — discovery search must
+        // not leak unpublished records to anon (#1367).
+        if (! auth()->check()) {
+            $base->whereExists(function ($s) {
+                $s->select(DB::raw(1))->from('status as pub_st')
+                    ->whereColumn('pub_st.object_id', 'io.id')
+                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+            });
+        }
+
         $total = (clone $base)->count();
         $results = $base->select('io.id', 'io.identifier', 'ioi.title as label', 'slug.slug',
             DB::raw("'Archival description' as entity_type"))
@@ -1160,15 +1176,22 @@ class DiscoveryController extends Controller
             $es = app(\AhgSearch\Services\ElasticsearchService::class);
             $body = [
                 'query' => [
-                    'query_string' => [
-                        'query' => $queryString,
-                        'fields' => [
-                            "i18n.{$culture}.title^3",
-                            "i18n.{$culture}.scopeAndContent",
-                            "i18n.{$culture}.history",
-                            'identifier^2',
-                        ],
-                        'default_operator' => 'OR',
+                    'bool' => [
+                        'must' => [[
+                            'query_string' => [
+                                'query' => $queryString,
+                                'fields' => [
+                                    "i18n.{$culture}.title^3",
+                                    "i18n.{$culture}.scopeAndContent",
+                                    "i18n.{$culture}.history",
+                                    'identifier^2',
+                                ],
+                                'default_operator' => 'OR',
+                            ],
+                        ]],
+                        // Guests: published-only (publicationStatusId 160), mirroring
+                        // ahg-search's ElasticsearchService so discovery can't leak drafts (#1367).
+                        'filter' => auth()->check() ? [] : [['term' => ['publicationStatusId' => 160]]],
                     ],
                 ],
                 '_source' => ['slug', "i18n.{$culture}.title"],
@@ -1263,6 +1286,8 @@ class DiscoveryController extends Controller
                     'bool' => [
                         'should' => $should,
                         'minimum_should_match' => 1,
+                        // Guests: published-only (#1367), mirroring ahg-search.
+                        'filter' => auth()->check() ? [] : [['term' => ['publicationStatusId' => 160]]],
                     ],
                 ],
                 '_source' => ['nerEntityTypes', 'nerEntityValues'],

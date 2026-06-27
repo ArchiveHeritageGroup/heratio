@@ -420,3 +420,67 @@ share-link is the exemplar to copy for token security.
   non-owner — no trustworthy membership lookup) and the object-state gate (public
   annotation on a draft IO; `resolveIoIdFromTarget` still a stub). #1365 stays OPEN for
   those two follow-ups.
+
+---
+
+## T7 — AI services (run by a dedicated agent; gateway-routing = headline)
+
+### Functional smoke (anon HTTP) — GREEN
+24 routes, 6 modules, 0 server errors. Public surfaces: `discovery*` (200) +
+`.well-known/ai-inference-pubkey` (200, confirmed safe — public-key metadata only,
+no private-key column).
+
+### Static audit (6 modules)
+
+**🔴 ahg-discovery — FAIL (anon draft-leak, NEW + verified live).** Public discovery
+search (`Route::prefix('discovery')->middleware(['web'])`, no auth/acl) →
+`DiscoveryController::searchInformationObjects()` (`:885-897`) joins information_object
+with only `io.id != 1` + LIKE, **no status 158/160 filter, no auth gate**. Verified:
+anon `discovery?q=opensearch` → 200 returns the DRAFT IO `test-opensearch`. Same pattern
+in `suggest()` (`:573`) + the raw-ES `keywordSearch`/`entitySearch` bodies, which also
+**omit the multi-tenant filter** ahg-search applies. Plus: `pageindex/api` is a fully
+public unauthenticated LLM-query endpoint (`:17`); `discovery/click` is an unauth write
+to `ahg_discovery_log` (`:12`); `discovery/build` (costly LLM index build) is auth-only
+no acl. #1353/#1360/#1363 class.
+
+**🔴 AI-gateway rule — two real app-path bypasses (one shared root cause):**
+- **`ahg_llm_config`-driven LLM completion** — `LlmService::complete/completeFull/
+  generateSuggestion` → `callOllama()` defaults `http://localhost:11434`, and the table is
+  **seeded to that node** (`install.sql:489`). This is the **ahg-ai-chatbot FAIL**
+  (chat completion, `ChatbotService.php:491`) AND the IO `ai.describe`/suggestion path in
+  ai-services. Bypasses `ai.theahg.co.za` (no metering/quota/failover). Fix once at the
+  LlmService layer.
+- **DonutService** hard-defaults to direct node `192.168.0.115:5008` (`DonutService.php:39`).
+- Config-default: `install.sql` seeds general+NER `api_url` to worker node
+  `http://localhost:5004/ai/v1` (`:403,:469`) — overrides the gateway code-default on fresh install.
+
+**🟢 Gateway — clean / exemplary:** **ahg-discovery is the model** — every inference client
+(OllamaPageIndexClient, ImageSearchStrategy, PageIndexService OCR) defaults to the gateway
+and **rejects raw-node overrides via `looksLikeNode()`**. The dedicated ai-services clients
+(NerService/HtrService/TtsService + Qdrant command) are clean too. CLIP image-search (#1272)
+is gateway-routed. ai-compliance/provenance-ai/inference-receipts make no outbound inference (N-A).
+
+**🟡 Missing acl: (extends #1354):** ahg-ai-compliance EVERY mutation (incl. oversight
+countersign/attest) auth-only; ahg-provenance-ai governance group auth-only; ahg-ai-services
+legacy POST aliases (`routes/web.php:226-236`) skip the admin gate their canonical twins have.
+
+**🟡 Other:** ahg-ai-chatbot WhatsApp webhook `validateSignature()` returns true when
+`app_secret` unset → accepts UNSIGNED payloads (fail-open; channel default-off + throttled).
+
+**🟢 Clean:** Theme PASS all 6 (central BS5). Dropdowns PASS/minor. inference-receipts is a
+pure crypto library (N-A, live — consumed by ai-compliance/c2pa/audit-trail/federation).
+**Help:** all 6 have accurate articles, none wired (extends #1350; inference-receipts exempt).
+
+### T7 verdict
+Functional GREEN. New anon draft-leak (discovery, verified live) + the confirmed gateway
+bypasses (LlmService/chatbot completion + DonutService). discovery's OWN gateway routing is
+the exemplar; its public SEARCH is the leak.
+
+## Fix applied (2026-06-27, #1367 discovery draft-leak — partial)
+- **ahg-discovery** — guest published-status gate added to all four public search paths:
+  `searchInformationObjects()` + `suggest()` IO-titles (DB: status 158/160 whereExists when
+  `!auth()`), `keywordSearch()` + `entitySearch()` (ES: `publicationStatusId=160` filter
+  when `!auth()`, mirroring ahg-search). Verified: anon `discovery?q=opensearch` no longer
+  returns the draft `test-opensearch`; published search still returns hits.
+  DEFERRED (#1367 stays open): multi-tenant scope filter on the ES paths; gating the public
+  unauth `pageindex/api` (LLM-query) + `discovery/click` (log write) + `discovery/build` (acl).
