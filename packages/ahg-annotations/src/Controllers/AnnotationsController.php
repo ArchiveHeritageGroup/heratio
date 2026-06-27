@@ -25,6 +25,7 @@
 
 namespace AhgAnnotations\Controllers;
 
+use AhgCore\Services\AclService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -106,6 +107,14 @@ class AnnotationsController extends Controller
             ->where('target_iri', $targetId)
             ->orderBy('id');
 
+        // SECURITY (#1365): clamp the result set to what the caller is
+        // allowed to read BEFORE any client-supplied filter narrows it.
+        // Without this, an anonymous GET /api/annotations/search returns
+        // every private/project annotation on the target. The client-side
+        // ?visibility=/?createdBy= filters below only AND-narrow further,
+        // so they can never widen past this scope.
+        $this->applyReadVisibilityScope($q);
+
         // Shared-annotation-layer filters (W3C-Web-Annotation native search
         // ignores these so plain Mirador requests still return everything).
         if ($projectId !== null && $projectId !== '') {
@@ -157,6 +166,14 @@ class AnnotationsController extends Controller
     {
         $row = DB::table('ahg_iiif_annotation')->where('uuid', $uuid)->first();
         if (! $row) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        // SECURITY (#1365): direct uuid fetch must honour the same read
+        // visibility model as search(). A non-owner (anonymous or another
+        // user) requesting a private/project annotation gets a 404 so we
+        // neither leak the body nor confirm the row exists.
+        if (! $this->canReadRow($row)) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
@@ -388,6 +405,13 @@ class AnnotationsController extends Controller
             return response()->json(['error' => 'Not found'], 404);
         }
 
+        // SECURITY (#1365): ownership gate. Auth::check() alone let any
+        // authenticated user overwrite anyone else's annotation (IDOR).
+        // Only the creator (or an admin/editor) may mutate a row.
+        if (! $this->canWriteRow($row)) {
+            return response()->json(['error' => 'You do not have permission to modify this annotation.'], 403);
+        }
+
         // Optimistic-concurrency precondition. If the client sent If-Match
         // and the current row's etag differs, 412 Precondition Failed.
         $ifMatch = $request->header('If-Match');
@@ -442,6 +466,12 @@ class AnnotationsController extends Controller
         $row = DB::table('ahg_iiif_annotation')->where('uuid', $uuid)->first();
         if (! $row) {
             return response()->json(['error' => 'Not found'], 404);
+        }
+
+        // SECURITY (#1365): ownership gate (see update()). Only the creator
+        // or an admin/editor may delete a row.
+        if (! $this->canWriteRow($row)) {
+            return response()->json(['error' => 'You do not have permission to delete this annotation.'], 403);
         }
 
         // If-Match on DELETE is the WAP-recommended way to prevent two
@@ -548,10 +578,109 @@ class AnnotationsController extends Controller
     }
 
     /**
+     * SECURITY (#1365) — read visibility model, applied identically by
+     * search() (as a query scope) and show() (as a per-row check via
+     * canReadRow()).
+     *
+     * Rules:
+     *   - Admin / editor (AclService::canAdmin) — see everything.
+     *   - Anonymous (! Auth::check()) — only visibility='public'.
+     *   - Authenticated non-admin — visibility='public' OR own rows
+     *     (created_by = Auth::id()).
+     *
+     * NOTE on 'project' visibility: ahg-annotations does not (today) have a
+     * clean, authoritative way to resolve a row's project_id to a set of
+     * permitted users. ahg-research keys project membership on
+     * research_project_collaborator.researcher_id (research_researcher.id),
+     * NOT directly on the auth user id, and there is no documented contract
+     * that an annotation's project_id references research_project.id — the
+     * value arrives unvalidated from the viewer's ?projectId= query param.
+     * Wiring it would also add a cross-package dependency
+     * (ahg-annotations -> ahg-research) this package does not currently
+     * declare. Rather than risk leaking project rows on a guessed join, we
+     * implement the safe subset (public + own + admin) and exclude project
+     * rows from non-admin, non-owner callers.
+     *
+     * TODO(#1365): include project-member annotations once a trustworthy
+     * project-membership lookup (auth-user -> researcher -> accepted
+     * collaborator on annotation.project_id) is wired and the project_id ->
+     * research_project linkage is validated.
+     */
+    private function applyReadVisibilityScope($query): void
+    {
+        $userId = Auth::id();
+
+        if (AclService::canAdmin($userId)) {
+            return; // admins/editors see all
+        }
+
+        if (! Auth::check()) {
+            $query->where('visibility', 'public');
+
+            return;
+        }
+
+        // Authenticated non-admin: public rows OR rows they authored.
+        $query->where(function ($q) use ($userId) {
+            $q->where('visibility', 'public')
+                ->orWhere('created_by', $userId);
+        });
+    }
+
+    /**
+     * SECURITY (#1365) — single-row mirror of applyReadVisibilityScope()
+     * for show(). Returns true when the current caller may read $row.
+     */
+    private function canReadRow(object $row): bool
+    {
+        $userId = Auth::id();
+
+        if (AclService::canAdmin($userId)) {
+            return true;
+        }
+
+        if (($row->visibility ?? 'private') === 'public') {
+            return true;
+        }
+
+        // Own rows are always readable to the authenticated owner.
+        // 'project' rows are deferred (see applyReadVisibilityScope()).
+        return Auth::check() && (int) ($row->created_by ?? 0) === (int) $userId;
+    }
+
+    /**
+     * SECURITY (#1365) — write ownership gate for update()/destroy().
+     * Only the row's creator or an admin/editor may mutate it. Callers
+     * have already enforced Auth::check() before reaching this.
+     */
+    private function canWriteRow(object $row): bool
+    {
+        $userId = Auth::id();
+
+        if (AclService::canAdmin($userId)) {
+            return true;
+        }
+
+        return (int) ($row->created_by ?? 0) === (int) $userId;
+    }
+
+    /**
      * Best-effort IO lookup. The local IIIF service emits canvas IRIs with
      * the IO slug embedded - we parse it out so admin can filter by IO.
      * Returns null when the IRI doesn't match the local pattern (remote
      * IIIF servers, etc.).
+     *
+     * TODO(#1365): object-state gate for anonymous readers (hide
+     * annotations whose IO is not published — status type_id=158,
+     * status_id=160) is NOT yet enforceable here. This stub returns null,
+     * so annotation.information_object_id is always NULL in storage; there
+     * is no stored IO id to gate on, and the canvas IRI encodes the IO via
+     * _SL_-separated slug fragments (ahg-iiif-viewer.js) that cannot be
+     * reversed to an information_object.id without a slug round-trip. Once
+     * this resolver is implemented (and the column backfilled), add an
+     * anon-only join to `status` (type_id=158 => status_id=160) inside
+     * applyReadVisibilityScope()/canReadRow(). Deferred to avoid guessing
+     * an IRI->IO mapping that would silently drop or leak rows.
      */
     private function resolveIoIdFromTarget(string $iri): ?int
     {

@@ -356,3 +356,67 @@ Functional GREEN. Three anon-exploitable FAILs — iiif draft-leak, **c2pa binar
   collection for anon. addItems/removeItem routes gained `acl:update`.
   Verified anon: published object manifest/viewer 200; DRAFT object manifest/viewer
   404 (was leaking metadata + Cantaloupe image IDs); public collection index 200.
+
+---
+
+## T6 — Research / RDM
+
+### Functional smoke (anon HTTP) — GREEN
+26 routes, 8 modules: 0 server errors. Gating consistent (research/researcher/rdm/
+favorites/access-request 302; admin 403). One public surface: `api/annotations/search` 200.
+
+### Static audit (8 modules, 4 parallel agents)
+
+**🔴 ahg-annotations — FAIL (anon leak + IDOR):**
+- `search()` applies its visibility filter ONLY when `?visibility=` is passed; the default
+  anon query filters on `target_iri` alone → returns **private + project** annotations to
+  anon for any targetId (`AnnotationsController.php:105-121`). `show()` returns ANY
+  annotation by uuid with no visibility check (`:156-182`). No object-state gate
+  (`resolveIoIdFromTarget()` is a `return null` stub) → annotations on draft/restricted
+  IOs readable by anon. The route comment claims enforcement that doesn't exist. Confirmed
+  in code; latent on dev (no `annotation` table installed → search returns total:0).
+- IDOR: `update()` (`:381-435`) + `destroy()` (`:437-466`) only check `Auth::check()`, no
+  `created_by === Auth::id()` → any authenticated user can overwrite/delete ANY annotation.
+
+**🔴 ahg-access-request — IDOR:** `view()` (`/access-request/{id}`, auth-only) calls
+`getRequest($id)` with no ownership/admin check → any authed user reads any request's
+justification/requester/target classification (`Controller.php:95-101`). (`cancel` IS
+owner-scoped.) Approve/deny correctly `['auth','admin']`-gated — no self-approval.
+Also a **functional bug**: writes to `security_access_request` but reads/mutates
+`access_request` (`Service.php:207` vs `:142,257,284`) — new requests never appear in
+My-Requests; approve/deny act on the wrong table.
+
+**🟡 ahg-researcher-manage — FAIL:** 3 `api-*` routes call `view('researchermanage::…')` —
+wrong namespace (provider registers `ahg-researcher-manage`) + no such blade → 500. Latent
+IDOR on submission/researcher view/edit stubs (no owner scope; currently inert). Hardcoded
+item_type/level dropdowns.
+
+**🟡 ahg-research (tier C):** public `cite`/`citeExport` (`ResearchCitationsController.php:56-110`)
+emit citation metadata (title/author/date) for any object by slug with no publication/access
+filter → unpublished/restricted citation data to anon. Hardcoded status dropdowns.
+
+**🟢 Exemplary / clean:**
+- **ahg-share-link — PASS (model).** HMAC-SHA256 tokens (`TokenService.php:23-36`), expiry/
+  revocation/max-access quota, ACL+classification-gated issuance, metadata-only (no binary →
+  no ODRL bypass). Only tier-C: point-in-time gating (a token issued while public keeps
+  working after the record is later reclassified — recommend access-time re-check).
+- **ahg-favorites — PASS.** Every mutation user-scoped (no IDOR); Str::random(64) share
+  tokens with expiry/revoke. One tier-B: `revokeSharing()` deletes the share-audit row by
+  folder_id only, not user-scoped (low impact — live token survives).
+- **ahg-request-publish — PASS.** Approval admin-gated; browse filters to own rows; receipt
+  token-gated (40-hex sha1). Some dead legacy stubs.
+- **ahg-rdm — PASS** (epic-covered; only minor compliance-filter dropdown hardcoding + help wiring).
+
+### T6 verdict
+Functional GREEN. New: ahg-annotations anon private-read leak + IDOR (latent on dev),
+access-request view() IDOR + a wrong-table functional bug, researcher-manage dead routes.
+share-link is the exemplar to copy for token security.
+
+## Fix applied (2026-06-27, #1365 annotations — partial)
+- **ahg-annotations** — read-visibility scope added to `search()` + `show()`
+  (`applyReadVisibilityScope`/`canReadRow`): anon → public only; authed → public + own;
+  admin → all. IDOR closed on `update()`/`destroy()` (`canWriteRow` → 403 for non-owner).
+  DEFERRED (documented TODOs, no leak): `project`-visibility rows (excluded for
+  non-owner — no trustworthy membership lookup) and the object-state gate (public
+  annotation on a draft IO; `resolveIoIdFromTarget` still a stub). #1365 stays OPEN for
+  those two follow-ups.
