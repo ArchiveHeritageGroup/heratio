@@ -157,11 +157,15 @@ class CartService
             ->count();
     }
 
-    public function removeItem(int $id, ?int $userId): bool
+    public function removeItem(int $id, ?int $userId, ?string $sessionId = null): bool
     {
+        // Scope the delete to the caller's own cart: by user_id when authenticated,
+        // else by session_id for guests. Without the guest scope an unauthenticated
+        // caller could delete ANY cart row by id (#1359).
         return DB::table('cart')
             ->where('id', $id)
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->delete() > 0;
     }
 

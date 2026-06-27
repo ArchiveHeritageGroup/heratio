@@ -274,3 +274,12 @@ missing-acl set (incl. POPIA writes in spectrum), a gateway-bypass, and broken s
   listings publicly (matching the storefront grids); the owning seller may view their own
   non-active listing, admins moderate via the admin screens.
 - PSIS parity-audit twin filed: atom-ahg-plugins#178 (both security classes).
+
+## Fix applied (2026-06-27, #1359 cart IDOR)
+- **ahg-cart order-confirmation IDOR** — `CartController::orderConfirmation()` now gates
+  via `canViewOrder()`: owner match (user_id for authed, session_id for guest checkout)
+  or `AclService::canAdmin()`; else 403. Verified live: anon `cart/order/1` → **403**
+  (was 200, leaking customer PII), `cart/order/999999` → 404, `cart` → 200.
+- **ahg-cart guest cart deletion** — `CartService::removeItem()` gains the guest
+  session-scope (`->when(!$userId, where session_id=$sessionId)`); controller passes
+  `session()->getId()`. A guest can no longer delete arbitrary cart rows by id.

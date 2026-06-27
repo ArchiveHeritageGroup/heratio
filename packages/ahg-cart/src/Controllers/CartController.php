@@ -27,6 +27,7 @@ namespace AhgCart\Controllers;
 
 use AhgCart\Services\CartService;
 use AhgCart\Services\EcommerceService;
+use AhgCore\Services\AclService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -350,7 +351,7 @@ class CartController extends Controller
 
     public function remove(Request $request, int $id)
     {
-        $this->cartService->removeItem($id, Auth::id());
+        $this->cartService->removeItem($id, Auth::id(), session()->getId());
 
         return redirect()->route('cart.browse')->with('success', 'Item removed from cart.');
     }
@@ -474,9 +475,29 @@ class CartController extends Controller
         if (! $order) {
             abort(404);
         }
+        // Ownership gate (#1359): order-confirmation carries customer PII
+        // (name / email / billing). Only the order's owner — matched by user_id
+        // for an authenticated buyer, or session_id for guest checkout — or an
+        // admin may view it. Previously this was public, an IDOR over order ids.
+        if (! $this->canViewOrder($order)) {
+            abort(403);
+        }
         $items = $this->ecommerceService->getOrderItems($id);
 
         return view('ahg-cart::order-confirmation', compact('order', 'items'));
+    }
+
+    /** True if the current request may view this order (owner or admin). */
+    private function canViewOrder(object $order): bool
+    {
+        if (Auth::check()) {
+            $uid = (int) Auth::id();
+
+            return (int) ($order->user_id ?? 0) === $uid || AclService::canAdmin($uid);
+        }
+
+        // Guest checkout: the order must belong to the caller's own session.
+        return ! empty($order->session_id) && $order->session_id === session()->getId();
     }
 
     public function thankYou()
