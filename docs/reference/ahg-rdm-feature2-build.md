@@ -73,7 +73,13 @@ CLEAR, open release blocked, restrict applied, DOI minted, landing + scoreboard.
 - ~~Scanned-PDF OCR (rasterize → tesseract)~~ — DONE (#1346, 2026-06-27): empty
   text layer falls back to pdftoppm raster → OCR; OCR findings demoted one notch;
   demo set gains an image-only `consent_form_scanned.pdf` exercising the path.
-- Binary-download gating beyond the landing (the download route isn't odrl-wrapped).
+- ~~Binary-download gating beyond the landing~~ — DONE (#1347, 2026-06-27): the raw
+  byte routes (`media-streaming.stream` — public; `io.digitalobject.stream` — authed)
+  now call `OdrlService::isDigitalObjectPermitted($doId,'use')`, which maps the
+  digital_object → parent IO and enforces the same prohibition the IO show page
+  uses (admin/group-100 bypass; open objects carry no policy, so it's a no-op).
+  Verified: a restricted dataset's file returns 403 to anon on the public route
+  while open objects pass through.
 - Feature 1 (DMP tool) and Feature 3 (full dashboard) — later. DMP linkage is shown
   via the linked research project for now.
 - Production DOI: swap `DoiService::mint` dry-run → live once real DataCite creds

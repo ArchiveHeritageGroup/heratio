@@ -28,6 +28,7 @@ namespace AhgMediaStreaming\Controllers;
 use AhgCore\Models\DigitalObject;
 use AhgMediaStreaming\Services\StreamingService;
 use AhgMediaStreaming\Services\TranscodingService;
+use AhgResearch\Services\OdrlService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,9 +44,22 @@ class MediaStreamController extends Controller
      * Stream a digital object (auto-transcode if needed).
      *
      * Supports HTTP Range requests for video/audio seeking.
+     *
+     * This route is public (players use it), so it is the raw-binary path that
+     * must enforce ODRL itself — a restricted/embargoed dataset's files have to
+     * be inaccessible here, not merely unlinked from the landing page (#1347).
+     * Open objects carry no prohibition, so this is a no-op for public media.
      */
     public function stream(int $id): Response
     {
+        // Guarded: if the research/ODRL stack isn't installed there are no
+        // policies to enforce, so streaming proceeds (fail-open only when the
+        // whole policy engine is absent).
+        if (class_exists(OdrlService::class)
+            && ! app(OdrlService::class)->isDigitalObjectPermitted($id, 'use')) {
+            abort(403, 'Access denied by rights policy.');
+        }
+
         return $this->streamingService->streamWithTranscode($id);
     }
 

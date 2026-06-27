@@ -27,6 +27,7 @@
 
 namespace AhgResearch\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -203,6 +204,37 @@ class OdrlService
 
         // Policies exist but none matched — deny
         return false;
+    }
+
+    /**
+     * Gate a raw digital-object fetch (download/stream) the same way the IO show
+     * page is gated (#1347): resolve the digital_object to its parent archival
+     * description (IO) and evaluate the ODRL policy for the current user, so a
+     * restricted/embargoed dataset's binaries are inaccessible directly — not
+     * merely unlinked from the landing page. Parity with OdrlPolicyMiddleware:
+     * admins (group 100) bypass, and an unresolvable target IO is allowed (no
+     * policy to enforce). An open dataset carries no prohibition, so isPermitted
+     * returns true and public playback/download is unaffected.
+     */
+    public function isDigitalObjectPermitted(int $digitalObjectId, string $action = 'use'): bool
+    {
+        $user = Auth::user();
+
+        // Admins bypass all policies (mirrors OdrlPolicyMiddleware::isAdmin).
+        if ($user && app(\AhgResearch\Contracts\UserProvisionerInterface::class)->isInGroup($user->id, 100)) {
+            return true;
+        }
+
+        $objectId = (int) DB::table('digital_object')->where('id', $digitalObjectId)->value('object_id');
+        if (! $objectId) {
+            return true; // no resolvable target IO — nothing to enforce
+        }
+
+        $researcherId = $user
+            ? DB::table('research_researcher')->where('user_id', $user->id)->value('id')
+            : null;
+
+        return $this->isPermitted('archival_description', $objectId, $researcherId !== null ? (int) $researcherId : null, $action);
     }
 
     /**

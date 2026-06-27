@@ -489,6 +489,14 @@ class DigitalObjectController extends Controller
      */
     public function stream(Request $request, int $id)
     {
+        // ODRL gate (#1347): this serves raw bytes, so it must enforce the same
+        // policy as the IO show page — an authed-but-unauthorised user must not
+        // pull a restricted/embargoed dataset's file. Open objects carry no
+        // prohibition, so this is a no-op for normal access.
+        if (! app(\AhgResearch\Services\OdrlService::class)->isDigitalObjectPermitted($id, 'use')) {
+            abort(403, 'Access denied by rights policy.');
+        }
+
         $doRow = DB::table('digital_object')->where('id', $id)->first();
         if (!$doRow || empty($doRow->path) || empty($doRow->name)) {
             abort(404);
