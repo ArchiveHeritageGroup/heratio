@@ -11,8 +11,13 @@ use AhgSharePoint\Controllers\SharePointWebhookController;
 // collide: different prefixes, different controllers.
 use Illuminate\Support\Facades\Route;
 
-// Phase 1 — admin foundation
-Route::prefix('sharepoint')->group(function () {
+// Phase 1 — admin foundation.
+// SECURITY (#1376): the whole /sharepoint/* admin surface (M365 tenant config,
+// drive browse, ingest rules + their run/exec, mappings, events) must require an
+// authenticated admin — it was previously anonymous (controller guard was a TODO
+// stub), exposing Azure AD identifiers and credential-backed Graph calls to anon.
+// The Graph webhook below stays public by design (clientState-gated in the handler).
+Route::prefix('sharepoint')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [SharePointController::class, 'index'])->name('sharepoint.index');
     Route::get('/tenants', [SharePointController::class, 'tenants'])->name('sharepoint.tenants');
     Route::match(['get', 'post'], '/tenants/{id}', [SharePointController::class, 'tenantEdit'])->whereNumber('id')->name('sharepoint.tenant.edit');

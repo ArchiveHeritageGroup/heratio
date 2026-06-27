@@ -567,3 +567,78 @@ the exemplar.
 - **ahg-rights-holder-manage** — `rightsholder/browse` + `rightsholder/{slug}` now require auth.
   DEFERRED (#1370 stays open): agreement READ (`agreementView`) still readable by any authed
   staff (financial/PII; lower severity — needs an acl-read/admin decision).
+
+---
+
+## T9 — Interop / APIs / federation (heaviest security tranche; multiple LIVE anon exposures)
+
+### Functional smoke (anon HTTP) — GREEN
+19 routes, 0 5xx. Public-by-design surfaces: `.well-known/void`, `api/actor*`, `oai`, `sru`,
+`z3950` (200). The publication-filter on these public reads is the headline concern.
+
+### Static audit (9 modules, 4 parallel agents)
+
+**🔴 ahg-sharepoint — FAIL (CRITICAL, live).** The entire `/sharepoint/*` admin web surface
+is `Route::middleware('web')` only — no auth/admin/acl; the controller guard is a TODO stub
+(`SharePointController.php:15-18`). **Live-confirmed anon 200** on `/sharepoint/tenants`
+(leaks Azure AD tenant_id/client_id), `/drives`, `/rules`. Anon can fire mutation POSTs
+(rule save/delete/**run** → `exec(php artisan sharepoint:auto-ingest)`), mapping save/delete,
+event retry, AND drive authenticated MS-Graph calls using the stored org M365 credentials.
+Same class as ric #1352 but worse (credential-backed external calls + exec). Secrets storage
+itself is OK (client_secret encrypted via Crypt in ahg_settings); webhook + push-API are
+correctly bearer/clientState-gated. The route group is the hole.
+
+**🔴 ahg-api — FAIL (multiple LIVE anon leaks + a 3rd ODRL bypass).** The open-data layer
+(graph/`/id`/oai/cite/mets/iiif/feeds/sitemaps/void) is rigorously published-only — the
+EXEMPLAR. But the `api/v1` resource reads leak:
+- `informationobjects/{slug}` show/tree/children — no status filter → anon gets DRAFT records
+  (verified: `api/v1/informationobjects/test-opensearch` → 200). Numeric-id enumerable.
+- `informationobjects/{slug}/digitalobject` — streams the MASTER binary, no auth/ODRL/
+  publication → a THIRD download path defeating the #1347/#1362 gate.
+- `digitalobjects` index/show — leaks server filesystem `path` + checksum of drafts.
+- `accessions` — fully anon-public (donor/acquisition data; verified 200).
+- `physicalobjects` — location data anon-public (API version of #1364; verified 200).
+- `actor show` — contact PII (email/phone/address) + unpublished related-IO leak.
+- No per-object ACL on mutations (a write/delete-scoped key — or any session — mutates ANY record).
+
+**🔴 ahg-graphql — FAIL (authed bulk leak).** `/admin/graphql/execute` is auth-gated (not
+anon) but NO publication/visibility/owner filter and no `acl:` → any authed user bulk-reads
+drafts, **private/project research annotations** (the #1365 class via GraphQL), researcher
+PII (email/ORCID), non-public collections. Uncapped limit/offset.
+
+**🔴 ahg-z3950 — WARN.** `/z3950` index is anon-public (leaks configured remote-target
+host/port/db + counts), inconsistent with the auth-gated rest of `/z3950/*`. Target CRUD +
+remote import are `auth`-only, no admin/`acl:` (help claims admin-only) → any authed user adds
+targets + imports MARC. SRU `searchRetrieve` has no publication filter (latent — mirrors the
+unfiltered library OPAC). No SQLi (bound params + whitelisted columns).
+
+**🟡 ahg-federation — solid core, two gaps.** Harvest imports forced to Draft (good);
+Europeana export published-only (good); the main `HarvestClient` has a STRONG SSRF guard
+(metadata-host block, private-IP reject, DNS-rebind pin). Gaps: `testPeer()` uses a raw
+`Http::get()` on an admin-supplied URL with NO SSRF guard and reflects the response (admin
+SSRF defense-in-depth); peer `api_key`/`search_api_key` stored PLAINTEXT at rest.
+
+**🟡 ahg-gis — WARN (authed).** bbox/geojson/radius are `auth`-gated (anon 302 — no anon
+leak), but no publication filter + no `acl:` → any authed user enumerates coordinates of
+draft IOs. Lower severity (authed).
+
+**🟢 Exemplary / clean:**
+- **ahg-oai — the exemplar** (strict status-160 gate across every verb; from/until/
+  resumptionToken can't bypass; correct deleted-record tombstones).
+- **ahg-resourcesync — clean** (published-only capability/changelist, no outbound surface).
+- ahg-api open-data layer; ahg-api-plugin (auth-gated admin search).
+
+**🟡 Help:** all unwired (extends #1350). **Theme:** mostly N-A (protocols); z3950 mixes
+Tailwind utilities inside the BS5 shell (tier C).
+
+### T9 verdict
+The richest security tranche: a CRITICAL anon admin surface (sharepoint, live), the
+harvestable-API draft-leak family + a 3rd ODRL binary bypass (api, live), a GraphQL authed
+bulk leak, z3950 anon index/import gaps, federation testPeer SSRF + plaintext creds. OAI +
+ResourceSync are the exemplars to copy.
+
+## Fix applied (2026-06-27, #1376 sharepoint CRITICAL)
+- **ahg-sharepoint** — the `/sharepoint/*` admin group now carries `['auth','admin']`
+  (was bare `web` — anon). Verified: anon `sharepoint/tenants`/`drives`/`rules`/`columns`
+  → 302 (was 200 leaking Azure AD config + credential-backed Graph ops); the Graph webhook
+  stays public (clientState-gated). Closes the sweep's most severe finding.
