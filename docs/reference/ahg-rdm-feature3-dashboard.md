@@ -60,8 +60,20 @@ Feature 2 (#1338–#1343) ✅ · Feature 1 (DMP link) ✅ · **Feature 3 (dashbo
 epic #1337 fully delivered. Remaining items are post-epic follow-ups (scanned-PDF
 OCR, binary-download ODRL gating, live DataCite mint).
 
+## Dashboard filters (#1345, post-epic - DONE 2026-06-26)
+`overview(array $filters = [])` accepts `from` / `to` (deposit date) + `institution`.
+All three resolve to ONE set of matching dataset ids (`filteredDatasetIds()`) that
+scopes every aggregate via small closures (`$ds`/`$dsA`/`$find`) - one place owns
+the filter logic. No filter => null id-set => unscoped full view; a filter that
+matches nothing => empty id-set => everything reads zero (remainder buckets clamp at
+0, never negative). The 12-month deposit trend honours `institution` ONLY (the
+rolling year is trend context, shown regardless of the date range). Controller mirrors
+`compliance()` (`array_filter` the request, pass `institutions` + `filters`); the view
+gains a GET filter form (faculty dropdown + two date inputs + Filter/Clear) and a
+"Filtered view ..." note. Verified: no-filter (5 datasets), institution (1), date-range,
+and no-match (0, clean zeros) all correct; filtered + unfiltered renders OK.
+
 ## Follow-ups (not in Feature 3)
-- A direct "RDM Dashboard" entry in the locked `ahg-reports` menu (today the reports
-  menu links to "RDM Compliance"; the dashboard is reached from there / the index).
-  Needs an `ahg-reports` unlock.
-- Date-range / faculty filters on the dashboard (the scoreboard already filters).
+- A direct "RDM Dashboard" entry in the locked `ahg-reports` menu (#1344 - needs an
+  `ahg-reports` unlock; today the reports menu links to "RDM Compliance" and the
+  dashboard is reached from there / the index).

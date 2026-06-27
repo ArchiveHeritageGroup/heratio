@@ -35,11 +35,16 @@ class DatasetController extends Controller
         ]);
     }
 
-    /** Full RDM dashboard (#1337 Feature 3): KPI roll-up + charts + gate backlog. */
-    public function dashboard()
+    /** Full RDM dashboard (#1337 Feature 3): KPI roll-up + charts + gate backlog.
+     *  Filters (#1345): from / to (deposit date) + institution. */
+    public function dashboard(Request $request)
     {
+        $filters = array_filter($request->only(['from', 'to', 'institution']), fn ($v) => $v !== null && $v !== '');
+
         return view('ahg-rdm::datasets.dashboard', [
-            'd' => app(DashboardService::class)->overview(),
+            'd'            => app(DashboardService::class)->overview($filters),
+            'institutions' => app(ComplianceReportService::class)->institutions(),
+            'filters'      => $filters,
         ]);
     }
 

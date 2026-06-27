@@ -20,6 +20,43 @@
   </div>
 </div>
 
+{{-- Filters (#1345): deposit date range + faculty/institution --}}
+<form method="GET" action="{{ route('rdm.datasets.dashboard') }}" class="row g-2 align-items-end mb-3">
+  <div class="col-md-4">
+    <label class="form-label small mb-0">{{ __('Faculty / institution') }}</label>
+    <select name="institution" class="form-select form-select-sm">
+      <option value="">{{ __('All') }}</option>
+      @foreach ($institutions as $inst)
+        <option value="{{ $inst }}" @selected(($filters['institution'] ?? '') === $inst)>{{ $inst }}</option>
+      @endforeach
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label small mb-0">{{ __('Deposited from') }}</label>
+    <input type="date" name="from" value="{{ $filters['from'] ?? '' }}" class="form-control form-control-sm">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label small mb-0">{{ __('Deposited to') }}</label>
+    <input type="date" name="to" value="{{ $filters['to'] ?? '' }}" class="form-control form-control-sm">
+  </div>
+  <div class="col-md-2 d-flex gap-1">
+    <button class="btn btn-primary btn-sm flex-grow-1">{{ __('Filter') }}</button>
+    @if (!empty($filters))
+      <a href="{{ route('rdm.datasets.dashboard') }}" class="btn btn-outline-secondary btn-sm" title="{{ __('Clear filters') }}"><i class="fas fa-times"></i></a>
+    @endif
+  </div>
+</form>
+@if (!empty($filters))
+  @php
+    $bits = [];
+    if (!empty($filters['institution'])) { $bits[] = $filters['institution']; }
+    if (!empty($filters['from'])) { $bits[] = __('from').' '.$filters['from']; }
+    if (!empty($filters['to'])) { $bits[] = __('to').' '.$filters['to']; }
+    $bitsText = $bits ? ' · '.implode(' · ', $bits) : '';
+  @endphp
+  <p class="small text-muted mb-2"><i class="fas fa-filter me-1"></i>{{ __('Filtered view') }}{{ $bitsText }}. <span class="text-muted">{{ __('The 12-month deposit trend always shows the rolling year.') }}</span></p>
+@endif
+
 {{-- Defensibility one-liner --}}
 <div class="alert alert-light border d-flex flex-wrap gap-3 align-items-center small mb-3">
   <span><i class="fas fa-shield-halved text-success me-1"></i><strong>{{ $k['datasets'] }}</strong> {{ __('datasets') }}</span>
