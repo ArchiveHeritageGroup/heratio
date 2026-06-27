@@ -32,7 +32,10 @@ deposit → POPIA scan → human gate → access/embargo + DOI → public landin
   passport — masked), special-category lexicon (health/religion/biometric), NER
   augmentation via `NerService` (gateway-routed, `QuotaExceededException`-guarded,
   AI-suggested). Text via direct read (decrypt-at-rest gate) / `PdfTextExtractService`
-  (pdftotext) / `OcrService` (tesseract). Async via `ScanDatasetJob` (NER exceeds
+  (pdftotext) / `OcrService` (tesseract). Scanned/image-only PDFs (empty text layer,
+  <24 chars) fall back to rasterise (pdftoppm, 200 dpi, 10-page cap) → OCR; all
+  OCR-derived findings (incl. image files) are demoted one confidence notch as a
+  lower-trust marking (#1346). Async via `ScanDatasetJob` (NER exceeds
   request limits). Persists findings + sets the dataset verdict.
 - **PopiaGateService** — the authority. `resolveFinding()` confirm/dismiss;
   `setDisposition()` enforces the gate: **open `release` is blocked while any
@@ -67,8 +70,9 @@ emails/phones deterministic, health lexicon, names/places NER), climate+readme
 CLEAR, open release blocked, restrict applied, DOI minted, landing + scoreboard.
 
 ## Known follow-ups (not in Feature 2)
-- Scanned-PDF OCR (rasterize → tesseract) — only born-digital PDF (pdftotext) is
-  wired today.
+- ~~Scanned-PDF OCR (rasterize → tesseract)~~ — DONE (#1346, 2026-06-27): empty
+  text layer falls back to pdftoppm raster → OCR; OCR findings demoted one notch;
+  demo set gains an image-only `consent_form_scanned.pdf` exercising the path.
 - Binary-download gating beyond the landing (the download route isn't odrl-wrapped).
 - Feature 1 (DMP tool) and Feature 3 (full dashboard) — later. DMP linkage is shown
   via the linked research project for now.

@@ -46,6 +46,15 @@ class PopiaScanService
     /** Max chars sent to NER per file (keeps the gateway call bounded). */
     private const NER_TEXT_CAP = 20000;
 
+    /** Below this many non-whitespace chars, a PDF's text layer is treated as
+     *  empty/near-empty and we fall back to rasterise + OCR (#1346). */
+    private const PDF_TEXTLAYER_MIN_CHARS = 24;
+
+    /** OCR fallback bounds for scanned PDFs (#1346): page cap + raster DPI. */
+    private const PDF_OCR_PAGE_CAP = 10;
+
+    private const PDF_OCR_DPI = 200;
+
     /**
      * Scan every file in a dataset, persist findings, set the verdict.
      *
@@ -65,10 +74,11 @@ class PopiaScanService
         $hasPersonal = false;
 
         foreach ($files as $f) {
-            $text = $this->extractText($f);
-            if (! is_string($text) || trim($text) === '') {
-                continue; // unreadable / scanned-PDF-no-text-layer / unsupported -> skip (logged below)
+            $extract = $this->extractContent($f);
+            if ($extract === null || trim($extract['text']) === '') {
+                continue; // unreadable / scanned-PDF-no-OCR / unsupported -> skip
             }
+            $text = $extract['text'];
             $scanned++;
 
             $found = array_merge(
@@ -76,6 +86,17 @@ class PopiaScanService
                 $this->specialCategory($text),
                 $this->ner($text)
             );
+
+            // OCR introduces noise: demote OCR-derived findings one confidence
+            // notch so the human gate treats them as lower-trust (#1346). Still
+            // 'pending', still the same type/category/method.
+            if ($extract['via_ocr']) {
+                $found = array_map(function ($fd) {
+                    $fd['confidence'] = $this->demote($fd['confidence']);
+
+                    return $fd;
+                }, $found);
+            }
 
             foreach ($found as $fd) {
                 DB::table('rdm_scan_finding')->insert([
@@ -112,7 +133,14 @@ class PopiaScanService
 
     // --- text extraction (reuses existing services) ------------------------
 
-    private function extractText(object $fileRow): ?string
+    /**
+     * Extract a file's text for scanning, recording whether it came via OCR
+     * (lower-trust). PDFs prefer the born-digital text layer and only fall back
+     * to rasterise + OCR when that layer is empty/near-empty (#1346).
+     *
+     * @return array{text:string, via_ocr:bool}|null
+     */
+    private function extractContent(object $fileRow): ?array
     {
         $master = DB::table('digital_object')
             ->where('object_id', $fileRow->io_id)
@@ -130,37 +158,53 @@ class PopiaScanService
         $mime = strtolower((string) ($master->mime_type ?? ''));
         $enc = app(EncryptionService::class);
 
-        // PDF -> pdftotext (born-digital). Scanned PDFs yield null (no text layer)
-        // and degrade; rasterise-then-OCR is intentionally out of scope for now.
+        // PDF: pdftotext first (born-digital). When the text layer is empty/
+        // near-empty (a scanned/image-only PDF), fall back to rasterise + OCR
+        // so consent forms etc. - the docs most likely to carry PII - are still
+        // scanned (#1346).
         if (str_contains($mime, 'pdf')) {
-            try {
-                $pdf = app(PdfTextExtractService::class);
-                if (! $pdf->isPdftotextAvailable()) {
-                    Log::info('[PopiaScan] pdftotext unavailable; skipping PDF '.$fileRow->original_name);
-
+            // Decrypt-at-rest once; both pdftotext and the OCR raster reuse it.
+            $scanPath = $path;
+            $tmp = null;
+            if ($enc->isFileEncrypted($path)) {
+                $bytes = $enc->streamFileDecrypted($path);
+                if ($bytes === null) {
                     return null;
                 }
-                $scanPath = $path;
-                $tmp = null;
-                if ($enc->isFileEncrypted($path)) {
-                    $bytes = $enc->streamFileDecrypted($path);
-                    if ($bytes === null) {
-                        return null;
-                    }
-                    $tmp = tempnam(sys_get_temp_dir(), 'rdmpdf').'.pdf';
-                    file_put_contents($tmp, $bytes);
-                    $scanPath = $tmp;
-                }
-                $text = $pdf->extractText($scanPath);
-                if ($tmp) {
-                    @unlink($tmp);
+                $tmp = tempnam(sys_get_temp_dir(), 'rdmpdf').'.pdf';
+                file_put_contents($tmp, $bytes);
+                $scanPath = $tmp;
+            }
+
+            try {
+                $text = '';
+                $pdf = app(PdfTextExtractService::class);
+                if ($pdf->isPdftotextAvailable()) {
+                    $text = (string) ($pdf->extractText($scanPath) ?? '');
+                } else {
+                    Log::info('[PopiaScan] pdftotext unavailable; trying OCR for '.$fileRow->original_name);
                 }
 
-                return $text;
+                if (mb_strlen(trim($text)) >= self::PDF_TEXTLAYER_MIN_CHARS) {
+                    return ['text' => $text, 'via_ocr' => false];
+                }
+
+                // Empty/near-empty text layer -> OCR fallback.
+                $ocr = $this->ocrPdf($scanPath, $fileRow->original_name);
+                if ($ocr !== null && trim($ocr) !== '') {
+                    return ['text' => $ocr, 'via_ocr' => true];
+                }
+
+                // OCR gave nothing usable: keep whatever sliver pdftotext found.
+                return trim($text) === '' ? null : ['text' => $text, 'via_ocr' => false];
             } catch (\Throwable $e) {
                 Log::info('[PopiaScan] PDF extract failed: '.$e->getMessage());
 
                 return null;
+            } finally {
+                if ($tmp) {
+                    @unlink($tmp);
+                }
             }
         }
 
@@ -168,8 +212,11 @@ class PopiaScanService
         if (str_starts_with($mime, 'image/')) {
             try {
                 $r = app(OcrService::class)->ocrImage($path);
+                if (! ($r['success'] ?? false)) {
+                    return null;
+                }
 
-                return ($r['success'] ?? false) ? (string) ($r['text'] ?? '') : null;
+                return ['text' => (string) ($r['text'] ?? ''), 'via_ocr' => true];
             } catch (\Throwable $e) {
                 return null;
             }
@@ -178,7 +225,83 @@ class PopiaScanService
         // Text-like (csv/txt/json/xml/plain): read bytes, decrypting at rest if needed.
         $bytes = $enc->isFileEncrypted($path) ? $enc->streamFileDecrypted($path) : @file_get_contents($path);
 
-        return is_string($bytes) ? $bytes : null;
+        return is_string($bytes) ? ['text' => $bytes, 'via_ocr' => false] : null;
+    }
+
+    /**
+     * Rasterise a scanned PDF (up to PDF_OCR_PAGE_CAP pages) and OCR each page
+     * via the shared OcrService, returning the concatenated text. Reuses host
+     * tooling only (pdftoppm from poppler-utils, same family as pdftotext;
+     * tesseract via OcrService). Returns null when nothing is recoverable.
+     */
+    private function ocrPdf(string $pdfPath, string $name): ?string
+    {
+        if (! is_executable('/usr/bin/pdftoppm')) {
+            Log::info('[PopiaScan] pdftoppm unavailable; cannot OCR scanned PDF '.$name);
+
+            return null;
+        }
+
+        $dir = sys_get_temp_dir().'/rdmocr_'.bin2hex(random_bytes(6));
+        if (! @mkdir($dir) && ! is_dir($dir)) {
+            return null;
+        }
+
+        try {
+            // pdftoppm zero-pads page suffixes to the range width, so glob+sort
+            // rather than guess the filenames. -l caps work on huge PDFs.
+            $cmd = sprintf(
+                '/usr/bin/pdftoppm -jpeg -r %d -f 1 -l %d %s %s 2>/dev/null',
+                self::PDF_OCR_DPI,
+                self::PDF_OCR_PAGE_CAP,
+                escapeshellarg($pdfPath),
+                escapeshellarg($dir.'/p')
+            );
+            @exec($cmd, $out, $rc);
+
+            $pages = glob($dir.'/p-*.jpg') ?: [];
+            sort($pages, SORT_NATURAL);
+            if (! $pages) {
+                Log::info('[PopiaScan] OCR raster produced no pages for '.$name.' (rc='.$rc.')');
+
+                return null;
+            }
+
+            $ocr = app(OcrService::class);
+            $parts = [];
+            foreach ($pages as $img) {
+                try {
+                    $r = $ocr->ocrImage($img);
+                    if (($r['success'] ?? false) && trim((string) ($r['text'] ?? '')) !== '') {
+                        $parts[] = (string) $r['text'];
+                    }
+                } catch (\Throwable $e) {
+                    // one bad page shouldn't sink the whole document
+                }
+            }
+
+            if (! $parts) {
+                return null;
+            }
+            Log::info('[PopiaScan] OCR fallback scanned '.count($pages).' page(s) of '.$name.' (cap '.self::PDF_OCR_PAGE_CAP.').');
+
+            return implode("\n", $parts);
+        } finally {
+            foreach (glob($dir.'/p-*.jpg') ?: [] as $img) {
+                @unlink($img);
+            }
+            @rmdir($dir);
+        }
+    }
+
+    /** Drop a confidence one notch (OCR noise marking). low is the floor. */
+    private function demote(string $confidence): string
+    {
+        return match ($confidence) {
+            'high'   => 'medium',
+            'medium' => 'low',
+            default  => 'low',
+        };
     }
 
     // --- detectors ---------------------------------------------------------

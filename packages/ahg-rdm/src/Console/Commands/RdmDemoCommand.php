@@ -73,6 +73,7 @@ class RdmDemoCommand extends Command
             'survey_responses.csv'                 => 'text/csv',
             'interview_transcripts/interview_01.txt' => 'text/plain',
             'consent_forms.pdf'                    => 'application/pdf',
+            'consent_form_scanned.pdf'             => 'application/pdf',
             'climate_measurements.csv'             => 'text/csv',
             'readme.txt'                           => 'text/plain',
         ] as $rel => $mime) {
