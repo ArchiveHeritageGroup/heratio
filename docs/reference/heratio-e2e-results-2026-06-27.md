@@ -743,3 +743,16 @@ the exemplars.
   `canAdmin` gate. `saveSettings` rejects a `backup_path` inside a web-served dir (/uploads or
   public/) — closes the anon-dump-via-repoint risk. Restore server-side maker-checker (typed
   confirm) deferred — needs a coordinated restore.blade change; #1383 stays open for it.
+
+## Fixes applied (2026-06-27, #1371 icip + #1372 embargo)
+- **#1371 ahg-icip** — added a `requireIcipWrite()` controller gate
+  (`AclService::hasPermission(auth()->id(),'update')`, the same predicate the `acl:`
+  middleware/`CheckAcl` uses) on the POST branch of all 9 sacred-data mutators
+  (communityEdit/consentEdit/consultationEdit/noticeTypes/objectConsent/objectNotices/
+  objectLabels/objectRestrictions/ocapSettings) — covers the primary + AtoM-alias +
+  object-slug route paths that funnel to each method. Any-authed-user mutation of
+  communities/consents/TK-labels/sacred-object access-restrictions is closed. FIXED.
+- **#1372 ahg-rights-holder-manage** — `extended-rights.lift-embargo/{id}` (a state-changing
+  GET that let any authed user lift ANY embargo) now carries `acl:update`. The
+  GET→POST/CSRF conversion + the embargo.show read-IDOR + the ahg-extended-rights (LOCKED)
+  apiCheck/apiEmbargo/delete/tk-labels parts remain — #1372 stays open for those.

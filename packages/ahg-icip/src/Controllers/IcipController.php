@@ -25,6 +25,7 @@
 
 namespace AhgIcip\Controllers;
 
+use AhgCore\Services\AclService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -123,6 +124,28 @@ class IcipController extends Controller
         'cancelled' => 'Cancelled',
         'follow_up_required' => 'Follow Up Required',
     ];
+
+    // ========================================
+    // ACL GATE
+    // ========================================
+
+    /**
+     * Gate ICIP mutations (create/upsert of communities, consents, TK labels,
+     * cultural notices, access restrictions, OCAP settings).
+     *
+     * These methods are reached via Route::match(['get','post'], ...) handlers
+     * where the ACL is intentionally enforced in the controller (the matching
+     * DELETE routes use the acl:delete route-middleware). This mirrors that
+     * middleware's predicate — App\Http\Middleware\CheckAcl calls
+     * AclService::hasPermission($userId, $action) — using the 'update' action,
+     * so only users with ICIP write permission can perform the mutation.
+     */
+    private function requireIcipWrite(): void
+    {
+        if (! AclService::hasPermission(auth()->id(), 'update')) {
+            abort(403, 'ICIP management requires the appropriate permission.');
+        }
+    }
 
     // ========================================
     // DASHBOARD
@@ -231,6 +254,8 @@ class IcipController extends Controller
         }
 
         if ($request->isMethod('post')) {
+            $this->requireIcipWrite();
+
             $request->validate([
                 'name' => 'required|string|max:255',
                 'state_territory' => 'required|string|max:47',
@@ -434,6 +459,8 @@ class IcipController extends Controller
             ->get();
 
         if ($request->isMethod('post')) {
+            $this->requireIcipWrite();
+
             $request->validate([
                 'information_object_id' => 'required|integer',
                 'consent_status' => 'required|string|max:135',
@@ -629,6 +656,8 @@ class IcipController extends Controller
         }
 
         if ($request->isMethod('post')) {
+            $this->requireIcipWrite();
+
             $request->validate([
                 'community_id' => 'required|integer',
                 'consultation_type' => 'required|string|max:132',
@@ -848,6 +877,8 @@ class IcipController extends Controller
         }
 
         if ($request->isMethod('post')) {
+            $this->requireIcipWrite();
+
             $action = $request->input('form_action');
             $typeId = $request->input('type_id');
 
@@ -1129,6 +1160,8 @@ class IcipController extends Controller
         $consents = $this->getObjectConsent($object->id);
 
         if ($request->isMethod('post')) {
+            $this->requireIcipWrite();
+
             $request->validate([
                 'consent_status' => 'required|string|max:135',
             ]);
@@ -1190,6 +1223,8 @@ class IcipController extends Controller
         $notices = $this->getObjectNotices($object->id);
 
         if ($request->isMethod('post')) {
+            $this->requireIcipWrite();
+
             $action = $request->input('form_action');
 
             if ($action === 'add') {
@@ -1261,6 +1296,8 @@ class IcipController extends Controller
         $labels = $this->getObjectTKLabels($object->id);
 
         if ($request->isMethod('post')) {
+            $this->requireIcipWrite();
+
             $action = $request->input('form_action');
 
             if ($action === 'add') {
@@ -1324,6 +1361,8 @@ class IcipController extends Controller
         $restrictions = $this->getObjectRestrictions($object->id);
 
         if ($request->isMethod('post')) {
+            $this->requireIcipWrite();
+
             $action = $request->input('form_action');
 
             if ($action === 'add') {
@@ -1955,6 +1994,8 @@ class IcipController extends Controller
         }
 
         if ($request->isMethod('post')) {
+            $this->requireIcipWrite();
+
             $val = $request->input('ocap_enabled') === '1' ? '1' : '0';
             DB::table('icip_config')->updateOrInsert(
                 ['config_key' => 'ocap_enabled'],

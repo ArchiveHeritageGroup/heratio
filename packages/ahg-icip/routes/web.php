@@ -11,18 +11,18 @@ Route::prefix('admin/icip')->middleware(['web', 'auth', 'audit.icip'])->group(fu
 
     // Communities
     Route::get('/communities', [\AhgIcip\Controllers\IcipController::class, 'communities'])->name('ahgicip.communities');
-    Route::match(['get', 'post'], '/community-edit', [\AhgIcip\Controllers\IcipController::class, 'communityEdit'])->name('ahgicip.community-edit'); // ACL must be checked in controller (Route::match)
+    Route::match(['get', 'post'], '/community-edit', [\AhgIcip\Controllers\IcipController::class, 'communityEdit'])->name('ahgicip.community-edit'); // POST mutation ACL-gated in controller via requireIcipWrite() (Route::match)
     Route::get('/community-view', [\AhgIcip\Controllers\IcipController::class, 'communityView'])->name('ahgicip.community-view');
     Route::post('/community-delete', [\AhgIcip\Controllers\IcipController::class, 'communityDelete'])->name('ahgicip.community-delete')->middleware('acl:delete');
 
     // Consent
     Route::get('/consent-list', [\AhgIcip\Controllers\IcipController::class, 'consentList'])->name('ahgicip.consent-list');
-    Route::match(['get', 'post'], '/consent-edit', [\AhgIcip\Controllers\IcipController::class, 'consentEdit'])->name('ahgicip.consent-edit'); // ACL must be checked in controller (Route::match)
+    Route::match(['get', 'post'], '/consent-edit', [\AhgIcip\Controllers\IcipController::class, 'consentEdit'])->name('ahgicip.consent-edit'); // POST mutation ACL-gated in controller via requireIcipWrite() (Route::match)
     Route::get('/consent-view', [\AhgIcip\Controllers\IcipController::class, 'consentView'])->name('ahgicip.consent-view');
 
     // Consultations
     Route::get('/consultations', [\AhgIcip\Controllers\IcipController::class, 'consultations'])->name('ahgicip.consultations');
-    Route::match(['get', 'post'], '/consultation-edit', [\AhgIcip\Controllers\IcipController::class, 'consultationEdit'])->name('ahgicip.consultation-edit'); // ACL must be checked in controller (Route::match)
+    Route::match(['get', 'post'], '/consultation-edit', [\AhgIcip\Controllers\IcipController::class, 'consultationEdit'])->name('ahgicip.consultation-edit'); // POST mutation ACL-gated in controller via requireIcipWrite() (Route::match)
     Route::get('/consultation-view', [\AhgIcip\Controllers\IcipController::class, 'consultationView'])->name('ahgicip.consultation-view');
 
     // TK Labels
@@ -30,7 +30,7 @@ Route::prefix('admin/icip')->middleware(['web', 'auth', 'audit.icip'])->group(fu
 
     // Cultural Notices
     Route::get('/notices', [\AhgIcip\Controllers\IcipController::class, 'notices'])->name('ahgicip.notices');
-    Route::match(['get', 'post'], '/notice-types', [\AhgIcip\Controllers\IcipController::class, 'noticeTypes'])->name('ahgicip.notice-types'); // ACL must be checked in controller (Route::match)
+    Route::match(['get', 'post'], '/notice-types', [\AhgIcip\Controllers\IcipController::class, 'noticeTypes'])->name('ahgicip.notice-types'); // POST mutation ACL-gated in controller via requireIcipWrite() (Route::match)
 
     // Access Restrictions
     Route::get('/restrictions', [\AhgIcip\Controllers\IcipController::class, 'restrictions'])->name('ahgicip.restrictions');
@@ -43,10 +43,10 @@ Route::prefix('admin/icip')->middleware(['web', 'auth', 'audit.icip'])->group(fu
 
     // Object-specific ICIP
     Route::get('/object-icip', [\AhgIcip\Controllers\IcipController::class, 'objectIcip'])->name('ahgicip.object-icip');
-    Route::match(['get', 'post'], '/object-consent', [\AhgIcip\Controllers\IcipController::class, 'objectConsent'])->name('ahgicip.object-consent'); // ACL must be checked in controller (Route::match)
-    Route::match(['get', 'post'], '/object-notices', [\AhgIcip\Controllers\IcipController::class, 'objectNotices'])->name('ahgicip.object-notices'); // ACL must be checked in controller (Route::match)
-    Route::match(['get', 'post'], '/object-labels', [\AhgIcip\Controllers\IcipController::class, 'objectLabels'])->name('ahgicip.object-labels'); // ACL must be checked in controller (Route::match)
-    Route::match(['get', 'post'], '/object-restrictions', [\AhgIcip\Controllers\IcipController::class, 'objectRestrictions'])->name('ahgicip.object-restrictions'); // ACL must be checked in controller (Route::match)
+    Route::match(['get', 'post'], '/object-consent', [\AhgIcip\Controllers\IcipController::class, 'objectConsent'])->name('ahgicip.object-consent'); // POST mutation ACL-gated in controller via requireIcipWrite() (Route::match)
+    Route::match(['get', 'post'], '/object-notices', [\AhgIcip\Controllers\IcipController::class, 'objectNotices'])->name('ahgicip.object-notices'); // POST mutation ACL-gated in controller via requireIcipWrite() (Route::match)
+    Route::match(['get', 'post'], '/object-labels', [\AhgIcip\Controllers\IcipController::class, 'objectLabels'])->name('ahgicip.object-labels'); // POST mutation ACL-gated in controller via requireIcipWrite() (Route::match)
+    Route::match(['get', 'post'], '/object-restrictions', [\AhgIcip\Controllers\IcipController::class, 'objectRestrictions'])->name('ahgicip.object-restrictions'); // POST mutation ACL-gated in controller via requireIcipWrite() (Route::match)
     Route::get('/object-consultations', [\AhgIcip\Controllers\IcipController::class, 'objectConsultations'])->name('ahgicip.object-consultations');
 
     // Acknowledgement

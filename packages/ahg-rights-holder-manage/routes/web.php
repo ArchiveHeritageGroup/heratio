@@ -42,7 +42,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/extended-rights/{slug}/edit', [ExtendedRightsController::class, 'view'])->name('extended-rights.edit');
     Route::get('/extended-rights/{slug}/clear', [ExtendedRightsController::class, 'clear'])->name('extended-rights.clear');
     Route::post('/extended-rights/{slug}/clear', [ExtendedRightsController::class, 'clearStore'])->name('extended-rights.clear.store')->middleware('acl:delete');
-    Route::get('/extended-rights/lift-embargo/{id}', [ExtendedRightsController::class, 'liftEmbargo'])->name('extended-rights.lift-embargo')->where('id', '[0-9]+');
+    // #1372: lifting an embargo is a privileged state change — require the acl grant
+    // (was auth-only: any authenticated user could lift ANY embargo). Still a GET
+    // (CSRF→POST conversion deferred to a coordinated view change); the acl gate
+    // closes the privilege-escalation now.
+    Route::get('/extended-rights/lift-embargo/{id}', [ExtendedRightsController::class, 'liftEmbargo'])->name('extended-rights.lift-embargo')->where('id', '[0-9]+')->middleware('acl:update');
 
     // Rights routes (PREMIS)
     Route::get('/{slug}/rights', [RightsController::class, 'index'])->name('rights.index');
