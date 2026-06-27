@@ -82,5 +82,10 @@ CLEAR, open release blocked, restrict applied, DOI minted, landing + scoreboard.
   while open objects pass through.
 - Feature 1 (DMP tool) and Feature 3 (full dashboard) — later. DMP linkage is shown
   via the linked research project for now.
-- Production DOI: swap `DoiService::mint` dry-run → live once real DataCite creds
-  are in `ahg_doi_config`.
+- ~~Production DOI: swap `DoiService::mint` dry-run → live~~ — DONE (#1348,
+  2026-06-27): live vs dry-run is now decided by `ahg_doi_config.environment`
+  (the env, not the code) — a real DataCite mint fires only when the active
+  config is `production`/`prod`/`live`; `test`/dev/demo stay dry-run. Default
+  OFF; flipping to live once real creds land is an ops action, no code change.
+  Verified: demo (env=`test`) still yields the dry-run real-prefix DOI and
+  registers nothing (`ahg_doi` stays empty).

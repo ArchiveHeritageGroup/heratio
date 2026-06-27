@@ -103,10 +103,18 @@ class DatasetReleaseService
     }
 
     /**
-     * Mint a DataCite DOI for the dataset's container IO. Uses DoiService in
-     * dry-run (real prefix/suffix, no external call) when a DataCite config
-     * exists - so dev never registers real DOIs - and falls back to a draft
-     * test-prefix DOI otherwise. Idempotent (returns the existing DOI).
+     * Mint a DataCite DOI for the dataset's container IO via DoiService, and
+     * falls back to a draft test-prefix DOI when no config exists. Idempotent
+     * (returns the existing DOI).
+     *
+     * Live vs dry-run is decided by the ENVIRONMENT, not the code (#1348): a
+     * genuine DataCite registration happens only when the active ahg_doi_config
+     * targets a production environment (real prefix + prod endpoint + creds);
+     * every other environment ('test'/dev/demo) stays dry-run, so off-prod never
+     * registers real DOIs. Default is therefore OFF — flipping ahg_doi_config
+     * .environment to production (once real creds land) is an ops action, no
+     * code change. The live path is idempotent inside DoiService (an existing
+     * minted DOI is returned, not re-registered).
      */
     private function mintDoi(int $datasetId, int $containerIo): ?string
     {
@@ -117,11 +125,15 @@ class DatasetReleaseService
 
         $doi = null;
         try {
-            if (class_exists(\AhgDoiManage\Services\DoiService::class)
-                && DB::table('ahg_doi_config')->where('is_active', 1)->exists()) {
-                // dry-run: builds the configured DOI string without the DataCite
-                // HTTP call (safe on dev). Production swaps the false -> live mint.
-                $r = app(\AhgDoiManage\Services\DoiService::class)->mint($containerIo, null, true);
+            $config = class_exists(\AhgDoiManage\Services\DoiService::class)
+                ? DB::table('ahg_doi_config')->where('is_active', 1)->first()
+                : null;
+            if ($config) {
+                // Live registration only on a production DataCite config; all
+                // other environments build the configured DOI string without the
+                // external HTTP call (safe on dev/demo).
+                $live = in_array(strtolower((string) ($config->environment ?? '')), ['production', 'prod', 'live'], true);
+                $r = app(\AhgDoiManage\Services\DoiService::class)->mint($containerIo, null, ! $live);
                 if (! empty($r['success']) && ! empty($r['doi'])) {
                     $doi = $r['doi'];
                 }
