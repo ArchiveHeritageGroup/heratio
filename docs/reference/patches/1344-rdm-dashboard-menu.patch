@@ -1,0 +1,14 @@
+diff --git a/packages/ahg-reports/resources/views/dashboard.blade.php b/packages/ahg-reports/resources/views/dashboard.blade.php
+index c547876bd..7c3179e83 100644
+--- a/packages/ahg-reports/resources/views/dashboard.blade.php
++++ b/packages/ahg-reports/resources/views/dashboard.blade.php
+@@ -129,6 +129,9 @@
+         @if($hasPrivacy)
+         <li><a href="{{ url('/admin/privacy/dashboard') }}"><i class="fas fa-user-shield me-2"></i>{{ __('Privacy & Data Protection') }}</a></li>
+         @endif
++        @if($hasResearch && \Illuminate\Support\Facades\Route::has('rdm.datasets.dashboard'))
++        <li><a href="{{ route('rdm.datasets.dashboard') }}"><i class="fas fa-chart-line me-2"></i>{{ __('RDM Dashboard') }}</a></li>
++        @endif
+         @if($hasResearch && \Illuminate\Support\Facades\Route::has('rdm.datasets.compliance'))
+         <li><a href="{{ route('rdm.datasets.compliance') }}"><i class="fas fa-clipboard-check me-2"></i>{{ __('RDM Compliance') }}</a></li>
+         @endif
