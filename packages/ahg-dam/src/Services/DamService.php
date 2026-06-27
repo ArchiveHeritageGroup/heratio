@@ -71,6 +71,12 @@ class DamService
             ->tap(fn ($q) => $this->joinI18nWithFallback($q, 'information_object_i18n', 'io', aliasPrefix: 'i18n'))
             ->leftJoin('dam_iptc_metadata as iptc', 'io.id', '=', 'iptc.object_id')
             ->where('io.id', $id)
+            // Guests see only published assets (status 158/160) — draft-leak fix (#1358).
+            ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s) {
+                $s->select(DB::raw(1))->from('status as pub_st')
+                    ->whereColumn('pub_st.object_id', 'io.id')
+                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+            }))
             ->select([
                 'io.id',
                 'io.identifier',
@@ -173,6 +179,15 @@ class DamService
                     ->where('i18n.culture', '=', $this->culture);
             })
             ->leftJoin('dam_iptc_metadata as iptc', 'io.id', '=', 'iptc.object_id');
+
+        // Guests see only published assets (status 158/160) — draft-leak fix (#1358).
+        if (! auth()->check()) {
+            $baseQuery->whereExists(function ($s) {
+                $s->select(DB::raw(1))->from('status as pub_st')
+                    ->whereColumn('pub_st.object_id', 'io.id')
+                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+            });
+        }
 
         // Filter by asset type
         if ($assetType !== '') {

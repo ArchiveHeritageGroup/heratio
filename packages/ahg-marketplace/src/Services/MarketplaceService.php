@@ -152,9 +152,22 @@ class MarketplaceService
     public function getListingBySlug(string $slug): ?object
     {
         $listing = DB::table($this->listingTable)->where('slug', $slug)->first();
-        if ($listing) {
-            DB::table($this->listingTable)->where('id', $listing->id)->increment('view_count');
+        if (! $listing) {
+            return null;
         }
+
+        // The public detail page must not expose non-active listings (draft /
+        // pending_review / withdrawn / rejected) — consistent with the storefront
+        // grids, which only show status='active'. Only the owning seller may view
+        // their own non-active listing; admins moderate via the admin screens (#1360).
+        if ($listing->status !== 'active') {
+            $sellerId = auth()->check() ? optional($this->getSellerByUserId((int) auth()->id()))->id : null;
+            if ($sellerId === null || (int) $sellerId !== (int) $listing->seller_id) {
+                return null;
+            }
+        }
+
+        DB::table($this->listingTable)->where('id', $listing->id)->increment('view_count');
 
         return $listing;
     }

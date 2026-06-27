@@ -55,6 +55,12 @@ class GalleryService
             })
             ->leftJoin('museum_metadata as mm', 'io.id', '=', 'mm.object_id')
             ->where('slug.slug', $slug)
+            // Guests see only published artworks (status 158/160) — draft-leak fix (#1360).
+            ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s) {
+                $s->select(DB::raw(1))->from('status as pub_st')
+                    ->whereColumn('pub_st.object_id', 'io.id')
+                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+            }))
             ->select([
                 'io.id',
                 'io.identifier',
@@ -179,6 +185,15 @@ class GalleryService
                 $j->on('io.id', '=', 'doc.object_id')->where('doc.object_type', '=', 'gallery');
             })
             ->leftJoin('museum_metadata as mm', 'io.id', '=', 'mm.object_id');
+
+        // Guests see only published artworks (status 158/160) — draft-leak fix (#1360).
+        if (! auth()->check()) {
+            $query->whereExists(function ($s) {
+                $s->select(DB::raw(1))->from('status as pub_st')
+                    ->whereColumn('pub_st.object_id', 'io.id')
+                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+            });
+        }
 
         // Search filter
         if ($subquery !== '') {

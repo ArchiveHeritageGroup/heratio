@@ -150,3 +150,127 @@ dropdown FAIL. Issues filed below.
   published-only gate (`status` 158/160 whereExists when `!auth()->check()`) as
   `browse()`/`applyFilters()`. Verified anon CSV = 359 published records (was 431 incl.
   72 drafts). `DisplayController.php`.
+
+---
+
+## T3 — Metadata standards / formats
+
+### Functional smoke (anon HTTP) — GREEN
+28 paramless GET routes across 10 modules: **0 server errors**. DACS/DC/MODS/RAD
+managers have no paramless GET routes (IO-attached crosswalk editors). bibframe/frbr
+landing 200; exports/imports 302/403. Consistent gating.
+
+### Static audit (10 modules, 5 parallel agents)
+
+**🟡 Draft-leak (anon) — LATENT:**
+- **ahg-biblio-frbr** — public `/library/work-cluster/{workKey}` (`routes/web.php:11`,
+  `WorkClusterController::show:22-51`) joins `information_object` with NO `status_id=160`
+  guest filter → would list unpublished editions to anon. Same class as #1353, but
+  currently unexploitable on dev (FRBR clustering unpopulated; live hit 404/0 IOs).
+- **ahg-biblio-bf** (tier C) — public LOD `.ttl/.jsonld` + `/bibframe/{workId}` read the
+  separate optional `library_biblio_work` scaffold (not the live catalogue), no status
+  gate — low real-world leak.
+
+**🟡 Auth-gating gaps (authenticated, missing `acl:` — extends #1354):**
+- ahg-mods-manage / ahg-rad-manage / ahg-dacs-manage / ahg-dc-manage — the edit POST
+  routes mutate AND publish/unpublish IO but are `['web','auth']` only, no `acl:`. Any
+  authenticated user can edit/publish any record. (Agents note this is the "standard-edit
+  family norm" — but it can change publication status, so it's a real gap.)
+- ahg-biblio-bf — updateWork/addContributor/import mutations auth-only no acl.
+- ahg-biblio-frbr — admin override (force-group/split clustering) routes auth-only no acl.
+- ahg-metadata-export — MARC + EAD import routes `['web','auth']` (no admin), while
+  rad/dacs importStandard is auth+admin. Any authed non-admin can commit catalogue writes.
+
+**🟢 Export draft-leak check — CLEAN:** the one anon metadata-export surface
+(`/data/cidoc-crm.ttl`) is rigorously published-only in both serving modes (verified);
+per-record exports are admin-gated; `/admin/sparql` enforces auth/bearer in-controller.
+ahg-export + ahg-portable-export are fully gated (302/403) — no anon bulk-export leak.
+
+**🟡 Broken/inert features (functional):**
+- ahg-export — **entirely non-functional**: forms POST to GET-only route names → 405;
+  controllers only `return view()`, no export output generated anywhere.
+- ahg-portable-export — `apiToken()` returns a `/portable-export/share/{token}` download
+  URL but no such route is registered → dead share-link (would also need a publication
+  decision if wired, since bundles include unpublished records).
+- ahg-dacs-manage — duplicate `name="languageNotes"` on two distinct fields
+  (`edit.blade.php:212` + `:360`) → one overwrites the other on save.
+
+**🟡 Help:** systemic — articles exist for all T3 modules but none wired into
+`help-context.php` / no in-UI link (extends #1350).
+
+### T3 verdict
+Functional GREEN; export-leak check mostly CLEAN (metadata-export is exemplary). New:
+1 latent anon draft-leak (frbr work-cluster), the publish/import missing-`acl:` pattern
+(extends #1354), and 2 broken features (ahg-export inert, portable-export dead share route).
+
+---
+
+## T4 — Sector verticals (richest tranche — most security findings)
+
+### Functional smoke (anon HTTP) — GREEN
+51 routes across 14 modules: **0 server errors**. Public landings (dam, cart,
+exhibition-space/browse) 200; admin 302/403; library APIs 401 (token auth).
+
+### Static audit (14 modules, 7 parallel agents)
+
+**🔴 Anon draft-leaks (read paths missing status_id=160, #1353 class):**
+- **ahg-dam — FAIL, ACTIVE.** Public `/dam/browse` + `/dam/{slug}` show unpublished
+  assets (DamService::browse/getById no status filter; store() sets 160). Verified: 58
+  dam assets incl. **1 draft leaking to anon now**.
+- **ahg-gallery — FAIL.** Public browse/artists/show leak draft artworks (GalleryService
+  no filter) + ALL mutations bare auth no acl.
+- **ahg-museum — WARN.** Public browse/show leak draft objects (mutations correctly acl-gated).
+- **ahg-marketplace.** Grids filter to active, but single-listing `getListingBySlug`
+  (detail page) has no status filter → draft/pending/withdrawn listings viewable by slug.
+- **ahg-exhibition.** Public space pages no visibility filter (schema has no draft flag —
+  forward-compat; tier C today).
+
+**🔴 IDOR / broken access control (NEW class):**
+- **ahg-cart.** `/cart/order/{id}` PUBLIC, `getOrder()` = `where('id',$id)` only → anon
+  enumerates orders, reads customer name/email/billing/line-items (PII/POPIA). Latent on
+  dev (no orders) but clear. Also: guest `removeItem()` deletes arbitrary cart rows by id.
+- **ahg-image-ar.** `delete` (auth-only) removes any object's animation+MP4 by id, no
+  ownership/admin check — IDOR.
+- **ahg-3d-model.** Public `apiHotspots` doesn't filter is_public → leaks hotspot metadata
+  for non-public models; legacy hotspot mutation aliases auth-only while canonical require admin.
+
+**🔴 Missing acl: on mutations (extends #1354, big in T4):**
+- **ahg-vendor — FAIL.** 5 match-routes (add/edit/serviceTypes/add+editTransaction)
+  comment "ACL checked in controller" but no check exists → any authed user mutates vendors/txns.
+- **ahg-exhibition.** add/edit "ACL must be checked in controller" — no check.
+- **ahg-spectrum.** Every mutation (incl. POPIA DSAR/breach/ROPA writes) feature-flag + bare auth.
+- **ahg-gallery.** store/update/destroy (artworks/loans/valuations/venues) bare auth.
+- **ahg-library.** Several /library-manage routes (serials/ill/kbart/trading-partners) bare auth.
+
+**🟡 Gateway-rule violation:** ahg-image-ar AI default is a direct node URL
+`http://192.168.0.78:5052` (settings.blade:56) — bypasses ai.theahg.co.za gateway.
+
+**🟡 Broken/stub features:** ahg-heritage-manage accounting GRAP CRUD is a no-op stub
+(store/update flash success, no DB write; forms action="#"); ahg-marketplace orphan route
+ref `ahgmarketplace.listings` (RouteNotFoundException on a checkout error path); ahg-loan
+dead filter option "pending".
+
+**🟢 Clean:** ahg-heritage-manage public portal IS published-only (model pattern);
+ahg-library API auth solid; ahg-museum/loan/label mutations gated; ahg-cart webhook
+signature-verified; marketplace checkout ownership-checked (no IDOR there); 3d preview
+session-whitelisted.
+
+**🟡 Dropdowns:** widespread hardcoded vocab (loan/exhibition/cart FAIL; gallery/museum/
+dam/marketplace/3d/image-ar WARN). **Help:** all 14 unwired (extends #1350).
+
+### T4 verdict
+Functional GREEN; the heaviest security tranche — 1 active draft-leak (dam), a cart PII
+IDOR, more public read-leaks (gallery/museum/marketplace), 3 IDOR/broken-access, a large
+missing-acl set (incl. POPIA writes in spectrum), a gateway-bypass, and broken stubs.
+
+## Fixes applied (2026-06-27, draft-leak batch #1358 + #1360)
+- **#1358 ahg-dam** — `DamService::browse()` + `getById()` now apply the guest published
+  filter (`whereExists` status 158/160 when `!auth()->check()`). Verified: guest browse
+  total 57 (was 58 incl. 1 draft).
+- **#1360 ahg-gallery / ahg-museum** — `GalleryService::browse()`+`getBySlug()`,
+  `MuseumService::browse()`+`getBySlug()` same guest filter. Public pages render 200;
+  guest totals gallery 53 / museum 62, no 500s.
+- **#1360 ahg-marketplace** — `getListingBySlug()` now only serves `status='active'`
+  listings publicly (matching the storefront grids); the owning seller may view their own
+  non-active listing, admins moderate via the admin screens.
+- PSIS parity-audit twin filed: atom-ahg-plugins#178 (both security classes).

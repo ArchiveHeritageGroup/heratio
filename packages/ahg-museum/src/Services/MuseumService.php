@@ -68,6 +68,12 @@ class MuseumService
                     ->where('display_object_config.object_type', '=', 'museum');
             })
             ->where('slug.slug', $slug)
+            // Guests see only published objects (status 158/160) — draft-leak fix (#1360).
+            ->when(! auth()->check(), fn ($qq) => $qq->whereExists(function ($s) {
+                $s->select(DB::raw(1))->from('status as pub_st')
+                    ->whereColumn('pub_st.object_id', 'information_object.id')
+                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+            }))
             ->select([
                 'information_object.id',
                 'information_object.identifier',
@@ -238,6 +244,15 @@ class MuseumService
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
                 ->join('museum_metadata', 'information_object.id', '=', 'museum_metadata.object_id')
                 ->where('information_object_i18n.culture', $this->culture);
+
+            // Guests see only published objects (status 158/160) — draft-leak fix (#1360).
+            if (! auth()->check()) {
+                $query->whereExists(function ($s) {
+                    $s->select(DB::raw(1))->from('status as pub_st')
+                        ->whereColumn('pub_st.object_id', 'information_object.id')
+                        ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+                });
+            }
 
             $query->select([
                 'information_object.id',
