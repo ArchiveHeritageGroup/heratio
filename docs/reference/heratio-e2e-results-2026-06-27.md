@@ -652,3 +652,73 @@ ResourceSync are the exemplars to copy.
   download bypass (#1347/#1362). Accessions + physicalobjects routes now `api.auth:read`.
   ActorApiController::show strips contact PII + filters related_resources to published for anon.
   Verified: anon draft 404, accessions/physobj 401, published record + index still 200.
+
+---
+
+## T10 — Reporting / ops / admin (final tranche)
+
+### Functional smoke (anon HTTP) — GREEN
+31 routes, 12 modules, 0 server errors. Ops admin (reports/jobs/backup/data-migration) all
+403 anon; `feedback/general` 200 (public form, by design); `/metrics` 401 (token-gated).
+
+### Static audit (12 modules, 4 parallel agents)
+
+**🔴 ahg-accession-manage — FAIL (anon donor-PII leak, verified live).** Public
+`/accession/{slug}` show (`routes/web.php:74`, outside the auth groups) renders donor contact
+PII (street_address/city/telephone/fax/email + acquisition source) to anon
+(`show.blade.php:64,220-285`; only edit links are `@auth`). Verified: anon `accession/2026-02-15-3`
+→ 200 leaking donor email. The web twin of donor #1370 + api #1377. Also: public donor
+typeahead `donorSearch`/`relatedDonor` enumerate donor names to anon; `accession/{slug}/edit`
+GET is auth-only no `acl:` (authed PII read-IDOR). Mutations/finalise/rights-inheritance are
+correctly acl-gated.
+
+**🔴 ahg-jobs — FAIL (IDOR).** A LIVE `/jobs/*` web surface (`routes/web.php:35-40`),
+`['web','auth']` only — no admin/scope. Any authed user lists ALL jobs (`/jobs/`), reads any
+job by id incl. `output`/`download_path` (`/jobs/show/{id}` — IDOR), and `/jobs/clear-inactive`
+global-deletes job history. Duplicates ahg-jobs-manage's admin-gated `job` table at a weaker
+gate. (No arbitrary-class execution — start/cancel aren't web-exposed.)
+
+**🟡 ahg-backup — WARN (editor-reachable DB dump/restore + no maker-checker).** All ops are
+`admin` = `canAdmin` = **EDITOR-inclusive**, so an EDITOR can `download` a full DB dump (all
+PII) and `restore` (overwrite the DB + untar over base_path). `doRestore` has NO server-side
+confirm/maker-checker (only a client-side JS `confirm()`). `backup_path` is operator-settable
+with only `string|max:500` — repointing into the web-served `/uploads` would expose dumps to
+anon. Path traversal on download is SAFE (md5-of-enumerated-filename, never a user path).
+Command-injection safe (escapeshellarg + config-sourced).
+
+**🟡 ahg-reports (LOCKED) — WARN.** `/reports` dashboard + checksums-integrity are `auth`-only
+while drill-downs are `admin`-only → any authed user sees draft/unpublished counts + total
+user/donor counts (`ReportService.php:44,52`). The report-builder generic query/export
+(`ReportBuilderController::export/apiData`) runs `DB::table($userSuppliedTable)` with **no
+allow-list** (the advisory list is never enforced) → an admin can export the `user` table
+(password hashes). Dead routes (`destroy`→nonexistent method, `apiData` id-less route) + ~30
+orphan methods + a dead token share-link feature.
+
+**🟡 Smaller (auth/abuse):** ahg-feedback public submit has no throttle/honeypot/captcha (anon
+flood); ahg-articles anon comments insert `status='approved'` (no pre-moderation; honeypot +
+throttle present, XSS-safe); ahg-translation `stringsMtSuggest` (`:1539`) lacks the
+admin/editor check its siblings have → free AI-MT-proxy abuse for any authed user.
+
+**🟢 Exemplary / clean:**
+- **ahg-observability `/metrics`** — token-gated (`hash_equals`, fail-closed, loopback
+  default), route-name labels (no PII/slug leak). The exemplar token-gated endpoint.
+- **ahg-data-migration** — admin-only, path-traversal + zip-slip safe, draft-default import. Clean.
+- **ahg-articles** — public index/show filter `status='published'` (NO draft-leak — the clean
+  counter-example); comments escaped (no stored XSS).
+- **ahg-forms** — no submission IDOR, injection-safe. **ahg-jobs-manage** — no arbitrary job
+  execution, admin-gated. **ahg-statistics** — fully admin-gated (only chart.js CDN, tier C).
+
+**🟡 Help:** all unwired (extends #1350). **Theme:** PASS (chart.js/TomSelect CDNs tier C).
+
+### T10 verdict
+Functional GREEN. Lead: accession anon donor-PII leak (verified live — the third donor-PII
+surface after #1370/#1377). Plus ahg-jobs IDOR, backup editor-reachable DB dump/restore +
+no maker-checker, reports auth-vs-admin disclosure. observability/data-migration/articles are
+the exemplars.
+
+## Fix applied (2026-06-27, #1381 accession anon donor-PII)
+- **ahg-accession-manage** — `accession.show` (`routes/web.php:74`) now requires `auth`, and the
+  donor-typeahead group (`['web']`→`['web','auth']`) gates donorSearch/relatedDonor/donor.add.
+  Verified: anon `accession/{slug}` + donor typeahead → 302 (was 200 leaking donor email/PII).
+  The third + final donor-PII surface closed (after #1370 donor-manage, #1377 api). (The authed
+  `accession/{slug}/edit` GET read-IDOR remains — part of the #1354 missing-acl family.)

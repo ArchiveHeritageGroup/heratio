@@ -71,9 +71,14 @@ Route::middleware('admin')->group(function () {
     Route::get('/accession/{id}/timeline', [AccessionController::class, 'timeline'])->name('accession.timeline')->where('id', '[0-9]+');
 });
 
-Route::get('/accession/{slug}', [AccessionController::class, 'show'])->name('accession.show');
+// Accession records hold donor contact PII (address/email/phone) + acquisition
+// terms and have no publication-status concept — staff-only. Gate the show page
+// under auth so anon can't read donor PII (#1381, web twin of #1370/#1377).
+Route::get('/accession/{slug}', [AccessionController::class, 'show'])->name('accession.show')->middleware('auth');
 
-Route::middleware(['web'])->group(function () {
+// Donor typeahead/lookup for the accession edit form — gate under auth so anon
+// can't enumerate donor names/ids (#1381).
+Route::middleware(['web', 'auth'])->group(function () {
 
     // Donor typeahead for the "Related donor" modal. Returns an HTML table
     // consumed by the YUI form-autocomplete widget (TYPE_HTMLTABLE), not JSON.
