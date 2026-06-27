@@ -55,8 +55,24 @@ final class VerifyObjectDownloadController extends Controller
      * original is streamed and a sidecar manifest is advertised in the headers
      * (served by credentials() below). Unknown object / unreadable master -> 404.
      */
+    /**
+     * ODRL gate mirroring the locked IO/media-download routes (#1347): this is a
+     * parallel "download with content credentials" path, so a restricted /
+     * embargoed object's bytes must not leak here either (#1362). Fail-open only
+     * when the research/ODRL stack is entirely absent (nothing to enforce).
+     */
+    private function denyIfOdrlRestricted(int $digitalObjectId): void
+    {
+        if (class_exists(\AhgResearch\Services\OdrlService::class)
+            && ! app(\AhgResearch\Services\OdrlService::class)->isDigitalObjectPermitted($digitalObjectId, 'use')) {
+            abort(403, 'Access denied by rights policy.');
+        }
+    }
+
     public function download(int $digitalObjectId): StreamedResponse
     {
+        $this->denyIfOdrlRestricted($digitalObjectId);
+
         $master = $this->resolver->resolveMasterForDownload($digitalObjectId);
         if ($master === null) {
             abort(404);
@@ -108,6 +124,8 @@ final class VerifyObjectDownloadController extends Controller
      */
     public function credentials(int $digitalObjectId): Response
     {
+        $this->denyIfOdrlRestricted($digitalObjectId);
+
         $master = $this->resolver->resolveMasterForDownload($digitalObjectId);
         if ($master === null) {
             abort(404);

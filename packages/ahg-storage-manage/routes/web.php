@@ -4,7 +4,9 @@ use AhgStorageManage\Controllers\StorageController;
 use AhgStorageManage\Controllers\StrongroomController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/physicalobject/browse', [StorageController::class, 'browse'])->name('physicalobject.browse');
+// Physical storage locations + security levels are staff-only — require auth on
+// the read surface so anon can't map the building/vault layout (#1364).
+Route::get('/physicalobject/browse', [StorageController::class, 'browse'])->name('physicalobject.browse')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('/physicalobject/add', [StorageController::class, 'create'])->name('physicalobject.create');
@@ -27,11 +29,12 @@ Route::middleware('auth')->group(function () {
 });
 
 // Specific routes MUST come before /{slug} or they get swallowed.
-Route::get('/physicalobject/autocomplete', [StorageController::class, 'autocomplete'])->name('physicalobject.autocomplete');
+Route::get('/physicalobject/autocomplete', [StorageController::class, 'autocomplete'])->name('physicalobject.autocomplete')->middleware('auth');
 Route::get('/physicalobject/boxList', fn () => redirect('/physicalobject/box-list', 301));
 
 Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])
     ->name('physicalobject.show')
+    ->middleware('auth')
     ->where('slug', '(?!browse|add|autocomplete|box-list|boxList|holdingsReportExport|link-to|unlink)[a-z0-9][a-z0-9-]*');
 
 // ---------------------------------------------------------------------------
@@ -39,7 +42,7 @@ Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])
 // Mirrors the PSIS Symfony pattern shipped in atom-ahg-plugins v3.40.0:
 // standalone CRUD only, no physicalobject-form integration.
 // ---------------------------------------------------------------------------
-Route::get('/strongroom/browse', [StrongroomController::class, 'browse'])->name('strongroom.browse');
+Route::get('/strongroom/browse', [StrongroomController::class, 'browse'])->name('strongroom.browse')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('/strongroom/add', [StrongroomController::class, 'create'])->name('strongroom.create');
@@ -57,4 +60,5 @@ Route::middleware('admin')->group(function () {
 // last and excludes those paths so they aren't swallowed.
 Route::get('/strongroom/{slug}', [StrongroomController::class, 'show'])
     ->name('strongroom.show')
+    ->middleware('auth')
     ->where('slug', '(?!browse|add)[a-z0-9][a-z0-9-]*');

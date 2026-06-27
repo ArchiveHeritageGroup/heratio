@@ -283,3 +283,66 @@ missing-acl set (incl. POPIA writes in spectrum), a gateway-bypass, and broken s
 - **ahg-cart guest cart deletion** — `CartService::removeItem()` gains the guest
   session-scope (`->when(!$userId, where session_id=$sessionId)`); controller passes
   `session()->getId()`. A guest can no longer delete arbitrary cart rows by id.
+
+---
+
+## T5 — Digital objects / media / preservation
+
+### Functional smoke (anon HTTP) — GREEN
+36 routes, 13 modules. Initial smoke flagged 11×502 (preservation/integrity/c2pa) but
+re-testing individually returned proper codes (403/200) — **transient php-fpm saturation
+from rapid sequential hits, 0 real 5xx**. media-streaming/ocfl have no paramless GET routes.
+
+### Static audit (13 modules, 7 parallel agents)
+
+**🔴 Anon-exploitable FAILs:**
+- **ahg-iiif-collection — FAIL (draft-leak).** Public `/iiif-manifest/{slug}` (manifest),
+  `/search`+`/autocomplete` (OCR text), `/iiif-viewer/{slug}` serve UNPUBLISHED objects to
+  anon — no status 158/160 filter (`IiifCollectionService::loadObjectAndDigitalObjects`
+  :1081; `IiifContentSearchService::resolveObject` :295; controller viewer :316). Leaks
+  title/IPTC/EXIF/GPS + the Cantaloupe image IDs (so unpublished images are fetchable).
+  Also: collection `is_public` not enforced on index/view; addItems/removeItem mutations
+  have NO ACL (route comment lies). #1353/#1360 class.
+- **ahg-c2pa — FAIL (binary bypass of #1347).** `/verify/{doId}/download` +
+  `/credentials.c2pa` (public, `routes/web.php:249-255`) stream the master binary by
+  digital_object id with NO publication/ODRL check (`VerifyObjectDownloadController` :58-131;
+  `DigitalObjectProvenanceService::resolveMasterForDownload` :109-150). The route comment
+  admits it "never touches the locked IO/media download route" — so it **defeats the #1347
+  ODRL gate**. Also `/verify/{id|slug}` leaks unpublished record metadata/provenance.
+- **ahg-storage-manage — FAIL (physical-security leak).** `/physicalobject/browse` (:7),
+  `/physicalobject/{slug}` show (:33), `/physicalobject/autocomplete` (:30) are PUBLIC
+  (outside the auth groups). Verified: anon `/physicalobject/main-vault` → 200 exposing
+  building/floor/room/vault/shelf, barcode, **security_level, access_restrictions**, notes.
+  Physical location/security data to anon.
+
+**🟡 Missing acl: / IDOR (authenticated — extends #1354):**
+- ahg-media-streaming — caption-track CRUD (`routes/web.php:29-40`) auth-only, no
+  admin/ownership → any authed user edits/deletes any object's captions. (Public captions
+  VTT also serves transcript text outside the #1347 gate — tier C.)
+- ahg-iiif-collection addItems/removeItem (no acl). ahg-ftp-upload upload/delete/attach
+  (auth-only). ahg-integrity / ahg-c2pa / ahg-preservation mutations rely on `admin` group
+  only (no granular `acl:`) — admin-gated, lower risk.
+
+**🟡 Path-confinement (admin-only, tier C):** ahg-scan `scan_folder.path` + ahg-ingest
+`digitalObjectPath` accept arbitrary host paths (admin-only).
+
+**🟡 Broken/stub features (extends #1357):** ahg-dedupe `mergeExecute()` doesn't merge —
+sets status='merged' + claims a non-existent background task (destructive op is a
+misleading no-op); 9 stub dedupe routes return empty views. ahg-media-processing 4 orphan
+methods (one targets a non-existent route). ahg-ingest orphan post()/dead Cancel link.
+
+**🟢 Clean:** ahg-ocfl (backend, N-A), ahg-pdf-tools, ahg-preservation gating, ahg-dedupe
+gating (admin), ahg-scan/ingest gating (admin), media-streaming #1347 gate intact (confirmed).
+
+### T5 verdict
+Functional GREEN. Three anon-exploitable FAILs — iiif draft-leak, **c2pa binary bypass of
+#1347**, storage physical-security leak — plus the familiar missing-acl + broken-stub sets.
+
+## Fixes applied (2026-06-27, #1362 + #1364)
+- **#1362 ahg-c2pa** — `VerifyObjectDownloadController::download()` + `credentials()` now
+  call `denyIfOdrlRestricted()` → `OdrlService::isDigitalObjectPermitted($doId,'use')`
+  (class_exists-guarded), the same gate as #1347. Closes the parallel-download bypass.
+  Verified: restricted DO 1254814 → 403 (was streaming); open DO 702 → 404 (gate passes).
+- **#1364 ahg-storage-manage** — `physicalobject/browse`+`{slug}`+`autocomplete` and
+  `strongroom/browse`+`{slug}` gained `->middleware('auth')`. Verified anon: all → 302
+  (was 200, leaking building/vault/security_level).
