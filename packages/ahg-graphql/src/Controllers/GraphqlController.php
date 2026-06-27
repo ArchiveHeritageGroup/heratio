@@ -25,8 +25,10 @@
 
 namespace AhgGraphql\Controllers;
 
+use AhgCore\Services\AclService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -36,6 +38,72 @@ use Illuminate\Support\Facades\DB;
  */
 class GraphqlController extends Controller
 {
+    /**
+     * Publication-status taxonomy (matches ahg-api open-data controllers):
+     * status.type_id=158 ("publication status"), status_id=160 ("Published").
+     * A row is public only when it carries this exact status row. The
+     * synthetic root (information_object.id=1) is never disclosed.
+     */
+    private const STATUS_TYPE_PUBLICATION = 158;
+
+    private const STATUS_PUBLISHED = 160;
+
+    /**
+     * SECURITY (#1378): hard cap on any client-supplied limit so a single
+     * GraphQL call can't bulk-extract the whole table.
+     */
+    private const MAX_LIMIT = 100;
+
+    /**
+     * SECURITY (#1378): does the current caller get to see drafts / private /
+     * non-public rows? Mirrors the ahg-annotations #1365 model — admin/editor
+     * (AclService::canAdmin) bypasses the publication/visibility filters; every
+     * other authenticated caller is clamped to published/public (+ own) rows.
+     */
+    private function callerIsAdmin(): bool
+    {
+        return AclService::canAdmin(Auth::id());
+    }
+
+    /**
+     * SECURITY (#1378): clamp a client-supplied limit to [1, MAX_LIMIT].
+     */
+    private function clampLimit($value, int $default = 25): int
+    {
+        $n = (int) ($value ?? $default);
+
+        return max(1, min($n, self::MAX_LIMIT));
+    }
+
+    /**
+     * SECURITY (#1378): clamp a client-supplied offset to a non-negative int.
+     */
+    private function clampOffset($value): int
+    {
+        return max(0, (int) ($value ?? 0));
+    }
+
+    /**
+     * SECURITY (#1378): published-only scope for archive entities, matching
+     * the ahg-api open-data predicate (status.type_id=158 AND status_id=160).
+     * Admins/editors see drafts too, so the scope is a no-op for them. Applied
+     * as a whereExists so the SELECT/response shape is untouched.
+     */
+    private function scopePublished($query, string $alias): void
+    {
+        if ($this->callerIsAdmin()) {
+            return;
+        }
+
+        $query->whereExists(function ($sub) use ($alias) {
+            $sub->select(DB::raw(1))
+                ->from('status')
+                ->whereColumn('status.object_id', $alias.'.id')
+                ->where('status.type_id', self::STATUS_TYPE_PUBLICATION)
+                ->where('status.status_id', self::STATUS_PUBLISHED);
+        });
+    }
+
     /**
      * GraphQL Playground — interactive IDE.
      */
@@ -75,10 +143,11 @@ class GraphqlController extends Controller
         }
 
         if (preg_match('/\binformationObjects\b/i', $query)) {
-            $limit = $variables['limit'] ?? 25;
-            $offset = $variables['offset'] ?? 0;
+            // SECURITY (#1378): clamp client-supplied paging.
+            $limit = $this->clampLimit($variables['limit'] ?? null);
+            $offset = $this->clampOffset($variables['offset'] ?? null);
 
-            return $this->resolveInformationObjects((int) $limit, (int) $offset);
+            return $this->resolveInformationObjects($limit, $offset);
         }
 
         if (preg_match('/\bactor\s*\(\s*id\s*:\s*(\d+)\s*\)/i', $query, $m)) {
@@ -86,7 +155,7 @@ class GraphqlController extends Controller
         }
 
         if (preg_match('/\bactors\b/i', $query)) {
-            return $this->resolveActors($variables['limit'] ?? 25);
+            return $this->resolveActors($this->clampLimit($variables['limit'] ?? null));
         }
 
         if (preg_match('/\brepositories\b/i', $query)) {
@@ -98,7 +167,7 @@ class GraphqlController extends Controller
         }
 
         if (preg_match('/\bresearchProjects\b/i', $query)) {
-            return $this->resolveResearchProjects((int) ($variables['limit'] ?? 25));
+            return $this->resolveResearchProjects($this->clampLimit($variables['limit'] ?? null));
         }
 
         if (preg_match('/\bresearchAnnotations\s*\(\s*targetIri\s*:\s*"([^"]+)"\s*\)/i', $query, $m)) {
@@ -122,21 +191,39 @@ class GraphqlController extends Controller
 
     private function resolveResearchProject(int $id): array
     {
-        $project = DB::table('research_project as p')
+        $q = DB::table('research_project as p')
             ->leftJoin('research_researcher as r', 'p.owner_id', '=', 'r.id')
             ->where('p.id', $id)
             ->select('p.id', 'p.title', 'p.description', 'p.project_type', 'p.status',
                 'p.start_date', 'p.expected_end_date', 'p.created_at',
-                'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name')
-            ->first();
+                'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name');
+
+        // SECURITY (#1378): research_project uses a `visibility` enum
+        // (private/collaborators/public). Non-admin callers only ever see
+        // public projects; admins/editors see all. owner_id references
+        // research_researcher.id (not the auth user id), so there is no
+        // trustworthy auth-user->owner mapping to widen this — mirror the
+        // ahg-annotations #1365 "safe subset" (public + admin) here too.
+        if (! $this->callerIsAdmin()) {
+            $q->where('p.visibility', 'public');
+        }
+
+        $project = $q->first();
 
         if (! $project) {
             return ['errors' => [['message' => "Research project {$id} not found"]]];
         }
 
-        $collections = DB::table('research_collection')
+        $collectionsQuery = DB::table('research_collection')
             ->where('project_id', $id)
-            ->select('id', 'name', 'description', 'is_public')
+            ->select('id', 'name', 'description', 'is_public');
+
+        // SECURITY (#1378): only public collections for non-admin callers.
+        if (! $this->callerIsAdmin()) {
+            $collectionsQuery->where('is_public', 1);
+        }
+
+        $collections = $collectionsQuery
             ->get()
             ->map(fn ($c) => (array) $c)
             ->toArray();
@@ -161,15 +248,19 @@ class GraphqlController extends Controller
 
     private function resolveResearchProjects(int $limit): array
     {
-        $rows = DB::table('research_project as p')
+        $q = DB::table('research_project as p')
             ->leftJoin('research_researcher as r', 'p.owner_id', '=', 'r.id')
             ->orderByDesc('p.created_at')
             ->limit($limit)
             ->select('p.id', 'p.title', 'p.project_type', 'p.status',
-                'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name')
-            ->get()
-            ->map(fn ($p) => (array) $p)
-            ->toArray();
+                'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name');
+
+        // SECURITY (#1378): public projects only for non-admin callers.
+        if (! $this->callerIsAdmin()) {
+            $q->where('p.visibility', 'public');
+        }
+
+        $rows = $q->get()->map(fn ($p) => (array) $p)->toArray();
 
         return ['data' => ['researchProjects' => $rows]];
     }
@@ -177,10 +268,32 @@ class GraphqlController extends Controller
     private function resolveResearchAnnotations(string $targetIri): array
     {
         try {
-            $rows = DB::table('ahg_iiif_annotation')
+            $q = DB::table('ahg_iiif_annotation')
                 ->where('target_iri', $targetIri)
                 ->orderBy('id')
-                ->select('uuid', 'project_id', 'visibility', 'body_json', 'created_by', 'created_at')
+                ->select('uuid', 'project_id', 'visibility', 'body_json', 'created_by', 'created_at');
+
+            // SECURITY (#1378): mirror the ahg-annotations #1365 read model.
+            // The resolver selected `visibility` but never enforced it, so any
+            // caller bulk-read every private/project annotation on a target.
+            //   - admin/editor: all rows;
+            //   - authenticated non-admin: public OR own (created_by = id);
+            //   - anonymous: public only.
+            // 'project' rows stay hidden from non-owners (same deferral the
+            // #1365 fix documents — no trustworthy project-membership lookup).
+            if (! $this->callerIsAdmin()) {
+                $userId = Auth::id();
+                if (Auth::check()) {
+                    $q->where(function ($w) use ($userId) {
+                        $w->where('visibility', 'public')
+                            ->orWhere('created_by', $userId);
+                    });
+                } else {
+                    $q->where('visibility', 'public');
+                }
+            }
+
+            $rows = $q
                 ->get()
                 ->map(function ($r) {
                     return [
@@ -202,10 +315,17 @@ class GraphqlController extends Controller
 
     private function resolveResearchCollections(int $projectId): array
     {
-        $cols = DB::table('research_collection')
+        $colsQuery = DB::table('research_collection')
             ->where('project_id', $projectId)
-            ->select('id', 'name', 'description', 'is_public', 'created_at')
-            ->get()->map(fn ($c) => (array) $c)->toArray();
+            ->select('id', 'name', 'description', 'is_public', 'created_at');
+
+        // SECURITY (#1378): non-public collections were returned to every
+        // caller. Restrict to is_public=1 for non-admin callers.
+        if (! $this->callerIsAdmin()) {
+            $colsQuery->where('is_public', 1);
+        }
+
+        $cols = $colsQuery->get()->map(fn ($c) => (array) $c)->toArray();
 
         $items = DB::table('research_collection_item as ci')
             ->whereIn('ci.collection_id', array_column($cols, 'id') ?: [0])
@@ -238,7 +358,7 @@ class GraphqlController extends Controller
             return ['errors' => [['message' => "Researcher {$researcherId} not found"]]];
         }
 
-        $projects = DB::table('research_project as p')
+        $projectsQuery = DB::table('research_project as p')
             ->leftJoin('research_project_collaborator as pc', function ($j) use ($researcherId) {
                 $j->on('pc.project_id', '=', 'p.id')->where('pc.researcher_id', '=', $researcherId);
             })
@@ -247,31 +367,59 @@ class GraphqlController extends Controller
             })
             ->orderByDesc('p.created_at')
             ->limit(50)
-            ->select('p.id', 'p.title', 'p.project_type', 'p.status', 'p.created_at')
-            ->get()->map(fn ($p) => (array) $p)->toArray();
+            ->select('p.id', 'p.title', 'p.project_type', 'p.status', 'p.created_at');
+
+        // SECURITY (#1378): public projects only for non-admin callers.
+        if (! $this->callerIsAdmin()) {
+            $projectsQuery->where('p.visibility', 'public');
+        }
+
+        $projects = $projectsQuery->get()->map(fn ($p) => (array) $p)->toArray();
 
         $annotations = [];
         try {
-            $annotations = DB::table('ahg_iiif_annotation')
+            $annotationsQuery = DB::table('ahg_iiif_annotation')
                 ->where('created_by', $researcherId)
                 ->orderByDesc('created_at')
                 ->limit(50)
-                ->select('uuid', 'target_iri', 'project_id', 'visibility', 'created_at')
-                ->get()->map(fn ($a) => (array) $a)->toArray();
+                ->select('uuid', 'target_iri', 'project_id', 'visibility', 'created_at');
+
+            // SECURITY (#1378): only the researcher's public annotations are
+            // exposed to non-admin callers (#1365 read model).
+            if (! $this->callerIsAdmin()) {
+                $annotationsQuery->where('visibility', 'public');
+            }
+
+            $annotations = $annotationsQuery->get()->map(fn ($a) => (array) $a)->toArray();
         } catch (\Throwable $e) {
         }
+
+        $isAdmin = $this->callerIsAdmin();
 
         $orcid = null;
         try {
-            $orcid = DB::table('researcher_orcid_link')->where('researcher_id', $researcherId)
-                ->select('orcid_id', 'last_synced_at', 'last_works_count')
-                ->first();
-            $orcid = $orcid ? (array) $orcid : null;
+            // SECURITY (#1378): the ORCID link is researcher PII/contact data;
+            // withhold it from non-admin callers (shape preserved as null).
+            if ($isAdmin) {
+                $orcid = DB::table('researcher_orcid_link')->where('researcher_id', $researcherId)
+                    ->select('orcid_id', 'last_synced_at', 'last_works_count')
+                    ->first();
+                $orcid = $orcid ? (array) $orcid : null;
+            }
         } catch (\Throwable $e) {
         }
 
+        // SECURITY (#1378): strip researcher PII (email + ORCID) for non-admin
+        // callers. Keys are kept (null) so the JSON response shape is stable
+        // for the external tools (Zotero/Tropy/LMS) that consume it.
+        $researcherData = (array) $researcher;
+        if (! $isAdmin) {
+            $researcherData['email'] = null;
+            $researcherData['orcid_id'] = null;
+        }
+
         return ['data' => ['researcherView' => [
-            'researcher' => (array) $researcher,
+            'researcher' => $researcherData,
             'projects' => $projects,
             'annotations' => $annotations,
             'orcid' => $orcid,
@@ -280,15 +428,21 @@ class GraphqlController extends Controller
 
     private function resolveInformationObject(int $id): array
     {
-        $io = DB::table('information_object as io')
+        $q = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
             })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', $id)
+            ->where('io.id', '!=', 1) // never disclose the synthetic root
             ->select('io.id', 'io.identifier', 'io.parent_id', 'io.repository_id',
-                'io.level_of_description_id', 'ioi.title', 'ioi.scope_and_content', 'slug.slug')
-            ->first();
+                'io.level_of_description_id', 'ioi.title', 'ioi.scope_and_content', 'slug.slug');
+
+        // SECURITY (#1378): non-admin callers only see Published records
+        // (status.type_id=158, status_id=160) — a draft IO is never disclosed.
+        $this->scopePublished($q, 'io');
+
+        $io = $q->first();
 
         return $io ? ['data' => ['informationObject' => (array) $io]]
                    : ['errors' => [['message' => "Information object {$id} not found"]]];
@@ -296,7 +450,7 @@ class GraphqlController extends Controller
 
     private function resolveInformationObjects(int $limit, int $offset): array
     {
-        $items = DB::table('information_object as io')
+        $q = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
             })
@@ -304,8 +458,12 @@ class GraphqlController extends Controller
             ->where('io.id', '!=', 1)
             ->select('io.id', 'io.identifier', 'ioi.title', 'slug.slug')
             ->orderBy('ioi.title')
-            ->offset($offset)->limit($limit)
-            ->get();
+            ->offset($offset)->limit($limit);
+
+        // SECURITY (#1378): published-only for non-admin callers (drafts hidden).
+        $this->scopePublished($q, 'io');
+
+        $items = $q->get();
 
         return ['data' => ['informationObjects' => $items->map(fn ($i) => (array) $i)->toArray()]];
     }

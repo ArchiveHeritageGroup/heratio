@@ -26,8 +26,10 @@ class AppServiceProvider extends ServiceProvider
         $this->callAfterResolving('router', function ($router) {
             $router->get('/sru', [\AhgZ3950\Controllers\SruController::class, 'handle'])
                 ->name('sru.handle');
+            // #1379: the z3950 dashboard lists configured remote-target host/port/db —
+            // staff-only, was anon-public. Gate under web+auth (was bare).
             $router->get('/z3950', [\AhgZ3950\Controllers\Z3950Controller::class, 'index'])
-                ->name('z3950.index');
+                ->middleware(['web', 'auth'])->name('z3950.index');
             // /metrics (ahg-observability Prometheus scrape) — bare, NO 'web'
             // middleware (controller auths via bearer token / allow-listed IP).
             // Pre-registered here so it beats the slug catch-all, which would
@@ -43,14 +45,17 @@ class AppServiceProvider extends ServiceProvider
                 ->middleware('web')->name('credits');
             $router->middleware(['web', 'auth'])->group(function () use ($router) {
                 $router->get('/z3950/search', [\AhgZ3950\Controllers\Z3950Controller::class, 'search'])->name('z3950.search');
-                $router->post('/z3950/search', [\AhgZ3950\Controllers\Z3950Controller::class, 'searchRun'])->name('z3950.search-run');
                 $router->get('/z3950/result/{resultSet}', [\AhgZ3950\Controllers\Z3950Controller::class, 'result'])->name('z3950.result');
-                $router->get('/z3950/import/{resultSet}/{recordNumber}', [\AhgZ3950\Controllers\Z3950Controller::class, 'import'])->name('z3950.import');
-                $router->post('/z3950/import', [\AhgZ3950\Controllers\Z3950Controller::class, 'importBatch'])->name('z3950.import-batch');
-                $router->get('/z3950/admin', [\AhgZ3950\Controllers\Z3950Controller::class, 'admin'])->name('z3950.admin');
-                $router->get('/z3950/target/create', [\AhgZ3950\Controllers\Z3950Controller::class, 'createTarget'])->name('z3950.target.create');
-                $router->post('/z3950/target', [\AhgZ3950\Controllers\Z3950Controller::class, 'storeTarget'])->name('z3950.target.store');
-                $router->delete('/z3950/target/{id}', [\AhgZ3950\Controllers\Z3950Controller::class, 'deleteTarget'])->name('z3950.target.delete');
+                // #1379: remote search execution, MARC import, target CRUD + the admin
+                // dashboard are admin operations (help claims admin-only; was any authed
+                // user). Add 'admin' (RequireAdmin) on top of the group's web+auth.
+                $router->post('/z3950/search', [\AhgZ3950\Controllers\Z3950Controller::class, 'searchRun'])->middleware('admin')->name('z3950.search-run');
+                $router->get('/z3950/import/{resultSet}/{recordNumber}', [\AhgZ3950\Controllers\Z3950Controller::class, 'import'])->middleware('admin')->name('z3950.import');
+                $router->post('/z3950/import', [\AhgZ3950\Controllers\Z3950Controller::class, 'importBatch'])->middleware('admin')->name('z3950.import-batch');
+                $router->get('/z3950/admin', [\AhgZ3950\Controllers\Z3950Controller::class, 'admin'])->middleware('admin')->name('z3950.admin');
+                $router->get('/z3950/target/create', [\AhgZ3950\Controllers\Z3950Controller::class, 'createTarget'])->middleware('admin')->name('z3950.target.create');
+                $router->post('/z3950/target', [\AhgZ3950\Controllers\Z3950Controller::class, 'storeTarget'])->middleware('admin')->name('z3950.target.store');
+                $router->delete('/z3950/target/{id}', [\AhgZ3950\Controllers\Z3950Controller::class, 'deleteTarget'])->middleware('admin')->name('z3950.target.delete');
             });
 
             // Articles / news routes moved to packages/ahg-articles

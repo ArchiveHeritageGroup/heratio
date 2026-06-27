@@ -767,3 +767,16 @@ the exemplars.
   if the record is classified (object_security_classification active), require
   `ClearanceCheck::canUserRestore()` (the same clearance-level check restore uses) → a
   version.list holder can no longer read classified record snapshots they couldn't view live.
+
+## Fixes applied (2026-06-27, #1378 graphql + #1379 z3950)
+- **#1378 ahg-graphql** — `/admin/graphql/*` group gains `acl:read`; resolvers now apply the
+  open-data published gate (status 158/160, root excluded, `canAdmin` bypass) to IO; the
+  #1365 visibility model to annotations (public + own; admin all); strip researcher
+  email/ORCID for non-admin; filter project/collection to public for non-admin; clamp
+  limit (max 100) + offset. Verified: execute carries CheckAcl:read.
+- **#1379 ahg-z3950** — `/z3950` index now `['web','auth']` (was anon — leaked remote-target
+  host/port/db); searchRun/import/importBatch/admin/target create/store/delete gain `admin`
+  (RequireAdmin) on top of the group's web+auth (was any authed user). Verified: /z3950 → 302,
+  z3950.target.store carries RequireAdmin. SRU publication filter DEFERRED (latent — mirrors
+  the unfiltered library OPAC; adding status-160 could break SRU if library items aren't
+  status-160; #1379 stays open for it).
