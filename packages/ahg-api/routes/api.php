@@ -1070,9 +1070,13 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'a
     Route::get('repositories', [RepositoryApiController::class, 'index']);
     Route::get('repositories/{slug}', [RepositoryApiController::class, 'show']);
 
-    // Accessions
-    Route::get('accessions', [AccessionApiController::class, 'index']);
-    Route::get('accessions/{slug}', [AccessionApiController::class, 'show']);
+    // Accessions - staff-only data (donor / acquisition / source). Unlike the
+    // public catalogue reads, these require an authenticated key with the `read`
+    // scope (or a logged-in admin session) and never serve anonymous callers (#1377).
+    Route::middleware('api.auth:read')->group(function () {
+        Route::get('accessions', [AccessionApiController::class, 'index']);
+        Route::get('accessions/{slug}', [AccessionApiController::class, 'show']);
+    });
 
     // Donors - read endpoints expose donor contact PII (email/phone/address),
     // so unlike the public catalogue reads they require an authenticated key
@@ -1160,9 +1164,13 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'a
     Route::get('functions', [FunctionApiController::class, 'index']);
     Route::get('functions/{slug}', [FunctionApiController::class, 'show']);
 
-    // Physical Objects
-    Route::get('physicalobjects', [PhysicalObjectApiController::class, 'index']);
-    Route::get('physicalobjects/{slug}', [PhysicalObjectApiController::class, 'show']);
+    // Physical Objects - storage-location data (where an item physically lives).
+    // Staff-only: the read endpoints require an authenticated key with the `read`
+    // scope (or a logged-in admin session); never anonymous (#1377).
+    Route::middleware('api.auth:read')->group(function () {
+        Route::get('physicalobjects', [PhysicalObjectApiController::class, 'index']);
+        Route::get('physicalobjects/{slug}', [PhysicalObjectApiController::class, 'show']);
+    });
     Route::post('physicalobjects', [PhysicalObjectApiController::class, 'store'])
         ->middleware('api.auth:write');
 

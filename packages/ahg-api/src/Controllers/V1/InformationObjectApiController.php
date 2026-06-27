@@ -232,7 +232,13 @@ class InformationObjectApiController extends Controller
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->leftJoin('status', function ($j) {
+                $j->on('information_object.id', '=', 'status.object_id')
+                    ->where('status.type_id', '=', 158);
+            })
             ->where('information_object.id', $objectId)
+            ->where('information_object.id', '!=', 1) // Exclude root
+            ->where('status.status_id', '=', 160) // Published only — never leak drafts to anon
             ->where('information_object_i18n.culture', $this->culture)
             ->select([
                 'information_object.id',
@@ -783,6 +789,12 @@ class InformationObjectApiController extends Controller
             return response()->json(['error' => 'Not found.'], 404);
         }
 
+        // Publication-status gate — never serve a draft/unpublished record's
+        // master binary to an anonymous caller (mirrors the rest of the public API).
+        if (! $this->isPublished((int) $objectId)) {
+            return response()->json(['error' => 'Not found.'], 404);
+        }
+
         $do = DB::table('digital_object')
             ->where('object_id', $objectId)
             ->where('usage_id', 166) // Master
@@ -790,6 +802,17 @@ class InformationObjectApiController extends Controller
 
         if (! $do || ! $do->path) {
             return response()->json(['error' => 'No digital object found.'], 404);
+        }
+
+        // ODRL gate — a restricted/embargoed dataset's master file must be
+        // inaccessible on this raw-download path, not merely unlinked from the
+        // landing page (mirrors ahg-media-streaming/ahg-c2pa, #1347/#1362).
+        // Guarded: if the research/ODRL stack isn't installed there are no
+        // policies to enforce, so the download proceeds (fail-open only when the
+        // whole policy engine is absent). Open objects carry no prohibition.
+        if (class_exists(\AhgResearch\Services\OdrlService::class)
+            && ! app(\AhgResearch\Services\OdrlService::class)->isDigitalObjectPermitted((int) $do->id, 'use')) {
+            abort(403, 'Access denied by rights policy.');
         }
 
         // Try public storage first, then absolute path
@@ -821,7 +844,8 @@ class InformationObjectApiController extends Controller
         }
 
         $io = DB::table('information_object')->where('id', $objectId)->first();
-        if (! $io) {
+        // Published-only gate — never expose a draft/unpublished record's tree to anon.
+        if (! $io || ! $this->isPublished((int) $objectId)) {
             return response()->json(['error' => 'Not found.'], 404);
         }
 
@@ -832,7 +856,12 @@ class InformationObjectApiController extends Controller
             $ancestor = DB::table('information_object as io')
                 ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
                 ->join('slug', 'io.id', '=', 'slug.object_id')
+                ->leftJoin('status', function ($j) {
+                    $j->on('io.id', '=', 'status.object_id')
+                        ->where('status.type_id', '=', 158);
+                })
                 ->where('io.id', $currentId)
+                ->where('status.status_id', '=', 160) // Published ancestors only
                 ->where('ioi.culture', $this->culture)
                 ->select('io.id', 'io.parent_id', 'io.level_of_description_id', 'ioi.title', 'slug.slug')
                 ->first();
@@ -849,11 +878,16 @@ class InformationObjectApiController extends Controller
             $currentId = $ancestor->parent_id;
         }
 
-        // Get immediate children
+        // Get immediate children (published only — drafts are never exposed)
         $children = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
+            ->leftJoin('status', function ($j) {
+                $j->on('io.id', '=', 'status.object_id')
+                    ->where('status.type_id', '=', 158);
+            })
             ->where('io.parent_id', $objectId)
+            ->where('status.status_id', '=', 160)
             ->where('ioi.culture', $this->culture)
             ->select('io.id', 'io.level_of_description_id', 'io.lft', 'io.rgt', 'ioi.title', 'slug.slug')
             ->orderBy('io.lft')
@@ -908,14 +942,16 @@ class InformationObjectApiController extends Controller
         }
 
         $io = DB::table('information_object')->where('id', $objectId)->first();
-        if (! $io) {
+        // Published-only gate — a draft parent's child list is never exposed to anon.
+        if (! $io || ! $this->isPublished((int) $objectId)) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Record '{$slug}' not found.",
             ], 404);
         }
 
-        // Get immediate children
+        // Get immediate children (published only — never leak draft children or
+        // their publication_status_id to an anonymous caller).
         $children = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
@@ -924,6 +960,7 @@ class InformationObjectApiController extends Controller
                     ->where('status.type_id', '=', 158);
             })
             ->where('io.parent_id', $objectId)
+            ->where('status.status_id', '=', 160)
             ->where('ioi.culture', $this->culture)
             ->select('io.id', 'io.level_of_description_id', 'ioi.title', 'slug.slug', 'status.status_id')
             ->orderBy('io.lft')
@@ -946,6 +983,26 @@ class InformationObjectApiController extends Controller
                 'total' => $children->count(),
             ],
         ]);
+    }
+
+    /**
+     * Is the given information object Published?
+     *
+     * Mirrors the public-API publication gate used by index()/search() and the
+     * open-data controllers: status.type_id=158 (publication status),
+     * status_id=160 (Published). The synthetic root (id=1) is never "published".
+     */
+    protected function isPublished(int $objectId): bool
+    {
+        if ($objectId === 1) {
+            return false;
+        }
+
+        return DB::table('status')
+            ->where('object_id', $objectId)
+            ->where('type_id', 158)
+            ->where('status_id', 160)
+            ->exists();
     }
 
     /**

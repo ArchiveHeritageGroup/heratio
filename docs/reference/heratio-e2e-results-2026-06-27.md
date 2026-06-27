@@ -642,3 +642,13 @@ ResourceSync are the exemplars to copy.
   (was bare `web` — anon). Verified: anon `sharepoint/tenants`/`drives`/`rules`/`columns`
   → 302 (was 200 leaking Azure AD config + credential-backed Graph ops); the Graph webhook
   stays public (clientState-gated). Closes the sweep's most severe finding.
+
+## Fix applied (2026-06-27, #1377 api anon leaks)
+- **ahg-api** — matched the open-data layer's unconditional published gate (status 158/160,
+  root excluded) on the v1 catalogue reads: InformationObjectApiController show/tree/children
+  (+ helper isPublished); DigitalObjectApiController index/show (+ dropped do.path/checksum
+  from the public select). The `…/{slug}/digitalobject` master-binary endpoint now applies
+  BOTH publication + ODRL (`isDigitalObjectPermitted`, class_exists-guarded) — closes the 3rd
+  download bypass (#1347/#1362). Accessions + physicalobjects routes now `api.auth:read`.
+  ActorApiController::show strips contact PII + filters related_resources to published for anon.
+  Verified: anon draft 404, accessions/physobj 401, published record + index still 200.

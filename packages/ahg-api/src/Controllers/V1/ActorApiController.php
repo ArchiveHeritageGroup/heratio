@@ -192,6 +192,12 @@ class ActorApiController extends Controller
                 ];
             });
 
+        // An authenticated staff session may see contact PII + draft-linked
+        // resources; an anonymous caller may not. Actor authority data itself
+        // stays public (the issue keeps list/search/biography open), but the
+        // contact PII and any link to an unpublished record are gated.
+        $isStaff = auth()->check();
+
         // Contact information
         $contacts = DB::table('contact_information')
             ->leftJoin('contact_information_i18n', function ($j) {
@@ -214,8 +220,22 @@ class ActorApiController extends Controller
             ])
             ->get();
 
+        // Strip personal contact PII (email/telephone/fax/street_address) for
+        // anonymous callers. This is actor (person/family/corporate-body) PII —
+        // a public repository's contact details are handled elsewhere and stay.
+        if (! $isStaff) {
+            $contacts = $contacts->map(function ($c) {
+                $c->email = null;
+                $c->telephone = null;
+                $c->fax = null;
+                $c->street_address = null;
+
+                return $c;
+            });
+        }
+
         // Related resources (via events)
-        $relatedResources = DB::table('event')
+        $relatedResourcesQuery = DB::table('event')
             ->join('information_object', 'event.object_id', '=', 'information_object.id')
             ->leftJoin('information_object_i18n', function ($j) {
                 $j->on('information_object.id', '=', 'information_object_i18n.id')
@@ -223,7 +243,19 @@ class ActorApiController extends Controller
             })
             ->leftJoin('slug as io_slug', 'information_object.id', '=', 'io_slug.object_id')
             ->where('event.actor_id', $actor->id)
-            ->where('information_object.id', '!=', 1)
+            ->where('information_object.id', '!=', 1);
+
+        // Anonymous callers only see links to Published records (status.type_id=158,
+        // status_id=160) — never leak a draft record via an actor's relations.
+        if (! $isStaff) {
+            $relatedResourcesQuery->join('status', function ($j) {
+                $j->on('information_object.id', '=', 'status.object_id')
+                    ->where('status.type_id', '=', 158)
+                    ->where('status.status_id', '=', 160);
+            });
+        }
+
+        $relatedResources = $relatedResourcesQuery
             ->select(
                 'information_object.id',
                 'information_object_i18n.title',
