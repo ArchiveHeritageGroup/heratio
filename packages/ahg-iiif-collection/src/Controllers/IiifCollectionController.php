@@ -52,7 +52,8 @@ class IiifCollectionController extends Controller
     public function index(Request $request)
     {
         $parentId = $request->input('parent_id') ? (int) $request->input('parent_id') : null;
-        $collections = $this->service->getAllCollections($parentId);
+        // Anon sees public collections only; authenticated staff see all (#1363).
+        $collections = $this->service->getAllCollections($parentId, ! auth()->check());
 
         $parentCollection = null;
         if ($parentId) {
@@ -74,6 +75,12 @@ class IiifCollectionController extends Controller
         $collection = $this->service->getCollection($id);
 
         if (!$collection) {
+            abort(404);
+        }
+
+        // Non-public collections are visible to staff only — mirror the
+        // manifest.json gate so anon can't view a private collection's items (#1363).
+        if (! $collection->is_public && ! auth()->check()) {
             abort(404);
         }
 
@@ -321,6 +328,13 @@ class IiifCollectionController extends Controller
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
             ->where('information_object_i18n.culture', $culture)
+            // Guests get the viewer for published objects only (status 158/160) — an
+            // unpublished IO must not leak its title here for anon (#1363).
+            ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s2) {
+                $s2->select(DB::raw(1))->from('status as pub_st')
+                    ->whereColumn('pub_st.object_id', 'information_object.id')
+                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+            }))
             ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
             ->first();
         if (!$object) abort(404);

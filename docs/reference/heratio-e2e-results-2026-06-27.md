@@ -346,3 +346,13 @@ Functional GREEN. Three anon-exploitable FAILs — iiif draft-leak, **c2pa binar
 - **#1364 ahg-storage-manage** — `physicalobject/browse`+`{slug}`+`autocomplete` and
   `strongroom/browse`+`{slug}` gained `->middleware('auth')`. Verified anon: all → 302
   (was 200, leaking building/vault/security_level).
+
+## Fix applied (2026-06-27, #1363 iiif draft-leak)
+- **ahg-iiif-collection** — guest published-status gate (status 158/160 when
+  `!auth()->check()`) added to the three public read paths: object manifest
+  (`IiifCollectionService::loadObjectAndDigitalObjects`), content search
+  (`IiifContentSearchService::resolveObject`), viewer (`IiifCollectionController::viewer`).
+  Collection index now passes `publicOnly = !auth()` and `view()` 404s a non-public
+  collection for anon. addItems/removeItem routes gained `acl:update`.
+  Verified anon: published object manifest/viewer 200; DRAFT object manifest/viewer
+  404 (was leaking metadata + Cantaloupe image IDs); public collection index 200.
