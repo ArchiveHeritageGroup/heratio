@@ -13,7 +13,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/privacyAdmin', fn () => redirect('/admin/privacy/index'));
 Route::get('/privacyAdmin/{action}', fn (string $action) => redirect('/admin/privacy/'.\Illuminate\Support\Str::kebab($action)));
 
-Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(function () {
+// ====================================================================
+// DPO / ADMIN MANAGEMENT SURFACE (heratio#1369)
+// Gated to staff only via `admin` (RequireAdmin -> AclService::canAdmin,
+// ADMINISTRATOR/EDITOR). Previously this entire surface was gated only by
+// ['dp.enabled','auth'], letting ANY authenticated user read/edit/delete
+// every data subject's DSAR/breach/complaint/consent/ROPA/DPIA/Article-30/
+// PII records (broad IDOR). `dp.enabled` feature flag is retained.
+// ====================================================================
+Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth', 'admin'])->group(function () {
     // ------------------------------------------------------------------
     // Compliance Control Catalog - regime -> obligation -> control mapping
     // (vendor- and jurisdiction-agnostic). Admin index + queryable JSON artefact.
@@ -71,13 +79,7 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(functi
     Route::post('/dsar/{id}/scope',             [PrivacyController::class, 'dsarScopeAdd'])->name('ahgprivacy.dsar-scope-add')->whereNumber('id');
     Route::post('/dsar/{id}/scope/{ioId}/remove', [PrivacyController::class, 'dsarScopeRemove'])->name('ahgprivacy.dsar-scope-remove')->whereNumber('id')->whereNumber('ioId');
 
-    Route::get('/complaint-confirmation', [PrivacyController::class, 'complaintConfirmation'])->name('ahgprivacy.complaint-confirmation');
-    Route::get('/complaint', [PrivacyController::class, 'complaint'])->name('ahgprivacy.complaint');
     Route::get('/dashboard', [PrivacyController::class, 'dashboard'])->name('ahgprivacy.dashboard');
-    Route::get('/dsar-confirmation', [PrivacyController::class, 'dsarConfirmation'])->name('ahgprivacy.dsar-confirmation');
-    Route::get('/dsar-request', [PrivacyController::class, 'dsarRequest'])->name('ahgprivacy.dsar-request');
-    Route::post('/dsar-request', [PrivacyController::class, 'dsarRequestStore'])->name('ahgprivacy.dsar-request.store');
-    Route::get('/dsar-status', [PrivacyController::class, 'dsarStatus'])->name('ahgprivacy.dsar-status');
     Route::get('/index', [PrivacyController::class, 'index'])->name('ahgprivacy.index');
     Route::get('/breach-add', [PrivacyController::class, 'breachAdd'])->name('ahgprivacy.breach-add');
     Route::get('/breach-edit', [PrivacyController::class, 'breachEdit'])->name('ahgprivacy.breach-edit');
@@ -126,4 +128,20 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(functi
     Route::post('/ropa-submit', [PrivacyController::class, 'ropaSubmit'])->name('ahgprivacy.ropa-submit');
     Route::post('/ropa-approve', [PrivacyController::class, 'ropaApprove'])->name('ahgprivacy.ropa-approve');
     Route::post('/ropa-reject', [PrivacyController::class, 'ropaReject'])->name('ahgprivacy.ropa-reject');
+});
+
+// ====================================================================
+// DATA-SUBJECT SELF-SERVICE SURFACE (heratio#1369)
+// Stays on ['dp.enabled','auth'] (any logged-in user). Lets a data subject
+// submit and check their OWN request. Ownership is enforced in-controller:
+// dsarStatus scopes by created_by / requestor_email (see PrivacyController).
+// These MUST NOT be admin-gated or self-service breaks.
+// ====================================================================
+Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(function () {
+    Route::get('/dsar-request', [PrivacyController::class, 'dsarRequest'])->name('ahgprivacy.dsar-request');
+    Route::post('/dsar-request', [PrivacyController::class, 'dsarRequestStore'])->name('ahgprivacy.dsar-request.store');
+    Route::get('/dsar-status', [PrivacyController::class, 'dsarStatus'])->name('ahgprivacy.dsar-status');
+    Route::get('/dsar-confirmation', [PrivacyController::class, 'dsarConfirmation'])->name('ahgprivacy.dsar-confirmation');
+    Route::get('/complaint', [PrivacyController::class, 'complaint'])->name('ahgprivacy.complaint');
+    Route::get('/complaint-confirmation', [PrivacyController::class, 'complaintConfirmation'])->name('ahgprivacy.complaint-confirmation');
 });

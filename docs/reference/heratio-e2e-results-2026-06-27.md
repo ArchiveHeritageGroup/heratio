@@ -722,3 +722,12 @@ the exemplars.
   Verified: anon `accession/{slug}` + donor typeahead → 302 (was 200 leaking donor email/PII).
   The third + final donor-PII surface closed (after #1370 donor-manage, #1377 api). (The authed
   `accession/{slug}/edit` GET read-IDOR remains — part of the #1354 missing-acl family.)
+
+## Fix applied (2026-06-27, #1369 privacy zero-acl)
+- **ahg-privacy** — split the single `['dp.enabled','auth']` group: the DPO/admin management
+  surface (DSAR admin/scope, breach, complaint admin, consent, ROPA, DPIA, Article-30,
+  autopilot, embedded-findings, PII review, dashboard, …) now carries `admin` (RequireAdmin)
+  → any-authed-user IDOR closed; the 6 data-subject self-service routes (dsar-request/status/
+  confirmation, complaint) stay `auth`-only with the existing in-controller ownership
+  (`dsarStatus` scopes by created_by/requestor_email; dsarRequestStore binds created_by).
+  Verified: management routes carry RequireAdmin, self-service routes don't; anon still 302.
