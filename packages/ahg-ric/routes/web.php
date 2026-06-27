@@ -23,19 +23,15 @@ Route::prefix('ric-api')->middleware('web')->group(function () {
     Route::get('/connections/{id}', [RicController::class, 'connectionsData'])->where('id', '[0-9]+')->name('ric.public-connections');
 });
 
+// Public RiC viewer + read-only linked-data features. Reachable from the public
+// record show page ("View in RiC Explorer" links ric.explorer, whose JS fetches
+// ric.data + ric.autocomplete), so these MUST stay public — gating them would
+// break the public graph viewer. Read-only; no operator/mutation surface here.
 Route::middleware('web')->group(function () {
-    Route::get('/admin/ric', [RicController::class, 'index'])->name('ric.index');
-    Route::get('/admin/ric/sync-status', [RicController::class, 'syncStatus'])->name('ric.sync-status');
-    Route::get('/admin/ric/orphans', [RicController::class, 'orphans'])->name('ric.orphans');
-    Route::get('/admin/ric/queue', [RicController::class, 'queue'])->name('ric.queue');
-    Route::get('/admin/ric/logs', [RicController::class, 'logs'])->name('ric.logs');
-    Route::match(['get', 'post'], '/admin/ric/config', [RicController::class, 'config'])->name('ric.config');
-
     // RIC Explorer
     Route::get('/admin/ric/explorer', [RicController::class, 'explorer'])->name('ric.explorer');
     // heratio#1197 - cross-collection connections page
     Route::get('/admin/ric/connections', [RicController::class, 'connections'])->name('ric.connections');
-    Route::post('/admin/ric/create-entity', [RicController::class, 'createEntity'])->name('ric.create-entity');
     Route::get('/admin/ric/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete');
     Route::get('/admin/ric/data', [RicController::class, 'getData'])->name('ric.data');
     Route::get('/admin/ric/timeline-data', [RicController::class, 'getTimelineData'])->name('ric.timeline-data');
@@ -43,13 +39,27 @@ Route::middleware('web')->group(function () {
     // RIC Semantic Search
     Route::get('/admin/ric/semantic-search', [RicController::class, 'semanticSearch'])->name('ric.semantic-search');
 
-    // RiC-O Community Features: SHACL validation, JSON-LD export, external authority linking
+    // RiC-O Community Features: SHACL validation, JSON-LD export, external authority linking (read-only)
     Route::get('/admin/ric/shacl-validate', [RicController::class, 'shaclValidate'])->name('ric.shacl-validate');
     Route::get('/admin/ric/validate/{type}/{id}', [RicController::class, 'validateEntity'])
         ->where(['type' => '[a-zA-Z]+', 'id' => '[0-9]+'])
         ->name('ric.validate-entity');
     Route::get('/admin/ric/export/jsonld', [RicController::class, 'exportJsonLd'])->name('ric.export-jsonld');
     Route::get('/admin/ric/lookup-external', [RicController::class, 'lookupExternal'])->name('ric.lookup-external');
+});
+
+// Operator/admin surface — dashboard, sync/queue/orphan status, config, RDF
+// import, and ALL state-changing endpoints. Admin-only (RequireAdmin) closes the
+// prior anonymous exposure where these sat on bare 'web' (#1352): anon could read
+// the operator dashboards AND fire config/sync/cleanup/resync/delete mutations.
+Route::middleware(['web', 'admin'])->group(function () {
+    Route::get('/admin/ric', [RicController::class, 'index'])->name('ric.index');
+    Route::get('/admin/ric/sync-status', [RicController::class, 'syncStatus'])->name('ric.sync-status');
+    Route::get('/admin/ric/orphans', [RicController::class, 'orphans'])->name('ric.orphans');
+    Route::get('/admin/ric/queue', [RicController::class, 'queue'])->name('ric.queue');
+    Route::get('/admin/ric/logs', [RicController::class, 'logs'])->name('ric.logs');
+    Route::match(['get', 'post'], '/admin/ric/config', [RicController::class, 'config'])->name('ric.config');
+    Route::post('/admin/ric/create-entity', [RicController::class, 'createEntity'])->middleware('acl:create')->name('ric.create-entity');
 
     // RDF inbound — TTL / JSON-LD / RDF-XML import (dry-run + commit)
     Route::get('/admin/ric/import',  [RdfImportController::class, 'form'])->name('ric.import');

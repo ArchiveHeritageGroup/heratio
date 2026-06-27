@@ -703,6 +703,18 @@ class DisplayController extends Controller
                 'doc.object_type', 'slug.slug'
             );
 
+        // Guests see only published records (status_id 160) — same gate as
+        // browse()/applyFilters() so this public print view can't leak drafts (#1353).
+        if (! auth()->check()) {
+            $query->whereExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('status as pub_st')
+                    ->whereRaw('pub_st.object_id = io.id')
+                    ->where('pub_st.type_id', '=', 158)
+                    ->where('pub_st.status_id', '=', 160);
+            });
+        }
+
         if ($parentId) {
             $query->where('io.parent_id', $parentId);
             $parent = DB::table('information_object as io')
@@ -807,6 +819,18 @@ class DisplayController extends Controller
                 'doc.object_type',
                 'repo_name.authorized_form_of_name as repository'
             );
+
+        // Guests see only published records (status_id 160) — same gate as
+        // browse()/applyFilters() so this public export can't leak drafts (#1353).
+        if (! auth()->check()) {
+            $query->whereExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('status as pub_st')
+                    ->whereRaw('pub_st.object_id = io.id')
+                    ->where('pub_st.type_id', '=', 158)
+                    ->where('pub_st.status_id', '=', 160);
+            });
+        }
 
         if ($parentId) {
             $query->where('io.parent_id', $parentId);
