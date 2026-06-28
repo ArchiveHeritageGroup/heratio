@@ -4,7 +4,7 @@
 
 ## Edit Archival Descriptions Using Simple Dublin Core
 
-The Dublin Core Manage module gives administrators a focused form for editing an
+The Dublin Core Manage module gives editors a focused form for editing an
 archival description with the Dublin Core Simple version 1.1 element set. It is
 an alternative editing view for institutions that catalogue, or cross-walk, to
 Dublin Core rather than the full ISAD(G) template.
@@ -48,7 +48,7 @@ publication status are updated together.
 
 ## How to use
 
-1. Log in as an administrator.
+1. Log in with an account that has edit rights (the route requires `auth` plus the `acl:update` permission — it is not restricted to administrators).
 2. Open the Dublin Core editor for a record at
    **`/admin/dc-manage/edit/{slug}`**, where `{slug}` is the record's slug.
 3. Work through the sections:

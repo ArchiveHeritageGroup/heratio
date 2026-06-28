@@ -28,7 +28,7 @@ Every information_object can be tagged with a `repository_id` indicating which i
 | Add | `/repository/add` |
 | Edit | `/repository/<slug>/edit` |
 | Delete | `/repository/<slug>/delete` |
-| Holdings (records owned by this repo) | `/repository/<slug>/holdings` |
+| Holdings (records owned by this repo) | shown in a paginated sidebar on the show page, `/repository/<slug>?holdings_page=<n>` |
 
 ---
 
@@ -62,23 +62,23 @@ Three ways:
 
 **a. At ingest:** include a `repository` column in your CSV; the wizard resolves it by slug or by ISDIAH identifier.
 **b. Per-record edit:** open the IO edit page, set the **Archival institution** dropdown, save. Setting at the fonds level cascades to descendants (when "inherit to children" is enabled in repository settings).
-**c. Bulk reassign:** `/admin/repository/bulk-reassign` lets an admin move all of repository A's holdings to repository B in one operation (e.g. when two institutions merge).
+**c. Bulk move at ingest:** include the target `repository` column when re-importing a CSV of the affected records; the wizard resolves and reattributes them in one pass (e.g. when two institutions merge). There is no dedicated one-click bulk-reassign screen.
 
-### Holdings page
+### Holdings list
 
-`/repository/<slug>/holdings` shows every IO whose `repository_id` matches the current institution. It's the public browse surface scoped to that institution. Useful link from the institution's public website.
+The repository show page (`/repository/<slug>`) renders a paginated holdings sidebar — every IO whose `repository_id` matches the current institution — navigable via `?holdings_page=<n>`. It's the public surface scoped to that institution.
 
 ### Per-institution branding
 
-When `ahgMultiTenantPlugin` is enabled, a repository can carry its own theme/logo/footer. Configured at `/admin/tenants` (admin-only). Visiting `/repository/<slug>` then uses the institution's palette and logo, even if the rest of the site uses the platform-wide one.
+When `ahgMultiTenantPlugin` is enabled, a repository can carry its own theme/logo/footer. Configured at `/tenant/<id>/branding` (admin-only). Visiting `/repository/<slug>` then uses the institution's palette and logo, even if the rest of the site uses the platform-wide one.
 
 ---
 
 ## Settings
 
-The plugin has no top-level settings page of its own - it inherits from `ahgActorManagePlugin` (because repository extends actor). Authority-record settings (completeness, NER, merge thresholds) at `/admin/settings/ahg/authority` apply to repositories as well.
+The plugin has no top-level settings page of its own - it inherits from `ahgActorManagePlugin` (because repository extends actor). Authority-record settings (completeness, NER, merge thresholds) at `/admin/settings/authority` apply to repositories as well.
 
-For the optional per-tenant branding, settings are at `/admin/tenants/<id>/branding`.
+For the optional per-tenant branding, settings are at `/tenant/<id>/branding`.
 
 ---
 
@@ -89,7 +89,6 @@ For the optional per-tenant branding, settings are at `/admin/tenants/<id>/brand
 | Browse, view | Anonymous |
 | Add, edit | Admin (`acl:create`, `acl:update`) |
 | Delete | Admin |
-| Bulk reassign holdings | Admin |
 | Edit per-tenant branding | Admin |
 
 By design, repositories are admin-managed - they're foundational records, and accidental edits cascade to thousands of descendants.
@@ -98,7 +97,7 @@ By design, repositories are admin-managed - they're foundational records, and ac
 
 ## Common gotchas
 
-- **Don't delete a repository that has holdings.** The delete flow refuses if any IO has `repository_id = <this>`. Reassign first via `/admin/repository/bulk-reassign`.
+- **Don't delete a repository that has holdings.** The delete flow refuses if any IO has `repository_id = <this>`. Reassign those records first (per-record edit, or a re-import that sets a new `repository`).
 - **Orphan holdings** can happen if you `mysql DELETE`-d a repository directly. The faceted browse will show "Unknown repository" rows. Run `php artisan ahg:fix-orphan-repository` to surface them and assign to a placeholder institution.
 - **Class-table inheritance:** an actor row exists for every repository (same `id`). Don't try to insert a repository row without first creating its parent actor row - the FK will reject.
 - **Authority-record archival institution identifier** (ISDIAH 5.6.1) is **not the same** as `actor.identifier`. ISDIAH expects an ISAAR-style code like `ZA-AHG-001`; populate it on the **edit form** under "Description identifier" (it's stored separately from the ISAAR equivalent).

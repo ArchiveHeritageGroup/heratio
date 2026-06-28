@@ -21,10 +21,9 @@ Documenting functions matters because the same body restructures over time, the 
 | Browse | `/function/browse` — paged, faceted by classification (function / activity / process / transaction) |
 | Show | `/function/<slug>` — full ISDF detail with related actors and records |
 | Add | `/function/add` — create a new function record (Editor) |
-| Edit | `/function/<slug>/edit` — update fields per ISDF |
-| Move (reparent) | `/function/<slug>/move` — change parent in the function hierarchy |
-| Merge | `/admin/function/merge` — collapse duplicates |
-| Autocomplete | `/function/autocomplete` — JSON used by IO edit and actor edit pages |
+| Edit (incl. reparent) | `/function/<slug>/edit` — update fields per ISDF; change the parent here to move the record in the hierarchy |
+| Delete | `/function/<slug>/delete` — admin only |
+| Autocomplete | `/autocomplete` (route `function.autocomplete`) — JSON used by IO edit and actor edit pages |
 
 ---
 
@@ -79,15 +78,15 @@ Functions form a tree: a Function contains Activities; an Activity contains Proc
 2. **Context** area → **Function** field → autocomplete to the function record.
 3. Save. The IO's metadata now carries `creating_function_id`. The function's show page lists the record under "Records produced".
 
-### Merge duplicates
+### De-duplicate functions
 
-Same as actors and terms — `/admin/function/merge`, pick survivor + doomed, review every link, confirm.
+There is no one-click function merge route. Reconcile by hand: re-point any actor/record links from the duplicate to the survivor, then delete the now-unused function (`/function/<slug>/delete`, admin only — refused while anything still references it).
 
 ---
 
 ## Settings
 
-The plugin shares the authority-record settings page (`/admin/settings/ahg/authority`) — completeness scoring, NER pipeline, merge auto-pre-select threshold all apply to functions too.
+The plugin shares the authority-record settings page (`/admin/settings/authority`) — completeness scoring and the NER pipeline apply to functions too.
 
 Function-specific:
 
@@ -102,8 +101,7 @@ Function-specific:
 | --- | --- |
 | Browse, view (published) | Anonymous |
 | Browse, view (drafts) | Editor / Admin |
-| Add, edit, move | Editor (`acl:create`, `acl:update`) |
-| Merge | Admin |
+| Add, edit, reparent | Editor (`acl:create`, `acl:update`) |
 | Delete | Admin (refused if any IO references the function) |
 
 ---
@@ -127,7 +125,7 @@ Without function records, the only way to express "this is about education" is t
 - **Functions vs subjects.** A subject term ("Education") is what the record is *about*. A function ("Provision of basic education") is what produced the record. Same word, different model. Don't tag both unless you mean both.
 - **MPTT integrity** — like terms and information objects, function tree uses `lft`/`rgt`. Don't `DELETE` directly; use the controller or `php artisan ahg:nested-set-rebuild --table=function`.
 - **Dates of existence** — these are the dates the *function* existed, not the records. A 1990-1994 programme can have records dated 1995 (a final report) and that's fine.
-- **Slug stability** — renaming the authorized form of name does not rename the URL slug. Use `/function/<slug>/rename` (admin only) explicitly.
+- **Slug stability** — renaming the authorized form of name does not rename the URL slug; the slug is fixed once the record is created (there is no rename route).
 - **Deleting a function with records attached** is refused at the controller. Reassign or merge first.
 
 ---

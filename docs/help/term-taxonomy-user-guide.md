@@ -29,11 +29,10 @@ Controlled vocabularies make the catalogue searchable, faceted, and machine-read
 | Term browse | `/term/browse?taxonomy=<id>` |
 | Term show | `/term/<slug>` |
 | Add term | `/term/add?taxonomy=<id>` |
-| Edit term | `/term/<slug>/edit` |
-| Move term | `/term/<slug>/move` |
-| Merge two terms | `/admin/term/merge` |
+| Edit term (incl. re-parent / move) | `/term/<slug>/edit` |
 | Autocomplete | `/term/autocomplete?taxonomy=<id>` |
-| SKOS export | `/taxonomy/<slug>.rdf` (`Accept: application/rdf+xml`) |
+| SKOS export | `/term/export/skos/rdf-xml` (also `/turtle`, `/ntriples`, `/jsonld`) |
+| SKOS import | `/term/import/skos` (admin only) |
 | Dropdown manager (enumerated values) | `/admin/dropdowns` |
 
 ---
@@ -69,26 +68,25 @@ The plugin's own seed file (`packages/ahg-term-taxonomy/database/install.sql`) c
 
 ### Bulk import a taxonomy from SKOS
 
-1. `/taxonomy/import-skos` (admin only).
+1. `/term/import/skos` (admin only).
 2. Upload `.rdf` / `.ttl` file. The plugin parses `skos:Concept` nodes, maps `skos:prefLabel` → preferred label, `skos:altLabel` → use-for, `skos:broader` → parent.
 3. Preview first 50 mappings; commit. Background job runs the load.
 
-### Merge duplicates
+### De-duplicate terms
 
-Two terms drift in (e.g. "World War II" and "Second World War"):
+Two terms drift in (e.g. "World War II" and "Second World War"). Term-taxonomy has no one-click merge route; reconcile manually:
 
-1. `/admin/term/merge`.
-2. Pick **survivor** + **doomed** terms.
-3. Review every IO link, every relation, every i18n row.
-4. Confirm — doomed term references are repointed to the survivor; doomed term row is deleted.
+1. Decide which term survives.
+2. Re-tag any records still pointing at the doomed term to the survivor.
+3. Delete the now-unused term (`/term/<slug>/delete`). The delete refuses while any object link or relation still references it — see *Common gotchas*.
 
-> Audit-logged when `ahgAuditTrailPlugin` is enabled.
+> Authority-record (actor) de-duplication **does** have a dedicated merge tool (`/admin/dedupe/merge/<id>`); that is a separate surface from taxonomy terms.
 
 ### Move a term to a new parent
 
-1. Open the term show page.
-2. **Move** action (top-right).
-3. Choose new parent. The MPTT range of the term and all descendants is recalculated.
+1. Open the term edit form (`/term/<slug>/edit`).
+2. Change the **parent term** field.
+3. Save. The MPTT range of the term and all descendants is recalculated.
 
 ---
 
@@ -117,7 +115,7 @@ The plugin has no top-level settings page; behaviour is configured per taxonomy:
   - **Use as facet on browse** — adds the taxonomy to the GLAM browse facet sidebar.
   - **Allow multiple values per record** — single vs many on the IO edit form.
   - **Source authority** — VIAF / Getty TGN / Library of Congress — drives external lookup buttons on term add.
-- **Site-wide settings:** none — but `/admin/settings/ahg/authority` controls the merge auto-pre-select threshold (string similarity) used by the term merge tool too.
+- **Site-wide settings:** none.
 
 ---
 
@@ -128,8 +126,7 @@ The plugin has no top-level settings page; behaviour is configured per taxonomy:
 | Browse, view | Anonymous |
 | Add term | Editor (`acl:create`) |
 | Edit term | Editor (`acl:update`) |
-| Move term | Editor |
-| Merge terms | Admin |
+| Move term (re-parent via edit) | Editor (`acl:update`) |
 | Delete term | Admin (and refused if the term is in use) |
 | Import SKOS | Admin |
 | Edit a built-in taxonomy's name/id | Admin (and discouraged — code references the id) |
@@ -141,8 +138,10 @@ The plugin has no top-level settings page; behaviour is configured per taxonomy:
 Each taxonomy can be retrieved as RDF/XML or Turtle:
 
 ```
-GET /taxonomy/places.rdf
-GET /taxonomy/places.ttl    Accept: text/turtle
+GET /term/export/skos/rdf-xml
+GET /term/export/skos/turtle
+GET /term/export/skos/ntriples
+GET /term/export/skos/jsonld
 ```
 
 The export emits `skos:ConceptScheme` for the taxonomy, `skos:Concept` per term, `skos:prefLabel` per culture, `skos:broader`/`skos:narrower` per hierarchy edge.

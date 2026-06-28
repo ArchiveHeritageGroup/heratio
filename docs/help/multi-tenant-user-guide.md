@@ -99,9 +99,10 @@ Tenants can be in one of three states:
 | **Trial** | Blue | Time-limited access (default 14 days) |
 | **Suspended** | Red | No access - users cannot log in |
 
+> **Note:** *Trial* is a display/filter state, not a status you pick when creating a tenant. The **Create Tenant** form's *Initial Status* only offers **Active** or **Suspended** (the underlying `is_active` flag). A tenant shows the **Trial** badge when its `status`/`trial_ends_at` data marks it as on trial; administrators manage that afterwards via the trial actions below.
+
 ### Trial Period
 
-- New tenants start with a configurable trial period
 - Trial end date is shown in the admin dashboard
 - Administrators can extend trials or activate tenants
 - Expired trials show an "Expired" badge but remain accessible until suspended
@@ -243,8 +244,7 @@ The admin dashboard shows:
 |  Subdomain:   [myorg                     ]    |  (optional)
 |                                               |
 |  Link to Repository: [Select...         v]   |
-|  Initial Status:     [Trial             v]   |
-|  Trial Period:       [14] days                |
+|  Initial Status:     [Active            v]   |  (Active or Suspended only)
 |                                               |
 |  Contact Name:  [John Smith              ]    |
 |  Contact Email: [john@example.com        ]    |

@@ -939,3 +939,19 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
   now share ONE published-gated source. VERIFIED: gate excludes 16/19 non-published; title
   search returns only published rows; no phantom-connection error. Earlier parts (index
   auth-gate, target-CRUD admin, SRU 158/160 gate) already shipped. #1379 fully resolved.
+
+## Fixes applied (2026-06-28, #1361 Part 1 + #1375 de-stale)
+- **#1361 part 1 (AR gateway bypass):** gateway gained a /ai/v1/ar/* passthrough
+  (.78:5052, AR_TIMEOUT=900); AnimationService repointed to the gateway base
+  (raw-node ar_server_url ignored via looksLikeNode) with the gateway Bearer key on
+  generate()/health() cURL. VERIFIED e2e: health()→gateway→live AR node (svd, RTX3070).
+  #1361 STAYS OPEN for part 2 — the MP4 publication gate: /uploads/ is a STATIC nginx
+  alias, so AR MP4s under /uploads/ar/ are served directly by nginx; a Laravel route
+  alone can't gate them. Needs an nginx `internal`+X-Accel rule on /uploads/ar/ OR
+  relocating AR output out of the aliased tree (infra decision pending).
+- **#1375 de-stale pass:** fixed 6 verified factual errors across 8 docs/help guides
+  (term-taxonomy bogus routes→real SKOS export; authority-resolution Tailwind→Bootstrap-5;
+  multi-tenant Trial-status removed; ai-act admin-gated→auth-only; dc-manage admins→editors;
+  repository/function bogus routes). Triage of 68 legacy ahg*plugin.md docs →
+  docs/reference/heratio-legacy-docs-triage-2026-06-28.md (67 DELETE-redundant, 1 REWRITE).
+  #1375 stays open (umbrella: execute deletes + author the two manuals).

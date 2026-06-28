@@ -2,7 +2,7 @@
 
 The **AI System Inventory** is the system-level register the EU AI Act is framed around. Where the model registry, risk register, oversight policies, and attestations are per-model or per-service, the inventory records the AI **systems** your organisation provides or deploys, each with its regulatory role, risk classification, lifecycle status, human-oversight measures, accountable owner, and review schedule.
 
-It lives under **Admin → AI Compliance → System Inventory** (`/admin/ai-compliance/systems`) and is admin-gated.
+It lives under **Admin → AI Compliance → System Inventory** (`/admin/ai-compliance/systems`). The route group is gated by `auth` only — any authenticated user can open and view the inventory; the create / edit / delete actions additionally require the matching ACL permission (`acl:create`, `acl:update`, `acl:delete`). Despite the `admin/` URL prefix, it is not restricted to administrators.
 
 ## Why it matters
 

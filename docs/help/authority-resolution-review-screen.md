@@ -42,7 +42,7 @@ When the same surface form occurs more than once in the source information objec
 
 ## Middle region: ranked candidates
 
-One Tailwind card per candidate, sorted by `composite_score` descending. Sort ties are broken by name similarity, then alphabetical display name.
+One Bootstrap 5 card per candidate, sorted by `composite_score` descending. Sort ties are broken by name similarity, then alphabetical display name.
 
 ### Per-card elements
 
@@ -79,7 +79,7 @@ A sticky sidebar with the five buttons. The button order is fixed.
 
 ### Modal dialogs
 
-Three buttons open Tailwind modals instead of submitting immediately:
+Three buttons open Bootstrap 5 modals instead of submitting immediately:
 
 - **Link to different** - opens a typeahead lookup so you can search for any authority that is not on the candidate list. The typeahead hits `/admin/authority-resolution/lookup?q={query}&type={entity_type}`.
 - **Park for later** - opens a textarea for the park reason. Reason is required.
@@ -132,7 +132,7 @@ This is intentional. The audit answers "who did what, when, on what evidence" - 
 
 ## CSP and external assets
 
-The screen loads Leaflet from `unpkg.com` (allow-listed in the existing Heratio CSP). All other CSS and JS is bundled. The page extends `theme::layouts.1col` but the in-page content uses only Tailwind utility classes.
+The screen loads Leaflet from `unpkg.com` (allow-listed in the existing Heratio CSP). All other CSS and JS is bundled. The page extends `theme::layouts.1col` and the in-page content uses Bootstrap 5 classes (cards, `col-lg-*` grid, `alert`, `badge`, Bootstrap Icons).
 
 ## Known caveats
 

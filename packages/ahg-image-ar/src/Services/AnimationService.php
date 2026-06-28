@@ -59,11 +59,18 @@ class AnimationService
 
         @mkdir(dirname($destMp4), 0775, true);
 
+        // #1361 — gateway Bearer auth when routed through ai.theahg.co.za.
+        $reqHeaders = [];
+        if (! empty($opts['api_key'])) {
+            $reqHeaders[] = 'Authorization: Bearer '.$opts['api_key'];
+        }
+
         $headersOut = [];
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $fields,
+            CURLOPT_HTTPHEADER => $reqHeaders,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => $timeout,
             CURLOPT_CONNECTTIMEOUT => 10,
@@ -118,8 +125,17 @@ class AnimationService
             // table may not exist yet
         }
 
+        // #1361 — route through the AHG AI gateway (/ai/v1/ar), never a direct
+        // node. A raw-node ar_server_url override is ignored so a stale setting
+        // can't bypass the gateway (metering/quota/failover).
+        $override = (string) ($rows['ar_server_url'] ?? '');
+        $serverUrl = ($override !== '' && ! $this->looksLikeNode($override))
+            ? rtrim($override, '/')
+            : 'https://ai.theahg.co.za/ai/v1/ar';
+
         return [
-            'server_url' => (string) ($rows['ar_server_url'] ?? 'http://192.168.0.78:5052'),
+            'server_url' => $serverUrl,
+            'api_key' => $this->resolveGatewayKey(),
             'model' => (string) ($rows['ar_model'] ?? 'svd'),
             'num_frames' => (int) ($rows['ar_num_frames'] ?? 14),
             'fps' => (int) ($rows['ar_fps'] ?? 7),
@@ -144,14 +160,53 @@ class AnimationService
             && ((string) ($rows['ar_user_button'] ?? '1')) === '1';
     }
 
+    /** True when a URL points at a raw GPU node rather than the gateway (#1361). */
+    private function looksLikeNode(string $url): bool
+    {
+        return (bool) preg_match('~:11434|://(?:127\.0\.0\.1|localhost|192\.168\.|10\.|172\.(?:1[6-9]|2\d|3[01])\.)~i', $url);
+    }
+
+    /**
+     * Resolve the gateway Bearer key, same order NER/HTR/Donut use (#1361):
+     * ahg_ner_settings.api_key, then ahg_ai_settings feature='general' api_key.
+     */
+    private function resolveGatewayKey(): string
+    {
+        try {
+            $key = (string) (DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value') ?? '');
+            if ($key !== '') {
+                return $key;
+            }
+            $key = (string) (DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value') ?? '');
+            if ($key !== '') {
+                return $key;
+            }
+        } catch (\Throwable) {
+            // settings tables absent — no key.
+        }
+
+        return '';
+    }
+
     /**
      * GET /health on the AI server. Returns null if unreachable.
      */
     public function health(): ?array
     {
-        $url = rtrim($this->defaults()['server_url'], '/').'/health';
+        $defaults = $this->defaults();
+        $url = rtrim($defaults['server_url'], '/').'/health';
+        $reqHeaders = [];
+        if (! empty($defaults['api_key'])) {
+            $reqHeaders[] = 'Authorization: Bearer '.$defaults['api_key'];
+        }
         $ch = curl_init($url);
         curl_setopt_array($ch, [
+            CURLOPT_HTTPHEADER => $reqHeaders,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 5,
             CURLOPT_CONNECTTIMEOUT => 3,

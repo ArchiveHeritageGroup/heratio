@@ -344,9 +344,9 @@ Cross-source:
 - `lookup.precedence` (JSON array, default `["viaf","wikidata","geonames","tgn","gnd","isni","sagnc"]`)
 - `lookup.http_timeout` (int seconds, default 8)
 
-## Tailwind 4 (not Bootstrap)
+## Bootstrap 5 (theme `ahg-theme-b5`)
 
-The `ahg-theme-b5` package name is a historical misnomer; the Laravel Heratio CSS framework is Tailwind 4 (verified in `package.json`). All blade files in this package use Tailwind utilities only (`bg-emerald-600`, `grid grid-cols-12`, `rounded-lg`, etc.). The master layout still ships some Bootstrap-named class wrappers (`container-xxl`, `breadcrumb`) inherited from early scaffolding, but page-level content is Tailwind end to end. Modals are Tailwind-only; open / close runs through tiny inline scripts that toggle `hidden` / `flex`.
+The blade files in this package use **Bootstrap 5** — the `b5` in `ahg-theme-b5` is literal. Page-level content is built from Bootstrap structural classes (`container-fluid`, `row g-3`, `col-lg-4`, `card` / `card-header` / `card-body`, `alert`, `badge bg-*`, `breadcrumb`) plus Bootstrap Icons (`bi bi-*`) and Bootstrap spacing utilities (`me-2`, `ms-1`, `py-4`). Modals are Bootstrap modals. (The wider Heratio build also pulls in Tailwind 4 via the root `package.json`, but the authority-resolution screens themselves are Bootstrap end to end — verified across every blade in `packages/ahg-authority-resolution/resources/views/`.)
 
 ## CSP
 
@@ -375,7 +375,7 @@ The same engine ships in two places:
 - **Heratio (Laravel 12)** - this package.
 - **AtoM Heratio (Symfony 1.4)** - `/usr/share/nginx/archive/atom-ahg-plugins/ahgAuthorityResolutionPlugin/`.
 
-Both share the same six tables (plus `ahg_ner_feedback`), the same five decision outcomes, the same ten evaluators, the same RDF-Star provenance shape, and the same seven external adapters. The UI layer differs (Tailwind 4 here, Bootstrap 5 there) but the data layer and the service contracts converge.
+Both share the same six tables (plus `ahg_ner_feedback`), the same five decision outcomes, the same ten evaluators, the same RDF-Star provenance shape, and the same seven external adapters. Both UI layers are Bootstrap 5; the data layer and the service contracts converge.
 
 ## Related
 
