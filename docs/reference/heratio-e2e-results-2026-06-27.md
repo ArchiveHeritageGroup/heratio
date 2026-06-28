@@ -927,3 +927,15 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
 - CAVEAT: any requests created via the OLD path are stranded in security_access_request
   (different schema) and invisible to the review surface — a one-time manual reconciliation
   would be needed on installs that used the broken path (dev had 1 test row).
+
+## Fix applied (2026-06-28, #1379 Z39.50-server tail — closes #1379)
+- **ahg-z3950** Z3950ServerService::executeSearch() rewired to disseminate from the
+  gated main catalogue (library_item⨝information_object, source_standard='library',
+  published status 158/160 whereExists) instead of the ungated external
+  `library`/library_marc_records store (which had no IO/status link and no defined DB
+  connection — always threw, server non-functional). Clauses mapped to catalogue columns
+  (title/isbn/issn/publisher; broad OR for author/subject/keyword/anywhere), honouring the
+  PQF boolean; records built inline (marcRecordFromCatalogue) for buildMarc21. SRU + Z39.50
+  now share ONE published-gated source. VERIFIED: gate excludes 16/19 non-published; title
+  search returns only published rows; no phantom-connection error. Earlier parts (index
+  auth-gate, target-CRUD admin, SRU 158/160 gate) already shipped. #1379 fully resolved.

@@ -578,52 +578,131 @@ class Z3950ServerService
         $boolean = ($query['boolean'] ?? 'AND') === 'OR' ? 'OR' : 'AND';
         $limit   = max(1, (int) ($query['maxRecords'] ?? 10));
 
-        // Map each clause's logical index to a MARC store column.
+        // #1379 — disseminate from the gated main catalogue (published-only),
+        // NOT an ungated external `library`/library_marc_records store (which has
+        // no information_object/status linkage and no defined DB connection — it
+        // always threw and returned empty, leaving the server non-functional). We
+        // now share SruService's published gate so SRU and Z39.50 have one source
+        // of truth and neither can disseminate draft/unpublished records.
+        //
+        // Map each Z39.50 logical index to a catalogue column. Indexes without a
+        // direct column (author/subject/keyword/anywhere) fall back to a broad
+        // OR across the indexed columns.
         $columnMap = [
-            'title'    => 'title',
-            'author'   => 'author',
-            'subject'  => 'subject',
-            'isbn'     => 'isbn',
-            'issn'     => 'issn',
-            'keyword'  => 'keywords',
-            'anywhere' => 'searchable_text',
+            'title'     => 'information_object_i18n.title',
+            'isbn'      => 'library_item.isbn',
+            'issn'      => 'library_item.issn',
+            'publisher' => 'library_item.publisher',
+        ];
+        $broadColumns = [
+            'information_object_i18n.title',
+            'library_item.isbn',
+            'library_item.issn',
+            'library_item.publisher',
         ];
 
-        $conditions = [];
-        $bindings   = [];
-
-        foreach ($clauses as $clause) {
-            $index  = $clause['index'] ?? 'anywhere';
-            $column = $columnMap[$index] ?? 'searchable_text';
-            $pattern = $this->buildLikePattern(
-                (string) ($clause['term'] ?? ''),
-                (string) ($clause['truncation'] ?? 'right')
-            );
-
-            $conditions[] = "{$column} LIKE ? ESCAPE '\\\\'";
-            $bindings[]   = $pattern;
-        }
-
-        $where = implode(" {$boolean} ", $conditions);
-
         try {
-            $count = (int) (DB::connection('library')
-                ->selectOne(
-                    "SELECT COUNT(*) AS c FROM library_marc_records WHERE {$where}",
-                    $bindings
-                )->c ?? 0);
+            $base = DB::table('library_item')
+                ->join('information_object', 'library_item.information_object_id', '=', 'information_object.id')
+                ->leftJoin('information_object_i18n', function ($j) {
+                    $j->on('information_object_i18n.id', '=', 'information_object.id')
+                      ->where('information_object_i18n.culture', '=', 'en');
+                })
+                // Library catalogue only, published-only (status type_id=158/status_id=160).
+                ->where('information_object.source_standard', 'library')
+                ->whereExists(function ($s) {
+                    $s->select(DB::raw(1))->from('status as pub_st')
+                      ->whereColumn('pub_st.object_id', 'information_object.id')
+                      ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
+                });
 
-            $records = DB::connection('library')->select(
-                "SELECT id, leader, controlfield, datafield "
-                . "FROM library_marc_records WHERE {$where} LIMIT {$limit}",
-                $bindings
-            );
+            // Combine clauses honouring the PQF boolean (AND/OR).
+            $base->where(function ($outer) use ($clauses, $boolean, $columnMap, $broadColumns) {
+                $first = true;
+                foreach ($clauses as $clause) {
+                    $index   = $clause['index'] ?? 'anywhere';
+                    $pattern = $this->buildLikePattern(
+                        (string) ($clause['term'] ?? ''),
+                        (string) ($clause['truncation'] ?? 'right')
+                    );
+                    $add = function ($q) use ($index, $pattern, $columnMap, $broadColumns) {
+                        if (isset($columnMap[$index])) {
+                            $q->where($columnMap[$index], 'like', $pattern);
+                        } else {
+                            $q->where(function ($w) use ($pattern, $broadColumns) {
+                                foreach ($broadColumns as $i => $col) {
+                                    $i === 0 ? $w->where($col, 'like', $pattern)
+                                             : $w->orWhere($col, 'like', $pattern);
+                                }
+                            });
+                        }
+                    };
+                    if ($first) {
+                        $outer->where($add);
+                        $first = false;
+                    } elseif ($boolean === 'OR') {
+                        $outer->orWhere($add);
+                    } else {
+                        $outer->where($add);
+                    }
+                }
+            });
+
+            $count = (int) (clone $base)->count('library_item.id');
+
+            $rows = $base->limit($limit)->get([
+                'library_item.id',
+                'library_item.isbn',
+                'library_item.issn',
+                'library_item.publisher',
+                'library_item.publication_date',
+                'information_object_i18n.title',
+            ]);
         } catch (\Throwable $e) {
             Log::error('Z3950 search DB error: ' . $e->getMessage());
+
             return ['count' => 0, 'records' => []];
         }
 
+        $records = $rows->map(fn ($row) => $this->marcRecordFromCatalogue($row))->all();
+
         return ['count' => $count, 'records' => $records];
+    }
+
+    /**
+     * #1379 — build the minimal leader/controlfield/datafield record shape that
+     * buildMarc21() concatenates, from a gated catalogue row. (Matches the prior
+     * stub's fidelity; the point of this method is that the SOURCE is now the
+     * published-gated main catalogue, not an ungated MARC store.)
+     */
+    private function marcRecordFromCatalogue(object $row): object
+    {
+        $leader  = str_pad('00000nam a2200000 a 4500', 24);
+        $control = '001' . (string) ($row->id ?? '');
+
+        $sf = "\x1f"; // MARC subfield delimiter
+        $data = '';
+        if (! empty($row->title)) {
+            $data .= '245' . $sf . 'a' . $row->title;
+        }
+        if (! empty($row->publisher)) {
+            $data .= '264' . $sf . 'b' . $row->publisher;
+        }
+        if (! empty($row->publication_date)) {
+            $data .= '264' . $sf . 'c' . $row->publication_date;
+        }
+        if (! empty($row->isbn)) {
+            $data .= '020' . $sf . 'a' . $row->isbn;
+        }
+        if (! empty($row->issn)) {
+            $data .= '022' . $sf . 'a' . $row->issn;
+        }
+
+        return (object) [
+            'leader'       => $leader,
+            'controlfield' => $control,
+            'datafield'    => $data,
+        ];
     }
 
     // ──── Reference IDs ─────────────────────────────────────────────────────
