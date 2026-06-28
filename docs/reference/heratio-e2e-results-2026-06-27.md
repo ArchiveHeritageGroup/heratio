@@ -995,3 +995,15 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
   deferred.
 - #1375 stays OPEN: author the per-module User Manual; finish the 5 skipped deletes +
   the 1 rewrite; dam/library/museum duplicate-guide de-dup.
+
+## Docs (2026-06-28, #1375 — 5 skipped deletes finished + User Manual)
+- **5 skipped legacy deletes completed:** repointed system-map.php (9) + system-breakdown.php (9)
+  'help' nodes + ahg-ai-chatbot PreservationKnowledgeService CORPUS_GLOBS (1) from the legacy
+  slugs to modern guides (iiif-integration/library/preservation/provenance/ric-user-guide),
+  then deleted ahgiiifplugin/ahglibraryplugin/ahgpreservationplugin/ahgprovenanceplugin/
+  ahgricexplorerplugin.md. ALL 67 redundant legacy docs now removed (62+5); 0 residual refs.
+- **User Manual authored:** docs/manuals/user-manual.md — domain-organized spine over the 238
+  module guides: orientation, roles, 4 cross-module workflows, 11 domain reference tables
+  (171 validated links). Companion to the Technical Manual. Closes the issue's "Structure &
+  navigation" dimension.
+- #1375 remaining: 1 rewrite (ahguioverridesplugin), dam/library/museum duplicate-guide de-dup.

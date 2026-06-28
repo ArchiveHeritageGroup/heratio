@@ -109,9 +109,9 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'io.provenance', 'label' => 'Provenance', 'sub' => 'Custody and origin', 'help' => 'ahgprovenanceplugin',
+                    'id' => 'io.provenance', 'label' => 'Provenance', 'sub' => 'Custody and origin', 'help' => 'provenance-user-guide',
                     'children' => [
-                        ['id' => 'io.provenance.chain',  'label' => 'Provenance chain',     'sub' => 'Chain of ownership', 'help' => 'ahgprovenanceplugin'],
+                        ['id' => 'io.provenance.chain',  'label' => 'Provenance chain',     'sub' => 'Chain of ownership', 'help' => 'provenance-user-guide'],
                         ['id' => 'io.provenance.custody','label' => 'Custody history',       'sub' => 'Holdings over time'],
                         ['id' => 'io.provenance.c2pa',   'label' => 'C2PA credentials',      'sub' => 'Content provenance assertions'],
                     ],
@@ -177,7 +177,7 @@ return [
                     'id' => 'io.preservation', 'label' => 'Preservation', 'sub' => 'OAIS / PREMIS / fixity', 'help' => 'preservation-user-guide',
                     'children' => [
                         ['id' => 'io.preservation.oais',   'label' => 'OAIS packages', 'sub' => 'SIP / AIP / DIP', 'help' => 'preservation-user-guide'],
-                        ['id' => 'io.preservation.premis', 'label' => 'PREMIS events', 'sub' => 'Preservation actions', 'help' => 'ahgpreservationplugin'],
+                        ['id' => 'io.preservation.premis', 'label' => 'PREMIS events', 'sub' => 'Preservation actions', 'help' => 'preservation-user-guide'],
                         ['id' => 'io.preservation.fixity', 'label' => 'Fixity',        'sub' => 'Checksums + audits'],
                     ],
                 ],
@@ -293,11 +293,11 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'accession.provenance', 'label' => 'Provenance', 'sub' => 'Source and method', 'help' => 'ahgprovenanceplugin',
+                    'id' => 'accession.provenance', 'label' => 'Provenance', 'sub' => 'Source and method', 'help' => 'provenance-user-guide',
                     'children' => [
                         ['id' => 'accession.provenance.donor',  'label' => 'Donor / source', 'sub' => 'Person / organisation', 'help' => 'authority-resolution-user-guide'],
                         ['id' => 'accession.provenance.method', 'label' => 'Method',         'sub' => 'Purchase / gift / loan'],
-                        ['id' => 'accession.provenance.chain',  'label' => 'Provenance chain','sub' => 'Custody history', 'help' => 'ahgprovenanceplugin'],
+                        ['id' => 'accession.provenance.chain',  'label' => 'Provenance chain','sub' => 'Custody history', 'help' => 'provenance-user-guide'],
                     ],
                 ],
                 [
@@ -386,9 +386,9 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'museum.provenance', 'label' => 'Provenance', 'sub' => 'Ownership history', 'help' => 'ahgprovenanceplugin',
+                    'id' => 'museum.provenance', 'label' => 'Provenance', 'sub' => 'Ownership history', 'help' => 'provenance-user-guide',
                     'children' => [
-                        ['id' => 'museum.provenance.chain',  'label' => 'Provenance chain', 'sub' => 'Chain of ownership', 'help' => 'ahgprovenanceplugin'],
+                        ['id' => 'museum.provenance.chain',  'label' => 'Provenance chain', 'sub' => 'Chain of ownership', 'help' => 'provenance-user-guide'],
                         ['id' => 'museum.provenance.acquire','label' => 'Acquisition',      'sub' => 'How it was acquired'],
                     ],
                 ],
@@ -424,10 +424,10 @@ return [
             'label' => 'Library items',
             'sub'   => 'Bibliographic records',
             'color' => '#3a7d44',
-            'help'  => 'ahglibraryplugin',
+            'help'  => 'library-user-guide',
             'children' => [
                 [
-                    'id' => 'library.description', 'label' => 'Description', 'sub' => 'MARC / BIBFRAME / FRBR', 'help' => 'ahglibraryplugin',
+                    'id' => 'library.description', 'label' => 'Description', 'sub' => 'MARC / BIBFRAME / FRBR', 'help' => 'library-user-guide',
                     'children' => [
                         ['id' => 'library.description.bib',     'label' => 'Bibliographic', 'sub' => 'MARC item record'],
                         ['id' => 'library.description.holdings','label' => 'Holdings',      'sub' => 'Copies / availability'],

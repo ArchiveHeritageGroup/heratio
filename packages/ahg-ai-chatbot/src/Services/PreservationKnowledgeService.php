@@ -55,7 +55,7 @@ class PreservationKnowledgeService
         'docs/help/mets-*.md',
         'docs/help/ocfl-*.md',
         'docs/help/3d-preservation.md',
-        'docs/help/ahgpreservationplugin.md',
+        'docs/help/preservation-user-guide.md',
     ];
 
     /**

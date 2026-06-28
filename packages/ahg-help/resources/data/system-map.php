@@ -113,10 +113,10 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'acquire.donor', 'label' => 'Donors & source', 'sub' => 'Provenance origin', 'help' => 'ahgprovenanceplugin',
+                    'id' => 'acquire.donor', 'label' => 'Donors & source', 'sub' => 'Provenance origin', 'help' => 'provenance-user-guide',
                     'children' => [
                         ['id' => 'acquire.donor.actor',  'label' => 'Donor actor',     'sub' => 'Person / organisation', 'help' => 'authority-resolution-user-guide'],
-                        ['id' => 'acquire.donor.chain',  'label' => 'Provenance chain', 'sub' => 'Custody history',       'help' => 'ahgprovenanceplugin'],
+                        ['id' => 'acquire.donor.chain',  'label' => 'Provenance chain', 'sub' => 'Custody history',       'help' => 'provenance-user-guide'],
                         ['id' => 'acquire.donor.rights', 'label' => 'Donor rights',     'sub' => 'Conditions of gift'],
                     ],
                     'child_edges' => [
@@ -296,9 +296,9 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'preserve.premis', 'label' => 'PREMIS', 'sub' => 'Preservation events', 'help' => 'ahgpreservationplugin',
+                    'id' => 'preserve.premis', 'label' => 'PREMIS', 'sub' => 'Preservation events', 'help' => 'preservation-user-guide',
                     'children' => [
-                        ['id' => 'preserve.premis.events', 'label' => 'Events',  'sub' => 'Capture / migrate', 'help' => 'ahgpreservationplugin'],
+                        ['id' => 'preserve.premis.events', 'label' => 'Events',  'sub' => 'Capture / migrate', 'help' => 'preservation-user-guide'],
                         ['id' => 'preserve.premis.agents', 'label' => 'Agents',  'sub' => 'Who / what acted'],
                     ],
                 ],
@@ -390,7 +390,7 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'display.library', 'label' => 'Library', 'sub' => 'Library sector show', 'help' => 'ahglibraryplugin',
+                    'id' => 'display.library', 'label' => 'Library', 'sub' => 'Library sector show', 'help' => 'library-user-guide',
                     'children' => [
                         ['id' => 'display.library.bib',  'label' => 'Bibliographic', 'sub' => 'MARC / item record'],
                         ['id' => 'display.library.copy', 'label' => 'Holdings',      'sub' => 'Copies / availability'],
@@ -574,16 +574,16 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'interop.iiif', 'label' => 'IIIF API', 'sub' => 'Presentation + Image', 'help' => 'ahgiiifplugin',
+                    'id' => 'interop.iiif', 'label' => 'IIIF API', 'sub' => 'Presentation + Image', 'help' => 'iiif-integration-user-guide',
                     'children' => [
-                        ['id' => 'interop.iiif.presentation', 'label' => 'Presentation', 'sub' => 'Manifests / collections', 'help' => 'ahgiiifplugin'],
+                        ['id' => 'interop.iiif.presentation', 'label' => 'Presentation', 'sub' => 'Manifests / collections', 'help' => 'iiif-integration-user-guide'],
                         ['id' => 'interop.iiif.image',        'label' => 'Image',        'sub' => 'Cantaloupe tiles'],
                     ],
                 ],
                 [
-                    'id' => 'interop.ld', 'label' => 'Linked Data', 'sub' => 'RiC JSON-LD / SPARQL', 'help' => 'ahgricexplorerplugin',
+                    'id' => 'interop.ld', 'label' => 'Linked Data', 'sub' => 'RiC JSON-LD / SPARQL', 'help' => 'ric-user-guide',
                     'children' => [
-                        ['id' => 'interop.ld.jsonld', 'label' => 'JSON-LD', 'sub' => 'RiC-O serialization', 'help' => 'ahgricexplorerplugin'],
+                        ['id' => 'interop.ld.jsonld', 'label' => 'JSON-LD', 'sub' => 'RiC-O serialization', 'help' => 'ric-user-guide'],
                         ['id' => 'interop.ld.sparql', 'label' => 'SPARQL',  'sub' => 'Graph query'],
                     ],
                 ],
