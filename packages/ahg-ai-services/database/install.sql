@@ -399,8 +399,8 @@ CREATE TABLE IF NOT EXISTS ahg_ai_auto_trigger_log (
 -- ============================================================================
 
 INSERT IGNORE INTO ahg_ai_settings (id, feature, setting_key, setting_value) VALUES
-    -- General AI settings
-    (1, 'general', 'api_url', 'http://localhost:5004/ai/v1'),
+    -- General AI settings (api_url = AHG AI gateway, never a direct node — #1368)
+    (1, 'general', 'api_url', 'https://ai.theahg.co.za/ai/v1'),
     (2, 'general', 'api_key', ''),
     (3, 'general', 'api_timeout', '60'),
 
@@ -466,7 +466,7 @@ INSERT IGNORE INTO ahg_ai_settings (feature, setting_key, setting_value) VALUES
 
 INSERT IGNORE INTO ahg_ner_settings (id, setting_key, setting_value) VALUES
     (1, 'backend', 'local'),
-    (2, 'api_url', 'http://localhost:5004/ai/v1'),
+    (2, 'api_url', 'https://ai.theahg.co.za/ai/v1'),   -- AHG AI gateway, never a direct node (#1368)
     (3, 'api_key', ''),
     (4, 'auto_extract', '0'),
     (5, 'require_review', '1'),
@@ -484,9 +484,12 @@ INSERT IGNORE INTO ahg_ner_settings (id, setting_key, setting_value) VALUES
 -- SECTION 10: DEFAULT SEED DATA - ahg_llm_config
 -- ============================================================================
 
--- Default Ollama configuration (local)
+-- Default Ollama configuration — routed through the AHG AI gateway, never a
+-- direct :11434 node (#1368). The LlmService node-guard rejects a stale node
+-- endpoint_url at runtime regardless, but seed the gateway so fresh installs
+-- are correct out of the box.
 INSERT IGNORE INTO ahg_llm_config (id, provider, name, is_active, is_default, endpoint_url, api_key_encrypted, model, max_tokens, temperature, timeout_seconds)
-VALUES (1, 'ollama', 'Local Ollama (llama3.1:8b)', 1, 1, 'http://localhost:11434', NULL, 'llama3.1:8b', 2000, 0.70, 120);
+VALUES (1, 'ollama', 'AHG AI Gateway (Ollama)', 1, 1, 'https://ai.theahg.co.za/ai/v1', NULL, 'llama3.1:8b', 2000, 0.70, 120);
 
 -- OpenAI placeholder (disabled by default, needs API key)
 INSERT IGNORE INTO ahg_llm_config (id, provider, name, is_active, is_default, endpoint_url, api_key_encrypted, model, max_tokens, temperature, timeout_seconds)

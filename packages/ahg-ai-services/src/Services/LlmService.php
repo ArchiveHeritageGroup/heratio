@@ -1320,7 +1320,11 @@ class LlmService
                     break;
 
                 case 'ollama':
-                    $result = $this->callOllama($config->endpoint_url ?? 'http://localhost:11434', $systemPrompt, $userPrompt, $model, $maxTokens, $temperature, $timeout);
+                    // #1368 — route Ollama completion through the AHG AI gateway,
+                    // never a direct :11434 node. resolveOllamaBase() rejects a
+                    // raw-node endpoint_url (stale ahg_llm_config row) and falls
+                    // back to ai.theahg.co.za/ai/v1.
+                    $result = $this->callOllama($this->resolveOllamaBase($config->endpoint_url ?? null), $systemPrompt, $userPrompt, $model, $maxTokens, $temperature, $timeout);
                     break;
 
                 default:
@@ -1517,16 +1521,77 @@ class LlmService
     }
 
     /**
-     * POST to local Ollama instance.
+     * Resolve the Ollama base URL, routed through the AHG AI gateway (#1368).
+     *
+     * A raw-node endpoint_url (`:11434`, localhost, or a LAN/private IP) is
+     * rejected so a stale `ahg_llm_config` row can neither bypass the gateway
+     * (metering/quota/failover) nor break the /ollama passthrough; we fall back
+     * to the configured general api_url (if itself a gateway URL) then to the
+     * canonical gateway. Mirrors ahg-discovery's OllamaPageIndexClient.
+     */
+    private function resolveOllamaBase(?string $endpointUrl): string
+    {
+        $override = is_string($endpointUrl) ? trim($endpointUrl) : '';
+        if ($override !== '' && ! self::looksLikeNode($override)) {
+            return rtrim($override, '/');
+        }
+        $setting = (string) ($this->getAiSetting('general', 'api_url', '') ?? '');
+        if ($setting !== '' && ! self::looksLikeNode($setting)) {
+            return rtrim($setting, '/');
+        }
+
+        return 'https://ai.theahg.co.za/ai/v1';
+    }
+
+    /** True when a URL points at a raw GPU node rather than the gateway (#1368). */
+    private static function looksLikeNode(string $url): bool
+    {
+        return (bool) preg_match('~:11434|://(?:127\.0\.0\.1|localhost|192\.168\.|10\.|172\.(?:1[6-9]|2\d|3[01])\.)~i', $url);
+    }
+
+    /**
+     * Resolve the gateway Bearer key, same order NER/HTR/PageIndex use (#1368):
+     * ahg_ner_settings.api_key, then ahg_ai_settings feature='general' api_key.
+     */
+    private function resolveGatewayKey(): ?string
+    {
+        try {
+            $key = (string) (DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value') ?? '');
+            if ($key !== '') {
+                return $key;
+            }
+        } catch (\Throwable $e) {
+            // settings table absent during boot — fall through.
+        }
+        $key = (string) ($this->getAiSetting('general', 'api_key', '') ?? '');
+
+        return $key !== '' ? $key : null;
+    }
+
+    /**
+     * POST an Ollama completion through the AHG AI gateway (#1368).
+     *
+     * The gateway proxies Ollama transparently at {base}/ollama/api/... so the
+     * request/response shapes are unchanged from native Ollama; we just prefix
+     * /ollama and attach the gateway Bearer key. $endpoint is the gateway base
+     * (already node-guarded by resolveOllamaBase()).
      */
     private function callOllama(string $endpoint, string $systemPrompt, string $userPrompt, string $model, int $maxTokens, float $temperature, int $timeout): array
     {
         $startTime = microtime(true);
 
-        $url = rtrim($endpoint, '/') . '/api/generate';
+        $url = rtrim($endpoint, '/') . '/ollama/api/generate';
+
+        $headers = ['Content-Type' => 'application/json'];
+        $gatewayKey = $this->resolveGatewayKey();
+        if (! empty($gatewayKey)) {
+            $headers['Authorization'] = 'Bearer ' . $gatewayKey;
+        }
 
         $response = Http::timeout($timeout)
-            ->withHeaders(['Content-Type' => 'application/json'])
+            ->withHeaders($headers)
             ->post($url, [
                 'model'  => $model,
                 'prompt' => $userPrompt,
@@ -1581,8 +1646,15 @@ class LlmService
         try {
             switch ($config->provider) {
                 case 'ollama':
-                    $url      = rtrim($config->endpoint_url ?? 'http://localhost:11434', '/');
-                    $response = Http::timeout(10)->get($url . '/api/tags');
+                    // #1368 — health-check the gateway Ollama passthrough, not a
+                    // direct node; a stale node endpoint_url is ignored.
+                    $url      = $this->resolveOllamaBase($config->endpoint_url ?? null);
+                    $gatewayKey = $this->resolveGatewayKey();
+                    $req      = Http::timeout(10);
+                    if (! empty($gatewayKey)) {
+                        $req = $req->withToken($gatewayKey);
+                    }
+                    $response = $req->get($url . '/ollama/api/tags');
                     if ($response->successful()) {
                         $body   = $response->json();
                         $models = [];
@@ -1590,7 +1662,7 @@ class LlmService
                             $models[] = $m['name'] ?? $m['model'] ?? 'unknown';
                         }
                         // Fetch version
-                        $vResp   = Http::timeout(5)->get($url . '/api/version');
+                        $vResp   = (empty($gatewayKey) ? Http::timeout(5) : Http::timeout(5)->withToken($gatewayKey))->get($url . '/ollama/api/version');
                         $version = $vResp->successful() ? ($vResp->json()['version'] ?? 'unknown') : 'unknown';
 
                         return [

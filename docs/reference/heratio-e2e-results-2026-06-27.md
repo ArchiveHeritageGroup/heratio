@@ -854,3 +854,19 @@ In-controller checks:
 - **ahg-security-clearance** — reviewAccessRequest denies reviewer===requester; grantClearance denies
   userId===grantedBy (separation of duties / no self-grant).
 - Verified: route:list CheckAcl/RequireAdmin, controller guards present, anon no 5xx. **#1354 COMPLETE.**
+
+## Fixes applied (2026-06-28, #1368 — AI-gateway bypass, partial)
+- **ahg-ai-services LlmService** — Ollama completion now routes through the AHG AI
+  gateway: dispatch + checkProviderHealth call resolveOllamaBase() (rejects raw-node
+  endpoint_url — :11434/localhost/LAN IP — and falls back to ai.theahg.co.za/ai/v1),
+  callOllama POSTs to {base}/ollama/api/generate with the gateway Bearer key
+  (resolveGatewayKey: ahg_ner_settings.api_key → ahg_ai_settings general api_key).
+  Mirrors ahg-discovery OllamaPageIndexClient. Fixes the chatbot completion +
+  ai.describe bypass at the shared layer. VERIFIED end-to-end: completeFull → gateway
+  → "Pong!" (mistral:7b), stale :11434 dev row overridden to gateway.
+- **install.sql** — reseeded ahg_ai_settings.api_url + ahg_ner_settings.api_url +
+  ahg_llm_config.endpoint_url to the gateway (were :5004/:11434 nodes).
+- **DEFERRED — DonutService** (#1368 part 2): the gateway exposes NO /donut route
+  (probed: /ai/v1/donut/health → 404), so it cannot be pointed at the gateway without
+  breaking extraction. Needs a gateway-side donut passthrough route added first
+  (/opt/ahg-ai/gateway) — #1368 stays OPEN for this tail.
