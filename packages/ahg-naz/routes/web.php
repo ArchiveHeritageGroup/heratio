@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin/naz')->middleware(['web', 'auth'])->group(function () {
+Route::prefix('admin/naz')->middleware(['web', 'auth', 'admin']) /* #1354 */->group(function () {
     $c = \AhgNaz\Controllers\NazController::class;
 
     // Dashboard

@@ -9,13 +9,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/researcher/pending', [ResearcherSubmissionController::class, 'pending'])->name('researcher.pending');
     Route::get('/researcher/submission/new', [ResearcherSubmissionController::class, 'newSubmission'])->name('researcher.new-submission');
     Route::get('/researcher/import', [ResearcherSubmissionController::class, 'importExchange'])->name('researcher.import');
-    Route::post('/researcher/import', [ResearcherSubmissionController::class, 'importExchangeStore'])->name('researcher.import.store');
+    Route::post('/researcher/import', [ResearcherSubmissionController::class, 'importExchangeStore'])->name('researcher.import.store')->middleware('acl:create'); // #1354
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('/researcher/browse', [ResearcherSubmissionController::class, 'researcherBrowse'])->name('researcher.browse');
-    Route::match(['get', 'post'], '/researcher/add', [ResearcherSubmissionController::class, 'researcherAdd'])->name('researcher.add');
-    Route::match(['get', 'post'], '/researcher/{id}/edit', [ResearcherSubmissionController::class, 'researcherEdit'])->name('researcher.edit')->whereNumber('id');
+    Route::match(['get', 'post'], '/researcher/add', [ResearcherSubmissionController::class, 'researcherAdd'])->name('researcher.add')->middleware('acl:create'); // #1354
+    Route::match(['get', 'post'], '/researcher/{id}/edit', [ResearcherSubmissionController::class, 'researcherEdit'])->name('researcher.edit')->whereNumber('id')->middleware('acl:update'); // #1354
     Route::get('/researcher/{id}/view', [ResearcherSubmissionController::class, 'researcherView'])->name('researcher.view')->whereNumber('id');
     Route::get('/researcher/submission/{id}', [ResearcherSubmissionController::class, 'submissionView'])->name('researcher.submission.view')->whereNumber('id');
 });

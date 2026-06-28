@@ -819,3 +819,17 @@ the exemplars.
   admin.fix-missing-slug→admin; **ahg-condition** annotation.save/photo.upload/delete/base→acl.
   Verified via route:list (RequireAdmin/CheckAcl), anon still 302. #1354 STILL OPEN for
   ftp-upload / researcher-manage / naz / gis (the remaining lower-impact items).
+
+## Fixes applied (2026-06-28, #1354 tail batch)
+- **ahg-ftp-upload** — upload/uploadChunk/combineFolder/attachExisting→acl:create,
+  deleteFile/clearAll→acl:delete (were auth-only; attach writes a digital_object).
+- **ahg-researcher-manage** — researcher.add→acl:create, researcher.edit→acl:update,
+  import.store→acl:create (was auth-only; delete already admin).
+- **ahg-naz** — route group now `['web','auth','admin']` (was web+auth; reads incl. researcher
+  PII now require admin, aligning with sibling NMMZ).
+- **ahg-gis** — admin/gis group now `['web','auth','admin']` (was web+auth; closed the
+  any-authed-user read of draft-IO coordinates).
+- Verified: route:list CheckAcl/RequireAdmin, anon still 302. #1354 STILL OPEN — remaining
+  lower-impact items: gallery mutations, library /library-manage, dacs/dc-manage publish,
+  biblio-bf/frbr, MARC/EAD import, favorites revokeSharing, workflow approve/reject IDOR,
+  security-clearance self-approval, provenance-ai governance, ai-services legacy aliases.
