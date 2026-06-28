@@ -33,19 +33,19 @@ Route::middleware('auth')->group(function () {
 // Authenticated routes (before slug catch-all)
 Route::middleware('auth')->group(function () {
     Route::get('/gallery/add', [GalleryController::class, 'create'])->name('gallery.create');
-    Route::post('/gallery/store', [GalleryController::class, 'store'])->name('gallery.store');
+    Route::post('/gallery/store', [GalleryController::class, 'store'])->name('gallery.store')->middleware('acl:create');
     Route::get('/gallery/artists/create', [GalleryController::class, 'createArtist'])->name('gallery.artists.create');
-    Route::post('/gallery/artists/store', [GalleryController::class, 'storeArtist'])->name('gallery.artists.store');
+    Route::post('/gallery/artists/store', [GalleryController::class, 'storeArtist'])->name('gallery.artists.store')->middleware('acl:create');
     Route::get('/gallery/{slug}/edit', [GalleryController::class, 'edit'])->name('gallery.edit')->where('slug', '[a-z0-9\-]+');
-    Route::put('/gallery/{slug}', [GalleryController::class, 'update'])->name('gallery.update')->where('slug', '[a-z0-9\-]+');
-    Route::post('/gallery/{slug}/delete', [GalleryController::class, 'destroy'])->name('gallery.destroy')->where('slug', '[a-z0-9\-]+');
+    Route::put('/gallery/{slug}', [GalleryController::class, 'update'])->name('gallery.update')->where('slug', '[a-z0-9\-]+')->middleware('acl:update');
+    Route::post('/gallery/{slug}/delete', [GalleryController::class, 'destroy'])->name('gallery.destroy')->where('slug', '[a-z0-9\-]+')->middleware('acl:delete');
 
     Route::get('/gallery/loans/create', [GalleryController::class, 'createLoan'])->name('gallery.loans.create');
-    Route::post('/gallery/loans/store', [GalleryController::class, 'storeLoan'])->name('gallery.loans.store');
+    Route::post('/gallery/loans/store', [GalleryController::class, 'storeLoan'])->name('gallery.loans.store')->middleware('acl:create');
     Route::get('/gallery/valuations/create', [GalleryController::class, 'createValuation'])->name('gallery.valuations.create');
-    Route::post('/gallery/valuations/store', [GalleryController::class, 'storeValuation'])->name('gallery.valuations.store');
+    Route::post('/gallery/valuations/store', [GalleryController::class, 'storeValuation'])->name('gallery.valuations.store')->middleware('acl:create');
     Route::get('/gallery/venues/create', [GalleryController::class, 'createVenue'])->name('gallery.venues.create');
-    Route::post('/gallery/venues/store', [GalleryController::class, 'storeVenue'])->name('gallery.venues.store');
+    Route::post('/gallery/venues/store', [GalleryController::class, 'storeVenue'])->name('gallery.venues.store')->middleware('acl:create');
 });
 
 // Slug catch-all (must be last)

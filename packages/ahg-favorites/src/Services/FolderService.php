@@ -136,6 +136,19 @@ class FolderService
 
     public function revokeSharing(int $userId, int $id): bool
     {
+        // Owner check: only the folder's owner may revoke its sharing. Without
+        // this, the favorites_share delete below ran on folder_id alone and a
+        // user could destroy another user's share-audit rows. Mirrors the
+        // user_id scoping used by updateFolder()/deleteFolder()/getFolder().
+        $ownsFolder = DB::table('favorites_folder')
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->exists();
+
+        if (! $ownsFolder) {
+            return false;
+        }
+
         DB::table('favorites_share')
             ->where('folder_id', $id)
             ->delete();

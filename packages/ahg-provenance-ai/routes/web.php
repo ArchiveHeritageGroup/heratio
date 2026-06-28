@@ -34,7 +34,7 @@
 use AhgProvenanceAi\Controllers\GovernanceController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->prefix('admin/governance')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin/governance')->group(function () {
     Route::get('/', [GovernanceController::class, 'index'])->name('admin.governance.index');
     Route::get('/models', [GovernanceController::class, 'models'])->name('admin.governance.models');
     Route::get('/inferences', [GovernanceController::class, 'inferences'])->name('admin.governance.inferences');

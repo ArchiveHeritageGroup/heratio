@@ -294,7 +294,10 @@ class WorkflowService
         $hadNextStep = false;
         $result = DB::transaction(function () use ($taskId, $userId, $comment, &$hadNextStep) {
             $task = DB::table('ahg_workflow_task')->where('id', $taskId)->lockForUpdate()->first();
-            if (! $task) {
+            // IDOR guard: only the user the task is assigned to may decide it.
+            // Mirrors releaseTask()'s assigned_to ownership check; without it any
+            // authenticated workflow user could approve another user's task.
+            if (! $task || (int) $task->assigned_to !== $userId) {
                 return false;
             }
 
@@ -369,7 +372,10 @@ class WorkflowService
     {
         $result = DB::transaction(function () use ($taskId, $userId, $comment) {
             $task = DB::table('ahg_workflow_task')->where('id', $taskId)->lockForUpdate()->first();
-            if (! $task) {
+            // IDOR guard: only the user the task is assigned to may decide it.
+            // Mirrors releaseTask()'s assigned_to ownership check; without it any
+            // authenticated workflow user could reject another user's task.
+            if (! $task || (int) $task->assigned_to !== $userId) {
                 return false;
             }
 

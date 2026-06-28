@@ -21,7 +21,7 @@ Route::middleware('web')->group(function () {
         Route::post('/bibframe/export', [BibframeController::class, 'exportRun'])->name('bibframe.export-run');
 
         Route::get('/bibframe/import', [BibframeController::class, 'import'])->name('bibframe.import');
-        Route::post('/bibframe/import', [BibframeController::class, 'importRun'])->name('bibframe.import-run');
+        Route::post('/bibframe/import', [BibframeController::class, 'importRun'])->name('bibframe.import-run')->middleware('acl:create');
 
         Route::get('/bibframe/validate', [BibframeController::class, 'validate'])->name('bibframe.validate');
         Route::post('/bibframe/validate', [BibframeController::class, 'validateRun'])->name('bibframe.validate-run');
@@ -33,15 +33,15 @@ Route::middleware('web')->group(function () {
         Route::get('/bibframe/editor/{libraryItemId}', [GraphEditorController::class, 'show'])
             ->name('bibframe.editor.show')->whereNumber('libraryItemId');
         Route::post('/bibframe/editor/{libraryItemId}/work', [GraphEditorController::class, 'updateWork'])
-            ->name('bibframe.editor.work')->whereNumber('libraryItemId');
+            ->name('bibframe.editor.work')->whereNumber('libraryItemId')->middleware('acl:update');
         Route::post('/bibframe/editor/{libraryItemId}/contributor', [GraphEditorController::class, 'addContributor'])
-            ->name('bibframe.editor.contributor')->whereNumber('libraryItemId');
+            ->name('bibframe.editor.contributor')->whereNumber('libraryItemId')->middleware('acl:update');
         Route::post('/bibframe/editor/{libraryItemId}/contributor/{creatorId}/delete', [GraphEditorController::class, 'deleteContributor'])
-            ->name('bibframe.editor.contributor.delete')->whereNumber('libraryItemId')->whereNumber('creatorId');
+            ->name('bibframe.editor.contributor.delete')->whereNumber('libraryItemId')->whereNumber('creatorId')->middleware('acl:delete');
         Route::post('/bibframe/editor/{libraryItemId}/subject', [GraphEditorController::class, 'addSubject'])
-            ->name('bibframe.editor.subject')->whereNumber('libraryItemId');
+            ->name('bibframe.editor.subject')->whereNumber('libraryItemId')->middleware('acl:update');
         Route::post('/bibframe/editor/{libraryItemId}/subject/{termId}/delete', [GraphEditorController::class, 'deleteSubject'])
-            ->name('bibframe.editor.subject.delete')->whereNumber('libraryItemId')->whereNumber('termId');
+            ->name('bibframe.editor.subject.delete')->whereNumber('libraryItemId')->whereNumber('termId')->middleware('acl:delete');
     });
 
     // LOD/SPARQL surface: BIBFRAME Turtle / JSON-LD downloads

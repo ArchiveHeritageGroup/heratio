@@ -223,15 +223,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ner/htr/{id}', fn ($id) => redirect()->route('admin.ai.htr.object', $id))->whereNumber('id');
 
     // POST aliases for AtoM-compatible URLs
-    Route::post('/ai/ner/entity/update', [AiController::class, 'nerUpdateEntity']);
-    Route::post('/ai/ner/create/actor', [AiController::class, 'nerCreateActor']);
-    Route::post('/ai/ner/create/place', [AiController::class, 'nerCreatePlace']);
-    Route::post('/ai/ner/create/subject', [AiController::class, 'nerCreateSubject']);
-    Route::post('/ai/ner/bulk-save', [AiController::class, 'nerBulkSave']);
-    Route::post('/ner/bulk-save', [AiController::class, 'nerBulkSave']);
-    Route::post('/ai/suggest/{id}/decision', [AiController::class, 'suggestDecision'])->whereNumber('id');
-    Route::match(['get', 'post'], '/ai/batch/create', [AiController::class, 'batchCreate']);
+    Route::post('/ai/ner/entity/update', [AiController::class, 'nerUpdateEntity'])->middleware('admin');
+    Route::post('/ai/ner/create/actor', [AiController::class, 'nerCreateActor'])->middleware('admin');
+    Route::post('/ai/ner/create/place', [AiController::class, 'nerCreatePlace'])->middleware('admin');
+    Route::post('/ai/ner/create/subject', [AiController::class, 'nerCreateSubject'])->middleware('admin');
+    Route::post('/ai/ner/bulk-save', [AiController::class, 'nerBulkSave'])->middleware('admin');
+    Route::post('/ner/bulk-save', [AiController::class, 'nerBulkSave'])->middleware('admin');
+    Route::post('/ai/suggest/{id}/decision', [AiController::class, 'suggestDecision'])->whereNumber('id')->middleware('admin');
+    Route::match(['get', 'post'], '/ai/batch/create', [AiController::class, 'batchCreate'])->middleware('admin');
     Route::get('/ai/batch/{id}/progress', [AiController::class, 'batchProgress'])->whereNumber('id');
-    Route::post('/ai/batch/{id}/action', [AiController::class, 'batchAction'])->whereNumber('id');
-    Route::post('/ai/batch/{id}/process', [AiController::class, 'batchProcess'])->whereNumber('id');
+    Route::post('/ai/batch/{id}/action', [AiController::class, 'batchAction'])->whereNumber('id')->middleware('admin');
+    Route::post('/ai/batch/{id}/process', [AiController::class, 'batchProcess'])->whereNumber('id')->middleware('admin');
 });

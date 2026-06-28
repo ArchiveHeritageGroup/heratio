@@ -833,3 +833,24 @@ the exemplars.
   lower-impact items: gallery mutations, library /library-manage, dacs/dc-manage publish,
   biblio-bf/frbr, MARC/EAD import, favorites revokeSharing, workflow approve/reject IDOR,
   security-clearance self-approval, provenance-ai governance, ai-services legacy aliases.
+
+## Fixes applied (2026-06-28, #1354 FINAL batch — closes #1354)
+Route-level acl:/admin gates:
+- **ahg-gallery** — store/update/destroy + artists/loans/valuations/venues store → acl:create/update/delete.
+- **ahg-library** — serials/ILL(legacy)/kbart-remote/trading-partners mutations → acl:*; PLUS the
+  phase-2.5 library.ill-requests.* group (store→create, update/patch/transition/send-edi→update,
+  destroy→delete). Diagnostics (test-url/preview/test) + OPAC patron submit left.
+- **ahg-dacs-manage / ahg-dc-manage** — edit match-route POST (publishes IO) → acl:update.
+- **ahg-biblio-bf** — import-run→create, editor work/contributor/subject add+delete→update/delete.
+  (export-run verified read-only, left.)
+- **ahg-biblio-frbr** — admin.frbr.overrides store/destroy/cluster → admin.
+- **ahg-metadata-export** — MARC + EAD import groups → +admin (parity with rad/dacs importStandard).
+- **ahg-provenance-ai** — admin/governance group → +admin (LLM configs + inference activity).
+- **ahg-ai-services** — legacy NER/decision/batch POST aliases → +admin (parity with /admin/ai twins).
+In-controller checks:
+- **ahg-favorites** — FolderService::revokeSharing now owner-scoped (was folder_id-only; cross-user
+  share-row deletion). Signature + caller (Auth::id()) updated.
+- **ahg-workflow** — approveTask/rejectTask now require assigned_to===userId (mirrors releaseTask; within-admin IDOR).
+- **ahg-security-clearance** — reviewAccessRequest denies reviewer===requester; grantClearance denies
+  userId===grantedBy (separation of duties / no self-grant).
+- Verified: route:list CheckAcl/RequireAdmin, controller guards present, anon no 5xx. **#1354 COMPLETE.**

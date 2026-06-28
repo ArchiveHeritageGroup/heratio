@@ -199,14 +199,14 @@ Route::middleware('auth')->group(function () {
     // ── ILL ───────────────────────────────────────────────────────────────
     Route::get('/library-manage/ill', [LibraryController::class, 'ill'])->name('library.ill');
     Route::get('/library-manage/ill/create', [LibraryController::class, 'illCreate'])->name('library.ill-create');
-    Route::post('/library-manage/ill/create', [LibraryController::class, 'illStore'])->name('library.ill-store');
+    Route::post('/library-manage/ill/create', [LibraryController::class, 'illStore'])->name('library.ill-store')->middleware('acl:create');
     Route::get('/library-manage/ill/{id}', [LibraryController::class, 'illView'])->name('library.ill-view')->where('id', '[0-9]+');
-    Route::patch('/library-manage/ill/{id}', [LibraryController::class, 'illUpdate'])->name('library.ill-update')->where('id', '[0-9]+');
-    Route::post('/library-manage/ill/{id}/transition', [LibraryController::class, 'illTransition'])->name('library.ill-transition')->where('id', '[0-9]+');
-    Route::delete('/library-manage/ill/{id}', [LibraryController::class, 'illDelete'])->name('library.ill-delete')->where('id', '[0-9]+');
-    Route::patch('/library-manage/ill/{id}/suppress', [LibraryController::class, 'illOpacSuppress'])->name('library.ill-opac-suppress')->where('id', '[0-9]+');
+    Route::patch('/library-manage/ill/{id}', [LibraryController::class, 'illUpdate'])->name('library.ill-update')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::post('/library-manage/ill/{id}/transition', [LibraryController::class, 'illTransition'])->name('library.ill-transition')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::delete('/library-manage/ill/{id}', [LibraryController::class, 'illDelete'])->name('library.ill-delete')->where('id', '[0-9]+')->middleware('acl:delete');
+    Route::patch('/library-manage/ill/{id}/suppress', [LibraryController::class, 'illOpacSuppress'])->name('library.ill-opac-suppress')->where('id', '[0-9]+')->middleware('acl:update');
     Route::get('/library-manage/ill/settings', [LibraryController::class, 'illSettings'])->name('library.ill-settings');
-    Route::post('/library-manage/ill/settings', [LibraryController::class, 'illSettingsStore'])->name('library.ill-settings-store');
+    Route::post('/library-manage/ill/settings', [LibraryController::class, 'illSettingsStore'])->name('library.ill-settings-store')->middleware('acl:update');
     Route::get('/opac/ill/create', [LibraryController::class, 'opacIllCreate'])->name('library.opac-ill-create');
     Route::post('/opac/ill/create', [LibraryController::class, 'opacIllStore'])->name('library.ill-opac-store');
 
@@ -232,18 +232,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/serials', [LibraryController::class, 'serials'])->name('library.serials');
     Route::get('/library-manage/serial/{id}', [LibraryController::class, 'serialView'])->name('library.serial-view')->where('id', '[0-9]+');
     Route::get('/library-manage/serial/add', [LibraryController::class, 'serialCreate'])->name('library.serial-create');
-    Route::post('/library-manage/serial/add', [LibraryController::class, 'serialStore'])->name('library.serial-store');
+    Route::post('/library-manage/serial/add', [LibraryController::class, 'serialStore'])->name('library.serial-store')->middleware('acl:create');
     Route::get('/library-manage/serial/{id}/edit', [LibraryController::class, 'serialEdit'])->name('library.serial-edit')->where('id', '[0-9]+');
-    Route::put('/library-manage/serial/{id}', [LibraryController::class, 'serialUpdate'])->name('library.serial-update')->where('id', '[0-9]+');
-    Route::delete('/library-manage/serial/{id}', [LibraryController::class, 'serialDelete'])->name('library.serial-delete')->where('id', '[0-9]+');
-    Route::post('/library-manage/serial/{id}/issue', [LibraryController::class, 'serialAddIssue'])->name('library.serial-add-issue')->where('id', '[0-9]+');
+    Route::put('/library-manage/serial/{id}', [LibraryController::class, 'serialUpdate'])->name('library.serial-update')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::delete('/library-manage/serial/{id}', [LibraryController::class, 'serialDelete'])->name('library.serial-delete')->where('id', '[0-9]+')->middleware('acl:delete');
+    Route::post('/library-manage/serial/{id}/issue', [LibraryController::class, 'serialAddIssue'])->name('library.serial-add-issue')->where('id', '[0-9]+')->middleware('acl:update');
     Route::get('/library-manage/serial/{id}/subscription', [LibraryController::class, 'serialSubscription'])->name('library.serial-subscription')->where('id', '[0-9]+');
-    Route::post('/library-manage/serial/{id}/subscription', [LibraryController::class, 'serialSubscriptionStore'])->name('library.serial-subscription-store')->where('id', '[0-9]+');
+    Route::post('/library-manage/serial/{id}/subscription', [LibraryController::class, 'serialSubscriptionStore'])->name('library.serial-subscription-store')->where('id', '[0-9]+')->middleware('acl:update');
     Route::get('/library-manage/serial/{id}/predict', [LibraryController::class, 'serialPredict'])->name('library.serial-predict')->where('id', '[0-9]+');
     Route::get('/library-manage/serial/{id}/coverage', [LibraryController::class, 'serialCoverage'])->name('library.serial-coverage')->where('id', '[0-9]+');
-    Route::post('/library-manage/serial/{id}/clone', [LibraryController::class, 'serialClone'])->name('library.serial-clone')->where('id', '[0-9]+');
+    Route::post('/library-manage/serial/{id}/clone', [LibraryController::class, 'serialClone'])->name('library.serial-clone')->where('id', '[0-9]+')->middleware('acl:create');
     Route::get('/library-manage/serial/overdue-claims', [LibraryController::class, 'serialOverdueClaims'])->name('library.serial-overdue-claims');
-    Route::post('/library-manage/serial/{serialId}/claim/{issueId}', [LibraryController::class, 'serialClaimIssue'])->name('library.serial-claim-issue')->where(['serialId' => '[0-9]+', 'issueId' => '[0-9]+']);
+    Route::post('/library-manage/serial/{serialId}/claim/{issueId}', [LibraryController::class, 'serialClaimIssue'])->name('library.serial-claim-issue')->where(['serialId' => '[0-9]+', 'issueId' => '[0-9]+'])->middleware('acl:update');
 
     // ── Reports ────────────────────────────────────────────────────────────
     Route::get('/library-manage/reports', [LibraryController::class, 'libraryReports'])->name('library.reports');
@@ -264,12 +264,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/kbart/remote', [KbartAdminController::class, 'index'])->name('library.kbart-remote');
     Route::get('/library-manage/kbart/remote/log', [KbartAdminController::class, 'log'])->name('library.kbart-remote-log');
     Route::get('/library-manage/kbart/remote/create', [KbartAdminController::class, 'create'])->name('library.kbart-remote-create');
-    Route::post('/library-manage/kbart/remote', [KbartAdminController::class, 'store'])->name('library.kbart-remote-store');
+    Route::post('/library-manage/kbart/remote', [KbartAdminController::class, 'store'])->name('library.kbart-remote-store')->middleware('acl:create');
     Route::get('/library-manage/kbart/remote/{feed}/edit', [KbartAdminController::class, 'edit'])->name('library.kbart-remote-edit')->where('feed', '[0-9]+');
-    Route::put('/library-manage/kbart/remote/{feed}', [KbartAdminController::class, 'update'])->name('library.kbart-remote-update')->where('feed', '[0-9]+');
-    Route::post('/library-manage/kbart/remote/{feed}/refresh', [KbartAdminController::class, 'refresh'])->name('library.kbart-remote-refresh')->where('feed', '[0-9]+');
-    Route::post('/library-manage/kbart/remote/{feed}/toggle', [KbartAdminController::class, 'toggle'])->name('library.kbart-remote-toggle')->where('feed', '[0-9]+');
-    Route::delete('/library-manage/kbart/remote/{feed}', [KbartAdminController::class, 'destroy'])->name('library.kbart-remote-destroy')->where('feed', '[0-9]+');
+    Route::put('/library-manage/kbart/remote/{feed}', [KbartAdminController::class, 'update'])->name('library.kbart-remote-update')->where('feed', '[0-9]+')->middleware('acl:update');
+    Route::post('/library-manage/kbart/remote/{feed}/refresh', [KbartAdminController::class, 'refresh'])->name('library.kbart-remote-refresh')->where('feed', '[0-9]+')->middleware('acl:update');
+    Route::post('/library-manage/kbart/remote/{feed}/toggle', [KbartAdminController::class, 'toggle'])->name('library.kbart-remote-toggle')->where('feed', '[0-9]+')->middleware('acl:update');
+    Route::delete('/library-manage/kbart/remote/{feed}', [KbartAdminController::class, 'destroy'])->name('library.kbart-remote-destroy')->where('feed', '[0-9]+')->middleware('acl:delete');
     Route::post('/library-manage/kbart/remote/test-url', [KbartAdminController::class, 'testUrl'])->name('library.kbart-remote-test-url');
 
     // ── Usage / SUSHI ─────────────────────────────────────────────────────
@@ -347,15 +347,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/trading-partners/create', [TradingPartnerController::class, 'create'])
         ->name('library.trading-partners.create');
     Route::post('/library-manage/trading-partners', [TradingPartnerController::class, 'store'])
-        ->name('library.trading-partners.store');
+        ->name('library.trading-partners.store')->middleware('acl:create');
     Route::get('/library-manage/trading-partners/{partner}/edit', [TradingPartnerController::class, 'edit'])
         ->name('library.trading-partners.edit');
     Route::match(['PATCH', 'PUT'], '/library-manage/trading-partners/{partner}', [TradingPartnerController::class, 'update'])
-        ->name('library.trading-partners.update');
+        ->name('library.trading-partners.update')->middleware('acl:update');
     Route::delete('/library-manage/trading-partners/{partner}', [TradingPartnerController::class, 'destroy'])
-        ->name('library.trading-partners.destroy');
+        ->name('library.trading-partners.destroy')->middleware('acl:delete');
     Route::patch('/library-manage/trading-partners/{partner}/toggle', [TradingPartnerController::class, 'toggle'])
-        ->name('library.trading-partners.toggle');
+        ->name('library.trading-partners.toggle')->middleware('acl:update');
     Route::post('/library-manage/trading-partners/{partner}/test', [TradingPartnerController::class, 'test'])
         ->name('library.trading-partners.test');
     Route::post('/library-manage/trading-partners/{partner}/preview-message', [TradingPartnerController::class, 'previewMessage'])
@@ -369,17 +369,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/ill-requests/create', [IllRequestController::class, 'create'])
         ->name('library.ill-requests.create');
     Route::post('/library-manage/ill-requests', [IllRequestController::class, 'store'])
-        ->name('library.ill-requests.store');
+        ->name('library.ill-requests.store')->middleware('acl:create'); // #1354
     Route::get('/library-manage/ill-requests/{id}', [IllRequestController::class, 'show'])
         ->name('library.ill-requests.show')->where('id', '[0-9]+');
     Route::put('/library-manage/ill-requests/{id}', [IllRequestController::class, 'update'])
-        ->name('library.ill-requests.update')->where('id', '[0-9]+');
+        ->name('library.ill-requests.update')->where('id', '[0-9]+')->middleware('acl:update'); // #1354
     Route::patch('/library-manage/ill-requests/{id}', [IllRequestController::class, 'update'])
-        ->name('library.ill-requests.patch')->where('id', '[0-9]+');
+        ->name('library.ill-requests.patch')->where('id', '[0-9]+')->middleware('acl:update'); // #1354
     Route::post('/library-manage/ill-requests/{id}/transition', [IllRequestController::class, 'transition'])
-        ->name('library.ill-requests.transition')->where('id', '[0-9]+');
+        ->name('library.ill-requests.transition')->where('id', '[0-9]+')->middleware('acl:update'); // #1354
     Route::post('/library-manage/ill-requests/{id}/send-edi', [IllRequestController::class, 'sendEdi'])
-        ->name('library.ill-requests.send-edi')->where('id', '[0-9]+');
+        ->name('library.ill-requests.send-edi')->where('id', '[0-9]+')->middleware('acl:update'); // #1354
     Route::delete('/library-manage/ill-requests/{id}', [IllRequestController::class, 'destroy'])
-        ->name('library.ill-requests.destroy')->where('id', '[0-9]+');
+        ->name('library.ill-requests.destroy')->where('id', '[0-9]+')->middleware('acl:delete'); // #1354
 });

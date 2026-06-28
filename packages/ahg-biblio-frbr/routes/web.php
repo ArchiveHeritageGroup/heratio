@@ -38,8 +38,8 @@ Route::middleware('web')->group(function () {
         // #763 FRBR work-set clustering: force-group / force-split admin.
         Route::get('/admin/frbr/overrides', [WorkOverrideController::class, 'index'])->name('admin.frbr.overrides.index');
         Route::get('/admin/frbr/overrides/create', [WorkOverrideController::class, 'create'])->name('admin.frbr.overrides.create');
-        Route::post('/admin/frbr/overrides', [WorkOverrideController::class, 'store'])->name('admin.frbr.overrides.store');
-        Route::delete('/admin/frbr/overrides/{id}', [WorkOverrideController::class, 'destroy'])->name('admin.frbr.overrides.destroy')->whereNumber('id');
-        Route::post('/admin/frbr/cluster', [WorkOverrideController::class, 'cluster'])->name('admin.frbr.overrides.cluster');
+        Route::post('/admin/frbr/overrides', [WorkOverrideController::class, 'store'])->name('admin.frbr.overrides.store')->middleware('admin');
+        Route::delete('/admin/frbr/overrides/{id}', [WorkOverrideController::class, 'destroy'])->name('admin.frbr.overrides.destroy')->whereNumber('id')->middleware('admin');
+        Route::post('/admin/frbr/cluster', [WorkOverrideController::class, 'cluster'])->name('admin.frbr.overrides.cluster')->middleware('admin');
     });
 });

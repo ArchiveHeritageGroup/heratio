@@ -166,6 +166,12 @@ class SecurityClearanceService
      */
     public function grantClearance(int $userId, int $classificationId, int $grantedBy, ?string $expiresAt = null, ?string $notes = null): bool
     {
+        // Separation of duties: the actor may not grant or raise their own
+        // clearance. Deny a self-grant where the target is the granting user.
+        if ($userId === $grantedBy) {
+            return false;
+        }
+
         try {
             DB::beginTransaction();
 
@@ -512,6 +518,13 @@ class SecurityClearanceService
     public function reviewAccessRequest(int $requestId, string $decision, int $reviewerId, ?string $notes = null, ?int $durationHours = null): bool
     {
         try {
+            // Separation of duties: a reviewer may not approve/deny their own
+            // access request. Deny when the reviewer is the requester.
+            $request = DB::table('security_access_request')->where('id', $requestId)->first();
+            if (! $request || (int) $request->user_id === $reviewerId) {
+                return false;
+            }
+
             $data = [
                 'status' => $decision,
                 'reviewed_by' => $reviewerId,

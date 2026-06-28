@@ -98,7 +98,7 @@ Route::get('/data/cidoc-crm.ttl', [\AhgMetadataExport\Controllers\CidocGraphCont
 // ---- BEGIN MARCXML import (#663 Phase 2) ------------------------------------
 // Upload + preview + commit flow. Kept inside /admin so the IO slug catch-all
 // regex in ahg-information-object-manage cannot intercept these URLs.
-Route::prefix('admin/marc')->middleware(['web', 'auth'])->group(function () {
+Route::prefix('admin/marc')->middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('/import', [\AhgMetadataExport\Controllers\MarcImportController::class, 'form'])
         ->name('ahgmetadataexport.marc.import');
     Route::post('/import/preview', [\AhgMetadataExport\Controllers\MarcImportController::class, 'preview'])
@@ -111,7 +111,7 @@ Route::prefix('admin/marc')->middleware(['web', 'auth'])->group(function () {
 // ---- BEGIN EAD import (#657 Phase 1) ----------------------------------------
 // Native EAD 2002 + EAD 3 XML upload, parse, preview, commit. Same /admin
 // prefix rules as MARCXML import.
-Route::prefix('admin/ead')->middleware(['web', 'auth'])->group(function () {
+Route::prefix('admin/ead')->middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('/import', [\AhgMetadataExport\Controllers\EadImportController::class, 'form'])
         ->name('ahgmetadataexport.ead.import');
     Route::post('/import/preview', [\AhgMetadataExport\Controllers\EadImportController::class, 'preview'])
