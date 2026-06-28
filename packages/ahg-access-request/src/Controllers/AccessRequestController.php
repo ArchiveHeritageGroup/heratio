@@ -137,9 +137,8 @@ class AccessRequestController extends Controller
         $this->service->createRequest(auth()->id(), [
             'subject' => $validated['subject'],
             'request_type' => $validated['request_type'],
-            // Maps to security_access_request.classification_id (nullable)
-            'object_id' => $validated['requested_classification_id'] ?? null,
-            // Subject + description go into the single justification text column
+            // #1366 — explicit classification key (null → baseline Public default).
+            'requested_classification_id' => $validated['requested_classification_id'] ?? null,
             'reason' => 'Subject: '.$validated['subject']."\n\n".$validated['description'],
             'justification' => $validated['justification'] ?? null,
             'urgency' => $validated['urgency'] ?? 'normal',
@@ -212,7 +211,14 @@ class AccessRequestController extends Controller
             'reason' => 'required|string|max:2000',
         ]);
 
-        $this->service->createRequest(auth()->id(), $validated);
+        // #1366 — object request: the target IO goes to access_request_scope
+        // (request_type=object); classification defaults to baseline Public.
+        $this->service->createRequest(auth()->id(), [
+            'request_type' => 'object',
+            'target_object_id' => $validated['object_id'],
+            'target_object_type' => 'information_object',
+            'reason' => $validated['reason'],
+        ]);
 
         return redirect()->route('accessRequest.myRequests')->with('notice', 'Object access request submitted.');
     }

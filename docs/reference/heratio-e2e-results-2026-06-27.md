@@ -913,3 +913,17 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
 - **#1375 remaining (stays open):** de-stale the 52 legacy AtoM plugin docs + fix the known
   factual errors; author the two coherent manuals (User + Technical) with a domain ToC;
   fill the ~30 ahg-research submodule articles. These are a multi-phase authoring program.
+
+## Fix applied (2026-06-28, #1366 functional half — closes #1366)
+- **ahg-access-request** createRequest() now writes the canonical `access_request`
+  table (was security_access_request, ahg-security-clearance's own table) — so
+  submitted requests appear in My-Requests and approve/deny/view act on the same row.
+  Native reason/justification/urgency columns (flatten hack removed); requested_
+  classification_id defaults to baseline Public (level 0) when the form omits it;
+  object requests write an access_request_scope satellite row. Both controller callers
+  (store/storeObjectRequest) updated to unambiguous keys. View() owner-or-admin IDOR
+  guard was already shipped. VERIFIED e2e: submit→My-Requests→getRequest→approve all on
+  access_request; object scope row written.
+- CAVEAT: any requests created via the OLD path are stranded in security_access_request
+  (different schema) and invisible to the review surface — a one-time manual reconciliation
+  would be needed on installs that used the broken path (dev had 1 test row).

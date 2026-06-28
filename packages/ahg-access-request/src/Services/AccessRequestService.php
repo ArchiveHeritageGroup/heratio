@@ -184,37 +184,61 @@ class AccessRequestService
     /**
      * Create a new access request.
      *
-     * Writes to `security_access_request` (the table the /security/my-requests
-     * page reads from). Older callers used `access_request` — that table is now
-     * legacy and should not be written to from new code.
+     * Writes to `access_request` — the package's canonical table, which the
+     * My-Requests / view / approve / deny / cancel paths all read, and which
+     * owns the approver/justification/log/scope satellites. (#1366: previously
+     * this wrote `security_access_request`, ahg-security-clearance's own table,
+     * so submitted requests never appeared in the package's own review surface.)
      */
     public function createRequest(int $userId, array $data): int
     {
-        // Combine subject + reason + justification into the single justification
-        // column (the security_access_request schema is flatter than access_request).
-        $justificationParts = [];
-        if (! empty($data['reason'])) {
-            $justificationParts[] = $data['reason'];
+        // #1366 — write the canonical `access_request` table (native reason/
+        // justification/urgency columns; no flatten hack), NOT security-
+        // clearance's `security_access_request`.
+        $reason = trim((string) ($data['reason'] ?? ''));
+        if ($reason === '') {
+            $reason = (string) ($data['subject'] ?? '(no details provided)');
         }
-        if (! empty($data['justification'])) {
-            $justificationParts[] = 'Justification: '.$data['justification'];
-        }
-        $justification = implode("\n\n", $justificationParts) ?: '(no details provided)';
+        $justification = $data['justification'] ?? null;
+        $urgency = $data['urgency'] ?? 'normal';
 
-        // Map urgency → priority
-        $priority = $data['urgency'] ?? 'normal';
+        // requested_classification_id is NOT-NULL (FK→security_classification);
+        // the submit form leaves it optional, so fall back to the baseline
+        // Public classification (level 0).
+        $requestedClassificationId = $data['requested_classification_id']
+            ?? $this->defaultClassificationId();
 
-        $newId = DB::table('security_access_request')->insertGetId([
+        $newId = DB::table('access_request')->insertGetId([
             'user_id' => $userId,
             'request_type' => $data['request_type'] ?? 'clearance',
-            'classification_id' => $data['object_id'] ?? null,
-            'object_id' => $data['target_object_id'] ?? null,
+            'scope_type' => $data['scope_type'] ?? 'single',
+            'requested_classification_id' => $requestedClassificationId,
+            'current_classification_id' => $data['current_classification_id'] ?? null,
+            'reason' => $reason,
             'justification' => $justification,
-            'priority' => $priority,
+            'urgency' => $urgency,
             'status' => 'pending',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // Object-scoped request → record the target in access_request_scope
+        // (access_request has no object_id column; scoping lives in the satellite).
+        if (! empty($data['target_object_id'])) {
+            DB::table('access_request_scope')->insert([
+                'request_id' => $newId,
+                'object_type' => $data['target_object_type'] ?? 'information_object',
+                'object_id' => (int) $data['target_object_id'],
+                'include_descendants' => ! empty($data['include_descendants']) ? 1 : 0,
+                'object_title' => $data['target_object_title'] ?? null,
+                'created_at' => now(),
+            ]);
+        }
+
+        // Mail payload: keep justification/priority populated for the mail views'
+        // back-compat (priority mirrors urgency).
+        $justification = $justification ?? $reason;
+        $priority = $urgency;
 
         // #95: notify requester (acknowledgement) + every active approver
         // (review queue heads-up). Both gated on access_request_email_notifications
@@ -246,6 +270,24 @@ class AccessRequestService
         }
 
         return $newId;
+    }
+
+    /**
+     * #1366 — baseline classification for requests that don't specify one.
+     * The lowest level (Public, level 0); cached. Falls back to 1 if the
+     * classification table is empty/absent so the NOT-NULL insert can't throw.
+     */
+    private function defaultClassificationId(): int
+    {
+        try {
+            $id = DB::table('security_classification')
+                ->orderBy('level')->orderBy('id')
+                ->value('id');
+
+            return $id ? (int) $id : 1;
+        } catch (\Throwable) {
+            return 1;
+        }
     }
 
     /**
