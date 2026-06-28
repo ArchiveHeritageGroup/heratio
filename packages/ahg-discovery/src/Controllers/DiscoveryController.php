@@ -893,6 +893,36 @@ class DiscoveryController extends Controller
     // Entity-type search methods (browse-style search)
     // =====================================================================
 
+    /**
+     * #1367 — active multi-tenant repository scope (null when not enforced / admin
+     * / single-tenant). Mirrors ahg-search's ElasticsearchService so discovery
+     * can't surface another tenant's records on a multi-tenant install.
+     */
+    private function tenantRepoId(): ?int
+    {
+        return class_exists(\AhgCore\Support\TenantScope::class)
+            ? \AhgCore\Support\TenantScope::getActiveRepoId()
+            : null;
+    }
+
+    /**
+     * #1367 — shared ES filter clauses for IO queries: guest published-only
+     * (publicationStatusId 160) + the active tenant (repository.id), matching
+     * ahg-search's field names on the qubitinformationobject index.
+     */
+    private function esBaseFilters(): array
+    {
+        $filters = [];
+        if (! auth()->check()) {
+            $filters[] = ['term' => ['publicationStatusId' => 160]];
+        }
+        if (($repoId = $this->tenantRepoId()) !== null) {
+            $filters[] = ['term' => ['repository.id' => $repoId]];
+        }
+
+        return $filters;
+    }
+
     private function searchInformationObjects(string $query, string $culture, int $limit, int $offset): array
     {
         $base = DB::table('information_object as io')
@@ -915,6 +945,11 @@ class DiscoveryController extends Controller
                     ->whereColumn('pub_st.object_id', 'io.id')
                     ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
             });
+        }
+
+        // #1367 — multi-tenant scope: restrict to the active tenant's repository.
+        if (($repoId = $this->tenantRepoId()) !== null) {
+            $base->where('io.repository_id', $repoId);
         }
 
         $total = (clone $base)->count();
@@ -1209,9 +1244,11 @@ class DiscoveryController extends Controller
                                 'default_operator' => 'OR',
                             ],
                         ]],
-                        // Guests: published-only (publicationStatusId 160), mirroring
-                        // ahg-search's ElasticsearchService so discovery can't leak drafts (#1367).
-                        'filter' => auth()->check() ? [] : [['term' => ['publicationStatusId' => 160]]],
+                        // Guests: published-only (publicationStatusId 160); + active
+                        // tenant (repository.id) — mirrors ahg-search's
+                        // ElasticsearchService so discovery can't leak drafts or
+                        // cross-tenant records (#1367).
+                        'filter' => $this->esBaseFilters(),
                     ],
                 ],
                 '_source' => ['slug', "i18n.{$culture}.title"],
@@ -1306,8 +1343,9 @@ class DiscoveryController extends Controller
                     'bool' => [
                         'should' => $should,
                         'minimum_should_match' => 1,
-                        // Guests: published-only (#1367), mirroring ahg-search.
-                        'filter' => auth()->check() ? [] : [['term' => ['publicationStatusId' => 160]]],
+                        // Guests: published-only + active tenant (repository.id),
+                        // mirroring ahg-search (#1367).
+                        'filter' => $this->esBaseFilters(),
                     ],
                 ],
                 '_source' => ['nerEntityTypes', 'nerEntityValues'],

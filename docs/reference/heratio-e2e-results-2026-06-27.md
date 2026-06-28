@@ -968,3 +968,13 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
   before `location ^~ /uploads/`:
     location ^~ /uploads/ar/ { internal; alias /mnt/nas/heratio/uploads/ar/; }
   then `nginx -t && systemctl reload nginx` after the app code is deployed.
+
+## Fix applied (2026-06-28, #1367 multi-tenant tail — closes #1367)
+- **ahg-discovery** multi-tenant scoping added, mirroring ahg-search's
+  TenantScope::getActiveRepoId() (null when single-tenant / enforcement off / admin):
+  searchInformationObjects (DB) gains `io.repository_id = $repoId`; keywordSearch +
+  entitySearch (ES) gain `['term'=>['repository.id'=>$repoId]]` via a shared
+  esBaseFilters() helper (which also carries the guest publicationStatusId=160 term).
+  Verified: tenantRepoId()=null here (no-op, no regression), esBaseFilters()=published-only
+  for guests, anon discovery still 200 with 0 draft leaks. Earlier #1367 parts (anon
+  draft-leak gate, actor/repo guest-gate, click/pageindex throttle) already shipped. CLOSES #1367.
