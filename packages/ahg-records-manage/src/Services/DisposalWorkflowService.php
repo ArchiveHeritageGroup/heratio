@@ -170,6 +170,12 @@ class DisposalWorkflowService
             return false;
         }
 
+        // Separation of duties (#1374): the initiator may not approve their own
+        // disposal — destruction requires a second pair of eyes.
+        if ((int) $userId === (int) $action->initiated_by) {
+            return false;
+        }
+
         DB::table('rm_disposal_action')->where('id', $disposalActionId)->update([
             'approved_by' => $userId,
             'approved_at' => Carbon::now(),
@@ -202,6 +208,11 @@ class DisposalWorkflowService
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
         if (! $action || ! in_array($action->status, ['approved'])) {
+            return false;
+        }
+
+        // Separation of duties (#1374): the approver may not also legal-clear.
+        if ((int) $userId === (int) $action->approved_by) {
             return false;
         }
 

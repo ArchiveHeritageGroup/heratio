@@ -24,12 +24,12 @@ Route::get('/.well-known/ai-inference-pubkey', [PublicKeyController::class, 'sho
 Route::middleware(['web', 'auth'])->prefix('admin/ai-compliance')->name('ai-compliance.')->group(function () {
     Route::get('/risk',                    [RiskController::class, 'index'])->name('risk.index');
     Route::get('/risk/new',                [RiskController::class, 'create'])->name('risk.create');
-    Route::post('/risk',                   [RiskController::class, 'store'])->name('risk.store');
+    Route::post('/risk',                   [RiskController::class, 'store'])->name('risk.store')->middleware('acl:create');
     Route::get('/risk/{id}/edit',          [RiskController::class, 'edit'])->where('id', '[0-9]+')->name('risk.edit');
-    Route::put('/risk/{id}',               [RiskController::class, 'update'])->where('id', '[0-9]+')->name('risk.update');
-    Route::post('/risk/{id}/sign-off',     [RiskController::class, 'signOff'])->where('id', '[0-9]+')->name('risk.sign-off');
-    Route::post('/risk/{id}/archive',      [RiskController::class, 'archive'])->where('id', '[0-9]+')->name('risk.archive');
-    Route::post('/risk/{id}/incident',     [RiskController::class, 'reportIncident'])->where('id', '[0-9]+')->name('risk.incident');
+    Route::put('/risk/{id}',               [RiskController::class, 'update'])->where('id', '[0-9]+')->name('risk.update')->middleware('acl:update');
+    Route::post('/risk/{id}/sign-off',     [RiskController::class, 'signOff'])->where('id', '[0-9]+')->name('risk.sign-off')->middleware('acl:update');
+    Route::post('/risk/{id}/archive',      [RiskController::class, 'archive'])->where('id', '[0-9]+')->name('risk.archive')->middleware('acl:update');
+    Route::post('/risk/{id}/incident',     [RiskController::class, 'reportIncident'])->where('id', '[0-9]+')->name('risk.incident')->middleware('acl:update');
 });
 // --- END issue #724 ---
 
@@ -37,10 +37,10 @@ Route::middleware(['web', 'auth'])->prefix('admin/ai-compliance')->name('ai-comp
 Route::middleware(['web', 'auth'])->prefix('admin/ai-compliance')->name('ai-compliance.')->group(function () {
     Route::get('/systems',            [SystemInventoryController::class, 'index'])->name('systems.index');
     Route::get('/systems/new',        [SystemInventoryController::class, 'create'])->name('systems.create');
-    Route::post('/systems',           [SystemInventoryController::class, 'store'])->name('systems.store');
+    Route::post('/systems',           [SystemInventoryController::class, 'store'])->name('systems.store')->middleware('acl:create');
     Route::get('/systems/{id}/edit',  [SystemInventoryController::class, 'edit'])->where('id', '[0-9]+')->name('systems.edit');
-    Route::put('/systems/{id}',       [SystemInventoryController::class, 'update'])->where('id', '[0-9]+')->name('systems.update');
-    Route::delete('/systems/{id}',    [SystemInventoryController::class, 'destroy'])->where('id', '[0-9]+')->name('systems.destroy');
+    Route::put('/systems/{id}',       [SystemInventoryController::class, 'update'])->where('id', '[0-9]+')->name('systems.update')->middleware('acl:update');
+    Route::delete('/systems/{id}',    [SystemInventoryController::class, 'destroy'])->where('id', '[0-9]+')->name('systems.destroy')->middleware('acl:delete');
 });
 // --- END #1281 ---
 
@@ -50,14 +50,14 @@ Route::middleware(['web', 'auth'])->prefix('admin/ai-compliance')->group(functio
     // ai_model_registry CRUD
     Route::get('/models',           [ModelRegistryController::class, 'index'])->name('ai-compliance.models.index');
     Route::get('/models/create',    [ModelRegistryController::class, 'create'])->name('ai-compliance.models.create');
-    Route::post('/models',          [ModelRegistryController::class, 'store'])->name('ai-compliance.models.store');
+    Route::post('/models',          [ModelRegistryController::class, 'store'])->name('ai-compliance.models.store')->middleware('acl:create');
     Route::get('/models/{id}/edit', [ModelRegistryController::class, 'edit'])->whereNumber('id')->name('ai-compliance.models.edit');
-    Route::put('/models/{id}',      [ModelRegistryController::class, 'update'])->whereNumber('id')->name('ai-compliance.models.update');
-    Route::delete('/models/{id}',   [ModelRegistryController::class, 'destroy'])->whereNumber('id')->name('ai-compliance.models.destroy');
+    Route::put('/models/{id}',      [ModelRegistryController::class, 'update'])->whereNumber('id')->name('ai-compliance.models.update')->middleware('acl:update');
+    Route::delete('/models/{id}',   [ModelRegistryController::class, 'destroy'])->whereNumber('id')->name('ai-compliance.models.destroy')->middleware('acl:delete');
 
     // Annex IV technical-documentation generator + viewer
     Route::get('/documentation',           [Annex4Controller::class, 'index'])->name('ai-compliance.documentation.index');
-    Route::post('/documentation/generate', [Annex4Controller::class, 'generate'])->name('ai-compliance.documentation.generate');
+    Route::post('/documentation/generate', [Annex4Controller::class, 'generate'])->name('ai-compliance.documentation.generate')->middleware('acl:create');
     Route::get('/documentation/{filename}',[Annex4Controller::class, 'show'])->name('ai-compliance.documentation.show')
         ->where('filename', '[A-Za-z0-9_\-]+\.md');
 });
@@ -66,11 +66,11 @@ Route::middleware(['web', 'auth'])->prefix('admin/ai-compliance')->group(functio
 // --- BEGIN issue #726: Article 14 human oversight ---
 Route::middleware(['web', 'auth'])->prefix('admin/ai-compliance')->group(function () {
     Route::get('/oversight',                          [OversightController::class, 'index'])->name('ai-compliance.oversight.index');
-    Route::put('/oversight/policy/{id}',              [OversightController::class, 'updatePolicy'])->whereNumber('id')->name('ai-compliance.oversight.update');
-    Route::post('/oversight/halt/{service}',          [OversightController::class, 'halt'])->where('service', '[a-z0-9_-]+')->name('ai-compliance.oversight.halt');
-    Route::post('/oversight/resume/{service}',        [OversightController::class, 'resume'])->where('service', '[a-z0-9_-]+')->name('ai-compliance.oversight.resume');
-    Route::post('/oversight/halt-all',                [OversightController::class, 'haltAll'])->name('ai-compliance.oversight.halt-all');
-    Route::post('/oversight/attest',                  [OversightController::class, 'attest'])->name('ai-compliance.oversight.attest');
-    Route::post('/oversight/countersign/{id}',        [OversightController::class, 'countersign'])->whereNumber('id')->name('ai-compliance.oversight.countersign');
+    Route::put('/oversight/policy/{id}',              [OversightController::class, 'updatePolicy'])->whereNumber('id')->name('ai-compliance.oversight.update')->middleware('acl:update');
+    Route::post('/oversight/halt/{service}',          [OversightController::class, 'halt'])->where('service', '[a-z0-9_-]+')->name('ai-compliance.oversight.halt')->middleware('acl:update');
+    Route::post('/oversight/resume/{service}',        [OversightController::class, 'resume'])->where('service', '[a-z0-9_-]+')->name('ai-compliance.oversight.resume')->middleware('acl:update');
+    Route::post('/oversight/halt-all',                [OversightController::class, 'haltAll'])->name('ai-compliance.oversight.halt-all')->middleware('acl:update');
+    Route::post('/oversight/attest',                  [OversightController::class, 'attest'])->name('ai-compliance.oversight.attest')->middleware('acl:update');
+    Route::post('/oversight/countersign/{id}',        [OversightController::class, 'countersign'])->whereNumber('id')->name('ai-compliance.oversight.countersign')->middleware('acl:update');
 });
 // --- END issue #726 ---

@@ -794,3 +794,16 @@ the exemplars.
   169.254.169.254 → false) before fetching, and both probe requests use `withoutRedirecting()`
   so a public host can't 30x-redirect into an internal one. The plaintext peer-credential
   encryption (multi-file across locked services) is DEFERRED — #1380 stays open for it.
+
+## Fixes applied (2026-06-28, #1374 + #1354 batch)
+- **#1374 ahg-records-manage** — separation-of-duties on the disposal chain: approve() requires
+  approver≠initiated_by; clearLegal() requires clearer≠approved_by; executeDestroy() requires
+  executor∉{approved_by,legal_cleared_by} AND `AclService::isAdministrator()` (irreversible
+  destruction is administrators-only, not the EDITOR-inclusive canAdmin). FIXED.
+- **#1354 (batch, unlocked packages)** — added the missing `acl:`/`admin` route gates:
+  ai-compliance (all risk/systems/models/**oversight countersign/attest/halt** mutations →
+  acl:create/update/delete), vendor (5 match-routes → acl:create/update), exhibition (add/edit
+  → acl:create/update), media-streaming (caption CRUD → admin), provenance (write+legacy →
+  acl:update/delete), mods-manage + rad-manage (edit-that-publishes → acl:update). Verified via
+  route:list. #1354 STAYS OPEN — the LOCKED items (actor-manage config, spectrum POPIA writes,
+  IO-manage 13 routes, condition) need unlocks, plus ftp-upload/researcher-manage/naz/gis remain.

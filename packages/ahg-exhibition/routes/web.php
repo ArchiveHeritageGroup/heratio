@@ -18,8 +18,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('exhibition')->group(function () {
-    Route::match(['get', 'post'], '/add', [ExhibitionController::class, 'add'])->name('exhibition.add'); // ACL must be checked in controller (Route::match)
-    Route::match(['get', 'post'], '/{id}/edit', [ExhibitionController::class, 'edit'])->name('exhibition.edit'); // ACL must be checked in controller (Route::match)
+    Route::match(['get', 'post'], '/add', [ExhibitionController::class, 'add'])->name('exhibition.add')->middleware('acl:create'); // whole match route gated (GET form + POST mutation share the route)
+    Route::match(['get', 'post'], '/{id}/edit', [ExhibitionController::class, 'edit'])->name('exhibition.edit')->middleware('acl:update'); // whole match route gated (GET form + POST mutation share the route)
     Route::get('/{id}/objects', [ExhibitionController::class, 'objects'])->name('exhibition.objects');
     Route::get('/{id}/object-list', [ExhibitionController::class, 'objectList'])->name('exhibition.objectList');
     Route::get('/{id}/object-list/csv', [ExhibitionController::class, 'objectListCsv'])->name('exhibition.objectListCsv');

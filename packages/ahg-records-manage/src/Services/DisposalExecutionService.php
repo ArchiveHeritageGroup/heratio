@@ -2,6 +2,7 @@
 
 namespace AhgRecordsManage\Services;
 
+use AhgCore\Services\AclService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -13,6 +14,12 @@ class DisposalExecutionService
      */
     public function executeDestroy(int $disposalActionId, int $userId): array
     {
+        // #1374: irreversible record destruction is administrators-only — not the
+        // EDITOR-inclusive canAdmin gate the route group uses.
+        if (! AclService::isAdministrator()) {
+            return ['success' => false, 'error' => 'Record destruction is restricted to administrators.'];
+        }
+
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
         if (! $action) {
             return ['success' => false, 'error' => 'Disposal action not found.'];
@@ -20,6 +27,12 @@ class DisposalExecutionService
 
         if ($action->status !== 'cleared') {
             return ['success' => false, 'error' => 'Disposal action must be in "cleared" status to execute. Current status: '.$action->status];
+        }
+
+        // Separation of duties (#1374): the executor may not be the approver or the
+        // legal-clearer — the destruction certificate must be a four-eyes act.
+        if (in_array((int) $userId, [(int) $action->approved_by, (int) $action->legal_cleared_by], true)) {
+            return ['success' => false, 'error' => 'Separation of duties: destruction must be executed by someone other than the approver or legal-clearer.'];
         }
 
         // Verify no active legal hold

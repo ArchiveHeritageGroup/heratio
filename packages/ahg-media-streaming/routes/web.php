@@ -27,15 +27,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/media-streaming/caption-tracks/{digitalObjectId}/create', [CaptionTrackController::class, 'create'])
         ->name('caption-tracks.create');
     Route::post('/media-streaming/caption-tracks/{digitalObjectId}', [CaptionTrackController::class, 'store'])
-        ->name('caption-tracks.store');
+        ->name('caption-tracks.store')->middleware('admin');
     Route::get('/media-streaming/caption-tracks/{digitalObjectId}/{trackId}/edit', [CaptionTrackController::class, 'edit'])
         ->name('caption-tracks.edit');
     Route::put('/media-streaming/caption-tracks/{digitalObjectId}/{trackId}', [CaptionTrackController::class, 'update'])
-        ->name('caption-tracks.update');
+        ->name('caption-tracks.update')->middleware('admin');
     Route::delete('/media-streaming/caption-tracks/{digitalObjectId}/{trackId}', [CaptionTrackController::class, 'destroy'])
-        ->name('caption-tracks.destroy');
+        ->name('caption-tracks.destroy')->middleware('admin');
     Route::post('/media-streaming/caption-tracks/{digitalObjectId}/{trackId}/toggle', [CaptionTrackController::class, 'toggleActive'])
-        ->name('caption-tracks.toggle-active');
+        ->name('caption-tracks.toggle-active')->middleware('admin');
     Route::post('/media-streaming/caption-tracks/{digitalObjectId}/{trackId}/fetch', [CaptionTrackController::class, 'fetchRemote'])
-        ->name('caption-tracks.fetch');
+        ->name('caption-tracks.fetch')->middleware('admin');
 });
