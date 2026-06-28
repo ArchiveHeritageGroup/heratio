@@ -121,11 +121,19 @@ class FederationController extends Controller
             return response()->json(['success' => false, 'error' => 'Base URL is required']);
         }
 
+        // #1380: SSRF guard — this fetches an admin-supplied URL and reflects the
+        // response, so apply the same host allow-list the harvest path uses
+        // (blocks private/reserved/cloud-metadata hosts) before any request.
+        if (! app(\AhgFederation\Services\FederationClient::class)->hostAllowed($baseUrl)) {
+            return response()->json(['success' => false, 'error' => 'Target host is not allowed (private/internal/metadata address blocked).']);
+        }
+
         try {
-            // Test OAI-PMH endpoint with Identify verb
+            // Test OAI-PMH endpoint with Identify verb. withoutRedirecting() so a
+            // public host can't 30x-redirect the probe to an internal one (#1380).
             $testUrl = rtrim($baseUrl, '/') . '?verb=Identify';
             $client = new \Illuminate\Http\Client\Factory();
-            $response = $client->timeout(30)->get($testUrl);
+            $response = $client->timeout(30)->withoutRedirecting()->get($testUrl);
 
             if ($response->successful()) {
                 $body = $response->body();
@@ -143,7 +151,7 @@ class FederationController extends Controller
 
                 // Get metadata formats
                 $formatsUrl = rtrim($baseUrl, '/') . '?verb=ListMetadataFormats';
-                $fmtResponse = $client->timeout(15)->get($formatsUrl);
+                $fmtResponse = $client->timeout(15)->withoutRedirecting()->get($formatsUrl);
                 $formats = [];
                 if ($fmtResponse->successful()) {
                     preg_match_all('/<metadataPrefix>(.*?)<\/metadataPrefix>/s', $fmtResponse->body(), $fmtMatches);

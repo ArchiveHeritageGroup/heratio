@@ -780,3 +780,17 @@ the exemplars.
   z3950.target.store carries RequireAdmin. SRU publication filter DEFERRED (latent — mirrors
   the unfiltered library OPAC; adding status-160 could break SRU if library items aren't
   status-160; #1379 stays open for it).
+
+## Fixes applied (2026-06-27, #1361 + #1380)
+- **#1361 ahg-image-ar / ahg-3d-model** — `image-ar.delete` now requires `admin` (was any
+  authed user deleting any object's animation+MP4 by id); the 3d-model legacy hotspot aliases
+  (legacy.3d/ar3d addHotspot/deleteHotspot) now require `['auth','admin']` (matching the
+  canonical routes — was an auth-only privilege downgrade); `apiHotspots` returns empty for an
+  anon caller on a non-public model (was leaking hotspot titles/links/positions). Verified via
+  route:list (RequireAdmin) + the is_public gate. (The image-ar direct-node AI URL — tier C —
+  remains; overlaps the gateway work #1368.)
+- **#1380 ahg-federation** — `testPeer()` now runs the admin-supplied URL through
+  `FederationClient::hostAllowed()` (blocks private/reserved/cloud-metadata hosts — verified
+  169.254.169.254 → false) before fetching, and both probe requests use `withoutRedirecting()`
+  so a public host can't 30x-redirect into an internal one. The plaintext peer-credential
+  encryption (multi-file across locked services) is DEFERRED — #1380 stays open for it.

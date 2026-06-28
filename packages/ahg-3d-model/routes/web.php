@@ -130,8 +130,11 @@ Route::get('/api/3d/hotspots/{modelId}', [Model3dController::class, 'apiHotspots
     ->whereNumber('modelId')
     ->name('api.3d.hotspots');
 
-// Legacy AtoM URL aliases (JS widgets reference these paths)
-Route::middleware('auth')->group(function () {
+// Legacy AtoM URL aliases (JS widgets reference these paths).
+// #1361: these add/delete hotspots and must match the canonical routes' `admin`
+// gate (were `auth`-only — a privilege downgrade letting any authed user mutate
+// hotspots via the legacy path).
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/index.php/ar3DModel/addHotspot/{modelId}', [Model3dController::class, 'addHotspot'])
         ->whereNumber('modelId')
         ->name('legacy.3d.addHotspot');

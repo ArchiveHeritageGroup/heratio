@@ -9,8 +9,11 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->where('ioId', '[0-9]+')
         ->name('image-ar.generate');
 
+    // #1361: deleting an animation (removes the row + its MP4) was reachable by ANY
+    // authenticated user by id (no ownership/admin check) — require admin.
     Route::post('/image-ar/{id}/delete', [ImageArController::class, 'delete'])
         ->where('id', '[0-9]+')
+        ->middleware('admin')
         ->name('image-ar.delete');
 });
 

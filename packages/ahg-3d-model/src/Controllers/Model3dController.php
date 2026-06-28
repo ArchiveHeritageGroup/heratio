@@ -994,6 +994,15 @@ class Model3dController extends Controller
 
     public function apiHotspots(Request $request, int $modelId): JsonResponse
     {
+        // #1361: this method serves both the PUBLIC /api/3d/hotspots/{modelId} route
+        // and the authed admin route. For anon callers, only expose hotspots of a
+        // PUBLIC model — otherwise hotspot titles/descriptions/link_url/positions of
+        // a non-public model leak (unlike apiModels, which filters is_public).
+        $isPublic = (int) DB::table('object_3d_model')->where('id', $modelId)->value('is_public') === 1;
+        if (! $isPublic && ! auth()->check()) {
+            return response()->json(['hotspots' => []], 200, ['Access-Control-Allow-Origin' => '*']);
+        }
+
         $hotspots = DB::table('object_3d_hotspot as h')
             ->leftJoin('object_3d_hotspot_i18n as i18n', function ($join) {
                 $join->on('h.id', '=', 'i18n.hotspot_id')
