@@ -894,3 +894,9 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
 - **#1379** — SRU searchRetrieve() now status-158/160 gated. Z3950ServerService.executeSearch queries a separate library_marc_records store with no IO/status linkage (and no 'library' DB connection defined) — a status join would break it; needs a design decision. #1379 stays open for the Z3950-server tail.
 - **#1366** — view() IDOR already fixed; wrong-table split NOT changed: security_access_request (write) vs access_request (reads) have materially different columns (classification_id/object_id/priority absent on access_request; NOT-NULL requested_classification_id/reason unsupplied). Needs a human reconciliation decision — stays open.
 - **#1361** — image-ar delete/3d-model hotspots already gated; REMAINING: AR AI endpoint (.78:5052) needs a gateway-side route (like Donut) + MP4 publication gate — stays open.
+
+## Fix applied (2026-06-28, #1356 — closes #1356)
+- **ahg-biblio-frbr** WorkClusterController::show() — added the guest published-only
+  gate (when !auth: information_object.id!=1 + whereExists status type_id=158/status_id=160),
+  mirroring the #1353/#1367 canonical pattern. Latent on dev (clustering unpopulated → 404);
+  anon smoke still 404 (no 5xx). Authenticated editors still see drafts.

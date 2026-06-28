@@ -28,6 +28,19 @@ class WorkClusterController extends Controller
         $items = DB::table('library_item')
             ->where('library_item.work_key', $workKey)
             ->join('information_object', 'information_object.id', '=', 'library_item.information_object_id')
+            // #1356 — guests see published editions only (status type_id=158,
+            // status_id=160); an authenticated editor still sees drafts. Mirrors
+            // the #1353 ahg-display gate.
+            ->when(! auth()->check(), function ($q) {
+                $q->where('information_object.id', '!=', 1)
+                  ->whereExists(function ($sub) {
+                      $sub->select(DB::raw(1))
+                          ->from('status')
+                          ->whereColumn('status.object_id', 'information_object.id')
+                          ->where('status.type_id', 158)
+                          ->where('status.status_id', 160);
+                  });
+            })
             ->leftJoin('information_object_i18n', function ($j) {
                 $j->on('information_object_i18n.id', '=', 'information_object.id')
                   ->where('information_object_i18n.culture', '=', app()->getLocale());
