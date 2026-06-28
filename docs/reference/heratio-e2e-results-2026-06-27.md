@@ -870,3 +870,16 @@ In-controller checks:
   (probed: /ai/v1/donut/health → 404), so it cannot be pointed at the gateway without
   breaking extraction. Needs a gateway-side donut passthrough route added first
   (/opt/ahg-ai/gateway) — #1368 stays OPEN for this tail.
+
+## Fixes applied (2026-06-28, #1368 Donut tail — closes #1368)
+- **Gateway** (/opt/ahg-ai/gateway/app/routes/ai_proxy.py) — added a transparent
+  /ai/v1/donut/{subpath} passthrough (DONUT_UPSTREAM_URL=.115:5008, DONUT_TIMEOUT=180),
+  mirroring the htr/legacy + nuextract proxies: gateway auth + metering, verbatim
+  method/body/query/content-type so JSON + multipart round-trip. Activated via
+  `systemctl restart ahg-ai-gateway.service`. (Gateway-repo git commit left to its
+  own deploy convention — not committed here.)
+- **ahg-ai-services DonutService** — baseUrl now defaults to the gateway /donut base
+  (raw-node DONUT_SERVICE_URL override ignored via looksLikeNode), every call carries
+  the gateway Bearer key (resolveGatewayKey, same order as NER/HTR), 9 Http:: sites
+  routed through http(). VERIFIED end-to-end: DonutService->health() → gateway → live
+  node (status:ok, model_ready:true). #1368 fully resolved.

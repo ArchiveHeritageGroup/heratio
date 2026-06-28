@@ -27,6 +27,7 @@
 
 namespace AhgAiServices\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -34,15 +35,66 @@ class DonutService
 {
     protected string $baseUrl;
 
+    protected string $apiKey;
+
     public function __construct()
     {
-        $this->baseUrl = rtrim(env('DONUT_SERVICE_URL', 'http://192.168.0.115:5008'), '/');
+        // #1368 — route Donut document-extraction through the AHG AI gateway
+        // (/ai/v1/donut/*), never a direct :5008 node. A raw-node
+        // DONUT_SERVICE_URL override is ignored so a stale env value cannot
+        // bypass the gateway (metering/quota/failover/logging).
+        $override = (string) env('DONUT_SERVICE_URL', '');
+        $this->baseUrl = ($override !== '' && ! $this->looksLikeNode($override))
+            ? rtrim($override, '/')
+            : 'https://ai.theahg.co.za/ai/v1/donut';
+        $this->apiKey = $this->resolveGatewayKey();
+    }
+
+    /** True when a URL points at a raw GPU node rather than the gateway (#1368). */
+    private function looksLikeNode(string $url): bool
+    {
+        return (bool) preg_match('~:11434|://(?:127\.0\.0\.1|localhost|192\.168\.|10\.|172\.(?:1[6-9]|2\d|3[01])\.)~i', $url);
+    }
+
+    /**
+     * Resolve the gateway Bearer key, same order NER/HTR use (#1368):
+     * ahg_ner_settings.api_key, then ahg_ai_settings feature='general' api_key.
+     */
+    private function resolveGatewayKey(): string
+    {
+        try {
+            $key = (string) (DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value') ?? '');
+            if ($key !== '') {
+                return $key;
+            }
+            $key = (string) (DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value') ?? '');
+            if ($key !== '') {
+                return $key;
+            }
+        } catch (\Throwable) {
+            // settings tables absent during boot — no key.
+        }
+
+        return '';
+    }
+
+    /** HTTP client carrying the gateway Bearer token (#1368). */
+    private function http(): \Illuminate\Http\Client\PendingRequest
+    {
+        return $this->apiKey !== ''
+            ? Http::withToken($this->apiKey)
+            : Http::withHeaders([]);
     }
 
     public function health(): ?array
     {
         try {
-            $response = Http::timeout(10)->get("{$this->baseUrl}/health");
+            $response = $this->http()->timeout(10)->get("{$this->baseUrl}/health");
             return $response->successful() ? $response->json() : null;
         } catch (\Exception $e) {
             Log::error('Donut health check failed: ' . $e->getMessage());
@@ -77,7 +129,7 @@ class DonutService
             if (!$contextHints->isEmpty()) {
                 $payload['context_hints'] = $contextHints->toPromptPrefix();
             }
-            $response = Http::timeout(60)
+            $response = $this->http()->timeout(60)
                 ->attach('file', fopen($filePath, 'r'), basename($filePath))
                 ->post("{$this->baseUrl}/extract", $payload);
             if (!$response->successful()) {
@@ -167,7 +219,7 @@ class DonutService
     public function extractByPath(string $imagePath): ?array
     {
         try {
-            $response = Http::timeout(60)
+            $response = $this->http()->timeout(60)
                 ->post("{$this->baseUrl}/extract", [
                     'image_path' => $imagePath,
                 ]);
@@ -184,7 +236,7 @@ class DonutService
     public function batch(array $filePaths): ?array
     {
         try {
-            $request = Http::timeout(120);
+            $request = $this->http()->timeout(120);
             foreach ($filePaths as $path) {
                 $request = $request->attach('files', fopen($path, 'r'), basename($path));
             }
@@ -202,7 +254,7 @@ class DonutService
     public function classify(string $filePath): ?array
     {
         try {
-            $response = Http::timeout(30)
+            $response = $this->http()->timeout(30)
                 ->attach('file', fopen($filePath, 'r'), basename($filePath))
                 ->post("{$this->baseUrl}/classify");
             return $response->successful() ? $response->json() : null;
@@ -218,7 +270,7 @@ class DonutService
     public function positions(string $docType = 'type_a'): ?array
     {
         try {
-            $response = Http::timeout(15)->get("{$this->baseUrl}/positions", [
+            $response = $this->http()->timeout(15)->get("{$this->baseUrl}/positions", [
                 'doc_type' => $docType,
             ]);
             return $response->successful() ? $response->json() : null;
@@ -234,7 +286,7 @@ class DonutService
     public function downloadResult(string $jobId): ?array
     {
         try {
-            $response = Http::timeout(30)->get("{$this->baseUrl}/download/{$jobId}");
+            $response = $this->http()->timeout(30)->get("{$this->baseUrl}/download/{$jobId}");
             return $response->successful() ? $response->json() : null;
         } catch (\Exception $e) {
             Log::error('Donut download failed: ' . $e->getMessage());
@@ -245,7 +297,7 @@ class DonutService
     public function trainingStatus(): ?array
     {
         try {
-            $response = Http::timeout(10)->get("{$this->baseUrl}/training/status");
+            $response = $this->http()->timeout(10)->get("{$this->baseUrl}/training/status");
             return $response->successful() ? $response->json() : null;
         } catch (\Exception $e) {
             Log::error('Donut training status failed: ' . $e->getMessage());
@@ -256,7 +308,7 @@ class DonutService
     public function triggerTraining(int $epochs = 15, int $batchSize = 2): ?array
     {
         try {
-            $response = Http::timeout(30)->post("{$this->baseUrl}/train", [
+            $response = $this->http()->timeout(30)->post("{$this->baseUrl}/train", [
                 'epochs' => $epochs,
                 'batch_size' => $batchSize,
             ]);
