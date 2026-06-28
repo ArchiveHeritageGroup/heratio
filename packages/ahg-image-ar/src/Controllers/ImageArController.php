@@ -111,6 +111,60 @@ class ImageArController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * #1361 — gated MP4 delivery. The AR MP4 lives under the static nginx alias
+     * /uploads/ar/, so it was directly fetchable regardless of the parent IO's
+     * publication status. This route applies the guest published-status gate
+     * (status type_id=158/status_id=160) + the ODRL prohibition, then hands the
+     * file to nginx via X-Accel-Redirect (the /uploads/ar/ location is `internal`,
+     * so the only way to the bytes is through this gate).
+     */
+    public function streamVideo(int $ioId)
+    {
+        $row = DB::table('object_image_ar')->where('object_id', $ioId)->first();
+        if (! $row || empty($row->mp4_path)) {
+            abort(404);
+        }
+
+        // Guests: only published parent IOs.
+        if (! Auth::check()) {
+            $published = DB::table('status')
+                ->where('object_id', $ioId)
+                ->where('type_id', 158)
+                ->where('status_id', 160)
+                ->exists();
+            if (! $published) {
+                abort(404);
+            }
+        }
+
+        // ODRL prohibition on the source digital object (mirrors #1347), when available.
+        if (! empty($row->digital_object_id)
+            && class_exists(\AhgResearch\Services\OdrlService::class)) {
+            try {
+                $permitted = app(\AhgResearch\Services\OdrlService::class)
+                    ->isDigitalObjectPermitted((int) $row->digital_object_id, 'use');
+                if ($permitted === false) {
+                    abort(403);
+                }
+            } catch (\Throwable $e) {
+                // resolver error → fail open (never block on an exception), but an
+                // explicit deny above is honoured.
+            }
+        }
+
+        // Hand off to nginx's internal /uploads/ar/ location. mp4_path is the
+        // /uploads/ar/{ioId}/{file} web path the generator stored.
+        $internal = '/'.ltrim((string) $row->mp4_path, '/');
+
+        return response('', 200, [
+            'Content-Type'      => 'video/mp4',
+            'X-Accel-Redirect'  => $internal,
+            'Cache-Control'     => 'private, max-age=0, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function delete(Request $request, int $id)
     {
         $row = DB::table('object_image_ar')->where('id', $id)->first();

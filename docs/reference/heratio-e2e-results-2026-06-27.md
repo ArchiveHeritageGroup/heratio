@@ -955,3 +955,16 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
   repository/function bogus routes). Triage of 68 legacy ahg*plugin.md docs →
   docs/reference/heratio-legacy-docs-triage-2026-06-28.md (67 DELETE-redundant, 1 REWRITE).
   #1375 stays open (umbrella: execute deletes + author the two manuals).
+
+## Fix applied (2026-06-28, #1361 Part 2 — closes #1361)
+- **MP4 publication gate (X-Accel):** new gated route GET /image-ar/{ioId}/video
+  (ImageArController::streamVideo) applies the guest published-status gate (158/160)
+  + ODRL prohibition, then X-Accel-Redirects to nginx. The /uploads/ar/ location is
+  now `internal` (dev nginx done), so AR MP4 bytes are reachable ONLY through the gate.
+  show.blade video src repointed to route('image-ar.video', io->id) (Route::has guard).
+  VERIFIED on dev: a real file at /uploads/ar/* returns 404 on direct access (internal),
+  non-AR /uploads still 200, gated route 404s a missing row. #1361 FULLY CLOSED.
+- PROD DEPLOY STEP (required for the gate on prod): add to heratio.theahg.co.za.conf
+  before `location ^~ /uploads/`:
+    location ^~ /uploads/ar/ { internal; alias /mnt/nas/heratio/uploads/ar/; }
+  then `nginx -t && systemctl reload nginx` after the app code is deployed.

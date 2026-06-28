@@ -415,7 +415,7 @@
         <span class="badge bg-warning text-dark"><i class="fas fa-flask me-1"></i>{{ __('Auto-generated, non-authoritative') }}</span>
       </div>
       <div class="card-body text-center">
-        <video src="{{ $companionAnim->mp4_path }}"
+        <video src="{{ \Illuminate\Support\Facades\Route::has('image-ar.video') ? route('image-ar.video', $io->id) : $companionAnim->mp4_path }}"
                autoplay muted loop playsinline controls
                style="max-width:100%;max-height:420px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
         </video>

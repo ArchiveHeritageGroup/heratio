@@ -17,6 +17,14 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->name('image-ar.delete');
 });
 
+// #1361 — gated MP4 delivery (public, but publication-status + ODRL gated inside,
+// then X-Accel-Redirect to the `internal` /uploads/ar/ nginx location). Replaces
+// the direct static /uploads/ar/ URL in the IO viewer so draft/restricted
+// animations aren't fetchable by anon.
+Route::middleware('web')->get('/image-ar/{ioId}/video', [ImageArController::class, 'streamVideo'])
+    ->where('ioId', '[0-9]+')
+    ->name('image-ar.video');
+
 // Admin-only — settings page.
 Route::middleware(['web', 'admin'])->group(function () {
     Route::match(['get', 'post'], '/admin/image-ar/settings', [ImageArController::class, 'settings'])
