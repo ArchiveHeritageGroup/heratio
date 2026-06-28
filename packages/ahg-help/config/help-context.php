@@ -34,7 +34,7 @@ return [
         'research/argument'     => 'research-argument-builder',
         'research/ethics'       => 'research-ethics-register',
         'research/biblio'       => 'research-bibliographies',
-        'research'              => 'ahgresearchplugin',
+        'research'              => 'research-user-guide', // #1375 (was ahgresearchplugin legacy doc)
 
         'ingest'                => 'ingest-user-guide',
         'search'                => 'advanced-search-user-guide',

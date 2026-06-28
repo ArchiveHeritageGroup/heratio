@@ -978,3 +978,20 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
   Verified: tenantRepoId()=null here (no-op, no regression), esBaseFilters()=published-only
   for guests, anon discovery still 200 with 0 draft leaks. Earlier #1367 parts (anon
   draft-leak gate, actor/repo guest-gate, click/pageindex throttle) already shipped. CLOSES #1367.
+
+## Docs (2026-06-28, #1375 phases 3-4 increment)
+- **Technical Manual authored:** docs/manuals/technical-manual.md — architecture, the
+  115-package domain map, data model, all cross-cutting conventions (ACL, publication
+  gating, ODRL, multi-tenant, dropdowns/theme), search/ES, the AI gateway + passthroughs,
+  interop, release/locked-paths workflow, ProtectSystem + nginx static-gating, KM publish.
+  Captures the conventions previously only in CLAUDE.md + scattered refs.
+- **Legacy-doc deletes:** 62 of 67 redundant ahg*plugin.md removed (each had a confirmed
+  modern *-user-guide in help_article); help-context.php 'research' repointed
+  ahgresearchplugin→research-user-guide. 5 SKIPPED (still referenced by
+  ahg-help/resources/data/system-map.php + system-breakdown.php, and ahgpreservationplugin
+  also by ahg-ai-chatbot PreservationKnowledgeService CORPUS_GLOBS): ahgiiifplugin,
+  ahglibraryplugin, ahgpreservationplugin, ahgprovenanceplugin, ahgricexplorerplugin —
+  deletable once those references are repointed (follow-up). 1 REWRITE (ahguioverridesplugin)
+  deferred.
+- #1375 stays OPEN: author the per-module User Manual; finish the 5 skipped deletes +
+  the 1 rewrite; dam/library/museum duplicate-guide de-dup.
