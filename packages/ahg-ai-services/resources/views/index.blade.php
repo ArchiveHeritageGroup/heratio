@@ -152,6 +152,49 @@
     </div>
   </div>
 
+  {{-- Local-LLM fine-tuning (gateway-fronted QLoRA; non-destructive adapter) --}}
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+          <strong><i class="fas fa-graduation-cap me-2"></i>{{ __('Local-LLM Fine-tuning') }}</strong>
+          <span class="badge bg-light text-dark" id="llmft-state">{{ __('checking…') }}</span>
+        </div>
+        <div class="card-body small">
+          <p class="text-muted mb-2">
+            {{ __('Trains a non-destructive QLoRA adapter over the local LLM from KM Q&A, release notes and session logs. Runs on the GPU node via the AI gateway; the base model is never removed.') }}
+          </p>
+          <div class="row text-center mb-2" id="llmft-stats">
+            <div class="col"><div class="fw-bold" id="llmft-total">–</div><div class="text-muted">{{ __('examples') }}</div></div>
+            <div class="col"><div class="fw-bold" id="llmft-train">–</div><div class="text-muted">{{ __('train') }}</div></div>
+            <div class="col"><div class="fw-bold" id="llmft-eval">–</div><div class="text-muted">{{ __('eval') }}</div></div>
+            <div class="col"><div class="fw-bold" id="llmft-delta">–</div><div class="text-muted">{{ __('last eval Δ') }}</div></div>
+          </div>
+          <form method="POST" action="{{ route('admin.ai.llmFinetune.startTraining') }}" class="row g-2 align-items-end">
+            @csrf
+            <div class="col-auto">
+              <label class="form-label mb-0">{{ __('Epochs') }}</label>
+              <input type="number" name="epochs" value="2" min="1" max="6" class="form-control form-control-sm" style="width:90px">
+            </div>
+            <div class="col-auto">
+              <label class="form-label mb-0">{{ __('LoRA rank') }}</label>
+              <input type="number" name="rank" value="16" min="4" max="64" step="4" class="form-control form-control-sm" style="width:90px">
+            </div>
+            <div class="col-auto form-check ms-2">
+              <input type="checkbox" name="auto_promote" value="1" class="form-check-input" id="llmft-auto">
+              <label class="form-check-label" for="llmft-auto">{{ __('Auto-serve if eval passes') }}</label>
+            </div>
+            <div class="col-auto ms-auto">
+              <button type="submit" class="btn btn-primary btn-sm" id="llmft-start">
+                <i class="fas fa-brain me-1"></i>{{ __('Start fine-tune') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {{-- HTR & Specialist Services --}}
   <div class="row mb-4">
     <div class="col-md-4">
@@ -443,5 +486,21 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+// Local-LLM fine-tune status card (gateway-fronted)
+(function () {
+    const el = document.getElementById('llmft-state');
+    if (!el) return;
+    fetch("{{ route('admin.ai.llmFinetune.status') }}").then(r => r.json()).then(s => {
+        const d = (s && s.dataset) || {};
+        const set = (id, v) => { const n = document.getElementById(id); if (n && v != null) n.textContent = v; };
+        set('llmft-total', d.total); set('llmft-train', d.train); set('llmft-eval', d.eval);
+        if (s && s.last_eval && typeof s.last_eval.delta !== 'undefined') set('llmft-delta', s.last_eval.delta);
+        const running = s && (s.running || s.status === 'running');
+        el.textContent = running ? "{{ __('running…') }}" : (s && s.status ? s.status : "{{ __('idle') }}");
+        const btn = document.getElementById('llmft-start');
+        if (btn && running) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Training…') }}'; }
+    }).catch(() => { el.textContent = "{{ __('service offline') }}"; });
+})();
 </script>
 @endpush

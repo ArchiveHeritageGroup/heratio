@@ -28,6 +28,7 @@
 namespace AhgAiServices\Controllers;
 
 use AhgAiServices\Services\DonutService;
+use AhgAiServices\Services\LlmFinetuneService;
 use AhgAiServices\Services\HtrService;
 use AhgAiServices\Services\LlmService;
 use AhgAiServices\Services\NerService;
@@ -50,13 +51,15 @@ class AiController extends Controller
     private NerService $nerService;
     private HtrService $htrService;
     private DonutService $donutService;
+    private LlmFinetuneService $llmFinetuneService;
 
-    public function __construct(LlmService $llmService, NerService $nerService, HtrService $htrService, DonutService $donutService)
+    public function __construct(LlmService $llmService, NerService $nerService, HtrService $htrService, DonutService $donutService, LlmFinetuneService $llmFinetuneService)
     {
         $this->llmService = $llmService;
         $this->nerService = $nerService;
         $this->htrService = $htrService;
         $this->donutService = $donutService;
+        $this->llmFinetuneService = $llmFinetuneService;
     }
 
     /**
@@ -5514,5 +5517,33 @@ PY;
         }
 
         return back()->with('success', $result['message'] ?? 'Training started.');
+    }
+
+    /**
+     * Local-LLM QLoRA fine-tune: dataset/run status (via the gateway).
+     */
+    public function llmFinetuneStatus()
+    {
+        $status = $this->llmFinetuneService->trainingStatus();
+
+        return response()->json($status ?? ['error' => 'Service unavailable']);
+    }
+
+    /**
+     * Local-LLM QLoRA fine-tune: kick off a (gated, non-destructive) run.
+     */
+    public function llmStartTraining(Request $request)
+    {
+        $result = $this->llmFinetuneService->triggerTraining([
+            'epochs'       => $request->filled('epochs') ? (int) $request->input('epochs') : null,
+            'rank'         => $request->filled('rank') ? (int) $request->input('rank') : null,
+            'auto_promote' => (int) $request->boolean('auto_promote'),
+        ]);
+
+        if (!$result) {
+            return back()->with('error', 'Could not start LLM fine-tune. Check service status.');
+        }
+
+        return back()->with('success', $result['message'] ?? 'LLM fine-tune started.');
     }
 }

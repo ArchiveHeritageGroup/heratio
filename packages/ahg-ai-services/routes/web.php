@@ -174,6 +174,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
     Route::get('/donut/download/{jobId}', [AiController::class, 'donutDownload'])->name('admin.ai.donut.download');
     Route::get('/donut/training/status', [AiController::class, 'donutTrainingStatus'])->name('admin.ai.donut.trainingStatus');
     Route::post('/donut/training/start', [AiController::class, 'donutStartTraining'])->name('admin.ai.donut.startTraining');
+
+    // Local-LLM QLoRA fine-tune (gateway-fronted; non-destructive adapter)
+    Route::get('/llm-finetune/status', [AiController::class, 'llmFinetuneStatus'])->name('admin.ai.llmFinetune.status');
+    Route::post('/llm-finetune/start', [AiController::class, 'llmStartTraining'])->name('admin.ai.llmFinetune.startTraining');
 });
 
 /*
