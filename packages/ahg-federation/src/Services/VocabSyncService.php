@@ -462,8 +462,10 @@ class VocabSyncService
         $url = rtrim($peer->base_url, '/').'/api/federation/vocab/'.$taxonomyId;
 
         $headers = ['Accept: application/json'];
-        if (! empty($peer->api_key)) {
-            $headers[] = 'X-API-Key: '.$peer->api_key;
+        // #1380: decrypt at point of use (legacy plaintext rows pass through).
+        $apiKey = \AhgFederation\Support\PeerSecret::decrypt($peer->api_key ?? null);
+        if (! empty($apiKey)) {
+            $headers[] = 'X-API-Key: '.$apiKey;
         }
 
         $ch = curl_init($url);

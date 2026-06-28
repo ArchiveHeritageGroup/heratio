@@ -159,7 +159,8 @@ final class OaiPmhConnector implements PeerConnector
             'Accept: application/json',
             'User-Agent: AHG-Federation-OAI-Connector/1.0',
         ];
-        $key = $this->peer->search_api_key ?? $this->peer->api_key ?? null;
+        // #1380: decrypt at point of use (legacy plaintext rows pass through).
+        $key = \AhgFederation\Support\PeerSecret::decrypt($this->peer->search_api_key ?? $this->peer->api_key ?? null);
         if (is_string($key) && $key !== '') {
             $headers[] = 'X-API-Key: ' . $key;
         }

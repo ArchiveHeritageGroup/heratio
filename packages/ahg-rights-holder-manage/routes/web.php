@@ -43,10 +43,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/extended-rights/{slug}/clear', [ExtendedRightsController::class, 'clear'])->name('extended-rights.clear');
     Route::post('/extended-rights/{slug}/clear', [ExtendedRightsController::class, 'clearStore'])->name('extended-rights.clear.store')->middleware('acl:delete');
     // #1372: lifting an embargo is a privileged state change — require the acl grant
-    // (was auth-only: any authenticated user could lift ANY embargo). Still a GET
-    // (CSRF→POST conversion deferred to a coordinated view change); the acl gate
-    // closes the privilege-escalation now.
-    Route::get('/extended-rights/lift-embargo/{id}', [ExtendedRightsController::class, 'liftEmbargo'])->name('extended-rights.lift-embargo')->where('id', '[0-9]+')->middleware('acl:update');
+    // (was auth-only: any authenticated user could lift ANY embargo). Now POST-only
+    // so the DB mutation can't be triggered by a GET/CSRF-less link; callers submit
+    // a @csrf form. The acl gate closes the privilege-escalation.
+    Route::post('/extended-rights/lift-embargo/{id}', [ExtendedRightsController::class, 'liftEmbargo'])->name('extended-rights.lift-embargo')->where('id', '[0-9]+')->middleware('acl:update');
 
     // Rights routes (PREMIS)
     Route::get('/{slug}/rights', [RightsController::class, 'index'])->name('rights.index');

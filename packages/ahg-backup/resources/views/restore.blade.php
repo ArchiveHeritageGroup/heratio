@@ -210,6 +210,16 @@
       {{-- Result --}}
       <div id="restore-result" class="d-none mb-3"></div>
 
+      {{-- #1383: server-side typed confirmation. The phrase is sent with the
+           POST and re-checked on the server, so a JS-only confirm can no
+           longer trigger an irreversible restore. --}}
+      <div class="mb-3">
+        <label for="restore-confirm-phrase" class="form-label text-danger fw-bold">
+          {{ __('Type') }} <code>RESTORE</code> {{ __('to confirm this irreversible operation') }}
+        </label>
+        <input type="text" class="form-control" id="restore-confirm-phrase" autocomplete="off" spellcheck="false" placeholder="RESTORE">
+      </div>
+
       <button type="button" class="btn btn-outline-danger" id="btn-start-restore" onclick="confirmRestore()" disabled>
         <i class="fas fa-undo me-1"></i> {{ __('Restore Selected Components') }}
       </button>
@@ -310,6 +320,14 @@ function confirmRestore() {
     return;
   }
 
+  // #1383: require the typed confirmation phrase before proceeding. The
+  // server re-validates this, so skipping the dialog can't bypass it.
+  var phrase = (document.getElementById('restore-confirm-phrase').value || '').trim();
+  if (phrase !== 'RESTORE') {
+    alert('Type RESTORE in the confirmation box to proceed.');
+    return;
+  }
+
   var msg = 'You are about to restore the following components:\n\n' +
     checked.join(', ').toUpperCase() +
     '\n\nThis will OVERWRITE existing data and CANNOT be undone.\n\nAre you sure you want to proceed?';
@@ -323,6 +341,7 @@ function confirmRestore() {
 
 function startRestore(components) {
   var backupId = document.getElementById('backup-select').value;
+  var confirmPhrase = (document.getElementById('restore-confirm-phrase').value || '').trim();
   var progressDiv = document.getElementById('restore-progress');
   var progressBar = document.getElementById('restore-progress-bar');
   var statusDiv = document.getElementById('restore-status');
@@ -352,7 +371,7 @@ function startRestore(components) {
       'X-CSRF-TOKEN': '{{ csrf_token() }}',
       'Accept': 'application/json',
     },
-    body: JSON.stringify({ backup_id: backupId, components: components }),
+    body: JSON.stringify({ backup_id: backupId, components: components, confirm_phrase: confirmPhrase }),
   })
   .then(function(response) { return response.json(); })
   .then(function(data) {

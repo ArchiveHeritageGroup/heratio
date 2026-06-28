@@ -706,6 +706,17 @@ class BackupController extends Controller
             'components.*' => 'in:database,uploads,plugins,framework',
         ]);
 
+        // #1383: server-side typed confirmation. A restore is irreversible and
+        // overwrites live data, so it must not proceed on the client-side JS
+        // confirm alone — the POST must carry the exact phrase the operator
+        // typed. Absent/mismatched => 422, no restore performed.
+        if ((string) $request->input('confirm_phrase') !== 'RESTORE') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Restore not confirmed. Type RESTORE in the confirmation box to proceed.',
+            ], 422);
+        }
+
         $backupId = $request->input('backup_id');
         $components = $request->input('components', []);
         $backups = $this->listBackups();

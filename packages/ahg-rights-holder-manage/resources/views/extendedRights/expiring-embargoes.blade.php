@@ -53,7 +53,10 @@
               </td>
               <td>{{ ($embargo->embargo_type ?? '') . ' - ' . ($embargo->reason ?? '-') }}</td>
               <td>
-                <a href="{{ route('extended-rights.lift-embargo', $embargo->id) }}" class="btn btn-sm btn-outline-success" title="{{ __('Lift Embargo') }}"><i class="fas fa-unlock"></i></a>
+                <form method="POST" action="{{ route('extended-rights.lift-embargo', $embargo->id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to lift this embargo?');">
+                  @csrf
+                  <button type="submit" class="btn btn-sm btn-outline-success" title="{{ __('Lift Embargo') }}"><i class="fas fa-unlock"></i></button>
+                </form>
               </td>
             </tr>
             @endforeach

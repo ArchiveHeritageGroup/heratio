@@ -883,3 +883,14 @@ In-controller checks:
   the gateway Bearer key (resolveGatewayKey, same order as NER/HTR), 9 Http:: sites
   routed through http(). VERIFIED end-to-end: DonutService->health() → gateway → live
   node (status:ok, model_ready:true). #1368 fully resolved.
+
+## Partials sweep (2026-06-28) — verify + finish #1361/65/66/67/70/72/79/80/83
+Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
+- **#1372** — extended-rights.lift-embargo GET→POST (+ 2 blade links→csrf POST forms); ext-rights remove-tk-label +acl:delete.
+- **#1365** — annotations resolveIoIdFromTarget() implemented (slug from /iiif-manifest/{slug}), show() 404s anon on unpublished IO, search() empty for unpublished target.
+- **#1380** — federation peer api_key/search_api_key encrypted at rest (new PeerSecret helper, Crypt + legacy-plaintext decrypt fallback); write sites encrypt, read sites decrypt. Verified round-trip + legacy passthru.
+- **#1383** — doRestore() requires server-side confirm_phrase='RESTORE' (422 otherwise); restore.blade sends it. Admin-only + path-confinement already shipped.
+- **#1367** — guest-gate actor/repo (suggest/searchActors/searchRepositories require auth) + throttle discovery/click (30,1) & pageindex/api (10,1). Anon IO draft-leak already gated. REMAINING: multi-tenant scoping (cross-tenant on multi-tenant installs) — #1367 stays open for that tail.
+- **#1379** — SRU searchRetrieve() now status-158/160 gated. Z3950ServerService.executeSearch queries a separate library_marc_records store with no IO/status linkage (and no 'library' DB connection defined) — a status join would break it; needs a design decision. #1379 stays open for the Z3950-server tail.
+- **#1366** — view() IDOR already fixed; wrong-table split NOT changed: security_access_request (write) vs access_request (reads) have materially different columns (classification_id/object_id/priority absent on access_request; NOT-NULL requested_classification_id/reason unsupplied). Needs a human reconciliation decision — stays open.
+- **#1361** — image-ar delete/3d-model hotspots already gated; REMAINING: AR AI endpoint (.78:5052) needs a gateway-side route (like Donut) + MP4 publication gate — stays open.

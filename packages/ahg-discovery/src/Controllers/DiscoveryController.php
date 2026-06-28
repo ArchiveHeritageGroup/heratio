@@ -586,15 +586,20 @@ class DiscoveryController extends Controller
             ->limit(5)->get();
         $suggestions = $suggestions->merge($ios);
 
-        // Actor names
-        $actors = DB::table('actor_i18n as ai')
-            ->leftJoin('slug', 'ai.id', '=', 'slug.object_id')
-            ->where('ai.culture', $culture)
-            ->where('ai.authorized_form_of_name', 'like', "%{$query}%")
-            ->where('ai.id', '!=', 1)
-            ->select('ai.authorized_form_of_name as label', 'slug.slug', DB::raw("'Authority record' as type"))
-            ->limit(5)->get();
-        $suggestions = $suggestions->merge($actors);
+        // Actor names — authority records carry no native publication-status row
+        // (status type 158/160 applies to information_object only), so there is no
+        // clean published-gate join. Per #1367, suppress actor suggestions for anon
+        // (require auth) rather than risk leaking draft-linked authority records.
+        if (auth()->check()) {
+            $actors = DB::table('actor_i18n as ai')
+                ->leftJoin('slug', 'ai.id', '=', 'slug.object_id')
+                ->where('ai.culture', $culture)
+                ->where('ai.authorized_form_of_name', 'like', "%{$query}%")
+                ->where('ai.id', '!=', 1)
+                ->select('ai.authorized_form_of_name as label', 'slug.slug', DB::raw("'Authority record' as type"))
+                ->limit(5)->get();
+            $suggestions = $suggestions->merge($actors);
+        }
 
         // Subject/Place terms
         if ($suggestions->count() < $limit) {
@@ -922,6 +927,14 @@ class DiscoveryController extends Controller
 
     private function searchActors(string $query, string $culture, int $limit, int $offset): array
     {
+        // #1367: authority records have no native publication-status (158/160 is
+        // information_object-only), so there is no clean published-gate join.
+        // Suppress the entity-search actor branch for anon (require auth) to avoid
+        // leaking draft-linked authority records.
+        if (! auth()->check()) {
+            return ['results' => collect(), 'total' => 0];
+        }
+
         $base = DB::table('actor as a')
             ->join('actor_i18n as ai', function ($j) use ($culture) {
                 $j->on('a.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
@@ -940,6 +953,13 @@ class DiscoveryController extends Controller
 
     private function searchRepositories(string $query, string $culture, int $limit, int $offset): array
     {
+        // #1367: repositories have no native publication-status (158/160 is
+        // information_object-only), so there is no clean published-gate join.
+        // Suppress the entity-search repository branch for anon (require auth).
+        if (! auth()->check()) {
+            return ['results' => collect(), 'total' => 0];
+        }
+
         $base = DB::table('repository as r')
             ->join('actor_i18n as ai', function ($j) use ($culture) {
                 $j->on('r.id', '=', 'ai.id')->where('ai.culture', '=', $culture);

@@ -391,8 +391,10 @@ class FederatedSearchService
             'Accept: application/json',
             'User-Agent: Heratio-Federation-Search/1.0',
         ];
-        if (!empty($peer->search_api_key)) {
-            $headers[] = 'X-API-Key: ' . $peer->search_api_key;
+        // #1380: decrypt at point of use (legacy plaintext rows pass through).
+        $searchApiKey = \AhgFederation\Support\PeerSecret::decrypt($peer->search_api_key ?? null);
+        if (!empty($searchApiKey)) {
+            $headers[] = 'X-API-Key: ' . $searchApiKey;
         }
 
         $handle = curl_init($url);
@@ -750,7 +752,10 @@ class FederatedSearchService
         $data = ['peer_id' => $peerId, 'updated_at' => now()];
         foreach ($allowedFields as $f) {
             if (array_key_exists($f, $settings)) {
-                $data[$f] = $settings[$f];
+                // #1380: encrypt the search credential at rest.
+                $data[$f] = $f === 'search_api_key'
+                    ? \AhgFederation\Support\PeerSecret::encrypt($settings[$f])
+                    : $settings[$f];
             }
         }
 

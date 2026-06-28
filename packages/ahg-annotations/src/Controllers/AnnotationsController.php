@@ -99,6 +99,14 @@ class AnnotationsController extends Controller
             return $this->emptyContainer();
         }
 
+        // SECURITY (#1365): object-state gate. The search is scoped to a
+        // single target IRI, so resolve it once: anonymous readers only see
+        // annotations when the underlying IO is published (status 158/160).
+        // Unresolvable / unpublished targets return an empty container.
+        if (! auth()->check() && ! $this->targetIoIsPublishedForAnon($targetId)) {
+            return $this->emptyContainer();
+        }
+
         $projectId = $request->query('projectId');
         $visibility = $request->query('visibility');
         $authorId = $request->query('createdBy');
@@ -174,6 +182,14 @@ class AnnotationsController extends Controller
         // user) requesting a private/project annotation gets a 404 so we
         // neither leak the body nor confirm the row exists.
         if (! $this->canReadRow($row)) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        // SECURITY (#1365): object-state gate. An anonymous reader must not
+        // see a (public) annotation whose underlying IO is not published
+        // (status 158/160). Resolve the target IRI to its IO and require
+        // published status; unresolvable targets fail safe (404 for anon).
+        if (! auth()->check() && ! $this->targetIoIsPublishedForAnon($row->target_iri ?? null)) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
@@ -665,30 +681,63 @@ class AnnotationsController extends Controller
     }
 
     /**
-     * Best-effort IO lookup. The local IIIF service emits canvas IRIs with
-     * the IO slug embedded - we parse it out so admin can filter by IO.
-     * Returns null when the IRI doesn't match the local pattern (remote
-     * IIIF servers, etc.).
+     * Resolve an annotation target IRI to its information_object.id.
      *
-     * TODO(#1365): object-state gate for anonymous readers (hide
-     * annotations whose IO is not published — status type_id=158,
-     * status_id=160) is NOT yet enforceable here. This stub returns null,
-     * so annotation.information_object_id is always NULL in storage; there
-     * is no stored IO id to gate on, and the canvas IRI encodes the IO via
-     * _SL_-separated slug fragments (ahg-iiif-viewer.js) that cannot be
-     * reversed to an information_object.id without a slug round-trip. Once
-     * this resolver is implemented (and the column backfilled), add an
-     * anon-only join to `status` (type_id=158 => status_id=160) inside
-     * applyReadVisibilityScope()/canReadRow(). Deferred to avoid guessing
-     * an IRI->IO mapping that would silently drop or leak rows.
+     * Local canvas/manifest IRIs are built by the IIIF manifest service as
+     *   {baseUrl}/iiif-manifest/{slug}[/canvas/{n}[/...]]
+     * (IiifCollectionService::buildSingleCanvasV3 + routes/web.php), so the
+     * IO slug is the path segment immediately after `/iiif-manifest/`. We
+     * lift it, strip any selector fragment / query string, URL-decode it,
+     * and round-trip through the `slug` table to the object id.
+     *
+     * Returns null when the IRI is not a local manifest IRI (remote IIIF
+     * servers, legacy shapes) or the slug doesn't resolve — callers MUST
+     * fail safe (treat null as "not published" for anonymous readers).
      */
     private function resolveIoIdFromTarget(string $iri): ?int
     {
-        // Expect: https://host/iiif/3/<encoded-id>/canvas/<n>
-        // Where encoded-id has _SL_ separators from ahg-iiif-viewer.js.
-        // Resolving this back to information_object.id is non-trivial
-        // without round-tripping the slug; punt for now.
-        return null;
+        if ($iri === '') {
+            return null;
+        }
+
+        // Drop selector fragment (#xywh=...) and query string before matching.
+        $path = parse_url($iri, PHP_URL_PATH);
+        if (! is_string($path) || $path === '') {
+            $path = $iri;
+        }
+
+        if (! preg_match('#/iiif-manifest/([^/?#]+)#', $path, $m)) {
+            return null;
+        }
+
+        $slug = rawurldecode($m[1]);
+        if ($slug === '') {
+            return null;
+        }
+
+        $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
+
+        return $objectId ? (int) $objectId : null;
+    }
+
+    /**
+     * #1365 object-state gate: is the IO behind this annotation target
+     * published (status type_id=158 => status_id=160)? Used to hide
+     * annotations on unpublished IOs from anonymous readers. Unresolvable
+     * targets fail safe (return false → not visible to anon).
+     */
+    private function targetIoIsPublishedForAnon(?string $iri): bool
+    {
+        $ioId = ($iri !== null && $iri !== '') ? $this->resolveIoIdFromTarget($iri) : null;
+        if ($ioId === null) {
+            return false;
+        }
+
+        return DB::table('status')
+            ->where('object_id', $ioId)
+            ->where('type_id', 158)
+            ->where('status_id', 160)
+            ->exists();
     }
 
     /**

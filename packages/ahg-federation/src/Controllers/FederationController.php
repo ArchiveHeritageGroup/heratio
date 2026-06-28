@@ -210,7 +210,8 @@ class FederationController extends Controller
             'name' => $request->input('name'),
             'base_url' => rtrim((string) $request->input('base_url', ''), '/') ?: '-',
             'oai_identifier' => $request->input('oai_identifier'),
-            'api_key' => $request->input('api_key'),
+            // #1380: peer credential encrypted at rest (back-compat decrypt on read).
+            'api_key' => \AhgFederation\Support\PeerSecret::encrypt($request->input('api_key')),
             'description' => $request->input('description'),
             'contact_email' => $request->input('contact_email'),
             'default_metadata_prefix' => $request->input('default_metadata_prefix', 'oai_dc'),
