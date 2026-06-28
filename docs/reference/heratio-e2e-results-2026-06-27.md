@@ -1007,3 +1007,14 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
   (171 validated links). Companion to the Technical Manual. Closes the issue's "Structure &
   navigation" dimension.
 - #1375 remaining: 1 rewrite (ahguioverridesplugin), dam/library/museum duplicate-guide de-dup.
+
+## Docs (2026-06-28, #1375 tail — post-close cleanup)
+- **Retired** ahguioverridesplugin.md — Symfony "action-override" layer doc; no such
+  concept exists in Laravel Heratio (grep-confirmed). Deleted (was the 1 REWRITE row).
+- **Duplicate-guide de-dup (dam/library/museum/gallery/loan):** the short *-user-guide
+  is canonical in every pair (current Laravel routes/tables; the long *-module-user-guide
+  variants were stale GLAM-era — ASCII mockups, fake shortcuts, museum-module had Symfony
+  CLI). Deleted all 5 *-module-user-guide docs; repointed system-map.php (8) +
+  system-breakdown.php (6) + scanner-capture + technical/ahgGalleryPlugin refs to the
+  canonical short slugs. help-context + user-manual already pointed correctly. Each module
+  now has exactly one guide; 0 functional dangling refs. #1375 tail done.

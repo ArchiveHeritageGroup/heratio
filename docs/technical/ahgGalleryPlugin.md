@@ -740,7 +740,7 @@ Usage: `/galleryReports/exportCsv?report=artists`
 
 ## Related Documentation
 
-- [Gallery Module User Guide](../gallery-module-user-guide.md)
+- [Gallery Module User Guide](../gallery-user-guide.md)
 - [ahgExhibitionPlugin Technical Documentation](./ahgExhibitionPlugin.md)
 - [ahgConditionPlugin Technical Documentation](./ahgConditionPlugin.md)
 - [CCO Standard Reference](http://cco.vrafoundation.org/)

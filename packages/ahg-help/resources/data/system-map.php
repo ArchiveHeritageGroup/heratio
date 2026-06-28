@@ -243,9 +243,9 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'describe.cco', 'label' => 'CCO / VRA', 'sub' => 'Cultural objects / works', 'help' => 'gallery-module-user-guide',
+                    'id' => 'describe.cco', 'label' => 'CCO / VRA', 'sub' => 'Cultural objects / works', 'help' => 'gallery-user-guide',
                     'children' => [
-                        ['id' => 'describe.cco.work',  'label' => 'Work',  'sub' => 'Work record',  'help' => 'gallery-module-user-guide'],
+                        ['id' => 'describe.cco.work',  'label' => 'Work',  'sub' => 'Work record',  'help' => 'gallery-user-guide'],
                         ['id' => 'describe.cco.image', 'label' => 'Image', 'sub' => 'Surrogate / view'],
                     ],
                 ],
@@ -397,23 +397,23 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'display.museum', 'label' => 'Museum', 'sub' => 'Museum sector show', 'help' => 'museum-module-user-guide',
+                    'id' => 'display.museum', 'label' => 'Museum', 'sub' => 'Museum sector show', 'help' => 'museum-user-guide',
                     'children' => [
-                        ['id' => 'display.museum.object', 'label' => 'Object',   'sub' => 'Spectrum object view', 'help' => 'museum-module-user-guide'],
+                        ['id' => 'display.museum.object', 'label' => 'Object',   'sub' => 'Spectrum object view', 'help' => 'museum-user-guide'],
                         ['id' => 'display.museum.loc',    'label' => 'Location', 'sub' => 'Current location'],
                     ],
                 ],
                 [
-                    'id' => 'display.gallery', 'label' => 'Gallery', 'sub' => 'Gallery sector show', 'help' => 'gallery-module-user-guide',
+                    'id' => 'display.gallery', 'label' => 'Gallery', 'sub' => 'Gallery sector show', 'help' => 'gallery-user-guide',
                     'children' => [
-                        ['id' => 'display.gallery.work',  'label' => 'Work',  'sub' => 'CCO work view', 'help' => 'gallery-module-user-guide'],
+                        ['id' => 'display.gallery.work',  'label' => 'Work',  'sub' => 'CCO work view', 'help' => 'gallery-user-guide'],
                         ['id' => 'display.gallery.image', 'label' => 'Images','sub' => 'Views / surrogates'],
                     ],
                 ],
                 [
-                    'id' => 'display.dam', 'label' => 'DAM', 'sub' => 'Digital asset show', 'help' => 'dam-module-user-guide',
+                    'id' => 'display.dam', 'label' => 'DAM', 'sub' => 'Digital asset show', 'help' => 'dam-user-guide',
                     'children' => [
-                        ['id' => 'display.dam.asset',   'label' => 'Asset',    'sub' => 'Master + derivatives', 'help' => 'dam-module-user-guide'],
+                        ['id' => 'display.dam.asset',   'label' => 'Asset',    'sub' => 'Master + derivatives', 'help' => 'dam-user-guide'],
                         ['id' => 'display.dam.formats', 'label' => 'Formats',  'sub' => 'Image / AV / docs'],
                     ],
                 ],

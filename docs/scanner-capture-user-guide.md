@@ -709,5 +709,5 @@ These are not planned for any release - see §13 of the plan:
   one-off batch imports.
 - [Scanner integration plan](scanner-integration-plan.md) - the full
   technical plan behind this feature.
-- [DAM user guide](dam-module-user-guide.md) - how scanned assets appear in
+- [DAM user guide](dam-user-guide.md) - how scanned assets appear in
   the Digital Asset Manager.

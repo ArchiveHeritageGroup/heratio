@@ -158,7 +158,7 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'io.digital', 'label' => 'Digital objects', 'sub' => 'Attached media', 'help' => 'dam-module-user-guide',
+                    'id' => 'io.digital', 'label' => 'Digital objects', 'sub' => 'Attached media', 'help' => 'dam-user-guide',
                     'children' => [
                         ['id' => 'io.digital.master',  'label' => 'Master + derivatives', 'sub' => 'Original + surrogates'],
                         ['id' => 'io.digital.iiif',    'label' => 'IIIF deep-zoom',        'sub' => 'Mirador / Cantaloupe', 'help' => 'mirador-user-guide'],
@@ -367,7 +367,7 @@ return [
             'label' => 'Museum objects',
             'sub'   => 'Spectrum 5.1 procedures',
             'color' => '#9e2a2b',
-            'help'  => 'museum-module-user-guide',
+            'help'  => 'museum-user-guide',
             'children' => [
                 [
                     'id' => 'museum.description', 'label' => 'Description', 'sub' => 'Object identification', 'help' => 'spectrum-user-guide',
@@ -400,7 +400,7 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'museum.digital', 'label' => 'Digital objects', 'sub' => 'Object media', 'help' => 'dam-module-user-guide',
+                    'id' => 'museum.digital', 'label' => 'Digital objects', 'sub' => 'Object media', 'help' => 'dam-user-guide',
                     'children' => [
                         ['id' => 'museum.digital.images', 'label' => 'Images',     'sub' => 'Views / surrogates'],
                         ['id' => 'museum.digital.3d',     'label' => '3D / splat', 'sub' => 'Captured object scan', 'help' => '3d-model-viewer-user-guide'],
@@ -450,7 +450,7 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'library.digital', 'label' => 'Digital objects', 'sub' => 'Full text + scans', 'help' => 'dam-module-user-guide',
+                    'id' => 'library.digital', 'label' => 'Digital objects', 'sub' => 'Full text + scans', 'help' => 'dam-user-guide',
                     'children' => [
                         ['id' => 'library.digital.fulltext', 'label' => 'Full text',  'sub' => 'PDF / e-book'],
                         ['id' => 'library.digital.iiif',     'label' => 'IIIF deep-zoom', 'sub' => 'Page viewer', 'help' => 'mirador-user-guide'],
@@ -467,10 +467,10 @@ return [
             'label' => 'Digital objects',
             'sub'   => 'Digital asset management',
             'color' => '#5a189a',
-            'help'  => 'dam-module-user-guide',
+            'help'  => 'dam-user-guide',
             'children' => [
                 [
-                    'id' => 'dam.description', 'label' => 'Description', 'sub' => 'Asset metadata', 'help' => 'dam-module-user-guide',
+                    'id' => 'dam.description', 'label' => 'Description', 'sub' => 'Asset metadata', 'help' => 'dam-user-guide',
                     'children' => [
                         ['id' => 'dam.description.tech',    'label' => 'Technical metadata', 'sub' => 'Format / size / EXIF'],
                         ['id' => 'dam.description.formats', 'label' => 'Formats',            'sub' => 'Image / AV / docs'],
