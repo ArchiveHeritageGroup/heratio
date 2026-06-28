@@ -99,7 +99,7 @@ Route::get('/privacy/redacted-asset/{slug}', [PrivacyController::class, 'redacte
 
 // IO CRUD routes require auth + ACL
 Route::middleware('auth')->group(function () {
-    Route::post('/admin/fix-missing-slug', [InformationObjectController::class, 'fixMissingSlug'])->name('admin.fix-missing-slug');
+    Route::post('/admin/fix-missing-slug', [InformationObjectController::class, 'fixMissingSlug'])->name('admin.fix-missing-slug')->middleware('admin');
     Route::get('/informationobject/add', [InformationObjectController::class, 'create'])->name('informationobject.create');
     Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store')->middleware('acl:create');
     Route::match(['get', 'post'], '/informationobject/{slug}/reports', [InformationObjectController::class, 'reports'])->name('informationobject.reports');
@@ -194,20 +194,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/condition/{slug}/store', [ConditionController::class, 'store'])->name('io.condition.store')->middleware('acl:create');
     Route::get('/condition/report/{id}', [ConditionController::class, 'show'])->name('io.condition.show')->where('id', '[0-9]+');
     Route::get('/condition/report/{id}/photo', fn (int $id) => redirect()->route('io.condition.show', $id))->where('id', '[0-9]+');
-    Route::post('/condition/report/{id}/photo', [ConditionController::class, 'uploadPhoto'])->name('io.condition.photo.upload')->where('id', '[0-9]+');
-    Route::delete('/condition/photo/{id}', [ConditionController::class, 'deletePhoto'])->name('io.condition.photo.delete')->where('id', '[0-9]+');
-    Route::match(['get', 'post'], '/condition/api/annotation/{id}', [ConditionController::class, 'annotation'])->name('io.condition.annotation')->where('id', '[0-9]+');
+    Route::post('/condition/report/{id}/photo', [ConditionController::class, 'uploadPhoto'])->name('io.condition.photo.upload')->middleware('acl:create')->where('id', '[0-9]+');
+    Route::delete('/condition/photo/{id}', [ConditionController::class, 'deletePhoto'])->name('io.condition.photo.delete')->middleware('acl:delete')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/condition/api/annotation/{id}', [ConditionController::class, 'annotation'])->name('io.condition.annotation')->middleware('acl:update')->where('id', '[0-9]+'); // match(get,post) gated wholesale
     Route::get('/condition/check/{id}/photos', [ConditionController::class, 'spectrumShow'])->name('io.condition.spectrum.show')->where('id', '[0-9]+');
-    Route::post('/condition/ai-assess', [ConditionController::class, 'aiAssess'])->name('io.condition.ai-assess');
-    Route::post('/ai/describe/{id}', [InformationObjectController::class, 'aiDescribe'])->name('io.ai.describe')->where('id', '[0-9]+');
+    Route::post('/condition/ai-assess', [ConditionController::class, 'aiAssess'])->name('io.condition.ai-assess')->middleware('acl:update');
+    Route::post('/ai/describe/{id}', [InformationObjectController::class, 'aiDescribe'])->name('io.ai.describe')->middleware('acl:update')->where('id', '[0-9]+');
     Route::get('/spectrum/{slug}', [SpectrumController::class, 'index'])->name('io.spectrum');
     Route::get('/heritage/{slug}', [SpectrumController::class, 'heritage'])->name('io.heritage');
 
     // Digital Preservation (OAIS)
     Route::get('/preservation/{slug}', [PreservationController::class, 'index'])->name('io.preservation');
-    Route::post('/preservation/{slug}', [PreservationController::class, 'createPackage'])->name('io.preservation.create');
-    Route::post('/preservation/{slug}/{id}/update', [PreservationController::class, 'updatePackage'])->name('io.preservation.update')->where('id', '[0-9]+');
-    Route::post('/preservation/{slug}/{id}/export', [PreservationController::class, 'exportPackage'])->name('io.preservation.export')->where('id', '[0-9]+');
+    Route::post('/preservation/{slug}', [PreservationController::class, 'createPackage'])->name('io.preservation.create')->middleware('acl:create');
+    Route::post('/preservation/{slug}/{id}/update', [PreservationController::class, 'updatePackage'])->name('io.preservation.update')->middleware('acl:update')->where('id', '[0-9]+');
+    Route::post('/preservation/{slug}/{id}/export', [PreservationController::class, 'exportPackage'])->name('io.preservation.export')->middleware('acl:update')->where('id', '[0-9]+');
 
     // AI Tools
     Route::get('/ai/ner/extract/{id}', [AiController::class, 'extract'])->name('io.ai.extract')->where('id', '[0-9]+');
@@ -217,9 +217,9 @@ Route::middleware('auth')->group(function () {
 
     // Privacy & PII
     Route::get('/privacy/scan/{id}', [PrivacyController::class, 'scan'])->name('io.privacy.scan')->where('id', '[0-9]+');
-    Route::post('/privacy/scan/{id}', [PrivacyController::class, 'saveScan'])->name('io.privacy.scan.save')->where('id', '[0-9]+');
+    Route::post('/privacy/scan/{id}', [PrivacyController::class, 'saveScan'])->name('io.privacy.scan.save')->middleware('acl:update')->where('id', '[0-9]+');
     Route::get('/privacy/redaction/{slug}', [PrivacyController::class, 'redaction'])->name('io.privacy.redaction');
-    Route::post('/privacy/redaction/{slug}/save', [PrivacyController::class, 'saveRedactions'])->name('io.privacy.redaction.save');
+    Route::post('/privacy/redaction/{slug}/save', [PrivacyController::class, 'saveRedactions'])->name('io.privacy.redaction.save')->middleware('acl:update');
     Route::get('/privacy/dashboard', [PrivacyController::class, 'dashboard'])->name('io.privacy.dashboard');
     Route::get('/privacy/dsar-request', fn () => redirect('/admin/privacy/dsar-request'));
     Route::get('/privacy/dsar-status', fn () => redirect('/admin/privacy/dsar-status'));
@@ -274,8 +274,8 @@ Route::middleware('auth')->group(function () {
 
     // Research Tools
     Route::get('/research/citation/{slug}', [ResearchController::class, 'citation'])->name('io.research.citation');
-    Route::match(['get', 'post'], '/research/assessment/{slug}', [ResearchController::class, 'sourceAssessment'])->name('io.research.assessment');
-    Route::match(['get', 'post'], '/research/annotations/{slug}', [ResearchController::class, 'annotations'])->name('io.research.annotations');
+    Route::match(['get', 'post'], '/research/assessment/{slug}', [ResearchController::class, 'sourceAssessment'])->name('io.research.assessment')->middleware('acl:update'); // match(get,post) gated wholesale
+    Route::match(['get', 'post'], '/research/annotations/{slug}', [ResearchController::class, 'annotations'])->name('io.research.annotations')->middleware('acl:update'); // match(get,post) gated wholesale
     Route::get('/research/trust/{slug}', [ResearchController::class, 'trustScore'])->name('io.research.trust');
     Route::get('/research/tools', [ResearchController::class, 'dashboard'])->name('io.research.dashboard');
 

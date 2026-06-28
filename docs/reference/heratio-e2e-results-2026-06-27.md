@@ -807,3 +807,15 @@ the exemplars.
   acl:update/delete), mods-manage + rad-manage (edit-that-publishes → acl:update). Verified via
   route:list. #1354 STAYS OPEN — the LOCKED items (actor-manage config, spectrum POPIA writes,
   IO-manage 13 routes, condition) need unlocks, plus ftp-upload/researcher-manage/naz/gis remain.
+
+## Fixes applied (2026-06-28, #1354 locked-package batch)
+- **#1354 (locked subset)** — route-level gates added (each route verified to exist + lack a
+  gate first): **ahg-actor-manage** config→admin (rewrites authority config), dedup.scan +
+  reconcile.link + api.identifier.verify + completeness.recalc/batch-assign→acl:update;
+  **ahg-spectrum** POPIA writes (privacy-breaches/dsar/ropa/templates)→admin, workflow/barcode/
+  notification/annotations/procedure mutations→acl; **ahg-information-object-manage** the 13
+  sibling write routes (condition photo/annotation/ai-assess, ai.describe, preservation
+  create/update/export, privacy scan/redaction, research assessment/annotations)→acl,
+  admin.fix-missing-slug→admin; **ahg-condition** annotation.save/photo.upload/delete/base→acl.
+  Verified via route:list (RequireAdmin/CheckAcl), anon still 302. #1354 STILL OPEN for
+  ftp-upload / researcher-manage / naz / gis (the remaining lower-impact items).

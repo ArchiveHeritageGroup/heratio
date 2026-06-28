@@ -21,7 +21,7 @@ Route::middleware('auth')->group(function () {
     // External Authority Reconciliation
     // =========================================================================
     Route::get('/actor/{slug}/reconcile', [ActorController::class, 'reconcile'])->name('actor.reconcile');
-    Route::post('/actor/{slug}/reconcile/link', [ActorController::class, 'reconcileLink'])->name('actor.reconcile.link');
+    Route::post('/actor/{slug}/reconcile/link', [ActorController::class, 'reconcileLink'])->name('actor.reconcile.link')->middleware('acl:update');
 
     // =========================================================================
     // Authority Dashboard & Workqueue
@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/actor/authority/identifiers/{actorId}', [ActorController::class, 'identifiers'])->name('actor.identifiers');
     Route::post('/api/authority/identifier/save', [ActorController::class, 'apiIdentifierSave'])->name('actor.api.identifier.save')->middleware('acl:update');
     Route::post('/api/authority/identifier/{id}/delete', [ActorController::class, 'apiIdentifierDelete'])->name('actor.api.identifier.delete')->middleware('acl:delete');
-    Route::post('/api/authority/identifier/{id}/verify', [ActorController::class, 'apiIdentifierVerify'])->name('actor.api.identifier.verify');
+    Route::post('/api/authority/identifier/{id}/verify', [ActorController::class, 'apiIdentifierVerify'])->name('actor.api.identifier.verify')->middleware('acl:update');
 
     // =========================================================================
     // External Authority Lookup
@@ -48,8 +48,8 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     // Completeness
     // =========================================================================
-    Route::post('/api/authority/completeness/{actorId}/recalc', [ActorController::class, 'apiCompletenessRecalc'])->name('actor.api.completeness.recalc');
-    Route::post('/api/authority/completeness/batch-assign', [ActorController::class, 'apiCompletenessBatchAssign'])->name('actor.api.completeness.batch-assign');
+    Route::post('/api/authority/completeness/{actorId}/recalc', [ActorController::class, 'apiCompletenessRecalc'])->name('actor.api.completeness.recalc')->middleware('acl:update');
+    Route::post('/api/authority/completeness/batch-assign', [ActorController::class, 'apiCompletenessBatchAssign'])->name('actor.api.completeness.batch-assign')->middleware('acl:update');
 
     // =========================================================================
     // Relationship Graph
@@ -84,7 +84,7 @@ Route::middleware('auth')->group(function () {
     // Deduplication
     // =========================================================================
     Route::get('/actor/authority/dedup', [ActorController::class, 'dedupIndex'])->name('actor.dedup');
-    Route::match(['get', 'post'], '/actor/authority/dedup/scan', [ActorController::class, 'dedupScan'])->name('actor.dedup.scan'); // ACL check in controller for POST only
+    Route::match(['get', 'post'], '/actor/authority/dedup/scan', [ActorController::class, 'dedupScan'])->name('actor.dedup.scan')->middleware('acl:update'); // match(get,post) gated wholesale: scan POST mutates
     Route::get('/actor/authority/dedup/compare/{id}', [ActorController::class, 'dedupCompare'])->name('actor.dedup.compare');
     Route::post('/api/authority/dedup/{id}/dismiss', [ActorController::class, 'apiDedupDismiss'])->name('actor.api.dedup.dismiss')->middleware('acl:update');
     Route::post('/api/authority/dedup/{id}/merge', [ActorController::class, 'apiDedupMerge'])->name('actor.api.dedup.merge')->middleware('acl:update');
@@ -110,7 +110,7 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     // Configuration (admin only)
     // =========================================================================
-    Route::match(['get', 'post'], '/actor/authority/config', [ActorController::class, 'config'])->name('actor.config'); // ACL check in controller for POST only
+    Route::match(['get', 'post'], '/actor/authority/config', [ActorController::class, 'config'])->name('actor.config')->middleware('admin'); // match(get,post) gated wholesale: config POST rewrites authority config (admin)
 });
 
 Route::middleware('admin')->group(function () {

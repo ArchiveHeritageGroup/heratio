@@ -14,9 +14,9 @@ Route::middleware('auth')->prefix('condition')->group(function () {
 
     // AJAX
     Route::get('/annotation', [ConditionController::class, 'getAnnotation'])->name('condition.annotation.get');
-    Route::post('/annotation/save', [ConditionController::class, 'saveAnnotation'])->name('condition.annotation.save');
-    Route::post('/photo/upload', [ConditionController::class, 'upload'])->name('condition.photo.upload');
-    Route::post('/photo/{id}/delete', [ConditionController::class, 'deletePhoto'])->name('condition.photo.delete');
+    Route::post('/annotation/save', [ConditionController::class, 'saveAnnotation'])->name('condition.annotation.save')->middleware('acl:update');
+    Route::post('/photo/upload', [ConditionController::class, 'upload'])->name('condition.photo.upload')->middleware('acl:create');
+    Route::post('/photo/{id}/delete', [ConditionController::class, 'deletePhoto'])->name('condition.photo.delete')->middleware('acl:delete');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('condition')->group(function () {
@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
     // GET /condition/check — base path returns JSON listing of recent condition checks
     Route::get('/condition/check', [ConditionController::class, 'checkIndex'])->name('condition.check.index');
     // POST /condition/photo — base path for photo upload (alias to upload route)
-    Route::post('/condition/photo', [ConditionController::class, 'upload'])->name('condition.photo.base');
+    Route::post('/condition/photo', [ConditionController::class, 'upload'])->name('condition.photo.base')->middleware('acl:create');
     // GET /condition/photo — base path returns JSON error directing to proper endpoint
     Route::get('/condition/photo', function () {
         return response()->json([

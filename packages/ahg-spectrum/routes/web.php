@@ -17,27 +17,27 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth', EnsureSpectrumEnable
     Route::get('/label', [\AhgSpectrum\Controllers\SpectrumController::class, 'label'])->name('ahgspectrum.label');
     Route::get('/my-tasks', [\AhgSpectrum\Controllers\SpectrumController::class, 'myTasks'])->name('ahgspectrum.my-tasks');
     Route::get('/privacy-admin', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyAdmin'])->name('ahgspectrum.privacy-admin');
-    Route::match(['get', 'post'], '/privacy-breaches', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyBreaches'])->name('ahgspectrum.privacy-breaches');
+    Route::match(['get', 'post'], '/privacy-breaches', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyBreaches'])->name('ahgspectrum.privacy-breaches')->middleware('admin'); // match(get,post) gated wholesale: POPIA-sensitive write (admin)
     Route::get('/privacy-compliance', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyCompliance'])->name('ahgspectrum.privacy-compliance');
-    Route::match(['get', 'post'], '/privacy-dsar', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyDsar'])->name('ahgspectrum.privacy-dsar');
-    Route::match(['get', 'post'], '/privacy-ropa', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyRopa'])->name('ahgspectrum.privacy-ropa');
-    Route::match(['get', 'post'], '/privacy-templates', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyTemplates'])->name('ahgspectrum.privacy-templates');
+    Route::match(['get', 'post'], '/privacy-dsar', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyDsar'])->name('ahgspectrum.privacy-dsar')->middleware('admin'); // match(get,post) gated wholesale: POPIA-sensitive write (admin)
+    Route::match(['get', 'post'], '/privacy-ropa', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyRopa'])->name('ahgspectrum.privacy-ropa')->middleware('admin'); // match(get,post) gated wholesale: POPIA-sensitive write (admin)
+    Route::match(['get', 'post'], '/privacy-templates', [\AhgSpectrum\Controllers\SpectrumController::class, 'privacyTemplates'])->name('ahgspectrum.privacy-templates')->middleware('admin'); // match(get,post) gated wholesale: POPIA-sensitive write (admin)
     Route::get('/security-compliance', [\AhgSpectrum\Controllers\SpectrumController::class, 'securityCompliance'])->name('ahgspectrum.security-compliance');
     Route::get('/spectrum-export', [\AhgSpectrum\Controllers\SpectrumController::class, 'spectrumExport'])->name('ahgspectrum.spectrum-export');
     Route::get('/workflow', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflow'])->name('ahgspectrum.workflow');
-    Route::post('/workflow-transition', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowTransition'])->name('ahgspectrum.workflow-transition');
-    Route::post('/workflow-sop', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowSop'])->name('ahgspectrum.workflow-sop');
+    Route::post('/workflow-transition', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowTransition'])->name('ahgspectrum.workflow-transition')->middleware('acl:update');
+    Route::post('/workflow-sop', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowSop'])->name('ahgspectrum.workflow-sop')->middleware('acl:update');
 
     // #123 enable_barcodes: scan + assign endpoints. Both 404 when
     // spectrum_enable_barcodes is off (controller-side check) so the
     // routes are invisible until the operator opts in.
     Route::match(['get', 'post'], '/barcode/scan', [\AhgSpectrum\Controllers\SpectrumController::class, 'barcodeScan'])->name('ahgspectrum.barcode-scan');
-    Route::post('/barcode/assign', [\AhgSpectrum\Controllers\SpectrumController::class, 'barcodeAssign'])->name('ahgspectrum.barcode-assign');
+    Route::post('/barcode/assign', [\AhgSpectrum\Controllers\SpectrumController::class, 'barcodeAssign'])->name('ahgspectrum.barcode-assign')->middleware('acl:update');
 
     // Notifications
     Route::get('/notifications', [\AhgSpectrum\Controllers\SpectrumController::class, 'notifications'])->name('ahgspectrum.notifications');
-    Route::post('/notification/mark-read', [\AhgSpectrum\Controllers\SpectrumController::class, 'notificationMarkRead'])->name('ahgspectrum.notification.mark-read');
-    Route::post('/notification/mark-all-read', [\AhgSpectrum\Controllers\SpectrumController::class, 'notificationMarkAllRead'])->name('ahgspectrum.notification.mark-all-read');
+    Route::post('/notification/mark-read', [\AhgSpectrum\Controllers\SpectrumController::class, 'notificationMarkRead'])->name('ahgspectrum.notification.mark-read')->middleware('acl:update');
+    Route::post('/notification/mark-all-read', [\AhgSpectrum\Controllers\SpectrumController::class, 'notificationMarkAllRead'])->name('ahgspectrum.notification.mark-all-read')->middleware('acl:update');
     Route::get('/acquisitions', [\AhgSpectrum\Controllers\SpectrumController::class, 'acquisitions'])->name('ahgspectrum.acquisitions');
     Route::get('/conditions', [\AhgSpectrum\Controllers\SpectrumController::class, 'conditions'])->name('ahgspectrum.conditions');
     Route::get('/conservation', [\AhgSpectrum\Controllers\SpectrumController::class, 'conservation'])->name('ahgspectrum.conservation');
@@ -57,7 +57,7 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth', EnsureSpectrumEnable
     Route::get('/reports/valuations', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportValuations'])->name('ahgspectrum.report-valuations');
 
     // Condition photo annotations
-    Route::post('/save-annotations', [\AhgSpectrum\Controllers\SpectrumController::class, 'saveAnnotations'])->name('spectrum.saveAnnotations');
+    Route::post('/save-annotations', [\AhgSpectrum\Controllers\SpectrumController::class, 'saveAnnotations'])->name('spectrum.saveAnnotations')->middleware('acl:update');
     Route::get('/get-annotations', [\AhgSpectrum\Controllers\SpectrumController::class, 'getAnnotations'])->name('spectrum.getAnnotations');
     Route::get('/export-annotated-photo', [\AhgSpectrum\Controllers\SpectrumController::class, 'exportAnnotatedPhoto'])->name('spectrum.exportAnnotatedPhoto');
 });
@@ -69,4 +69,5 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth', EnsureSpectrumEnable
 Route::middleware(['web', 'auth', EnsureSpectrumEnabled::class])
     ->patch('/spectrum/procedure/{id}', [\AhgSpectrum\Controllers\ProcedureUpdateController::class, 'patch'])
     ->where('id', '[0-9]+')
+    ->middleware('acl:update')
     ->name('ahgspectrum.procedure.patch');
