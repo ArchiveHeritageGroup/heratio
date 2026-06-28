@@ -900,3 +900,16 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
   gate (when !auth: information_object.id!=1 + whereExists status type_id=158/status_id=160),
   mirroring the #1353/#1367 canonical pattern. Latent on dev (clustering unpopulated → 404);
   anon smoke still 404 (no 5xx). Authenticated editors still see drafts.
+
+## Docs (2026-06-28) — #1350 closed, #1375 phases 1-2 delivered
+- **#1375 phase 1 (inventory):** docs/reference/heratio-docs-coverage-matrix-2026-06-28.md —
+  115 ahg-* packages: 113 have a user article, only 11 were wired, 52 carry legacy AtoM
+  plugin docs, 2 have no dedicated article (ahg-inference-receipts, ahg-rdm).
+- **#1350 / #1375 phase 2 (wire):** help-context.php contextual-help map went 21→64 path
+  entries — wired all 8 T1 modules + 37 more verified admin modules (every slug confirmed
+  in help_article, every prefix a real route). Re-pointed admin/dropdowns to its dedicated
+  guide. Verified via HelpArticleService::contextualFor(): admin/acl, admin/backup,
+  taxonomy, tenant, admin/users/{id}/edit, admin/naz, … all resolve. Closes #1350.
+- **#1375 remaining (stays open):** de-stale the 52 legacy AtoM plugin docs + fix the known
+  factual errors; author the two coherent manuals (User + Technical) with a domain ToC;
+  fill the ~30 ahg-research submodule articles. These are a multi-phase authoring program.
