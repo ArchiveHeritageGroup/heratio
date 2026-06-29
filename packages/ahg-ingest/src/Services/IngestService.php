@@ -212,6 +212,28 @@ class IngestService
         ];
     }
 
+    /**
+     * Which processing options are ENABLED (operator-configured via
+     * Admin > Settings > Ingest, the ingest_* settings). The configure wizard
+     * hides any option that is not enabled so operators only see actions that
+     * will actually run.
+     */
+    public function processingAvailability(): array
+    {
+        $d = $this->ingestSettings();
+
+        return [
+            'virus_scan' => (bool) $d['virus_scan'],
+            'ocr' => (bool) $d['ocr'],
+            'ner' => (bool) $d['ner'],
+            'summarize' => (bool) $d['summarize'],
+            'spellcheck' => (bool) $d['spellcheck'],
+            'format_id' => (bool) $d['format_id'],
+            'face_detect' => (bool) $d['face_detect'],
+            'translate' => (bool) $d['translate'],
+        ];
+    }
+
     public function updateSessionStatus(int $id, string $status): void
     {
         DB::table('ingest_session')->where('id', $id)->update([

@@ -204,8 +204,13 @@
     <div class="card mb-4">
         <div class="card-header bg-info text-white"><h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('Processing Options') }}</h5></div>
         <div class="card-body">
-            <p class="text-muted mb-3">Select AI and processing actions to run on ingested records after commit.</p>
+            <p class="text-muted mb-3">{{ __('Select AI and processing actions to run on ingested records after commit. Only services enabled in Admin › Settings › Ingest are shown.') }}</p>
+            @php $anyProcessing = collect($processingAvailable ?? [])->contains(true); @endphp
+            @unless($anyProcessing)
+                <div class="alert alert-light border mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('No processing services are currently enabled. An administrator can enable them in Settings › Ingest.') }}</div>
+            @else
             <div class="row">
+                @if($processingAvailable['virus_scan'] ?? false)
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_virus_scan" name="process_virus_scan" value="1" @checked($session->process_virus_scan ?? true)>
@@ -213,6 +218,8 @@
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('ClamAV malware scan') }}</small>
                 </div>
+                @endif
+                @if($processingAvailable['ocr'] ?? false)
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_ocr" name="process_ocr" value="1" @checked($session->process_ocr ?? false)>
@@ -220,6 +227,8 @@
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Tesseract text extraction') }}</small>
                 </div>
+                @endif
+                @if($processingAvailable['ner'] ?? false)
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_ner" name="process_ner" value="1" @checked($session->process_ner ?? false)>
@@ -227,6 +236,8 @@
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Named entity extraction') }}</small>
                 </div>
+                @endif
+                @if($processingAvailable['summarize'] ?? false)
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_summarize" name="process_summarize" value="1" @checked($session->process_summarize ?? false)>
@@ -234,6 +245,8 @@
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Auto-generate summaries') }}</small>
                 </div>
+                @endif
+                @if($processingAvailable['spellcheck'] ?? false)
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_spellcheck" name="process_spellcheck" value="1" @checked($session->process_spellcheck ?? false)>
@@ -241,6 +254,8 @@
                     </div>
                     <small class="text-muted d-block ms-4">aspell grammar check</small>
                 </div>
+                @endif
+                @if($processingAvailable['format_id'] ?? false)
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_format_id" name="process_format_id" value="1" @checked($session->process_format_id ?? false)>
@@ -248,6 +263,8 @@
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Siegfried PRONOM identification') }}</small>
                 </div>
+                @endif
+                @if($processingAvailable['face_detect'] ?? false)
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_face_detect" name="process_face_detect" value="1" @checked($session->process_face_detect ?? false)>
@@ -255,6 +272,8 @@
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Detect & match faces') }}</small>
                 </div>
+                @endif
+                @if($processingAvailable['translate'] ?? false)
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_normalize" name="process_normalize" value="1" @checked($session->process_normalize ?? false)>
@@ -269,7 +288,9 @@
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Argos offline translation') }}</small>
                 </div>
+                @endif
             </div>
+            @endunless
         </div>
     </div>
 

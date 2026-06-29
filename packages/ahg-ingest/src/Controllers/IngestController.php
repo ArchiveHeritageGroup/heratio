@@ -142,8 +142,9 @@ class IngestController extends Controller
         }
 
         $repositories = $this->service->getRepositories();
+        $processingAvailable = $this->service->processingAvailability();
 
-        return view('ahg-ingest::configure', compact('session', 'repositories'));
+        return view('ahg-ingest::configure', compact('session', 'repositories', 'processingAvailable'));
     }
 
     public function upload(Request $request, int $id)
