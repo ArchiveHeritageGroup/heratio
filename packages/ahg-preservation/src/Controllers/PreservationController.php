@@ -391,6 +391,70 @@ class PreservationController extends Controller
         return view('ahg-preservation::conversion', compact('tools', 'conversionStats', 'recentConversions', 'pendingConversions'));
     }
 
+    // ── #1385 Phase 2 - normalization rule registry (FPR) CRUD ──────────
+
+    public function normalizationRules()
+    {
+        $rules = DB::table('preservation_normalization_rule')
+            ->orderBy('purpose')->orderBy('priority')->orderBy('source_mime')
+            ->get();
+        $tools = array_keys($this->service->getConversionTools());
+
+        return view('ahg-preservation::normalization-rules', compact('rules', 'tools'));
+    }
+
+    public function storeNormalizationRule(Request $request)
+    {
+        $data = $this->validateRule($request);
+        $data['created_at'] = now();
+        DB::table('preservation_normalization_rule')->insert($data);
+
+        return redirect()->route('preservation.normalization-rules')->with('success', 'Rule added.');
+    }
+
+    public function updateNormalizationRule(Request $request, int $id)
+    {
+        $data = $this->validateRule($request);
+        $data['updated_at'] = now();
+        DB::table('preservation_normalization_rule')->where('id', $id)->update($data);
+
+        return redirect()->route('preservation.normalization-rules')->with('success', 'Rule updated.');
+    }
+
+    public function toggleNormalizationRule(int $id)
+    {
+        $cur = DB::table('preservation_normalization_rule')->where('id', $id)->value('is_active');
+        DB::table('preservation_normalization_rule')->where('id', $id)->update(['is_active' => $cur ? 0 : 1, 'updated_at' => now()]);
+
+        return redirect()->route('preservation.normalization-rules')->with('success', 'Rule toggled.');
+    }
+
+    public function deleteNormalizationRule(int $id)
+    {
+        DB::table('preservation_normalization_rule')->where('id', $id)->delete();
+
+        return redirect()->route('preservation.normalization-rules')->with('success', 'Rule deleted.');
+    }
+
+    private function validateRule(Request $request): array
+    {
+        $v = $request->validate([
+            'source_mime' => 'nullable|string|max:100',
+            'source_pronom' => 'nullable|string|max:50',
+            'purpose' => 'required|in:preservation,access',
+            'target_format' => 'required|string|max:50',
+            'target_ext' => 'required|string|max:12',
+            'target_mime' => 'nullable|string|max:100',
+            'tool' => 'required|in:imagemagick,ghostscript,ffmpeg,libreoffice',
+            'priority' => 'nullable|integer|min:1|max:9999',
+            'is_active' => 'nullable',
+        ]);
+        $v['priority'] = $v['priority'] ?? 100;
+        $v['is_active'] = $request->boolean('is_active') ? 1 : 0;
+
+        return $v;
+    }
+
     /**
      * Format identification dashboard with Siegfried status, confidence, risk, top formats, CLI.
      */

@@ -49,6 +49,7 @@ class AhgPreservationServiceProvider extends ServiceProvider
                 RunFixitySchedulesCommand::class,
                 PremisExportCommand::class,
                 PreservationScanCommand::class,
+                \AhgPreservation\Console\NormalizeExistingCommand::class,
             ]);
         }
 
@@ -91,39 +92,54 @@ class AhgPreservationServiceProvider extends ServiceProvider
                 SQL);
             }
 
-            // Seed default preservation rules once (only if the table is empty).
-            if (DB::table('preservation_normalization_rule')->count() === 0) {
-                $now = now()->format('Y-m-d H:i:s');
-                $rule = fn (string $mime, string $fmt, string $ext, string $tmime, string $tool) => [
-                    'source_mime' => $mime, 'purpose' => 'preservation',
-                    'target_format' => $fmt, 'target_ext' => $ext, 'target_mime' => $tmime,
-                    'tool' => $tool, 'priority' => 100, 'is_active' => 1,
-                    'created_at' => $now,
-                ];
+            // Seed default rules idempotently, per purpose.
+            $now = now()->format('Y-m-d H:i:s');
+            $rule = fn (string $mime, string $fmt, string $ext, string $tmime, string $tool, string $purpose) => [
+                'source_mime' => $mime, 'purpose' => $purpose,
+                'target_format' => $fmt, 'target_ext' => $ext, 'target_mime' => $tmime,
+                'tool' => $tool, 'priority' => 100, 'is_active' => 1,
+                'created_at' => $now,
+            ];
+
+            // Preservation masters (open, lossless/archival formats).
+            if (! DB::table('preservation_normalization_rule')->where('purpose', 'preservation')->exists()) {
                 DB::table('preservation_normalization_rule')->insert([
-                    // Images -> TIFF (LZW)
-                    $rule('image/jpeg', 'TIFF', 'tiff', 'image/tiff', 'imagemagick'),
-                    $rule('image/png',  'TIFF', 'tiff', 'image/tiff', 'imagemagick'),
-                    $rule('image/gif',  'TIFF', 'tiff', 'image/tiff', 'imagemagick'),
-                    $rule('image/bmp',  'TIFF', 'tiff', 'image/tiff', 'imagemagick'),
-                    // PDF -> PDF/A (Ghostscript)
-                    $rule('application/pdf', 'PDF/A', 'pdf', 'application/pdf', 'ghostscript'),
-                    // Office -> PDF (LibreOffice)
-                    $rule('application/msword', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
-                    $rule('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
-                    $rule('application/vnd.ms-excel', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
-                    $rule('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
-                    $rule('application/vnd.ms-powerpoint', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
-                    $rule('application/vnd.openxmlformats-officedocument.presentationml.presentation', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
-                    $rule('application/vnd.oasis.opendocument.text', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
-                    // Audio -> WAV
-                    $rule('audio/mpeg', 'WAV', 'wav', 'audio/x-wav', 'ffmpeg'),
-                    $rule('audio/ogg',  'WAV', 'wav', 'audio/x-wav', 'ffmpeg'),
-                    $rule('audio/aac',  'WAV', 'wav', 'audio/x-wav', 'ffmpeg'),
-                    // Video -> MKV (FFV1)
-                    $rule('video/mp4',       'MKV', 'mkv', 'video/x-matroska', 'ffmpeg'),
-                    $rule('video/quicktime', 'MKV', 'mkv', 'video/x-matroska', 'ffmpeg'),
-                    $rule('video/x-msvideo',  'MKV', 'mkv', 'video/x-matroska', 'ffmpeg'),
+                    $rule('image/jpeg', 'TIFF', 'tiff', 'image/tiff', 'imagemagick', 'preservation'),
+                    $rule('image/png',  'TIFF', 'tiff', 'image/tiff', 'imagemagick', 'preservation'),
+                    $rule('image/gif',  'TIFF', 'tiff', 'image/tiff', 'imagemagick', 'preservation'),
+                    $rule('image/bmp',  'TIFF', 'tiff', 'image/tiff', 'imagemagick', 'preservation'),
+                    $rule('application/pdf', 'PDF/A', 'pdf', 'application/pdf', 'ghostscript', 'preservation'),
+                    $rule('application/msword', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'preservation'),
+                    $rule('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'preservation'),
+                    $rule('application/vnd.ms-excel', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'preservation'),
+                    $rule('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'preservation'),
+                    $rule('application/vnd.ms-powerpoint', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'preservation'),
+                    $rule('application/vnd.openxmlformats-officedocument.presentationml.presentation', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'preservation'),
+                    $rule('application/vnd.oasis.opendocument.text', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'preservation'),
+                    $rule('audio/mpeg', 'WAV', 'wav', 'audio/x-wav', 'ffmpeg', 'preservation'),
+                    $rule('audio/ogg',  'WAV', 'wav', 'audio/x-wav', 'ffmpeg', 'preservation'),
+                    $rule('audio/aac',  'WAV', 'wav', 'audio/x-wav', 'ffmpeg', 'preservation'),
+                    $rule('video/mp4',       'MKV', 'mkv', 'video/x-matroska', 'ffmpeg', 'preservation'),
+                    $rule('video/quicktime', 'MKV', 'mkv', 'video/x-matroska', 'ffmpeg', 'preservation'),
+                    $rule('video/x-msvideo',  'MKV', 'mkv', 'video/x-matroska', 'ffmpeg', 'preservation'),
+                ]);
+            }
+
+            // Access copies (web-friendly dissemination formats) - #1385 Phase 2.
+            if (! DB::table('preservation_normalization_rule')->where('purpose', 'access')->exists()) {
+                DB::table('preservation_normalization_rule')->insert([
+                    $rule('image/tiff', 'JPEG', 'jpg', 'image/jpeg', 'imagemagick', 'access'),
+                    $rule('image/png',  'JPEG', 'jpg', 'image/jpeg', 'imagemagick', 'access'),
+                    $rule('image/bmp',  'JPEG', 'jpg', 'image/jpeg', 'imagemagick', 'access'),
+                    $rule('application/msword', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'access'),
+                    $rule('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'access'),
+                    $rule('application/vnd.ms-excel', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'access'),
+                    $rule('application/vnd.ms-powerpoint', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'access'),
+                    $rule('application/vnd.oasis.opendocument.text', 'PDF', 'pdf', 'application/pdf', 'libreoffice', 'access'),
+                    $rule('audio/x-wav', 'MP3', 'mp3', 'audio/mpeg', 'ffmpeg', 'access'),
+                    $rule('audio/wav',   'MP3', 'mp3', 'audio/mpeg', 'ffmpeg', 'access'),
+                    $rule('video/x-matroska', 'MP4', 'mp4', 'video/mp4', 'ffmpeg', 'access'),
+                    $rule('video/quicktime',  'MP4', 'mp4', 'video/mp4', 'ffmpeg', 'access'),
                 ]);
             }
 

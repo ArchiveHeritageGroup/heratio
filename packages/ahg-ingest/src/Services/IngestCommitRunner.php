@@ -421,7 +421,10 @@ class IngestCommitRunner
         $normalize = $session && (int) ($session->process_normalize ?? 0) === 1;
         if ($normalize && class_exists(\AhgPreservation\Jobs\NormalizeDigitalObjectJob::class)) {
             try {
+                // Preservation master + access copy (#1385 Phase 2). Each job
+                // no-ops when no rule matches the format.
                 \AhgPreservation\Jobs\NormalizeDigitalObjectJob::dispatch($doId, 'preservation');
+                \AhgPreservation\Jobs\NormalizeDigitalObjectJob::dispatch($doId, 'access');
             } catch (\Throwable $e) {
                 Log::warning('[ingest-preservation] normalize dispatch failed for DO ' . $doId . ': ' . $e->getMessage());
             }

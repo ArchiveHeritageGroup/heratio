@@ -29,12 +29,39 @@ always-on baseline of checksum + format-ID + virus + PREMIS):
 - A row in the **format-conversion log** (source/target, sizes, checksums,
   duration).
 
+## Preservation masters and access copies
+
+Two kinds of copy are produced, each driven by its own rules:
+
+- **Preservation master** - an archival, lossless/open format (image -> TIFF,
+  office/PDF -> PDF/A, audio -> WAV, video -> Matroska/FFV1). Attached with
+  usage **"Preservation Master"**.
+- **Access copy** - a web-friendly format for delivery (TIFF/PNG -> JPEG,
+  office -> PDF, WAV -> MP3, Matroska -> MP4). Attached with usage
+  **"Reference"**.
+
+When you tick **Normalize** on ingest, both are produced where a rule matches.
+
 ## What controls the target format
 
-A rule registry (the format policy registry) maps each source format to its
-preservation target and tool. Defaults cover common image, office/PDF, audio
-and video formats. A file with no matching rule (or one that is already in a
-preservation format, e.g. TIFF) is simply left as-is.
+A rule registry - the **format policy registry** - maps each source format to
+its target and tool. Manage it at **Preservation -> Normalization Rules**
+(add/edit/toggle/delete rules; separate rules for the `preservation` and
+`access` purposes). Defaults cover common image, office/PDF, audio and video
+formats. A file with no matching rule (or already in the target format, e.g. a
+TIFF for the preservation purpose) is simply left as-is.
+
+## Normalizing files that are already in the catalogue
+
+To backfill masters/access copies for objects ingested before normalization was
+enabled, run:
+
+```
+php artisan ahg:normalize-existing --purpose=preservation   # or --purpose=access
+```
+
+Options: `--limit=N`, `--mime=image/jpeg`, `--sync` (run inline instead of
+queueing).
 
 ## Where to see it
 

@@ -8,6 +8,7 @@
         ['route' => 'preservation.formats',         'icon' => 'fa-file-code',      'label' => 'Format Registry'],
         ['route' => 'preservation.identification',  'icon' => 'fa-fingerprint',    'label' => 'Identification'],
         ['route' => 'preservation.conversion',      'icon' => 'fa-sync-alt',       'label' => 'Conversion'],
+        ['route' => 'preservation.normalization-rules', 'icon' => 'fa-list-check', 'label' => 'Normalization Rules'],
         ['route' => 'preservation.virus-scan',      'icon' => 'fa-shield-virus',   'label' => 'Virus Scans'],
         ['route' => 'preservation.policies',        'icon' => 'fa-clipboard-list', 'label' => 'Policies'],
         ['route' => 'preservation.packages',        'icon' => 'fa-box',            'label' => 'OAIS Packages'],

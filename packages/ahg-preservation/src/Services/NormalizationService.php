@@ -61,15 +61,22 @@ class NormalizationService
             return null;
         }
 
-        // Idempotency: skip if this DO already has a completed conversion to the
-        // same target, or already carries a preservation-master child.
-        $already = DB::table('preservation_format_conversion')
-            ->where('digital_object_id', $digitalObjectId)
-            ->where('target_format', $rule->target_format)
-            ->where('status', 'completed')
-            ->exists();
-        if ($already) {
-            return null;
+        // Target usage depends on purpose: preservation master vs access copy
+        // (reference). Resolved up front so idempotency keys on the derivative.
+        $usageId = $purpose === 'access'
+            ? 141 // QubitTerm reference (the dissemination/access copy)
+            : $this->preservationMasterUsageId();
+
+        // Idempotency: skip if this DO already carries a child derivative of the
+        // target usage (a preservation master / access copy already exists).
+        if ($usageId) {
+            $hasChild = DB::table('digital_object')
+                ->where('parent_id', $digitalObjectId)
+                ->where('usage_id', $usageId)
+                ->exists();
+            if ($hasChild) {
+                return null;
+            }
         }
 
         $sourcePath = DigitalObjectService::resolveDiskPath($do);
@@ -102,7 +109,7 @@ class NormalizationService
             'output_path' => $outputPath,
             'conversion_options' => $rule->options,
             'started_at' => $now,
-            'created_by' => 'ingest-normalization',
+            'created_by' => 'ingest-normalization:' . $purpose,
             'created_at' => $now,
         ]);
 
@@ -141,8 +148,9 @@ class NormalizationService
                 'duration_ms' => (int) ((microtime(true) - $start) * 1000),
             ]);
 
-            // Attach the master as a linked child digital_object.
-            $derivativeId = $this->attachPreservationMaster($do, $outputPath, (string) $rule->target_mime, $outSize, $outChecksum);
+            // Attach the output as a linked child digital_object (preservation
+            // master or access copy, per purpose).
+            $derivativeId = $this->attachDerivative($do, $outputPath, (string) $rule->target_mime, $outSize, $outChecksum, $usageId);
 
             // PREMIS normalization event.
             try {
@@ -150,7 +158,7 @@ class NormalizationService
                     $derivativeId ?: $digitalObjectId,
                     isset($do->object_id) ? (int) $do->object_id : null,
                     'normalization',
-                    "Normalized to {$rule->target_format} via {$rule->tool} (source DO {$digitalObjectId})",
+                    ucfirst($purpose) . " copy created: normalized to {$rule->target_format} via {$rule->tool} (source DO {$digitalObjectId})",
                     'success'
                 );
             } catch (\Throwable $e) {
@@ -207,11 +215,10 @@ class NormalizationService
      * Insert the normalized output as a child digital_object (usage =
      * Preservation Master), mirroring MediaDerivativeService::insertDerivative.
      */
-    private function attachPreservationMaster(object $sourceDo, string $diskPath, string $mime, ?int $byteSize, string $checksum): ?int
+    private function attachDerivative(object $sourceDo, string $diskPath, string $mime, ?int $byteSize, string $checksum, ?int $usageId): ?int
     {
-        $usageId = $this->preservationMasterUsageId();
         if (! $usageId) {
-            return null; // term missing - record stays in the conversion log only
+            return null; // usage missing - record stays in the conversion log only
         }
 
         $ioId = isset($sourceDo->object_id) ? (int) $sourceDo->object_id : null;
@@ -290,13 +297,20 @@ class NormalizationService
 
         switch ($tool) {
             case 'imagemagick':
-                $quality = (int) ($options['quality'] ?? 95);
-                $compress = in_array($options['compress'] ?? 'lzw', self::VALID_COMPRESS, true) ? ($options['compress'] ?? 'lzw') : 'lzw';
-                $cmd = "convert {$in} -quality {$quality} -compress {$compress} {$out} 2>&1";
+                if (in_array($targetExt, ['jpg', 'jpeg'], true)) {
+                    // Access copy: flatten + quality, no TIFF compression flag.
+                    $quality = (int) ($options['quality'] ?? 85);
+                    $cmd = "convert {$in}[0] -quality {$quality} -flatten {$out} 2>&1";
+                } else {
+                    $quality = (int) ($options['quality'] ?? 95);
+                    $compress = in_array($options['compress'] ?? 'lzw', self::VALID_COMPRESS, true) ? ($options['compress'] ?? 'lzw') : 'lzw';
+                    $cmd = "convert {$in} -quality {$quality} -compress {$compress} {$out} 2>&1";
+                }
                 break;
 
             case 'ffmpeg':
-                if (in_array($targetExt, ['wav', 'flac'], true)) {
+                if (in_array($targetExt, ['wav', 'flac', 'mp3', 'ogg', 'm4a', 'aac'], true)) {
+                    // Audio target - let ffmpeg pick the codec from the extension.
                     $cmd = "ffmpeg -i {$in} -y {$out} 2>&1";
                 } elseif ($targetExt === 'mkv') {
                     // FFV1 + FLAC in Matroska - a common preservation video target.

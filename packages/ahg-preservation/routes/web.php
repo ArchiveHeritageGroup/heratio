@@ -20,6 +20,12 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/preservation/backup', [PreservationController::class, 'backup'])->name('preservation.backup');
     Route::get('/admin/preservation/reports', [PreservationController::class, 'reports'])->name('preservation.reports');
     Route::get('/admin/preservation/conversion', [PreservationController::class, 'conversion'])->name('preservation.conversion');
+    // #1385 Phase 2 - normalization rule registry (FPR) CRUD
+    Route::get('/admin/preservation/normalization-rules', [PreservationController::class, 'normalizationRules'])->name('preservation.normalization-rules');
+    Route::post('/admin/preservation/normalization-rules', [PreservationController::class, 'storeNormalizationRule'])->name('preservation.normalization-rules.store');
+    Route::post('/admin/preservation/normalization-rules/{id}', [PreservationController::class, 'updateNormalizationRule'])->where('id', '[0-9]+')->name('preservation.normalization-rules.update');
+    Route::post('/admin/preservation/normalization-rules/{id}/toggle', [PreservationController::class, 'toggleNormalizationRule'])->where('id', '[0-9]+')->name('preservation.normalization-rules.toggle');
+    Route::post('/admin/preservation/normalization-rules/{id}/delete', [PreservationController::class, 'deleteNormalizationRule'])->where('id', '[0-9]+')->name('preservation.normalization-rules.delete');
     Route::get('/admin/preservation/identification', [PreservationController::class, 'identification'])->name('preservation.identification');
     Route::get('/admin/preservation/object/{id}', [PreservationController::class, 'object'])->name('preservation.object');
 
