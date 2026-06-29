@@ -221,6 +221,8 @@ class IngestCommitRunner
             // Archivematica-style preservation baseline (fixity + PRONOM +
             // PREMIS) on every ingested digital object, regardless of toggles.
             $this->runPreservationBaseline((int) $result['io_id'], (int) ($result['do_id'] ?? 0), $session);
+            // Custodial provenance (chain-of-custody / source) when captured.
+            $this->recordCustodialProvenance((int) $result['io_id'], $fields);
             return ['io_id' => $result['io_id'], 'do_id' => $result['do_id']];
         }
 
@@ -230,7 +232,41 @@ class IngestCommitRunner
         // summarize / spellcheck / translate operate on the IO's text
         // fields, not on a binary file).
         $this->runAiSteps($session, $ioId, 0, null);
+        $this->recordCustodialProvenance($ioId, $fields);
         return ['io_id' => $ioId, 'do_id' => null];
+    }
+
+    /**
+     * Write a custodial provenance entry (chain-of-custody / source / donor)
+     * for an ingested IO when the batch captured one (folder/directory ingest
+     * carries it on every row's data as `provenanceSource`). Decoupled via
+     * class_exists/app() so ahg-ingest still installs without the provenance
+     * package, and fail-soft - a provenance hiccup must not break the commit.
+     */
+    protected function recordCustodialProvenance(int $ioId, array $fields): void
+    {
+        if ($ioId <= 0) {
+            return;
+        }
+        $source = trim((string) ($fields['provenanceSource'] ?? ''));
+        if ($source === '') {
+            return;
+        }
+        if (! class_exists(\AhgInformationObjectManage\Services\ProvenanceService::class)) {
+            return;
+        }
+        try {
+            app(\AhgInformationObjectManage\Services\ProvenanceService::class)->createEntry([
+                'information_object_id' => $ioId,
+                'owner_name'            => $source,
+                'owner_type'            => 'unknown',
+                'transfer_type'         => 'unknown',
+                'certainty'             => 'unknown',
+                'notes'                 => 'Recorded automatically on Data Ingest (batch source).',
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('[ingest-provenance] custodial entry failed for IO ' . $ioId . ': ' . $e->getMessage());
+        }
     }
 
     /**

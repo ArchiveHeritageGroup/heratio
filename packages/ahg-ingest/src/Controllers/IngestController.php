@@ -152,6 +152,10 @@ class IngestController extends Controller
         $session = $this->service->getSession($id);
         abort_unless($session, 404);
 
+        if ($request->isMethod('post')) {
+            return $this->handleUploadPost($request, $id, $session);
+        }
+
         $files = $this->service->getFiles($id);
 
         $spTenants = [];
@@ -168,6 +172,100 @@ class IngestController extends Controller
         }
 
         return view('ahg-ingest::upload', compact('session', 'files', 'spTenants'));
+    }
+
+    /**
+     * Process the upload form: a local folder (webkitdirectory), a single
+     * CSV/ZIP/EAD file, or a server directory path. Stages the input, creates
+     * the ingest_file row(s), parses to ingest_row and advances to Map.
+     */
+    private function handleUploadPost(Request $request, int $id, object $session)
+    {
+        $baseDir = config('ahg-ingest.upload_dir', storage_path('app/ingest')) . '/' . $id;
+
+        $folderFiles = $request->file('folder_files');
+        $single = $request->file('ingest_file');
+        $dirPath = trim((string) $request->input('directory_path', ''));
+        $provenanceSource = trim((string) $request->input('folder_provenance', '')) ?: null;
+
+        try {
+            if (is_array($folderFiles) && count($folderFiles) > 0) {
+                // Local folder upload → one record per file.
+                $dir = $baseDir . '/folder-' . now()->format('YmdHis');
+                if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+                    throw new \RuntimeException('Cannot create staging directory.');
+                }
+                $saved = 0;
+                $seen = [];
+                foreach ($folderFiles as $uf) {
+                    if (!$uf || !$uf->isValid()) {
+                        continue;
+                    }
+                    $name = preg_replace('#[^A-Za-z0-9._ \-]#', '_', $uf->getClientOriginalName() ?: ('file_' . $saved));
+                    // De-dupe basename collisions (webkitdirectory flattens nested
+                    // paths to bare names). Guard against the seen-set AND any name
+                    // already on disk, and handle extension-less files cleanly.
+                    $candidate = $name;
+                    $dup = 0;
+                    while (isset($seen[$candidate]) || file_exists($dir . '/' . $candidate)) {
+                        $dup++;
+                        $ext = pathinfo($name, PATHINFO_EXTENSION);
+                        $candidate = pathinfo($name, PATHINFO_FILENAME) . '_' . $dup . ($ext !== '' ? '.' . $ext : '');
+                    }
+                    $seen[$candidate] = true;
+                    $uf->move($dir, $candidate);
+                    $saved++;
+                }
+                if ($saved === 0) {
+                    return back()->with('error', __('No files were uploaded from the folder.'));
+                }
+                \Illuminate\Support\Facades\DB::table('ingest_file')->insert([
+                    'session_id' => $id, 'file_type' => 'directory',
+                    'original_name' => 'folder (' . $saved . ' files)', 'stored_path' => $dir,
+                    'file_size' => 0, 'status' => 'pending', 'created_at' => now(),
+                    'provenance_source' => $provenanceSource,
+                ]);
+            } elseif ($single && $single->isValid()) {
+                if (!is_dir($baseDir) && !mkdir($baseDir, 0775, true) && !is_dir($baseDir)) {
+                    throw new \RuntimeException('Cannot create staging directory.');
+                }
+                $ext = strtolower($single->getClientOriginalExtension());
+                $type = match ($ext) {
+                    'csv' => 'csv', 'zip' => 'zip', 'ead' => 'ead', 'xml' => 'xml',
+                    default => null,
+                };
+                if (!$type) {
+                    return back()->with('error', __('Unsupported file type. Use CSV, ZIP, or EAD/XML.'));
+                }
+                $stored = $baseDir . '/' . now()->format('YmdHis') . '_' . preg_replace('#[^A-Za-z0-9._\-]#', '_', $single->getClientOriginalName());
+                $single->move(dirname($stored), basename($stored));
+                \Illuminate\Support\Facades\DB::table('ingest_file')->insert([
+                    'session_id' => $id, 'file_type' => $type,
+                    'original_name' => $single->getClientOriginalName(), 'stored_path' => $stored,
+                    'file_size' => @filesize($stored) ?: 0, 'status' => 'pending', 'created_at' => now(),
+                ]);
+            } elseif ($dirPath !== '') {
+                // Server directory path (route is already auth+admin gated).
+                if (!is_dir($dirPath)) {
+                    return back()->with('error', __('Directory not found: ') . $dirPath);
+                }
+                \Illuminate\Support\Facades\DB::table('ingest_file')->insert([
+                    'session_id' => $id, 'file_type' => 'directory',
+                    'original_name' => basename($dirPath), 'stored_path' => $dirPath,
+                    'file_size' => 0, 'status' => 'pending', 'created_at' => now(),
+                    'provenance_source' => $provenanceSource,
+                ]);
+            } else {
+                return back()->with('error', __('Choose a folder, a file, or enter a server directory path.'));
+            }
+
+            $this->service->parseRows($id);
+            $this->service->updateSessionStatus($id, 'map');
+
+            return redirect()->route('ingest.map', ['id' => $id]);
+        } catch (\Throwable $e) {
+            return back()->with('error', __('Upload failed: ') . $e->getMessage());
+        }
     }
 
     /**

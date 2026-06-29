@@ -105,6 +105,24 @@
                         </div>
                     </div>
 
+                    <div class="card mb-4 border-success">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>{{ __('Select a local folder') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-2">{{ __('Upload every file in a folder from your computer. One record is created per file (the filename becomes the title); add shared metadata on the next step.') }}</p>
+                            <input type="file" class="form-control" id="folder_files" name="folder_files[]" webkitdirectory directory multiple>
+                            <div id="folder-info" class="alert alert-success mt-2" style="display:none;"></div>
+
+                            <div class="mt-3">
+                                <label for="folder_provenance" class="form-label small mb-1">{{ __('Source / donor / acquisition (optional)') }}</label>
+                                <textarea class="form-control" id="folder_provenance" name="folder_provenance" rows="2"
+                                          placeholder="{{ __('e.g. Donated by the Smith family, 2026; transferred from the regional office.') }}"></textarea>
+                                <div class="form-text">{{ __('Recorded as a custodial provenance entry on every record in this batch (chain-of-custody / where these files came from).') }}</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('ingest.configure', ['id' => $session->id ?? 0]) }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
@@ -114,6 +132,20 @@
                         </button>
                     </div>
                 </form>
+
+                @if(Route::has('scan.folders.create'))
+                <div class="card mb-4 border-info">
+                    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h6 class="mb-1"><i class="fas fa-eye me-2 text-info"></i>{{ __('Prefer a hands-off, automated transfer?') }}</h6>
+                            <p class="text-muted small mb-0">{{ __('Set up a watched folder: drop files into it and they ingest automatically (Archivematica-style), no manual upload needed.') }}</p>
+                        </div>
+                        <a href="{{ route('scan.folders.create') }}" class="btn btn-outline-info">
+                            <i class="fas fa-folder-plus me-1"></i>{{ __('Set up watched folder') }}
+                        </a>
+                    </div>
+                </div>
+                @endif
 
                 {{-- #1328 Resumable / chunked upload for large (>1GB) single files
                      (TIFF/JP2/video/3D). Sends the file in small chunks so it is not
@@ -282,6 +314,22 @@ document.addEventListener('DOMContentLoaded', function() {
         var size = (file.size / 1024 / 1024).toFixed(2);
         fileInfo.style.display = '';
         fileInfo.innerHTML = '<strong>' + file.name + '</strong> (' + size + ' MB)';
+    }
+
+    var folderInput = document.getElementById('folder_files');
+    var folderInfo = document.getElementById('folder-info');
+    if (folderInput) {
+        folderInput.addEventListener('change', function () {
+            var n = this.files ? this.files.length : 0;
+            if (n > 0) {
+                var total = 0;
+                for (var i = 0; i < this.files.length; i++) { total += this.files[i].size; }
+                folderInfo.style.display = '';
+                folderInfo.innerHTML = '<strong>' + n + '</strong> file(s) selected (' + (total / 1024 / 1024).toFixed(2) + ' MB total). One record will be created per file.';
+            } else {
+                folderInfo.style.display = 'none';
+            }
+        });
     }
 
     var browseUrl = '{{ route("ingest.sharepoint.browse", ["id" => $session->id ?? 0]) }}';

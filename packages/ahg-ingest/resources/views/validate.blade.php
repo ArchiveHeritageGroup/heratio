@@ -18,11 +18,18 @@
 @php
     $session = $session ?? null;
     $stats = $stats ?? [];
-    // The controller passes validation errors as $errors (array), but Laravel also
-    // auto-shares a ViewErrorBag under the same key via ShareErrorsFromSession.
-    // Alias the array before any theme partial touches $errors, then restore the bag.
-    $validationErrors = (isset($errors) && is_array($errors)) ? $errors : [];
-    if (isset($errors) && is_array($errors)) {
+    // The controller passes validation errors as $errors (an array OR a
+    // Collection), but Laravel also auto-shares a ViewErrorBag under the same
+    // key via ShareErrorsFromSession. Alias them to $validationErrors, then
+    // restore a real ViewErrorBag so theme partials calling $errors->any()
+    // don't blow up on a Collection (Collection has no any()).
+    $validationErrors = $errors ?? [];
+    if ($validationErrors instanceof \Illuminate\Support\Collection) {
+        $validationErrors = $validationErrors->all();
+    } elseif (! is_array($validationErrors)) {
+        $validationErrors = [];
+    }
+    if (! ($errors instanceof \Illuminate\Support\ViewErrorBag)) {
         $errors = new \Illuminate\Support\ViewErrorBag();
     }
     $rowCount = $rowCount ?? 0;

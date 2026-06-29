@@ -48,7 +48,7 @@
                     $html .= ' <small class="badge bg-secondary ms-1">' . htmlspecialchars((string) $node['level']) . '</small>';
                 }
                 if (!empty($node['has_do'])) {
-                    $html .= ' <i class="fas fa-paperclip text-info ms-1" title="{{ __('Has digital object') }}"></i>';
+                    $html .= ' <i class="fas fa-paperclip text-info ms-1" title="' . htmlspecialchars(__('Has digital object')) . '"></i>';
                 }
                 $html .= '</div>';
                 if ($hasChildren) {

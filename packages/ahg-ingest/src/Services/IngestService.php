@@ -586,6 +586,7 @@ class IngestService
                     case 'xml':        $this->parseXmlFile($sessionId, $file); break;
                     case 'ead':        $this->parseEadFile($sessionId, $file); break;
                     case 'zip':        $this->parseZipFile($sessionId, $file); break;
+                    case 'directory':  $this->parseDirectoryFile($sessionId, $file); break;
                     default:
                         throw new \RuntimeException("Unknown file_type: {$file->file_type}");
                 }
@@ -689,6 +690,68 @@ class IngestService
     // ------------------------------------------------------------------
     // Per-file parsers used by parseRows().
     // ------------------------------------------------------------------
+
+    /**
+     * Directory ingest: one record per file found under the staged folder
+     * (recursive). Each row carries the file path directly on
+     * digital_object_path (the commit runner reads that) and a title derived
+     * from the filename. A single title mapping is created so the Map step is
+     * usable for adding shared metadata (default values) across the batch.
+     */
+    private function parseDirectoryFile(int $sessionId, object $file): void
+    {
+        $dir = (string) $file->stored_path;
+        if (!is_dir($dir)) {
+            throw new \RuntimeException("Directory not found: {$dir}");
+        }
+
+        // Collect files (recursive), natural sort by path.
+        $paths = [];
+        $it = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)
+        );
+        foreach ($it as $f) {
+            if ($f->isFile()) {
+                $paths[] = $f->getPathname();
+            }
+        }
+        natcasesort($paths);
+
+        // Custodial provenance captured for the whole batch on the ingest_file
+        // row (#1385 follow-up). Embedded into every row's data so the commit
+        // runner can write one provenance_entry per ingested record.
+        $provenanceSource = isset($file->provenance_source) ? trim((string) $file->provenance_source) : '';
+
+        // Ensure a title mapping exists so Map/enrich works.
+        if (!DB::table('ingest_mapping')->where('session_id', $sessionId)->where('source_column', 'title')->exists()) {
+            DB::table('ingest_mapping')->insert([
+                'session_id' => $sessionId, 'source_column' => 'title',
+                'target_field' => 'title', 'is_ignored' => 0, 'sort_order' => 1,
+            ]);
+        }
+
+        $rowNumber = (int) (DB::table('ingest_row')->where('session_id', $sessionId)->max('row_number') ?? 0);
+        foreach ($paths as $path) {
+            $base = pathinfo($path, PATHINFO_FILENAME);
+            $title = ucfirst(str_replace(['_', '-'], ' ', $base));
+            $data = ['title' => $title, 'digitalObjectPath' => $path, 'levelOfDescription' => 'Item'];
+            if ($provenanceSource !== '') {
+                $data['provenanceSource'] = $provenanceSource;
+            }
+            $rowNumber++;
+            DB::table('ingest_row')->insert([
+                'session_id' => $sessionId,
+                'row_number' => $rowNumber,
+                'title' => $title,
+                'digital_object_path' => $path,
+                'level_of_description' => 'Item',
+                'data' => json_encode($data, JSON_UNESCAPED_UNICODE),
+                'is_valid' => 0,
+                'is_excluded' => 0,
+                'created_at' => now(),
+            ]);
+        }
+    }
 
     private function parseCsvFile(int $sessionId, object $file): void
     {

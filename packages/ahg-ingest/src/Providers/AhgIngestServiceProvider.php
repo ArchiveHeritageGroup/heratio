@@ -24,6 +24,7 @@ class AhgIngestServiceProvider extends ServiceProvider
         }
 
         $this->bootNormalizeColumn();
+        $this->bootProvenanceColumn();
     }
 
     /**
@@ -38,6 +39,26 @@ class AhgIngestServiceProvider extends ServiceProvider
             if ($schema::hasTable('ingest_session') && ! $schema::hasColumn('ingest_session', 'process_normalize')) {
                 $schema::table('ingest_session', function ($t) {
                     $t->boolean('process_normalize')->default(0)->after('process_face_detect');
+                });
+            }
+        } catch (\Throwable $e) {
+            // Never block boot.
+        }
+    }
+
+    /**
+     * Custodial-provenance capture for folder/directory ingest: a free-form
+     * "source / donor / acquisition" note recorded against the ingest_file
+     * batch, embedded into each parsed row and written to provenance_entry at
+     * commit. Same idempotent Schema-probe convention as the normalize toggle.
+     */
+    protected function bootProvenanceColumn(): void
+    {
+        try {
+            $schema = \Illuminate\Support\Facades\Schema::class;
+            if ($schema::hasTable('ingest_file') && ! $schema::hasColumn('ingest_file', 'provenance_source')) {
+                $schema::table('ingest_file', function ($t) {
+                    $t->text('provenance_source')->nullable();
                 });
             }
         } catch (\Throwable $e) {
