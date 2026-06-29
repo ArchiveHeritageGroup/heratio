@@ -1070,6 +1070,25 @@ Download pre-built CSV templates for each GLAM sector from the dashboard:
 
 ---
 
+## Automatic Digital Preservation
+
+Every digital object created by an ingest commit is automatically run through a
+preservation baseline (Archivematica-style), with no toggle required:
+
+- a **SHA-256 fixity checksum** is generated,
+- the **file format is identified** (PRONOM) and recorded in the format registry,
+- a **virus scan** runs when a scanner is available, and
+- a **PREMIS "ingestion" event** is logged for the object.
+
+The results appear immediately under the Digital Preservation dashboard
+(PREMIS Events, Fixity Verification, Formats) and the Central Dashboard's Data
+Ingest card shows live ingest counts plus a link confirming objects are
+auto-preserved. Each step is best-effort: a preservation hiccup is logged and
+skipped, it never fails the ingest. If the Digital Preservation module is not
+installed, ingest still works and the baseline is simply skipped.
+
+---
+
 ## Need Help?
 
 Contact your system administrator or visit the AHG documentation at:

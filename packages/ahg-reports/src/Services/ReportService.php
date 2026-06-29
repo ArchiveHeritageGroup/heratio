@@ -58,6 +58,33 @@ class ReportService
             ->where('updated_at', '>=', now()->subDays(7))
             ->count();
 
+        // Data Ingest stats (guarded — tables exist only if ahg-ingest installed)
+        $stats['ingest_jobs_completed'] = 0;
+        $stats['ingest_records'] = 0;
+        $stats['ingest_dos'] = 0;
+        $stats['ingest_last_at'] = null;
+        try {
+            $stats['ingest_jobs_completed'] = DB::table('ingest_job')
+                ->whereIn('status', ['completed', 'completed_with_errors'])->count();
+            $stats['ingest_records'] = (int) DB::table('ingest_job')->sum('created_records');
+            $stats['ingest_dos'] = (int) DB::table('ingest_job')->sum('created_dos');
+            $stats['ingest_last_at'] = DB::table('ingest_job')
+                ->whereNotNull('completed_at')->max('completed_at');
+        } catch (\Throwable $e) {
+            // ahg-ingest not installed
+        }
+
+        // Digital Preservation stats (guarded — Archivematica-style pipeline)
+        $stats['preserved_objects'] = 0;
+        $stats['premis_events'] = 0;
+        try {
+            $stats['preserved_objects'] = DB::table('preservation_checksum')
+                ->distinct()->count('digital_object_id');
+            $stats['premis_events'] = DB::table('preservation_event')->count();
+        } catch (\Throwable $e) {
+            // ahg-preservation not installed
+        }
+
         return $stats;
     }
 

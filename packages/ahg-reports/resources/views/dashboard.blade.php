@@ -771,6 +771,32 @@
             <li class="list-group-item"><a href="{{ route('scan.inbox.index') }}"><i class="fas fa-inbox me-2 text-muted"></i>{{ __('Scan Inbox') }}</a></li>
           @endif
         </ul>
+        <div class="card-footer bg-light">
+          <div class="row text-center g-0 small">
+            <div class="col">
+              <div class="fw-bold">{{ number_format($stats['ingest_jobs_completed'] ?? 0) }}</div>
+              <div class="text-muted">{{ __('Jobs') }}</div>
+            </div>
+            <div class="col">
+              <div class="fw-bold">{{ number_format($stats['ingest_records'] ?? 0) }}</div>
+              <div class="text-muted">{{ __('Records') }}</div>
+            </div>
+            <div class="col">
+              <div class="fw-bold">{{ number_format($stats['ingest_dos'] ?? 0) }}</div>
+              <div class="text-muted">{{ __('Objects') }}</div>
+            </div>
+          </div>
+          @if(!empty($stats['ingest_last_at']))
+          <div class="text-muted small text-center mt-2"><i class="fas fa-clock me-1"></i>{{ __('Last ingest') }}: {{ $stats['ingest_last_at'] }}</div>
+          @endif
+          @if($hasPreservation)
+          <div class="small text-center mt-2">
+            <i class="fas fa-shield-alt me-1 text-success"></i>{{ __('Ingested objects are auto-preserved') }}
+            &mdash; <a href="{{ Route::has('preservation.events') ? route('preservation.events') : url('/admin/preservation/events') }}">{{ number_format($stats['premis_events'] ?? 0) }} {{ __('PREMIS events') }}</a>,
+            <a href="{{ Route::has('preservation.fixity-log') ? route('preservation.fixity-log') : url('/admin/preservation/fixity-log') }}">{{ number_format($stats['preserved_objects'] ?? 0) }} {{ __('with checksums') }}</a>
+          </div>
+          @endif
+        </div>
       </div>
     </div>
     @endif

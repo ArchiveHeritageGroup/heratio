@@ -218,6 +218,9 @@ class IngestCommitRunner
             // fail-soft - a DOWN GPU pool / missing model must not break
             // the surrounding ingest commit (the row is already saved).
             $this->runAiSteps($session, (int) $result['io_id'], (int) ($result['do_id'] ?? 0), $digitalObjectPath);
+            // Archivematica-style preservation baseline (fixity + PRONOM +
+            // PREMIS) on every ingested digital object, regardless of toggles.
+            $this->runPreservationBaseline((int) $result['io_id'], (int) ($result['do_id'] ?? 0));
             return ['io_id' => $result['io_id'], 'do_id' => $result['do_id']];
         }
 
@@ -366,6 +369,50 @@ class IngestCommitRunner
                     $svc->enqueueForInformationObject($ioId, $targetLang);
                 }
             });
+        }
+    }
+
+    /**
+     * Archivematica-style preservation baseline for every ingested digital
+     * object: fixity checksum + PRONOM format identification (into the
+     * preservation registry) + a PREMIS "ingestion" event. Decoupled via
+     * class_exists/app() so ahg-ingest still installs without ahg-preservation;
+     * every step is fail-soft - a preservation hiccup must not break the
+     * already-saved row. This is what makes ingested objects appear in the
+     * Digital Preservation dashboard with full provenance.
+     */
+    protected function runPreservationBaseline(int $ioId, int $doId): void
+    {
+        if ($doId <= 0) {
+            return; // no digital object to preserve
+        }
+
+        if (class_exists(\AhgPreservation\Services\PreservationService::class)) {
+            try {
+                $svc = app(\AhgPreservation\Services\PreservationService::class);
+                // Fixity checksum baseline
+                $svc->generateChecksum($doId, 'sha256');
+                // PREMIS ingestion event
+                $svc->logEvent(
+                    $doId,
+                    $ioId ?: null,
+                    'ingestion',
+                    'Digital object ingested via Data Ingest',
+                    'success'
+                );
+            } catch (\Throwable $e) {
+                Log::warning('[ingest-preservation] baseline failed for DO ' . $doId . ': ' . $e->getMessage());
+            }
+        }
+
+        // PRONOM format identification into the preservation registry.
+        if (class_exists(\AhgPreservation\Services\PronomIdentificationService::class)) {
+            try {
+                app(\AhgPreservation\Services\PronomIdentificationService::class)
+                    ->identifyDigitalObject($doId);
+            } catch (\Throwable $e) {
+                Log::warning('[ingest-preservation] PRONOM id failed for DO ' . $doId . ': ' . $e->getMessage());
+            }
         }
     }
 
