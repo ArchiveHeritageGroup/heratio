@@ -12,6 +12,8 @@ namespace AhgPreservation\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
+use Illuminate\Process\Exceptions\ProcessTimedOutException;
 use AhgCore\Services\DigitalObjectService;
 
 /**
@@ -285,8 +287,24 @@ class NormalizationService
     }
 
     /**
-     * Run the conversion. Ported from the AtoM executor with shell-safe
-     * argument handling + option allowlists.
+     * Per-tool default wall-clock timeout (seconds). Video is the long pole;
+     * images are quick. Overridable per-host via
+     * config('ahg-preservation.normalize_timeout.<tool>') and per-rule via the
+     * options 'timeout' key. #1385 Phase 4.
+     */
+    private const TOOL_TIMEOUTS = [
+        'imagemagick' => 120,
+        'ghostscript' => 300,
+        'libreoffice' => 300,
+        'ffmpeg'      => 3600,
+    ];
+
+    /**
+     * Run the conversion. Shell-safe argument handling + option allowlists,
+     * bounded by a per-tool timeout and run through Laravel's Process facade
+     * so a hung tool can't wedge the queue worker (#1385 Phase 4). LibreOffice
+     * gets a throwaway per-invocation user profile so concurrent jobs don't
+     * collide on the shared ~/.config profile lock.
      *
      * @return array{success:bool,output?:string,error:?string}
      */
@@ -294,58 +312,116 @@ class NormalizationService
     {
         $in = escapeshellarg($input);
         $out = escapeshellarg($output);
+        $cleanup = [];
 
         switch ($tool) {
             case 'imagemagick':
                 if (in_array($targetExt, ['jpg', 'jpeg'], true)) {
                     // Access copy: flatten + quality, no TIFF compression flag.
                     $quality = (int) ($options['quality'] ?? 85);
-                    $cmd = "convert {$in}[0] -quality {$quality} -flatten {$out} 2>&1";
+                    $cmd = "convert {$in}[0] -quality {$quality} -flatten {$out}";
                 } else {
                     $quality = (int) ($options['quality'] ?? 95);
                     $compress = in_array($options['compress'] ?? 'lzw', self::VALID_COMPRESS, true) ? ($options['compress'] ?? 'lzw') : 'lzw';
-                    $cmd = "convert {$in} -quality {$quality} -compress {$compress} {$out} 2>&1";
+                    $cmd = "convert {$in} -quality {$quality} -compress {$compress} {$out}";
                 }
                 break;
 
             case 'ffmpeg':
                 if (in_array($targetExt, ['wav', 'flac', 'mp3', 'ogg', 'm4a', 'aac'], true)) {
                     // Audio target - let ffmpeg pick the codec from the extension.
-                    $cmd = "ffmpeg -i {$in} -y {$out} 2>&1";
+                    $cmd = "ffmpeg -nostdin -i {$in} -y {$out}";
                 } elseif ($targetExt === 'mkv') {
                     // FFV1 + FLAC in Matroska - a common preservation video target.
-                    $cmd = "ffmpeg -i {$in} -c:v ffv1 -level 3 -c:a flac -y {$out} 2>&1";
+                    $cmd = "ffmpeg -nostdin -i {$in} -c:v ffv1 -level 3 -c:a flac -y {$out}";
                 } else {
                     $preset = in_array($options['preset'] ?? 'medium', self::VALID_PRESETS, true) ? ($options['preset'] ?? 'medium') : 'medium';
                     $crf = (int) ($options['crf'] ?? 23);
-                    $cmd = "ffmpeg -i {$in} -preset {$preset} -crf {$crf} -y {$out} 2>&1";
+                    $cmd = "ffmpeg -nostdin -i {$in} -preset {$preset} -crf {$crf} -y {$out}";
                 }
                 break;
 
             case 'ghostscript':
                 $pdf = in_array($options['pdf_settings'] ?? '/printer', self::VALID_PDF_SETTINGS, true) ? ($options['pdf_settings'] ?? '/printer') : '/printer';
                 // PDF/A-2b output for preservation.
-                $cmd = "gs -dPDFA=2 -dBATCH -dNOPAUSE -dQUIET -sColorConversionStrategy=UseDeviceIndependentColor -sDEVICE=pdfwrite -dPDFACompatibilityPolicy=1 -dPDFSETTINGS={$pdf} -sOutputFile={$out} {$in} 2>&1";
+                $cmd = "gs -dPDFA=2 -dBATCH -dNOPAUSE -dQUIET -sColorConversionStrategy=UseDeviceIndependentColor -sDEVICE=pdfwrite -dPDFACompatibilityPolicy=1 -dPDFSETTINGS={$pdf} -sOutputFile={$out} {$in}";
                 break;
 
             case 'libreoffice':
                 $outDir = escapeshellarg(dirname($output));
                 $safe = preg_replace('/[^a-zA-Z0-9]/', '', $targetExt);
-                $cmd = "libreoffice --headless --convert-to {$safe} --outdir {$outDir} {$in} 2>&1";
+                // Throwaway per-invocation user profile - LibreOffice serialises
+                // on its shared ~/.config/libreoffice profile and a second
+                // concurrent headless run silently hangs/fails without this.
+                $profileDir = rtrim(sys_get_temp_dir(), '/') . '/ahg-lo-' . bin2hex(random_bytes(6));
+                @mkdir($profileDir, 0700, true);
+                $cleanup[] = $profileDir;
+                $profileArg = escapeshellarg('-env:UserInstallation=file://' . $profileDir);
+                $cmd = "libreoffice --headless {$profileArg} --convert-to {$safe} --outdir {$outDir} {$in}";
                 break;
 
             default:
                 return ['success' => false, 'error' => "Unknown tool: {$tool}"];
         }
 
-        $lines = [];
-        $code = 0;
-        exec($cmd, $lines, $code);
+        $timeout = $this->timeoutFor($tool, $options);
 
-        return [
-            'success' => $code === 0,
-            'output' => implode("\n", $lines),
-            'error' => $code !== 0 ? implode("\n", $lines) : null,
-        ];
+        try {
+            $result = Process::timeout($timeout)->run($cmd);
+            $combined = trim($result->output() . "\n" . $result->errorOutput());
+            $success = $result->successful();
+            $error = $success ? null : ($combined !== '' ? $combined : ('exit code ' . $result->exitCode()));
+        } catch (ProcessTimedOutException $e) {
+            $combined = '';
+            $success = false;
+            $error = "tool '{$tool}' timed out after {$timeout}s";
+        } finally {
+            foreach ($cleanup as $path) {
+                $this->removeDir($path);
+            }
+        }
+
+        // Output-size ceiling guard - drop a runaway derivative rather than
+        // let a bad rule balloon storage. Off unless the rule sets max_output_mb.
+        if ($success && is_file($output)) {
+            $maxMb = (int) ($options['max_output_mb'] ?? 0);
+            if ($maxMb > 0 && (filesize($output) ?: 0) > $maxMb * 1024 * 1024) {
+                @unlink($output);
+                return ['success' => false, 'error' => "output exceeded {$maxMb}MB ceiling"];
+            }
+        }
+
+        return ['success' => $success, 'output' => $combined, 'error' => $error];
+    }
+
+    /**
+     * Resolve the wall-clock timeout for a tool: per-rule option override (if
+     * positive) else per-host config else the built-in default, clamped to a
+     * sane 10s..2h band. #1385 Phase 4.
+     */
+    private function timeoutFor(string $tool, array $options): int
+    {
+        $default = (int) config('ahg-preservation.normalize_timeout.' . $tool, self::TOOL_TIMEOUTS[$tool] ?? 300);
+        $override = (int) ($options['timeout'] ?? 0);
+        $timeout = $override > 0 ? $override : $default;
+
+        return max(10, min($timeout, 7200));
+    }
+
+    /** Recursively remove a sandbox temp directory (best-effort). */
+    private function removeDir(string $dir): void
+    {
+        if ($dir === '' || ! is_dir($dir)) {
+            return;
+        }
+        $items = @scandir($dir) ?: [];
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $path = $dir . '/' . $item;
+            is_dir($path) ? $this->removeDir($path) : @unlink($path);
+        }
+        @rmdir($dir);
     }
 }
