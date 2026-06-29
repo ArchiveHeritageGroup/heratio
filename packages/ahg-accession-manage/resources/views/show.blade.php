@@ -46,7 +46,13 @@
         </div>
         <div class="list-group list-group-flush">
           @foreach($linkedIos as $io)
-            <a href="{{ url('/' . $io->slug) }}" class="list-group-item list-group-item-action small">{{ $io->title ?: '[Untitled]' }}</a>
+            <div class="list-group-item small d-flex justify-content-between align-items-center">
+              <a href="{{ url('/' . $io->slug) }}" class="list-group-item-action text-decoration-none flex-grow-1">{{ $io->title ?: '[Untitled]' }}</a>
+              {{-- Provenance (sector-neutral; per linked description) --}}
+              @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class) && !empty($io->slug))
+                <a href="{{ route('io.provenance', $io->slug) }}" class="ms-2 text-muted" title="{{ __('Provenance') }}"><i class="fas fa-project-diagram"></i></a>
+              @endif
+            </div>
           @endforeach
         </div>
       </div>

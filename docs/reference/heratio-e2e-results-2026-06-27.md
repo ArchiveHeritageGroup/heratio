@@ -1018,3 +1018,18 @@ Closeable (acceptance fully met): #1370 (already), #1372, #1365, #1380, #1383.
   system-breakdown.php (6) + scanner-capture + technical/ahgGalleryPlugin refs to the
   canonical short slugs. help-context + user-manual already pointed correctly. Each module
   now has exactly one guide; 0 functional dangling refs. #1375 tail done.
+
+## Feature (2026-06-29): Provenance split from museum → sector-neutral, cross-sector
+- **De-CCO'd the route:** io.provenance now resolves to /{slug}/provenance (was
+  /{slug}/cco/provenance); the CCO URL kept as legacy alias io.provenance.cco. Since the
+  name is unchanged, every existing route('io.provenance', …) caller (museum/IO/DAM) is
+  de-museumed at once. Backend unchanged (provenance_entry, information_object_id-keyed —
+  already generic).
+- **Surfaced on the catalogue sectors that lacked it:** ahg-gallery (artwork), ahg-library
+  (item), ahg-accession-manage (per linked description) now show a sector-neutral
+  "Provenance" link → io.provenance. IO core + museum + DAM already had it.
+- Scope note: object-provenance is information_object-keyed, so it applies to catalogue
+  records (IO/museum/gallery/library/DAM/accession-linked) — NOT operational/authority
+  records (loan/storage/exhibition/vendor/actor/repository), which aren't IOs.
+- Verified: /{slug}/provenance + /{slug}/cco/provenance both 200; existing links no
+  regression; gallery/library/accession blades lint clean + reference io.provenance.

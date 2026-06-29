@@ -58,6 +58,17 @@
     $totalChildren = $children->count();
     $hasMany = $totalChildren > 10;
   @endphp
+  {{-- Provenance (sector-neutral; works for any catalogue record) --}}
+  @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class) && !empty($item->slug))
+  <div class="card mb-3">
+    <div class="list-group list-group-flush">
+      <a href="{{ route('io.provenance', $item->slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-project-diagram me-1"></i> {{ __('Provenance') }}
+      </a>
+    </div>
+  </div>
+  @endif
+
   <section class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
       <i class="fas fa-book me-1"></i> Holdings

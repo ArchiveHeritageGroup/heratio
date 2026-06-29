@@ -20,6 +20,12 @@
       <a href="{{ route('gallery.artists') }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-users me-1"></i> {{ __('Browse artists') }}
       </a>
+      {{-- Provenance (sector-neutral; works for any catalogue record) --}}
+      @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class) && !empty($artwork->slug))
+      <a href="{{ route('io.provenance', $artwork->slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-project-diagram me-1"></i> {{ __('Provenance') }}
+      </a>
+      @endif
     </div>
   </div>
 

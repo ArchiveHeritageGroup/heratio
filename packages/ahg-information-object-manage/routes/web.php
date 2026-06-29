@@ -293,8 +293,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/digitalobject/{id}/delete', [DigitalObjectController::class, 'delete'])->whereNumber('id')->middleware('acl:delete');
 });
 
-// Provenance read routes (public — matches AtoM CCO route pattern)
-Route::get('/{slug}/cco/provenance', [ProvenanceController::class, 'index'])->name('io.provenance');
+// Provenance read routes — sector-neutral: provenance is keyed by
+// information_object_id, so it works for EVERY sector's record (archival
+// description, accession, museum, gallery, library, heritage, …), not just
+// cultural objects. `io.provenance` now resolves to /{slug}/provenance, so all
+// existing route('io.provenance', …) callers are de-CCO'd at once.
+Route::get('/{slug}/provenance', [ProvenanceController::class, 'index'])->name('io.provenance');
+// Legacy CCO-pattern alias (old museum/AtoM bookmarks keep working).
+Route::get('/{slug}/cco/provenance', [ProvenanceController::class, 'index'])->name('io.provenance.cco');
 Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
 Route::get('/provenance/{slug}/export-csv', [ProvenanceController::class, 'exportCsv'])->name('io.provenance.exportCsv');
 
