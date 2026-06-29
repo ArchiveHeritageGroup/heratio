@@ -388,7 +388,42 @@ class PreservationController extends Controller
         $recentConversions = $this->service->getRecentConversions(20);
         $pendingConversions = $conversionStats['pending'] ?? 0;
 
-        return view('ahg-preservation::conversion', compact('tools', 'conversionStats', 'recentConversions', 'pendingConversions'));
+        // #1385 Phase 4 - surface normalization outcomes (separate table) so
+        // failed conversions are visible and re-queueable, not just logged.
+        $normalizationStats = $this->service->getNormalizationStats();
+        $failedNormalizations = $this->service->getFailedNormalizations(50);
+
+        return view('ahg-preservation::conversion', compact(
+            'tools', 'conversionStats', 'recentConversions', 'pendingConversions',
+            'normalizationStats', 'failedNormalizations'
+        ));
+    }
+
+    /**
+     * #1385 Phase 4 - re-queue a failed normalization. The purpose
+     * (preservation/access) is recovered from the original row's created_by
+     * tag; NormalizationService is idempotent (it keys on an existing
+     * derivative DO), so re-running a failed conversion is safe - it skips
+     * only if a master/access copy now exists.
+     */
+    public function retryNormalization(int $id)
+    {
+        $row = DB::table('preservation_format_conversion')->where('id', $id)->first();
+        if (! $row) {
+            return back()->with('error', __('Conversion not found.'));
+        }
+
+        if (! class_exists(\AhgPreservation\Jobs\NormalizeDigitalObjectJob::class)) {
+            return back()->with('error', __('Normalization job is not available on this install.'));
+        }
+
+        $purpose = str_contains((string) ($row->created_by ?? ''), ':access') ? 'access' : 'preservation';
+        \AhgPreservation\Jobs\NormalizeDigitalObjectJob::dispatch((int) $row->digital_object_id, $purpose);
+
+        return back()->with('success', __('Re-queued :purpose normalization for digital object :id.', [
+            'purpose' => $purpose,
+            'id' => (int) $row->digital_object_id,
+        ]));
     }
 
     // ── #1385 Phase 2 - normalization rule registry (FPR) CRUD ──────────

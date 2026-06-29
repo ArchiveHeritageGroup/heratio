@@ -20,6 +20,8 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/preservation/backup', [PreservationController::class, 'backup'])->name('preservation.backup');
     Route::get('/admin/preservation/reports', [PreservationController::class, 'reports'])->name('preservation.reports');
     Route::get('/admin/preservation/conversion', [PreservationController::class, 'conversion'])->name('preservation.conversion');
+    // #1385 Phase 4 - re-queue a failed normalization from the conversion dashboard
+    Route::post('/admin/preservation/normalization/{id}/retry', [PreservationController::class, 'retryNormalization'])->where('id', '[0-9]+')->name('preservation.normalization.retry');
     // #1385 Phase 2 - normalization rule registry (FPR) CRUD
     Route::get('/admin/preservation/normalization-rules', [PreservationController::class, 'normalizationRules'])->name('preservation.normalization-rules');
     Route::post('/admin/preservation/normalization-rules', [PreservationController::class, 'storeNormalizationRule'])->name('preservation.normalization-rules.store');

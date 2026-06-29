@@ -121,6 +121,51 @@ php artisan preservation:convert --mime-type=image/jpeg --format=tiff --limit=50
         </div>
       </div>
     </div>
+
+    {{-- #1385 Phase 4 - Normalization outcomes + failure triage --}}
+    <div class="card mt-4">
+      <div class="card-header d-flex align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-wand-magic-sparkles me-2"></i>{{ __('Normalization (on-ingest)') }}
+        <span class="ms-auto">
+          <span class="badge bg-success">{{ number_format($normalizationStats['completed'] ?? 0) }} {{ __('completed') }}</span>
+          <span class="badge bg-info">{{ number_format($normalizationStats['processing'] ?? 0) }} {{ __('processing') }}</span>
+          <span class="badge bg-danger">{{ number_format($normalizationStats['failed'] ?? 0) }} {{ __('failed') }}</span>
+        </span>
+      </div>
+      <div class="card-body p-0">
+        @if(($failedNormalizations ?? collect())->isEmpty())
+          <p class="text-muted text-center py-3 mb-0">{{ __('No failed normalizations. 🎉') }}</p>
+        @else
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0 align-middle">
+            <thead><tr>
+              <th>{{ __('DO') }}</th><th>{{ __('Source → Target') }}</th><th>{{ __('Tool') }}</th>
+              <th>{{ __('Error') }}</th><th>{{ __('Failed at') }}</th><th class="text-end">{{ __('Action') }}</th>
+            </tr></thead>
+            <tbody>
+              @foreach($failedNormalizations as $fc)
+              <tr>
+                <td><a href="{{ route('preservation.object', $fc->digital_object_id ?? 0) }}">#{{ $fc->digital_object_id ?? '?' }}</a></td>
+                <td><small>{{ $fc->source_format ?? '-' }} → {{ $fc->target_format ?? '-' }}</small></td>
+                <td><small>{{ $fc->conversion_tool ?? '-' }}</small></td>
+                <td><small class="text-danger" style="word-break:break-word">{{ Str::limit($fc->error_message ?? '', 200) }}</small></td>
+                <td><small class="text-muted">{{ $fc->completed_at ?? $fc->created_at ?? '' }}</small></td>
+                <td class="text-end">
+                  <form method="post" action="{{ route('preservation.normalization.retry', $fc->id) }}" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-primary" title="{{ __('Re-queue this normalization') }}">
+                      <i class="fas fa-rotate-right me-1"></i>{{ __('Retry') }}
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+        @endif
+      </div>
+    </div>
   </div>
 </div>
 @endsection

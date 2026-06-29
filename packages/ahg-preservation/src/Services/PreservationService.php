@@ -605,6 +605,50 @@ class PreservationService
     }
 
     /**
+     * #1385 Phase 4 - normalization status counts from preservation_format_conversion
+     * (the table NormalizationService writes to - distinct from the legacy
+     * preservation_conversion surfaced by getConversionStats()).
+     */
+    public function getNormalizationStats(): array
+    {
+        $stats = ['completed' => 0, 'processing' => 0, 'failed' => 0];
+
+        try {
+            $rows = DB::table('preservation_format_conversion')
+                ->select('status', DB::raw('COUNT(*) as cnt'))
+                ->groupBy('status')
+                ->get();
+
+            foreach ($rows as $row) {
+                $stats[$row->status] = (int) $row->cnt;
+            }
+        } catch (\Throwable $e) {
+            // Table may not exist yet.
+        }
+
+        return $stats;
+    }
+
+    /**
+     * #1385 Phase 4 - recent FAILED normalizations for operator triage, newest
+     * first. Carries error_message + source DO so the dashboard can drill down
+     * and offer a re-queue.
+     */
+    public function getFailedNormalizations(int $limit = 50): \Illuminate\Support\Collection
+    {
+        try {
+            return DB::table('preservation_format_conversion')
+                ->where('status', 'failed')
+                ->orderByDesc('completed_at')
+                ->orderByDesc('id')
+                ->limit($limit)
+                ->get();
+        } catch (\Throwable $e) {
+            return collect();
+        }
+    }
+
+    /**
      * Format identification statistics.
      */
     public function getIdentificationStats(): array
