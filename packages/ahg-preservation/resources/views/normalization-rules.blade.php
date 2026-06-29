@@ -15,6 +15,28 @@
     @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
 
+    {{-- #1385 Phase 4 - tool-dependency preflight / health surface --}}
+    <div class="card mb-4">
+      <div class="card-header d-flex align-items-center"><i class="fas fa-stethoscope me-2"></i><strong>{{ __('Tool availability (this host)') }}</strong></div>
+      <div class="card-body">
+        @if(($missingToolRules ?? 0) > 0)
+        <div class="alert alert-warning py-2 mb-3">
+          <i class="fas fa-triangle-exclamation me-1"></i>
+          <strong>{{ $missingToolRules }}</strong> {{ __('active rule(s) reference a tool that is not installed on this host — those formats are silently skipped on ingest.') }}
+        </div>
+        @endif
+        <div class="d-flex flex-wrap gap-2">
+          @foreach(($toolHealth ?? []) as $tool => $h)
+          <span class="badge bg-{{ $h['available'] ? 'success' : 'danger' }} d-inline-flex align-items-center">
+            <i class="fas fa-{{ $h['available'] ? 'check' : 'xmark' }} me-1"></i>
+            {{ $tool }} <span class="opacity-75 ms-1">({{ $h['bin'] ?? '?' }})</span>
+          </span>
+          @endforeach
+        </div>
+        <p class="text-muted small mb-0 mt-2">{{ __('Install any missing binaries (ImageMagick / FFmpeg / Ghostscript / LibreOffice) on the worker host, then refresh.') }}</p>
+      </div>
+    </div>
+
     <div class="card mb-4">
       <div class="card-header"><strong>{{ __('Add rule') }}</strong></div>
       <div class="card-body">
@@ -83,7 +105,12 @@
           <td><code>{{ $r->source_mime ?: $r->source_pronom ?: '—' }}</code></td>
           <td><span class="badge bg-{{ $r->purpose === 'access' ? 'info' : 'success' }}">{{ $r->purpose }}</span></td>
           <td>{{ $r->target_format }} <span class="text-muted">.{{ $r->target_ext }}</span></td>
-          <td>{{ $r->tool }}</td>
+          <td>
+            {{ $r->tool }}
+            @if(! ($r->tool_available ?? true))
+              <i class="fas fa-triangle-exclamation text-danger ms-1" title="{{ __('Tool not installed on this host') }}"></i>
+            @endif
+          </td>
           <td>{{ $r->priority }}</td>
           <td>@if($r->is_active)<span class="badge bg-success">{{ __('yes') }}</span>@else<span class="badge bg-secondary">{{ __('no') }}</span>@endif</td>
           <td class="text-end text-nowrap">

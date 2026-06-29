@@ -269,21 +269,51 @@ class NormalizationService
         return $id ?: null;
     }
 
-    private function toolAvailable(string $tool): bool
+    /** Tools the executor knows how to drive (matches preservation_normalization_rule.tool). */
+    public const SUPPORTED_TOOLS = ['imagemagick', 'ffmpeg', 'ghostscript', 'libreoffice'];
+
+    /** Map a rule tool id to its host binary, or null if unknown. */
+    public function toolBinary(string $tool): ?string
     {
-        $bin = match ($tool) {
+        return match ($tool) {
             'imagemagick' => 'convert',
             'ffmpeg' => 'ffmpeg',
             'ghostscript' => 'gs',
             'libreoffice' => 'libreoffice',
             default => null,
         };
+    }
+
+    private function toolAvailable(string $tool): bool
+    {
+        $bin = $this->toolBinary($tool);
         if (! $bin) {
             return false;
         }
         $which = @shell_exec('command -v ' . escapeshellarg($bin) . ' 2>/dev/null');
 
         return ! empty(trim((string) $which));
+    }
+
+    /**
+     * #1385 Phase 4 - preflight health for every executor tool: is its binary
+     * on PATH on this host? Drives the FPR admin health surface so operators
+     * can see which rules can actually run before enabling normalization
+     * (rules whose tool is absent are silently skipped at runtime).
+     *
+     * @return array<string,array{bin:?string,available:bool}>
+     */
+    public function toolHealth(): array
+    {
+        $health = [];
+        foreach (self::SUPPORTED_TOOLS as $tool) {
+            $health[$tool] = [
+                'bin' => $this->toolBinary($tool),
+                'available' => $this->toolAvailable($tool),
+            ];
+        }
+
+        return $health;
     }
 
     /**

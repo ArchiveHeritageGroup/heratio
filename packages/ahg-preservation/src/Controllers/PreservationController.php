@@ -435,7 +435,15 @@ class PreservationController extends Controller
             ->get();
         $tools = array_keys($this->service->getConversionTools());
 
-        return view('ahg-preservation::normalization-rules', compact('rules', 'tools'));
+        // #1385 Phase 4 - tool preflight: flag rules whose tool is not installed
+        // on this host (they are silently skipped at runtime otherwise).
+        $toolHealth = app(\AhgPreservation\Services\NormalizationService::class)->toolHealth();
+        foreach ($rules as $r) {
+            $r->tool_available = $toolHealth[$r->tool]['available'] ?? false;
+        }
+        $missingToolRules = $rules->filter(fn ($r) => $r->is_active && ! $r->tool_available)->count();
+
+        return view('ahg-preservation::normalization-rules', compact('rules', 'tools', 'toolHealth', 'missingToolRules'));
     }
 
     public function storeNormalizationRule(Request $request)
