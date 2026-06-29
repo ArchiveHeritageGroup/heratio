@@ -203,8 +203,8 @@ class RepatriationSharedRecordController extends Controller
         $provenanceUrl = null;
         if (is_string($slug) && $slug !== '' && $recordUrl !== null) {
             try {
-                if (Route::has('provenance.view')) {
-                    $provenanceUrl = route('provenance.view', ['slug' => $slug]);
+                if (Route::has('io.provenance')) {
+                    $provenanceUrl = route('io.provenance', ['slug' => $slug]);
                 }
             } catch (\Throwable $e) {
                 Log::info('[repatriation-shared] provenance link failed: '.$e->getMessage());

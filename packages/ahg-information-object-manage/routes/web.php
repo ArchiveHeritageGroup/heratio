@@ -184,6 +184,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/informationobject/{slug}/findingaid/delete', [FindingAidController::class, 'delete'])->name('informationobject.findingaid.delete')->middleware('acl:delete');
 
     // Collections Management — Provenance (write operations require auth)
+    Route::post('/provenance/{slug}/overview', [ProvenanceController::class, 'updateOverview'])->name('io.provenance.overview')->middleware('acl:update');
     Route::post('/provenance/{slug}/store', [ProvenanceController::class, 'store'])->name('io.provenance.store')->middleware('acl:create');
     Route::put('/provenance/{id}/update', [ProvenanceController::class, 'update'])->name('io.provenance.update')->middleware('acl:update')->where('id', '[0-9]+');
     Route::delete('/provenance/{id}/delete', [ProvenanceController::class, 'destroy'])->name('io.provenance.delete')->middleware('acl:delete')->where('id', '[0-9]+');

@@ -21,6 +21,124 @@
     </a>
   </div>
 
+  {{-- Provenance Overview (governance header — merged in from the retired
+       ahg/provenance stack: due-diligence, restitution, research, publication). --}}
+  @php $ov = $overview ?? null; @endphp
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+      <span><i class="fas fa-shield-halved me-1"></i> {{ __('Provenance Overview') }}</span>
+      @auth
+        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#provOverviewEdit">
+          <i class="fas fa-edit me-1"></i>{{ $ov ? __('Edit') : __('Add') }}
+        </button>
+      @endauth
+    </div>
+    <div class="card-body">
+      @if($ov)
+        @if($ov->provenance_summary)<p class="mb-2">{{ $ov->provenance_summary }}</p>@endif
+        <div class="d-flex flex-wrap gap-1 mb-2">
+          @if($ov->current_status)<span class="badge bg-info">{{ ucfirst($ov->current_status) }}</span>@endif
+          @if($ov->acquisition_type)<span class="badge bg-secondary">{{ ucfirst(str_replace('_',' ',$ov->acquisition_type)) }}</span>@endif
+          @if($ov->research_status)<span class="badge bg-light text-dark">{{ __('Research') }}: {{ ucfirst(str_replace('_',' ',$ov->research_status)) }}</span>@endif
+          @if($ov->is_complete)<span class="badge bg-success">{{ __('Complete') }}</span>@endif
+          @if(!$ov->is_public)<span class="badge bg-warning text-dark"><i class="fas fa-eye-slash me-1"></i>{{ __('Not public') }}</span>@endif
+        </div>
+        {{-- Due-diligence flags --}}
+        <div class="d-flex flex-wrap gap-1">
+          @if($ov->nazi_era_provenance_checked)
+            <span class="badge {{ $ov->nazi_era_provenance_clear ? 'bg-success' : 'bg-danger' }}">
+              <i class="fas fa-gavel me-1"></i>{{ __('Nazi-era') }}: {{ $ov->nazi_era_provenance_clear ? __('clear') : __('flagged') }}
+            </span>
+          @endif
+          @if($ov->cultural_property_status && $ov->cultural_property_status !== 'none')
+            <span class="badge bg-danger"><i class="fas fa-landmark me-1"></i>{{ __('Cultural property') }}: {{ ucfirst(str_replace('_',' ',$ov->cultural_property_status)) }}</span>
+          @endif
+          @if($ov->has_gaps)<span class="badge bg-warning text-dark"><i class="fas fa-triangle-exclamation me-1"></i>{{ __('Has gaps') }}</span>@endif
+        </div>
+      @else
+        <p class="text-muted small mb-0">{{ __('No provenance overview recorded yet.') }}</p>
+      @endif
+
+      @auth
+      <div class="collapse mt-3 {{ $errors->any() ? 'show' : '' }}" id="provOverviewEdit">
+        <form method="POST" action="{{ route('io.provenance.overview', $io->slug) }}">
+          @csrf
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="form-label small mb-0">{{ __('Provenance summary') }}</label>
+              <textarea name="provenance_summary" rows="2" class="form-control form-control-sm">{{ old('provenance_summary', $ov->provenance_summary ?? '') }}</textarea>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small mb-0">{{ __('Current status') }}</label>
+              <input type="text" name="current_status" class="form-control form-control-sm" value="{{ old('current_status', $ov->current_status ?? '') }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small mb-0">{{ __('Acquisition type') }}</label>
+              <input type="text" name="acquisition_type" class="form-control form-control-sm" value="{{ old('acquisition_type', $ov->acquisition_type ?? '') }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small mb-0">{{ __('Research status') }}</label>
+              <select name="research_status" class="form-select form-select-sm">
+                <option value="">—</option>
+                @foreach($researchStatuses as $k => $label)
+                  <option value="{{ $k }}" @selected(old('research_status', $ov->research_status ?? '') === $k)>{{ $label }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small mb-0">{{ __('Cultural-property / restitution status') }}</label>
+              <select name="cultural_property_status" class="form-select form-select-sm">
+                @foreach($culturalPropertyStatuses as $k => $label)
+                  <option value="{{ $k }}" @selected(old('cultural_property_status', $ov->cultural_property_status ?? 'none') === $k)>{{ $label }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small mb-0">{{ __('Cultural-property notes') }}</label>
+              <input type="text" name="cultural_property_notes" class="form-control form-control-sm" value="{{ old('cultural_property_notes', $ov->cultural_property_notes ?? '') }}">
+            </div>
+            <div class="col-12">
+              <div class="border rounded p-2 bg-light">
+                <strong class="small"><i class="fas fa-gavel me-1"></i>{{ __('Nazi-era due diligence') }}</strong>
+                <div class="row g-2 mt-0">
+                  <div class="col-md-3 form-check ms-2">
+                    <input type="checkbox" class="form-check-input" id="nazi_checked" name="nazi_era_provenance_checked" value="1" @checked(old('nazi_era_provenance_checked', $ov->nazi_era_provenance_checked ?? 0))>
+                    <label class="form-check-label small" for="nazi_checked">{{ __('Checked') }}</label>
+                  </div>
+                  <div class="col-md-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="nazi_clear" name="nazi_era_provenance_clear" value="1" @checked(old('nazi_era_provenance_clear', $ov->nazi_era_provenance_clear ?? 0))>
+                    <label class="form-check-label small" for="nazi_clear">{{ __('Clear') }}</label>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="text" name="nazi_era_notes" class="form-control form-control-sm" placeholder="{{ __('Notes') }}" value="{{ old('nazi_era_notes', $ov->nazi_era_notes ?? '') }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 d-flex gap-3 align-items-center">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="has_gaps" name="has_gaps" value="1" @checked(old('has_gaps', $ov->has_gaps ?? 0))>
+                <label class="form-check-label small" for="has_gaps">{{ __('Has gaps') }}</label>
+              </div>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="is_complete" name="is_complete" value="1" @checked(old('is_complete', $ov->is_complete ?? 0))>
+                <label class="form-check-label small" for="is_complete">{{ __('Research complete') }}</label>
+              </div>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="is_public" name="is_public" value="1" @checked(old('is_public', $ov->is_public ?? 1))>
+                <label class="form-check-label small" for="is_public">{{ __('Publicly visible') }}</label>
+              </div>
+            </div>
+          </div>
+          <div class="mt-2">
+            <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save overview') }}</button>
+          </div>
+        </form>
+      </div>
+      @endauth
+    </div>
+  </div>
+
   {{-- Timeline Container (hidden if empty, D3 populates it) --}}
   <div id="provenance-timeline"></div>
 

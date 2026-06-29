@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "938733bf7ed9265758ef89f336ca8599",
+    "content-hash": "dd1d2b52ba18a23b9e67105275312250",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -2515,36 +2515,6 @@
             }
         },
         {
-            "name": "ahg/provenance",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "packages/ahg-provenance",
-                "reference": "493b12f8281290e65bda3d8c92bbd53cd99b5e41"
-            },
-            "require": {
-                "ahg/core": "@dev"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "AhgProvenance\\Providers\\AhgProvenanceServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "AhgProvenance\\": "src/"
-                }
-            },
-            "description": "Provenance tracking and chain of custody for Heratio",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
             "name": "ahg/provenance-ai",
             "version": "dev-main",
             "dist": {
@@ -2610,12 +2580,15 @@
             "dist": {
                 "type": "path",
                 "url": "packages/ahg-rdm",
-                "reference": "8cb7ffb7793be65a49c2d85c148b6b4f161c1575"
+                "reference": "eea98549c391293a9821428d9ea45b42cb2d36c2"
             },
             "require": {
+                "ahg/ai-services": "@dev",
                 "ahg/core": "@dev",
+                "ahg/doi-manage": "@dev",
                 "ahg/information-object-manage": "@dev",
                 "ahg/ingest": "@dev",
+                "ahg/pdf-tools": "@dev",
                 "ahg/research": "@dev"
             },
             "type": "library",
@@ -15232,7 +15205,6 @@
         "ahg/portable-export": 20,
         "ahg/preservation": 20,
         "ahg/privacy": 20,
-        "ahg/provenance": 20,
         "ahg/provenance-ai": 20,
         "ahg/rad-manage": 20,
         "ahg/records-manage": 20,

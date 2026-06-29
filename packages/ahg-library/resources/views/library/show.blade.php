@@ -197,8 +197,8 @@
             <i class="fas fa-tasks me-2"></i>{{ __('Workflow Status') }}
           </a>
         @endif
-        @if(\Illuminate\Support\Facades\Route::has('provenance.view'))
-          <a href="{{ route('provenance.view', $item->slug) }}" class="list-group-item list-group-item-action small">
+        @if(\Illuminate\Support\Facades\Route::has('io.provenance'))
+          <a href="{{ route('io.provenance', $item->slug) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-sitemap me-2"></i>{{ __('Provenance') }}
           </a>
         @endif
@@ -1558,22 +1558,25 @@
   @endif
 
   {{-- Provenance & Chain of Custody --}}
-  @if(\Illuminate\Support\Facades\Route::has('provenance.view'))
+  @if(\Illuminate\Support\Facades\Route::has('io.provenance'))
     @php
-      $provRecord = \Illuminate\Support\Facades\DB::table('provenance_record as pr')
-          ->leftJoin('provenance_record_i18n as pri', function($j) {
-              $j->on('pr.id', '=', 'pri.id')->where('pri.culture', '=', app()->getLocale());
-          })
-          ->where('pr.information_object_id', $item->id)
-          ->select('pr.*', 'pri.provenance_summary')
-          ->first();
-      $provEvents = $provRecord
-          ? \Illuminate\Support\Facades\DB::table('provenance_event')
-              ->where('provenance_record_id', $provRecord->id)
-              ->orderBy('event_date')
-              ->limit(5)
-              ->get()
-          : collect();
+      $provRecord = \Illuminate\Support\Facades\Schema::hasTable('provenance_overview')
+          ? \Illuminate\Support\Facades\DB::table('provenance_overview')
+              ->where('information_object_id', $item->id)
+              ->first()
+          : null;
+      $provEvents = \Illuminate\Support\Facades\DB::table('provenance_entry')
+          ->where('information_object_id', $item->id)
+          ->orderBy('sequence')
+          ->limit(5)
+          ->get()
+          ->map(function ($e) {
+              // Expose chain rows under the legacy event_type/event_date names
+              // the card below renders.
+              $e->event_type = $e->transfer_type;
+              $e->event_date = $e->start_date;
+              return $e;
+          });
     @endphp
     @if($provRecord || auth()->check())
     <section class="card mb-3">
@@ -1607,11 +1610,11 @@
         @endif
         @auth
           <div class="mt-2">
-            <a href="{{ route('provenance.edit', $item->slug) }}" class="btn btn-sm btn-outline-primary">
+            <a href="{{ route('io.provenance', $item->slug) }}" class="btn btn-sm btn-outline-primary">
               <i class="fas fa-edit me-1"></i>{{ $provRecord ? 'Edit' : 'Add' }} Provenance
             </a>
             @if($provRecord)
-              <a href="{{ route('provenance.view', $item->slug) }}" class="btn btn-sm btn-outline-secondary">
+              <a href="{{ route('io.provenance', $item->slug) }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-clock me-1"></i>{{ __('View Full Timeline') }}
               </a>
             @endif
@@ -1759,9 +1762,9 @@
               <li><a class="dropdown-item" href="{{ route('spectrum.label', $item->slug) }}"><i class="fas fa-barcode me-2"></i>{{ __('Generate barcode label') }}</a></li>
             @endif
           @endif
-          @if(\Illuminate\Support\Facades\Route::has('provenance.view'))
+          @if(\Illuminate\Support\Facades\Route::has('io.provenance'))
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ route('provenance.view', $item->slug) }}"><i class="fas fa-sitemap me-2"></i>{{ __('Provenance') }}</a></li>
+            <li><a class="dropdown-item" href="{{ route('io.provenance', $item->slug) }}"><i class="fas fa-sitemap me-2"></i>{{ __('Provenance') }}</a></li>
           @endif
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{{ url('/label/' . $item->slug) }}"><i class="fas fa-tag me-2"></i>{{ __('Generate label') }}</a></li>

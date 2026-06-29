@@ -253,11 +253,11 @@ class RepatriationDialogueController extends Controller
         if (is_string($slug) && $slug !== '') {
             $recordUrl = url('/'.$slug);
             try {
-                if (Route::has('provenance.view')) {
-                    $provenanceUrl = route('provenance.view', ['slug' => $slug]);
+                if (Route::has('io.provenance')) {
+                    $provenanceUrl = route('io.provenance', ['slug' => $slug]);
                 }
-                if (Route::has('provenance.timeline')) {
-                    $timelineUrl = route('provenance.timeline', ['slug' => $slug]);
+                if (Route::has('io.provenance.timeline')) {
+                    $timelineUrl = route('io.provenance.timeline', ['slug' => $slug]);
                 }
             } catch (\Throwable $e) {
                 Log::info('[repatriation-dialogue] provenance link build failed: '.$e->getMessage());

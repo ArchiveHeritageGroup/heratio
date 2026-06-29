@@ -58,10 +58,64 @@ class ProvenanceController extends Controller
         $timelineData = json_decode($this->service->getTimelineData($io->id), true);
 
         return view('ahg-io-manage::provenance.index', [
-            'io'           => $io,
-            'events'       => $events,
-            'timelineData' => $timelineData,
+            'io'                       => $io,
+            'events'                   => $events,
+            'timelineData'             => $timelineData,
+            'overview'                 => $this->service->getOverview($io->id),
+            'researchStatuses'         => $this->service->getResearchStatuses(),
+            'culturalPropertyStatuses' => $this->service->getCulturalPropertyStatuses(),
         ]);
+    }
+
+    /**
+     * Create or update the per-IO provenance governance header (Nazi-era due
+     * diligence, cultural-property/restitution status, research workflow,
+     * narrative summary, publication flag). Merged in from the retired
+     * ahg/provenance stack.
+     */
+    public function updateOverview(Request $request, string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'current_status'              => 'nullable|string|max:50',
+            'custody_type'                => 'nullable|string|max:50',
+            'acquisition_type'            => 'nullable|string|max:50',
+            'acquisition_date'            => 'nullable|date',
+            'acquisition_date_text'       => 'nullable|string|max:100',
+            'acquisition_price'           => 'nullable|numeric',
+            'acquisition_currency'        => 'nullable|string|max:10',
+            'certainty_level'             => 'nullable|string|max:50',
+            'has_gaps'                    => 'nullable|boolean',
+            'gap_description'             => 'nullable|string',
+            'research_status'             => 'nullable|string|max:50',
+            'research_notes'              => 'nullable|string',
+            'nazi_era_provenance_checked' => 'nullable|boolean',
+            'nazi_era_provenance_clear'   => 'nullable|boolean',
+            'nazi_era_notes'              => 'nullable|string',
+            'cultural_property_status'    => 'nullable|string|max:50',
+            'cultural_property_notes'     => 'nullable|string',
+            'provenance_summary'          => 'nullable|string',
+            'is_complete'                 => 'nullable|boolean',
+            'is_public'                   => 'nullable|boolean',
+        ]);
+
+        // Unchecked checkboxes don't post — normalise to 0 so they can be cleared.
+        foreach (['has_gaps', 'nazi_era_provenance_checked', 'is_complete', 'is_public'] as $flag) {
+            $validated[$flag] = (int) ($request->boolean($flag));
+        }
+        $validated['nazi_era_provenance_clear'] = $request->filled('nazi_era_provenance_clear')
+            ? (int) $request->boolean('nazi_era_provenance_clear')
+            : null;
+
+        $this->service->saveOverview($io->id, $validated);
+
+        return redirect()
+            ->route('io.provenance', $slug)
+            ->with('success', 'Provenance overview saved.');
     }
 
     /**

@@ -48,25 +48,22 @@
 {{-- Provenance — suppressed when the parent show page already renders a
      Provenance entry in the left sidebar (e.g. DAM Collections Management
      card). Pass `hideProvenance => true` from those views. --}}
-@if(empty($hideProvenance) && \Illuminate\Support\Facades\Route::has('provenance.view') && $__slug)
+@if(empty($hideProvenance) && \Illuminate\Support\Facades\Route::has('io.provenance') && $__slug)
 @php
-  $__provRecord = \Illuminate\Support\Facades\Schema::hasTable('provenance_record')
-    ? \Illuminate\Support\Facades\DB::table('provenance_record')->where('information_object_id', $__objId)->first()
+  $__provOverview = \Illuminate\Support\Facades\Schema::hasTable('provenance_overview')
+    ? \Illuminate\Support\Facades\DB::table('provenance_overview')->where('information_object_id', $__objId)->first()
     : null;
 @endphp
-@if($__provRecord || auth()->check())
+@if($__provOverview || auth()->check())
   <div class="card mb-3">
     <div class="card-header bg-secondary text-white fw-bold">
       <i class="fas fa-history me-1"></i> {{ __('Provenance') }}
     </div>
     <div class="card-body py-2">
-      @if($__provRecord && $__provRecord->current_status)
-        <span class="badge bg-info">{{ ucfirst($__provRecord->current_status) }}</span>
+      @if($__provOverview && $__provOverview->current_status)
+        <span class="badge bg-info">{{ ucfirst($__provOverview->current_status) }}</span>
       @endif
-      @auth
-        <a href="{{ route('provenance.view', $__slug) }}" class="btn btn-sm btn-outline-secondary ms-1">View</a>
-        <a href="{{ route('provenance.edit', $__slug) }}" class="btn btn-sm btn-outline-primary ms-1">Edit</a>
-      @endauth
+      <a href="{{ route('io.provenance', $__slug) }}" class="btn btn-sm btn-outline-secondary ms-1">View</a>
     </div>
   </div>
 @endif

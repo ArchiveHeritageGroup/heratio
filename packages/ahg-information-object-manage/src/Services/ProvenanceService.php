@@ -37,6 +37,79 @@ use Illuminate\Support\Facades\DB;
  */
 class ProvenanceService
 {
+    /** Per-IO governance header columns (merged in from the retired ahg/provenance stack). */
+    private const OVERVIEW_FIELDS = [
+        'current_status', 'custody_type', 'acquisition_type', 'acquisition_date',
+        'acquisition_date_text', 'acquisition_price', 'acquisition_currency',
+        'certainty_level', 'has_gaps', 'gap_description', 'research_status',
+        'research_notes', 'nazi_era_provenance_checked', 'nazi_era_provenance_clear',
+        'nazi_era_notes', 'cultural_property_status', 'cultural_property_notes',
+        'provenance_summary', 'is_complete', 'is_public',
+    ];
+
+    /**
+     * Get the provenance governance header for an information object (or null).
+     */
+    public function getOverview(int $objectId): ?object
+    {
+        return DB::table('provenance_overview')
+            ->where('information_object_id', $objectId)
+            ->first();
+    }
+
+    /**
+     * Create or update the governance header for an information object.
+     */
+    public function saveOverview(int $objectId, array $data): void
+    {
+        $payload = [];
+        foreach (self::OVERVIEW_FIELDS as $field) {
+            if (array_key_exists($field, $data)) {
+                $payload[$field] = $data[$field];
+            }
+        }
+        $payload['updated_at'] = now();
+
+        $existing = $this->getOverview($objectId);
+        if ($existing) {
+            DB::table('provenance_overview')->where('id', $existing->id)->update($payload);
+            \AhgCore\Support\AuditLog::captureEdit((int) $existing->id, 'provenance_overview', [], $payload);
+        } else {
+            $payload['information_object_id'] = $objectId;
+            $payload['created_by'] = auth()->id();
+            $payload['created_at'] = now();
+            $newId = DB::table('provenance_overview')->insertGetId($payload);
+            \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'provenance_overview', $payload);
+        }
+    }
+
+    /**
+     * Research-status options for the governance header.
+     */
+    public function getResearchStatuses(): array
+    {
+        return [
+            'not_started' => 'Not started',
+            'in_progress' => 'In progress',
+            'complete'    => 'Complete',
+            'blocked'     => 'Blocked',
+        ];
+    }
+
+    /**
+     * Cultural-property / restitution status options for the governance header.
+     */
+    public function getCulturalPropertyStatuses(): array
+    {
+        return [
+            'none'      => 'None — no concern',
+            'flagged'   => 'Flagged for review',
+            'claimed'   => 'Subject to a restitution claim',
+            'restituted' => 'Restituted / repatriated',
+            'cleared'   => 'Reviewed — cleared',
+        ];
+    }
+
     /**
      * Get the full provenance chain for an information object, ordered by sequence.
      */
@@ -102,6 +175,8 @@ class ProvenanceService
             'auction_lot'           => $data['auction_lot'] ?? null,
             'certainty'             => $data['certainty'] ?? 'unknown',
             'sources'               => $data['sources'] ?? null,
+            'evidence_type'         => $data['evidence_type'] ?? null,
+            'evidence_description'  => $data['evidence_description'] ?? null,
             'notes'                 => $data['notes'] ?? null,
             'is_gap'                => $data['is_gap'] ?? 0,
             'gap_explanation'       => $data['gap_explanation'] ?? null,
@@ -125,7 +200,8 @@ class ProvenanceService
             'owner_location_tgn', 'start_date', 'start_date_qualifier',
             'end_date', 'end_date_qualifier', 'transfer_type', 'transfer_details',
             'sale_price', 'sale_currency', 'auction_house', 'auction_lot',
-            'certainty', 'sources', 'notes', 'is_gap', 'gap_explanation', 'sequence',
+            'certainty', 'sources', 'evidence_type', 'evidence_description',
+            'notes', 'is_gap', 'gap_explanation', 'sequence',
         ];
         foreach ($fields as $field) {
             if (array_key_exists($field, $data)) {
