@@ -220,7 +220,7 @@ class IngestCommitRunner
             $this->runAiSteps($session, (int) $result['io_id'], (int) ($result['do_id'] ?? 0), $digitalObjectPath);
             // Archivematica-style preservation baseline (fixity + PRONOM +
             // PREMIS) on every ingested digital object, regardless of toggles.
-            $this->runPreservationBaseline((int) $result['io_id'], (int) ($result['do_id'] ?? 0));
+            $this->runPreservationBaseline((int) $result['io_id'], (int) ($result['do_id'] ?? 0), $session);
             return ['io_id' => $result['io_id'], 'do_id' => $result['do_id']];
         }
 
@@ -381,7 +381,7 @@ class IngestCommitRunner
      * already-saved row. This is what makes ingested objects appear in the
      * Digital Preservation dashboard with full provenance.
      */
-    protected function runPreservationBaseline(int $ioId, int $doId): void
+    protected function runPreservationBaseline(int $ioId, int $doId, ?object $session = null): void
     {
         if ($doId <= 0) {
             return; // no digital object to preserve
@@ -412,6 +412,18 @@ class IngestCommitRunner
                     ->identifyDigitalObject($doId);
             } catch (\Throwable $e) {
                 Log::warning('[ingest-preservation] PRONOM id failed for DO ' . $doId . ': ' . $e->getMessage());
+            }
+        }
+
+        // #1385 - normalization to a preservation master. Opt-in per session,
+        // queued (slow), fail-soft. PRONOM ran above so the rule matcher can
+        // key on the identified format.
+        $normalize = $session && (int) ($session->process_normalize ?? 0) === 1;
+        if ($normalize && class_exists(\AhgPreservation\Jobs\NormalizeDigitalObjectJob::class)) {
+            try {
+                \AhgPreservation\Jobs\NormalizeDigitalObjectJob::dispatch($doId, 'preservation');
+            } catch (\Throwable $e) {
+                Log::warning('[ingest-preservation] normalize dispatch failed for DO ' . $doId . ': ' . $e->getMessage());
             }
         }
     }

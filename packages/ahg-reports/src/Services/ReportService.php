@@ -77,10 +77,13 @@ class ReportService
         // Digital Preservation stats (guarded — Archivematica-style pipeline)
         $stats['preserved_objects'] = 0;
         $stats['premis_events'] = 0;
+        $stats['normalized_objects'] = 0;
         try {
             $stats['preserved_objects'] = DB::table('preservation_checksum')
                 ->distinct()->count('digital_object_id');
             $stats['premis_events'] = DB::table('preservation_event')->count();
+            $stats['normalized_objects'] = DB::table('preservation_format_conversion')
+                ->where('status', 'completed')->distinct()->count('digital_object_id');
         } catch (\Throwable $e) {
             // ahg-preservation not installed
         }

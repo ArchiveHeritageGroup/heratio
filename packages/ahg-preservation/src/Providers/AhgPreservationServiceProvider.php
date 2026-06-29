@@ -55,6 +55,106 @@ class AhgPreservationServiceProvider extends ServiceProvider
         $this->bootCronRegistration();
         $this->bootPremisRightsTable();
         $this->bootPremisObjectColumns();
+        $this->bootNormalizationRuleTable();
+    }
+
+    /**
+     * #1385 Phase 1 - idempotent auto-seed of the normalization rule registry
+     * (the FPR) + the "Preservation Master" usage term. Mirrors the package
+     * convention: probe via Schema::hasTable and create/seed if absent so fresh
+     * and overlay installs never need manual SQL.
+     */
+    protected function bootNormalizationRuleTable(): void
+    {
+        try {
+            if (! Schema::hasTable('preservation_normalization_rule')) {
+                DB::statement(<<<'SQL'
+                    CREATE TABLE IF NOT EXISTS preservation_normalization_rule (
+                        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                        source_pronom VARCHAR(50) NULL,
+                        source_mime VARCHAR(100) NULL,
+                        purpose VARCHAR(20) NOT NULL DEFAULT 'preservation',
+                        target_format VARCHAR(50) NOT NULL,
+                        target_ext VARCHAR(12) NOT NULL,
+                        target_mime VARCHAR(100) NULL,
+                        tool VARCHAR(50) NOT NULL,
+                        options JSON NULL,
+                        priority INT NOT NULL DEFAULT 100,
+                        is_active TINYINT(1) NOT NULL DEFAULT 1,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
+                        INDEX idx_norm_mime (source_mime),
+                        INDEX idx_norm_pronom (source_pronom),
+                        INDEX idx_norm_purpose (purpose),
+                        INDEX idx_norm_active (is_active)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+                SQL);
+            }
+
+            // Seed default preservation rules once (only if the table is empty).
+            if (DB::table('preservation_normalization_rule')->count() === 0) {
+                $now = now()->format('Y-m-d H:i:s');
+                $rule = fn (string $mime, string $fmt, string $ext, string $tmime, string $tool) => [
+                    'source_mime' => $mime, 'purpose' => 'preservation',
+                    'target_format' => $fmt, 'target_ext' => $ext, 'target_mime' => $tmime,
+                    'tool' => $tool, 'priority' => 100, 'is_active' => 1,
+                    'created_at' => $now,
+                ];
+                DB::table('preservation_normalization_rule')->insert([
+                    // Images -> TIFF (LZW)
+                    $rule('image/jpeg', 'TIFF', 'tiff', 'image/tiff', 'imagemagick'),
+                    $rule('image/png',  'TIFF', 'tiff', 'image/tiff', 'imagemagick'),
+                    $rule('image/gif',  'TIFF', 'tiff', 'image/tiff', 'imagemagick'),
+                    $rule('image/bmp',  'TIFF', 'tiff', 'image/tiff', 'imagemagick'),
+                    // PDF -> PDF/A (Ghostscript)
+                    $rule('application/pdf', 'PDF/A', 'pdf', 'application/pdf', 'ghostscript'),
+                    // Office -> PDF (LibreOffice)
+                    $rule('application/msword', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
+                    $rule('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
+                    $rule('application/vnd.ms-excel', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
+                    $rule('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
+                    $rule('application/vnd.ms-powerpoint', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
+                    $rule('application/vnd.openxmlformats-officedocument.presentationml.presentation', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
+                    $rule('application/vnd.oasis.opendocument.text', 'PDF', 'pdf', 'application/pdf', 'libreoffice'),
+                    // Audio -> WAV
+                    $rule('audio/mpeg', 'WAV', 'wav', 'audio/x-wav', 'ffmpeg'),
+                    $rule('audio/ogg',  'WAV', 'wav', 'audio/x-wav', 'ffmpeg'),
+                    $rule('audio/aac',  'WAV', 'wav', 'audio/x-wav', 'ffmpeg'),
+                    // Video -> MKV (FFV1)
+                    $rule('video/mp4',       'MKV', 'mkv', 'video/x-matroska', 'ffmpeg'),
+                    $rule('video/quicktime', 'MKV', 'mkv', 'video/x-matroska', 'ffmpeg'),
+                    $rule('video/x-msvideo',  'MKV', 'mkv', 'video/x-matroska', 'ffmpeg'),
+                ]);
+            }
+
+            // Seed the "Preservation Master" usage term (taxonomy 47 = usage).
+            $exists = DB::table('term_i18n')
+                ->join('term', 'term.id', '=', 'term_i18n.id')
+                ->where('term.taxonomy_id', 47)
+                ->where('term_i18n.name', 'Preservation Master')
+                ->exists();
+            if (! $exists) {
+                $now = now()->format('Y-m-d H:i:s');
+                $oid = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitTerm',
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                    'serial_number' => 0,
+                ]);
+                DB::table('term')->insert([
+                    'id' => $oid,
+                    'taxonomy_id' => 47,
+                    'source_culture' => 'en',
+                ]);
+                DB::table('term_i18n')->insert([
+                    'id' => $oid,
+                    'name' => 'Preservation Master',
+                    'culture' => 'en',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Never block boot.
+        }
     }
 
     /**

@@ -164,6 +164,7 @@ class IngestService
                 ?? ($defaults['translate_from'] . '-' . $defaults['translate_to']),
             'process_format_id' => $bool('process_format_id', $defaults['format_id']),
             'process_face_detect' => $bool('process_face_detect', $defaults['face_detect']),
+            'process_normalize' => $bool('process_normalize', $defaults['normalize'] ?? false),
             'derivative_thumbnails' => $bool('derivative_thumbnails', $defaults['thumbnails']),
             'derivative_reference' => $bool('derivative_reference', $defaults['reference']),
         ];
@@ -205,6 +206,7 @@ class IngestService
             'process_translate_lang' => $d['translate_from'] . '-' . $d['translate_to'],
             'process_format_id' => $d['format_id'],
             'process_face_detect' => $d['face_detect'],
+            'process_normalize' => $d['normalize'] ?? false,
             'derivative_thumbnails' => $d['thumbnails'],
             'derivative_reference' => $d['reference'],
         ];

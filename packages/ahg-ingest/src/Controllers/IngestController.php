@@ -126,6 +126,7 @@ class IngestController extends Controller
                 'process_summarize', 'process_spellcheck',
                 'process_translate', 'process_translate_lang',
                 'process_format_id', 'process_face_detect',
+                'process_normalize',
             ]);
 
             if ($id) {

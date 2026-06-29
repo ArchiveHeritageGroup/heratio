@@ -1,6 +1,11 @@
 # Spec: Normalization on ingest (Archivematica parity)
 
-> Status: proposed (scoped, not yet built)
+> Status: **Phase 1 BUILT on dev** (Laravel side, #1385) - rule registry +
+> NormalizationService + queued job + opt-in `process_normalize` toggle +
+> preservation-master derivative + PREMIS `normalization` event + dashboard
+> count. Verified end-to-end (JPEG->TIFF master attached as a child digital
+> object). AtoM-AHG port + Phase 2 (access copies, FPR admin UI, batch
+> normalize-existing) still to do.
 > Audience: developer, digital preservation officer, sysadmin
 > Applies to both codebases: Laravel Heratio + AtoM-AHG.
 > Builds on: [[ingest-preservation-pipeline]] (the always-on baseline that

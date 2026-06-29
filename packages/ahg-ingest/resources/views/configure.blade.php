@@ -257,6 +257,13 @@
                 </div>
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="process_normalize" name="process_normalize" value="1" @checked($session->process_normalize ?? false)>
+                        <label class="form-check-label" for="process_normalize"><i class="fas fa-shield-alt text-success me-1"></i>{{ __('Normalize (preservation master)') }}</label>
+                    </div>
+                    <small class="text-muted d-block ms-4">{{ __('Create an open-format preservation copy (TIFF/PDF-A/WAV...)') }}</small>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_translate" name="process_translate" value="1" @checked($session->process_translate ?? false)>
                         <label class="form-check-label" for="process_translate"><i class="fas fa-language text-primary me-1"></i>Translate</label>
                     </div>
