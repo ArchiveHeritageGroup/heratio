@@ -2,9 +2,11 @@
 
 # Digital Preservation User Guide
 
+> Digital Preservation is a built-in Heratio capability, not a separate add-on. There is nothing to install. CLI tasks run through Heratio's `php artisan` console and the in-app Scheduler. For the wider integrity and authenticity picture, see the *Content Authenticity in Heratio* reference and the *Integrity Assurance* user guide.
+
 ## Overview
 
-The Digital Preservation plugin helps you protect your digital collections by ensuring files remain unchanged over time, tracking all preservation activities, identifying file formats that may require attention, scanning for viruses, converting files to preservation-safe formats, and replicating backups to multiple locations.
+Digital Preservation in Heratio helps you protect your digital collections by ensuring files remain unchanged over time, tracking all preservation activities, identifying file formats that may require attention, scanning for viruses, converting files to preservation-safe formats, and replicating backups to multiple locations.
 
 **Key Benefits:**
 - **Integrity Assurance** - Detect if files have been corrupted or modified
@@ -23,7 +25,7 @@ The Digital Preservation plugin helps you protect your digital collections by en
 
 1. Log in as an administrator
 2. Navigate to **Central Dashboard** -> **Digital Preservation**
-3. Or go directly to: `/preservation`
+3. Or go directly to: `/admin/preservation`
 
 ```
 +-------------------------------------------------------------+
@@ -44,7 +46,7 @@ The Digital Preservation plugin helps you protect your digital collections by en
 
 1. Go to **Admin** -> **AHG Settings**
 2. Click **Preservation & Backup** card
-3. Or navigate to: `/ahgSettings/preservation`
+3. Or navigate to: `/admin/preservation/policies`
 
 ---
 
@@ -135,57 +137,44 @@ Fixity checks verify that files haven't changed since checksums were created.
 
 **Batch Verification (CLI):**
 ```bash
-# Check objects not verified in 30+ days
-php symfony preservation:fixity --limit=100
+# Verify up to 100 objects whose last check is older than 90 days (defaults)
+php artisan ahg:preservation-fixity
 
-# Check objects not verified in 7+ days
-php symfony preservation:fixity --stale-days=7
+# Verify objects not checked in 7+ days, up to 500
+php artisan ahg:preservation-fixity --age=7 --limit=500
 
-# Check all objects regardless of age
-php symfony preservation:fixity --all --limit=500
+# Use SHA-512 instead of the SHA-256 default
+php artisan ahg:preservation-fixity --algorithm=sha512 --limit=200
 
-# Check with self-healing auto-repair enabled
-php symfony preservation:fixity --auto-repair --limit=100
+# Verify a single digital object
+php artisan ahg:preservation-fixity --digital-object-id=123
+
+# Print a summary report and exit
+php artisan ahg:preservation-fixity --report
 ```
 
-**Self-Healing Auto-Repair:**
+**Restoring from backup after a failure:**
 
-The plugin includes self-healing storage capabilities that automatically restore corrupted or missing files from backups:
+When fixity detects corruption or a missing file, restore the affected object from a verified backup copy. Backups are managed by the Backup & Replication module - replicas are independently checksummed (see [Backup Replication](#6-backup-replication)). Use the backup restore commands to recover a specific object:
 
 ```bash
-# Run fixity check with auto-repair
-php symfony preservation:fixity --auto-repair
+# Re-verify replicated backups against their recorded checksums
+php artisan backup:verify-integrity
 
-# View self-healing statistics
-php symfony preservation:fixity --repair-stats
+# Restore a single information object from backup
+php artisan backup:restore-io
 ```
 
-When `--auto-repair` is enabled:
-1. Failed fixity checks trigger automatic backup search
-2. The system searches all configured replication targets
-3. Valid backup copies are verified against stored checksums
-4. Corrupted files are restored from verified backups
-5. All repair operations are logged as PREMIS events
+Every restore is logged as a PREMIS event, preserving the audit trail.
 
-**Supported Backup Targets for Self-Healing:**
-- Local file system paths
-- Rsync targets
-- SFTP servers
-- Amazon S3 buckets
-- Azure Blob Storage
-- Google Cloud Storage
-
-**Scheduled Verification with Auto-Repair:**
-Add to crontab for automatic daily checks with self-healing:
-```bash
-0 2 * * * cd /usr/share/nginx/archive && php symfony preservation:fixity --auto-repair --limit=500 >> /var/log/fixity.log 2>&1
-```
+**Scheduled verification:**
+Day-to-day, fixity runs from the in-app **Scheduler** (see [Workflow Scheduler](#9-workflow-scheduler)) - no per-task crontab editing is required once Heratio's task scheduler is active.
 
 ---
 
 ### 3. Virus Scanning
 
-The plugin integrates with ClamAV to scan digital objects for malware.
+Heratio integrates with ClamAV to scan digital objects for malware.
 
 #### Prerequisites
 
@@ -232,28 +221,22 @@ sudo freshclam  # Update virus definitions
 
 **Via CLI:**
 ```bash
-# Check ClamAV status and statistics
-php symfony preservation:virus-scan --status
+# Scan up to 200 objects (default)
+php artisan ahg:preservation-virus-scan
 
-# Preview what would be scanned
-php symfony preservation:virus-scan --dry-run
+# Only scan objects with no prior scan record
+php artisan ahg:preservation-virus-scan --unscanned --limit=100
 
-# Scan new/unscanned objects
-php symfony preservation:virus-scan --limit=100
+# Show recent virus-scan history and exit
+php artisan ahg:preservation-virus-scan --report
 
-# Scan specific object
-php symfony preservation:virus-scan --object-id=123
-
-# Scan all objects (rescan previously scanned)
-php symfony preservation:virus-scan --all --limit=500
+# Point at a specific ClamAV binary
+php artisan ahg:preservation-virus-scan --clamav-binary=/usr/bin/clamscan
 ```
 
 #### Quarantine
 
-Infected files are automatically moved to a quarantine directory:
-- **Location:** `/uploads/quarantine/`
-- Files are renamed with a timestamp and `.quarantine` extension
-- Review quarantined files before permanent deletion
+Infected files are moved to a quarantine area within the configured Heratio storage location, renamed with a timestamp and a `.quarantine` extension. Review quarantined files before permanent deletion.
 
 ---
 
@@ -308,31 +291,36 @@ Convert files to archival-quality preservation formats using industry-standard t
 3. See recent conversions and any failures
 
 **Via CLI:**
+
+Conversion is driven by the Format Policy Registry (FPR). Each rule maps a source format to a target preservation or access format and the tool that performs it. Run normalization with `ahg:normalize-existing`:
+
 ```bash
-# Check available tools and statistics
-php symfony preservation:convert --status
+# Normalize existing objects to their preservation master (queued)
+php artisan ahg:normalize-existing
 
-# Preview what would be converted
-php symfony preservation:convert --dry-run
+# Produce access (reference) derivatives instead
+php artisan ahg:normalize-existing --purpose=access
 
-# Convert objects needing conversion
-php symfony preservation:convert --limit=50
+# Only objects of a given MIME type, run inline rather than queued
+php artisan ahg:normalize-existing --mime=image/jpeg --sync
 
-# Convert specific object
-php symfony preservation:convert --object-id=123 --format=tiff
+# Cap the number of objects processed
+php artisan ahg:normalize-existing --limit=50
+```
 
-# Convert by MIME type
-php symfony preservation:convert --mime-type=image/jpeg --format=tiff --limit=100
+For planned, approval-gated format migrations across a collection, use the migration runner:
 
-# Adjust quality (for applicable conversions)
-php symfony preservation:convert --quality=90 --limit=50
+```bash
+# Run all active migration plans (or a specific plan)
+php artisan ahg:preservation-migrate --plan-id=1 --limit=50
+
+# Simulate without converting
+php artisan ahg:preservation-migrate --dry-run
 ```
 
 #### Output Location
 
-Converted files are stored in: `/uploads/conversions/`
-
-Files are named: `{original_name}_{object_id}.{format}`
+Derivatives are attached as child digital objects of the original, each with its own SHA-256 checksum, and stored within the configured Heratio storage location. Originals are always preserved.
 
 ---
 
@@ -377,18 +365,11 @@ Verify the integrity of backup files and archives.
 
 **Via CLI:**
 ```bash
-# Verify backups in default directory
-php symfony preservation:verify-backup
-
-# Verify specific backup file
-php symfony preservation:verify-backup --path=/backups/atom-backup-2026-01-15.tar.gz
-
-# Verify with known checksum
-php symfony preservation:verify-backup --path=/backups/backup.tar.gz --checksum=abc123...
-
-# Verify all backups in directory
-php symfony preservation:verify-backup --all --backup-dir=/backups
+# Re-verify replicated backups against their recorded SHA-256 checksums
+php artisan backup:verify-integrity
 ```
+
+Backup integrity is tracked in the replication ledger - each replica records its SHA-256, target driver, and verification status. See the Backup & Replication settings for target configuration.
 
 ---
 
@@ -417,20 +398,17 @@ Replicate files to multiple backup targets for disaster recovery.
 
 **Via CLI:**
 ```bash
-# Show replication status
-php symfony preservation:replicate --status
+# Replicate unreplicated packages to all enabled targets (default limit 20/target)
+php artisan ahg:preservation-replicate
 
-# Preview what would be replicated
-php symfony preservation:replicate --dry-run
+# Replicate to a specific named target
+php artisan ahg:preservation-replicate --target=offsite-s3 --limit=100
 
-# Replicate to all active targets
-php symfony preservation:replicate --limit=100
+# Replicate a specific package
+php artisan ahg:preservation-replicate --package-id=42
 
-# Replicate to specific target
-php symfony preservation:replicate --target-id=1 --limit=100
-
-# Force re-sync of already synced files
-php symfony preservation:replicate --force --limit=50
+# Simulate without transferring
+php artisan ahg:preservation-replicate --dry-run
 ```
 
 #### Replication Workflow
@@ -494,7 +472,7 @@ Every preservation action is logged as a PREMIS event, creating a complete audit
 
 ### 8. Format Identification (PRONOM)
 
-The plugin integrates with Siegfried to provide PRONOM-based format identification, the same identification method used by The National Archives (UK) and DROID.
+Heratio integrates with Siegfried to provide PRONOM-based format identification, the same identification method used by The National Archives (UK) and DROID.
 
 #### What is PRONOM?
 
@@ -565,23 +543,14 @@ sudo dpkg -i /tmp/sf.deb
 
 **Via CLI:**
 ```bash
-# Check Siegfried status and statistics
-php symfony preservation:identify --status
+# Identify up to 1000 unidentified objects (default)
+php artisan ahg:preservation-identify
 
-# Preview what would be identified
-php symfony preservation:identify --dry-run
+# Identify a single digital object
+php artisan ahg:preservation-identify --digital-object-id=123
 
-# Identify unidentified objects
-php symfony preservation:identify --limit=500
-
-# Identify specific object
-php symfony preservation:identify --object-id=123
-
-# Re-identify all objects (update existing)
-php symfony preservation:identify --all --limit=1000
-
-# Force re-identify specific object
-php symfony preservation:identify --object-id=123 --reidentify
+# Print the PRONOM risk distribution and exit
+php artisan ahg:preservation-identify --risk
 ```
 
 #### Benefits of PRONOM Identification
@@ -591,42 +560,15 @@ php symfony preservation:identify --object-id=123 --reidentify
 - **Risk Assessment** - Automatically assigns preservation risk levels
 - **Interoperability** - Compatible with DROID, Archivematica, Preservica
 
-#### PRONOM Registry Sync
+#### Format Registry Population
 
-The plugin can sync format information directly from the UK National Archives' PRONOM registry, keeping your format data current with the latest official information.
+The PRONOM format registry is populated automatically as objects are identified: each new PUID encountered during `ahg:preservation-identify` is recorded in the format registry with its name, version, MIME type, risk level, and preservation action. Run identification across your collection to keep the registry current; review the results under **Preservation -> Format Registry**.
 
-**Via CLI:**
-```bash
-# View PRONOM sync status
-php symfony preservation:pronom-sync --status
-
-# Sync a specific PUID
-php symfony preservation:pronom-sync --puid=fmt/18
-
-# Look up PUID information without syncing
-php symfony preservation:pronom-sync --lookup=fmt/43
-
-# Sync all unregistered PUIDs found in your collection
-php symfony preservation:pronom-sync --unregistered
-
-# Sync common archival formats (PDF/A, TIFF, JPEG2000, WAV, etc.)
-php symfony preservation:pronom-sync --common
-
-# Sync all known PUIDs
-php symfony preservation:pronom-sync --all
-```
-
-**PRONOM Data Retrieved:**
-- Official format names and versions
-- MIME types and file extensions
-- Binary signature availability
-- Format risk information
-- Preservation recommendations
-
-**Scheduled Sync (recommended monthly):**
-```bash
-0 4 1 * * cd /usr/share/nginx/archive && php symfony preservation:pronom-sync --all >> /var/log/pronom-sync.log 2>&1
-```
+**Format data captured per PUID:**
+- Official format name and version
+- MIME type
+- Risk level (low / medium / high / unknown)
+- Whether it is a preservation format, and the recommended action (retain or monitor)
 
 ---
 
@@ -637,7 +579,7 @@ The Workflow Scheduler allows you to configure and monitor automated preservatio
 #### Accessing the Scheduler
 
 1. Navigate to **Preservation** -> **Scheduler**
-2. Or go directly to: `/preservation/scheduler`
+2. Or go directly to: `/admin/preservation/scheduler`
 
 #### Default Schedules
 
@@ -670,21 +612,20 @@ You can manually trigger any workflow from the UI:
 
 #### CLI Scheduler Command
 
-The scheduler should be run via cron to execute due workflows:
+Due preservation workflows are dispatched by `ahg:preservation-scheduler`, which Heratio's task scheduler invokes for you. You can also run it manually:
 
 ```bash
-# Run every minute (recommended)
-* * * * * cd /usr/share/nginx/archive && php symfony preservation:scheduler >> /var/log/atom/scheduler.log 2>&1
+# Run all due schedules
+php artisan ahg:preservation-scheduler
 
-# Or run specific schedule
-php symfony preservation:scheduler --run-id=1
+# Force every schedule to run now, regardless of last run time
+php artisan ahg:preservation-scheduler --force
 
-# Show scheduler status
-php symfony preservation:scheduler --status
-
-# List all schedules
-php symfony preservation:scheduler --list
+# Simulate without executing
+php artisan ahg:preservation-scheduler --dry-run
 ```
+
+As long as Heratio's task scheduler is active (the standard single `php artisan schedule:run` cron entry), there is no need to add a crontab line per workflow.
 
 ---
 
@@ -717,53 +658,37 @@ The format registry tracks file formats and their preservation risk level. It is
 
 | Command | Description |
 |---------|-------------|
-| `preservation:scheduler` | Run scheduled workflows or view scheduler status |
-| `preservation:identify` | Identify file formats using Siegfried (PRONOM) |
-| `preservation:fixity` | Run fixity verification checks |
-| `preservation:virus-scan` | Scan files for viruses with ClamAV |
-| `preservation:convert` | Convert files to preservation formats |
-| `preservation:verify-backup` | Verify backup file integrity |
-| `preservation:replicate` | Replicate files to backup targets |
+| `php artisan ahg:preservation-scheduler` | Run due preservation workflows |
+| `php artisan ahg:preservation-identify` | Identify file formats using Siegfried (PRONOM) |
+| `php artisan ahg:preservation-fixity` | Run fixity verification checks |
+| `php artisan ahg:preservation-virus-scan` | Scan files for viruses with ClamAV |
+| `php artisan ahg:normalize-existing` | Generate preservation/access derivatives (FPR) |
+| `php artisan ahg:preservation-migrate` | Execute format migration plans |
+| `php artisan ahg:preservation-replicate` | Replicate packages to backup targets |
+| `php artisan ahg:preservation-package` | Build OAIS packages (SIP/AIP/DIP) |
+| `php artisan ahg:preservation-obsolescence` | List high-risk / obsolete formats |
+| `php artisan ahg:preservation-stats` | Show preservation statistics |
+| `php artisan backup:verify-integrity` | Verify replicated backups against checksums |
 
 ### Common Options
 
 | Option | Description |
 |--------|-------------|
-| `--status` | Show tool status and statistics |
-| `--dry-run` | Preview without making changes |
 | `--limit=N` | Maximum objects to process |
-| `--object-id=N` | Process specific object |
+| `--digital-object-id=N` | Process a specific digital object |
+| `--dry-run` | Preview without making changes (where supported) |
+| `--report` / `--risk` | Show statistics and exit (where supported) |
 
-### Cron Schedule Examples
+### Scheduling
 
-**Recommended: Use the Workflow Scheduler** (runs all configured workflows automatically):
-
-```bash
-# Run scheduler every minute (recommended)
-* * * * * cd /usr/share/nginx/archive && php symfony preservation:scheduler >> /var/log/atom/scheduler.log 2>&1
-```
-
-**Alternative: Individual task scheduling** (manual control):
+The recommended approach is the in-app **Workflow Scheduler** (**Preservation -> Scheduler**), which runs all configured workflows automatically via Heratio's task scheduler. You only need the standard Laravel scheduler cron entry on the server:
 
 ```bash
-# Daily format identification at 1am
-0 1 * * * cd /usr/share/nginx/archive && php symfony preservation:identify --limit=500
-
-# Daily fixity check at 2am
-0 2 * * * cd /usr/share/nginx/archive && php symfony preservation:fixity --limit=500
-
-# Daily virus scan at 3am
-0 3 * * * cd /usr/share/nginx/archive && php symfony preservation:virus-scan --limit=200
-
-# Weekly format conversion on Sunday at 4am
-0 4 * * 0 cd /usr/share/nginx/archive && php symfony preservation:convert --limit=100
-
-# Daily replication at 5am
-0 5 * * * cd /usr/share/nginx/archive && php symfony preservation:replicate --limit=500
-
-# Weekly backup verification on Saturday at 6am
-0 6 * * 6 cd /usr/share/nginx/archive && php symfony preservation:verify-backup --all
+# The single cron line that drives ALL Heratio scheduled tasks
+* * * * * cd /usr/share/nginx/heratio && php artisan schedule:run >> /dev/null 2>&1
 ```
+
+Individual commands from the table above can also be run manually on demand.
 
 ---
 
@@ -832,30 +757,20 @@ The OAIS Packages feature allows you to create, manage, and export archival pack
 
 #### CLI Commands
 
+The full draft -> build -> validate -> export workflow is driven from the **OAIS Packages** UI. The CLI builds a package directly for a given information object:
+
 ```bash
-# List all packages
-php symfony preservation:package list
+# Build an AIP for an information object
+php artisan ahg:preservation-package --type=aip --object-id=123
 
-# Create a new SIP
-php symfony preservation:package create --type=sip --name="My Collection"
+# Build a SIP
+php artisan ahg:preservation-package --type=sip --object-id=123
 
-# Add objects to package
-php symfony preservation:package add-objects --id=1 --objects=100,101,102
+# Build a DIP from an existing AIP
+php artisan ahg:preservation-package --type=dip --from-aip=45 --object-id=123
 
-# Add objects by query
-php symfony preservation:package add-objects --id=1 --query="mime_type:application/pdf"
-
-# Build BagIt package
-php symfony preservation:package build --id=1
-
-# Validate package
-php symfony preservation:package validate --id=1
-
-# Export to ZIP
-php symfony preservation:package export --id=1 --format=zip
-
-# Convert SIP to AIP
-php symfony preservation:package convert --id=1 --type=aip
+# Include derivative files, and record who built it
+php artisan ahg:preservation-package --type=aip --object-id=123 --include-derivatives --created-by="archivist@example.org"
 ```
 
 #### BagIt Structure
@@ -1074,7 +989,7 @@ Step 7: Verify results
 - **Documentation:** Check the technical documentation for advanced configuration
 - **Support:** Contact your system administrator
 - **Logs:** Review preservation events for detailed error information
-- **CLI Help:** Run `php symfony help preservation:convert` for command help
+- **CLI Help:** Run any command with `--help`, e.g. `php artisan ahg:preservation-fixity --help`
 
 ---
 
@@ -1105,5 +1020,4 @@ Step 7: Verify results
 
 ---
 
-*Last Updated: January 2026*
-*Plugin Version: 1.5.0*
+*Last Updated: June 2026*
