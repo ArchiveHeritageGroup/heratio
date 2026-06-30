@@ -1,8 +1,12 @@
-# AI Tools (ahgAIPlugin)
+> Heratio Help Center article. Category: AI & Automation.
+
+# AI Tools
 
 ## User Guide
 
 Powerful AI-powered tools for archival records: Named Entity Recognition (NER), Translation, Summarization, Spellcheck, Handwriting Text Recognition (HTR), and **LLM Description Suggestions**.
+
+> **The AI tools are an optional paid subscription, not part of the base platform.** They are dormant until an AHG AI gateway subscription is activated. See **AI features - subscription service** for what is included and how to subscribe.
 
 ---
 
@@ -185,8 +189,8 @@ Enable the **"Auto-extract on upload"** setting.
 |                |                                                  |
 |                v                                                  |
 |   3. NER EXTRACTION QUEUED                                        |
-|      - Background processing via Gearman                          |
-|      - Or pending queue if Gearman unavailable                    |
+|      - Background processing via the Heratio queue worker         |
+|      - Or drained on demand with ahg:ai-process-pending           |
 |                |                                                  |
 |                v                                                  |
 |   4. ENTITIES EXTRACTED                                           |
@@ -214,14 +218,14 @@ Enable the **"Auto-extract on upload"** setting.
 
 #### Processing Pending Queue
 
-If the background job system (Gearman) is unavailable, uploaded documents are queued for later processing. Run the pending queue processor via cron:
+Uploaded documents are queued for background processing. The standard Heratio queue worker drains them automatically; you can also process the queue on demand:
 
 ```bash
-# Process pending NER extractions every 5 minutes
-*/5 * * * * cd /usr/share/nginx/atom && php symfony ai:process-pending --limit=20 >> /var/log/atom/ai-pending.log 2>&1
+# Process pending NER extractions
+php artisan ahg:ai-process-pending --limit=20
 ```
 
-This cron job is available in the **Admin > AHG Settings > Cron Jobs** page.
+This runs from Heratio's task scheduler/queue worker - no per-task crontab entry is required.
 
 ---
 
@@ -251,16 +255,16 @@ Translate archival descriptions between languages using offline machine translat
 #### From the Command Line
 ```bash
 # Translate a single record
-php symfony ai:translate --from=en --to=af --object=12345
+php artisan ahg:ai-translate --from=en --to=af --object=12345
 
 # Translate all records in a repository
-php symfony ai:translate --from=en --to=af --repository=5 --limit=50
+php artisan ahg:ai-translate --from=en --to=af --repository=5 --limit=50
 
-# Install language package if missing
-php symfony ai:translate --from=en --to=af --install-package
+# Overwrite existing target-culture text instead of skipping
+php artisan ahg:ai-translate --from=en --to=af --object=12345 --overwrite
 
 # Preview what would be translated
-php symfony ai:translate --from=en --to=af --object=12345 --dry-run
+php artisan ahg:ai-translate --from=en --to=af --object=12345 --dry-run
 ```
 
 #### Translation Options
@@ -268,14 +272,13 @@ php symfony ai:translate --from=en --to=af --object=12345 --dry-run
 +----------------------------------------------------------------+
 |                    TRANSLATION OPTIONS                          |
 +----------------------------------------------------------------+
-|  --from           Source language code (e.g., en)               |
-|  --to             Target language code (e.g., af)               |
-|  --object         Translate specific object ID                  |
-|  --repository     Translate all in repository ID                |
-|  --fields         Fields to translate (default: title,scope)    |
-|  --limit          Maximum records to translate                  |
+|  --from           Source culture to read from (default: en)     |
+|  --to             Target culture to write (required, e.g. af)    |
+|  --object         Translate a specific information_object ID     |
+|  --repository     Translate all in a repository ID               |
+|  --limit          Maximum records to translate (0/blank = all)   |
+|  --overwrite      Replace existing target text instead of skip   |
 |  --dry-run        Preview without making changes                |
-|  --install-package Install language package if missing          |
 +----------------------------------------------------------------+
 ```
 
@@ -329,16 +332,16 @@ Automatically generate summaries for records with attached PDF documents, saving
 #### From the Command Line
 ```bash
 # Summarize a specific record
-php symfony ai:summarize --object=12345
+php artisan ahg:ai-summarize --object=12345
 
 # Summarize records with empty Scope & Content
-php symfony ai:summarize --all-empty --limit=50
+php artisan ahg:ai-summarize --all-empty --limit=50
 
 # Summarize records in a repository
-php symfony ai:summarize --repository=5 --limit=100
+php artisan ahg:ai-summarize --repository=5 --limit=100
 
 # Preview what would be processed
-php symfony ai:summarize --all-empty --dry-run
+php artisan ahg:ai-summarize --all-empty --dry-run
 ```
 
 ### Summarization Settings
@@ -498,25 +501,25 @@ Access via: **Admin** -> **AI Tools** -> **Suggestion Review**
 
 ```bash
 # Generate suggestion for specific record
-php symfony ai:suggest-description --object=12345
+php artisan ahg:ai-suggest-description --object=12345
 
 # Process records with empty scope_and_content
-php symfony ai:suggest-description --empty-only --limit=50
+php artisan ahg:ai-suggest-description --empty-only --limit=50
 
-# Process only records with OCR text
-php symfony ai:suggest-description --with-ocr --limit=100
+# Prefer records that have OCR text
+php artisan ahg:ai-suggest-description --with-ocr --limit=100
 
 # Process records in a specific repository
-php symfony ai:suggest-description --repository=5 --limit=50
+php artisan ahg:ai-suggest-description --repository=5 --limit=50
 
 # Preview what would be processed (dry run)
-php symfony ai:suggest-description --empty-only --dry-run
+php artisan ahg:ai-suggest-description --empty-only --dry-run
 
 # Use specific prompt template
-php symfony ai:suggest-description --template=2 --limit=20
+php artisan ahg:ai-suggest-description --template=2 --limit=20
 
 # Use specific LLM configuration
-php symfony ai:suggest-description --llm-config=1 --limit=20
+php artisan ahg:ai-suggest-description --llm-config=1 --limit=20
 ```
 
 ### Command Options
@@ -617,17 +620,14 @@ The system includes default templates that can be customized:
 
 ### Cron Job Scheduling
 
-Automate description suggestion generation:
+Schedule description-suggestion generation through Heratio's task scheduler, or run on demand:
 
 ```bash
-# Generate for empty records (daily at 2am)
-0 2 * * * cd /usr/share/nginx/atom && php symfony ai:suggest-description --empty-only --limit=100
+# Generate for empty records
+php artisan ahg:ai-suggest-description --empty-only --limit=100
 
-# Generate for OCR records (weekly Sunday 3am)
-0 3 * * 0 cd /usr/share/nginx/atom && php symfony ai:suggest-description --with-ocr --limit=200
-
-# Cleanup expired suggestions (monthly on 1st at 4am)
-0 4 1 * * cd /usr/share/nginx/atom && php symfony ai:suggest-description --cleanup
+# Prefer records with OCR text
+php artisan ahg:ai-suggest-description --with-ocr --limit=200
 ```
 
 ### Best Practices
@@ -659,19 +659,19 @@ Check spelling and grammar in metadata fields to improve data quality.
 #### From the Command Line
 ```bash
 # Check a specific record
-php symfony ai:spellcheck --object=12345
+php artisan ahg:ai-spellcheck --object=12345
 
 # Check all records in a repository
-php symfony ai:spellcheck --repository=5 --limit=100
+php artisan ahg:ai-spellcheck --repository=5 --limit=100
 
 # Check all records
-php symfony ai:spellcheck --all --limit=100
+php artisan ahg:ai-spellcheck --all --limit=100
 
-# Specify language
-php symfony ai:spellcheck --all --language=en_ZA
+# Specify the i18n culture
+php artisan ahg:ai-spellcheck --all --culture=en
 
 # Preview what would be checked
-php symfony ai:spellcheck --all --dry-run
+php artisan ahg:ai-spellcheck --all --dry-run
 ```
 
 ### Spellcheck Options
@@ -765,111 +765,99 @@ Extract text from handwritten documents using AI-powered recognition with zone d
 
 ### Installation & Setup
 ```bash
-# Install plugin database tables
-php symfony ai:install
+# Install AI database tables (idempotent)
+php artisan ahg:ai-install
 
-# Uninstall (keeps data by default)
-php symfony ai:uninstall
-
-# Uninstall and remove all data
-php symfony ai:uninstall --no-keep-data
+# Parse and count statements without executing
+php artisan ahg:ai-install --dry-run
 ```
 
 ### NER Commands
 ```bash
-# Extract entities from all unprocessed records
-php symfony ai:ner-extract --all --limit=100
+# Extract entities from all matching records
+php artisan ahg:ai-ner
 
-# Extract from specific object
-php symfony ai:ner-extract --object=12345
+# Only objects with no entities extracted yet
+php artisan ahg:ai-ner --unprocessed --limit=100
 
-# Extract from objects in a repository
-php symfony ai:ner-extract --repository=5 --limit=50
-
-# Extract including PDF text
-php symfony ai:ner-extract --all --with-pdf --limit=100
-
-# Queue jobs for background processing
-php symfony ai:ner-extract --all --queue
+# Read descriptions in a specific culture
+php artisan ahg:ai-ner --culture=en --limit=50
 
 # Preview (dry run)
-php symfony ai:ner-extract --all --dry-run
+php artisan ahg:ai-ner --dry-run
 ```
 
 ### Training Data Sync
 ```bash
-# Sync corrections to training server
-php symfony ai:ner-sync
+# Export pending corrections to a JSONL training file (default action)
+php artisan ahg:ai-ner-sync --export
 
-# Export corrections to local file
-php symfony ai:ner-sync --export-file
+# Export to a specific path
+php artisan ahg:ai-ner-sync --export --out=storage/app/ner-training/corrections.jsonl
 
-# View training statistics
-php symfony ai:ner-sync --stats
+# View correction statistics
+php artisan ahg:ai-ner-sync --stats
 ```
 
-**Note:** Training sync requires AHG Central integration to be configured. Go to **Admin > AHG Plugin Settings > AHG Central** to set up the API URL and key.
+**Note:** Pushing corrections to a central training server (`--retrain`) is not yet wired (see #1268). Export + stats work today.
 
 ### Pending Queue Processing
 ```bash
-# Process pending NER extractions (fallback for Gearman)
-php symfony ai:process-pending --limit=50
-
-# Process pending summarization tasks
-php symfony ai:process-pending --task-type=summarize --limit=20
+# Process pending NER extractions from the queue
+php artisan ahg:ai-process-pending --limit=50
 
 # Preview what would be processed (dry run)
-php symfony ai:process-pending --dry-run
+php artisan ahg:ai-process-pending --dry-run
 ```
 
-**Note:** This command is needed when Gearman is unavailable. Auto-triggered NER jobs from document uploads are queued to the database and processed by this command.
+**Note:** `--task-type` currently supports only `ner`. Auto-triggered NER jobs from document uploads are queued and drained by this command (or by the standard Heratio queue worker).
 
 ### Translation Commands
 ```bash
-# Translate single record
-php symfony ai:translate --from=en --to=af --object=12345
+# Translate a single record into Afrikaans
+php artisan ahg:ai-translate --to=af --object=12345
 
-# Translate repository records
-php symfony ai:translate --from=en --to=af --repository=5 --limit=50
+# Translate a repository's records
+php artisan ahg:ai-translate --to=af --repository=5 --limit=50
 
-# Install language package
-php symfony ai:translate --from=en --to=af --install-package
+# Overwrite existing target-culture text instead of skipping
+php artisan ahg:ai-translate --to=af --object=12345 --overwrite
 ```
 
 ### Summarization Commands
 ```bash
-# Summarize single record
-php symfony ai:summarize --object=12345
+# Summarize a single record
+php artisan ahg:ai-summarize --object=12345
 
-# Summarize records with empty scope
-php symfony ai:summarize --all-empty --limit=50
+# Summarize records whose target field is empty
+php artisan ahg:ai-summarize --all-empty --limit=50
 ```
 
 ### Spellcheck Commands
 ```bash
-# Check single record
-php symfony ai:spellcheck --object=12345
+# Check a single record
+php artisan ahg:ai-spellcheck --object=12345
 
-# Check all records
-php symfony ai:spellcheck --all --limit=100
+# Check all records with description text
+php artisan ahg:ai-spellcheck --all --limit=100
 ```
 
 ### Description Suggestion Commands
 ```bash
-# Generate suggestion for single record
-php symfony ai:suggest-description --object=12345
+# Generate a suggestion for a single record
+php artisan ahg:ai-suggest-description --object=12345
 
-# Process records with empty scope_and_content
-php symfony ai:suggest-description --empty-only --limit=50
+# Process records with an empty scope_and_content
+php artisan ahg:ai-suggest-description --empty-only --limit=50
 
-# Process records with OCR text
-php symfony ai:suggest-description --with-ocr --limit=100
+# Prefer objects that have OCR text
+php artisan ahg:ai-suggest-description --with-ocr --limit=100
 
-# Use specific template and LLM
-php symfony ai:suggest-description --template=2 --llm-config=1 --limit=20
+# Use a specific prompt template and LLM config
+php artisan ahg:ai-suggest-description --template=2 --llm-config=1 --limit=20
 
 # Preview what would be processed
-php symfony ai:suggest-description --empty-only --dry-run
+php artisan ahg:ai-suggest-description --empty-only --dry-run
 ```
 
 ---
@@ -899,7 +887,7 @@ php symfony ai:suggest-description --empty-only --dry-run
 |                                                                   |
 |   4. TRAINING FEEDBACK                                            |
 |      Corrections tracked for model improvement                    |
-|      -> Run ai:ner-sync to export training data                   |
+|      -> Run ahg:ai-ner-sync --export to export training data      |
 |                                                                   |
 +------------------------------------------------------------------+
 ```
@@ -940,33 +928,32 @@ php symfony ai:suggest-description --empty-only --dry-run
 ### Export Training Data
 ```bash
 # View correction statistics
-php symfony ai:ner-sync --stats
+php artisan ahg:ai-ner-sync --stats
 
 # Output:
 # value_edit: 45 total, 20 exported, 25 pending
 # type_change: 12 total, 8 exported, 4 pending
 # rejected: 30 total, 25 exported, 5 pending
 
-# Export to file
-php symfony ai:ner-sync --export-file
-# Creates: /tmp/ner_corrections_2026-01-30_143215.json
+# Export to a specific file
+php artisan ahg:ai-ner-sync --export --out=storage/app/ner-training/corrections.jsonl
 
-# Push to training server
-php symfony ai:ner-sync
+# Export pending corrections (default action)
+php artisan ahg:ai-ner-sync --export
 ```
 
 ### AHG Central Configuration
 
 Training data sync requires AHG Central integration. Configure it at:
 
-**Admin > AHG Plugin Settings > AHG Central**
+**Admin > AHG Settings > AHG Central**
 
 | Setting | Description |
 |---------|-------------|
 | Enable Integration | Master switch for cloud sync |
 | API URL | AHG Central endpoint (default: https://train.theahg.co.za/api) |
 | API Key | Your authentication key (contact support@theahg.co.za) |
-| Site ID | Unique identifier for your AtoM instance |
+| Site ID | Unique identifier for your Heratio instance |
 
 You can test the connection before saving to verify your credentials.
 
@@ -1026,7 +1013,7 @@ You can test the connection before saving to verify your credentials.
 | Issue | Solution |
 |-------|----------|
 | NER returns no entities | Check if record has text content in title/scope |
-| Translation fails | Install language package with --install-package |
+| Translation fails | Ensure the language pair is installed in the translation backend (Argos) |
 | Summarization fails | Ensure PDF has extractable text (not image-only) |
 | Spellcheck errors | Install aspell dictionary for language |
 | HTR not working | Ensure image file is accessible and valid format |
@@ -1044,7 +1031,7 @@ You can test the connection before saving to verify your credentials.
 |  -> Record has no title, scope, or extractable PDF text         |
 |                                                                 |
 |  "Language package not installed"                               |
-|  -> Run: php symfony ai:translate --from=X --to=Y --install-package |
+|  -> Install the X->Y language pair in the Argos backend         |
 |                                                                 |
 |  "Summarizer service not available"                             |
 |  -> Check AI API is running and accessible                      |
@@ -1079,7 +1066,7 @@ curl http://localhost:11434/api/tags
 # Expected response:
 # {"models": [{"name": "llama3.1:8b", ...}]}
 
-# Check LLM health via AtoM
+# Check LLM health via Heratio
 curl https://your-site.com/ai/llm/health
 ```
 
@@ -1095,7 +1082,7 @@ curl https://your-site.com/ai/llm/health
 |  Feature     | Setting Key              | Default Value         |
 +--------------|--------------------------|----------------------+
 |  general     | api_url                  | http://192.168.0.112:5004/ai/v1 |
-|  general     | api_key                  | <your-api-key> |
+|  general     | api_key                  | ahg_ai_demo_internal_2026 |
 |  general     | api_timeout              | 60                    |
 |  ner         | enabled                  | 1                     |
 |  ner         | confidence_threshold     | 0.85                  |
@@ -1136,4 +1123,4 @@ Contact your system administrator if you experience issues.
 
 ---
 
-*Part of the AtoM AHG Framework*
+*Part of the Heratio AHG Framework*

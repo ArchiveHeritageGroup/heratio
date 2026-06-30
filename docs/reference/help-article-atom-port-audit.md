@@ -24,7 +24,7 @@ binary does not exist in Heratio. 46 articles contain it.
 | # | Article | php symfony hits | Status |
 |---|---|---|---|
 | 1 | preservation-user-guide.md | 60 | DONE (v1.154.194) |
-| 2 | ai-tools-user-guide.md | 55 | todo |
+| 2 | ai-tools-user-guide.md | 55 | DONE (v1.154.195) |
 | 3 | data-migration-user-guide.md | 47 | todo |
 | 4 | functions.md | 40 | todo |
 | 5 | ner-user-guide.md | 18 | todo |
@@ -73,3 +73,5 @@ operator instructions: `database-erd.md` (83), `database-views.md`, and similar.
 ## Done
 
 - integrity-assurance-user-guide.md - safe-trimmed, re-ingested (help #168), v1.154.193.
+- preservation-user-guide.md - safe-trimmed, re-ingested (help #56), v1.154.194.
+- ai-tools-user-guide.md - safe-trimmed, re-ingested (help #5), v1.154.195.
