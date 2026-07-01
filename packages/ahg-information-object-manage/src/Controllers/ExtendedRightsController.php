@@ -265,6 +265,30 @@ class ExtendedRightsController extends Controller
     }
 
     /**
+     * Clear ALL extended rights for a record (bulk delete). Mirrors the AtoM
+     * ahgExtendedRightsPlugin "Clear extended rights" action. Each row is removed
+     * via deleteExtendedRight() so its i18n + TK-label rows and audit trail are
+     * handled consistently. Does not touch embargoes or PREMIS rights.
+     */
+    public function clearExtended(string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            abort(404);
+        }
+
+        $rights = $this->service->getExtendedRights($io->id);
+        foreach ($rights as $r) {
+            $this->service->deleteExtendedRight((int) $r->id);
+        }
+
+        return redirect($this->resolveRecordUrl($slug))
+            ->with('notice', $rights->isEmpty()
+                ? 'No extended rights to clear.'
+                : 'Extended rights cleared ('.$rights->count().' removed).');
+    }
+
+    /**
      * Unified rights management form: PREMIS + Extended + Embargo in one screen.
      */
     public function manage(string $slug)

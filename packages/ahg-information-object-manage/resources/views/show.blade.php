@@ -245,11 +245,36 @@
         @endif
       </div>
       <div class="list-group list-group-flush">
+        {{-- Unified rights editor (Heratio: PREMIS + extended + embargo in one screen) --}}
         @if(\Illuminate\Support\Facades\Route::has('io.rights.manage'))
           <a href="{{ route('io.rights.manage', $io->slug) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargoSidebar) ? __('Edit rights') : __('Add rights') }}
           </a>
         @endif
+        {{-- Clear extended rights (only when some exist; destructive) --}}
+        @if($hasExtRights && \Illuminate\Support\Facades\Route::has('io.rights.clear'))
+          <form method="POST" action="{{ route('io.rights.clear', $io->slug) }}" onsubmit="return confirm('{{ __('Remove ALL extended rights for this record? This cannot be undone.') }}')">
+            @csrf
+            <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 bg-transparent w-100 text-start">
+              <i class="fas fa-eraser me-1"></i> {{ __('Clear extended rights') }}
+            </button>
+          </form>
+        @endif
+        {{-- Embargo: edit + lift when active, otherwise add --}}
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.embargo'))
+          <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-{{ $activeEmbargoSidebar ? 'edit' : 'lock' }} me-1"></i> {{ $activeEmbargoSidebar ? __('Edit embargo') : __('Add embargo') }}
+          </a>
+        @endif
+        @if($activeEmbargoSidebar && \Illuminate\Support\Facades\Route::has('io.rights.embargo.lift'))
+          <form method="POST" action="{{ route('io.rights.embargo.lift', $activeEmbargoSidebar->id) }}" onsubmit="return confirm('{{ __('Lift the active embargo on this record?') }}')">
+            @csrf
+            <button type="submit" class="list-group-item list-group-item-action small text-success border-0 bg-transparent w-100 text-start">
+              <i class="fas fa-unlock me-1"></i> {{ __('Lift embargo') }}
+            </button>
+          </form>
+        @endif
+        {{-- Export --}}
         @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
           <a href="{{ route('io.rights.export', $io->slug) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-download me-1"></i> {{ __('Export rights (JSON-LD)') }}
