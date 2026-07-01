@@ -62,8 +62,15 @@ class ProvenanceController extends Controller
             'events'                   => $events,
             'timelineData'             => $timelineData,
             'overview'                 => $this->service->getOverview($io->id),
+            'documents'                => $this->service->getDocuments($io->id),
             'researchStatuses'         => $this->service->getResearchStatuses(),
             'culturalPropertyStatuses' => $this->service->getCulturalPropertyStatuses(),
+            'acquisitionTypes'         => $this->service->getAcquisitionTypes(),
+            'currentStatuses'          => $this->service->getCurrentStatuses(),
+            'custodyTypes'             => $this->service->getCustodyTypes(),
+            'certaintyLevels'          => $this->service->getCertaintyLevels(),
+            'currencies'               => $this->service->getCurrencies(),
+            'documentTypes'            => $this->service->getDocumentTypes(),
         ]);
     }
 
@@ -298,6 +305,88 @@ class ProvenanceController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Attach a supporting document (uploaded file or external URL) to the
+     * information object's provenance record.
+     */
+    public function storeDocument(Request $request, string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'document_type'      => 'nullable|string|max:64',
+            'title'              => 'nullable|string|max:500',
+            'description'        => 'nullable|string',
+            'document_date'      => 'nullable|date',
+            'document_date_text' => 'nullable|string|max:255',
+            'external_url'       => 'nullable|url|max:1000',
+            'archive_reference'  => 'nullable|string|max:500',
+            'is_public'          => 'nullable|boolean',
+            'file'               => 'nullable|file|max:20480|mimes:pdf,jpg,jpeg,png,tiff,tif,gif,doc,docx,txt,rtf,odt,csv,xls,xlsx',
+        ]);
+
+        // Need either an uploaded file or an external reference.
+        if (!$request->hasFile('file') && empty($validated['external_url']) && empty($validated['archive_reference'])) {
+            return redirect()
+                ->route('io.provenance', $slug)
+                ->with('error', 'Attach a file, an external URL, or an archive reference.');
+        }
+
+        $validated['is_public'] = (int) $request->boolean('is_public');
+
+        $this->service->createDocument($io->id, $validated, $request->file('file'));
+
+        return redirect()
+            ->route('io.provenance', $slug)
+            ->with('success', 'Supporting document added.');
+    }
+
+    /**
+     * Delete a supporting document.
+     */
+    public function destroyDocument(int $id)
+    {
+        $doc = $this->service->getDocument($id);
+        if (!$doc) {
+            abort(404);
+        }
+
+        $this->service->deleteDocument($id);
+
+        $io = DB::table('slug')->where('object_id', $doc->information_object_id)->first();
+        $slug = $io->slug ?? $doc->information_object_id;
+
+        return redirect()
+            ->route('io.provenance', $slug)
+            ->with('success', 'Supporting document deleted.');
+    }
+
+    /**
+     * Stream a stored supporting document. Private by default — only public
+     * documents are anonymously downloadable; everything else needs auth.
+     */
+    public function downloadDocument(int $id)
+    {
+        $doc = $this->service->getDocument($id);
+        if (!$doc || empty($doc->file_path)) {
+            abort(404);
+        }
+
+        if (!$doc->is_public && !auth()->check()) {
+            abort(403);
+        }
+
+        $disk = \Illuminate\Support\Facades\Storage::disk('local');
+        if (!$disk->exists($doc->file_path)) {
+            abort(404);
+        }
+
+        return $disk->download($doc->file_path, $doc->original_filename ?: $doc->filename);
     }
 
     /**

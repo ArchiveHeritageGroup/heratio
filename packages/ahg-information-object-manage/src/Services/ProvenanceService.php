@@ -27,7 +27,9 @@
 
 namespace AhgInformationObjectManage\Services;
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Service for provenance chain operations.
@@ -108,6 +110,191 @@ class ProvenanceService
             'restituted' => 'Restituted / repatriated',
             'cleared'   => 'Reviewed — cleared',
         ];
+    }
+
+    /**
+     * Acquisition-type options for the governance header.
+     */
+    public function getAcquisitionTypes(): array
+    {
+        return [
+            ''            => '— Select —',
+            'purchase'    => 'Purchase',
+            'gift'        => 'Gift / Donation',
+            'bequest'     => 'Bequest',
+            'exchange'    => 'Exchange',
+            'transfer'    => 'Transfer',
+            'field_collection' => 'Field collection',
+            'excavation'  => 'Excavation',
+            'commission'  => 'Commission',
+            'loan'        => 'Loan',
+            'found'       => 'Found in collection',
+            'unknown'     => 'Unknown',
+        ];
+    }
+
+    /**
+     * Current-status options (where the object sits now).
+     */
+    public function getCurrentStatuses(): array
+    {
+        return [
+            'owned'     => 'Owned',
+            'on_loan'   => 'On loan',
+            'deposited' => 'Deposited',
+            'disputed'  => 'Disputed',
+            'unknown'   => 'Unknown',
+        ];
+    }
+
+    /**
+     * Custody-type options.
+     */
+    public function getCustodyTypes(): array
+    {
+        return [
+            'permanent' => 'Permanent',
+            'temporary' => 'Temporary',
+            'loan'      => 'Loan',
+            'deposit'   => 'Deposit',
+        ];
+    }
+
+    /**
+     * Currency options shared by acquisition + sale-price fields.
+     */
+    public function getCurrencies(): array
+    {
+        return [
+            ''    => '—',
+            'ZAR' => 'ZAR — South African Rand',
+            'USD' => 'USD — US Dollar',
+            'GBP' => 'GBP — British Pound',
+            'EUR' => 'EUR — Euro',
+        ];
+    }
+
+    /**
+     * Supporting-document type options (mirrors the AtoM plugin taxonomy).
+     */
+    public function getDocumentTypes(): array
+    {
+        return [
+            'deed_of_gift'       => 'Deed of Gift',
+            'bill_of_sale'       => 'Bill of Sale',
+            'invoice'            => 'Invoice',
+            'receipt'            => 'Receipt',
+            'auction_catalog'    => 'Auction Catalogue',
+            'exhibition_catalog' => 'Exhibition Catalogue',
+            'inventory'          => 'Inventory',
+            'insurance_record'   => 'Insurance Record',
+            'photograph'         => 'Photograph',
+            'correspondence'     => 'Correspondence',
+            'certificate'        => 'Certificate',
+            'customs_document'   => 'Customs Document',
+            'export_license'     => 'Export Licence',
+            'import_permit'      => 'Import Permit',
+            'appraisal'          => 'Appraisal',
+            'condition_report'   => 'Condition Report',
+            'newspaper_clipping' => 'Newspaper Clipping',
+            'publication'        => 'Publication',
+            'oral_history'       => 'Oral History',
+            'affidavit'          => 'Affidavit',
+            'legal_document'     => 'Legal Document',
+            'other'              => 'Other',
+        ];
+    }
+
+    /**
+     * Get supporting documents for an information object, newest first.
+     */
+    public function getDocuments(int $objectId): \Illuminate\Support\Collection
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('provenance_document')) {
+            return collect();
+        }
+
+        return DB::table('provenance_document')
+            ->where('information_object_id', $objectId)
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    /**
+     * Fetch a single supporting document by id.
+     */
+    public function getDocument(int $id): ?object
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('provenance_document')) {
+            return null;
+        }
+
+        return DB::table('provenance_document')->where('id', $id)->first();
+    }
+
+    /**
+     * Attach a supporting document to an information object. Either an uploaded
+     * file (stored privately) or an external_url reference — the caller
+     * validates that at least one is present.
+     *
+     * @return int The new document id
+     */
+    public function createDocument(int $objectId, array $data, ?UploadedFile $file = null): int
+    {
+        $row = [
+            'information_object_id' => $objectId,
+            'provenance_entry_id'   => $data['provenance_entry_id'] ?? null,
+            'document_type'         => $data['document_type'] ?? 'other',
+            'title'                 => $data['title'] ?? null,
+            'description'           => $data['description'] ?? null,
+            'document_date'         => $data['document_date'] ?? null,
+            'document_date_text'    => $data['document_date_text'] ?? null,
+            'external_url'          => $data['external_url'] ?? null,
+            'archive_reference'     => $data['archive_reference'] ?? null,
+            'is_public'             => (int) ($data['is_public'] ?? 0),
+            'created_by'            => auth()->id(),
+            'created_at'            => now(),
+            'updated_at'            => now(),
+        ];
+
+        if ($file) {
+            $dir = 'provenance-docs/' . $objectId;
+            $safe = preg_replace('/[^A-Za-z0-9._-]/', '_', $file->getClientOriginalName());
+            $stored = $file->storeAs($dir, uniqid('doc_') . '_' . $safe, 'local');
+
+            $row['filename']          = basename($stored);
+            $row['original_filename'] = $file->getClientOriginalName();
+            $row['file_path']         = $stored;
+            $row['mime_type']         = $file->getClientMimeType();
+            $row['file_size']         = $file->getSize() ?: null;
+            if (empty($row['title'])) {
+                $row['title'] = $file->getClientOriginalName();
+            }
+        }
+
+        $newId = DB::table('provenance_document')->insertGetId($row);
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'provenance_document', $row);
+
+        return (int) $newId;
+    }
+
+    /**
+     * Delete a supporting document (and its stored file, if any).
+     */
+    public function deleteDocument(int $id): bool
+    {
+        $doc = $this->getDocument($id);
+        if (!$doc) {
+            return false;
+        }
+
+        \AhgCore\Support\AuditLog::captureDelete($id, 'provenance_document', (array) $doc);
+
+        if (!empty($doc->file_path) && Storage::disk('local')->exists($doc->file_path)) {
+            Storage::disk('local')->delete($doc->file_path);
+        }
+
+        return DB::table('provenance_document')->where('id', $id)->delete() > 0;
     }
 
     /**

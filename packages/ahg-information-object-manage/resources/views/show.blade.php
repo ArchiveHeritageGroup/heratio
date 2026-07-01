@@ -201,9 +201,12 @@
         <i class="fas fa-user-shield me-1"></i> {{ __('Privacy & PII') }}
       </div>
       <div class="list-group list-group-flush">
+        {{-- PII scanning is AI/NER-powered — hide when AI isn't enabled (plugin off or no API key). Visual Redaction + Dashboard are non-AI and always show. --}}
+        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin') && ($aiConfigured ?? false))
         <a href="{{ route('io.privacy.scan', $io->id) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-search me-1"></i> {{ __('Scan for PII') }}
         </a>
+        @endif
         @if(isset($digitalObjects) && $digitalObjects['master'])
           <a href="{{ route('io.privacy.redaction', $io->slug) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-eraser me-1"></i> {{ __('Visual Redaction') }}

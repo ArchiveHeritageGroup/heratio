@@ -189,6 +189,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/provenance/{id}/update', [ProvenanceController::class, 'update'])->name('io.provenance.update')->middleware('acl:update')->where('id', '[0-9]+');
     Route::delete('/provenance/{id}/delete', [ProvenanceController::class, 'destroy'])->name('io.provenance.delete')->middleware('acl:delete')->where('id', '[0-9]+');
 
+    // Provenance supporting documents (deeds, bills of sale, catalogues, …)
+    Route::post('/provenance/{slug}/document', [ProvenanceController::class, 'storeDocument'])->name('io.provenance.document.store')->middleware('acl:create');
+    Route::delete('/provenance/document/{id}', [ProvenanceController::class, 'destroyDocument'])->name('io.provenance.document.delete')->middleware('acl:delete')->where('id', '[0-9]+');
+
     // Collections Management — Condition
     Route::get('/condition/{slug}', [ConditionController::class, 'index'])->name('io.condition');
     Route::get('/condition/{slug}/create', [ConditionController::class, 'create'])->name('io.condition.create');
@@ -304,6 +308,9 @@ Route::get('/{slug}/provenance', [ProvenanceController::class, 'index'])->name('
 Route::get('/{slug}/cco/provenance', [ProvenanceController::class, 'index'])->name('io.provenance.cco');
 Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
 Route::get('/provenance/{slug}/export-csv', [ProvenanceController::class, 'exportCsv'])->name('io.provenance.exportCsv');
+// Supporting-document download — public docs are anonymous, the rest need auth
+// (gate enforced in the controller).
+Route::get('/provenance/document/{id}/download', [ProvenanceController::class, 'downloadDocument'])->name('io.provenance.document.download')->where('id', '[0-9]+');
 
 Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->middleware('odrl:use')->where('slug', '^(?!search$|login$|logout$|register$|admin$|api$|storage$|up$|about$|privacy$|terms$|pages$|contact$|provenance$|condition$|spectrum$|heritage$|preservation$|ai$|rights$|research$|researcher$|oai$|accession$|aclGroup$|actor$|ahgSettings$|cart$|clipboard$|css$|digitalobject$|display$|donor$|favorites$|feedback$|ftpUpload$|function$|glam$|help$|informationobject$|ingest$|integrity$|jobs$|loan$|media$|object$|physicalobject$|portableExport$|portable-export$|reports$|repository$|registry$|requesttopublish$|rightsholder$|settings$|sfPluginAdminPlugin$|sfSkosPlugin$|staticpage$|taxonomy$|term$|user$|workflow$|security$|manifest-collections$|manifest-collection$|iiif-manifest$|dam$|museum$|gallery$|library$|ric$|vendor$|ipsas$|nmmz$|naz$|cdpa$|icip$|tenant$|forms$|exhibition$|statistics$|metadata-export$|semantic-search$|data-migration$|dacs-manage$|dc-manage$|mods-manage$|rad-manage$|ric-capture$|scan$|version$|health$)[a-z0-9][a-z0-9-]*$');
 
