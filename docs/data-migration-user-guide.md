@@ -1,10 +1,10 @@
-# AtoM AHG Framework - Data Migration Tool
+> Heratio Help Center article. Category: Import/Export.
+
+# Heratio AHG Framework - Data Migration Tool
 
 ## User Guide
 
-**Plugin Version:** 1.4.0
-**Last Updated:** 2026-02-03
-**Plugin:** ahgDataMigrationPlugin
+**Last Updated:** 2026-07-01
 
 ---
 
@@ -22,20 +22,20 @@
 10. [Preservica Import/Export](#10-preservica-importexport)
 11. [Background Jobs](#11-background-jobs)
 12. [CLI Commands](#12-cli-commands)
-13. [Gearman Setup](#13-gearman-setup)
+13. [Background Jobs (Queue Worker)](#13-background-jobs-queue-worker)
 14. [Troubleshooting](#14-troubleshooting)
 
 ---
 
 ## 1. Overview
 
-The Data Migration Tool enables importing records from various archival and collection management systems into AtoM. It supports:
+The Data Migration Tool enables importing records from various archival and collection management systems into Heratio. It supports:
 
 - **CSV and Excel files** from multiple source systems
 - **XML formats** (Preservica OPEX, EAD)
 - **Preservica packages** (PAX/XIP with digital objects)
 - **Sector-specific mappings** (Archives, Museum, Library, Gallery, DAM)
-- **Background processing** for large datasets via Gearman
+- **Background processing** for large datasets via the Laravel queue worker
 - **Field transformation** and validation
 - **Rights import** (PREMIS, SecurityDescriptor, dc:rights, MODS, EAD)
 - **Provenance/history import** from OPEX
@@ -118,11 +118,11 @@ The system auto-detects:
 
 The mapping interface shows:
 - **Left column**: Your source fields (from uploaded file)
-- **Right column**: AtoM target fields
+- **Right column**: Heratio target fields
 
 For each source field:
 1. Click the dropdown
-2. Select matching AtoM field
+2. Select matching Heratio field
 3. Optionally set **transformation** rules
 
 **Field Transformations:**
@@ -141,23 +141,23 @@ For each source field:
 
 ### Step 5: Import
 
-**Option A: Export to AtoM CSV**
-1. Click **"Export AtoM CSV"**
+**Option A: Export to Heratio CSV**
+1. Click **"Export Heratio CSV"**
 2. Download the transformed CSV
-3. Use AtoM's built-in CSV Import (Admin → Import → CSV)
+3. Use Heratio's built-in CSV Import (Admin → Import → CSV)
 
 **Option B: Direct Import (Large Files)**
 1. Click **"Background Job"**
-2. Job queued to Gearman workers
+2. Job queued to the background queue
 3. Monitor progress at `/dataMigration/jobs`
 
 ---
 
 ## 5. Field Mapping
 
-### Core AtoM Fields
+### Core Heratio Fields
 
-| AtoM Field | Description | Required |
+| Heratio Field | Description | Required |
 |------------|-------------|----------|
 | `legacyId` | Unique ID from source system | Yes |
 | `parentId` | Parent's legacyId for hierarchy | No |
@@ -221,8 +221,8 @@ Test your data without importing:
 
 **CLI:**
 ```bash
-php symfony sector:archives-csv-import /path/to/file.csv --validate-only
-php symfony sector:museum-csv-import /path/to/file.csv --validate-only --mapping=10
+php artisan sector:archives-csv-import /path/to/file.csv --validate-only
+php artisan sector:museum-csv-import /path/to/file.csv --validate-only --mapping=10
 ```
 
 ### Understanding Validation Results
@@ -291,7 +291,7 @@ Configure how duplicates are detected:
 
 ## 7. Batch Export
 
-Export existing AtoM records to sector-specific CSV formats for backup, reporting, or migration to other systems.
+Export existing Heratio records to sector-specific CSV formats for backup, reporting, or migration to other systems.
 
 ### Accessing Batch Export
 
@@ -362,7 +362,7 @@ Import directly using sector-specific CLI commands with validation built-in.
 ### Archives Import (ISAD-G)
 
 ```bash
-php symfony sector:archives-csv-import /path/to/archives.csv \
+php artisan sector:archives-csv-import /path/to/archives.csv \
     --repository=my-archive \
     --update=identifier \
     --validate-only  # Remove to perform actual import
@@ -371,15 +371,15 @@ php symfony sector:archives-csv-import /path/to/archives.csv \
 ### Museum Import (Spectrum)
 
 ```bash
-php symfony sector:museum-csv-import /path/to/museum.csv \
+php artisan sector:museum-csv-import /path/to/museum.csv \
     --repository=my-museum \
-    --update=objectNumber
+    --update=identifier
 ```
 
 ### Library Import (MARC/RDA)
 
 ```bash
-php symfony sector:library-csv-import /path/to/library.csv \
+php artisan sector:library-csv-import /path/to/library.csv \
     --repository=my-library \
     --update=identifier
 ```
@@ -387,15 +387,15 @@ php symfony sector:library-csv-import /path/to/library.csv \
 ### Gallery Import (CCO)
 
 ```bash
-php symfony sector:gallery-csv-import /path/to/gallery.csv \
+php artisan sector:gallery-csv-import /path/to/gallery.csv \
     --repository=my-gallery \
-    --update=objectNumber
+    --update=identifier
 ```
 
 ### DAM Import (Dublin Core/IPTC)
 
 ```bash
-php symfony sector:dam-csv-import /path/to/dam.csv \
+php artisan sector:dam-csv-import /path/to/dam.csv \
     --repository=my-repository \
     --update=identifier
 ```
@@ -417,7 +417,7 @@ The plugin includes sample CSV files demonstrating correct format for each secto
 
 ### Available Samples
 
-Located in: `atom-ahg-plugins/ahgDataMigrationPlugin/data/samples/`
+Downloadable from the Data Migration page (**Admin > Data Migration > Download templates**).
 
 | File | Sector | Records | Description |
 |------|--------|---------|-------------|
@@ -462,12 +462,12 @@ Key features:
 
 2. Test validation:
    ```bash
-   php symfony sector:museum-csv-import /tmp/test-import.csv --validate-only
+   php artisan sector:museum-csv-import /tmp/test-import.csv --validate-only
    ```
 
 3. Import if validation passes:
    ```bash
-   php symfony sector:museum-csv-import /tmp/test-import.csv --repository=test
+   php artisan sector:museum-csv-import /tmp/test-import.csv --repository=test
    ```
 
 ---
@@ -484,12 +484,7 @@ OPEX (Open Preservation Exchange) is Preservica's XML metadata format.
 3. Map fields or use defaults
 4. Preview and import
 
-**CLI:**
-```bash
-php symfony preservica:import /path/to/file.opex
-php symfony preservica:import /path/to/file.opex --repository=5
-php symfony preservica:import /path/to/file.opex --dry-run
-```
+**How to run it:** Preservica OPEX import is handled through the Data Migration interface (**Admin > Data Migration > Preservica Import**, `/admin/data-migration/preservica/import`). Uploading a package queues a background `preservica_import` job; track it under **Data Migration > Jobs**.
 
 **OPEX Rights Extraction:**
 The importer automatically extracts rights from:
@@ -512,32 +507,11 @@ PAX packages contain metadata (XIP XML) plus content files.
 3. Digital objects extracted automatically
 4. Preview and import
 
-**CLI:**
-```bash
-php symfony preservica:import /path/to/package.pax --format=xip
-php symfony preservica:import /path/to/directory --batch
-```
+**How to run it:** PAX/XIP import uses the same Data Migration interface - upload the `.pax`/`.zip` and select the **Preservica PAX/XIP** mapping. Digital objects are extracted automatically and the work runs as a queued job.
 
 ### Preservica Export
 
-Export AtoM records to Preservica format:
-
-**CLI:**
-```bash
-# Export single record
-php symfony preservica:export 123
-
-# Export with hierarchy
-php symfony preservica:export 123 --hierarchy
-
-# Export to XIP/PAX format
-php symfony preservica:export 123 --format=xip
-
-# Export entire repository
-php symfony preservica:export --repository=5
-```
-
-**Output Location:** `/uploads/exports/preservica/`
+Export Heratio records to Preservica format through the Data Migration interface (**Admin > Data Migration > Preservica Export**, `/admin/data-migration/preservica/export`). Choose the record (optionally with its hierarchy) and the target format (OPEX or XIP/PAX); a background `preservica_export` job produces the package, downloadable from **Data Migration > Jobs** when complete.
 
 ---
 
@@ -549,7 +523,7 @@ For large imports (1000+ records), use background processing:
 
 1. Complete field mapping
 2. Click **"Background Job"** instead of direct import
-3. Job queued to Gearman workers
+3. Job queued to the background queue
 
 ### Monitoring Jobs
 
@@ -574,144 +548,70 @@ Click any job to see:
 
 ## 12. CLI Commands
 
-### List Available Mappings
-```bash
-php symfony migration:import --list-mappings
-```
-
-Output:
-```
-ARCHIVES:
-  [2] ArchivesSpace Resources
-  [11] Preservica OPEX
-  [12] Preservica PAX/XIP
-
-MUSEUM:
-  [10] Vernon CMS (Museum)
-
-LIBRARY:
-  [8] PSIS Full Import (83 fields)
-```
-
-### Import with Mapping
-```bash
-# By mapping ID
-php symfony migration:import /path/to/file.csv --mapping=10
-
-# By mapping name
-php symfony migration:import /path/to/file.csv --mapping="Vernon CMS"
-
-# With options
-php symfony migration:import /path/to/file.csv --mapping=10 \
-    --repository=5 \
-    --culture=en \
-    --update
-```
-
-### Dry Run (Preview Only)
-```bash
-php symfony migration:import /path/to/file.csv --mapping=10 --dry-run
-```
+CSV imports run through the sector-specific commands. Each takes a positional CSV filename plus options. Mapping profiles are created and listed in the Data Migration UI (**Admin > Data Migration > Mapping**); pass a profile's ID with `--mapping=`.
 
 ### Sector Import Commands
 
 ```bash
 # Archives (ISAD-G)
-php symfony sector:archives-csv-import /path/to/file.csv \
-    --repository=SLUG --validate-only --mapping=ID --update=FIELD
+php artisan sector:archives-csv-import /path/to/file.csv \
+    --repository=SLUG --mapping=ID --update=identifier --validate-only
 
 # Museum (Spectrum)
-php symfony sector:museum-csv-import /path/to/file.csv \
-    --repository=SLUG --validate-only --mapping=ID --update=FIELD
+php artisan sector:museum-csv-import /path/to/file.csv \
+    --repository=SLUG --mapping=ID --update=identifier --validate-only
 
 # Library (MARC/RDA)
-php symfony sector:library-csv-import /path/to/file.csv \
-    --repository=SLUG --validate-only --mapping=ID --update=FIELD
+php artisan sector:library-csv-import /path/to/file.csv \
+    --repository=SLUG --mapping=ID --update=identifier --validate-only
 
 # Gallery (CCO)
-php symfony sector:gallery-csv-import /path/to/file.csv \
-    --repository=SLUG --validate-only --mapping=ID --update=FIELD
+php artisan sector:gallery-csv-import /path/to/file.csv \
+    --repository=SLUG --mapping=ID --update=identifier --validate-only
 
 # DAM (Dublin Core)
-php symfony sector:dam-csv-import /path/to/file.csv \
-    --repository=SLUG --validate-only --mapping=ID --update=FIELD
+php artisan sector:dam-csv-import /path/to/file.csv \
+    --repository=SLUG --mapping=ID --update=identifier --validate-only
 ```
 
-### Preservica Commands
-```bash
-# Show Preservica info
-php symfony preservica:info
+**Common options** (all sector commands): `--validate-only`, `--mapping=ID`, `--repository=SLUG`, `--update=identifier|legacyId` (match field), `--update-mode=skip|update|merge`, `--culture=en`, `--limit=N`, `--skip=N`. Remove `--validate-only` to perform the actual import.
 
-# Import OPEX
-php symfony preservica:import /path/to/file.opex
+A simpler generic importer is also available: `php artisan ahg:csv-import /path/to/file.csv --source-name=NAME` (options: `--update=match|overwrite|skip`, `--skip-matched`, `--limit=N`, `--index`).
 
-# Import PAX/XIP
-php symfony preservica:import /path/to/package.pax --format=xip
+### Preservica (OPEX / PAX / XIP)
 
-# Export to OPEX
-php symfony preservica:export 123 --format=opex
-
-# Export to PAX
-php symfony preservica:export 123 --format=xip --hierarchy
-```
+Preservica import and export are UI-driven, not CLI - use **Admin > Data Migration > Preservica Import / Export** (`/admin/data-migration/preservica/import`, `/admin/data-migration/preservica/export`). Each queues a background job tracked under **Data Migration > Jobs**.
 
 ---
 
-## 13. Gearman Setup
+## 13. Background Jobs (Queue Worker)
 
-Gearman is required for background job processing (large imports/exports).
-
-### Quick Install (Ubuntu)
-
-```bash
-# Run the automated setup script
-cd /usr/share/nginx/archive/atom-ahg-plugins/ahgDataMigrationPlugin
-sudo ./bin/setup-gearman.sh
-```
-
-### Manual Install
-
-```bash
-# Install packages
-sudo apt-get install -y gearman-job-server php8.3-gearman
-
-# Enable and start
-sudo systemctl enable gearman-job-server
-sudo systemctl start gearman-job-server
-
-# Restart PHP-FPM
-sudo systemctl restart php8.3-fpm
-```
+Large imports and exports run as background jobs on Heratio's Laravel queue. A queue worker must be running to process them.
 
 ### Running the Worker
 
 **Development (manual):**
 ```bash
-cd /usr/share/nginx/archive
-php symfony jobs:worker
+cd /usr/share/nginx/heratio
+php artisan queue:work
 ```
 
-**Production (systemd service):**
+**Production:** run the worker as a managed process (systemd service or Supervisor) so it restarts automatically. A typical invocation:
 ```bash
-sudo systemctl enable atom-worker
-sudo systemctl start atom-worker
+php artisan queue:work --sleep=3 --tries=3 --max-time=3600
 ```
 
-### Verify Installation
+### Verify
 
 ```bash
-# Check Gearman status
-gearadmin --status
+# Confirm a worker process is running
+ps aux | grep 'queue:work'
 
-# Check worker service
-sudo systemctl status atom-worker
-
-# View worker logs
-sudo journalctl -u atom-worker -f
+# Inspect queued / failed jobs
+php artisan queue:failed
 ```
 
-For detailed Gearman configuration and troubleshooting, see:
-`atom-ahg-plugins/ahgDataMigrationPlugin/docs/GEARMAN.md`
+Migration jobs and their status are also visible in the UI under **Admin > Data Migration > Jobs** (`/admin/data-migration/jobs`).
 
 ---
 
@@ -746,18 +646,18 @@ max_execution_time = 300
 **Solution:**
 - Check `digitalObjectPath` is correct
 - Verify files exist at specified path
-- Use absolute paths or paths relative to AtoM root
+- Use absolute paths or paths relative to Heratio root
 
 ### Background Job Stuck
 
 **Problem:** Job shows "running" but no progress  
 **Solution:**
 ```bash
-# Check Gearman workers
-ps aux | grep jobs:worker
+# Check that a queue worker is running
+ps aux | grep 'queue:work'
 
-# Restart workers
-sudo systemctl restart atom-worker
+# (Re)start the worker, or restart its systemd/Supervisor service
+php artisan queue:work
 ```
 
 ### OPEX Rights Not Importing
@@ -766,7 +666,7 @@ sudo systemctl restart atom-worker
 **Solution:**
 - Verify OPEX contains `<SecurityDescriptor>` or `<dc:rights>`
 - Check `ahg_rights_statement` table for imported rights
-- Ensure ahgRightsPlugin is enabled
+- Ensure the Rights module is enabled
 
 ---
 
@@ -774,22 +674,19 @@ sudo systemctl restart atom-worker
 
 | Task | Web UI | CLI |
 |------|--------|-----|
-| Import CSV | `/dataMigration` → Upload | `php symfony migration:import file.csv --mapping=X` |
-| **Validate Only** | `/dataMigration/validate` | `php symfony sector:*-csv-import file.csv --validate-only` |
-| Import Archives | `/dataMigration` → Upload | `php symfony sector:archives-csv-import file.csv` |
-| Import Museum | `/dataMigration` → Upload | `php symfony sector:museum-csv-import file.csv` |
-| Import Library | `/dataMigration` → Upload | `php symfony sector:library-csv-import file.csv` |
-| Import Gallery | `/dataMigration` → Upload | `php symfony sector:gallery-csv-import file.csv` |
-| Import DAM | `/dataMigration` → Upload | `php symfony sector:dam-csv-import file.csv` |
-| Import OPEX | `/dataMigration` → Upload | `php symfony preservica:import file.opex` |
-| Import PAX | `/dataMigration` → Upload | `php symfony preservica:import file.pax --format=xip` |
-| **Batch Export** | `/dataMigration/batchExport` | `php symfony sector:export --sector=X` |
-| **Export Mapping** | Map page → Export | N/A |
-| **Import Mapping** | Map page → Import | N/A |
-| Export OPEX | N/A | `php symfony preservica:export 123` |
-| Export PAX | N/A | `php symfony preservica:export 123 --format=xip` |
+| Import Archives | `/dataMigration` → Upload | `php artisan sector:archives-csv-import file.csv` |
+| Import Museum | `/dataMigration` → Upload | `php artisan sector:museum-csv-import file.csv` |
+| Import Library | `/dataMigration` → Upload | `php artisan sector:library-csv-import file.csv` |
+| Import Gallery | `/dataMigration` → Upload | `php artisan sector:gallery-csv-import file.csv` |
+| Import DAM | `/dataMigration` → Upload | `php artisan sector:dam-csv-import file.csv` |
+| **Validate Only** | Map page → Validate | `php artisan sector:*-csv-import file.csv --validate-only` |
+| Generic CSV import | Admin → Import | `php artisan ahg:csv-import file.csv --source-name=NAME` |
+| Import OPEX / PAX | `/admin/data-migration/preservica/import` | N/A (UI-driven, queued job) |
+| Export OPEX / PAX | `/admin/data-migration/preservica/export` | N/A (UI-driven, queued job) |
+| **Batch Export** | `/dataMigration/batchExport` | N/A |
+| **Export/Import Mapping** | Map page → Export / Import | N/A |
 | View Jobs | `/dataMigration/jobs` | N/A |
-| List Mappings | Dropdown | `php symfony migration:import --list-mappings` |
+| List / manage Mappings | `/admin/data-migration/mapping` | N/A |
 
 ---
 
@@ -798,8 +695,8 @@ sudo systemctl restart atom-worker
 | Version | Changes |
 |---------|---------|
 | 1.4.0 | Universal validation framework, sector-specific validators (ISAD-G, Spectrum, MARC/RDA, CCO, Dublin Core), sector CLI import tasks, validation-only mode, sample CSV files, mapping profile export/import |
-| 1.3.0 | Added Batch Export UI, Library/Gallery/DAM default mappings, Gearman setup script |
-| 1.2.0 | Added Preservica OPEX/PAX support, rights import, provenance import, Gearman jobs |
+| 1.3.0 | Added Batch Export UI, Library/Gallery/DAM default mappings |
+| 1.2.0 | Added Preservica OPEX/PAX support, rights import, provenance import, background jobs |
 | 1.1.0 | Added sector-specific CSV exporters |
 | 1.0.0 | Initial release with field mapping UI |
 
