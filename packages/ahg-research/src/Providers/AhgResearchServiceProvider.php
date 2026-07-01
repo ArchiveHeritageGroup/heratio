@@ -273,6 +273,7 @@ class AhgResearchServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\Route::group([], __DIR__ . '/../../routes/' . $rosRoute . '.php');
         }
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'research');
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
         // #1252 Register the `research` anonymous-component namespace so the
         // Accept/Reject control renders as <x-research::ai-decision .../> from any
