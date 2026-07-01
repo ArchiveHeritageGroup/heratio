@@ -25,7 +25,7 @@ binary does not exist in Heratio. 46 articles contain it.
 |---|---|---|---|
 | 1 | preservation-user-guide.md | 60 | DONE (v1.154.194) |
 | 2 | ai-tools-user-guide.md | 55 | DONE (v1.154.195) |
-| 3 | data-migration-user-guide.md | 47 | DONE (v1.154.197) |
+| 3 | data-migration-user-guide.md | 47 | DONE (v1.154.201) |
 | 4 | functions.md | 40 | todo |
 | 5 | ner-user-guide.md | 18 | todo |
 | 6 | duplicate-detection-user-guide.md | 18 | todo |
@@ -75,4 +75,4 @@ operator instructions: `database-erd.md` (83), `database-views.md`, and similar.
 - integrity-assurance-user-guide.md - safe-trimmed, re-ingested (help #168), v1.154.193.
 - preservation-user-guide.md - safe-trimmed, re-ingested (help #56), v1.154.194.
 - ai-tools-user-guide.md - safe-trimmed, re-ingested (help #5), v1.154.195.
-- data-migration-user-guide.md - safe-trimmed, re-ingested (help #18), v1.154.197. Real: sector:*-csv-import (kept), ahg:csv-import; Preservica + batch export are UI-only; queue:work not Gearman.
+- data-migration-user-guide.md - safe-trimmed, re-ingested (help #18), v1.154.201. Real: sector:*-csv-import (kept), ahg:csv-import; Preservica + batch export are UI-only; queue:work not Gearman.
