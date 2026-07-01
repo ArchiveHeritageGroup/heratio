@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layouts.admin')
+@extends('theme::layouts.1col')
 
 @section('content')
 <div class="container-fluid py-3">
