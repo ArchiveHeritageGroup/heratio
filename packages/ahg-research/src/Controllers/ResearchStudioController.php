@@ -149,6 +149,15 @@ class ResearchStudioController extends Controller
         $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
         if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
 
+        // #1395(G) — project private to owner / collaborators / admins (IDOR).
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        $project = DB::table('research_project')->where('id', $projectId)->first();
+        $isAdmin = \AhgCore\Services\AclService::canAdmin((int) Auth::id());
+        $isOwner = $researcher && $project && (int) ($project->owner_id ?? 0) === (int) ($researcher->id ?? 0);
+        $isCollab = $researcher && \Illuminate\Support\Facades\Schema::hasTable('research_project_collaborator')
+            && DB::table('research_project_collaborator')->where('project_id', $projectId)->where('researcher_id', $researcher->id)->exists();
+        if (! ($isAdmin || $isOwner || $isCollab)) abort(403, 'You do not have access to this project.');
+
         if ($artefact->output_type === 'spreadsheet' && $artefact->xlsx_path && is_file($artefact->xlsx_path)) {
             return response()->download($artefact->xlsx_path, basename($artefact->xlsx_path));
         }
