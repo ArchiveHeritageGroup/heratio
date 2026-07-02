@@ -70,7 +70,7 @@
           <div class="col-md-4">
             <label for="ftp_password" class="form-label fw-bold">{{ __('Password') }}</label>
             <input type="password" class="form-control" id="ftp_password" name="ftp_password"
-                   value="{{ $settings['ftp_password'] ?? '' }}" placeholder="{{ __('Leave blank to keep current') }}">
+                   value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
           </div>
           <div class="col-md-4">
             <label class="form-label">&nbsp;</label>

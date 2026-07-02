@@ -63,7 +63,7 @@
           <div class="col-md-6">
             <label for="fuseki_password" class="form-label fw-bold">{{ __('Password') }}</label>
             <input type="password" class="form-control" id="fuseki_password" name="fuseki_password"
-                   value="{{ $settings['fuseki_password'] ?? '' }}" placeholder="{{ __('Leave blank to keep current') }}">
+                   value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
           </div>
         </div>
       </div>

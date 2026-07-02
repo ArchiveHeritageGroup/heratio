@@ -200,7 +200,7 @@
             <div class="accordion-body">
               <div class="mb-3">
                 <label class="form-label">Google Maps API key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                <input type="text" name="settings[google_maps_api_key]" class="form-control" value="{{ $settings['google_maps_api_key'] ?? '' }}">
+                <input type="password" name="settings[google_maps_api_key]" class="form-control" value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
               </div>
               <div class="mb-3">
                 <label class="form-label">SWORD deposit directory <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

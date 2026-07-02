@@ -48,8 +48,25 @@ class SettingsService
         return $query->value('setting_i18n.value');
     }
 
+    /**
+     * #1395(D) — secret settings are rendered as write-only fields (blank value)
+     * so they aren't echoed into the admin form / DOM / browser cache. A blank
+     * submission therefore means "keep the current value"; never overwrite a
+     * stored secret with an empty string.
+     */
+    private const SECRET_KEYS = [
+        'fuseki_password', 'ftp_password', 'storage_service_api_key',
+        'google_maps_api_key', 'ahg_central_api_key',
+        'voice_anthropic_api_key', 'ai_condition_api_key', 'local_contexts_api_key',
+    ];
+
     public function saveSetting(string $name, ?string $scope, string $value, string $culture = 'en'): void
     {
+        // #1395(D) — don't wipe a stored secret when its write-only field is blank.
+        if (in_array($name, self::SECRET_KEYS, true) && trim($value) === '') {
+            return;
+        }
+
         $query = DB::table('setting')->where('name', $name);
         if ($scope === null) {
             $query->whereNull('scope');

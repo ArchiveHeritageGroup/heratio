@@ -61,7 +61,7 @@
 
               <div class="mb-3">
                 <label class="form-label">Storage service API key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                <input type="password" name="settings[storage_service_api_key]" class="form-control" value="{{ e($settings['storage_service_api_key']) }}">
+                <input type="password" name="settings[storage_service_api_key]" class="form-control" value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
                 <small class="text-muted">{{ __('The API key or password used to authenticate with the storage service') }}</small>
               </div>
 
