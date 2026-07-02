@@ -398,7 +398,20 @@
                   @endphp
                   <span class="badge {{ $statusBadge }}">{{ $exp->status }}</span>
                 </td>
-                <td>{{ number_format($exp->total_descriptions ?? 0) }}</td>
+                <td>
+                  {{ number_format($exp->total_descriptions ?? 0) }}
+                  @php
+                    $disc = !empty($exp->disclosure_summary) ? json_decode($exp->disclosure_summary, true) : null;
+                    $w = $disc['withheld'] ?? [];
+                    $withheldTotal = ($w['unpublished'] ?? 0) + ($w['icip'] ?? 0) + ($w['odrl'] ?? 0) + ($w['redacted_objects'] ?? 0);
+                  @endphp
+                  @if($withheldTotal > 0)
+                    <span class="badge bg-warning text-dark ms-1"
+                          title="{{ __('Withheld from this offline package (confidentiality gates):') }} {{ $w['unpublished'] ?? 0 }} {{ __('unpublished') }}, {{ $w['icip'] ?? 0 }} {{ __('ICIP-restricted') }}, {{ $w['odrl'] ?? 0 }} {{ __('ODRL-gated') }}, {{ $w['redacted_objects'] ?? 0 }} {{ __('redacted object(s)') }}">
+                      <i class="fas fa-shield-halved me-1"></i>{{ $withheldTotal }} {{ __('withheld') }}
+                    </span>
+                  @endif
+                </td>
                 <td>{{ !empty($exp->output_size) ? round($exp->output_size / 1048576, 1) . ' MB' : '-' }}</td>
                 <td>
                   @if(!empty($exp->expires_at))

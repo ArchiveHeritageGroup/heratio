@@ -49,6 +49,12 @@ class BundleWorkerCommand extends Command
 
     protected $description = 'Process pending portable_export rows: dump entities, copy assets, build viewer, zip.';
 
+    /**
+     * #1389 disclosure tally for the run in progress — records withheld by each
+     * gate. Reset per row in processOne().
+     */
+    private array $excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'redacted_objects' => 0];
+
     public function handle(): int
     {
         $rows = $this->pickRows();
@@ -116,9 +122,16 @@ class BundleWorkerCommand extends Command
             'progress' => 1,
         ]);
 
-        // Resolve scope -> IO id list
-        $ioIds = $this->resolveScopeIoIds($row);
-        $this->line('  '.count($ioIds).' IOs in scope');
+        // Resolve scope -> IO id list, then apply the #1389 disclosure gates
+        // (publication status, ICIP/TK protocols, ODRL) BEFORE anything is
+        // written — over-inclusion into an offline package is unrecoverable.
+        $this->excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'redacted_objects' => 0];
+        $rawIds = $this->resolveScopeIoIds($row);
+        $ioIds = $this->applyDisclosureGates($rawIds, $row);
+        $withheld = $this->excluded['unpublished'] + $this->excluded['icip'] + $this->excluded['odrl'];
+        $this->line('  '.count($ioIds).' IOs in scope'
+            .($withheld ? ' ('.$withheld.' withheld: '.$this->excluded['unpublished'].' unpublished, '
+                .$this->excluded['icip'].' ICIP-restricted, '.$this->excluded['odrl'].' ODRL-gated)' : ''));
 
         $workDir = sys_get_temp_dir().'/heratio-portable-'.$row->id.'-'.substr(md5(microtime()), 0, 6);
         @mkdir($workDir.'/data', 0775, true);
@@ -132,7 +145,20 @@ class BundleWorkerCommand extends Command
 
         $copied = $this->copyAssets($workDir, $row, $ioIds);
         DB::table('portable_export')->where('id', $row->id)->update(['progress' => 70]);
-        $this->line('  copied '.$copied.' asset file(s)');
+        $this->line('  copied '.$copied.' asset file(s)'
+            .($this->excluded['redacted_objects'] ? ' ('.$this->excluded['redacted_objects'].' redacted object(s) withheld)' : ''));
+
+        // #1389 — write the disclosure summary into the package so the recipient
+        // (and the operator, via the stamped column) can see what was withheld.
+        $disclosure = [
+            'generated_at'     => now()->toIso8601String(),
+            'records_in_scope' => count($rawIds),
+            'records_included' => count($ioIds),
+            'withheld'         => $this->excluded,
+            'note'             => 'Records/objects were excluded from this offline package to honour publication status, ICIP/TK cultural protocols, ODRL access policies, and PII redaction. Counts reflect what was NOT exported.',
+        ];
+        @file_put_contents($workDir.'/data/disclosure-summary.json',
+            json_encode($disclosure, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         if (in_array($row->mode, ['read_only', 'editable'], true)) {
             $this->emitViewer($workDir, $row, $stats);
@@ -155,6 +181,7 @@ class BundleWorkerCommand extends Command
             'progress' => 100,
             'output_path' => $outPath,
             'output_size' => $size,
+            'disclosure_summary' => json_encode($disclosure, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             'completed_at' => now(),
             'expires_at' => now()->addDays((int) (DB::table('ahg_settings')->where('setting_key', 'portable_export_retention_days')->value('setting_value') ?: 30)),
         ]);
@@ -171,6 +198,95 @@ class BundleWorkerCommand extends Command
      *   fonds      - the fonds (lft/rgt subtree of) scope_slug
      *   clipboard  - explicit list of slugs from scope_items.items
      */
+    /**
+     * #1389 — apply disclosure gates to the resolved IO id set before export.
+     * Removes records that must not enter an ungated offline package:
+     *   - unpublished (status type_id 158 / status_id 160), unless the
+     *     portable_export_include_unpublished setting is explicitly on;
+     *   - ICIP/TK protocol-restricted (icip_access_restriction), including whole
+     *     subtrees flagged applies_to_descendants;
+     *   - ODRL use-prohibited (research_rights_policy prohibition on 'use').
+     * Each excluded id is counted once, in that precedence order, into $excluded.
+     */
+    private function applyDisclosureGates(array $ioIds, object $row): array
+    {
+        $ioIds = array_values(array_unique(array_map('intval', $ioIds)));
+        if (empty($ioIds)) {
+            return [];
+        }
+
+        // 1. Publication status (draft/unpublished withheld by default)
+        $unpub = [];
+        $includeUnpublished = (string) (DB::table('ahg_settings')
+            ->where('setting_key', 'portable_export_include_unpublished')->value('setting_value')) === '1';
+        if (! $includeUnpublished && Schema::hasTable('status')) {
+            $published = array_flip(DB::table('status')
+                ->whereIn('object_id', $ioIds)
+                ->where('type_id', 158)->where('status_id', 160)
+                ->pluck('object_id')->map('intval')->all());
+            foreach ($ioIds as $id) {
+                if (! isset($published[$id])) {
+                    $unpub[$id] = true;
+                }
+            }
+        }
+
+        // 2. ICIP / TK protocol restriction (direct + applies_to_descendants subtree)
+        $icip = [];
+        if (Schema::hasTable('icip_access_restriction')) {
+            foreach (DB::table('icip_access_restriction')->whereIn('information_object_id', $ioIds)
+                ->pluck('information_object_id') as $rid) {
+                $icip[(int) $rid] = true;
+            }
+            $subtreeRoots = DB::table('icip_access_restriction')
+                ->where('applies_to_descendants', 1)->pluck('information_object_id')->all();
+            if (! empty($subtreeRoots)) {
+                $ranges = DB::table('information_object')->whereIn('id', $subtreeRoots)
+                    ->select('lft', 'rgt')->get();
+                $lfts = DB::table('information_object')->whereIn('id', $ioIds)->pluck('lft', 'id');
+                foreach ($ioIds as $id) {
+                    $lft = $lfts[$id] ?? null;
+                    if ($lft === null) {
+                        continue;
+                    }
+                    foreach ($ranges as $rg) {
+                        if ($lft >= $rg->lft && $lft <= $rg->rgt) {
+                            $icip[$id] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. ODRL — withhold anything carrying a 'use' prohibition. An ungated
+        //    offline recipient has no researcher context to satisfy permission
+        //    constraints, so any use-prohibition means withhold (conservative).
+        $odrl = [];
+        if (Schema::hasTable('research_rights_policy')) {
+            // Records are keyed as 'archival_description' in ODRL policies
+            // (see AhgResearch\Middleware\OdrlPolicyMiddleware).
+            foreach (DB::table('research_rights_policy')
+                ->whereIn('target_type', ['archival_description', 'information_object'])
+                ->whereIn('target_id', $ioIds)
+                ->where('action_type', 'use')
+                ->where('policy_type', 'prohibition')
+                ->pluck('target_id') as $tid) {
+                $odrl[(int) $tid] = true;
+            }
+        }
+
+        $kept = [];
+        foreach ($ioIds as $id) {
+            if (isset($unpub[$id])) { $this->excluded['unpublished']++; continue; }
+            if (isset($icip[$id])) { $this->excluded['icip']++; continue; }
+            if (isset($odrl[$id])) { $this->excluded['odrl']++; continue; }
+            $kept[] = $id;
+        }
+
+        return $kept;
+    }
+
     private function resolveScopeIoIds(object $row): array
     {
         $ioQ = DB::table('information_object')->where('id', '!=', 1);
@@ -331,12 +447,26 @@ class BundleWorkerCommand extends Command
             return 0;
         }
 
+        // #1389 — records carrying PII visual-redaction regions must not ship
+        // their ORIGINAL derivatives (the exporter has no redacted rendition).
+        // Withhold every derivative of a redacted record and tally it.
+        $redactedIoIds = [];
+        if (Schema::hasTable('privacy_visual_redaction')) {
+            $redactedIoIds = array_flip(DB::table('privacy_visual_redaction')
+                ->whereIn('object_id', $ioIds)->pluck('object_id')->map('intval')->all());
+        }
+        $skippedRedacted = [];
+
         $uploadsBase = rtrim((string) config('heratio.uploads_path', '/tmp'), '/');
         $copied = 0;
         $dos = DB::table('digital_object')->whereIn('object_id', $ioIds)
             ->whereIn('usage_id', array_keys($usagesToCopy))
             ->select('id', 'object_id', 'usage_id', 'name', 'path')->get();
         foreach ($dos as $do) {
+            if (isset($redactedIoIds[(int) $do->object_id])) {
+                $skippedRedacted[(int) $do->object_id] = true;
+                continue;
+            }
             $usageDir = $usagesToCopy[$do->usage_id] ?? null;
             if (! $usageDir) {
                 continue;
@@ -361,6 +491,8 @@ class BundleWorkerCommand extends Command
                 $copied++;
             }
         }
+
+        $this->excluded['redacted_objects'] += count($skippedRedacted);
 
         return $copied;
     }
