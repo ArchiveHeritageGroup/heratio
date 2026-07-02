@@ -15,11 +15,11 @@ Route::middleware('auth')->group(function () {
 Route::get('/term/browse', [TermController::class, 'browse'])->name('term.browse');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/term/add', [TermController::class, 'create'])->name('term.create');
+    Route::get('/term/add', [TermController::class, 'create'])->name('term.create')->middleware('acl:createTerm'); // #1349 align GET form with its write verb
     Route::post('/term/store', [TermController::class, 'store'])->name('term.store')->middleware('acl:createTerm');
-    Route::get('/term/{slug}/edit', [TermController::class, 'edit'])->name('term.edit');
+    Route::get('/term/{slug}/edit', [TermController::class, 'edit'])->name('term.edit')->middleware('acl:update'); // #1349
     Route::put('/term/{slug}', [TermController::class, 'update'])->name('term.update')->middleware('acl:update');
-    Route::get('/term/{slug}/delete', [TermController::class, 'confirmDelete'])->name('term.confirmDelete');
+    Route::get('/term/{slug}/delete', [TermController::class, 'confirmDelete'])->name('term.confirmDelete')->middleware('acl:delete'); // #1349
     Route::delete('/term/{slug}', [TermController::class, 'destroy'])->name('term.destroy')->middleware('acl:delete');
 });
 
@@ -28,7 +28,7 @@ Route::get('/taxonomy/autocomplete', [TermController::class, 'taxonomyAutocomple
 
 // SKOS import/export — must be registered BEFORE the {slug} catch-all
 Route::middleware('auth')->group(function () {
-    Route::match(['get', 'post'], '/term/import/skos', [TermController::class, 'importSkos'])->name('term.import.skos');
+    Route::match(['get', 'post'], '/term/import/skos', [TermController::class, 'importSkos'])->name('term.import.skos')->middleware('acl:createTerm'); // #1349 bulk vocab mutation must carry the same ACL grant as term.store
 });
 
 // Legacy + multi-format SKOS export (#661 Phase 2)
