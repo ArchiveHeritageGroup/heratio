@@ -395,8 +395,12 @@ class RightsHolderService
     {
         foreach ($contacts as $c) {
             if (! empty($c['delete']) && ! empty($c['id'])) {
-                DB::table('contact_information_i18n')->where('id', $c['id'])->delete();
-                DB::table('contact_information')->where('id', $c['id'])->delete();
+                // #1395(A) — only delete a contact that belongs to THIS actor
+                // (contact_information is shared across all actors).
+                if (DB::table('contact_information')->where('id', $c['id'])->where('actor_id', $actorId)->exists()) {
+                    DB::table('contact_information_i18n')->where('id', $c['id'])->delete();
+                    DB::table('contact_information')->where('id', $c['id'])->delete();
+                }
 
                 continue;
             }
@@ -404,7 +408,7 @@ class RightsHolderService
                 continue;
             }
             if (! empty($c['id'])) {
-                DB::table('contact_information')->where('id', $c['id'])->update([
+                DB::table('contact_information')->where('id', $c['id'])->where('actor_id', $actorId)->update([ // #1395(A) scope to this actor
                     'primary_contact' => ! empty($c['primary_contact']) ? 1 : 0,
                     'contact_person' => $c['contact_person'] ?? null, 'street_address' => $c['street_address'] ?? null,
                     'website' => $c['website'] ?? null, 'email' => $c['email'] ?? null,

@@ -28,7 +28,7 @@ Route::middleware('web')->group(function () {
         Route::post('/frbr/export', [FrbrController::class, 'exportRun'])->name('frbr.export-run');
 
         Route::get('/frbr/import', [FrbrController::class, 'import'])->name('frbr.import');
-        Route::post('/frbr/import', [FrbrController::class, 'importRun'])->name('frbr.import-run');
+        Route::post('/frbr/import', [FrbrController::class, 'importRun'])->name('frbr.import-run')->middleware('acl:create');
 
         Route::get('/frbr/validate', [FrbrController::class, 'validate'])->name('frbr.validate');
         Route::post('/frbr/validate', [FrbrController::class, 'validateRun'])->name('frbr.validate-run');

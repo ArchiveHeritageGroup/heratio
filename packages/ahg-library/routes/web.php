@@ -92,15 +92,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/marc/edit', [MarcEditorController::class, 'editRedirect'])->name('library.marc-edit-redirect');
     Route::get('/library-manage/marc/import', [MarcEditorController::class, 'import'])->name('library.marc-import');
     Route::post('/library-manage/marc/import/preview', [MarcEditorController::class, 'formImportPreview'])->name('library.marc-import-preview');
-    Route::post('/library-manage/marc/import/commit', [MarcEditorController::class, 'formImportCommit'])->name('library.marc-import-commit');
+    Route::post('/library-manage/marc/import/commit', [MarcEditorController::class, 'formImportCommit'])->name('library.marc-import-commit')->middleware('acl:create');
 
     // MARC Binary import (ISO 2709)
     Route::get('/library-manage/marc/import/binary', [MarcEditorController::class, 'importBinary'])->name('library.marc-binary');
     Route::post('/library-manage/marc/import/binary/preview', [MarcEditorController::class, 'formBinaryPreview'])->name('library.marc-binary-preview');
-    Route::post('/library-manage/marc/import/binary', [MarcEditorController::class, 'formBinaryCommit'])->name('library.marc-binary-commit');
+    Route::post('/library-manage/marc/import/binary', [MarcEditorController::class, 'formBinaryCommit'])->name('library.marc-binary-commit')->middleware('acl:create');
 
     Route::get('/library-manage/marc/{id}/edit', [MarcEditorController::class, 'edit'])->name('library.marc-edit')->where('id', '[0-9]+');
-    Route::put('/library-manage/marc/{id}', [MarcEditorController::class, 'update'])->name('library.marc-update')->where('id', '[0-9]+');
+    Route::put('/library-manage/marc/{id}', [MarcEditorController::class, 'update'])->name('library.marc-update')->where('id', '[0-9]+')->middleware('acl:update');
     Route::get('/library-manage/marc/{id}/download', [MarcEditorController::class, 'download'])->name('library.marc-download')->where('id', '[0-9]+');
     Route::get('/library-manage/marc/{id}/download-binary', [MarcEditorController::class, 'downloadBinary'])->name('library.marc-download-binary')->where('id', '[0-9]+');
 
@@ -302,17 +302,17 @@ Route::middleware('opac.enabled')->group(function () {
 // Replaces the old LibraryController-based circulation routes for checkout/return/renew/scan.
 Route::middleware('auth')->group(function () {
     Route::get('/library-manage/circulation', [CirculationDeskController::class, 'index'])->name('library.circulation.index');
-    Route::post('/library-manage/circulation/scan', [CirculationDeskController::class, 'scan'])->name('library.circulation.scan');
+    Route::post('/library-manage/circulation/scan', [CirculationDeskController::class, 'scan'])->name('library.circulation.scan')->middleware('acl:update');
     Route::get('/library-manage/circulation/checkout/{copyId}', [CirculationDeskController::class, 'checkoutForm'])
         ->name('library.circulation.checkout')->where('copyId', '[0-9]+');
     Route::post('/library-manage/circulation/checkout', [CirculationDeskController::class, 'doCheckout'])
-        ->name('library.circulation.do-checkout');
+        ->name('library.circulation.do-checkout')->middleware('acl:update');
     Route::get('/library-manage/circulation/return/{checkoutId}', [CirculationDeskController::class, 'returnForm'])
         ->name('library.circulation.return')->where('checkoutId', '[0-9]+');
     Route::post('/library-manage/circulation/return', [CirculationDeskController::class, 'doReturn'])
-        ->name('library.circulation.do-return');
+        ->name('library.circulation.do-return')->middleware('acl:update');
     Route::post('/library-manage/circulation/renew', [CirculationDeskController::class, 'renew'])
-        ->name('library.circulation.renew');
+        ->name('library.circulation.renew')->middleware('acl:update');
     Route::get('/library-manage/circulation/patron/{patronId}', [CirculationDeskController::class, 'patronHistory'])
         ->name('library.circulation.patron')->where('patronId', '[0-9]+');
     Route::get('/library-manage/circulation/loans', [CirculationDeskController::class, 'getLoans'])
@@ -320,9 +320,9 @@ Route::middleware('auth')->group(function () {
 
     // Holds
     Route::post('/library-manage/circulation/hold', [CirculationDeskController::class, 'placeHold'])
-        ->name('library.hold-place');
+        ->name('library.hold-place')->middleware('acl:update');
     Route::post('/library-manage/circulation/hold/{hold}/cancel', [CirculationDeskController::class, 'cancelHold'])
-        ->name('library.hold-cancel')->where('hold', '[0-9]+');
+        ->name('library.hold-cancel')->where('hold', '[0-9]+')->middleware('acl:update');
 });
 
 // ── OPAC Patron Self-Service (Phase 2) ─────────────────────────────────────

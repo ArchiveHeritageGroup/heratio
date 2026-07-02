@@ -450,8 +450,13 @@ class DonorService
     {
         foreach ($contacts as $c) {
             if (! empty($c['delete']) && ! empty($c['id'])) {
-                DB::table('contact_information_i18n')->where('id', $c['id'])->delete();
-                DB::table('contact_information')->where('id', $c['id'])->delete();
+                // #1395(A) — contact_information is shared across all actors; only
+                // delete a contact that actually belongs to THIS actor, so a
+                // client-supplied id can't tamper with another actor's PII.
+                if (DB::table('contact_information')->where('id', $c['id'])->where('actor_id', $actorId)->exists()) {
+                    DB::table('contact_information_i18n')->where('id', $c['id'])->delete();
+                    DB::table('contact_information')->where('id', $c['id'])->delete();
+                }
 
                 continue;
             }
@@ -464,7 +469,7 @@ class DonorService
                 $enc = new EncryptionService;
                 $emailEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $c['email'] ?? null, 'contact_information', 'email', $c['id']);
 
-                DB::table('contact_information')->where('id', $c['id'])->update([
+                DB::table('contact_information')->where('id', $c['id'])->where('actor_id', $actorId)->update([ // #1395(A) scope to this actor
                     'primary_contact' => ! empty($c['primary_contact']) ? 1 : 0,
                     'contact_person' => $c['contact_person'] ?? null, 'street_address' => $c['street_address'] ?? null,
                     'website' => $c['website'] ?? null, 'email' => $emailEnc,
