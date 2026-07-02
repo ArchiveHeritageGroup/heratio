@@ -204,6 +204,18 @@ class IngestCommitRunner
 
         // Path supplied AND file exists → create IO + attach DO via the same
         // streaming entry point the scanner uses.
+        // #1395(G) — LFI guard: an operator-supplied digital_object_path (CSV field)
+        // must resolve INSIDE the ingest uploads base, never an arbitrary server
+        // file such as /etc/passwd. Out-of-base paths are dropped, not attached.
+        if ($digitalObjectPath) {
+            $real = realpath($digitalObjectPath);
+            $base = realpath((string) config('heratio.uploads_path', ''));
+            if ($real === false || ! is_string($base) || $base === '' || strncmp($real, $base.'/', strlen($base) + 1) !== 0) {
+                \Illuminate\Support\Facades\Log::warning('[ingest] #1395 rejected out-of-base digital_object_path: '.$digitalObjectPath);
+                $digitalObjectPath = null;
+            }
+        }
+
         if ($digitalObjectPath && is_file($digitalObjectPath)) {
             $result = $this->ingest->ingestFile(
                 (int) $session->id,

@@ -934,6 +934,30 @@ class IngestService
         }
     }
 
+    /**
+     * #1395(G) — reject a zip-bomb before extraction: cap entry count + total
+     * uncompressed size. \ZipArchive::extractTo() has no such limit, so a small
+     * archive can fill the disk.
+     */
+    private function assertZipNotBomb(\ZipArchive $zip): void
+    {
+        $maxFiles = 20000;
+        $maxBytes = 5 * 1024 * 1024 * 1024; // 5 GB uncompressed
+        if ($zip->numFiles > $maxFiles) {
+            $zip->close();
+            throw new \RuntimeException('Archive rejected: too many entries ('.$zip->numFiles.').');
+        }
+        $total = 0;
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $stat = $zip->statIndex($i);
+            $total += (int) ($stat['size'] ?? 0);
+            if ($total > $maxBytes) {
+                $zip->close();
+                throw new \RuntimeException('Archive rejected: uncompressed size exceeds limit.');
+            }
+        }
+    }
+
     private function parseZipFile(int $sessionId, object $file): void
     {
         if (!class_exists(\ZipArchive::class)) {
@@ -949,6 +973,7 @@ class IngestService
             $zip->close();
             throw new \RuntimeException("Cannot create extract dir: {$extractDir}");
         }
+        $this->assertZipNotBomb($zip);
         $zip->extractTo($extractDir);
         $zip->close();
 

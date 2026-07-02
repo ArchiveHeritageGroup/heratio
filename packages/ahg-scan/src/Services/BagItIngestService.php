@@ -164,6 +164,20 @@ class BagItIngestService
         if ($zip->open($zipPath) !== true) {
             throw new \RuntimeException("Cannot open zip: {$zipPath}");
         }
+        // #1395(G) — zip-bomb guard: cap entry count + total uncompressed size
+        // before extractTo (which has no such limit).
+        if ($zip->numFiles > 20000) {
+            $zip->close();
+            throw new \RuntimeException('Archive rejected: too many entries.');
+        }
+        $bagTotal = 0;
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $bagTotal += (int) ($zip->statIndex($i)['size'] ?? 0);
+            if ($bagTotal > 5 * 1024 * 1024 * 1024) {
+                $zip->close();
+                throw new \RuntimeException('Archive rejected: uncompressed size exceeds limit.');
+            }
+        }
         $zip->extractTo($tmp);
         $zip->close();
 
