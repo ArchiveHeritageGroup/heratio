@@ -42,6 +42,7 @@ class AhgCoreServiceProvider extends ServiceProvider
         $this->app->singleton(\AhgCore\Services\AltTextService::class);
         $this->app->singleton(\AhgCore\Services\AltTextSuggestionService::class);
         $this->app->singleton(\AhgCore\Services\DisclosureGate::class);
+        $this->app->singleton(\AhgCore\Services\SsrfGuard::class);
 
         // heratio#1244 maturity self-assessment slice: the human-entered preservation
         // maturity self-assessment service (the organisational counterpart to the

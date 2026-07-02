@@ -187,8 +187,17 @@ class KbartAdminController extends Controller
     {
         $request->validate(['url' => 'required|url']);
 
+        // #1395(C) — SSRF guard: reject internal/metadata/private hosts and do
+        // not follow redirects (a 30x could rebind to a private IP).
+        $ssrf = app(\AhgCore\Services\SsrfGuard::class);
+        if (! $ssrf->isSafeUrl($request->input('url'))) {
+            return response()->json(['ok' => false, 'hint' => 'URL host is not permitted.'], 422);
+        }
+
         try {
-            $resp = \Illuminate\Support\Facades\Http::timeout(30)->get($request->input('url'));
+            $resp = \Illuminate\Support\Facades\Http::timeout(30)
+                ->withOptions($ssrf->safeHttpOptions())
+                ->get($request->input('url'));
             $ok = $resp->successful() && trim($resp->body()) !== '';
             return response()->json([
                 'ok'   => $ok,

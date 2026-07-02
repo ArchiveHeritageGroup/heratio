@@ -153,42 +153,12 @@ class FederationClient
      */
     public function hostAllowed(string $baseUrl): bool
     {
-        $scheme = strtolower((string) parse_url($baseUrl, PHP_URL_SCHEME));
-        if (! in_array($scheme, ['http', 'https'], true)) {
-            return false;
-        }
-
-        $host = strtolower((string) parse_url($baseUrl, PHP_URL_HOST));
-        if ($host === '') {
-            return false;
-        }
-
-        // Cloud-metadata endpoints - the exact set FederatedSearchService blocks.
-        $blockedHosts = ['169.254.169.254', 'metadata.google.internal', 'metadata.internal'];
-        if (in_array($host, $blockedHosts, true)) {
-            return false;
-        }
-
-        // Loopback / unspecified by name.
-        if (in_array($host, ['localhost', 'ip6-localhost', '0.0.0.0', '::1', '[::1]'], true)) {
-            return false;
-        }
-
-        // If the host is a literal IP, reject private / loopback / link-local /
-        // reserved ranges (a peer should be a public catalogue host).
-        $ip = trim($host, '[]');
-        if (filter_var($ip, FILTER_VALIDATE_IP)) {
-            $publicOnly = filter_var(
-                $ip,
-                FILTER_VALIDATE_IP,
-                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
-            );
-            if ($publicOnly === false) {
-                return false;
-            }
-        }
-
-        return true;
+        // #1395(C) — delegate to the shared SsrfGuard. Beyond the literal-IP and
+        // by-name checks this method used to do, the guard RESOLVES the host
+        // (A + AAAA) and rejects if ANY resolved IP is private/reserved, and
+        // normalises numeric-integer hosts — closing the DNS-rebind / decimal-IP
+        // blind spot inherited by every caller that delegates here.
+        return app(\AhgCore\Services\SsrfGuard::class)->isSafeUrl($baseUrl);
     }
 
     // -----------------------------------------------------------------

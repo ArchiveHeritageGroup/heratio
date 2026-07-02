@@ -106,6 +106,10 @@ class WebhookService
         ]);
 
         try {
+            // #1395(C) — SSRF guard on the delivery target (redirects already off);
+            // a throw here is handled by the catch below (marks the delivery failed).
+            app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($webhook->url);
+
             $response = Http::timeout(30)
                 ->connectTimeout(10)
                 ->withHeaders([
