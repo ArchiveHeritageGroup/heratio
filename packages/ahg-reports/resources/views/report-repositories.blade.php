@@ -102,25 +102,25 @@
         @foreach($results as $item)
         <tr>
           <td>@if($item->identifier)<a href="{{ url('/repository/' . $item->id) }}">{{ $item->identifier }}</a>@else - @endif</td>
-          <td>{!! $item->authorized_form_of_name ?? '-' !!}</td>
+          <td>{{ $item->authorized_form_of_name ?? '-' }}</td>
           <td>{{ $item->desc_status_id ?? '-' }}</td>
           <td>{{ $item->desc_detail_id ?? '-' }}</td>
-          <td>{!! $item->desc_identifier ?? '-' !!}</td>
-          <td>{!! $item->geocultural_context ?? '-' !!}</td>
-          <td>{!! $item->collecting_policies ?? '-' !!}</td>
-          <td>{!! $item->buildings ?? '-' !!}</td>
-          <td>{!! $item->holdings ?? '-' !!}</td>
-          <td>{!! $item->finding_aids ?? '-' !!}</td>
-          <td>{!! $item->opening_times ?? '-' !!}</td>
-          <td>{!! $item->access_conditions ?? '-' !!}</td>
-          <td>{!! $item->disabled_access ?? '-' !!}</td>
-          <td>{!! $item->research_services ?? '-' !!}</td>
-          <td>{!! $item->reproduction_services ?? '-' !!}</td>
-          <td>{!! $item->public_facilities ?? '-' !!}</td>
-          <td>{!! $item->desc_institution_identifier ?? '-' !!}</td>
-          <td>{!! $item->desc_rules ?? '-' !!}</td>
-          <td>{!! $item->desc_sources ?? '-' !!}</td>
-          <td>{!! $item->desc_revision_history ?? '-' !!}</td>
+          <td>{{ $item->desc_identifier ?? '-' }}</td>
+          <td>{{ $item->geocultural_context ?? '-' }}</td>
+          <td>{{ $item->collecting_policies ?? '-' }}</td>
+          <td>{{ $item->buildings ?? '-' }}</td>
+          <td>{{ $item->holdings ?? '-' }}</td>
+          <td>{{ $item->finding_aids ?? '-' }}</td>
+          <td>{{ $item->opening_times ?? '-' }}</td>
+          <td>{{ $item->access_conditions ?? '-' }}</td>
+          <td>{{ $item->disabled_access ?? '-' }}</td>
+          <td>{{ $item->research_services ?? '-' }}</td>
+          <td>{{ $item->reproduction_services ?? '-' }}</td>
+          <td>{{ $item->public_facilities ?? '-' }}</td>
+          <td>{{ $item->desc_institution_identifier ?? '-' }}</td>
+          <td>{{ $item->desc_rules ?? '-' }}</td>
+          <td>{{ $item->desc_sources ?? '-' }}</td>
+          <td>{{ $item->desc_revision_history ?? '-' }}</td>
           <td>{{ $item->created_at ?? '-' }}</td>
         </tr>
         @endforeach

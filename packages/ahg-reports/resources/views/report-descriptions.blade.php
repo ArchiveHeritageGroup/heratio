@@ -120,27 +120,27 @@
         @foreach($results as $item)
         <tr>
           <td>@if($item->identifier)<a href="{{ url('/' . ($item->identifier ?? $item->id)) }}">{{ $item->identifier }}</a>@else - @endif</td>
-          <td>{!! $item->title ?? '-' !!}</td>
-          <td>{!! $item->alternate_title ?? '-' !!}</td>
-          <td>{!! $item->extent_and_medium ?? '-' !!}</td>
-          <td>{!! $item->archival_history ?? '-' !!}</td>
-          <td>{!! $item->acquisition ?? '-' !!}</td>
-          <td>{!! $item->scope_and_content ?? '-' !!}</td>
-          <td>{!! $item->appraisal ?? '-' !!}</td>
-          <td>{!! $item->accruals ?? '-' !!}</td>
-          <td>{!! $item->arrangement ?? '-' !!}</td>
-          <td>{!! $item->access_conditions ?? '-' !!}</td>
-          <td>{!! $item->reproduction_conditions ?? '-' !!}</td>
-          <td>{!! $item->physical_characteristics ?? '-' !!}</td>
-          <td>{!! $item->finding_aids ?? '-' !!}</td>
-          <td>{!! $item->location_of_originals ?? '-' !!}</td>
-          <td>{!! $item->location_of_copies ?? '-' !!}</td>
-          <td>{!! $item->related_units_of_description ?? '-' !!}</td>
-          <td>{!! $item->institution_responsible_identifier ?? '-' !!}</td>
-          <td>{!! $item->rules ?? '-' !!}</td>
-          <td>{!! $item->sources ?? '-' !!}</td>
-          <td>{!! $item->revision_history ?? '-' !!}</td>
-          <td>{!! $item->culture ?? '-' !!}</td>
+          <td>{{ $item->title ?? '-' }}</td>
+          <td>{{ $item->alternate_title ?? '-' }}</td>
+          <td>{{ $item->extent_and_medium ?? '-' }}</td>
+          <td>{{ $item->archival_history ?? '-' }}</td>
+          <td>{{ $item->acquisition ?? '-' }}</td>
+          <td>{{ $item->scope_and_content ?? '-' }}</td>
+          <td>{{ $item->appraisal ?? '-' }}</td>
+          <td>{{ $item->accruals ?? '-' }}</td>
+          <td>{{ $item->arrangement ?? '-' }}</td>
+          <td>{{ $item->access_conditions ?? '-' }}</td>
+          <td>{{ $item->reproduction_conditions ?? '-' }}</td>
+          <td>{{ $item->physical_characteristics ?? '-' }}</td>
+          <td>{{ $item->finding_aids ?? '-' }}</td>
+          <td>{{ $item->location_of_originals ?? '-' }}</td>
+          <td>{{ $item->location_of_copies ?? '-' }}</td>
+          <td>{{ $item->related_units_of_description ?? '-' }}</td>
+          <td>{{ $item->institution_responsible_identifier ?? '-' }}</td>
+          <td>{{ $item->rules ?? '-' }}</td>
+          <td>{{ $item->sources ?? '-' }}</td>
+          <td>{{ $item->revision_history ?? '-' }}</td>
+          <td>{{ $item->culture ?? '-' }}</td>
           <td>{{ $item->repository_name ?? '-' }}</td>
           <td>{{ $item->created_at ?? '-' }}</td>
         </tr>

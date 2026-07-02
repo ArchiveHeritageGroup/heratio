@@ -72,7 +72,8 @@
             <h5 class="mb-0">{{ $data['name'] }}</h5>
           </div>
           <div class="card-body">
-            <p class="citation-text" id="cite-{{ $style }}">{!! $data['text'] !!}</p>
+            {{-- #1395(B) — escape at sink: citation text is assembled from raw title/creator/repository --}}
+            <p class="citation-text" id="cite-{{ $style }}">{{ $data['text'] }}</p>
           </div>
           <div class="card-footer">
             <button class="btn btn-sm btn-outline-primary copy-cite-btn" data-target="cite-{{ $style }}">
