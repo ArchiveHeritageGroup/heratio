@@ -540,6 +540,9 @@ class OaiPmhController extends Controller
             ->select('io.id', 'io.oai_local_identifier', 'ioi.title')
             ->orderBy('io.id');
 
+        // #1384/#1389 — ICIP/TK + ODRL gate (fail-closed) on top of publication
+        app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, 'io.id');
+
         if ((string) $this->setting('oai_additional_sets_enabled', '0') !== '1') {
             $query->where('io.parent_id', '=', 1);
         }
@@ -850,6 +853,8 @@ class OaiPmhController extends Controller
             })
             ->where('io.oai_local_identifier', '=', $oaiLocalId)
             ->where('st.status_id', '=', 160)
+            // #1384/#1389 — ICIP/TK + ODRL gate (fail-closed) on top of publication
+            ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
             ->where('io.parent_id', '!=', null)
             ->select(
                 'io.id',
@@ -978,6 +983,10 @@ class OaiPmhController extends Controller
                 }
             }
         }
+
+        // #1384/#1389 — layer ICIP/TK + ODRL confidentiality gates on top of the
+        // publication join above, via the central fail-closed DisclosureGate.
+        app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, 'io.id');
 
         return $query;
     }

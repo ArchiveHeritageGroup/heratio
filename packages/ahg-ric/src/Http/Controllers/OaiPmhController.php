@@ -185,6 +185,11 @@ XML;
             ->select('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content',
                     'o.created_at', 'o.updated_at');
 
+        // #1384/#1389 — this endpoint previously disseminated ALL records; gate to
+        // Published only, then exclude ICIP/TK + ODRL-restricted (fail-closed).
+        app(\AhgCore\Services\DisclosureGate::class)->wherePublished($q, 'io');
+        app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($q, 'io.id');
+
         if ($set) {
             // Only "fonds:N" supported — descendants of fonds N via parent chain
             if (preg_match('/^fonds:(\d+)$/', $set, $m)) {
@@ -253,6 +258,11 @@ XML;
 
         $id = $this->parseOaiIdentifier($ident);
         if (!$id) $this->oaiError('idDoesNotExist', "Unknown identifier: {$ident}");
+
+        // #1384/#1389 — never disclose an unpublished / ICIP-TK / ODRL-restricted record
+        if (!app(\AhgCore\Services\DisclosureGate::class)->allows($id)) {
+            $this->oaiError('idDoesNotExist', "Unknown identifier: {$ident}");
+        }
 
         $row = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', function ($j) {

@@ -343,6 +343,10 @@ class OaiPmhController extends Controller
             })
             ->where('io.id', '!=', self::ROOT_ID);
 
+        // #1384/#1389 — ICIP/TK + ODRL gate (fail-closed) on top of publication;
+        // the single funnel for every OAI verb (list/get/isPublished).
+        app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($q, 'io.id');
+
         if ($from !== null) {
             $q->where('o.updated_at', '>=', $this->datestampToSql($from, false));
         }

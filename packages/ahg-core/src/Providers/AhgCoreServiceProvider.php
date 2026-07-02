@@ -41,6 +41,7 @@ class AhgCoreServiceProvider extends ServiceProvider
         // is never saved; the human curation path stays the only write.
         $this->app->singleton(\AhgCore\Services\AltTextService::class);
         $this->app->singleton(\AhgCore\Services\AltTextSuggestionService::class);
+        $this->app->singleton(\AhgCore\Services\DisclosureGate::class);
 
         // heratio#1244 maturity self-assessment slice: the human-entered preservation
         // maturity self-assessment service (the organisational counterpart to the

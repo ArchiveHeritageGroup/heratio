@@ -393,6 +393,7 @@ class UnionCatalogueService
             ->where('st.status_id', '=', self::STATUS_PUBLISHED)
             ->where('io.id', '>', $afterId)
             ->where('io.id', '>', 1)
+            ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->groupBy('io.id', 'io.level_of_description_id', 'i18n.title',
                 'lvl.name', 'repoi.authorized_form_of_name', 's.slug')
             ->orderBy('io.id')

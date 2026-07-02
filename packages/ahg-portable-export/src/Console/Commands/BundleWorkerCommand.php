@@ -215,70 +215,28 @@ class BundleWorkerCommand extends Command
             return [];
         }
 
-        // 1. Publication status (draft/unpublished withheld by default)
-        $unpub = [];
+        // Central, fail-closed gate is the single source of truth for the
+        // confidentiality rules (ICIP/TK + ODRL). Publication is handled here
+        // too, but with the export-only `include_unpublished` operator override
+        // that the shared gate deliberately doesn't offer.
+        $gate = app(\AhgCore\Services\DisclosureGate::class);
+        $icip = array_flip($gate->icipRestrictedIds());
+        $odrl = array_flip($gate->odrlRestrictedIds());
+
         $includeUnpublished = (string) (DB::table('ahg_settings')
             ->where('setting_key', 'portable_export_include_unpublished')->value('setting_value')) === '1';
+        $published = [];
         if (! $includeUnpublished && Schema::hasTable('status')) {
             $published = array_flip(DB::table('status')
                 ->whereIn('object_id', $ioIds)
-                ->where('type_id', 158)->where('status_id', 160)
+                ->where('type_id', \AhgCore\Services\DisclosureGate::STATUS_TYPE_PUBLICATION)
+                ->where('status_id', \AhgCore\Services\DisclosureGate::STATUS_PUBLISHED)
                 ->pluck('object_id')->map('intval')->all());
-            foreach ($ioIds as $id) {
-                if (! isset($published[$id])) {
-                    $unpub[$id] = true;
-                }
-            }
-        }
-
-        // 2. ICIP / TK protocol restriction (direct + applies_to_descendants subtree)
-        $icip = [];
-        if (Schema::hasTable('icip_access_restriction')) {
-            foreach (DB::table('icip_access_restriction')->whereIn('information_object_id', $ioIds)
-                ->pluck('information_object_id') as $rid) {
-                $icip[(int) $rid] = true;
-            }
-            $subtreeRoots = DB::table('icip_access_restriction')
-                ->where('applies_to_descendants', 1)->pluck('information_object_id')->all();
-            if (! empty($subtreeRoots)) {
-                $ranges = DB::table('information_object')->whereIn('id', $subtreeRoots)
-                    ->select('lft', 'rgt')->get();
-                $lfts = DB::table('information_object')->whereIn('id', $ioIds)->pluck('lft', 'id');
-                foreach ($ioIds as $id) {
-                    $lft = $lfts[$id] ?? null;
-                    if ($lft === null) {
-                        continue;
-                    }
-                    foreach ($ranges as $rg) {
-                        if ($lft >= $rg->lft && $lft <= $rg->rgt) {
-                            $icip[$id] = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        // 3. ODRL — withhold anything carrying a 'use' prohibition. An ungated
-        //    offline recipient has no researcher context to satisfy permission
-        //    constraints, so any use-prohibition means withhold (conservative).
-        $odrl = [];
-        if (Schema::hasTable('research_rights_policy')) {
-            // Records are keyed as 'archival_description' in ODRL policies
-            // (see AhgResearch\Middleware\OdrlPolicyMiddleware).
-            foreach (DB::table('research_rights_policy')
-                ->whereIn('target_type', ['archival_description', 'information_object'])
-                ->whereIn('target_id', $ioIds)
-                ->where('action_type', 'use')
-                ->where('policy_type', 'prohibition')
-                ->pluck('target_id') as $tid) {
-                $odrl[(int) $tid] = true;
-            }
         }
 
         $kept = [];
         foreach ($ioIds as $id) {
-            if (isset($unpub[$id])) { $this->excluded['unpublished']++; continue; }
+            if (! $includeUnpublished && ! isset($published[$id])) { $this->excluded['unpublished']++; continue; }
             if (isset($icip[$id])) { $this->excluded['icip']++; continue; }
             if (isset($odrl[$id])) { $this->excluded['odrl']++; continue; }
             $kept[] = $id;
@@ -449,12 +407,9 @@ class BundleWorkerCommand extends Command
 
         // #1389 — records carrying PII visual-redaction regions must not ship
         // their ORIGINAL derivatives (the exporter has no redacted rendition).
-        // Withhold every derivative of a redacted record and tally it.
-        $redactedIoIds = [];
-        if (Schema::hasTable('privacy_visual_redaction')) {
-            $redactedIoIds = array_flip(DB::table('privacy_visual_redaction')
-                ->whereIn('object_id', $ioIds)->pluck('object_id')->map('intval')->all());
-        }
+        // The central DisclosureGate decides; withhold every derivative of a
+        // redacted record and tally it.
+        $gate = app(\AhgCore\Services\DisclosureGate::class);
         $skippedRedacted = [];
 
         $uploadsBase = rtrim((string) config('heratio.uploads_path', '/tmp'), '/');
@@ -463,7 +418,7 @@ class BundleWorkerCommand extends Command
             ->whereIn('usage_id', array_keys($usagesToCopy))
             ->select('id', 'object_id', 'usage_id', 'name', 'path')->get();
         foreach ($dos as $do) {
-            if (isset($redactedIoIds[(int) $do->object_id])) {
+            if ($gate->hasRedactions((int) $do->object_id)) {
                 $skippedRedacted[(int) $do->object_id] = true;
                 continue;
             }

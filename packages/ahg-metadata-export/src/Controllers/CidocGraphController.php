@@ -216,6 +216,8 @@ class CidocGraphController extends Controller
             ->where('type_id', self::STATUS_TYPE_PUBLICATION)
             ->where('status_id', self::PUBLICATION_STATUS_PUBLISHED)
             ->where('object_id', '>', max(1, $lastId)) // root id 1 excluded
+            // #1384/#1389 — exclude ICIP/TK + ODRL-restricted records from the graph
+            ->whereNotIn('object_id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
             ->orderBy('object_id')
             ->limit($page)
             ->pluck('object_id')

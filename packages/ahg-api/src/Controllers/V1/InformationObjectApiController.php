@@ -42,7 +42,8 @@ class InformationObjectApiController extends Controller
             })
             ->where('information_object_i18n.culture', $this->culture)
             ->where('information_object.id', '!=', 1) // Exclude root
-            ->where('status.status_id', '=', 160); // Published only
+            ->where('status.status_id', '=', 160) // Published only
+            ->whereNotIn('information_object.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()); // #1384/#1389 ICIP/TK + ODRL
 
         if ($repositoryFilter) {
             $query->where('information_object.repository_id', $repositoryFilter);
@@ -159,6 +160,7 @@ class InformationObjectApiController extends Controller
             ->where('information_object_i18n.culture', $this->culture)
             ->where('information_object.id', '!=', 1)
             ->where('status.status_id', '=', 160)
+            ->whereNotIn('information_object.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->where(function ($q) use ($searchTerm) {
                 $q->where('information_object_i18n.title', 'LIKE', $searchTerm)
                     ->orWhere('information_object.identifier', 'LIKE', $searchTerm)
@@ -239,6 +241,7 @@ class InformationObjectApiController extends Controller
             ->where('information_object.id', $objectId)
             ->where('information_object.id', '!=', 1) // Exclude root
             ->where('status.status_id', '=', 160) // Published only — never leak drafts to anon
+            ->whereNotIn('information_object.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->where('information_object_i18n.culture', $this->culture)
             ->select([
                 'information_object.id',

@@ -33,6 +33,10 @@ class DigitalObjectApiController extends Controller
                     ->where('status.type_id', '=', 158)
                     ->where('status.status_id', '=', 160);
             })
+            // #1384/#1389 — withhold digital objects of ICIP/ODRL-restricted or
+            // PII-redacted records (raw derivatives must never leak).
+            ->whereNotIn('do.object_id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
+            ->whereNotIn('do.object_id', app(\AhgCore\Services\DisclosureGate::class)->redactedIds())
             ->where('do.usage_id', 166); // Master
 
         if ($mediaType) {
@@ -86,6 +90,10 @@ class DigitalObjectApiController extends Controller
                     ->where('status.type_id', '=', 158)
                     ->where('status.status_id', '=', 160);
             })
+            // #1384/#1389 — withhold digital objects of ICIP/ODRL-restricted or
+            // PII-redacted records (raw derivatives must never leak).
+            ->whereNotIn('do.object_id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
+            ->whereNotIn('do.object_id', app(\AhgCore\Services\DisclosureGate::class)->redactedIds())
             ->where('do.id', $id)
             ->select(
                 'do.id', 'do.object_id', 'do.usage_id',

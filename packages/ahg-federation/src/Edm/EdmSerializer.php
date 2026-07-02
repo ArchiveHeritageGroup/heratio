@@ -268,6 +268,7 @@ class EdmSerializer
             })
             ->where('st.status_id', '=', 160)
             ->where('io.id', '>', 1)
+            ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->orderBy('io.id');
 
         if ($sinceIso) {

@@ -63,6 +63,7 @@ class LegacyApiController extends Controller
             ->where('ioi.culture', $this->culture)
             ->where('io.id', '!=', 1)
             ->where('status.status_id', 160)
+            ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->where(function ($q) use ($searchTerm) {
                 $q->where('ioi.title', 'LIKE', $searchTerm)
                     ->orWhere('io.identifier', 'LIKE', $searchTerm)
@@ -111,6 +112,7 @@ class LegacyApiController extends Controller
             ->where('ioi.culture', $this->culture)
             ->where('io.id', '!=', 1)
             ->where('status.status_id', 160)
+            ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->where('ioi.title', 'LIKE', $searchTerm)
             ->select('io.id', 'ioi.title as label', 'slug.slug')
             ->selectRaw("'description' as type")
@@ -175,6 +177,7 @@ class LegacyApiController extends Controller
             })
             ->where('io.id', '!=', 1)
             ->where('status.status_id', 160)
+            ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->count();
 
         return response()->json([
