@@ -621,14 +621,18 @@ class StorageController extends Controller
      */
     public function unlink(Request $request, int $relationId)
     {
-        $relation = DB::table('relation')->where('id', $relationId)->first();
+        // #1395(A) — the `relation` table is generic (creator links, access
+        // points, …); scope this delete to physical-object CONTAINER links
+        // (type_id = 151) only, so an operator cannot delete arbitrary relation
+        // rows system-wide by iterating relationId.
+        $relation = DB::table('relation')->where('id', $relationId)->where('type_id', 151)->first();
         if (! $relation) {
             abort(404);
         }
 
         $slug = DB::table('slug')->where('object_id', $relation->object_id)->value('slug');
 
-        DB::table('relation')->where('id', $relationId)->delete();
+        DB::table('relation')->where('id', $relationId)->where('type_id', 151)->delete();
 
         return redirect()->route('physicalobject.link-to', $slug ?? '')->with('success', 'Container unlinked.');
     }

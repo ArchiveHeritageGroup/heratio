@@ -14,11 +14,20 @@ class ApiAuthenticate
      */
     public function handle(Request $request, Closure $next, string ...$requiredScopes)
     {
-        // Try session auth first (logged-in admin = full scopes)
+        // Session auth. #1395(A) — a session user only receives write/delete/
+        // batch/publish scopes if they are an admin; everyone else is read-only.
+        // Previously ANY authenticated user (incl. a self-registered researcher)
+        // got the full scope set, enabling unauthorised CRUD via the api routes
+        // (e.g. RiC create/update/delete). Admin retains full scopes.
         if ($request->user()) {
+            $userId = $request->user()->id ?? null;
             $request->attributes->set('api_key_id', null);
-            $request->attributes->set('api_user_id', $request->user()->id ?? null);
-            $request->attributes->set('api_scopes', ['read', 'write', 'delete', 'batch', 'publish:write']);
+            $request->attributes->set('api_user_id', $userId);
+
+            $isAdmin = $userId && \AhgCore\Services\AclService::canAdmin($userId);
+            $request->attributes->set('api_scopes', $isAdmin
+                ? ['read', 'write', 'delete', 'batch', 'publish:write']
+                : ['read']);
 
             return $this->checkScopes($request, $next, $requiredScopes);
         }
