@@ -128,13 +128,13 @@ Route::middleware('web')->group(function () {
 
     // Create route must come before show route with wildcard {slug}
     Route::get('/admin/ric/entities/{type}/create', [RicEntityController::class, 'createEntityForm'])->name('ric.entities.create');
-    Route::post('/admin/ric/entities/{type}', [RicEntityController::class, 'storeEntityForm'])->name('ric.entities.store-form');
+    Route::post('/admin/ric/entities/{type}', [RicEntityController::class, 'storeEntityForm'])->middleware(['admin', 'acl:create'])->name('ric.entities.store-form'); // #1392
 
     // Create route above takes precedence; "create" will not match as a slug because route order wins.
     Route::get('/admin/ric/entities/{type}/{slug}', [RicEntityController::class, 'showEntity'])->name('ric.entities.show');
     Route::get('/admin/ric/entities/{type}/{slug}/edit', [RicEntityController::class, 'editEntity'])->name('ric.entities.edit');
-    Route::put('/admin/ric/entities/{type}/{slug}', [RicEntityController::class, 'updateEntityForm'])->name('ric.entities.update-form');
-    Route::delete('/admin/ric/entities/{type}/{slug}', [RicEntityController::class, 'destroyEntityForm'])->name('ric.entities.destroy-form');
+    Route::put('/admin/ric/entities/{type}/{slug}', [RicEntityController::class, 'updateEntityForm'])->middleware(['admin', 'acl:update'])->name('ric.entities.update-form'); // #1392
+    Route::delete('/admin/ric/entities/{type}/{slug}', [RicEntityController::class, 'destroyEntityForm'])->middleware(['admin', 'acl:delete'])->name('ric.entities.destroy-form'); // #1392
 
     // Global relations browse (G8)
     Route::get('/admin/ric/relations', [RicEntityController::class, 'browseRelations'])->name('ric.relations.browse');

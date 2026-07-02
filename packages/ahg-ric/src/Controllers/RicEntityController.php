@@ -272,18 +272,15 @@ class RicEntityController extends Controller
         $data = $request->all();
         $data['entity_type'] = rtrim($type, 's');
 
-        // API-3 migration: try the public API first.
-        $apiResult = $this->callRicApi('PATCH', "/api/ric/v1/{$type}/{$entity->id}", $data, $request);
-
-        if (!$apiResult || !($apiResult['success'] ?? false)) {
-            // Fallback to direct service call.
-            match ($type) {
-                'places' => $this->service->updatePlace($entity->id, $data),
-                'rules' => $this->service->updateRule($entity->id, $data),
-                'activities' => $this->service->updateActivity($entity->id, $data),
-                'instantiations' => $this->service->updateInstantiation($entity->id, $data),
-            };
-        }
+        // #1392 — authorization is enforced by the route (admin + acl:update).
+        // Mutate directly; the service maps explicit columns (no mass-assignment).
+        match ($type) {
+            'places' => $this->service->updatePlace($entity->id, $data),
+            'rules' => $this->service->updateRule($entity->id, $data),
+            'activities' => $this->service->updateActivity($entity->id, $data),
+            'instantiations' => $this->service->updateInstantiation($entity->id, $data),
+            default => abort(404),
+        };
 
         return redirect()->route('ric.entities.show', [$type, $slug])
             ->with('success', ucfirst(rtrim($type, 's')) . ' updated successfully.');
@@ -338,21 +335,18 @@ class RicEntityController extends Controller
         $data = $request->all();
         $data['entity_type'] = rtrim($type, 's');
 
-        // API-3 migration: try the public API first.
-        $apiResult = $this->callRicApi('POST', "/api/ric/v1/{$type}", $data, $request);
-        $id = $apiResult['id'] ?? null;
-
-        if (!$id) {
-            try {
-                $id = match ($type) {
-                    'places' => $this->service->createPlace($data),
-                    'rules' => $this->service->createRule($data),
-                    'activities' => $this->service->createActivity($data),
-                    'instantiations' => $this->service->createInstantiation($data),
-                };
-            } catch (\Exception $e) {
-                return redirect()->back()->withInput()->withErrors(['create' => $e->getMessage()]);
-            }
+        // #1392 — authorization is enforced by the route (admin + acl:create).
+        // Mutate directly; the service maps explicit columns (no mass-assignment).
+        try {
+            $id = match ($type) {
+                'places' => $this->service->createPlace($data),
+                'rules' => $this->service->createRule($data),
+                'activities' => $this->service->createActivity($data),
+                'instantiations' => $this->service->createInstantiation($data),
+                default => abort(404),
+            };
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->withErrors(['create' => $e->getMessage()]);
         }
 
         $slug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $id)->value('slug');
@@ -436,18 +430,14 @@ class RicEntityController extends Controller
             abort(404);
         }
 
-        // API-3 migration: try the public API first.
-        $apiResult = $this->callRicApi('DELETE', "/api/ric/v1/{$type}/{$entity->id}");
-        if ($apiResult && ($apiResult['success'] ?? false)) {
-            return redirect()->route("ric.{$type}.browse")
-                ->with('success', ucfirst(rtrim($type, 's')) . ' deleted successfully.');
-        }
-
+        // #1392 — authorization is enforced by the route (admin + acl:delete).
+        // Mutate directly; no fail-open API-first/degrade-to-direct fallthrough.
         match ($type) {
             'places' => $this->service->deletePlace($entity->id),
             'rules' => $this->service->deleteRule($entity->id),
             'activities' => $this->service->deleteActivity($entity->id),
             'instantiations' => $this->service->deleteInstantiation($entity->id),
+            default => abort(404),
         };
 
         return redirect()->route("ric.{$type}.browse")

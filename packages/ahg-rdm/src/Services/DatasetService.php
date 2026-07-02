@@ -132,14 +132,34 @@ class DatasetService
     }
 
     /** All datasets (most recent first) for the index, with project + file count. */
-    public function list()
+    public function list(?int $userId = null, ?int $researcherId = null)
     {
-        return DB::table('rdm_dataset as d')
+        $q = DB::table('rdm_dataset as d')
             ->leftJoin('research_project as p', 'p.id', '=', 'd.project_id')
             ->leftJoin('rdm_dataset_file as f', 'f.dataset_id', '=', 'd.id')
             ->groupBy('d.id', 'd.title', 'd.status', 'd.created_at', 'p.title')
             ->orderByDesc('d.id')
-            ->select('d.id', 'd.title', 'd.status', 'd.created_at', 'p.title as project_title', DB::raw('COUNT(f.id) as file_count'))
-            ->get();
+            ->select('d.id', 'd.title', 'd.status', 'd.created_at', 'p.title as project_title', DB::raw('COUNT(f.id) as file_count'));
+
+        // #1393 — when a non-admin scope is supplied, restrict to datasets the
+        // user created or that belong to a project they own / collaborate on.
+        if ($userId !== null) {
+            $projectIds = [];
+            if ($researcherId) {
+                $owned = DB::table('research_project')->where('owner_id', $researcherId)->pluck('id')->all();
+                $collab = \Illuminate\Support\Facades\Schema::hasTable('research_project_collaborator')
+                    ? DB::table('research_project_collaborator')->where('researcher_id', $researcherId)->pluck('project_id')->all()
+                    : [];
+                $projectIds = array_values(array_unique(array_merge($owned, $collab)));
+            }
+            $q->where(function ($w) use ($userId, $projectIds) {
+                $w->where('d.created_by', $userId);
+                if (! empty($projectIds)) {
+                    $w->orWhereIn('d.project_id', $projectIds);
+                }
+            });
+        }
+
+        return $q->get();
     }
 }

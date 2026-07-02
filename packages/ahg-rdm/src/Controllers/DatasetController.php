@@ -28,10 +28,63 @@ class DatasetController extends Controller
     {
     }
 
+    /**
+     * #1393 — resolve a dataset the current user is authorised to act on: an
+     * admin, the dataset's creator, or the owner/collaborator of its research
+     * project. 404 if it doesn't exist, 403 if it isn't theirs. Fail-closed —
+     * every dataset write must go through this instead of a bare existence check.
+     */
+    private function authorizeDataset(int $id): object
+    {
+        $dataset = $this->service->get($id);
+        abort_unless($dataset, 404);
+
+        try {
+            if (\Illuminate\Support\Facades\Auth::check()
+                && \AhgCore\Services\AclService::canAdmin(\Illuminate\Support\Facades\Auth::id())) {
+                return $dataset;
+            }
+        } catch (\Throwable $e) {
+            // fall through to ownership checks
+        }
+
+        $userId = (int) (\Illuminate\Support\Facades\Auth::id() ?? 0);
+        if ($userId > 0 && (int) ($dataset->created_by ?? 0) === $userId) {
+            return $dataset;
+        }
+
+        $researcherId = (int) (DB::table('research_researcher')->where('user_id', $userId)->value('id') ?? 0);
+        if ($researcherId > 0 && ! empty($dataset->project_id)) {
+            $project = DB::table('research_project')->where('id', $dataset->project_id)->first();
+            if ($project && (int) ($project->owner_id ?? 0) === $researcherId) {
+                return $dataset;
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('research_project_collaborator')
+                && DB::table('research_project_collaborator')
+                    ->where('project_id', $dataset->project_id)
+                    ->where('researcher_id', $researcherId)->exists()) {
+                return $dataset;
+            }
+        }
+
+        abort(403, 'You do not have access to this dataset.');
+    }
+
     public function index()
     {
+        // #1393 — a researcher sees only their own datasets; admins see all.
+        $userId = (int) (\Illuminate\Support\Facades\Auth::id() ?? 0);
+        $isAdmin = false;
+        try {
+            $isAdmin = \Illuminate\Support\Facades\Auth::check()
+                && \AhgCore\Services\AclService::canAdmin($userId);
+        } catch (\Throwable $e) {
+            $isAdmin = false;
+        }
+        $researcherId = (int) (DB::table('research_researcher')->where('user_id', $userId)->value('id') ?? 0);
+
         return view('ahg-rdm::datasets.index', [
-            'datasets' => $this->service->list(),
+            'datasets' => $isAdmin ? $this->service->list() : $this->service->list($userId, $researcherId),
         ]);
     }
 
@@ -89,8 +142,7 @@ class DatasetController extends Controller
 
     public function show(int $id)
     {
-        $dataset = $this->service->get($id);
-        abort_unless($dataset, 404);
+        $dataset = $this->authorizeDataset($id); // #1393 ownership gate
 
         $statuses = DB::table('ahg_dropdown')
             ->where('taxonomy', 'dataset_status')
@@ -115,7 +167,7 @@ class DatasetController extends Controller
      */
     public function linkDmp(Request $request, int $id)
     {
-        abort_unless($this->service->get($id), 404);
+        $this->authorizeDataset($id); // #1393 ownership gate
         $svc = app(DmpLinkService::class);
 
         if (trim((string) $request->input('new_title')) !== '') {
@@ -148,7 +200,7 @@ class DatasetController extends Controller
     /** Detach the DMP from the dataset (the plan is left intact). */
     public function unlinkDmp(int $id)
     {
-        abort_unless($this->service->get($id), 404);
+        $this->authorizeDataset($id); // #1393 ownership gate
         app(DmpLinkService::class)->unlink($id);
 
         return redirect()->route('rdm.datasets.show', $id)->with('success', 'Data Management Plan unlinked.');
@@ -156,7 +208,7 @@ class DatasetController extends Controller
 
     public function resolveFinding(Request $request, int $id, int $fid)
     {
-        abort_unless($this->service->get($id), 404);
+        $this->authorizeDataset($id); // #1393 ownership gate
         $request->validate([
             'decision' => 'required|in:confirm,dismiss',
             'note'     => 'nullable|string|max:500',
@@ -173,7 +225,7 @@ class DatasetController extends Controller
 
     public function setDisposition(Request $request, int $id)
     {
-        abort_unless($this->service->get($id), 404);
+        $this->authorizeDataset($id); // #1393 ownership gate
         $request->validate([
             'disposition'   => 'required|in:restrict,embargo,de-identify,release',
             'embargo_until' => 'nullable|date',
@@ -202,8 +254,7 @@ class DatasetController extends Controller
     /** Public citable landing page (metadata + DOI citation + access status; no gated binaries). */
     public function landing(int $id)
     {
-        $dataset = $this->service->get($id);
-        abort_unless($dataset, 404);
+        $dataset = $this->authorizeDataset($id); // #1393 ownership gate
 
         $year = $dataset->created_at ? substr((string) $dataset->created_at, 0, 4) : date('Y');
 
@@ -218,7 +269,7 @@ class DatasetController extends Controller
 
     public function scan(int $id)
     {
-        abort_unless($this->service->get($id), 404);
+        $this->authorizeDataset($id); // #1393 ownership gate
 
         // Queue it: the deterministic pass is instant but NER hits the gateway
         // and can exceed request limits, so run off-thread. Mark 'scanning' now
@@ -234,7 +285,7 @@ class DatasetController extends Controller
 
     public function deposit(Request $request, int $id)
     {
-        abort_unless($this->service->get($id), 404);
+        $this->authorizeDataset($id); // #1393 ownership gate
 
         $request->validate([
             'files'   => 'required|array|min:1',
