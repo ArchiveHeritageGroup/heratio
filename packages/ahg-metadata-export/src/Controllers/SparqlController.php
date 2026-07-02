@@ -59,9 +59,10 @@ class SparqlController extends Controller
             return $this->errorJson('Missing or invalid ioId parameter. Full-corpus SPARQL is Phase 5.', 400);
         }
 
-        // #1384/#1389 — ICIP/TK + ODRL restrictions are absolute; never build a
-        // PROV-O graph for a restricted record, even for a bearer-token holder.
-        if (in_array($ioId, app(\AhgCore\Services\DisclosureGate::class)->restrictedIds(), true)) {
+        // #1391 — SPARQL previously had NO disclosure gate. Fail closed: only
+        // build a PROV-O graph for a publicly-disclosable record (published AND
+        // not ICIP/TK- or ODRL-restricted), even for a bearer-token holder.
+        if (! app(\AhgCore\Services\DisclosureGate::class)->allows($ioId)) {
             return $this->errorJson('Record not available.', 404);
         }
 

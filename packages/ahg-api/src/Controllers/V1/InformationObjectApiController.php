@@ -798,6 +798,17 @@ class InformationObjectApiController extends Controller
             return response()->json(['error' => 'Not found.'], 404);
         }
 
+        // #1391 — ICIP/TK + ODRL restricted records must not serve their master
+        // on this raw path, and a record with PII visual-redaction regions must
+        // never ship its ORIGINAL master (no redacted rendition exists here).
+        $gate = app(\AhgCore\Services\DisclosureGate::class);
+        if (in_array((int) $objectId, $gate->restrictedIds(), true)) {
+            return response()->json(['error' => 'Not found.'], 404);
+        }
+        if ($gate->hasRedactions((int) $objectId)) {
+            abort(403, 'Access to this file is restricted pending redaction.');
+        }
+
         $do = DB::table('digital_object')
             ->where('object_id', $objectId)
             ->where('usage_id', 166) // Master

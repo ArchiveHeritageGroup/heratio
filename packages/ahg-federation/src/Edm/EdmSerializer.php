@@ -85,6 +85,12 @@ class EdmSerializer
         $genres = $this->fetchAccessPoints($io, 78, $culture);
         $languages = $this->fetchLanguages($io, $culture);
         $digitals = $this->fetchDigitalObjects((int) $io->id);
+        // #1391 — a record with PII visual-redaction regions must not publish
+        // its raw master/reference file URLs (edm:isShownBy / thumbnail) to an
+        // external aggregator; drop the derivatives (metadata still exports).
+        if (app(\AhgCore\Services\DisclosureGate::class)->hasRedactions((int) $io->id)) {
+            $digitals = [];
+        }
         $ricPlaces = $this->fetchRicPlaces((int) $io->id, $culture);
 
         $dataProvider = $this->setting('europeana_data_provider', 'The Archive and Heritage Group');

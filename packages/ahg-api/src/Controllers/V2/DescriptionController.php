@@ -103,6 +103,13 @@ class DescriptionController extends BaseApiController
             ->where('ioi.culture', $this->culture)
             // #1384/#1389 — never resolve an ICIP/TK- or ODRL-restricted record
             ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
+            // #1391 — published only (v2 show previously had NO publication gate)
+            ->whereExists(function ($q) {
+                $q->select(DB::raw(1))->from('status')
+                    ->whereColumn('status.object_id', 'io.id')
+                    ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
+                    ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED);
+            })
             ->select('io.*', 'ioi.*', 'object.created_at', 'object.updated_at', 'slug.slug')
             ->first();
 

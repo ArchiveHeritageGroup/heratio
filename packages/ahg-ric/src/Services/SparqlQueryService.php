@@ -52,6 +52,7 @@ class SparqlQueryService
      */
     private function buildSearchQuery(string $term, ?string $type, int $limit, int $offset): string
     {
+        $term = $this->escapeSparqlLiteral($term); // #1394 — prevent SPARQL injection
         $typeFilter = '';
         if ($type) {
             $typeUri = $this->getTypeUri($type);
@@ -89,6 +90,7 @@ SPARQL;
      */
     public function getEntity(string $uri): ?array
     {
+        $uri = $this->escapeSparqlIri($uri); // #1394 — prevent SPARQL/IRI injection
         $sparql = <<<SPARQL
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -118,6 +120,7 @@ SPARQL;
      */
     public function getRelationships(string $uri, int $depth = 1): array
     {
+        $uri = $this->escapeSparqlIri($uri); // #1394 — prevent SPARQL/IRI injection
         $queries = [];
 
         // Outgoing relationships
@@ -158,6 +161,7 @@ SPARQL;
      */
     public function findRelated(string $uri): array
     {
+        $uri = $this->escapeSparqlIri($uri); // #1394 — prevent SPARQL/IRI injection
         $sparql = <<<SPARQL
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
 
@@ -211,6 +215,7 @@ SPARQL;
      */
     public function getTemporalData(string $uri): array
     {
+        $uri = $this->escapeSparqlIri($uri); // #1394 — prevent SPARQL/IRI injection
         $sparql = <<<SPARQL
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -232,6 +237,7 @@ SPARQL;
      */
     public function getHierarchy(string $uri): array
     {
+        $uri = $this->escapeSparqlIri($uri); // #1394 — prevent SPARQL/IRI injection
         $sparql = <<<SPARQL
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
 
@@ -352,6 +358,29 @@ SPARQL;
     /**
      * Get RIC-O type URI from type name
      */
+    /**
+     * #1394 — escape a value for safe inclusion in a SPARQL string literal
+     * ("..."): backslash, double-quote and the control chars that would close
+     * the literal or inject a newline. Mirrors FusekiSyncService's escaping.
+     */
+    private function escapeSparqlLiteral(string $s): string
+    {
+        $s = str_replace(['\\', '"'], ['\\\\', '\\"'], $s);
+
+        return strtr($s, ["\n" => '\\n', "\r" => '\\r', "\t" => '\\t']);
+    }
+
+    /**
+     * #1394 — sanitise a value used inside a SPARQL IRI ref (<...>). IRI refs
+     * may not contain < > " { } | ^ ` \\, spaces or control chars; strip them so
+     * a caller cannot break out of the angle brackets to inject triple patterns
+     * or a SERVICE clause (SSRF).
+     */
+    private function escapeSparqlIri(string $uri): string
+    {
+        return preg_replace('/[\x00-\x20<>"{}|\^`\\\\]/', '', $uri);
+    }
+
     private function getTypeUri(string $type): string
     {
         $types = [
