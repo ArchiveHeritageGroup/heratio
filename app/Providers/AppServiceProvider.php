@@ -104,7 +104,10 @@ class AppServiceProvider extends ServiceProvider
         // so an attacker who rotates IPs still hits the username throttle.
         RateLimiter::for('login', function (Request $request) {
             $ip = (string) $request->ip();
-            $username = (string) $request->input('username', '');
+            // #1395(E) — the login form posts 'email' (LoginController reads
+            // input('email')); the previous input('username') was always empty,
+            // collapsing the per-account limiter into one shared bucket.
+            $username = (string) $request->input('email', '');
 
             return [
                 Limit::perMinute(5)->by('login-ip:'.$ip),

@@ -183,6 +183,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/security-clearance/two-factor', [SecurityClearanceController::class, 'twoFactor'])
         ->name('security-clearance.two-factor');
     Route::post('/security-clearance/verify-2fa', [SecurityClearanceController::class, 'verifyTwoFactor'])
+        ->middleware('throttle:6,1') // #1395(E) — cap TOTP brute-force (6-digit code, was unthrottled)
         ->name('security-clearance.verify-2fa');
     Route::get('/security-clearance/setup-2fa', [SecurityClearanceController::class, 'setupTwoFactor'])
         ->name('security-clearance.setup-2fa');
