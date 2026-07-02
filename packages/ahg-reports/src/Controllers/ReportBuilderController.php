@@ -327,6 +327,9 @@ class ReportBuilderController extends Controller
         try {
             $queryDef = json_decode($report->query_definition ?? '{}', true);
             if (!empty($queryDef['table'])) {
+                if (! $this->isAllowedTable($queryDef['table'])) {
+                    abort(403, 'Table not permitted for reporting.');
+                }
                 $query = DB::table($queryDef['table']);
                 if (!empty($queryDef['columns'])) {
                     $query->select($queryDef['columns']);
@@ -357,7 +360,7 @@ class ReportBuilderController extends Controller
         }
 
         try {
-            if (!Schema::hasTable($table)) {
+            if (!$this->isAllowedTable($table) || !Schema::hasTable($table)) {
                 return response()->json(['success' => false, 'error' => 'Table not found']);
             }
             $columns = Schema::getColumnListing($table);
@@ -370,17 +373,28 @@ class ReportBuilderController extends Controller
     /**
      * API: Get available tables for query builder.
      */
+    /**
+     * #1384 — the ONLY tables the report builder may query / export / introspect.
+     * Enforced (via isAllowedTable) at every dynamic DB::table()/Schema site so
+     * an admin cannot pull `user` (password hashes) or anything off this list.
+     */
+    private const REPORT_TABLES = [
+        'information_object', 'information_object_i18n', 'actor', 'actor_i18n',
+        'accession', 'accession_i18n', 'repository', 'repository_i18n',
+        'donor', 'term', 'term_i18n', 'physical_object', 'physical_object_i18n',
+        'digital_object', 'event', 'relation', 'status', 'note', 'note_i18n',
+        'property', 'property_i18n', 'contact_information',
+    ];
+
+    /** #1384 — true only if $table is on the report-builder allow-list. */
+    private function isAllowedTable($table): bool
+    {
+        return is_string($table) && in_array($table, self::REPORT_TABLES, true);
+    }
+
     public function apiQueryTables(Request $request)
     {
-        $allowedTables = [
-            'information_object', 'information_object_i18n', 'actor', 'actor_i18n',
-            'accession', 'accession_i18n', 'repository', 'repository_i18n',
-            'donor', 'term', 'term_i18n', 'physical_object', 'physical_object_i18n',
-            'digital_object', 'event', 'relation', 'status', 'note', 'note_i18n',
-            'property', 'property_i18n', 'contact_information',
-        ];
-
-        return response()->json(['success' => true, 'tables' => $allowedTables]);
+        return response()->json(['success' => true, 'tables' => self::REPORT_TABLES]);
     }
 
     /**
@@ -398,8 +412,8 @@ class ReportBuilderController extends Controller
             return response()->json(['valid' => false, 'error' => 'Invalid query format - table required']);
         }
 
-        if (!Schema::hasTable($parsed['table'])) {
-            return response()->json(['valid' => false, 'error' => 'Table does not exist: ' . $parsed['table']]);
+        if (!$this->isAllowedTable($parsed['table']) || !Schema::hasTable($parsed['table'])) {
+            return response()->json(['valid' => false, 'error' => 'Table not permitted for reporting.']);
         }
 
         return response()->json(['valid' => true]);
@@ -415,6 +429,10 @@ class ReportBuilderController extends Controller
 
         if (!$parsed || !isset($parsed['table'])) {
             return response()->json(['success' => false, 'error' => 'Invalid query']);
+        }
+
+        if (! $this->isAllowedTable($parsed['table'])) {
+            return response()->json(['success' => false, 'error' => 'Table not permitted for reporting.'], 403);
         }
 
         try {
@@ -451,8 +469,8 @@ class ReportBuilderController extends Controller
     public function apiQueryColumns(Request $request)
     {
         $table = $request->input('table');
-        if (!$table || !Schema::hasTable($table)) {
-            return response()->json(['success' => false, 'error' => 'Table not found']);
+        if (!$this->isAllowedTable($table) || !Schema::hasTable($table)) {
+            return response()->json(['success' => false, 'error' => 'Table not permitted for reporting.']);
         }
 
         try {
@@ -549,6 +567,9 @@ class ReportBuilderController extends Controller
         $data = [];
         try {
             if (!empty($queryDef['table'])) {
+                if (! $this->isAllowedTable($queryDef['table'])) {
+                    abort(403, 'Table not permitted for reporting.');
+                }
                 $query = DB::table($queryDef['table']);
                 if (!empty($chartConfig['groupBy'])) {
                     $query->select(DB::raw($chartConfig['groupBy'] . ' as label, COUNT(*) as value'))
@@ -1293,6 +1314,9 @@ class ReportBuilderController extends Controller
         $data = [];
         try {
             if (!empty($queryDef['table'])) {
+                if (! $this->isAllowedTable($queryDef['table'])) {
+                    abort(403, 'Table not permitted for reporting.');
+                }
                 $query = DB::table($queryDef['table']);
                 if (!empty($queryDef['columns'])) {
                     $query->select($queryDef['columns']);
