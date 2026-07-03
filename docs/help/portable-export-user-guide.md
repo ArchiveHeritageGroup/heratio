@@ -12,13 +12,13 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
 ```
 +-------------------------------------------------------------+
 |                   PORTABLE EXPORT                            |
-|              ahgPortableExportPlugin v1.1.0                  |
+|              Heratio - Portable Export                        |
 +-------------------------------------------------------------+
 |                                                              |
 |  SERVER SIDE                                                 |
 |  +-------------------------------------------------------+  |
 |  |  Admin > AHG Settings > Portable Export                |  |
-|  |  or: php symfony portable:export --scope=all --zip     |  |
+|  |  Built by a queue worker after the wizard submits.    |  |
 |  +-------------------------------------------------------+  |
 |       |                                                      |
 |       v                                                      |
@@ -69,11 +69,15 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
 |                                    description page          |
 |  [Wizard]     Step-by-Step UI    - 4-step guided wizard for  |
 |                                    configuring exports       |
-|  [Retention]  Auto-Cleanup       - Automatic deletion of     |
-|                                    expired exports           |
+|  [Where]      Destinations       - ZIP, streamed Download    |
+|                                    (large), or Folder/drive  |
+|  [Secure]     Role + Gates       - Only exports what you may |
+|                                    see (ACL) + disclosure    |
+|  [Retention]  Expiry Dates       - Data-driven retention;    |
+|                                    delete from the admin page |
 |  [Settings]   Admin Settings     - Configurable defaults at  |
 |                                    Admin > AHG Settings      |
-|  [CLI]        Command Line       - Scriptable via CLI        |
+|  [Worker]     Queue Worker       - ahg:portable-export-worker|
 |  [Offline]    Zero Server        - Works from any filesystem |
 +-------------------------------------------------------------+
 ```
@@ -109,8 +113,8 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
       |       +---> Delete old exports
       |       +---> View expiry dates
       |
-      +---> CLI: php symfony portable:export
-      +---> CLI: php symfony portable:cleanup
+      +---> Worker: php artisan ahg:portable-export-worker
+      +---> (runs on the scheduler; --all-pending drains the queue)
 ```
 
 ### Quick Export from Description Pages
@@ -185,6 +189,35 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
 - **Thumbnails** — Small preview images (~150px wide) used in search results and tree navigation
 - **References** — Medium-sized images (~480-800px) used for on-screen viewing in the detail panel
 - **Masters** — Original full-resolution files as uploaded. These can be very large (10-50+ MB each for high-res scans/TIFFs). Only include if you need print-quality originals for offline use. Excluding masters is recommended for most use cases.
+
+### Destination — where the package goes
+
+The wizard also asks **where to write the export** — this is the answer to "a quick download" vs. "a collection too big for a ZIP":
+
+| Destination | What you get | Best for |
+|---|---|---|
+| **ZIP file** | A downloadable `.zip`, stored on the server and offered as a normal download. | Small–medium sets. |
+| **Download (large)** | The bundle is staged uncompressed on the server and **streamed to your browser as a ZIP on demand** — no 4 GB ZIP limit, and no second full copy is written to the server disk. It lands in your browser's Downloads folder. | Large collections you want **on your own PC / laptop**. |
+| **Folder / drive** | The uncompressed bundle is written **directly to a server-side directory or mounted drive** you specify (e.g. a USB / NAS path). No ZIP, no size cap. | Very large exports staged onto external storage. |
+
+For **Folder / drive** you enter the target path — it must already exist and be writable by the server. The ZIP **size cap** (`portable_export_max_size_mb`) applies to **ZIP** exports only; the other two destinations are for exports that deliberately exceed it. In the Past Exports table, a Folder/drive export shows an **"On drive"** badge with its path instead of a download button.
+
+### Security & permissions — you can only export what you may see
+
+Every portable export is **fail-closed** and gated on two levels, so a package can never carry content the operator (or the public) shouldn't have.
+
+**1. The operator's role (ACL) — you only export what *you* are permitted to see:**
+- No **Read Master** grant → **master files are excluded**, even if you ticked "Masters".
+- No **Read Reference** / **Read Thumbnail** grant → that derivative tier is excluded.
+- No **View Draft** grant → **unpublished / draft records are withheld**.
+
+**2. Public disclosure gates — regardless of who exports, records are withheld to honour:**
+- **Publication status** — draft / unpublished records are excluded by default.
+- **ICIP / TK cultural protocols** — culturally restricted records (and their descendant subtrees) are excluded.
+- **ODRL access policies** — records under a "use" prohibition are excluded.
+- **PII redaction** — records carrying redaction regions never ship their original files.
+
+Every package includes a **`data/disclosure-summary.json`** recording exactly what was withheld and why — counts by reason, plus `perm_masters` / `perm_references` / `perm_thumbnails` flags when a tier was dropped by your role, and `exported_by`. The admin list shows an **"N withheld"** badge on each export.
 
 ### Step 3: Configure — Title, Language, Branding
 ```
@@ -296,64 +329,48 @@ This button can be hidden via: Admin > AHG Settings > Portable Export > "Show ex
 
 ---
 
-## Creating an Export (CLI)
+## Command Line (worker & queue)
 
-### Basic Commands
+Heratio does **not** create exports from the command line — exports are created through the **web wizard** (or the quick / clipboard exports), which queues a job in the `portable_export` table. A background **worker** then builds the package. It runs automatically on the scheduler and can also be invoked by hand.
+
+### Running the worker
 ```bash
-# Export entire catalogue as ZIP
-php symfony portable:export --scope=all --zip --output=/tmp/catalogue.zip
+# Process the next pending export (FIFO)
+sudo -u www-data php artisan ahg:portable-export-worker
 
-# Export a specific fonds
-php symfony portable:export --scope=fonds --slug=example-fonds
+# Process one specific queued export by its id
+sudo -u www-data php artisan ahg:portable-export-worker --id=42
 
-# Export by repository
-php symfony portable:export --scope=repository --repository-id=5
-
-# Export with edit mode enabled
-php symfony portable:export --scope=all --mode=editable
-
-# Metadata only (no digital objects)
-php symfony portable:export --scope=all --no-objects
-
-# Include master files (large!)
-php symfony portable:export --scope=all --include-masters
-
-# Custom title and language
-php symfony portable:export --scope=all --title="My Collection" --culture=af
+# Drain every pending export in one run
+sudo -u www-data php artisan ahg:portable-export-worker --all-pending
 ```
 
-### CLI Options
+The scheduler runs `ahg:portable-export-worker --all-pending` automatically (registered in the package's service provider), so a queued export is normally picked up within a minute — no manual step is needed. Run the command by hand only to process immediately or to reprocess a job. Run artisan as `www-data` so the generated files stay writable by the server.
+
+### Worker options
 ```
-+-------------------+--------------------------------------------------+
-| Option            | Description                                      |
-+-------------------+--------------------------------------------------+
-| --scope           | all, fonds, repository, or custom                |
-| --slug            | Fonds/description slug (scope=fonds)             |
-| --repository-id   | Repository ID (scope=repository)                 |
-| --mode            | read_only (default) or editable                  |
-| --culture         | Language code: en, fr, af, pt (default: en)      |
-| --title           | Export title (default: Portable Catalogue)        |
-| --output          | Output path (directory or .zip)                  |
-| --zip             | Create ZIP archive                               |
-| --no-objects      | Skip digital objects (metadata only)             |
-| --no-thumbnails   | Skip thumbnail images                            |
-| --no-references   | Skip reference images                            |
-| --include-masters | Include original master files                    |
-| --export-id       | Process an existing export job by ID             |
-+-------------------+--------------------------------------------------+
++----------------+-----------------------------------------------------+
+| Option         | Description                                         |
++----------------+-----------------------------------------------------+
+| --id=N         | Process only the queued export with portable_export |
+|                | .id = N (else the next pending one, FIFO).          |
+| --all-pending  | Drain every pending export in this run.             |
++----------------+-----------------------------------------------------+
 ```
 
-### Cleanup Command
-```bash
-# Delete expired exports
-php symfony portable:cleanup
+Everything about *what* an export contains — scope, mode, destination, which
+derivative tiers, title, culture, branding — is chosen in the wizard and stored
+on the queued row; the worker just builds what was requested (subject to the
+security gates described below).
 
-# Preview what would be deleted (no actual deletion)
-php symfony portable:cleanup --dry-run
-
-# Override retention period (delete exports older than N days)
-php symfony portable:cleanup --older-than=7
-```
+### Retention & cleanup
+Completed exports carry an **`expires_at`** date, driven by the
+`portable_export_retention_days` setting (default **30 days**). Any export can
+be deleted immediately from the **Portable Export** admin page (trash icon),
+which also removes its ZIP file. There is no separate cleanup command —
+retention is data-driven; prune expired packages per your policy. (Note: a
+**Folder / drive** export leaves its files on the target drive after the DB
+record is deleted — that folder is your deliverable to manage.)
 
 ---
 
@@ -502,20 +519,9 @@ Exports are automatically assigned an expiry date based on the retention period 
 
 ### Automatic Cleanup
 
-Run the cleanup command periodically (e.g., via cron) to delete expired exports:
+Retention is **data-driven**: each completed export stores an `expires_at`, and the "Expires" column flags when it is eligible for removal. Delete exports as they expire from the **Portable Export** admin page (trash icon) — that removes the ZIP file and the database record together. There is no separate `portable:cleanup` command; if you want automatic pruning, add a small scheduled job that deletes rows whose `expires_at` has passed (and unlinks their `output_path`) per your policy.
 
-```bash
-# Add to crontab — runs daily at 2am
-0 2 * * * cd /usr/share/nginx/archive && php symfony portable:cleanup >> /var/log/portable-cleanup.log 2>&1
-```
-
-The cleanup task:
-1. Finds exports where `expires_at` has passed
-2. Finds completed/failed exports older than the retention period
-3. Deletes the ZIP file, output directory, and database records
-4. Logs what was deleted
-
-Use `--dry-run` to preview without deleting.
+> A **Folder / drive** export leaves its files on the target drive even after the database record is deleted — that folder is the deliverable you asked Heratio to write, so managing/removing it is up to you.
 
 ---
 
@@ -620,8 +626,8 @@ Use `--dry-run` to preview without deleting.
 |  TIP: Share links expire after 7 days by default.            |
 |  Set a longer expiry for permanent sharing.                  |
 +-------------------------------------------------------------+
-|  TIP: Set up portable:cleanup as a daily cron job to         |
-|  automatically remove expired exports and save disk space.   |
+|  TIP: Delete expired exports from the admin page as they     |
+|  pass their expiry to reclaim disk space (retention-driven). |
 +-------------------------------------------------------------+
 |  TIP: Use the clipboard export for targeted deliveries —     |
 |  add specific items to clipboard, then export as portable.   |
