@@ -212,6 +212,11 @@ class BundleWorkerCommand extends Command
         @file_put_contents($workDir.'/data/disclosure-summary.json',
             json_encode($disclosure, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
+        // Human-readable guide shipped in the bundle root so a recipient who
+        // opens the folder/zip knows what it is, how to view it, and what was
+        // (and was not) included. Carries the AHG attribution + copyright.
+        $this->writeReadme($workDir, $row, $stats, $disclosure);
+
         if (in_array($row->mode, ['read_only', 'editable'], true)) {
             $this->emitViewer($workDir, $row, $stats);
         }
@@ -342,6 +347,113 @@ class BundleWorkerCommand extends Command
         }
 
         return $ioQ->pluck('id')->all();
+    }
+
+    /**
+     * Write a plain-text README/user guide into the bundle root. Explains the
+     * layout, how to open it, and what the disclosure gates withheld. Carries
+     * the AHG attribution (https://theahg.co.za) + copyright line.
+     */
+    private function writeReadme(string $workDir, object $row, array $stats, array $disclosure): void
+    {
+        $year = now()->year;
+        $title = trim((string) ($row->title ?? '')) ?: 'Untitled export';
+        $mode = (string) ($row->mode ?? 'read_only');
+        $hasViewer = in_array($mode, ['read_only', 'editable'], true);
+        $gen = now()->toDayDateTimeString();
+
+        $descriptions = (int) ($stats['descriptions'] ?? 0);
+        $objects = (int) ($stats['digital_objects'] ?? 0);
+        $actors = (int) ($stats['actors'] ?? 0);
+        $repos = (int) ($stats['repositories'] ?? 0);
+
+        $w = $disclosure['withheld'] ?? [];
+        $withheldLines = [];
+        foreach ([
+            'redacted_objects'   => 'digital objects withheld for PII redaction',
+            'unpublished'        => 'unpublished / draft records withheld',
+            'icip'               => 'records withheld under ICIP / cultural (TK) protocols',
+            'odrl'               => 'records withheld under ODRL access policies',
+            'perm_masters'       => 'master (full-resolution) files withheld — exporter lacks the read grant',
+            'perm_references'    => 'reference derivatives withheld — exporter lacks the read grant',
+            'perm_thumbnails'    => 'thumbnails withheld — exporter lacks the read grant',
+        ] as $k => $label) {
+            $n = (int) ($w[$k] ?? 0);
+            if ($n > 0) {
+                $withheldLines[] = sprintf('  - %d %s', $n, $label);
+            }
+        }
+        $withheldBlock = $withheldLines
+            ? "The following were deliberately excluded (see data/disclosure-summary.json):\n".implode("\n", $withheldLines)
+            : "Nothing was withheld by the disclosure gates for this export.";
+
+        $viewerBlock = $hasViewer
+            ? "1. Open  index.html  in any modern web browser (double-click it). No\n"
+              ."   internet connection, server, or install is required — the viewer and\n"
+              ."   all data travel inside this bundle.\n"
+              ."2. Browse the archival descriptions, authority records and digital\n"
+              ."   objects offline.\n"
+            : "This is a DATA-ONLY export (no offline viewer was generated for this\n"
+              ."mode). Open the JSON files under  data/  with any text editor or import\n"
+              ."them into your own system.\n";
+
+        $readme = <<<TXT
+================================================================================
+ {$title}
+ Portable archival export
+================================================================================
+
+Generated : {$gen}
+Contents  : {$descriptions} archival description(s), {$objects} digital object(s),
+            {$actors} authority record(s), {$repos} repository record(s).
+
+--------------------------------------------------------------------------------
+ HOW TO OPEN THIS PACKAGE
+--------------------------------------------------------------------------------
+{$viewerBlock}
+--------------------------------------------------------------------------------
+ WHAT IS INSIDE
+--------------------------------------------------------------------------------
+  index.html ............. Self-contained offline viewer (when present).
+  data/ .................. Machine-readable exports:
+      ios.json ........... Archival descriptions.
+      actors.json ........ Authority records (people, organisations, families).
+      repositories.json .. Holding repositories.
+      digital_objects.json Digital object metadata.
+      manifest.json ...... Export manifest (scope, counts, versions).
+      disclosure-summary.json  What was included / withheld and why.
+  assets/ ................ Exported image / media files (where permitted).
+
+--------------------------------------------------------------------------------
+ SECURITY & PERMISSIONS
+--------------------------------------------------------------------------------
+This package contains ONLY what the exporting user was permitted to see. Access
+is enforced two ways: (1) the exporter's own role / ACL — derivative tiers and
+draft records they cannot read are dropped; and (2) the public disclosure gates
+— publication status, ICIP/TK cultural protocols, ODRL access policies, and PII
+redaction.
+
+{$withheldBlock}
+
+Handle this package in line with the access conditions of the originating
+repository. Redistribution may be restricted by cultural protocols, donor
+agreements, or copyright.
+
+--------------------------------------------------------------------------------
+ ABOUT
+--------------------------------------------------------------------------------
+Generated by Heratio, an archival & heritage management platform by
+The Archive & Heritage Group.
+
+  Website : https://theahg.co.za
+
+Copyright (C) {$year} The Archive & Heritage Group. All rights reserved.
+Exported metadata and digital objects remain the property of their respective
+rights holders and originating repositories.
+================================================================================
+TXT;
+
+        @file_put_contents($workDir.'/README.txt', $readme);
     }
 
     /**

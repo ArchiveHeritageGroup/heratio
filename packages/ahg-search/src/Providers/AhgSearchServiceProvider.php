@@ -53,6 +53,12 @@ class AhgSearchServiceProvider extends ServiceProvider
             if (! Schema::hasTable('ahg_search_query_log')) {
                 $sql = file_get_contents(__DIR__.'/../../database/install.sql');
                 if ($sql !== false) {
+                    // Strip full-line `--` comments BEFORE splitting on `;`.
+                    // A `;` inside a comment (e.g. "…not logged in; used so we
+                    // can count") otherwise splits the comment and the trailing
+                    // fragment gets executed as bogus SQL (1064 syntax error),
+                    // which aborts the whole install.sql on first boot / CI.
+                    $sql = preg_replace('/^\s*--.*$/m', '', $sql);
                     foreach (array_filter(array_map('trim', explode(';', $sql))) as $stmt) {
                         if ($stmt === '' || str_starts_with($stmt, '--')) {
                             continue;

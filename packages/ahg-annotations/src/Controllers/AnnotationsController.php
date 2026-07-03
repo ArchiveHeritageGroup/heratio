@@ -706,7 +706,10 @@ class AnnotationsController extends Controller
             $path = $iri;
         }
 
-        if (! preg_match('#/iiif-manifest/([^/?#]+)#', $path, $m)) {
+        // NB: delimiter is ~ (not #) — the pattern's char class contains a
+        // literal '#', which would otherwise be read as the closing delimiter
+        // and throw "preg_match(): Unknown modifier ']'" (500 on anon search).
+        if (! preg_match('~/iiif-manifest/([^/?#]+)~', $path, $m)) {
             return null;
         }
 

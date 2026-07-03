@@ -529,6 +529,8 @@ Retention is **data-driven**: each completed export stores an `expires_at`, and 
 ```
   portable-export.zip
   |
+  +-- README.txt              <- Start here: what this is, how to open it,
+  |                              what was withheld, AHG attribution + copyright
   +-- index.html              <- Open this in a browser
   +-- assets/
   |   +-- css/viewer.css

@@ -26,9 +26,15 @@ class InformationObjectApiTest extends TestCase
 
         // Authenticate so ApiAuthenticate (api.auth) grants full scopes; the
         // write endpoints return 401 without a logged-in user or an API key.
-        $user = \Illuminate\Support\Facades\DB::table('users')->first();
+        // #1395/CI — act as a REAL administrator (from the AtoM `user` table + the
+        // administrator ACL group) so ApiAuthenticate grants write scopes; a plain
+        // authenticated user is read-only by design after the #1395 hardening.
+        $uid = \Illuminate\Support\Facades\DB::table('acl_user_group')
+            ->where('group_id', \AhgCore\Models\AclGroup::ADMINISTRATOR_ID)
+            ->value('user_id')
+            ?? (\Illuminate\Support\Facades\DB::table('user')->value('id') ?? 1);
         $model = new \App\Models\User();
-        $model->id = $user->id ?? 1;
+        $model->id = $uid;
         $this->actingAs($model);
     }
 

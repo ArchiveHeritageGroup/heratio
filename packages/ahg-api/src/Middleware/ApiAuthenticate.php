@@ -24,10 +24,26 @@ class ApiAuthenticate
             $request->attributes->set('api_key_id', null);
             $request->attributes->set('api_user_id', $userId);
 
-            $isAdmin = $userId && \AhgCore\Services\AclService::canAdmin($userId);
-            $request->attributes->set('api_scopes', $isAdmin
-                ? ['read', 'write', 'delete', 'batch', 'publish:write']
-                : ['read']);
+            // #1395(A) — grant API scopes by the user's ACL capability, not by the
+            // mere fact of being logged in. A self-registered researcher (no
+            // create grant) is read-only; contributors/editors who may catalogue
+            // get write (and delete/publish where their role allows); admins get
+            // everything. Prevents unauthorised CRUD via the api routes.
+            $u = (object) ['id' => $userId];
+            $scopes = ['read'];
+            if (\AhgCore\Services\AclService::check(null, ['create', 'update'], $u)) {
+                $scopes[] = 'write';
+            }
+            if (\AhgCore\Services\AclService::check(null, 'delete', $u)) {
+                $scopes[] = 'delete';
+            }
+            if (\AhgCore\Services\AclService::check(null, 'publish', $u)) {
+                $scopes[] = 'publish:write';
+            }
+            if ($userId && \AhgCore\Services\AclService::canAdmin($userId)) {
+                $scopes[] = 'batch';
+            }
+            $request->attributes->set('api_scopes', $scopes);
 
             return $this->checkScopes($request, $next, $requiredScopes);
         }
