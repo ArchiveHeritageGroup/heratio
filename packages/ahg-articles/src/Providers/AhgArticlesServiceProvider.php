@@ -55,6 +55,7 @@ class AhgArticlesServiceProvider extends ServiceProvider
                 $router->put('/comments/{id}/status', [BlogAdminController::class, 'commentStatus'])->where('id', '[0-9]+')->name('comments.status');
                 $router->delete('/comments/{id}', [BlogAdminController::class, 'commentDestroy'])->where('id', '[0-9]+')->name('comments.destroy');
                 $router->post('/{id}/attachments', [BlogAdminController::class, 'storeAttachment'])->where('id', '[0-9]+')->name('attachments.store');
+                $router->put('/{id}/attachments/{attachmentId}', [BlogAdminController::class, 'updateAttachment'])->where('id', '[0-9]+')->where('attachmentId', '[0-9]+')->name('attachments.update');
                 $router->delete('/{id}/attachments/{attachmentId}', [BlogAdminController::class, 'destroyAttachment'])->where('id', '[0-9]+')->where('attachmentId', '[0-9]+')->name('attachments.destroy');
                 $router->get('/{id}/edit', [BlogAdminController::class, 'edit'])->where('id', '[0-9]+')->name('edit');
                 $router->put('/{id}', [BlogAdminController::class, 'update'])->where('id', '[0-9]+')->name('update');

@@ -240,7 +240,11 @@ class BlogService
         $name = Str::random(24) . '.' . $ext;
         $file->storeAs('blog-files', $name, 'public');
 
-        $kind = ($meta['kind'] ?? 'guide') === 'template' ? 'template' : 'guide';
+        // Store the kind as chosen (already validated against the
+        // blog_attachment_kind taxonomy in the controller). Historically this
+        // collapsed everything to guide/template, which silently rewrote
+        // presentation/report/policy/etc. to "guide".
+        $kind = $meta['kind'] ?? 'guide';
 
         return (int) DB::table('blog_attachment')->insertGetId([
             'blog_post_id' => $postId,
@@ -261,6 +265,47 @@ class BlogService
     public function findAttachment(int $id): ?object
     {
         return DB::table('blog_attachment')->where('id', $id)->first() ?: null;
+    }
+
+    /**
+     * Update an attachment's metadata (kind/title/description/sort_order) and,
+     * when a replacement file is supplied, swap the stored file too (old blob
+     * removed). Returns false if the attachment does not exist.
+     */
+    public function updateAttachment(int $id, array $meta, ?UploadedFile $file = null): bool
+    {
+        $row = $this->findAttachment($id);
+        if (! $row) {
+            return false;
+        }
+
+        $fields = [
+            'kind'        => $meta['kind'] ?? $row->kind,
+            'description' => $meta['description'] ?? null,
+            'sort_order'  => (int) ($meta['sort_order'] ?? $row->sort_order),
+            'updated_at'  => now(),
+        ];
+
+        if ($file) {
+            $ext  = strtolower($file->getClientOriginalExtension() ?: 'bin');
+            $name = Str::random(24) . '.' . $ext;
+            $file->storeAs('blog-files', $name, 'public');
+            if ($row->file_path && Storage::disk('public')->exists($row->file_path)) {
+                Storage::disk('public')->delete($row->file_path);
+            }
+            $fields['file_path'] = 'blog-files/' . $name;
+            $fields['file_name'] = $file->getClientOriginalName();
+            $fields['mime']      = $file->getClientMimeType();
+            $fields['file_size'] = $file->getSize() ?: 0;
+        }
+
+        // Title falls back to the (possibly new) file name when cleared.
+        $title = $meta['title'] ?? '';
+        $fields['title'] = $title !== ''
+            ? $title
+            : ($fields['file_name'] ?? $row->file_name);
+
+        return DB::table('blog_attachment')->where('id', $id)->update($fields) >= 0;
     }
 
     /** Delete a child attachment + its stored file. */

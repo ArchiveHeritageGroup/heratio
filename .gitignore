@@ -104,3 +104,5 @@ docs/READVERTISEMENT*.pdf
 
 # Scratch / working files (patches, debug scripts, audit dumps)
 tmp/
+.env.bak-*
+.env.bak

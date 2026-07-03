@@ -199,23 +199,12 @@ class BlogAdminController extends Controller
             abort(404);
         }
 
-        $rules = 'required|file|mimes:' . implode(',', BlogService::ATTACHMENT_EXTENSIONS)
-            . '|max:' . BlogService::ATTACHMENT_MAX_KB;
-
-        // Accept any active kind from the blog_attachment_kind taxonomy (managed
-        // at /admin/dropdowns), mirroring the form's <select>. Falls back to the
-        // legacy guide/template pair when the taxonomy has no active rows.
-        $kinds = $this->attachmentKinds()->pluck('code')->all();
-        if (empty($kinds)) {
-            $kinds = ['guide', 'template'];
-        }
-
         $data = $request->validate([
-            'kind'        => 'required|in:' . implode(',', $kinds),
+            'kind'        => 'required|in:' . implode(',', $this->attachmentKindCodes()),
             'title'       => 'nullable|string|max:255',
             'description' => 'nullable|string|max:500',
             'sort_order'  => 'nullable|integer|min:0',
-            'file'        => $rules,
+            'file'        => $this->attachmentFileRule(true),
         ]);
 
         $this->blog->addAttachment($id, $request->file('file'), [
@@ -228,6 +217,71 @@ class BlogAdminController extends Controller
 
         return redirect()->route('admin.articles.edit', $id)
             ->with('success', __('Attachment uploaded.'));
+    }
+
+    /** Update an attachment's metadata + optionally replace its file. */
+    public function updateAttachment(Request $request, int $id, int $attachmentId)
+    {
+        $this->guard();
+        $att = $this->blog->findAttachment($attachmentId);
+        if (! $att || (int) $att->blog_post_id !== $id) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'kind'        => 'required|in:' . implode(',', $this->attachmentKindCodes()),
+            'title'       => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'sort_order'  => 'nullable|integer|min:0',
+            'file'        => $this->attachmentFileRule(false),
+        ]);
+
+        $this->blog->updateAttachment($attachmentId, [
+            'kind'        => $data['kind'],
+            'title'       => $data['title'] ?? '',
+            'description' => $data['description'] ?? null,
+            'sort_order'  => $data['sort_order'] ?? 0,
+        ], $request->file('file'));
+
+        return redirect()->route('admin.articles.edit', $id)
+            ->with('success', __('Attachment updated.'));
+    }
+
+    /**
+     * Allowed attachment "kind" codes from the blog_attachment_kind taxonomy,
+     * falling back to the legacy guide/template pair when the taxonomy is empty.
+     */
+    private function attachmentKindCodes(): array
+    {
+        $kinds = $this->attachmentKinds()->pluck('code')->all();
+
+        return empty($kinds) ? ['guide', 'template'] : $kinds;
+    }
+
+    /**
+     * File validation rule. Validates by the file's own extension against the
+     * allow-list rather than content-sniffing (mimes:) - OOXML office files
+     * (pptx/docx/xlsx) are zip containers that PHP fileinfo often reports as
+     * application/zip or application/octet-stream, which made mimes: reject
+     * perfectly valid uploads. No app-level size cap - the real ceiling is PHP
+     * upload_max_filesize / nginx client_max_body_size.
+     */
+    private function attachmentFileRule(bool $required): array
+    {
+        $exts = BlogService::ATTACHMENT_EXTENSIONS;
+
+        return [
+            $required ? 'required' : 'nullable',
+            'file',
+            function (string $attr, $value, callable $fail) use ($exts) {
+                $ext = strtolower($value->getClientOriginalExtension());
+                if (! in_array($ext, $exts, true)) {
+                    $fail(__('The file must be a file of type: :types.', [
+                        'types' => implode(', ', $exts),
+                    ]));
+                }
+            },
+        ];
     }
 
     /** Remove a child attachment + its stored file. */

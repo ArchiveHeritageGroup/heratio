@@ -9,4 +9,5 @@ INSERT IGNORE INTO `ahg_dropdown`
   ('blog_attachment_kind', 'Article Attachment Type', 'content', 'report',       'Report',                50, 0, 1, NOW(), NOW()),
   ('blog_attachment_kind', 'Article Attachment Type', 'content', 'dataset',      'Dataset',               60, 0, 1, NOW(), NOW()),
   ('blog_attachment_kind', 'Article Attachment Type', 'content', 'presentation', 'Presentation',          70, 0, 1, NOW(), NOW()),
-  ('blog_attachment_kind', 'Article Attachment Type', 'content', 'policy',       'Policy',                80, 0, 1, NOW(), NOW());
+  ('blog_attachment_kind', 'Article Attachment Type', 'content', 'policy',       'Policy',                80, 0, 1, NOW(), NOW()),
+  ('blog_attachment_kind', 'Article Attachment Type', 'content', 'conference_paper', 'Conference Paper',  90, 0, 1, NOW(), NOW());

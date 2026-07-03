@@ -141,10 +141,11 @@
                                     <td class="text-muted small">{{ $att->description }}</td>
                                     <td><a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($att->file_path) }}" target="_blank" rel="noopener"><i class="fas fa-download me-1"></i>{{ $att->file_name }}</a></td>
                                     <td class="text-end text-muted small">{{ number_format($att->file_size / 1024, 0) }} KB</td>
-                                    <td class="text-end">
+                                    <td class="text-end text-nowrap">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#attEdit{{ $att->id }}" title="{{ __('Edit') }}"><i class="fas fa-pen"></i></button>
                                         <form method="POST" action="{{ route('admin.articles.attachments.destroy', [$article->id, $att->id]) }}" onsubmit="return confirm('{{ __('Remove this attachment?') }}');" class="d-inline">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove') }}"><i class="fas fa-trash"></i></button>
                                         </form>
                                     </td>
                                 </tr>
@@ -152,6 +153,55 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Per-attachment edit modals (Update side of CRUD). --}}
+                    @foreach($attachments as $att)
+                        <div class="modal fade" id="attEdit{{ $att->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <form method="POST" action="{{ route('admin.articles.attachments.update', [$article->id, $att->id]) }}" enctype="multipart/form-data" class="modal-content">
+                                    @csrf @method('PUT')
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">{{ __('Edit attachment') }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ __('Type') }}</label>
+                                            <select name="kind" class="form-select">
+                                                @forelse(($attachmentKinds ?? collect()) as $k)
+                                                    <option value="{{ $k->code }}" @selected($att->kind === $k->code)>{{ __($k->label) }}</option>
+                                                @empty
+                                                    <option value="guide" @selected($att->kind === 'guide')>{{ __('Guide') }}</option>
+                                                    <option value="template" @selected($att->kind === 'template')>{{ __('Template') }}</option>
+                                                @endforelse
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ __('Title') }}</label>
+                                            <input type="text" name="title" class="form-control" value="{{ $att->title }}" maxlength="255">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ __('Description') }}</label>
+                                            <input type="text" name="description" class="form-control" value="{{ $att->description }}" maxlength="500">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ __('Sort order') }}</label>
+                                            <input type="number" name="sort_order" class="form-control" value="{{ $att->sort_order }}" min="0">
+                                        </div>
+                                        <div class="mb-1">
+                                            <label class="form-label">{{ __('Replace file') }} <span class="text-muted">({{ __('optional') }})</span></label>
+                                            <input type="file" name="file" class="form-control">
+                                            <div class="form-text">{{ __('Current file:') }} {{ $att->file_name }}. {{ __('Leave blank to keep it.') }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                                        <button type="submit" class="btn btn-primary">{{ __('Save changes') }}</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
                 @else
                     <p class="text-muted">{{ __('No guides or templates attached yet.') }}</p>
                 @endif
@@ -186,7 +236,7 @@
                         <button type="submit" class="btn btn-primary w-100"><i class="fas fa-upload"></i></button>
                     </div>
                     <div class="col-12">
-                        <div class="form-text">{{ __('PDF, Word, Excel, PowerPoint, OpenDocument, CSV, TXT or ZIP. Up to 20 MB.') }}</div>
+                        <div class="form-text">{{ __('PDF, Word, Excel, PowerPoint, OpenDocument, CSV, TXT or ZIP.') }}</div>
                     </div>
                 </form>
             </div>
