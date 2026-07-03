@@ -22,6 +22,7 @@
     </div>
     @if($isOwner)
     <div class="d-flex gap-2">
+        @include('research::research._take-offline-button', ['source' => 'project', 'id' => $project->id])
         <a href="{{ route('research.viewProject', $project->id) }}?action=edit" class="btn btn-outline-primary btn-sm">
             <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
         </a>

@@ -67,6 +67,11 @@
       </div>
     @endif
 
+    {{-- Take offline (per folder) --}}
+    @if(!empty($params['folder_id']))
+      @include('research::research._take-offline-button', ['source' => 'favorites', 'id' => $params['folder_id']])
+    @endif
+
     {{-- Import --}}
     <button class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#importModal">
       <i class="fas fa-upload me-1"></i>{{ __('Import') }}

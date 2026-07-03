@@ -137,6 +137,16 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
       +---> Redirects to /portable-export when started
 ```
 
+### Researchers: Work Offline
+
+Researchers do not use this admin page. Instead, they take one of their own
+**Projects, Collections, Workspaces or Favourites folders** offline with a
+**Take offline** button on that group, then manage the packages under
+**Research → Work Offline**. Those packages are *editable*: the researcher can add
+notes, sources, metadata suggestions and files offline and **Save for sync** to
+bring the work back. See the **Researcher Portal User Guide → Work Offline** for
+the full round-trip.
+
 ---
 
 ## Creating an Export (Web UI - 4-Step Wizard)

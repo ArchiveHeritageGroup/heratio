@@ -268,7 +268,7 @@ class AhgResearchServiceProvider extends ServiceProvider
             'research-memory', 'analysis-bridge', 'field-alerts', 'contradiction-engine',
             'replication-pack', 'project-export', 'ai-disclosure', 'time-machine', 'impact-tracking',
             'grant-engine', 'writing-studio', 'dmp-builder', 'research-outputs', 'research-ethics',
-            'research-funding', 'research-team', 'research-milestones',
+            'research-funding', 'research-team', 'research-milestones', 'research-offline',
         ] as $rosRoute) {
             \Illuminate\Support\Facades\Route::group([], __DIR__ . '/../../routes/' . $rosRoute . '.php');
         }

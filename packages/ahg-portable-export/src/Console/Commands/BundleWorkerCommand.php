@@ -397,6 +397,13 @@ class BundleWorkerCommand extends Command
               ."mode). Open the JSON files under  data/  with any text editor or import\n"
               ."them into your own system.\n";
 
+        $editableBlock = ($mode === 'editable')
+            ? "\nThis is an EDITABLE research package. You can add notes, sources,\n"
+              ."metadata suggestions and files to any record while offline, then use\n"
+              ."\"Save for sync\" to bring your work back into Heratio. Full step-by-step\n"
+              ."instructions are in  USER-MANUAL.txt  in this folder.\n"
+            : "";
+
         $readme = <<<TXT
 ================================================================================
  {$title}
@@ -410,7 +417,7 @@ Contents  : {$descriptions} archival description(s), {$objects} digital object(s
 --------------------------------------------------------------------------------
  HOW TO OPEN THIS PACKAGE
 --------------------------------------------------------------------------------
-{$viewerBlock}
+{$viewerBlock}{$editableBlock}
 --------------------------------------------------------------------------------
  WHAT IS INSIDE
 --------------------------------------------------------------------------------
@@ -454,6 +461,105 @@ rights holders and originating repositories.
 TXT;
 
         @file_put_contents($workDir.'/README.txt', $readme);
+
+        if ($mode === 'editable') {
+            $this->writeUserManual($workDir, $row);
+        }
+    }
+
+    /**
+     * Write the researcher user manual into an editable package. Explains the
+     * full offline-work → Save for sync round trip in plain language.
+     */
+    private function writeUserManual(string $workDir, object $row): void
+    {
+        $title = trim((string) ($row->title ?? '')) ?: 'Research package';
+        $year = now()->year;
+
+        $manual = <<<TXT
+================================================================================
+ {$title}
+ OFFLINE RESEARCH — USER MANUAL
+================================================================================
+
+This package is a complete, self-contained copy of your selected records that
+runs in a web browser with NO internet, server or install. You can read and
+ANNOTATE it anywhere — on a laptop, a USB stick, or in the field — and then
+bring your work back into Heratio.
+
+--------------------------------------------------------------------------------
+ 1. OPENING THE PACKAGE
+--------------------------------------------------------------------------------
+  * Double-click  index.html . It opens in your default browser (Chrome, Edge,
+    Firefox or Safari — a recent version).
+  * To use it from a USB stick or CD, copy this WHOLE folder and keep every file
+    and sub-folder together.
+  * Pick a record from the list on the left to see its full details and images.
+
+--------------------------------------------------------------------------------
+ 2. WORKING OFFLINE — WHAT YOU CAN ADD
+--------------------------------------------------------------------------------
+Open any record. Below its details you will find "Your offline work on this
+record" with four tabs:
+
+  NOTES        Free-text research notes about the record. Click "Save note".
+
+  SOURCES      References and citations you want to attach — title, author,
+               year and a URL or shelf reference. Click "Add source".
+
+  SUGGESTIONS  Proposed corrections or additions to the record's metadata.
+               Give the field name (e.g. Title, Dates, Scope and content) and
+               your suggested text, then "Add suggestion". These are proposals —
+               a curator reviews them before anything changes in the catalogue.
+
+  FILES        Photos or documents you gather offline (e.g. field-work images).
+               Choose files to attach them to the record. Keep them small — they
+               are stored inside your browser and embedded in the sync file.
+
+Everything you add is saved automatically in THIS browser on THIS computer. The
+counter in the bar at the bottom shows how many changes you have.
+
+--------------------------------------------------------------------------------
+ 3. SAVING YOUR WORK FOR SYNC
+--------------------------------------------------------------------------------
+When you are finished (and back where you can reach Heratio):
+
+  1. Click  "Save for sync"  in the bar at the bottom of the viewer.
+  2. Your browser downloads a file named  researcher-sync-<number>.json .
+     This holds all your notes, sources, suggestions and files.
+  3. Keep that file — you will upload it in the next step.
+
+  * "Clear" wipes all your offline changes in this package. Use with care.
+  * Work in ONE browser on ONE computer per package, so all your changes end up
+    in the same sync file.
+
+--------------------------------------------------------------------------------
+ 4. BRINGING YOUR WORK BACK INTO HERATIO
+--------------------------------------------------------------------------------
+  1. Log in to Heratio and go to  Research  >  Work Offline .
+  2. Choose your package and upload the  researcher-sync-<number>.json  file.
+  3. Heratio checks the file belongs to you and this package, then applies your
+     work: notes and sources are added to your research, files go to your
+     workspace, and metadata suggestions are queued for a curator to review.
+
+--------------------------------------------------------------------------------
+ GOOD TO KNOW
+--------------------------------------------------------------------------------
+  * This package only contains records you are permitted to see. Restricted,
+    embargoed or unpublished records are automatically left out.
+  * Your offline changes never alter the live catalogue directly — they come
+    back as YOUR contributions and (for metadata) as suggestions for review.
+  * Handle the package in line with the access conditions of the originating
+    repository; redistribution may be restricted.
+
+================================================================================
+ Heratio — archival & heritage management by The Archive & Heritage Group
+ https://theahg.co.za
+ Copyright (C) {$year} The Archive & Heritage Group. All rights reserved.
+================================================================================
+TXT;
+
+        @file_put_contents($workDir.'/USER-MANUAL.txt', $manual);
     }
 
     /**
@@ -642,6 +748,16 @@ TXT;
         $countLine = sprintf('%d descriptions, %d actors, %d repositories, %d digital objects',
             $stats['descriptions'], $stats['actors'], $stats['repositories'], $stats['digital_objects']);
 
+        // Sync identity — lets the offline editable viewer produce a
+        // researcher-sync.json the online app can verify + consume (Phase 2/3).
+        $syncCfg = json_encode([
+            'package_id' => (int) $row->id,
+            'sync_token' => (string) ($row->sync_token ?? ''),
+            'group_source' => (string) ($row->group_source ?? ''),
+            'group_ref' => (int) ($row->group_ref ?? 0),
+            'title' => (string) $row->title,
+        ], JSON_UNESCAPED_SLASHES);
+
         $html = <<<HTML
 <!doctype html>
 <html lang="en">
@@ -679,6 +795,28 @@ main{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 8rem)}
 .notes .save{margin-top:.4rem;padding:.4rem 1rem;background:#58a;color:#fff;border:0;border-radius:.25rem;cursor:pointer}
 footer{background:#234;color:#fff;padding:.6rem 1.25rem;font-size:.8rem;opacity:.85}
 .empty{padding:2rem;color:#888;font-style:italic}
+/* Editable capture panel + sync */
+.cap{margin-top:1.5rem;border-top:2px solid #e3e3e3;padding-top:1rem}
+.cap h3{font-size:1rem;color:#234;margin:.2rem 0 .5rem}
+.cap .tabs{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.6rem}
+.cap .tabs button{border:1px solid #ccd;background:#fff;padding:.3rem .7rem;border-radius:1rem;cursor:pointer;font-size:.82rem;color:#456}
+.cap .tabs button.on{background:#58a;color:#fff;border-color:#58a}
+.cap .pane{display:none}
+.cap .pane.on{display:block}
+.cap textarea,.cap input,.cap select{width:100%;padding:.4rem .5rem;border:1px solid #ccc;border-radius:.25rem;font-family:inherit;font-size:.88rem;margin-bottom:.4rem}
+.cap textarea{min-height:110px}
+.cap .row2{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.cap .btn{padding:.35rem .8rem;background:#58a;color:#fff;border:0;border-radius:.25rem;cursor:pointer;font-size:.85rem}
+.cap .btn.ghost{background:#eef;color:#345}
+.cap .entry{background:#f6f8fa;border:1px solid #e2e6ea;border-radius:.25rem;padding:.45rem .6rem;margin-bottom:.35rem;font-size:.84rem;display:flex;justify-content:space-between;gap:.5rem}
+.cap .entry .x{cursor:pointer;color:#a33;font-weight:700}
+.savedflag{color:#2a7;font-size:.8rem;margin-left:.5rem}
+.syncbar{position:sticky;bottom:0;background:#1f2a37;color:#fff;display:flex;align-items:center;gap:1rem;padding:.6rem 1.25rem;border-top:2px solid #58a;flex-wrap:wrap}
+.syncbar .grow{flex:1;font-size:.85rem;opacity:.9}
+.syncbar button{padding:.45rem 1rem;border:0;border-radius:.25rem;cursor:pointer;font-weight:600}
+.syncbar .save{background:#3a8;color:#fff}
+.syncbar .reset{background:#556;color:#fff}
+.syncbar .count{background:#2c3a4a;padding:.2rem .55rem;border-radius:1rem;font-size:.78rem}
 </style>
 </head>
 <body>
@@ -696,10 +834,17 @@ footer{background:#234;color:#fff;padding:.6rem 1.25rem;font-size:.8rem;opacity:
     <div class="empty">Select a description from the list to view it here.</div>
   </section>
 </main>
+<div class="syncbar" id="syncbar" style="display:none">
+  <span class="grow"><strong>Working offline.</strong> Your notes, sources, suggestions and files are saved in this browser. When back online, click <em>Save for sync</em> and upload the file in Heratio under Research &rsaquo; Work Offline.</span>
+  <span class="count" id="synccount">0 changes</span>
+  <button class="reset" id="syncreset" type="button">Clear</button>
+  <button class="save" id="syncsave" type="button">Save for sync</button>
+</div>
 <footer>{$bFooter}</footer>
 <script>
 (function(){
   var EDITABLE = {$editable};
+  var SYNC = {$syncCfg};
   var ios = [], dos = [], actors = [], repos = [];
   var byId = {};
   var listEl = document.getElementById('ios');
@@ -768,23 +913,170 @@ footer{background:#234;color:#fff;padding:.6rem 1.25rem;font-size:.8rem;opacity:
       ['Physical characteristics', io.physical_characteristics],
     ].filter(function(p){return p[1]});
     var dl = '<dl>' + fields.map(function(p){return '<dt>' + esc(p[0]) + '</dt><dd>' + esc(p[1]) + '</dd>';}).join('') + '</dl>';
-    var notes = '';
-    if (EDITABLE) {
-      var saved = localStorage.getItem('heratio-pe-note-' + id) || '';
-      notes = '<div class="notes"><h3>Local notes</h3><textarea id="note">' + esc(saved) + '</textarea><button class="save" id="save-note">Save (this device only)</button></div>';
-    }
+    var cap = EDITABLE ? capturePanel(io) : '';
     detailEl.innerHTML = '<h2>' + esc(io.title || '(untitled)') + '</h2>'
       + (io.identifier ? '<div class="ident">' + esc(io.identifier) + '</div>' : '')
       + (imgHtml ? '<div class="images">' + imgHtml + '</div>' : '')
       + dl
-      + notes;
-    if (EDITABLE) {
-      document.getElementById('save-note').addEventListener('click', function(){
-        localStorage.setItem('heratio-pe-note-' + id, document.getElementById('note').value);
-        this.textContent = 'Saved'; setTimeout(function(){ document.getElementById('save-note').textContent = 'Save (this device only)'; }, 1500);
-      });
-    }
+      + cap;
+    if (EDITABLE) wireCapture(io);
   }
+
+  // ---------- Offline capture (editable mode) ----------
+  var PFX = 'hsync:' + (SYNC.package_id || 0) + ':';
+  function kNote(id){ return PFX + 'note:' + id; }
+  function kSrc(id){ return PFX + 'src:' + id; }
+  function kSug(id){ return PFX + 'sug:' + id; }
+  function kFile(id){ return PFX + 'file:' + id; }
+  function getArr(k){ try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch(e){ return []; } }
+  function setArr(k,v){ if(v.length){ localStorage.setItem(k, JSON.stringify(v)); } else { localStorage.removeItem(k); } updateCount(); }
+
+  function capturePanel(io){
+    var id = io.id;
+    var note = localStorage.getItem(kNote(id)) || '';
+    var srcs = getArr(kSrc(id)), sugs = getArr(kSug(id)), files = getArr(kFile(id));
+    return '<div class="cap">'
+      + '<h3>Your offline work on this record</h3>'
+      + '<div class="tabs">'
+        + '<button data-t="notes" class="on" type="button">Notes</button>'
+        + '<button data-t="src" type="button">Sources (' + srcs.length + ')</button>'
+        + '<button data-t="sug" type="button">Suggestions (' + sugs.length + ')</button>'
+        + '<button data-t="file" type="button">Files (' + files.length + ')</button>'
+      + '</div>'
+      + '<div class="pane on" data-p="notes">'
+        + '<textarea id="c-note" placeholder="Your research notes on this record">' + esc(note) + '</textarea>'
+        + '<button class="btn" id="c-note-save" type="button">Save note</button><span class="savedflag" id="c-note-flag"></span>'
+      + '</div>'
+      + '<div class="pane" data-p="src">'
+        + '<div class="row2"><input id="c-src-title" placeholder="Source title"><input id="c-src-author" placeholder="Author"></div>'
+        + '<div class="row2"><input id="c-src-year" placeholder="Year"><input id="c-src-url" placeholder="URL / reference"></div>'
+        + '<button class="btn" id="c-src-add" type="button">Add source</button>'
+        + '<div id="c-src-list" style="margin-top:.5rem">' + renderEntries(srcs, srcLabel, 'src') + '</div>'
+      + '</div>'
+      + '<div class="pane" data-p="sug">'
+        + '<input id="c-sug-field" placeholder="Field (e.g. Title, Dates, Scope and content)">'
+        + '<textarea id="c-sug-text" style="min-height:70px" placeholder="Your suggested correction or addition"></textarea>'
+        + '<button class="btn" id="c-sug-add" type="button">Add suggestion</button>'
+        + '<div id="c-sug-list" style="margin-top:.5rem">' + renderEntries(sugs, sugLabel, 'sug') + '</div>'
+      + '</div>'
+      + '<div class="pane" data-p="file">'
+        + '<input type="file" id="c-file-input" multiple>'
+        + '<div style="font-size:.78rem;color:#888;margin:.3rem 0 .4rem">Attached files are stored in this browser and embedded when you Save for sync. Keep them small.</div>'
+        + '<div id="c-file-list">' + renderEntries(files, fileLabel, 'file') + '</div>'
+      + '</div>'
+      + '</div>';
+  }
+  function srcLabel(s){ return esc((s.title || '(untitled source)') + (s.author ? ' — ' + s.author : '') + (s.year ? ' (' + s.year + ')' : '')); }
+  function sugLabel(s){ return esc((s.field || '?') + ': ' + (s.text || '')); }
+  function fileLabel(f){ return esc(f.name + ' (' + Math.round((f.size || 0) / 1024) + ' KB)'); }
+  function renderEntries(arr, labeller, kind){
+    if (!arr.length) return '<div style="font-size:.8rem;color:#999">None yet.</div>';
+    return arr.map(function(e,i){ return '<div class="entry"><span>' + labeller(e) + '</span><span class="x" data-kind="' + kind + '" data-i="' + i + '">&times;</span></div>'; }).join('');
+  }
+
+  function wireCapture(io){
+    var id = io.id;
+    detailEl.querySelectorAll('.cap .tabs button').forEach(function(b){
+      b.addEventListener('click', function(){
+        detailEl.querySelectorAll('.cap .tabs button').forEach(function(x){ x.classList.remove('on'); });
+        detailEl.querySelectorAll('.cap .pane').forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+        var p = detailEl.querySelector('.cap .pane[data-p="' + b.dataset.t + '"]'); if (p) p.classList.add('on');
+      });
+    });
+    detailEl.querySelector('#c-note-save').addEventListener('click', function(){
+      var v = detailEl.querySelector('#c-note').value;
+      if (v.trim()) { localStorage.setItem(kNote(id), v); } else { localStorage.removeItem(kNote(id)); }
+      updateCount();
+      detailEl.querySelector('#c-note-flag').textContent = 'Saved';
+      setTimeout(function(){ var f = detailEl.querySelector('#c-note-flag'); if (f) f.textContent = ''; }, 1500);
+    });
+    detailEl.querySelector('#c-src-add').addEventListener('click', function(){
+      var t = detailEl.querySelector('#c-src-title').value.trim();
+      if (!t) return;
+      var arr = getArr(kSrc(id));
+      arr.push({ title: t, author: detailEl.querySelector('#c-src-author').value.trim(), year: detailEl.querySelector('#c-src-year').value.trim(), url: detailEl.querySelector('#c-src-url').value.trim() });
+      setArr(kSrc(id), arr); show(id);
+    });
+    detailEl.querySelector('#c-sug-add').addEventListener('click', function(){
+      var field = detailEl.querySelector('#c-sug-field').value.trim();
+      var text = detailEl.querySelector('#c-sug-text').value.trim();
+      if (!field || !text) return;
+      var arr = getArr(kSug(id)); arr.push({ field: field, text: text }); setArr(kSug(id), arr); show(id);
+    });
+    detailEl.querySelector('#c-file-input').addEventListener('change', function(){
+      var fl = this.files; if (!fl || !fl.length) return;
+      var arr = getArr(kFile(id)); var pending = fl.length;
+      Array.prototype.forEach.call(fl, function(file){
+        var reader = new FileReader();
+        reader.onload = function(){
+          arr.push({ name: file.name, type: file.type, size: file.size, data: reader.result });
+          pending--; if (pending === 0) { setArr(kFile(id), arr); show(id); }
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+    detailEl.querySelectorAll('.cap .entry .x').forEach(function(x){
+      x.addEventListener('click', function(){
+        var kind = x.dataset.kind, i = parseInt(x.dataset.i, 10);
+        var key = kind === 'src' ? kSrc(id) : (kind === 'sug' ? kSug(id) : kFile(id));
+        var arr = getArr(key); arr.splice(i, 1); setArr(key, arr); show(id);
+      });
+    });
+  }
+
+  function collectChanges(){
+    var out = { notes: [], sources: [], metadata_suggestions: [], files: [] };
+    for (var i = 0; i < localStorage.length; i++){
+      var k = localStorage.key(i);
+      if (k.indexOf(PFX) !== 0) continue;
+      var parts = k.substring(PFX.length).split(':');
+      var kind = parts[0], ioId = parseInt(parts[1], 10);
+      var io = byId[ioId] || {}, slug = io.slug || '';
+      if (kind === 'note') { var t = localStorage.getItem(k) || ''; if (t.trim()) out.notes.push({ io_id: ioId, slug: slug, text: t }); }
+      else if (kind === 'src') { getArr(k).forEach(function(s){ out.sources.push(Object.assign({ io_id: ioId, slug: slug }, s)); }); }
+      else if (kind === 'sug') { getArr(k).forEach(function(s){ out.metadata_suggestions.push(Object.assign({ io_id: ioId, slug: slug }, s)); }); }
+      else if (kind === 'file') { getArr(k).forEach(function(f){ out.files.push(Object.assign({ io_id: ioId, slug: slug }, f)); }); }
+    }
+    return out;
+  }
+  function countChanges(c){ return c.notes.length + c.sources.length + c.metadata_suggestions.length + c.files.length; }
+  function updateCount(){
+    var el = document.getElementById('synccount'); if (!el) return;
+    var n = countChanges(collectChanges()); el.textContent = n + (n === 1 ? ' change' : ' changes');
+  }
+
+  function initSync(){
+    if (!EDITABLE) return;
+    var bar = document.getElementById('syncbar'); if (bar) bar.style.display = 'flex';
+    updateCount();
+    var save = document.getElementById('syncsave');
+    if (save) save.addEventListener('click', function(){
+      var changes = collectChanges();
+      if (countChanges(changes) === 0) { alert('You have no offline changes to save yet.'); return; }
+      var payload = {
+        heratio_sync: 1,
+        package_id: SYNC.package_id, sync_token: SYNC.sync_token,
+        group_source: SYNC.group_source, group_ref: SYNC.group_ref,
+        title: SYNC.title, generated_at: new Date().toISOString(),
+        changes: changes
+      };
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'researcher-sync-' + (SYNC.package_id || 0) + '.json';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+    var reset = document.getElementById('syncreset');
+    if (reset) reset.addEventListener('click', function(){
+      if (!confirm('Clear all your offline changes in this package? This cannot be undone.')) return;
+      var keys = [];
+      for (var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if (k.indexOf(PFX) === 0) keys.push(k); }
+      keys.forEach(function(k){ localStorage.removeItem(k); });
+      updateCount(); if (current) show(current);
+    });
+  }
+  initSync();
 })();
 </script>
 </body>

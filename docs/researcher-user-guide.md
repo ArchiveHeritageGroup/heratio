@@ -180,6 +180,54 @@ Create formatted finding aids for your research.
 
 ---
 
+### 6. 💻 Work Offline (Offline Research Packages)
+
+Take a group of records with you and keep researching where there is no
+internet — on a laptop, a USB stick, or in the field — then bring your work back
+into Heratio.
+
+#### Taking a group offline
+
+Open one of your **Projects**, **Collections**, **Workspaces** or **Favourites
+folders** and click **Take offline**. Heratio builds a self-contained package of
+that group's records and lists it under **Research → Work Offline**, where you can
+download it once it is ready.
+
+> Packages only ever contain records you are permitted to see. Restricted,
+> embargoed or unpublished records are automatically withheld — you will see a
+> "withheld" note when that happens.
+
+#### Working offline
+
+Unzip (or copy) the package and open **index.html** in any modern browser — no
+internet, server or install needed. Pick a record and, under **"Your offline work
+on this record"**, you can:
+
+| Tab | What it captures |
+|-----|------------------|
+| **Notes** | Free-text research notes on the record |
+| **Sources** | References/citations (title, author, year, URL) |
+| **Suggestions** | Proposed corrections/additions to the record's metadata (reviewed by a curator before anything changes) |
+| **Files** | Photos or documents you gather offline (e.g. field-work images) |
+
+Everything is saved automatically in that browser. The bar at the bottom shows how
+many changes you have. Full instructions ship inside every package as
+**USER-MANUAL.txt**.
+
+#### Bringing your work back ("Save for sync")
+
+1. Click **Save for sync** in the bottom bar → your browser downloads a
+   `researcher-sync-<number>.json` file containing all your notes, sources,
+   suggestions and files.
+2. Back online, go to **Research → Work Offline**, choose your package and upload
+   that file.
+3. Heratio verifies it belongs to you and this package, then applies your work:
+   notes and sources join your research, files go to your workspace, and metadata
+   suggestions are queued for a curator to review. Your offline edits never change
+   the live catalogue directly.
+
+---
+
 ## Researcher Dashboard
 
 Your central hub for all research activities:

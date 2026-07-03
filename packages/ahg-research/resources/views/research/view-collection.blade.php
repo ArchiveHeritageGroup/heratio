@@ -26,6 +26,7 @@
         <li><a class="dropdown-item" href="{{ url('/research/generateFindingAid?id=' . $collection->id) }}"><i class="fas fa-file-code me-2 text-secondary"></i>HTML</a></li>
       </ul>
     </div>
+    @include('research::research._take-offline-button', ['source' => 'collection', 'id' => $collection->id])
     <button type="button" class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editCollectionModal"><i class="fas fa-edit me-1"></i>{{ __('Edit') }}</button>
     <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCollectionModal"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</button>
   </div>

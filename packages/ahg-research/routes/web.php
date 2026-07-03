@@ -285,6 +285,9 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     // Mobile / PWA + offline sync
     Route::get('/mobile',       [ResearchMobileController::class, 'mobileHome'])->name('mobileHome');
     Route::post('/sync/offline', [ResearchMobileController::class, 'offlineSync'])->name('offlineSync');
+    // Work Offline: build a package from selected groups + bring work back
+    Route::post('/mobile/build',       [ResearchMobileController::class, 'buildOfflinePackage'])->name('buildOfflinePackage');
+    Route::post('/mobile/sync-upload', [ResearchMobileController::class, 'syncUpload'])->name('syncUpload');
 
     // ORCID integration
     Route::get('/orcid',           [ResearchOrcidController::class, 'orcidLink'])->name('orcid');

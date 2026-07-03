@@ -67,6 +67,10 @@
        class="list-group-item list-group-item-action {{ $active === 'collections' ? 'active' : '' }}">
         <i class="fas fa-layer-group me-2"></i>{{ __('Evidence Sets') }}
     </a>
+    <a href="{{ route('research.mobileHome') }}"
+       class="list-group-item list-group-item-action {{ $active === 'offline' ? 'active' : '' }}">
+        <i class="fas fa-laptop me-2"></i>{{ __('Work Offline') }}
+    </a>
     @if($atLeast(2))
     <a href="{{ route('research.journal') }}"
        class="list-group-item list-group-item-action {{ $active === 'journal' ? 'active' : '' }}">
