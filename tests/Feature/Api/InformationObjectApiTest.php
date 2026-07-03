@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use Database\Factories\ActorFactory;
 use Database\Factories\InformationObjectFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\Concerns\MintsApiAdmin;
 use Tests\TestCase;
 
 /**
@@ -15,6 +16,7 @@ use Tests\TestCase;
 class InformationObjectApiTest extends TestCase
 {
     use DatabaseTransactions;
+    use MintsApiAdmin;
 
     protected function setUp(): void
     {
@@ -24,18 +26,11 @@ class InformationObjectApiTest extends TestCase
             $this->markTestSkipped('API routes not yet implemented');
         }
 
-        // Authenticate so ApiAuthenticate (api.auth) grants full scopes; the
-        // write endpoints return 401 without a logged-in user or an API key.
-        // #1395/CI — act as a REAL administrator (from the AtoM `user` table + the
-        // administrator ACL group) so ApiAuthenticate grants write scopes; a plain
-        // authenticated user is read-only by design after the #1395 hardening.
-        $uid = \Illuminate\Support\Facades\DB::table('acl_user_group')
-            ->where('group_id', \AhgCore\Models\AclGroup::ADMINISTRATOR_ID)
-            ->value('user_id')
-            ?? (\Illuminate\Support\Facades\DB::table('user')->value('id') ?? 1);
-        $model = new \App\Models\User();
-        $model->id = $uid;
-        $this->actingAs($model);
+        // #1395/CI — act as a REAL administrator minted through the CTI chain
+        // (object -> actor -> user -> acl_user_group). A plain authenticated
+        // user is read-only by design after the #1395(A) hardening, and CI's
+        // fresh test DB seeds no admin to look up, so we create one.
+        $this->actingAs($this->mintApiAdmin());
     }
 
     // ========================================================================

@@ -171,6 +171,44 @@ return Application::configure(basePath: dirname(__DIR__))
             return false; // Continue to default Laravel logging as well
         });
 
+        // heratio — a stale CSRF token (the session expired past the configured
+        // security_session_timeout, or a login form was left open too long)
+        // throws TokenMismatchException, which Laravel renders as a dead-end
+        // "419 Page Expired" screen. Instead of stranding the user there, send
+        // them somewhere useful: if their session is still alive (token stale
+        // only) bounce them back to the form they were on; otherwise the session
+        // itself expired, so return them to a fresh login page. Either path
+        // re-issues a valid CSRF token so they can simply try again. API/XHR
+        // callers still get a JSON 419.
+        // NOTE: Laravel's Handler::prepareException() converts the original
+        // TokenMismatchException into a 419 HttpException *before* render
+        // callbacks run, so we match on the 419 status (the CSRF exception is
+        // preserved as the HttpException's previous) rather than the original type.
+        $exceptions->render(function (HttpExceptionInterface $e, Request $request) {
+            if ($e->getStatusCode() !== 419) {
+                return null; // not a CSRF/session-expiry 419 — let other handlers run
+            }
+
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'error' => 'Page Expired',
+                    'message' => 'Your session expired. Please refresh and try again.',
+                ], 419);
+            }
+
+            if (Auth::check()) {
+                return redirect()->back()
+                    ->withInput($request->except(['_token', 'password', 'password_confirmation']))
+                    ->with('warning', __('Your session was refreshed for security. Please try again.'));
+            }
+
+            $target = \Illuminate\Support\Facades\Route::has('login') ? route('login') : '/login';
+
+            return redirect()->to($target)
+                ->withInput($request->except(['_token', 'password', 'password_confirmation']))
+                ->with('warning', __('Your session expired for security reasons. Please sign in again.'));
+        });
+
         // Return JSON error responses for API routes
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
