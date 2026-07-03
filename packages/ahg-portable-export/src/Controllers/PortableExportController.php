@@ -148,6 +148,13 @@ class PortableExportController extends Controller
             abort(404, 'Export file not found');
         }
 
+        // Folder-destination exports are an uncompressed directory on a drive —
+        // there is nothing to stream; point the operator at the path instead.
+        if (is_dir($export->output_path)) {
+            return redirect()->route('portable-export.index')
+                ->with('info', 'This export was written to a folder on the server: '.$export->output_path);
+        }
+
         return response()->download($export->output_path);
     }
 
@@ -185,8 +192,27 @@ class PortableExportController extends Controller
         // estimate so a runaway scope (e.g. 'all' on a 200k-IO install) can't
         // queue a multi-hour export that fills the disk. The estimator is the
         // same heuristic apiEstimate uses; honest limit, not a hard guarantee.
+        // Export destination: 'zip' (downloadable ZIP) or 'folder' (dump the
+        // uncompressed bundle straight to an operator-chosen directory / mounted
+        // drive — for collections too large for a ZIP). Admin-only surface, but
+        // the folder path is still validated as an existing writable directory.
+        $destination = in_array(($data['destination'] ?? 'zip'), ['zip', 'folder'], true)
+            ? $data['destination'] : 'zip';
+        $destinationPath = null;
+        if ($destination === 'folder') {
+            $destinationPath = rtrim(trim((string) ($data['destination_path'] ?? '')), '/');
+            if ($destinationPath === '' || ! is_dir($destinationPath) || ! is_writable($destinationPath)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Folder destination needs an existing, writable directory on the server (e.g. a mounted drive).',
+                ], 422);
+            }
+        }
+
+        // The pre-build size cap applies to ZIP exports only — folder dumps are
+        // for collections that deliberately exceed the ZIP-friendly size.
         $maxMb = (int) $this->setting('portable_export_max_size_mb', 2048);
-        if ($maxMb > 0) {
+        if ($destination === 'zip' && $maxMb > 0) {
             $estMb = $this->estimateBundleSizeMb($scope, (int) ($data['repository_id'] ?? 0), $data['scope_slug'] ?? null);
             if ($estMb > $maxMb) {
                 return response()->json([
@@ -225,6 +251,8 @@ class PortableExportController extends Controller
             'scope_slug' => $data['scope_slug'] ?? null,
             'scope_items' => $scopeItems !== null ? json_encode($scopeItems) : null,
             'mode' => $mode,
+            'destination' => $destination,
+            'destination_path' => $destinationPath,
             'culture' => $culture,
             'include_masters' => $includeMasters,
             'include_thumbnails' => $includeThumbnails,

@@ -132,6 +132,30 @@
             </div>
           </div>
 
+          {{-- Export destination: ZIP file or uncompressed dump to a folder/drive --}}
+          <div class="row mb-4">
+            <div class="col-md-8">
+              <label class="form-label fw-bold">{{ __('Destination') }}</label>
+              <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="destination" id="dest-zip" value="zip" checked>
+                <label class="btn btn-outline-primary" for="dest-zip">
+                  <i class="fas fa-file-zipper me-1"></i>{{ __('ZIP file') }}
+                  <br><small class="fw-normal">{{ __('Downloadable archive') }}</small>
+                </label>
+                <input type="radio" class="btn-check" name="destination" id="dest-folder" value="folder">
+                <label class="btn btn-outline-primary" for="dest-folder">
+                  <i class="fas fa-folder-open me-1"></i>{{ __('Folder / drive') }}
+                  <br><small class="fw-normal">{{ __('Uncompressed dump — for large collections') }}</small>
+                </label>
+              </div>
+              <div id="destination-path-wrap" class="mt-2" style="display:none;">
+                <label for="destination_path" class="form-label small mb-1">{{ __('Target folder on the server (e.g. a mounted drive)') }}</label>
+                <input type="text" class="form-control" id="destination_path" name="destination_path" placeholder="/mnt/usb-drive/heratio-export">
+                <div class="form-text">{{ __('The bundle is written straight to this directory — it must already exist and be writable by the server. No ZIP, no size cap.') }}</div>
+              </div>
+            </div>
+          </div>
+
           {{-- Archive entity types --}}
           <div id="archive-entity-types" style="display:none;" class="mb-4">
             <label class="form-label fw-bold">{{ __('Entity Types to Export') }}</label>
@@ -424,12 +448,19 @@
                 </td>
                 <td>
                   @if($exp->status === 'completed')
-                    <a href="{{ route('portable-export.download') }}?id={{ $exp->id }}" class="btn btn-sm btn-success" title="{{ __('Download') }}">
-                      <i class="fas fa-download"></i>
-                    </a>
-                    <button class="btn btn-sm btn-outline-primary btn-share-token" data-id="{{ $exp->id }}" title="{{ __('Share Link') }}">
-                      <i class="fas fa-link"></i>
-                    </button>
+                    @if(($exp->destination ?? 'zip') === 'folder')
+                      <span class="badge bg-info text-dark" title="{{ $exp->output_path }}">
+                        <i class="fas fa-folder-open me-1"></i>{{ __('On drive') }}
+                      </span>
+                      <div class="small text-muted text-truncate" style="max-width:240px;" title="{{ $exp->output_path }}">{{ $exp->output_path }}</div>
+                    @else
+                      <a href="{{ route('portable-export.download') }}?id={{ $exp->id }}" class="btn btn-sm btn-success" title="{{ __('Download') }}">
+                        <i class="fas fa-download"></i>
+                      </a>
+                      <button class="btn btn-sm btn-outline-primary btn-share-token" data-id="{{ $exp->id }}" title="{{ __('Share Link') }}">
+                        <i class="fas fa-link"></i>
+                      </button>
+                    @endif
                   @endif
                   <button class="btn btn-sm btn-outline-danger btn-delete-export" data-id="{{ $exp->id }}" title="{{ __('Delete') }}">
                     <i class="fas fa-trash"></i>
@@ -552,6 +583,14 @@
     var c = document.querySelector('input[name="mode"]:checked');
     return c ? c.value : 'read_only';
   }
+
+  // ─── Destination toggle (ZIP vs folder/drive) ─────────────────
+  var destPathWrap = document.getElementById('destination-path-wrap');
+  document.querySelectorAll('input[name="destination"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      if (destPathWrap) destPathWrap.style.display = (this.value === 'folder') ? '' : 'none';
+    });
+  });
 
   // ─── Estimate ─────────────────────────────────────────────────
   var btnEstimate = document.getElementById('btn-estimate');

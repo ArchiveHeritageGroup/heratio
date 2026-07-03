@@ -29,6 +29,7 @@
                         <th>{{ __('Group') }}</th>
                         <th>{{ __('Status') }}</th>
                         <th class="text-end">{{ __('Reads') }}</th>
+                        <th class="text-center">{{ __('Keep on reset') }}</th>
                         <th>{{ __('Published') }}</th>
                         <th class="text-end">{{ __('Actions') }}</th>
                     </tr>
@@ -48,6 +49,17 @@
                                 <span class="badge bg-{{ $a->status === 'published' ? 'success' : 'secondary' }}">{{ ucfirst($a->status) }}</span>
                             </td>
                             <td class="text-end">{{ number_format($a->view_count ?? 0) }}</td>
+                            <td class="text-center">
+                                @php($kept = (bool) ($a->protect_from_reset ?? false))
+                                <form method="POST" action="{{ route('admin.articles.protect', $a->id) }}" class="d-inline">
+                                    @csrf @method('PUT')
+                                    <button class="btn btn-sm {{ $kept ? 'btn-success' : 'btn-outline-secondary' }}"
+                                            title="{{ $kept ? __('Kept across the nightly reset - click to release') : __('Reset each night - click to keep') }}">
+                                        <i class="fas {{ $kept ? 'fa-shield-alt' : 'fa-shield' }}"></i>
+                                        {{ $kept ? __('Kept') : __('Reset') }}
+                                    </button>
+                                </form>
+                            </td>
                             <td>{{ $a->published_at ? \Carbon\Carbon::parse($a->published_at)->format('d M Y') : '—' }}</td>
                             <td class="text-end">
                                 @if($a->status === 'published')
@@ -62,7 +74,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="text-muted text-center py-3">{{ __('No articles yet.') }}</td></tr>
+                        <tr><td colspan="7" class="text-muted text-center py-3">{{ __('No articles yet.') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `blog_post` (
   `article_group` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'draft',
   `view_count` int unsigned NOT NULL DEFAULT '0',
+  `protect_from_reset` tinyint(1) NOT NULL DEFAULT '0',
   `published_at` datetime DEFAULT NULL,
   `created_by` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,

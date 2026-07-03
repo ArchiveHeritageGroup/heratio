@@ -17,6 +17,7 @@
 namespace AhgArticles\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use AhgArticles\Services\ArticlePersistenceService;
 use AhgArticles\Services\BlogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -157,9 +158,37 @@ class BlogAdminController extends Controller
     {
         $this->guard();
         $this->blog->delete($id);
+        // Keep the pre-reset snapshot current so a deleted article is not
+        // resurrected by the next post-reset apply().
+        (new ArticlePersistenceService())->capture();
 
         return redirect()->route('admin.articles.index')
             ->with('success', __('Article deleted.'));
+    }
+
+    /**
+     * Toggle whether an article survives the nightly demo DB reset. Re-captures
+     * the snapshot immediately so protection takes effect the same night, before
+     * the scheduled pre-reset capture runs.
+     */
+    public function toggleProtect(int $id)
+    {
+        $this->guard();
+        $article = $this->blog->find($id);
+        if (! $article) {
+            abort(404);
+        }
+
+        $on = ! (bool) ($article->protect_from_reset ?? false);
+        $this->blog->setProtected($id, $on);
+        (new ArticlePersistenceService())->capture();
+
+        return redirect()->route('admin.articles.index')->with(
+            'success',
+            $on
+                ? __('Article will be kept across the nightly reset.')
+                : __('Article is no longer kept across the nightly reset.')
+        );
     }
 
     /** Attach a guide/template file to an article (parent/child upload). */

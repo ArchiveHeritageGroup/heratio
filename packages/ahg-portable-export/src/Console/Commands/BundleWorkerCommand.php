@@ -133,7 +133,17 @@ class BundleWorkerCommand extends Command
             .($withheld ? ' ('.$withheld.' withheld: '.$this->excluded['unpublished'].' unpublished, '
                 .$this->excluded['icip'].' ICIP-restricted, '.$this->excluded['odrl'].' ODRL-gated)' : ''));
 
-        $workDir = sys_get_temp_dir().'/heratio-portable-'.$row->id.'-'.substr(md5(microtime()), 0, 6);
+        // Destination: for a 'folder' export, build the bundle DIRECTLY on the
+        // target drive (no temp staging → large dumps needn't fit in /tmp, and we
+        // never zip). 'zip' builds in a temp workDir that is compressed + removed.
+        $destination = (string) ($row->destination ?? 'zip');
+        if ($destination === 'folder' && ! empty($row->destination_path)) {
+            $folderName = preg_replace('/[^A-Za-z0-9_-]/', '-', (string) $row->title).'-'.$row->id;
+            $workDir = rtrim((string) $row->destination_path, '/').'/'.$folderName;
+        } else {
+            $destination = 'zip';
+            $workDir = sys_get_temp_dir().'/heratio-portable-'.$row->id.'-'.substr(md5(microtime()), 0, 6);
+        }
         @mkdir($workDir.'/data', 0775, true);
         @mkdir($workDir.'/assets', 0775, true);
 
@@ -165,16 +175,21 @@ class BundleWorkerCommand extends Command
         }
         DB::table('portable_export')->where('id', $row->id)->update(['progress' => 85]);
 
-        // Zip + finalise
-        $outDir = dirname((string) $row->output_path) ?: sys_get_temp_dir();
-        @mkdir($outDir, 0775, true);
-        $outPath = $row->output_path
-            ?: ($outDir.'/'.preg_replace('/[^A-Za-z0-9_-]/', '-', $row->title).'-'.$row->id.'.zip');
-        $this->zipDir($workDir, $outPath);
-        $size = filesize($outPath) ?: 0;
-
-        // Cleanup workdir
-        $this->rrmdir($workDir);
+        // Finalise. Folder destination leaves the uncompressed bundle in place on
+        // the target drive; zip destination compresses the temp workDir + cleans up.
+        if ($destination === 'folder') {
+            $outPath = $workDir;
+            $size = $this->dirSize($workDir);
+            $this->line('  dumped to folder: '.$outPath);
+        } else {
+            $outDir = dirname((string) $row->output_path) ?: sys_get_temp_dir();
+            @mkdir($outDir, 0775, true);
+            $outPath = $row->output_path
+                ?: ($outDir.'/'.preg_replace('/[^A-Za-z0-9_-]/', '-', $row->title).'-'.$row->id.'.zip');
+            $this->zipDir($workDir, $outPath);
+            $size = filesize($outPath) ?: 0;
+            $this->rrmdir($workDir);
+        }
 
         DB::table('portable_export')->where('id', $row->id)->update([
             'status' => 'complete',
@@ -660,5 +675,24 @@ HTML;
             }
         }
         @rmdir($dir);
+    }
+
+    /** Recursive byte size of a directory (for folder-destination exports). */
+    private function dirSize(string $dir): int
+    {
+        if (! is_dir($dir)) {
+            return 0;
+        }
+        $total = 0;
+        $rii = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+        foreach ($rii as $f) {
+            if ($f->isFile()) {
+                $total += (int) $f->getSize();
+            }
+        }
+
+        return $total;
     }
 }

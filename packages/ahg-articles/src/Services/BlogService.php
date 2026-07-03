@@ -149,6 +149,13 @@ class BlogService
         DB::table('blog_post')->where('id', $id)->increment('view_count');
     }
 
+    /** Flag/unflag an article to survive the nightly demo DB reset. */
+    public function setProtected(int $id, bool $on): bool
+    {
+        return DB::table('blog_post')->where('id', $id)
+            ->update(['protect_from_reset' => $on ? 1 : 0]) > 0;
+    }
+
     public function create(array $data): int
     {
         $now = now();

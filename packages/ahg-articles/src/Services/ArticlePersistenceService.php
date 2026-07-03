@@ -1,0 +1,157 @@
+<?php
+
+/**
+ * ArticlePersistenceService - keeps flagged articles (and every article's read
+ * count) alive across the nightly demo DB reset.
+ *
+ * The demo box runs heratio-demo-reset.sh at 02:00, which restores the whole
+ * `heratio` DB from a fixed baseline snapshot. That baseline predates any article
+ * written since it was taken, so without this service the reset (a) deletes
+ * post-baseline articles outright and (b) rolls every article's view_count back
+ * to the baseline value.
+ *
+ * The fix is a capture/apply pair driven by two crons that bracket the reset:
+ *   - capture() at ~01:50 reads the LIVE db and writes a durable JSON state file
+ *     on disk (storage survives the DB wipe): full rows for protected articles
+ *     plus their attachments and comments, and the current view_count of EVERY
+ *     article.
+ *   - apply() at ~02:10 re-adds the protect_from_reset column if the baseline
+ *     restore dropped it, re-inserts the protected articles and their children,
+ *     and restores every article's captured read count.
+ *
+ * The capture is schema-agnostic: it re-inserts whatever columns it read, so a
+ * later column addition needs no change here.
+ *
+ * Copyright (C) 2026 Johan Pieterse
+ * Plain Sailing Information Systems
+ * Email: johan@plainsailingisystems.co.za
+ *
+ * @copyright Plain Sailing Information Systems
+ *
+ * @license AGPL-3.0-or-later
+ */
+
+namespace AhgArticles\Services;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
+
+class ArticlePersistenceService
+{
+    /** Directory + file that hold the pre-reset snapshot (under storage, so it survives the DB wipe). */
+    private function stateFile(): string
+    {
+        return storage_path('app/demo-extras/blog-state.json');
+    }
+
+    /**
+     * Snapshot the live DB to disk. Returns a summary count array.
+     * Safe to run any time; overwrites the previous snapshot.
+     */
+    public function capture(): array
+    {
+        if (! Schema::hasTable('blog_post')) {
+            return ['protected' => 0, 'view_counts' => 0, 'captured' => false];
+        }
+
+        $protected = Schema::hasColumn('blog_post', 'protect_from_reset')
+            ? DB::table('blog_post')->where('protect_from_reset', 1)->get()
+            : collect();
+
+        $ids = $protected->pluck('id')->all();
+
+        $attachments = ($ids && Schema::hasTable('blog_attachment'))
+            ? DB::table('blog_attachment')->whereIn('blog_post_id', $ids)->get()
+            : collect();
+
+        $comments = ($ids && Schema::hasTable('blog_comment'))
+            ? DB::table('blog_comment')->whereIn('blog_post_id', $ids)->get()
+            : collect();
+
+        // Read counts for EVERY article, protected or not - analytics must not
+        // vanish on demo/baseline articles either.
+        $viewCounts = DB::table('blog_post')->pluck('view_count', 'id')->all();
+
+        $state = [
+            'captured_at' => now()->toIso8601String(),
+            'posts'       => $protected->map(fn ($r) => (array) $r)->all(),
+            'attachments' => $attachments->map(fn ($r) => (array) $r)->all(),
+            'comments'    => $comments->map(fn ($r) => (array) $r)->all(),
+            'view_counts' => $viewCounts,
+        ];
+
+        File::ensureDirectoryExists(dirname($this->stateFile()));
+        File::put($this->stateFile(), json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+        return [
+            'protected'   => count($state['posts']),
+            'attachments' => count($state['attachments']),
+            'comments'    => count($state['comments']),
+            'view_counts' => count($state['view_counts']),
+            'captured'    => true,
+        ];
+    }
+
+    /**
+     * Re-apply the last snapshot after a reset. Idempotent: re-runnable without
+     * duplicating rows (updateOrInsert on posts; delete-then-insert children).
+     */
+    public function apply(): array
+    {
+        if (! File::exists($this->stateFile()) || ! Schema::hasTable('blog_post')) {
+            return ['restored' => 0, 'view_counts' => 0, 'applied' => false];
+        }
+
+        $state = json_decode((string) File::get($this->stateFile()), true);
+        if (! is_array($state)) {
+            return ['restored' => 0, 'view_counts' => 0, 'applied' => false];
+        }
+
+        // The baseline restore recreates blog_post from the old schema, so the
+        // protect flag column may be gone - re-add it before we write the flag.
+        if (! Schema::hasColumn('blog_post', 'protect_from_reset')) {
+            Schema::table('blog_post', function ($t) {
+                $t->boolean('protect_from_reset')->default(false)->after('view_count');
+            });
+        }
+
+        $restored = 0;
+        DB::transaction(function () use ($state, &$restored) {
+            foreach (($state['posts'] ?? []) as $row) {
+                if (! isset($row['id'])) {
+                    continue;
+                }
+                DB::table('blog_post')->updateOrInsert(['id' => $row['id']], $row);
+                $restored++;
+
+                // Rebuild this post's children from the snapshot.
+                if (Schema::hasTable('blog_attachment')) {
+                    DB::table('blog_attachment')->where('blog_post_id', $row['id'])->delete();
+                }
+                if (Schema::hasTable('blog_comment')) {
+                    DB::table('blog_comment')->where('blog_post_id', $row['id'])->delete();
+                }
+            }
+
+            foreach (($state['attachments'] ?? []) as $row) {
+                if (Schema::hasTable('blog_attachment')) {
+                    DB::table('blog_attachment')->insert($row);
+                }
+            }
+            foreach (($state['comments'] ?? []) as $row) {
+                if (Schema::hasTable('blog_comment')) {
+                    DB::table('blog_comment')->insert($row);
+                }
+            }
+        });
+
+        // Restore read counts for every article that still exists post-reset.
+        $vc = 0;
+        foreach (($state['view_counts'] ?? []) as $id => $count) {
+            $vc += DB::table('blog_post')->where('id', $id)->update(['view_count' => $count]);
+        }
+
+        return ['restored' => $restored, 'view_counts' => $vc, 'applied' => true];
+    }
+}

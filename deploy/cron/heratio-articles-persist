@@ -1,0 +1,18 @@
+# Preserve protected articles + every article's read count across the nightly
+# demo DB reset. The reset (/usr/local/sbin/heratio-demo-reset.sh, 02:00) restores
+# a fixed baseline snapshot, which would otherwise delete post-baseline articles
+# and roll every article's view_count back to the baseline value.
+#
+#   capture : snapshot the live DB to storage/app/demo-extras/ BEFORE the reset
+#   apply   : re-insert protected articles + restore read counts AFTER the reset
+#
+# Runs as www-data (never root - a root-run artisan creates root-owned logs that
+# block the web worker). Install: copy to /etc/cron.d/heratio-articles-persist
+# (root:root, 0644), then `systemctl restart cron`.
+#
+# Ordering assumption: the 02:00 baseline restore finishes within ~15 min, so
+# apply at 02:15 runs after it. If the baseline grows large enough to exceed
+# that, move apply later or append it to heratio-demo-reset.sh instead.
+
+50 1 * * * www-data cd /usr/share/nginx/heratio && /usr/bin/php8.3 artisan ahg:articles-persist capture >> /usr/share/nginx/heratio/storage/logs/articles-persist.log 2>&1
+15 2 * * * www-data cd /usr/share/nginx/heratio && /usr/bin/php8.3 artisan ahg:articles-persist apply   >> /usr/share/nginx/heratio/storage/logs/articles-persist.log 2>&1
