@@ -1605,6 +1605,10 @@ class DisplayController extends Controller
      */
     protected function getLiveFacet(string $dimension): array
     {
+        // #errorlog — a facet is a sidebar convenience; a DB hiccup (transient
+        // 're-prepare' / table-cache eviction during nightly maintenance) must
+        // drop just this facet, never 500 the whole browse page.
+        try {
         $culture = app()->getLocale();
 
         // The type facet must always expose every sibling bucket so the user
@@ -1767,6 +1771,10 @@ class DisplayController extends Controller
             $obj->count = $r->cnt;
             return $obj;
         })->toArray();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[browse] facet "'.$dimension.'" dropped: '.$e->getMessage());
+            return [];
+        }
     }
 
     /**
