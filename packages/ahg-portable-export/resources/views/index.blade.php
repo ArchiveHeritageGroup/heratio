@@ -140,12 +140,17 @@
                 <input type="radio" class="btn-check" name="destination" id="dest-zip" value="zip" checked>
                 <label class="btn btn-outline-primary" for="dest-zip">
                   <i class="fas fa-file-zipper me-1"></i>{{ __('ZIP file') }}
-                  <br><small class="fw-normal">{{ __('Downloadable archive') }}</small>
+                  <br><small class="fw-normal">{{ __('Downloadable archive (smaller sets)') }}</small>
+                </label>
+                <input type="radio" class="btn-check" name="destination" id="dest-download" value="download">
+                <label class="btn btn-outline-primary" for="dest-download">
+                  <i class="fas fa-cloud-arrow-down me-1"></i>{{ __('Download (large)') }}
+                  <br><small class="fw-normal">{{ __('Streamed ZIP to your PC — no size limit') }}</small>
                 </label>
                 <input type="radio" class="btn-check" name="destination" id="dest-folder" value="folder">
                 <label class="btn btn-outline-primary" for="dest-folder">
                   <i class="fas fa-folder-open me-1"></i>{{ __('Folder / drive') }}
-                  <br><small class="fw-normal">{{ __('Uncompressed dump — for large collections') }}</small>
+                  <br><small class="fw-normal">{{ __('Uncompressed dump to a server drive') }}</small>
                 </label>
               </div>
               <div id="destination-path-wrap" class="mt-2" style="display:none;">
@@ -454,12 +459,14 @@
                       </span>
                       <div class="small text-muted text-truncate" style="max-width:240px;" title="{{ $exp->output_path }}">{{ $exp->output_path }}</div>
                     @else
-                      <a href="{{ route('portable-export.download') }}?id={{ $exp->id }}" class="btn btn-sm btn-success" title="{{ __('Download') }}">
+                      <a href="{{ route('portable-export.download') }}?id={{ $exp->id }}" class="btn btn-sm btn-success" title="{{ ($exp->destination ?? 'zip') === 'download' ? __('Download (streamed ZIP)') : __('Download') }}">
                         <i class="fas fa-download"></i>
                       </a>
-                      <button class="btn btn-sm btn-outline-primary btn-share-token" data-id="{{ $exp->id }}" title="{{ __('Share Link') }}">
-                        <i class="fas fa-link"></i>
-                      </button>
+                      @if(($exp->destination ?? 'zip') === 'zip')
+                        <button class="btn btn-sm btn-outline-primary btn-share-token" data-id="{{ $exp->id }}" title="{{ __('Share Link') }}">
+                          <i class="fas fa-link"></i>
+                        </button>
+                      @endif
                     @endif
                   @endif
                   <button class="btn btn-sm btn-outline-danger btn-delete-export" data-id="{{ $exp->id }}" title="{{ __('Delete') }}">

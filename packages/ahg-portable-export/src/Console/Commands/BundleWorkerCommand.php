@@ -171,9 +171,16 @@ class BundleWorkerCommand extends Command
         // target drive (no temp staging → large dumps needn't fit in /tmp, and we
         // never zip). 'zip' builds in a temp workDir that is compressed + removed.
         $destination = (string) ($row->destination ?? 'zip');
+        $folderName = preg_replace('/[^A-Za-z0-9_-]/', '-', (string) $row->title).'-'.$row->id;
         if ($destination === 'folder' && ! empty($row->destination_path)) {
-            $folderName = preg_replace('/[^A-Za-z0-9_-]/', '-', (string) $row->title).'-'.$row->id;
+            // Operator-chosen directory / mounted drive.
             $workDir = rtrim((string) $row->destination_path, '/').'/'.$folderName;
+        } elseif ($destination === 'download') {
+            // Managed staging area (on the large uploads volume) — the bundle is
+            // left uncompressed and streamed as a ZIP64 on download (no second copy).
+            $stagingBase = rtrim((string) config('heratio.uploads_path', sys_get_temp_dir()), '/').'/portable-export-staging';
+            @mkdir($stagingBase, 0775, true);
+            $workDir = $stagingBase.'/'.$folderName;
         } else {
             $destination = 'zip';
             $workDir = sys_get_temp_dir().'/heratio-portable-'.$row->id.'-'.substr(md5(microtime()), 0, 6);
@@ -212,10 +219,10 @@ class BundleWorkerCommand extends Command
 
         // Finalise. Folder destination leaves the uncompressed bundle in place on
         // the target drive; zip destination compresses the temp workDir + cleans up.
-        if ($destination === 'folder') {
+        if ($destination === 'folder' || $destination === 'download') {
             $outPath = $workDir;
             $size = $this->dirSize($workDir);
-            $this->line('  dumped to folder: '.$outPath);
+            $this->line('  bundle at: '.$outPath.($destination === 'download' ? ' (streamed as ZIP on download)' : ''));
         } else {
             $outDir = dirname((string) $row->output_path) ?: sys_get_temp_dir();
             @mkdir($outDir, 0775, true);

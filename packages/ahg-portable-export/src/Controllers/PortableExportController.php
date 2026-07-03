@@ -148,8 +148,31 @@ class PortableExportController extends Controller
             abort(404, 'Export file not found');
         }
 
-        // Folder-destination exports are an uncompressed directory on a drive —
-        // there is nothing to stream; point the operator at the path instead.
+        $destination = (string) ($export->destination ?? 'zip');
+
+        // 'download' — the bundle is staged uncompressed; stream it as a ZIP64 on
+        // the fly (the zip CLI handles >4 GB natively, and no second full copy is
+        // ever written to the server disk). Lands in the operator's browser Downloads.
+        if ($destination === 'download' && is_dir($export->output_path)) {
+            $bundleDir = $export->output_path;
+            $name = preg_replace('/[^A-Za-z0-9_-]/', '-', (string) $export->title).'-'.$export->id.'.zip';
+
+            return response()->streamDownload(function () use ($bundleDir) {
+                @set_time_limit(0);
+                $ph = popen('cd '.escapeshellarg($bundleDir).' && zip -r -q - .', 'r');
+                if ($ph !== false) {
+                    while (! feof($ph)) {
+                        echo fread($ph, 262144);
+                        @ob_flush();
+                        @flush();
+                    }
+                    pclose($ph);
+                }
+            }, $name, ['Content-Type' => 'application/zip']);
+        }
+
+        // 'folder' — an uncompressed directory on an operator drive; nothing to
+        // stream, point the operator at the path.
         if (is_dir($export->output_path)) {
             return redirect()->route('portable-export.index')
                 ->with('info', 'This export was written to a folder on the server: '.$export->output_path);
@@ -196,7 +219,7 @@ class PortableExportController extends Controller
         // uncompressed bundle straight to an operator-chosen directory / mounted
         // drive — for collections too large for a ZIP). Admin-only surface, but
         // the folder path is still validated as an existing writable directory.
-        $destination = in_array(($data['destination'] ?? 'zip'), ['zip', 'folder'], true)
+        $destination = in_array(($data['destination'] ?? 'zip'), ['zip', 'folder', 'download'], true)
             ? $data['destination'] : 'zip';
         $destinationPath = null;
         if ($destination === 'folder') {
