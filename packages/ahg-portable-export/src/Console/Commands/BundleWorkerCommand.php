@@ -55,6 +55,9 @@ class BundleWorkerCommand extends Command
      */
     private array $excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'redacted_objects' => 0];
 
+    /** #role-based — whether the exporting operator may see draft/unpublished records. */
+    private bool $operatorCanViewDraft = false;
+
     public function handle(): int
     {
         $rows = $this->pickRows();
@@ -125,7 +128,38 @@ class BundleWorkerCommand extends Command
         // Resolve scope -> IO id list, then apply the #1389 disclosure gates
         // (publication status, ICIP/TK protocols, ODRL) BEFORE anything is
         // written — over-inclusion into an offline package is unrecoverable.
-        $this->excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'redacted_objects' => 0];
+        $this->excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'redacted_objects' => 0,
+            'perm_masters' => 0, 'perm_references' => 0, 'perm_thumbnails' => 0];
+
+        // #role-based export — the operator can only export what THEIR role permits.
+        // Force off any derivative tier they lack the ACL grant for (so a user
+        // without master access can never dump masters), and gate draft inclusion
+        // on viewDraft. Admins/editors pass; lower roles are trimmed. The public
+        // #1389 disclosure gates (below) still apply on top of this.
+        $operator = (object) ['id' => (int) ($row->user_id ?? 0)];
+        $this->operatorCanViewDraft = \AhgCore\Services\AclService::check(null, 'viewDraft', $operator);
+        if ((int) $row->include_masters && ! \AhgCore\Services\AclService::check(null, 'readMaster', $operator)) {
+            $row->include_masters = 0;
+            $this->excluded['perm_masters'] = 1;
+        }
+        if ((int) $row->include_references && ! \AhgCore\Services\AclService::check(null, 'readReference', $operator)) {
+            $row->include_references = 0;
+            $this->excluded['perm_references'] = 1;
+        }
+        if ((int) $row->include_thumbnails && ! \AhgCore\Services\AclService::check(null, 'readThumbnail', $operator)) {
+            $row->include_thumbnails = 0;
+            $this->excluded['perm_thumbnails'] = 1;
+        }
+
+        $permTrimmed = array_keys(array_filter([
+            'masters' => $this->excluded['perm_masters'],
+            'references' => $this->excluded['perm_references'],
+            'thumbnails' => $this->excluded['perm_thumbnails'],
+        ]));
+        if ($permTrimmed) {
+            $this->line('  role-based: excluded '.implode(', ', $permTrimmed).' (operator lacks the read grant)');
+        }
+
         $rawIds = $this->resolveScopeIoIds($row);
         $ioIds = $this->applyDisclosureGates($rawIds, $row);
         $withheld = $this->excluded['unpublished'] + $this->excluded['icip'] + $this->excluded['odrl'];
@@ -165,7 +199,8 @@ class BundleWorkerCommand extends Command
             'records_in_scope' => count($rawIds),
             'records_included' => count($ioIds),
             'withheld'         => $this->excluded,
-            'note'             => 'Records/objects were excluded from this offline package to honour publication status, ICIP/TK cultural protocols, ODRL access policies, and PII redaction. Counts reflect what was NOT exported.',
+            'exported_by'      => (int) ($row->user_id ?? 0),
+            'note'             => 'Content was excluded to honour (1) the exporting operator\'s role/ACL — perm_masters/perm_references/perm_thumbnails=1 mean that derivative tier was dropped because the operator lacks the read grant, and drafts are withheld unless the operator has viewDraft; and (2) the public disclosure gates: publication status, ICIP/TK cultural protocols, ODRL access policies, and PII redaction. Counts reflect what was NOT exported.',
         ];
         @file_put_contents($workDir.'/data/disclosure-summary.json',
             json_encode($disclosure, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
@@ -238,8 +273,11 @@ class BundleWorkerCommand extends Command
         $icip = array_flip($gate->icipRestrictedIds());
         $odrl = array_flip($gate->odrlRestrictedIds());
 
-        $includeUnpublished = (string) (DB::table('ahg_settings')
-            ->where('setting_key', 'portable_export_include_unpublished')->value('setting_value')) === '1';
+        // #role-based — unpublished may be exported only when the setting allows it
+        // AND the operator actually has the viewDraft grant.
+        $includeUnpublished = $this->operatorCanViewDraft
+            && (string) (DB::table('ahg_settings')
+                ->where('setting_key', 'portable_export_include_unpublished')->value('setting_value')) === '1';
         $published = [];
         if (! $includeUnpublished && Schema::hasTable('status')) {
             $published = array_flip(DB::table('status')
