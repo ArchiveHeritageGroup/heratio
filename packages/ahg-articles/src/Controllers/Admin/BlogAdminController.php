@@ -201,8 +201,17 @@ class BlogAdminController extends Controller
 
         $rules = 'required|file|mimes:' . implode(',', BlogService::ATTACHMENT_EXTENSIONS)
             . '|max:' . BlogService::ATTACHMENT_MAX_KB;
+
+        // Accept any active kind from the blog_attachment_kind taxonomy (managed
+        // at /admin/dropdowns), mirroring the form's <select>. Falls back to the
+        // legacy guide/template pair when the taxonomy has no active rows.
+        $kinds = $this->attachmentKinds()->pluck('code')->all();
+        if (empty($kinds)) {
+            $kinds = ['guide', 'template'];
+        }
+
         $data = $request->validate([
-            'kind'        => 'required|in:guide,template',
+            'kind'        => 'required|in:' . implode(',', $kinds),
             'title'       => 'nullable|string|max:255',
             'description' => 'nullable|string|max:500',
             'sort_order'  => 'nullable|integer|min:0',
