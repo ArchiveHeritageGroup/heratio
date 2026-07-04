@@ -195,8 +195,8 @@
             <label class="form-label" for="voice_anthropic_api_key">{{ __('Anthropic API Key') }}</label>
             <input type="password" class="form-control" id="voice_anthropic_api_key"
                    name="settings[voice_anthropic_api_key]"
-                   value="{{ e($settings['voice_anthropic_api_key'] ?? '') }}"
-                   placeholder="{{ __('sk-ant-...') }}">
+                   value="" autocomplete="new-password"
+                   placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
             <div class="form-text">API key for Claude cloud vision. Stored encrypted.</div>
           </div>
           <div class="col-md-4">

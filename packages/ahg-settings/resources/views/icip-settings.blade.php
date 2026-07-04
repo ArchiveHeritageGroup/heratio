@@ -96,7 +96,7 @@
               </div>
               <div class="mb-3">
                 <label class="form-label">Local Contexts API Key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                <input type="text" name="settings[local_contexts_api_key]" class="form-control" value="{{ e($settings['local_contexts_api_key'] ?? '') }}">
+                <input type="password" name="settings[local_contexts_api_key]" class="form-control" value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
                 <div class="form-text">API key for accessing the Local Contexts Hub. Leave blank if not using API integration.</div>
               </div>
             </div>

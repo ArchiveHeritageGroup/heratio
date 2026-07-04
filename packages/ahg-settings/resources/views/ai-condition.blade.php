@@ -97,8 +97,9 @@
             <div class="row mb-3">
                 <label class="col-sm-3 col-form-label col-form-label-sm">{{ __('API Key') }}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control form-control-sm" name="ai_condition_api_key"
-                           value="{{ e($settings['ai_condition_api_key'] ?? '') }}">
+                    <input type="password" class="form-control form-control-sm" name="ai_condition_api_key"
+                           value="" autocomplete="new-password"
+                           placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
                 </div>
             </div>
             <div id="testResult" style="display:none"></div>

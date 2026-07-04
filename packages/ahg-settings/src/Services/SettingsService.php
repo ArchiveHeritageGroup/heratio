@@ -60,10 +60,22 @@ class SettingsService
         'voice_anthropic_api_key', 'ai_condition_api_key', 'local_contexts_api_key',
     ];
 
+    /**
+     * #1395(D) — true when $name is a write-only secret field and the submitted
+     * value is blank, i.e. "keep the current stored secret" (don't overwrite).
+     * Custom save loops that write directly to their own tables (bypassing
+     * saveSetting) MUST consult this before persisting, or a blank write-only
+     * field would wipe a live secret.
+     */
+    public function isBlankSecret(string $name, ?string $value): bool
+    {
+        return in_array($name, self::SECRET_KEYS, true) && trim((string) $value) === '';
+    }
+
     public function saveSetting(string $name, ?string $scope, string $value, string $culture = 'en'): void
     {
         // #1395(D) — don't wipe a stored secret when its write-only field is blank.
-        if (in_array($name, self::SECRET_KEYS, true) && trim($value) === '') {
+        if ($this->isBlankSecret($name, $value)) {
             return;
         }
 

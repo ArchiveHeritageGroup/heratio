@@ -94,7 +94,7 @@
           <div class="mb-3">
             <label for="ahg_central_api_key" class="form-label">{{ __('API Key') }}</label>
             <div class="input-group">
-              <input type="password" name="settings[ahg_central_api_key]" class="form-control" id="ahg_central_api_key" value="{{ $settings['ahg_central_api_key'] ?? '' }}" {{ $allLocked ? 'readonly' : '' }}>
+              <input type="password" name="settings[ahg_central_api_key]" class="form-control" id="ahg_central_api_key" value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}" {{ $allLocked ? 'readonly' : '' }}> {{-- #1395(D) write-only --}}
               <button class="btn btn-outline-secondary" type="button" onclick="var i=document.getElementById('ahg_central_api_key');i.type=i.type==='password'?'text':'password';" {{ $disabledAttr }}><i class="fas fa-eye"></i></button>
             </div>
             <div class="form-text">Authentication key provided by AHG Central.</div>

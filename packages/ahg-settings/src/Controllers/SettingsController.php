@@ -1025,6 +1025,10 @@ class SettingsController extends Controller
                 } else {
                     $value = $postedSettings[$key] ?? '';
                 }
+                // #1395(D) — a blank write-only secret field means "keep current"; don't wipe it.
+                if ($this->service->isBlankSecret($key, $value)) {
+                    continue;
+                }
                 DB::table('ahg_settings')
                     ->where('setting_key', $key)
                     ->update(['setting_value' => $value]);
@@ -1636,6 +1640,11 @@ class SettingsController extends Controller
                 $value = in_array($key, $checkboxes)
                     ? ($request->has($key) ? '1' : '0')
                     : ($request->input($key, '') ?? '');
+
+                // #1395(D) — a blank write-only secret field means "keep current"; don't wipe it.
+                if ($this->service->isBlankSecret($key, $value)) {
+                    continue;
+                }
 
                 DB::table('ahg_settings')->updateOrInsert(
                     ['setting_key' => $key, 'setting_group' => 'ai_condition'],
@@ -2509,6 +2518,10 @@ class SettingsController extends Controller
             $posted = $request->input('settings', []);
             foreach (array_keys($keyDefaults) as $key) {
                 $value = (string) ($posted[$key] ?? $keyDefaults[$key]);
+                // #1395(D) — a blank write-only secret field means "keep current"; don't wipe it.
+                if ($this->service->isBlankSecret($key, $value)) {
+                    continue;
+                }
                 DB::table('icip_config')->updateOrInsert(
                     ['config_key' => $key],
                     ['config_value' => $value, 'updated_at' => now()]
@@ -3860,6 +3873,10 @@ class SettingsController extends Controller
                 $value = $isCheckbox
                     ? (isset($posted[$key]) ? 'true' : 'false')
                     : ($posted[$key] ?? '');
+                // #1395(D) — a blank write-only secret field means "keep current"; don't wipe it.
+                if ($this->service->isBlankSecret($key, $value)) {
+                    continue;
+                }
                 DB::table('ahg_settings')->updateOrInsert(
                     ['setting_key' => $key, 'setting_group' => $group],
                     ['setting_value' => $value]
