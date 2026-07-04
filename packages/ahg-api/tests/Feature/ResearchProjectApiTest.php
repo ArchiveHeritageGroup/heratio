@@ -57,6 +57,13 @@ class ResearchProjectApiTest extends TestCase
 
     protected function actingUser(int $userId): User
     {
+        // #1395: API write scopes are granted by ACL role, so the acting user
+        // must be authorised. Join the ADMINISTRATOR group (idempotent) so the
+        // create/update/delete/publish scopes resolve; a plain authenticated
+        // user is read-only by design after the hardening.
+        DB::table('acl_user_group')->updateOrInsert(['user_id' => $userId, 'group_id' => 100]);
+        \Illuminate\Support\Facades\Cache::forget("acl_groups_{$userId}");
+
         return User::query()->findOrFail($userId);
     }
 

@@ -40,6 +40,12 @@ class ResearchOutputApiTest extends TestCase
 
         $this->assertNotNull($user, 'Could not obtain a user to authenticate as.');
 
+        // #1395: API write scopes are granted by ACL role — authorise the acting
+        // user by joining the ADMINISTRATOR group (idempotent) so create/update/
+        // delete/publish scopes resolve; a plain user is read-only by design.
+        DB::table('acl_user_group')->updateOrInsert(['user_id' => $user->id, 'group_id' => 100]);
+        \Illuminate\Support\Facades\Cache::forget("acl_groups_{$user->id}");
+
         return $this->actingAs($user);
     }
 
