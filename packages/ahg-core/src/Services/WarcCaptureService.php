@@ -718,82 +718,115 @@ class WarcCaptureService
             return $fail(__('Capture is unavailable: the HTTP client is not installed.'));
         }
 
-        $parts = parse_url($url);
-        $host = (string) ($parts['host'] ?? '');
-        $path = (string) ($parts['path'] ?? '/');
-        if ($path === '') {
-            $path = '/';
-        }
-        if (isset($parts['query']) && $parts['query'] !== '') {
-            $path .= '?'.$parts['query'];
-        }
-
-        // The exact request line + headers we send (recorded verbatim in the WARC
-        // `request` record). We send a minimal, honest header set.
-        $reqHeaders = [
-            'GET '.$path.' HTTP/1.1',
-            'Host: '.$host,
-            'User-Agent: '.self::SOFTWARE,
-            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Encoding: identity',
-            'Connection: close',
-        ];
-        $requestBlock = implode("\r\n", $reqHeaders)."\r\n\r\n";
-
+        // #1395(C) — follow redirects MANUALLY so every hop (the initial URL and
+        // each redirect target) is re-validated by the shared SSRF guard before
+        // we connect. cURL's own CURLOPT_FOLLOWLOCATION would validate only the
+        // first URL, letting a 30x rebind to 169.254.169.254 / a private host.
+        $guard = app(\AhgCore\Services\SsrfGuard::class);
+        $current = $url;
+        $requestBlock = '';
         $rawHeader = '';
         $body = '';
-        $oversize = false;
+        $status = 0;
 
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $url,
-            CURLOPT_HTTPGET => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS => self::MAX_REDIRECTS,
-            CURLOPT_CONNECTTIMEOUT => self::HTTP_CONNECT_TIMEOUT_SECONDS,
-            CURLOPT_TIMEOUT => self::HTTP_TIMEOUT_SECONDS,
-            CURLOPT_HTTPHEADER => [
+        for ($hop = 0; ; $hop++) {
+            try {
+                $guard->assertSafeUrl($current);
+            } catch (\Throwable $e) {
+                return $fail(__('Refused: the URL or a redirect target resolves to a non-public address.'));
+            }
+
+            $parts = parse_url($current);
+            $host = (string) ($parts['host'] ?? '');
+            $path = (string) ($parts['path'] ?? '/');
+            if ($path === '') {
+                $path = '/';
+            }
+            if (isset($parts['query']) && $parts['query'] !== '') {
+                $path .= '?'.$parts['query'];
+            }
+
+            // The exact request line + headers we send (recorded verbatim in the WARC
+            // `request` record — the FINAL hop's request is the one paired with the
+            // stored response). We send a minimal, honest header set.
+            $reqHeaders = [
+                'GET '.$path.' HTTP/1.1',
+                'Host: '.$host,
                 'User-Agent: '.self::SOFTWARE,
                 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Encoding: identity',
-            ],
-            // Restrict to http/https only (defence in depth on top of the SSRF guard).
-            CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
-            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
-            CURLOPT_HEADERFUNCTION => function ($c, $line) use (&$rawHeader) {
-                $rawHeader .= $line;
+                'Connection: close',
+            ];
+            $requestBlock = implode("\r\n", $reqHeaders)."\r\n\r\n";
 
-                return strlen($line);
-            },
-            CURLOPT_WRITEFUNCTION => function ($c, $chunk) use (&$body, &$oversize) {
-                $body .= $chunk;
-                if (strlen($body) > self::MAX_BODY_BYTES) {
-                    $oversize = true;
+            $rawHeader = '';
+            $body = '';
+            $oversize = false;
 
-                    return -1; // abort the transfer: oversize
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $current,
+                CURLOPT_HTTPGET => true,
+                CURLOPT_FOLLOWLOCATION => false, // #1395(C) — we follow manually, re-guarding each hop
+                CURLOPT_CONNECTTIMEOUT => self::HTTP_CONNECT_TIMEOUT_SECONDS,
+                CURLOPT_TIMEOUT => self::HTTP_TIMEOUT_SECONDS,
+                CURLOPT_HTTPHEADER => [
+                    'User-Agent: '.self::SOFTWARE,
+                    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Encoding: identity',
+                ],
+                // Restrict to http/https only (defence in depth on top of the SSRF guard).
+                CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+                CURLOPT_HEADERFUNCTION => function ($c, $line) use (&$rawHeader) {
+                    $rawHeader .= $line;
+
+                    return strlen($line);
+                },
+                CURLOPT_WRITEFUNCTION => function ($c, $chunk) use (&$body, &$oversize) {
+                    $body .= $chunk;
+                    if (strlen($body) > self::MAX_BODY_BYTES) {
+                        $oversize = true;
+
+                        return -1; // abort the transfer: oversize
+                    }
+
+                    return strlen($chunk);
+                },
+            ]);
+
+            $ok = curl_exec($ch);
+            $errno = curl_errno($ch);
+            $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            // With FOLLOWLOCATION off, cURL exposes the (absolute-resolved) URL it
+            // WOULD have followed here — use it as the next hop after re-guarding.
+            $nextUrl = (string) curl_getinfo($ch, CURLINFO_REDIRECT_URL);
+            curl_close($ch);
+
+            if ($oversize) {
+                return $fail(__('The page exceeds the capture size limit.'));
+            }
+            if ($ok === false && $errno !== 0) {
+                return $fail(__('The page could not be reached (network error).'));
+            }
+            if ($status < 100) {
+                return $fail(__('No HTTP response was received from the page.'));
+            }
+
+            // Redirect? Re-guard the target on the next loop turn (bounded).
+            if (in_array($status, [301, 302, 303, 307, 308], true) && $nextUrl !== '') {
+                if ($hop >= self::MAX_REDIRECTS) {
+                    return $fail(__('The page exceeds the redirect limit.'));
                 }
+                $current = $nextUrl;
 
-                return strlen($chunk);
-            },
-        ]);
+                continue;
+            }
 
-        $ok = curl_exec($ch);
-        $errno = curl_errno($ch);
-        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
-
-        if ($oversize) {
-            return $fail(__('The page exceeds the capture size limit.'));
-        }
-        if ($ok === false && $errno !== 0) {
-            return $fail(__('The page could not be reached (network error).'));
-        }
-        if ($status < 100) {
-            return $fail(__('No HTTP response was received from the page.'));
+            break; // final (non-redirect) response
         }
 
-        // The cURL header buffer can contain multiple header blocks across redirects;
-        // keep only the FINAL response's header block (the last "HTTP/" run).
+        // Keep the final response's header block (single block now that we follow
+        // manually; lastHeaderBlock() stays as a belt-and-braces normaliser).
         $finalHeader = $this->lastHeaderBlock($rawHeader);
 
         // Normalise line endings to CRLF for the stored HTTP message.
@@ -838,6 +871,14 @@ class WarcCaptureService
             return $fail('total capture budget exhausted');
         }
 
+        // #1395(C) — full SSRF guard (DNS-resolve + per-IP + decimal-host) on the
+        // subresource URL, on top of the same-host check the caller already did.
+        try {
+            app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($url);
+        } catch (\Throwable $e) {
+            return $fail('subresource blocked (non-public address)');
+        }
+
         $parts = parse_url($url);
         $host = (string) ($parts['host'] ?? '');
         $path = (string) ($parts['path'] ?? '/');
@@ -866,8 +907,10 @@ class WarcCaptureService
         curl_setopt_array($ch, [
             CURLOPT_URL => $url,
             CURLOPT_HTTPGET => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS => self::MAX_REDIRECTS,
+            // #1395(C) — do NOT auto-follow: a subresource that 30x-redirects
+            // (potentially off-host to an internal address) is skipped cleanly by
+            // the non-2xx check below rather than followed past the SSRF guard.
+            CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_CONNECTTIMEOUT => self::SUBRESOURCE_CONNECT_TIMEOUT_SECONDS,
             CURLOPT_TIMEOUT => self::SUBRESOURCE_TIMEOUT_SECONDS,
             CURLOPT_HTTPHEADER => [
@@ -877,7 +920,6 @@ class WarcCaptureService
             ],
             // Pin to http/https only (defence in depth on top of assertSameHostUrl()).
             CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
-            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
             CURLOPT_HEADERFUNCTION => function ($c, $line) use (&$rawHeader) {
                 $rawHeader .= $line;
 

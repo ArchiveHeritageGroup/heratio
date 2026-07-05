@@ -154,7 +154,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'line' => $e->getLine(),
                     'exception_class' => get_class($e),
                     'request_id' => $request?->header('X-Request-ID'),
-                    'url' => mb_substr($request?->fullUrl() ?? '', 0, 2000),
+                    'url' => mb_substr(\AhgCore\Support\LogRedactor::url($request?->fullUrl() ?? ''), 0, 2000), // #1395(E) redact ?api= etc.
                     'http_method' => $request?->method(),
                     'client_ip' => $request?->ip(),
                     'user_agent' => mb_substr($request?->userAgent() ?? '', 0, 500),

@@ -9,7 +9,7 @@
         <div>{{ $item->getName(['cultureFallback' => true]) }}</div>
       </div>
       @if(!empty($note = $item->getNote(['cultureFallback' => true])))
-        <div>{!! $note !!}</div>
+        <div>{!! nl2br(e($note)) !!}</div> {{-- #1395(B) escape-at-sink: stored alt-id note is user-editable --}}
       @endif
     @endforeach
   </div>

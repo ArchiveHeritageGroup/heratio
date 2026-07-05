@@ -403,7 +403,7 @@ class VoiceLLMService
                 'module' => 'voice_ai',
                 'action_name' => $result['provider'].($hadImage ? '_vision' : '_text'),
                 'request_method' => $request?->method(),
-                'request_uri' => substr((string) ($request?->fullUrl() ?? ''), 0, 2000),
+                'request_uri' => substr(\AhgCore\Support\LogRedactor::url($request?->fullUrl() ?? ''), 0, 2000), // #1395(E) redact ?api= etc.
                 'old_values' => null,
                 'new_values' => json_encode([
                     'ok' => (bool) $result['ok'],

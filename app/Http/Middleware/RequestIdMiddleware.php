@@ -61,7 +61,7 @@ class RequestIdMiddleware
         // automatically if Context::getCurrent() already carries one.
         $span = Trace::start('http.server.request', [
             'http.request.method' => strtoupper($request->getMethod()),
-            'url.full'            => $request->fullUrl(),
+            'url.full'            => \AhgCore\Support\LogRedactor::url($request->fullUrl()), // #1395(E) redact ?api= etc.
             'url.path'            => $request->getPathInfo(),
             'url.scheme'          => $request->getScheme(),
             'server.address'      => $request->getHost(),
