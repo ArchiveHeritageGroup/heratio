@@ -641,6 +641,27 @@ class IiifCollectionService
         // default when we have a single canvas or unrelated images.
         $manifest['behavior'] = count($canvases) > 1 ? ['paged'] : ['individuals'];
 
+        // structures (Ranges): a flat "Contents" table-of-contents that lists
+        // every canvas in order, so viewers (Mirador, Universal Viewer) can
+        // offer section/page navigation. Only meaningful for multi-canvas
+        // objects; single-image objects need no TOC.
+        if (count($canvases) > 1) {
+            $rangeItems = [];
+            foreach ($canvases as $canvas) {
+                if (isset($canvas['id'])) {
+                    $rangeItems[] = ['id' => $canvas['id'], 'type' => 'Canvas'];
+                }
+            }
+            if (!empty($rangeItems)) {
+                $manifest['structures'] = [[
+                    'id' => $manifestId . '/range/contents',
+                    'type' => 'Range',
+                    'label' => ['en' => ['Contents']],
+                    'items' => $rangeItems,
+                ]];
+            }
+        }
+
         if (!empty($canvases)) {
             // Thumbnail is the first canvas's painting target at 200px
             // wide. Pres 3 thumbnails take id/type/format/width/height.
