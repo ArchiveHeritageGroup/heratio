@@ -466,7 +466,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                     $centralDefaults = [
                         'ahg_central_enabled' => $centralKey !== '' ? '1' : '0',
                         'ahg_central_api_url' => $centralUrl,
-                        'ahg_central_api_key' => $centralKey,
+                        'ahg_central_api_key' => \AhgCore\Services\SecretCrypto::conceal($centralKey), // #1395(D) encrypt-at-rest
                         'ahg_central_site_id' => 'heratio-'.$host,
                         'ahg_central_error_sync' => '0',
                         'ahg_central_last_error_id' => '0',

@@ -48,7 +48,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Password') }}</label>
               <input type="password" class="form-control" name="config[fuseki_password]"
-                     value="{{ old('config.fuseki_password', $config['fuseki_password'] ?? '') }}">
+                     value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only + encrypted at rest --}}
             </div>
             <button type="button" class="btn btn-outline-secondary" id="test-connection-btn">
               <i class="fas fa-plug me-1"></i> {{ __('Test Connection') }}

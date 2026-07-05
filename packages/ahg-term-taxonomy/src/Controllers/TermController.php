@@ -26,6 +26,7 @@
 namespace AhgTermTaxonomy\Controllers;
 
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SecretCrypto;
 use AhgCore\Services\SettingHelper;
 use AhgTermTaxonomy\Services\CrossMatchService;
 use AhgTermTaxonomy\Services\TermBrowseService;
@@ -478,12 +479,12 @@ class TermController extends Controller
 
         // Google Maps API key for Place terms
         $mapApiKey = ($term->taxonomy_id == 42 && ! empty($term->code))
-            ? DB::table('setting')
+            ? (SecretCrypto::reveal((string) DB::table('setting') // #1395(D) decrypt-at-rest
                 ->leftJoin('setting_i18n', function ($j) {
                     $j->on('setting.id', '=', 'setting_i18n.id')->where('setting_i18n.culture', '=', 'en');
                 })
                 ->where('setting.name', 'google_maps_api_key')->whereNull('setting.scope')
-                ->value('setting_i18n.value')
+                ->value('setting_i18n.value')) ?: null)
             : null;
 
         // Sort with additional options matching AtoM

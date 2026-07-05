@@ -25,6 +25,7 @@
 
 namespace AhgFtpUpload\Services;
 
+use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -90,7 +91,7 @@ class FtpService
             'host' => $get('ftp_host', ''),
             'port' => $get('ftp_port', '22'),
             'username' => $get('ftp_username', ''),
-            'password' => $get('ftp_password', ''),
+            'password' => SecretCrypto::reveal($get('ftp_password', '')), // #1395(D) decrypt-at-rest
             'remote_path' => $get('ftp_remote_path', '/uploads'),
             'disk_path' => $get('ftp_disk_path', ''),
             'passive_mode' => $get('ftp_passive_mode', 'true'),

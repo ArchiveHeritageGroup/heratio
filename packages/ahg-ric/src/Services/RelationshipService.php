@@ -27,6 +27,7 @@
 
 namespace AhgRic\Services;
 
+use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -58,7 +59,7 @@ class RelationshipService
 
         $this->fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('ric.fuseki.url', 'http://localhost:3030/ric')) . '/query';
         $this->fusekiUsername = $config['fuseki_username'] ?? config('ric.fuseki.user', '');
-        $this->fusekiPassword = $config['fuseki_password'] ?? config('ric.fuseki.password', '');
+        $this->fusekiPassword = SecretCrypto::reveal($config['fuseki_password'] ?? config('ric.fuseki.password', '')); // #1395(D) decrypt-at-rest
         $this->baseUri = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');
         $this->instanceId = $config['ric_instance_id'] ?? 'atom-psis';
     }

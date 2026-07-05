@@ -27,6 +27,7 @@
 
 namespace AhgRic\Controllers;
 
+use AhgCore\Services\SecretCrypto;
 use AhgRic\Services\RelationshipService;
 use AhgRic\Services\RicSerializationService;
 use AhgRic\Services\ShaclValidationService;
@@ -378,6 +379,17 @@ class RicController extends Controller
                 $value = $incoming[$key] ?? (in_array($key, $checkboxKeys) ? '0' : null);
                 if ($value === null) {
                     continue;
+                }
+
+                // #1395(D) — fuseki_password is a write-only field: a blank
+                // submission means "keep current", and the stored value is
+                // encrypted at rest (matched by SecretCrypto::reveal() at every
+                // fuseki consumer).
+                if ($key === 'fuseki_password') {
+                    if (trim((string) $value) === '') {
+                        continue;
+                    }
+                    $value = SecretCrypto::conceal($value);
                 }
 
                 $exists = DB::table('ahg_settings')
@@ -837,7 +849,7 @@ class RicController extends Controller
         $config = $this->getFusekiConfig();
         $endpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
         $username = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
-        $password = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
+        $password = SecretCrypto::reveal($config['fuseki_password'] ?? config('services.ric.fuseki_password', '')); // #1395(D) decrypt-at-rest
 
         try {
             $ch = curl_init($endpoint);
@@ -913,7 +925,7 @@ class RicController extends Controller
         $config = $this->getFusekiConfig();
         $fusekiEndpoint = $config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric');
         $fusekiUsername = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
-        $fusekiPassword = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
+        $fusekiPassword = SecretCrypto::reveal($config['fuseki_password'] ?? config('services.ric.fuseki_password', '')); // #1395(D) decrypt-at-rest
 
         // RiC-O type mapping
         $ricTypes = [
@@ -1057,7 +1069,7 @@ class RicController extends Controller
         $config = $this->getFusekiConfig();
         $fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
         $fusekiUsername  = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
-        $fusekiPassword  = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
+        $fusekiPassword  = SecretCrypto::reveal($config['fuseki_password'] ?? config('services.ric.fuseki_password', '')); // #1395(D) decrypt-at-rest
         $baseUri         = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');
         $instanceId      = $config['ric_instance_id'] ?? config('services.ric.instance_id', 'atom-psis');
 
@@ -2319,7 +2331,7 @@ SPARQL;
         $config = $this->getFusekiConfig();
         $fusekiEndpoint = $config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric');
         $fusekiUsername  = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
-        $fusekiPassword  = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
+        $fusekiPassword  = SecretCrypto::reveal($config['fuseki_password'] ?? config('services.ric.fuseki_password', '')); // #1395(D) decrypt-at-rest
 
         // Read SHACL shapes file
         $shapesPath = base_path('packages/ahg-ric/tools/ric_shacl_shapes.ttl');
@@ -2511,7 +2523,7 @@ SPARQL;
         $config = $this->getFusekiConfig();
         $fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
         $fusekiUsername  = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
-        $fusekiPassword  = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
+        $fusekiPassword  = SecretCrypto::reveal($config['fuseki_password'] ?? config('services.ric.fuseki_password', '')); // #1395(D) decrypt-at-rest
         $baseUri         = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');
         $instanceId      = $config['ric_instance_id'] ?? config('services.ric.instance_id', 'atom-psis');
 

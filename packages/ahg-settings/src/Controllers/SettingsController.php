@@ -1029,6 +1029,8 @@ class SettingsController extends Controller
                 if ($this->service->isBlankSecret($key, $value)) {
                     continue;
                 }
+                // #1395(D) — encrypt secrets at rest before persisting.
+                $value = $this->service->concealSecret($key, $value);
                 DB::table('ahg_settings')
                     ->where('setting_key', $key)
                     ->update(['setting_value' => $value]);
@@ -1645,6 +1647,9 @@ class SettingsController extends Controller
                 if ($this->service->isBlankSecret($key, $value)) {
                     continue;
                 }
+
+                // #1395(D) — encrypt secrets at rest (ai_condition_api_key) before persisting.
+                $value = $this->service->concealSecret($key, $value);
 
                 DB::table('ahg_settings')->updateOrInsert(
                     ['setting_key' => $key, 'setting_group' => 'ai_condition'],
@@ -2522,6 +2527,8 @@ class SettingsController extends Controller
                 if ($this->service->isBlankSecret($key, $value)) {
                     continue;
                 }
+                // #1395(D) — encrypt secrets at rest (local_contexts_api_key) before persisting.
+                $value = $this->service->concealSecret($key, $value);
                 DB::table('icip_config')->updateOrInsert(
                     ['config_key' => $key],
                     ['config_value' => $value, 'updated_at' => now()]
@@ -3694,6 +3701,9 @@ class SettingsController extends Controller
                     ? ($request->has($key) ? '1' : '0')
                     : ($request->input($key, '') ?? '');
 
+                // #1395(D) — encrypt secrets at rest (ftp_password) before persisting.
+                $value = $this->service->concealSecret($key, $value);
+
                 DB::table('ahg_settings')->updateOrInsert(
                     ['setting_key' => $key, 'setting_group' => 'ftp'],
                     ['setting_value' => $value, 'updated_at' => now()]
@@ -3813,6 +3823,9 @@ class SettingsController extends Controller
                     ? ($request->has($key) ? '1' : '0')
                     : ($request->input($key, '') ?? '');
 
+                // #1395(D) — encrypt secrets at rest (fuseki_password) before persisting.
+                $value = $this->service->concealSecret($key, $value);
+
                 DB::table('ahg_settings')->updateOrInsert(
                     ['setting_key' => $key, 'setting_group' => 'fuseki'],
                     ['setting_value' => $value, 'updated_at' => now()]
@@ -3877,6 +3890,8 @@ class SettingsController extends Controller
                 if ($this->service->isBlankSecret($key, $value)) {
                     continue;
                 }
+                // #1395(D) — encrypt secrets at rest (e.g. voice_anthropic_api_key) before persisting.
+                $value = $this->service->concealSecret($key, $value);
                 DB::table('ahg_settings')->updateOrInsert(
                     ['setting_key' => $key, 'setting_group' => $group],
                     ['setting_value' => $value]

@@ -232,7 +232,7 @@ class VoiceLLMService
 
     private function callCloud(string $prompt, ?string $imageBase64, array $settings, array $opts): array
     {
-        $apiKey = (string) ($settings['voice_anthropic_api_key'] ?? '');
+        $apiKey = SecretCrypto::reveal($settings['voice_anthropic_api_key'] ?? ''); // #1395(D) decrypt-at-rest
         $model = (string) ($settings['voice_cloud_model'] ?? 'claude-sonnet-4-20250514');
         $timeout = (int) ($settings['voice_local_llm_timeout'] ?? 30);
 

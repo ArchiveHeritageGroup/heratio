@@ -25,6 +25,7 @@
 
 namespace AhgSettings\Services;
 
+use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -45,7 +46,15 @@ class SettingsService
             $query->where('setting.scope', $scope);
         }
 
-        return $query->value('setting_i18n.value');
+        $value = $query->value('setting_i18n.value');
+
+        // #1395(D) — transparently decrypt secrets stored at rest. Passthrough
+        // for legacy plaintext / not-yet-backfilled rows (SecretCrypto::reveal).
+        if ($value !== null && in_array($name, self::SECRET_KEYS, true)) {
+            return SecretCrypto::reveal($value);
+        }
+
+        return $value;
     }
 
     /**
@@ -60,6 +69,12 @@ class SettingsService
         'voice_anthropic_api_key', 'ai_condition_api_key', 'local_contexts_api_key',
     ];
 
+    /** #1395(D) — canonical secret-key list (for the encrypt-at-rest backfill command). */
+    public static function secretKeys(): array
+    {
+        return self::SECRET_KEYS;
+    }
+
     /**
      * #1395(D) — true when $name is a write-only secret field and the submitted
      * value is blank, i.e. "keep the current stored secret" (don't overwrite).
@@ -72,12 +87,32 @@ class SettingsService
         return in_array($name, self::SECRET_KEYS, true) && trim((string) $value) === '';
     }
 
+    /**
+     * #1395(D) — encryption-at-rest. Returns the value to actually persist for
+     * $name: a secret key's plaintext is encrypted (idempotently) so a DB dump
+     * of the settings tables never exposes it; non-secret values pass through.
+     * Save paths that write a secret directly to their own table (bypassing
+     * saveSetting) MUST route the value through this first. The matching read is
+     * SecretCrypto::reveal() at each consumer.
+     */
+    public function concealSecret(string $name, ?string $value): string
+    {
+        if (! in_array($name, self::SECRET_KEYS, true)) {
+            return (string) $value;
+        }
+
+        return SecretCrypto::conceal($value);
+    }
+
     public function saveSetting(string $name, ?string $scope, string $value, string $culture = 'en'): void
     {
         // #1395(D) — don't wipe a stored secret when its write-only field is blank.
         if ($this->isBlankSecret($name, $value)) {
             return;
         }
+
+        // #1395(D) — encrypt secrets at rest before persisting.
+        $value = $this->concealSecret($name, $value);
 
         $query = DB::table('setting')->where('name', $name);
         if ($scope === null) {

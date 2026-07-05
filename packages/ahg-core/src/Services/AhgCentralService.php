@@ -87,7 +87,7 @@ class AhgCentralService
 
     public function apiKey(): string
     {
-        $key = (string) $this->setting('ahg_central_api_key', '');
+        $key = SecretCrypto::reveal($this->setting('ahg_central_api_key', '')); // #1395(D) decrypt-at-rest
         if ($key !== '') {
             return $key;
         }

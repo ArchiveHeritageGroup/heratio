@@ -25,6 +25,7 @@
 
 namespace AhgRic\Services;
 
+use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -70,7 +71,7 @@ class SparqlUpdateService
             config('heratio.fuseki_update_endpoint', $base . '/update')
         );
         $this->username = $this->setting('fuseki_username', config('heratio.fuseki_update_username'));
-        $this->password = $this->setting('fuseki_password', config('heratio.fuseki_update_password'));
+        $this->password = SecretCrypto::reveal($this->setting('fuseki_password', config('heratio.fuseki_update_password'))); // #1395(D) decrypt-at-rest
         $this->timeoutSeconds = (int) $this->setting('fuseki_update_timeout', config('heratio.fuseki_update_timeout', 30));
     }
 

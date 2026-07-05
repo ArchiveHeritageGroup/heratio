@@ -21,6 +21,7 @@ class AhgSettingsServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgSettings\Commands\ServicesCheckCommand::class,
+                \AhgSettings\Commands\SecretsEncryptAtRestCommand::class,
             ]);
         }
     }

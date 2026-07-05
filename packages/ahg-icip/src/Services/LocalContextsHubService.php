@@ -2,6 +2,7 @@
 
 namespace AhgIcip\Services;
 
+use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -37,7 +38,8 @@ class LocalContextsHubService
                 return null;
             }
 
-            return DB::table('icip_config')->where('config_key', 'local_contexts_api_key')->value('config_value') ?: null;
+            // #1395(D) decrypt-at-rest — value may be Crypt ciphertext or legacy plaintext.
+            return SecretCrypto::reveal((string) DB::table('icip_config')->where('config_key', 'local_contexts_api_key')->value('config_value')) ?: null;
         } catch (\Throwable $e) {
             Log::warning('LocalContextsHubService::getApiKey error: '.$e->getMessage());
 

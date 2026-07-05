@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AhgDiscovery\Services;
 
 use AhgCore\Constants\TermId;
+use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -83,7 +84,7 @@ class PageIndexService
                 match ($row->setting_key) {
                     'fuseki_endpoint' => $this->fusekiEndpoint = $row->setting_value,
                     'fuseki_username' => $this->fusekiUsername = $row->setting_value,
-                    'fuseki_password' => $this->fusekiPassword = $row->setting_value,
+                    'fuseki_password' => $this->fusekiPassword = SecretCrypto::reveal($row->setting_value), // #1395(D) decrypt-at-rest
                     default => null,
                 };
             }

@@ -2,6 +2,7 @@
 
 namespace AhgRic\Services;
 
+use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Dispatch;
@@ -108,7 +109,7 @@ class FusekiSyncService
                 $base = rtrim($this->setting('fuseki_endpoint', config('ahg-ric.fuseki_endpoint', config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio'))), '/');
                 $updateEndpoint = $this->setting('fuseki_update_endpoint', config('heratio.fuseki_update_endpoint', $base . '/update'));
                 $username = $this->setting('fuseki_username', config('heratio.fuseki_update_username'));
-                $password = $this->setting('fuseki_password', config('heratio.fuseki_update_password'));
+                $password = SecretCrypto::reveal($this->setting('fuseki_password', config('heratio.fuseki_update_password'))); // #1395(D) decrypt-at-rest
                 $timeoutSeconds = (int) $this->setting('fuseki_update_timeout', config('heratio.fuseki_update_timeout', 30));
 
                 Dispatch::dispatch(new \AhgRic\Jobs\FusekiSyncJob($updateEndpoint, $username, $password, $timeoutSeconds, $update));
