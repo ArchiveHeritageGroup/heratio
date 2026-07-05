@@ -8,7 +8,7 @@
         "ahg/ingest": "@dev",
         "ahg/audit-trail": "@dev",
         "ahg/settings": "@dev",
-        "firebase/php-jwt": "^6.10"
+        "firebase/php-jwt": "^7.0"
     },
     "autoload": {
         "psr-4": {
