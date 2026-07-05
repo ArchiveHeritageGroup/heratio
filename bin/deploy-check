@@ -1,0 +1,111 @@
+#!/bin/bash
+#===============================================================================
+# Heratio - Post-Deploy Verification Guard
+#===============================================================================
+# Catches the "code pulled but `composer install` skipped" class of bad deploy,
+# where composer.lock advanced (e.g. a security dependency bump) but the running
+# vendor/ was left on the old, still-vulnerable versions. Run this as the LAST
+# step of every prod deploy (and any time you suspect drift).
+#
+# Checks:
+#   1. vendor/ is in sync with composer.lock  (no pending install/update/remove)
+#   2. `composer audit` reports no HIGH/CRITICAL advisory  (medium/low = warn)
+#   3. the app still boots  (`artisan about` succeeds — catches stale manifests)
+#
+# Exit codes:
+#   0 — all good
+#   1 — drift, a high/critical advisory, or the app fails to boot
+#
+# Usage:
+#   ./bin/deploy-check            # verify only
+#   ./bin/deploy-check --fix      # if vendor is out of sync, run composer
+#                                 # install + package:discover, then re-verify
+#
+# Notes:
+#   - Runs composer with COMPOSER_ALLOW_SUPERUSER=1 (prod deploys run as root).
+#   - Artisan is invoked as www-data to avoid root-owned storage/logs files
+#     (see the ProtectSystem note for /usr/share/nginx apps).
+#===============================================================================
+set -uo pipefail
+
+cd "$(dirname "$0")/.."
+export COMPOSER_ALLOW_SUPERUSER=1
+
+FIX=0
+[ "${1:-}" = "--fix" ] && FIX=1
+
+RED='\033[0;31m'; GRN='\033[0;32m'; YEL='\033[1;33m'; CYN='\033[0;36m'; NC='\033[0m'
+fail=0
+
+# Pick a www-data-capable artisan runner; fall back to plain php if sudo can't.
+artisan() {
+    if sudo -n -u www-data true 2>/dev/null; then
+        sudo -u www-data php artisan "$@"
+    else
+        php artisan "$@"
+    fi
+}
+
+echo -e "${CYN}== Heratio deploy-check ==${NC}"
+
+#-- 1. vendor <-> composer.lock sync ------------------------------------------
+echo -en "1. vendor in sync with composer.lock … "
+dry="$(composer install --dry-run --no-scripts --no-interaction 2>&1)"
+if echo "$dry" | grep -qiE '^\s*- (Installing|Upgrading|Downgrading|Removing)'; then
+    echo -e "${RED}OUT OF SYNC${NC}"
+    echo "$dry" | grep -iE '^\s*- (Installing|Upgrading|Downgrading|Removing)' | sed 's/^/     /' | head -30
+    if [ "$FIX" = 1 ]; then
+        echo -e "   ${YEL}--fix: running composer install …${NC}"
+        composer install --no-scripts --no-interaction 2>&1 | tail -3
+        artisan package:discover >/dev/null 2>&1
+        # re-check
+        if composer install --dry-run --no-scripts --no-interaction 2>&1 | grep -qiE '^\s*- (Installing|Upgrading|Downgrading|Removing)'; then
+            echo -e "   ${RED}still out of sync after --fix${NC}"; fail=1
+        else
+            echo -e "   ${GRN}resynced${NC}"
+        fi
+    else
+        echo -e "   ${YEL}fix: run 'composer install --no-scripts' (or re-run with --fix)${NC}"
+        fail=1
+    fi
+else
+    echo -e "${GRN}OK${NC}"
+fi
+
+#-- 2. security advisories (fail on high/critical) ----------------------------
+echo -en "2. composer audit (no high/critical) … "
+audit_json="$(composer audit --no-interaction --format=json 2>/dev/null)"
+counts="$(printf '%s' "$audit_json" | php -r '
+    $d = json_decode(stream_get_contents(STDIN), true) ?: [];
+    $sev = ["critical"=>0,"high"=>0,"medium"=>0,"low"=>0,"other"=>0];
+    foreach (($d["advisories"] ?? []) as $list) {
+        foreach ($list as $a) { $s = strtolower($a["severity"] ?? "other"); $sev[$s] = ($sev[$s] ?? 0) + 1; }
+    }
+    echo "{$sev[critical]} {$sev[high]} {$sev[medium]} {$sev[low]}";
+' 2>/dev/null)"
+read -r c_crit c_high c_med c_low <<<"${counts:-0 0 0 0}"
+if [ "$((c_crit + c_high))" -gt 0 ]; then
+    echo -e "${RED}FAIL${NC}  critical:$c_crit high:$c_high medium:$c_med low:$c_low"
+    fail=1
+elif [ "$((c_med + c_low))" -gt 0 ]; then
+    echo -e "${YEL}WARN${NC}  medium:$c_med low:$c_low (no high/critical)"
+else
+    echo -e "${GRN}OK${NC}  no advisories"
+fi
+
+#-- 3. app boots (catches stale bootstrap/cache manifests) --------------------
+echo -en "3. application boots … "
+if artisan about --only=environment >/dev/null 2>&1; then
+    echo -e "${GRN}OK${NC}"
+else
+    echo -e "${RED}FAIL${NC} (artisan about errored — check bootstrap/cache/*.php + logs)"
+    fail=1
+fi
+
+echo
+if [ "$fail" = 0 ]; then
+    echo -e "${GRN}deploy-check passed.${NC}"
+    exit 0
+fi
+echo -e "${RED}deploy-check FAILED — see above.${NC}"
+exit 1
