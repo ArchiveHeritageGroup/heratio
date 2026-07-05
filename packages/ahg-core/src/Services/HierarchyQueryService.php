@@ -33,6 +33,68 @@ class HierarchyQueryService
         'menu'               => 'menu_closure',
     ];
 
+    /**
+     * heratio#1398 — batch ancestor lookup for the whole set of $nodeIds in a
+     * SINGLE query, instead of one ancestorIds() call (2-3 queries + a slow
+     * lft/rgt range scan) PER node. This is the N+1 that dominates a full
+     * es-reindex; batching it is the biggest per-record win.
+     *
+     * Fast path: a populated closure table (one indexed IN query).
+     * Fallback: a single nested-set self-join over the batch (correct for the
+     * one AtoM tree). For very large corpora, build the closure
+     * (`ahg:build-closure`) so the fast path applies — the range self-join is
+     * O(tree) per node and does not scale to millions.
+     *
+     * @param  list<int>  $nodeIds
+     * @return array<int, list<int>>  nodeId => [ancestorId, …] (immediate parent first)
+     */
+    public function batchAncestorIds(string $entity, array $nodeIds, bool $includeSelf = false): array
+    {
+        $nodeIds = array_values(array_unique(array_map('intval', $nodeIds)));
+        if (empty($nodeIds)) {
+            return [];
+        }
+        $result = array_fill_keys($nodeIds, []);
+
+        $table = self::CLOSURE[$entity] ?? null;
+        $closurePopulated = $table !== null && Schema::hasTable($table)
+            && DB::table($table)->whereIn('descendant', $nodeIds)->where('depth', '>', 0)->exists();
+
+        if ($closurePopulated) {
+            $rows = DB::table($table)
+                ->whereIn('descendant', $nodeIds)
+                ->when(! $includeSelf, fn ($q) => $q->where('depth', '>', 0))
+                ->orderBy('descendant')
+                ->orderByDesc('depth')
+                ->get(['descendant', 'ancestor']);
+            foreach ($rows as $r) {
+                $result[(int) $r->descendant][] = (int) $r->ancestor;
+            }
+
+            return $result;
+        }
+
+        // Nested-set fallback — ONE self-join for the whole batch (vs a per-node
+        // walk). Ancestors are nodes that strictly contain the node's lft/rgt.
+        $op1 = $includeSelf ? '<=' : '<';
+        $op2 = $includeSelf ? '>=' : '>';
+        $rows = DB::table($entity.' as d')
+            ->join($entity.' as a', function ($j) use ($op1, $op2) {
+                $j->on('a.lft', $op1, 'd.lft')->on('a.rgt', $op2, 'd.rgt');
+            })
+            ->whereIn('d.id', $nodeIds)
+            ->whereNotNull('d.lft')
+            ->whereNotNull('d.rgt')
+            ->orderBy('d.id')
+            ->orderByDesc('a.lft')
+            ->get(['d.id as descendant', 'a.id as ancestor']);
+        foreach ($rows as $r) {
+            $result[(int) $r->descendant][] = (int) $r->ancestor;
+        }
+
+        return $result;
+    }
+
     /** Whether the closure for $entity is populated for this ancestor. */
     public function closureReady(string $entity, int $ancestorId): bool
     {

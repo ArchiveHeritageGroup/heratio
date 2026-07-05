@@ -27,6 +27,11 @@ class EsReindexCommand extends Command
     protected $signature = 'ahg:es-reindex
         {--index= : Reindex a specific index (informationobject, actor, term, repository). Omit for all.}
         {--id= : Reindex a single object by id (requires --index)}
+        {--id-range= : Only reindex ids in the inclusive range "lo,hi" (informationobject). Used for sharding.}
+        {--workers=1 : heratio#1398 — parallel worker processes to shard the informationobject reindex across (N× throughput).}
+        {--bulk-mode : heratio#1398 — put the target index in bulk-load mode (refresh_interval=-1, replicas=0) for the run, then restore + refresh. Implied when --workers>1.}
+        {--shards= : Primary shards to create the index with when it does not exist (size for the corpus; 8M ≈ 5-10).}
+        {--no-progress : Suppress the progress bar (used by parallel workers so their output does not collide).}
         {--clone-from= : Clone mapping and data from an existing prefix (e.g. archive_) instead of building from MySQL}
         {--drop : Drop and recreate the target indices before reindexing}
         {--batch=500 : Batch size for bulk indexing}';
@@ -82,12 +87,21 @@ class EsReindexCommand extends Command
         }
 
         $cloneFrom = $this->option('clone-from');
+        $workers = max(1, (int) $this->option('workers'));
 
         foreach ($indices as $key => $esName) {
             $targetIndex = $this->prefix.$esName;
 
             if ($cloneFrom) {
                 $this->cloneIndex($cloneFrom.$esName, $targetIndex);
+                continue;
+            }
+
+            // heratio#1398 — parallel-shard the big informationobject index across
+            // worker processes. Small indices (actor/term/repository) stay inline.
+            if ($key === 'informationobject' && $workers > 1
+                && $this->option('id-range') === null && ! $this->option('id')) {
+                $this->reindexInformationobjectParallel($targetIndex, $workers);
             } else {
                 $this->reindexFromMysql($key, $targetIndex);
             }
@@ -190,19 +204,8 @@ class EsReindexCommand extends Command
             $this->dropIndex($targetIndex);
         }
 
-        // Ensure index exists (clone mapping from archive_ if needed)
-        $exists = Http::head("{$this->host}/{$targetIndex}");
-        if ($exists->status() === 404) {
-            $this->info("  Index {$targetIndex} doesn't exist, cloning mapping from archive_...");
-            $sourceIndex = 'archive_'.$this->indexMap[$type];
-            $srcExists = Http::head("{$this->host}/{$sourceIndex}");
-            if ($srcExists->status() === 200) {
-                $this->createIndexFromMapping($sourceIndex, $targetIndex);
-            } else {
-                $this->warn("  No source mapping found at {$sourceIndex}, creating with dynamic mapping.");
-                Http::put("{$this->host}/{$targetIndex}");
-            }
-        }
+        // Ensure index exists (clone mapping from archive_, else dynamic; honours --shards)
+        $this->ensureIndexExists($type, $targetIndex);
 
         // Phase 3 (#650): ensure the `gis` geo_point field is mapped on the IO
         // index regardless of how the index was created (clone-from or
@@ -319,7 +322,7 @@ class EsReindexCommand extends Command
         $rawSettings = $settingsResp->json()[$source]['settings']['index'] ?? [];
 
         $settings = [
-            'number_of_shards' => $rawSettings['number_of_shards'] ?? 4,
+            'number_of_shards' => $this->option('shards') ? (int) $this->option('shards') : ($rawSettings['number_of_shards'] ?? 4),
             'number_of_replicas' => $rawSettings['number_of_replicas'] ?? 1,
         ];
         if (! empty($rawSettings['analysis'])) {
@@ -331,7 +334,7 @@ class EsReindexCommand extends Command
             'mappings' => $mapping,
         ]);
 
-        $this->info("  Created {$target} with mapping from {$source}");
+        $this->info("  Created {$target} with mapping from {$source} ({$settings['number_of_shards']} shards)");
     }
 
     /**
@@ -340,22 +343,40 @@ class EsReindexCommand extends Command
     protected function reindexInformationobject(string $index): void
     {
         $onlyId = $this->option('id') ? (int) $this->option('id') : null;
+        $range = $this->parseIdRange();
+        $noProgress = (bool) $this->option('no-progress');
 
-        $countQuery = DB::table('information_object')->where('id', '!=', 1);
-        if ($onlyId) {
-            $countQuery->where('id', $onlyId);
+        // heratio#1398 — single-worker bulk mode (the parallel path manages it in
+        // the parent; leaf workers carry --id-range and must NOT touch it).
+        $manageBulk = $this->option('bulk-mode') && $range === null && ! $onlyId;
+        if ($manageBulk) {
+            $this->applyBulkMode($index, true);
         }
-        $total = $countQuery->count();
-        $this->info("  Found {$total} information objects");
-        $bar = $this->output->createProgressBar($total);
 
-        $rowQuery = DB::table('information_object')->where('id', '!=', 1)->orderBy('id');
-        if ($onlyId) {
-            $rowQuery->where('id', $onlyId);
-        }
-        $rowQuery
+        $scoped = function ($q) use ($onlyId, $range) {
+            $q->where('id', '!=', 1);
+            if ($onlyId) {
+                $q->where('id', $onlyId);
+            }
+            if ($range !== null) {
+                $q->where('id', '>=', $range[0])->where('id', '<=', $range[1]);
+            }
+
+            return $q;
+        };
+
+        $total = $scoped(DB::table('information_object'))->count();
+        $this->info("  Found {$total} information objects".($range ? " (id {$range[0]}..{$range[1]})" : ''));
+        $bar = $noProgress ? null : $this->output->createProgressBar($total);
+
+        $scoped(DB::table('information_object'))->orderBy('id')
             ->chunk($this->batchSize, function ($rows) use ($index, $bar) {
                 $ids = $rows->pluck('id')->toArray();
+
+                // heratio#1398 — batch the ancestor lookup for the whole chunk
+                // (one query) instead of ancestorIds() per row (the dominant N+1).
+                $ancestorsById = app(\AhgCore\Services\HierarchyQueryService::class)
+                    ->batchAncestorIds('information_object', $ids);
 
                 // Batch-load i18n
                 $i18nRows = DB::table('information_object_i18n')
@@ -557,8 +578,7 @@ class EsReindexCommand extends Command
                         // filter a subtree by `ancestors: <id>`; kept correct after a
                         // subtree move via ElasticsearchService::updateSubtreeAncestorsOnMove().
                         // Closure when built, lft/rgt fallback.
-                        'ancestors' => app(\AhgCore\Services\HierarchyQueryService::class)
-                            ->ancestorIds('information_object', (int) $row->id),
+                        'ancestors' => $ancestorsById[(int) $row->id] ?? [],
                         'i18n' => $this->buildI18n($i18nGroup, [
                             'title' => 'title',
                             'scopeAndContent' => 'scope_and_content',
@@ -611,7 +631,7 @@ class EsReindexCommand extends Command
 
                     $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]])."\n";
                     $bulk .= json_encode($doc)."\n";
-                    $bar->advance();
+                    $bar?->advance();
                 }
 
                 if ($bulk) {
@@ -619,8 +639,12 @@ class EsReindexCommand extends Command
                 }
             });
 
-        $bar->finish();
+        $bar?->finish();
         $this->newLine();
+
+        if ($manageBulk) {
+            $this->applyBulkMode($index, false);
+        }
     }
 
     /**
@@ -688,7 +712,7 @@ class EsReindexCommand extends Command
 
                     $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]])."\n";
                     $bulk .= json_encode($doc)."\n";
-                    $bar->advance();
+                    $bar?->advance();
                 }
 
                 if ($bulk) {
@@ -696,7 +720,7 @@ class EsReindexCommand extends Command
                 }
             });
 
-        $bar->finish();
+        $bar?->finish();
         $this->newLine();
     }
 
@@ -741,7 +765,7 @@ class EsReindexCommand extends Command
 
                     $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]])."\n";
                     $bulk .= json_encode($doc)."\n";
-                    $bar->advance();
+                    $bar?->advance();
                 }
 
                 if ($bulk) {
@@ -749,7 +773,7 @@ class EsReindexCommand extends Command
                 }
             });
 
-        $bar->finish();
+        $bar?->finish();
         $this->newLine();
     }
 
@@ -831,7 +855,7 @@ class EsReindexCommand extends Command
 
                     $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]])."\n";
                     $bulk .= json_encode($doc)."\n";
-                    $bar->advance();
+                    $bar?->advance();
                 }
 
                 if ($bulk) {
@@ -839,7 +863,7 @@ class EsReindexCommand extends Command
                 }
             });
 
-        $bar->finish();
+        $bar?->finish();
         $this->newLine();
     }
 
@@ -926,5 +950,169 @@ class EsReindexCommand extends Command
         if ($resp->successful()) {
             $this->info("  Dropped index {$index}");
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    //  heratio#1398 — parallelism, sharding + bulk-load helpers
+    // ─────────────────────────────────────────────────────────────────────
+
+    /** Parse --id-range "lo,hi" into [int,int], or null. */
+    protected function parseIdRange(): ?array
+    {
+        $raw = $this->option('id-range');
+        if (! $raw) {
+            return null;
+        }
+        $parts = array_map('trim', explode(',', (string) $raw));
+        if (count($parts) !== 2 || ! is_numeric($parts[0]) || ! is_numeric($parts[1])) {
+            $this->warn("  Ignoring malformed --id-range '{$raw}' (expected lo,hi)");
+
+            return null;
+        }
+
+        return [(int) $parts[0], (int) $parts[1]];
+    }
+
+    /**
+     * Split [min,max] into $n contiguous inclusive id ranges.
+     *
+     * @return list<array{0:int,1:int}>
+     */
+    protected function splitRange(int $min, int $max, int $n): array
+    {
+        $n = max(1, $n);
+        $span = $max - $min + 1;
+        $per = (int) max(1, ceil($span / $n));
+        $ranges = [];
+        for ($lo = $min; $lo <= $max; $lo += $per) {
+            $ranges[] = [$lo, (int) min($lo + $per - 1, $max)];
+        }
+
+        return $ranges;
+    }
+
+    /**
+     * Bulk-load mode on the target index. ON: refresh_interval=-1, replicas=0
+     * (max write throughput). OFF: restore refresh_interval=1s + replicas=1, then
+     * force a refresh so freshly-indexed docs become searchable.
+     */
+    protected function applyBulkMode(string $index, bool $on): void
+    {
+        try {
+            if ($on) {
+                Http::put("{$this->host}/{$index}/_settings", [
+                    'index' => ['refresh_interval' => '-1', 'number_of_replicas' => 0],
+                ]);
+                $this->info("  Bulk mode ON for {$index} (refresh_interval=-1, replicas=0)");
+            } else {
+                Http::put("{$this->host}/{$index}/_settings", [
+                    'index' => ['refresh_interval' => '1s', 'number_of_replicas' => 1],
+                ]);
+                Http::post("{$this->host}/{$index}/_refresh");
+                $this->info("  Bulk mode OFF for {$index} (restored + refreshed)");
+            }
+        } catch (\Throwable $e) {
+            $this->warn('  Bulk-mode toggle failed for '.$index.': '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Ensure the target index exists (clone mapping from archive_, else dynamic),
+     * honouring --shards. Extracted so the parallel parent creates it ONCE.
+     */
+    protected function ensureIndexExists(string $type, string $targetIndex): void
+    {
+        if (Http::head("{$this->host}/{$targetIndex}")->status() !== 404) {
+            return;
+        }
+        $sourceIndex = 'archive_'.$this->indexMap[$type];
+        if (Http::head("{$this->host}/{$sourceIndex}")->status() === 200) {
+            $this->createIndexFromMapping($sourceIndex, $targetIndex);
+        } else {
+            $shards = $this->option('shards') ? (int) $this->option('shards') : 4;
+            Http::put("{$this->host}/{$targetIndex}", [
+                'settings' => ['number_of_shards' => $shards, 'number_of_replicas' => 1],
+            ]);
+            $this->info("  Created {$targetIndex} (dynamic mapping, {$shards} shards)");
+        }
+    }
+
+    /**
+     * Parallel informationobject reindex. The parent prepares the index ONCE
+     * (drop/create/mappings/bulk-mode), shards the id space across $workers leaf
+     * processes (each `--id-range … --no-progress`), waits for all, then restores
+     * bulk mode + refreshes.
+     */
+    protected function reindexInformationobjectParallel(string $index, int $workers): void
+    {
+        $this->info("Reindexing informationobject from MySQL → {$index} (parallel: {$workers} workers)");
+
+        if ($this->option('drop')) {
+            $this->dropIndex($index);
+        }
+        $this->ensureIndexExists('informationobject', $index);
+        $this->ensureGeoPointMapping($index);
+        $this->applyBulkMode($index, true);
+
+        $hierarchy = app(\AhgCore\Services\HierarchyQueryService::class);
+        if (! $hierarchy->closureReady('information_object', 1)
+            && DB::table('information_object')->where('id', '!=', 1)->count() > 500000) {
+            $this->warn('  Ancestor closure not populated — run `ahg:build-closure` first for large corpora (the nested-set fallback does not scale to millions).');
+        }
+
+        $min = (int) DB::table('information_object')->where('id', '!=', 1)->min('id');
+        $max = (int) DB::table('information_object')->where('id', '!=', 1)->max('id');
+        if ($max === 0) {
+            $this->warn('  No information objects to index.');
+            $this->applyBulkMode($index, false);
+
+            return;
+        }
+
+        $ranges = $this->splitRange($min, $max, $workers);
+        $this->info('  Sharding id '.$min.'..'.$max.' across '.count($ranges).' workers');
+
+        $artisan = base_path('artisan');
+        $procs = [];
+        foreach ($ranges as $i => [$lo, $hi]) {
+            $p = new \Symfony\Component\Process\Process(
+                [PHP_BINARY, $artisan, 'ahg:es-reindex', '--index=informationobject',
+                    "--id-range={$lo},{$hi}", '--batch='.$this->batchSize, '--no-progress', '--no-interaction'],
+                base_path()
+            );
+            $p->setTimeout(null);
+            $p->start();
+            $procs[$i] = ['proc' => $p, 'done' => false];
+            $this->line("  worker {$i}: id {$lo}..{$hi} started (pid ".($p->getPid() ?? '?').')');
+        }
+
+        do {
+            $running = false;
+            foreach ($procs as $i => &$w) {
+                if ($w['proc']->isRunning()) {
+                    $running = true;
+                } elseif (! $w['done']) {
+                    $w['done'] = true;
+                    $ok = $w['proc']->isSuccessful();
+                    $this->line("  worker {$i} ".($ok ? 'finished' : 'FAILED'));
+                    if (! $ok) {
+                        $this->warn('  worker '.$i.' stderr: '.substr($w['proc']->getErrorOutput(), -400));
+                    }
+                }
+            }
+            unset($w);
+            if ($running) {
+                usleep(500000);
+            }
+        } while ($running);
+
+        $this->applyBulkMode($index, false);
+
+        $count = 0;
+        try {
+            $count = Http::get("{$this->host}/{$index}/_count")->json()['count'] ?? 0;
+        } catch (\Throwable $e) {
+        }
+        $this->info("  Parallel reindex complete — {$index} now has {$count} docs.");
     }
 }
