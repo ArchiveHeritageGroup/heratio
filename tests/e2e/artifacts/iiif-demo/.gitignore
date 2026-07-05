@@ -1,6 +1,0 @@
-# Generated media - large binaries, regenerate via helpers/iiif-demo-capture.mjs + iiif-mux-narration.sh
-*.webm
-*.mp3
-*.mp4
-*.wav
-*.m4a

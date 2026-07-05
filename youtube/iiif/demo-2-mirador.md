@@ -100,7 +100,7 @@ The **Change Discovery API** publishes an Activity Streams feed of what changed 
 
 **Scale 0-3.** **Highest** = the ceiling a complete, best-in-class IIIF implementation reaches. **Heratio** = verified this session. **3** = full + verified live · **2** = live but partial (endpoint works / limited data / not exercised end-to-end) · **1** = present but unpopulated or unverified · **0** = absent.
 
-The headline: Heratio implements **all five IIIF specs plus Content State, 3D, AV, workspaces and validation** — a near-complete stack. Almost every gap is *data*, not *capability* (the exception is Ranges).
+The headline: Heratio implements **all five IIIF specs plus Content State, 3D, AV, workspaces and validation** — a near-complete stack. Every remaining gap is now *data*, not *capability* (the Ranges/TOC capability gap was closed in v1.154.244).
 
 | Spec / feature | Highest | Heratio | Gap? | Evidence |
 |---|:---:|:---:|:---:|---|
@@ -118,9 +118,9 @@ The headline: Heratio implements **all five IIIF specs plus Content State, 3D, A
 | Image tools (brightness/rotate) | 3 | **2** | ▲1 | Mirador built-in, not re-verified live |
 | Annotations (W3C draw-on-image) | 3 | **1** | ▲2 | `iiif_annotation` = 0; write endpoint exists; orchestrator likely AtoM-side |
 | Content search *results* | 3 | **1** | ▲2 | `iiif_ocr_text` = 0; fillable via gateway `/ai/v1/htr` |
-| Ranges / structures (TOC) | 3 | **0** | ▲3 | 6-canvas manifest emits `structures: none` — no table-of-contents |
+| Ranges / structures (TOC) | 3 | **3** | — | v1.154.244: multi-canvas manifests emit a "Contents" Range over all canvases; single-canvas emit none (verified) |
 
-**Read of the table:** annotations and search (Heratio 1) are ▲2 below ceiling purely because the OCR/extraction pipeline has never been *run* — not a code gap; run it once via the gateway and both reach 3. The only genuine *capability* gap is **Ranges/structures (Heratio 0, ▲3 below ceiling)**: even a 6-canvas object gets no table-of-contents, so viewers can't offer chapter/section navigation. Everything else is at or one step below ceiling.
+**Read of the table:** the only remaining gaps are *data*, not capability. Annotations and search (Heratio 1) are ▲2 below ceiling purely because the OCR/extraction pipeline has never been *run* — not a code gap; run it once via the gateway and both reach 3. The former Ranges/structures capability gap was closed in v1.154.244 (manifests now emit a table-of-contents for multi-canvas objects). Everything else is at or one step below ceiling.
 
 ## 9. Why this is the whole point (the thesis)
 

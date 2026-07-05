@@ -143,6 +143,5 @@ Heratio implements the full IIIF stack: the Image API (deep zoom), the Presentat
 
 ## Current availability at a glance
 
-- **Fully working:** deep zoom, full viewer, comparison, audio/video, 3D, collections (mechanism), validation, discovery, content state, image tools.
+- **Fully working:** deep zoom, full viewer, comparison, audio/video, 3D, collections (mechanism), validation, discovery, content state, image tools, and table-of-contents navigation (multi-page objects now carry a "Contents" range).
 - **Works once data exists:** search-within and annotations require AI text extraction to be run first (section 12).
-- **Not yet available:** table-of-contents / chapter navigation (Ranges) is not produced in manifests, so multi-page objects have no section index.
