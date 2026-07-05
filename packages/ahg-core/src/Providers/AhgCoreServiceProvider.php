@@ -192,6 +192,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\WorkflowStatusCommand::class,
                 \AhgCore\Commands\IcipCheckExpiryCommand::class,
                 \AhgCore\Commands\DisplayAutoDetectCommand::class,
+                \AhgCore\Commands\OnboardAtomDbCommand::class,
                 \AhgCore\Commands\DisplayReindexCommand::class,
                 \AhgCore\Commands\HeritageInstallCommand::class,
                 \AhgCore\Commands\HeritageRegionCommand::class,
