@@ -105,22 +105,22 @@ That wrapping is Part 2. →  `demo-2-mirador.md`
 
 ## Where Heratio stands (Image API surface)
 
-**Coverage scale** (a maturity read, *not* the IIIF compliance level): **3** = full + verified live this session · **2** = live but partial (works / limited data / not exercised end-to-end) · **1** = present but unpopulated or unverified · **0** = absent.
+**Scale 0-3.** **Highest** = the level a complete, best-in-class IIIF implementation reaches (the ceiling). **Heratio** = verified this session. **3** = full + verified live · **2** = live but partial (works / limited data / not exercised end-to-end) · **1** = present but unpopulated or unverified · **0** = absent.
 
-Heratio's IIIF Image API compliance itself is **Level 2** (Cantaloupe, dynamic server — Level 2 is the spec maximum).
+Note: the IIIF Image API's own official compliance tops out at **Level 2** (Cantaloupe reaches it) — that's a different scale from the 0-3 maturity below.
 
-| Capability | IIIF | Heratio | Level | Evidence |
-|---|---|---|---|---|
-| Image API server | Image 3.0 | Cantaloupe, **compliance Level 2** | **3** | live tiles verified |
-| Deep zoom (tiled, on-demand) | Image | OpenSeadragon 6.0.2 | **3** | rendered 2339x1698, tiles HTTP 200 |
-| `info.json` capability doc | Image | served | **3** | verified 200 |
-| region / size / rotation / quality / format | Image L2 | full grammar (Cantaloupe L2) | **3** | server-supported |
-| Navigator / home / full-page | viewer | present | **3** | in viewer |
-| Magnifier loupe | viewer ext | present (canvas drawer) | **2** | in code, not re-verified live |
-| Live image filters (brightness/contrast/…) | viewer ext | present | **2** | in code, not re-verified live |
-| Deep-link to a view (Content State) | Content State | `/iiif/content-state/{encode,decode}` | **2** | routes present, not exercised |
-| Multi-image / sequence | viewer | via Mirador (Part 2) | **3** | see Part 2 |
-| Encrypted-at-rest masters | — | **501s** (heratio#1396) | **1** | known gap |
+| Capability | Highest | Heratio | Gap? | Evidence |
+|---|:---:|:---:|:---:|---|
+| Image API server (Cantaloupe, IIIF L2) | 3 | **3** | — | live tiles verified |
+| Deep zoom (tiled, on-demand) | 3 | **3** | — | OSD 6.0.2, rendered 2339x1698, tiles 200 |
+| `info.json` capability doc | 3 | **3** | — | verified 200 |
+| region / size / rotation / quality / format | 3 | **3** | — | full grammar (Cantaloupe L2) |
+| Navigator / home / full-page | 3 | **3** | — | in viewer |
+| Multi-image / sequence | 3 | **3** | — | via Mirador (Part 2) |
+| Magnifier loupe | 3 | **2** | ▲1 | in code, not re-verified live |
+| Live image filters (brightness/contrast/…) | 3 | **2** | ▲1 | in code, not re-verified live |
+| Deep-link to a view (Content State) | 3 | **2** | ▲1 | `/iiif/content-state/{encode,decode}` present, not exercised |
+| Encrypted-at-rest masters render | 3 | **1** | ▲2 | 501s (heratio#1396) |
 
 ## 6. Operator notes (not for an audience)
 

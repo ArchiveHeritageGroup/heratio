@@ -98,29 +98,29 @@ The **Change Discovery API** publishes an Activity Streams feed of what changed 
 
 ## Where Heratio stands (Presentation + the rest of the surface)
 
-**Coverage scale:** **3** = full + verified live this session · **2** = live but partial (endpoint works / limited data / not exercised end-to-end) · **1** = present but unpopulated or unverified · **0** = absent.
+**Scale 0-3.** **Highest** = the ceiling a complete, best-in-class IIIF implementation reaches. **Heratio** = verified this session. **3** = full + verified live · **2** = live but partial (endpoint works / limited data / not exercised end-to-end) · **1** = present but unpopulated or unverified · **0** = absent.
 
-The headline: Heratio implements **all five IIIF specs plus Content State, 3D, AV, workspaces and validation** — a near-complete stack. The gaps are *data*, not *capability*.
+The headline: Heratio implements **all five IIIF specs plus Content State, 3D, AV, workspaces and validation** — a near-complete stack. Almost every gap is *data*, not *capability* (the exception is Ranges).
 
-| Spec / feature | Heratio | Level | Evidence |
-|---|---|---|---|
-| Presentation API 3.0 (manifests) | full | **3** | 200 ld+json, correct Canvas/Annotation structure |
-| Audio / Video (time-based canvas) | full | **3** | video plays in Mirador, transport `0:00 / 3:03` |
-| 3D (model canvas) | full | **3** | interactive `model-viewer`, real `.glb`, orbit/zoom |
-| Comparison / side-by-side | full | **3** | external Internet Archive manifest loaded in Mirador |
-| Content Search API 2.0 | endpoint live, no data | **2** | `/search` returns `search/2` context; nothing to find (no OCR) |
-| Authorization Flow API 2.0 | endpoints live | **2** | `/iiif/auth/2/{probe,access,token}`; probe 422-validates; not run end-to-end |
-| Change Discovery API | endpoint live | **2** | `/iiif/discovery/changes` 200 Activity Streams |
-| Content State API | routes present | **2** | `encode`/`decode` present, not exercised |
-| Collections | shell works, empty | **2** | valid `Collection` manifest + view 200; sample has 0 items |
-| Workspaces (save/restore) | routes present | **2** | `/iiif/workspaces` + `/api/iiif/workspace` |
-| Validation / publish gate | dashboard present | **2** | `/admin/iiif-validation` |
-| Image tools (brightness/rotate) | Mirador built-in | **2** | present, not re-verified live |
-| Ranges / structures (TOC) | not emitted | **0** | 6-canvas manifest emits `structures: none` — no table-of-contents |
-| Annotations (W3C draw-on-image) | tables + write endpoint, no data | **1** | `iiif_annotation` = 0; `/api/iiif/annotations/from-ner` write exists; orchestrator likely AtoM-side |
-| Content search *results* | depends on OCR | **1** | `iiif_ocr_text` = 0; fillable via gateway `/ai/v1/htr` |
+| Spec / feature | Highest | Heratio | Gap? | Evidence |
+|---|:---:|:---:|:---:|---|
+| Presentation API 3.0 (manifests) | 3 | **3** | — | 200 ld+json, correct Canvas/Annotation structure |
+| Audio / Video (time-based canvas) | 3 | **3** | — | video plays in Mirador, transport `0:00 / 3:03` |
+| 3D (model canvas) | 3 | **3** | — | interactive `model-viewer`, real `.glb`, orbit/zoom |
+| Comparison / side-by-side | 3 | **3** | — | external Internet Archive manifest loaded in Mirador |
+| Content Search API 2.0 | 3 | **2** | ▲1 | `/search` returns `search/2` context; nothing to find (no OCR) |
+| Authorization Flow API 2.0 | 3 | **2** | ▲1 | `/iiif/auth/2/{probe,access,token}`; probe 422-validates; not run end-to-end |
+| Change Discovery API | 3 | **2** | ▲1 | `/iiif/discovery/changes` 200 Activity Streams |
+| Content State API | 3 | **2** | ▲1 | `encode`/`decode` present, not exercised |
+| Collections | 3 | **2** | ▲1 | valid `Collection` manifest + view 200; sample has 0 items |
+| Workspaces (save/restore) | 3 | **2** | ▲1 | `/iiif/workspaces` + `/api/iiif/workspace` |
+| Validation / publish gate | 3 | **2** | ▲1 | `/admin/iiif-validation` |
+| Image tools (brightness/rotate) | 3 | **2** | ▲1 | Mirador built-in, not re-verified live |
+| Annotations (W3C draw-on-image) | 3 | **1** | ▲2 | `iiif_annotation` = 0; write endpoint exists; orchestrator likely AtoM-side |
+| Content search *results* | 3 | **1** | ▲2 | `iiif_ocr_text` = 0; fillable via gateway `/ai/v1/htr` |
+| Ranges / structures (TOC) | 3 | **0** | ▲3 | 6-canvas manifest emits `structures: none` — no table-of-contents |
 
-**Read of the table:** annotations and search sit at 1 purely because the OCR/extraction pipeline has never been *run* (not a code gap — run it once via the gateway and both move to 3). The one genuine *capability* gap is **Ranges/structures = 0**: even a 6-canvas object gets no table-of-contents in its manifest, so viewers can't offer chapter/section navigation. Everything else scores 2-3.
+**Read of the table:** annotations and search (Heratio 1) are ▲2 below ceiling purely because the OCR/extraction pipeline has never been *run* — not a code gap; run it once via the gateway and both reach 3. The only genuine *capability* gap is **Ranges/structures (Heratio 0, ▲3 below ceiling)**: even a 6-canvas object gets no table-of-contents, so viewers can't offer chapter/section navigation. Everything else is at or one step below ceiling.
 
 ## 9. Why this is the whole point (the thesis)
 
