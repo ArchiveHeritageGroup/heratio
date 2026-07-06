@@ -26,6 +26,7 @@
 namespace AhgHelp\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Bulk-ingest every markdown file under docs/help/ into the help_article table
@@ -81,6 +82,16 @@ class IngestAllHelpCommand extends Command
         }
 
         $this->info("Help ingest complete: {$ok} ingested, {$fail} failed, ".count($files).' total.');
+
+        // Second pass: rebuild every article's cross-links now that ALL articles
+        // exist, so a link authored before its target was ingested still resolves
+        // (bidirectional links surface on both articles regardless of order).
+        \AhgHelp\Services\HelpArticleService::ensureLinkTable();
+        $linked = 0;
+        foreach (DB::table('help_article')->select('id', 'body_html')->get() as $a) {
+            $linked += \AhgHelp\Services\HelpArticleService::rebuildLinks((int) $a->id, (string) $a->body_html);
+        }
+        $this->info("Cross-link pass: {$linked} article link(s) resolved.");
 
         // Non-fatal: a few failures should not abort an install.
         return self::SUCCESS;

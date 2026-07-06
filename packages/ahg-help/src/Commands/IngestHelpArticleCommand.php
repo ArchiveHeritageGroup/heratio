@@ -148,6 +148,12 @@ class IngestHelpArticleCommand extends Command
         }
         $this->info('Section count: '.count($sections));
 
+        // Bidirectional cross-links: parse /help/article/{slug} out of the body.
+        $links = \AhgHelp\Services\HelpArticleService::rebuildLinks($articleId, $html);
+        if ($links > 0) {
+            $this->info("Cross-links: {$links}");
+        }
+
         return self::SUCCESS;
     }
 

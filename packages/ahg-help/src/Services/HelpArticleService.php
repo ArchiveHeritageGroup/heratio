@@ -26,10 +26,89 @@
 namespace AhgHelp\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class HelpArticleService
 {
     public const ADMIN_CATEGORIES = ['Technical', 'Plugin Reference'];
+
+    /**
+     * Ensure the article↔article link table exists (ahg-help ships via
+     * install.sql, so create idempotently for already-installed instances).
+     */
+    public static function ensureLinkTable(): void
+    {
+        if (Schema::hasTable('help_article_link')) {
+            return;
+        }
+        Schema::create('help_article_link', function ($t) {
+            $t->bigIncrements('id');
+            $t->unsignedBigInteger('article_id');
+            $t->unsignedBigInteger('related_article_id');
+            $t->timestamp('created_at')->nullable()->useCurrent();
+            $t->unique(['article_id', 'related_article_id'], 'uq_help_link');
+            $t->index('related_article_id', 'idx_help_link_related');
+        });
+    }
+
+    /**
+     * Rebuild an article's OUTGOING cross-links by parsing `/help/article/{slug}`
+     * references out of its rendered HTML. Links are stored one-directional but
+     * surfaced BOTH ways by relatedArticles(), so authoring a link in one
+     * article makes it appear as "Related" on both.
+     */
+    public static function rebuildLinks(int $articleId, string $bodyHtml): int
+    {
+        self::ensureLinkTable();
+
+        preg_match_all('~/help/article/([a-z0-9][a-z0-9\-]*)~i', $bodyHtml, $m);
+        $slugs = array_values(array_unique($m[1] ?? []));
+
+        DB::table('help_article_link')->where('article_id', $articleId)->delete();
+
+        $written = 0;
+        foreach ($slugs as $slug) {
+            $targetId = (int) DB::table('help_article')->where('slug', $slug)->value('id');
+            if ($targetId > 0 && $targetId !== $articleId) {
+                DB::table('help_article_link')->updateOrInsert(
+                    ['article_id' => $articleId, 'related_article_id' => $targetId],
+                    ['created_at' => now()]
+                );
+                $written++;
+            }
+        }
+
+        return $written;
+    }
+
+    /**
+     * Articles linked to $articleId in EITHER direction (bidirectional).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function relatedArticles(int $articleId): array
+    {
+        if (! Schema::hasTable('help_article_link')) {
+            return [];
+        }
+
+        $ids = DB::table('help_article_link')->where('article_id', $articleId)->pluck('related_article_id')
+            ->merge(DB::table('help_article_link')->where('related_article_id', $articleId)->pluck('article_id'))
+            ->map(fn ($v) => (int) $v)->unique()->values();
+
+        if ($ids->isEmpty()) {
+            return [];
+        }
+
+        $query = DB::table('help_article')
+            ->whereIn('id', $ids)
+            ->where('is_published', 1)
+            ->select('slug', 'title', 'category')
+            ->orderBy('title');
+        self::applyAdminFilter($query);
+
+        return $query->get()->map(fn ($r) => (array) $r)->all();
+    }
 
     public static function isAdmin(): bool
     {

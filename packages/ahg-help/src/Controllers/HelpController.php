@@ -136,6 +136,7 @@ class HelpController extends Controller
 
         $adjacent = HelpArticleService::getAdjacentArticles($article['id'], $article['category']);
         $categories = HelpArticleService::getCategories();
+        $related = HelpArticleService::relatedArticles((int) $article['id']);
 
         return view('ahg-help::article', [
             'article' => $article,
@@ -143,6 +144,7 @@ class HelpController extends Controller
             'prevArticle' => $adjacent['prev'],
             'nextArticle' => $adjacent['next'],
             'categories' => $categories,
+            'related' => $related,
         ]);
     }
 

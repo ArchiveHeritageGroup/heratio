@@ -93,3 +93,11 @@ If records exist but the **browse shows a small subset**, the classification lay
 - **Deploys after a `composer.lock` change must run `composer install`** — a code-only pull leaves the old, possibly-vulnerable vendor. `./bin/deploy-check` catches this.
 - **`display_type` lives in `display_object_config.object_type`**, not on `information_object`. Classification defaults unmatched records to `archive`.
 - **A full reindex is DB-latency bound**, not CPU bound — parallel workers (`--workers`) + the ancestor closure are what make it scale (see the reindex performance work in the release notes).
+
+---
+
+## Related articles
+
+- [Advanced search](/help/article/advanced-search-user-guide)
+- [Backup & restore](/help/article/backup-restore-user-guide)
+- [Semantic search plugin](/help/article/ahgsemanticsearchplugin)

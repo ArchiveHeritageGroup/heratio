@@ -63,6 +63,20 @@
       {!! $article['body_html'] !!}
     </article>
 
+    @if(!empty($related))
+      <section class="mt-5 pt-4 border-top">
+        <h5 class="mb-3"><i class="fas fa-link me-2"></i>{{ __('Related articles') }}</h5>
+        <ul class="list-unstyled mb-0">
+          @foreach($related as $rel)
+            <li class="mb-2">
+              <a href="{{ route('help.article', $rel['slug']) }}">{{ $rel['title'] }}</a>
+              <span class="text-muted small ms-2">{{ $rel['category'] }}</span>
+            </li>
+          @endforeach
+        </ul>
+      </section>
+    @endif
+
     <nav class="d-flex justify-content-between mt-5 pt-4 border-top">
       @if($prevArticle)
         <a href="{{ route('help.article', $prevArticle['slug']) }}" class="btn atom-btn-white">
