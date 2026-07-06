@@ -126,51 +126,6 @@
         </div>
     </form>
 
-    {{-- Linked articles (bidirectional cross-links) — heratio#1399. Separate
-         forms (cannot nest in the article form); only when editing. --}}
-    @if($editing)
-    <div class="card shadow-sm mb-4">
-        <div class="card-header"><strong><i class="fas fa-link me-1"></i>{{ __('Linked articles') }}</strong> <span class="badge bg-secondary">{{ count($related) }}</span></div>
-        <div class="card-body">
-            @if(session('success'))<div class="alert alert-success py-2">{{ session('success') }}</div>@endif
-            @if(session('error'))<div class="alert alert-warning py-2">{{ session('error') }}</div>@endif
-
-            <form action="{{ route('admin.articles.links.add', $article->id) }}" method="post" class="mb-3">
-                @csrf
-                <label class="form-label">{{ __('Add a linked article') }}</label>
-                <div class="input-group">
-                    <input type="text" name="target" class="form-control" list="post-options"
-                           placeholder="{{ __('Search a title… or paste a /articles/… URL') }}" autocomplete="off" required>
-                    <button class="btn btn-primary" type="submit">{{ __('Add & save') }}</button>
-                </div>
-                <datalist id="post-options">
-                    @foreach($allPosts as $p)<option value="{{ $p['title'] }}"></option>@endforeach
-                </datalist>
-                <div class="form-text">{{ __('Start typing to search, pick, then Add. Bidirectional — appears on both articles. Repeat to add more.') }}</div>
-            </form>
-
-            @if(empty($related))
-                <p class="text-muted mb-0">{{ __('No links yet. Add one above.') }}</p>
-            @else
-                <ul class="list-group">
-                    @foreach($related as $rel)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>
-                                <a href="{{ route('admin.articles.edit', $rel['id']) }}">{{ $rel['title'] }}</a>
-                                <span class="badge bg-{{ ($rel['status'] ?? '') === 'published' ? 'success' : 'secondary' }} ms-2">{{ $rel['status'] }}</span>
-                            </span>
-                            <form action="{{ route('admin.articles.links.remove', [$article->id, $rel['id']]) }}" method="post" class="m-0">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger" type="submit" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
-                            </form>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
-    </div>
-    @endif
-
     {{-- Attachments (guides & templates): parent = this article, children = files.
          Separate form (cannot nest in the article form); only when editing. --}}
     @if($editing)
@@ -298,6 +253,50 @@
         </div>
     @else
         <p class="text-muted mt-4"><i class="fas fa-info-circle me-1"></i>{{ __('Save the article first, then you can attach guides and templates.') }}</p>
+    @endif
+
+    {{-- Linked articles (bidirectional) — under Guides & Templates. heratio#1399 --}}
+    @if($editing)
+    <div class="card shadow-sm mb-4">
+        <div class="card-header"><strong><i class="fas fa-link me-1"></i>{{ __('Linked articles') }}</strong> <span class="badge bg-secondary">{{ count($related) }}</span></div>
+        <div class="card-body">
+            @if(session('success'))<div class="alert alert-success py-2">{{ session('success') }}</div>@endif
+            @if(session('error'))<div class="alert alert-warning py-2">{{ session('error') }}</div>@endif
+
+            <form action="{{ route('admin.articles.links.add', $article->id) }}" method="post" class="mb-3">
+                @csrf
+                <label class="form-label">{{ __('Add a linked article') }}</label>
+                <div class="input-group">
+                    <input type="text" name="target" class="form-control" list="post-options"
+                           placeholder="{{ __('Search a title… or paste a /articles/… URL') }}" autocomplete="off" required>
+                    <button class="btn btn-primary" type="submit">{{ __('Add & save') }}</button>
+                </div>
+                <datalist id="post-options">
+                    @foreach($allPosts as $p)<option value="{{ $p['title'] }}"></option>@endforeach
+                </datalist>
+                <div class="form-text">{{ __('Bidirectional — appears on both articles and on the public article page. Repeat to add more.') }}</div>
+            </form>
+
+            @if(empty($related))
+                <p class="text-muted mb-0">{{ __('No links yet. Add one above.') }}</p>
+            @else
+                <ul class="list-group">
+                    @foreach($related as $rel)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <a href="{{ route('admin.articles.edit', $rel['id']) }}">{{ $rel['title'] }}</a>
+                                <span class="badge bg-{{ ($rel['status'] ?? '') === 'published' ? 'success' : 'secondary' }} ms-2">{{ $rel['status'] }}</span>
+                            </span>
+                            <form action="{{ route('admin.articles.links.remove', [$article->id, $rel['id']]) }}" method="post" class="m-0">
+                                @csrf @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger" type="submit" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
+                            </form>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+    </div>
     @endif
 </div>
 

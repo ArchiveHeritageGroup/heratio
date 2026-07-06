@@ -73,11 +73,17 @@ class ArticlePersistenceService
         // vanish on demo/baseline articles either.
         $viewCounts = DB::table('blog_post')->pluck('view_count', 'id')->all();
 
+        // heratio#1399 — persist article cross-links through the reset too.
+        $links = Schema::hasTable('blog_post_link')
+            ? DB::table('blog_post_link')->get()->map(fn ($r) => (array) $r)->all()
+            : [];
+
         $state = [
             'captured_at' => now()->toIso8601String(),
             'posts'       => $protected->map(fn ($r) => (array) $r)->all(),
             'attachments' => $attachments->map(fn ($r) => (array) $r)->all(),
             'comments'    => $comments->map(fn ($r) => (array) $r)->all(),
+            'links'       => $links,
             'view_counts' => $viewCounts,
         ];
 
@@ -116,6 +122,11 @@ class ArticlePersistenceService
             });
         }
 
+        // heratio#1399 — (re)create the cross-link table BEFORE the transaction:
+        // a CREATE TABLE inside a transaction implicit-commits in MySQL and would
+        // break the surrounding DB::transaction().
+        \AhgArticles\Services\BlogLinkService::ensureLinkTable();
+
         $restored = 0;
         DB::transaction(function () use ($state, &$restored) {
             foreach (($state['posts'] ?? []) as $row) {
@@ -143,6 +154,18 @@ class ArticlePersistenceService
                 if (Schema::hasTable('blog_comment')) {
                     DB::table('blog_comment')->insert($row);
                 }
+            }
+
+            // heratio#1399 — restore article cross-links (table already ensured
+            // above, outside the transaction; here just upsert the rows).
+            foreach (($state['links'] ?? []) as $row) {
+                if (! isset($row['post_id'], $row['related_post_id'])) {
+                    continue;
+                }
+                DB::table('blog_post_link')->updateOrInsert(
+                    ['post_id' => $row['post_id'], 'related_post_id' => $row['related_post_id']],
+                    ['created_at' => $row['created_at'] ?? now()]
+                );
             }
         });
 

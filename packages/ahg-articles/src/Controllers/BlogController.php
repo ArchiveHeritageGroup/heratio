@@ -73,11 +73,18 @@ class BlogController extends Controller
             $article->view_count = (int) ($article->view_count ?? 0) + 1;
         }
 
+        // Related articles (bidirectional links) — only surface published ones publicly.
+        $related = array_values(array_filter(
+            \AhgArticles\Services\BlogLinkService::related((int) $article->id),
+            fn ($r) => ($r['status'] ?? '') === 'published'
+        ));
+
         return view('articles::show', [
             'article'     => $article,
             'bodyHtml'    => $article->body ? Str::markdown($article->body) : '',
             'comments'    => $this->blog->listApprovedComments((int) $article->id),
             'attachments' => $this->blog->listAttachments((int) $article->id),
+            'related'     => $related,
         ]);
     }
 

@@ -32,6 +32,26 @@
             {!! $bodyHtml !!}
         </div>
 
+        {{-- Linked articles (bidirectional) — above Guides & Templates. heratio#1399 --}}
+        @if(!empty($related))
+            <div class="card shadow-sm mt-5">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-link me-2"></i>
+                    <span class="h5 mb-0">{{ __('Related articles') }}</span>
+                    <span class="badge bg-secondary ms-2">{{ count($related) }}</span>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        @foreach($related as $rel)
+                            <li class="mb-2">
+                                <a href="{{ route('articles.show', $rel['slug']) }}">{{ $rel['title'] }}</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
         @if(!empty($attachments))
             <div class="card border-primary shadow-sm mt-5">
                 <div class="card-header bg-primary text-white d-flex align-items-center">
