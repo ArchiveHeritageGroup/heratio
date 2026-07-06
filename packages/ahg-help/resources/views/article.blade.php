@@ -59,6 +59,18 @@
       </ol>
     </nav>
 
+    {{-- Permalink to this article (copyable) --}}
+    <div class="input-group input-group-sm mb-4" style="max-width: 640px;">
+      <span class="input-group-text"><i class="fas fa-link"></i></span>
+      <input type="text" class="form-control" id="article-permalink" readonly
+             value="{{ route('help.article', $article['slug']) }}"
+             onclick="this.select();">
+      <button class="btn atom-btn-white" type="button"
+              onclick="navigator.clipboard.writeText(document.getElementById('article-permalink').value); this.textContent='{{ __('Copied') }}'; setTimeout(()=>this.textContent='{{ __('Copy link') }}',1500);">
+        {{ __('Copy link') }}
+      </button>
+    </div>
+
     <article class="help-article-content">
       {!! $article['body_html'] !!}
     </article>
