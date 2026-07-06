@@ -132,7 +132,37 @@ class BlogAdminController extends Controller
             'groups'      => $this->blog->distinctGroups(),
             'attachments' => $this->blog->listAttachments($id),
             'attachmentKinds' => $this->attachmentKinds(),
+            'related'     => \AhgArticles\Services\BlogLinkService::related($id),
+            'allPosts'    => \AhgArticles\Services\BlogLinkService::allForPicker($id),
         ]);
+    }
+
+    /** heratio#1399 — add a bidirectional link to another article. */
+    public function linksAdd(Request $request, int $id)
+    {
+        $this->guard();
+        if (! $this->blog->find($id)) {
+            abort(404);
+        }
+        $targetId = \AhgArticles\Services\BlogLinkService::resolveId((string) $request->input('target', ''));
+        if (! $targetId) {
+            return back()->with('error', 'Could not find that article — pick one from the list or paste its /articles/… URL.');
+        }
+        \AhgArticles\Services\BlogLinkService::add($id, $targetId);
+
+        return redirect()->route('admin.articles.edit', $id)->with('success', 'Link added.');
+    }
+
+    /** heratio#1399 — remove a link between two articles. */
+    public function linksRemove(int $id, int $targetId)
+    {
+        $this->guard();
+        if (! $this->blog->find($id)) {
+            abort(404);
+        }
+        \AhgArticles\Services\BlogLinkService::remove($id, $targetId);
+
+        return redirect()->route('admin.articles.edit', $id)->with('success', 'Link removed.');
     }
 
     public function update(Request $request, int $id)

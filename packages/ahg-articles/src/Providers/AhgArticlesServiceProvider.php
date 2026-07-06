@@ -58,6 +58,8 @@ class AhgArticlesServiceProvider extends ServiceProvider
                 $router->put('/{id}/attachments/{attachmentId}', [BlogAdminController::class, 'updateAttachment'])->where('id', '[0-9]+')->where('attachmentId', '[0-9]+')->name('attachments.update');
                 $router->delete('/{id}/attachments/{attachmentId}', [BlogAdminController::class, 'destroyAttachment'])->where('id', '[0-9]+')->where('attachmentId', '[0-9]+')->name('attachments.destroy');
                 $router->get('/{id}/edit', [BlogAdminController::class, 'edit'])->where('id', '[0-9]+')->name('edit');
+                $router->post('/{id}/links', [BlogAdminController::class, 'linksAdd'])->where('id', '[0-9]+')->name('links.add');
+                $router->delete('/{id}/links/{targetId}', [BlogAdminController::class, 'linksRemove'])->where('id', '[0-9]+')->where('targetId', '[0-9]+')->name('links.remove');
                 $router->put('/{id}', [BlogAdminController::class, 'update'])->where('id', '[0-9]+')->name('update');
                 $router->put('/{id}/protect', [BlogAdminController::class, 'toggleProtect'])->where('id', '[0-9]+')->name('protect');
                 $router->delete('/{id}', [BlogAdminController::class, 'destroy'])->where('id', '[0-9]+')->name('destroy');
