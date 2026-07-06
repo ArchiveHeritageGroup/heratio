@@ -69,6 +69,11 @@
               onclick="navigator.clipboard.writeText(document.getElementById('article-permalink').value); this.textContent='{{ __('Copied') }}'; setTimeout(()=>this.textContent='{{ __('Copy link') }}',1500);">
         {{ __('Copy link') }}
       </button>
+      @if(\AhgHelp\Services\HelpArticleService::isAdmin())
+        <a class="btn atom-btn-white" href="{{ route('help.article.links', $article['slug']) }}" title="{{ __('Link articles') }}">
+          <i class="fas fa-link"></i> {{ __('Links') }}
+        </a>
+      @endif
     </div>
 
     <article class="help-article-content">

@@ -148,6 +148,50 @@ class HelpController extends Controller
         ]);
     }
 
+    /** Admin: manage an article's cross-links (heratio#1399). */
+    public function manageLinks(string $slug)
+    {
+        $article = HelpArticleService::getBySlug($slug);
+        if (! $article) {
+            abort(404);
+        }
+        HelpArticleService::ensureLinkTable();
+
+        return view('ahg-help::manage-links', [
+            'article' => $article,
+            'related' => HelpArticleService::relatedArticles((int) $article['id']),
+            'allArticles' => HelpArticleService::searchArticles('', (int) $article['id'], 1000),
+        ]);
+    }
+
+    /** Admin: add a link (from a picked title, a slug, or a pasted /help/article URL). */
+    public function addLink(\Illuminate\Http\Request $request, string $slug)
+    {
+        $article = HelpArticleService::getBySlug($slug);
+        if (! $article) {
+            abort(404);
+        }
+        $targetId = HelpArticleService::resolveArticleId((string) $request->input('target', ''));
+        if (! $targetId) {
+            return back()->with('error', 'Could not find that article — pick one from the list or paste its /help/article/… URL.');
+        }
+        HelpArticleService::addManualLink((int) $article['id'], $targetId);
+
+        return redirect()->route('help.article.links', $slug)->with('success', 'Link added.');
+    }
+
+    /** Admin: remove a link. */
+    public function removeLink(string $slug, int $targetId)
+    {
+        $article = HelpArticleService::getBySlug($slug);
+        if (! $article) {
+            abort(404);
+        }
+        HelpArticleService::removeLink((int) $article['id'], $targetId);
+
+        return redirect()->route('help.article.links', $slug)->with('success', 'Link removed.');
+    }
+
     /**
      * Interactive end-to-end system flow map (issue #1216). A single
      * data-driven, pan/zoom/drill diagram of the platform journey. The

@@ -38,17 +38,94 @@ class HelpArticleService
      */
     public static function ensureLinkTable(): void
     {
-        if (Schema::hasTable('help_article_link')) {
+        if (! Schema::hasTable('help_article_link')) {
+            Schema::create('help_article_link', function ($t) {
+                $t->bigIncrements('id');
+                $t->unsignedBigInteger('article_id');
+                $t->unsignedBigInteger('related_article_id');
+                $t->string('source', 16)->default('markdown'); // markdown = parsed from body; manual = added in the admin UI
+                $t->timestamp('created_at')->nullable()->useCurrent();
+                $t->unique(['article_id', 'related_article_id'], 'uq_help_link');
+                $t->index('related_article_id', 'idx_help_link_related');
+            });
+
             return;
         }
-        Schema::create('help_article_link', function ($t) {
-            $t->bigIncrements('id');
-            $t->unsignedBigInteger('article_id');
-            $t->unsignedBigInteger('related_article_id');
-            $t->timestamp('created_at')->nullable()->useCurrent();
-            $t->unique(['article_id', 'related_article_id'], 'uq_help_link');
-            $t->index('related_article_id', 'idx_help_link_related');
-        });
+        // Existing table (created before the source column) — add it.
+        if (! Schema::hasColumn('help_article_link', 'source')) {
+            Schema::table('help_article_link', function ($t) {
+                $t->string('source', 16)->default('markdown')->after('related_article_id');
+            });
+        }
+    }
+
+    /** Resolve an article id from a slug, a /help/article/{slug} path, or a full URL. */
+    public static function resolveArticleId(string $ref): ?int
+    {
+        $ref = trim($ref);
+        if ($ref === '') {
+            return null;
+        }
+        if (preg_match('~/help/article/([a-z0-9][a-z0-9\-]*)~i', $ref, $m)) {
+            $ref = $m[1];
+        }
+        $id = (int) DB::table('help_article')->where('slug', $ref)->value('id');
+        if ($id === 0) {
+            // fall back to an exact title match (the datalist shows titles)
+            $id = (int) DB::table('help_article')->where('title', $ref)->value('id');
+        }
+
+        return $id > 0 ? $id : null;
+    }
+
+    /** Add a manual (UI-authored) bidirectional link. Idempotent. */
+    public static function addManualLink(int $articleId, int $targetId): bool
+    {
+        self::ensureLinkTable();
+        if ($articleId <= 0 || $targetId <= 0 || $articleId === $targetId) {
+            return false;
+        }
+        // Store one row; relatedArticles() surfaces it both ways.
+        DB::table('help_article_link')->updateOrInsert(
+            ['article_id' => $articleId, 'related_article_id' => $targetId],
+            ['source' => 'manual', 'created_at' => now()]
+        );
+
+        return true;
+    }
+
+    /** Remove a link between two articles (either stored direction). */
+    public static function removeLink(int $articleId, int $targetId): void
+    {
+        if (! Schema::hasTable('help_article_link')) {
+            return;
+        }
+        DB::table('help_article_link')
+            ->where(function ($q) use ($articleId, $targetId) {
+                $q->where('article_id', $articleId)->where('related_article_id', $targetId);
+            })
+            ->orWhere(function ($q) use ($articleId, $targetId) {
+                $q->where('article_id', $targetId)->where('related_article_id', $articleId);
+            })
+            ->delete();
+    }
+
+    /** Search articles by title/slug for the link-picker dropdown. */
+    public static function searchArticles(string $q, int $excludeId = 0, int $limit = 20): array
+    {
+        $query = DB::table('help_article')->where('is_published', 1);
+        if ($excludeId > 0) {
+            $query->where('id', '!=', $excludeId);
+        }
+        if (trim($q) !== '') {
+            $query->where(function ($w) use ($q) {
+                $w->where('title', 'like', '%'.$q.'%')->orWhere('slug', 'like', '%'.$q.'%');
+            });
+        }
+        self::applyAdminFilter($query);
+
+        return $query->orderBy('title')->limit($limit)
+            ->get(['id', 'slug', 'title', 'category'])->map(fn ($r) => (array) $r)->all();
     }
 
     /**
@@ -64,7 +141,8 @@ class HelpArticleService
         preg_match_all('~/help/article/([a-z0-9][a-z0-9\-]*)~i', $bodyHtml, $m);
         $slugs = array_values(array_unique($m[1] ?? []));
 
-        DB::table('help_article_link')->where('article_id', $articleId)->delete();
+        // Only rebuild markdown-sourced links; leave manual (UI) links intact.
+        DB::table('help_article_link')->where('article_id', $articleId)->where('source', 'markdown')->delete();
 
         $written = 0;
         foreach ($slugs as $slug) {
@@ -72,7 +150,7 @@ class HelpArticleService
             if ($targetId > 0 && $targetId !== $articleId) {
                 DB::table('help_article_link')->updateOrInsert(
                     ['article_id' => $articleId, 'related_article_id' => $targetId],
-                    ['created_at' => now()]
+                    ['source' => 'markdown', 'created_at' => now()]
                 );
                 $written++;
             }
@@ -103,7 +181,7 @@ class HelpArticleService
         $query = DB::table('help_article')
             ->whereIn('id', $ids)
             ->where('is_published', 1)
-            ->select('slug', 'title', 'category')
+            ->select('id', 'slug', 'title', 'category')
             ->orderBy('title');
         self::applyAdminFilter($query);
 
