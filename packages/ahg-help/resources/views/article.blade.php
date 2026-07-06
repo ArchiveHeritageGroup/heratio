@@ -59,19 +59,21 @@
       </ol>
     </nav>
 
-    {{-- Permalink to this article (copyable) --}}
-    <div class="input-group input-group-sm mb-4" style="max-width: 640px;">
-      <span class="input-group-text"><i class="fas fa-link"></i></span>
-      <input type="text" class="form-control" id="article-permalink" readonly
-             value="{{ route('help.article', $article['slug']) }}"
-             onclick="this.select();">
-      <button class="btn atom-btn-white" type="button"
-              onclick="navigator.clipboard.writeText(document.getElementById('article-permalink').value); this.textContent='{{ __('Copied') }}'; setTimeout(()=>this.textContent='{{ __('Copy link') }}',1500);">
-        {{ __('Copy link') }}
-      </button>
+    {{-- Permalink (copyable) + admin link-manager — wraps on mobile so nothing is hidden --}}
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+      <div class="input-group input-group-sm" style="flex: 1 1 260px; max-width: 480px;">
+        <span class="input-group-text"><i class="fas fa-link"></i></span>
+        <input type="text" class="form-control" id="article-permalink" readonly
+               value="{{ route('help.article', $article['slug']) }}"
+               onclick="this.select();">
+        <button class="btn atom-btn-white" type="button"
+                onclick="navigator.clipboard.writeText(document.getElementById('article-permalink').value); this.textContent='{{ __('Copied') }}'; setTimeout(()=>this.textContent='{{ __('Copy link') }}',1500);">
+          {{ __('Copy link') }}
+        </button>
+      </div>
       @if(\AhgHelp\Services\HelpArticleService::isAdmin())
-        <a class="btn atom-btn-white" href="{{ route('help.article.links', $article['slug']) }}" title="{{ __('Link articles') }}">
-          <i class="fas fa-link"></i> {{ __('Links') }}
+        <a class="btn btn-sm atom-btn-white" href="{{ route('help.article.links', $article['slug']) }}">
+          <i class="fas fa-link me-1"></i>{{ __('Manage links') }}
         </a>
       @endif
     </div>
