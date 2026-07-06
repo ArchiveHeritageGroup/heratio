@@ -124,7 +124,7 @@
 
   {{-- Google Maps embed (matching AtoM) --}}
   @php
-    $mapApiKey = \AhgCore\Services\SecretCrypto::reveal(\AhgCore\Services\SettingHelper::get('google_maps_api_key')); {{-- #1395(D) decrypt-at-rest --}}
+    $mapApiKey = \AhgCore\Services\SecretCrypto::reveal(\AhgCore\Services\SettingHelper::get('google_maps_api_key')); // #1395(D) decrypt-at-rest
     $primaryContactForMap = $contacts->first();
     $mapLatitude = $primaryContactForMap->latitude ?? null;
     $mapLongitude = $primaryContactForMap->longitude ?? null;

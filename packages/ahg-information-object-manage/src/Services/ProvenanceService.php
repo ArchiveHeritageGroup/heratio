@@ -210,7 +210,11 @@ class ProvenanceService
      */
     public function getDocuments(int $objectId): \Illuminate\Support\Collection
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('provenance_document')) {
+        // Defensive: the information_object_id column is added by a later
+        // migration (post provenance-consolidation). Guard so an instance that
+        // hasn't migrated yet returns no docs instead of 500-ing the page.
+        if (!\Illuminate\Support\Facades\Schema::hasTable('provenance_document')
+            || !\Illuminate\Support\Facades\Schema::hasColumn('provenance_document', 'information_object_id')) {
             return collect();
         }
 
