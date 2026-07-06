@@ -271,6 +271,8 @@
                            placeholder="{{ __('Search a title… or paste a /articles/… URL') }}" autocomplete="off" required>
                     <button class="btn btn-primary" type="submit">{{ __('Add & save') }}</button>
                 </div>
+                <input type="text" name="description" class="form-control mt-2" maxlength="500"
+                       placeholder="{{ __('Description (optional) — shown under the linked article') }}">
                 <datalist id="post-options">
                     @foreach($allPosts as $p)<option value="{{ $p['title'] }}"></option>@endforeach
                 </datalist>
@@ -280,20 +282,39 @@
             @if(empty($related))
                 <p class="text-muted mb-0">{{ __('No links yet. Add one above.') }}</p>
             @else
-                <ul class="list-group">
+                <ul class="list-group" id="links-sortable">
                     @foreach($related as $rel)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>
-                                <a href="{{ route('admin.articles.edit', $rel['id']) }}">{{ $rel['title'] }}</a>
-                                <span class="badge bg-{{ ($rel['status'] ?? '') === 'published' ? 'success' : 'secondary' }} ms-2">{{ $rel['status'] }}</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center gap-2" data-id="{{ $rel['id'] }}" draggable="true">
+                            <span class="d-flex align-items-start gap-2 flex-grow-1">
+                                <i class="fas fa-grip-vertical text-muted mt-1 links-drag-handle" style="cursor:grab;" title="{{ __('Drag to reorder') }}"></i>
+                                <span>
+                                    <a href="{{ route('admin.articles.edit', $rel['id']) }}">{{ $rel['title'] }}</a>
+                                    <span class="badge bg-{{ ($rel['status'] ?? '') === 'published' ? 'success' : 'secondary' }} ms-1">{{ $rel['status'] }}</span>
+                                    @if(!empty($rel['description']))<span class="d-block text-muted small">{{ $rel['description'] }}</span>@endif
+                                </span>
                             </span>
-                            <form action="{{ route('admin.articles.links.remove', [$article->id, $rel['id']]) }}" method="post" class="m-0">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger" type="submit" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
-                            </form>
+                            <span class="d-flex align-items-center gap-1 flex-shrink-0">
+                                <button type="button" class="btn btn-sm btn-outline-secondary links-up" title="{{ __('Move up') }}"><i class="fas fa-arrow-up"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary links-down" title="{{ __('Move down') }}"><i class="fas fa-arrow-down"></i></button>
+                                <form action="{{ route('admin.articles.links.remove', [$article->id, $rel['id']]) }}" method="post" class="m-0">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
+                                </form>
+                            </span>
                         </li>
                     @endforeach
                 </ul>
+
+                {{-- Standalone reorder form (kept OUT of the list so the per-row
+                     remove forms are never nested). JS fills #links-order. --}}
+                <form action="{{ route('admin.articles.links.reorder', $article->id) }}" method="post" class="mt-2" id="links-reorder-form">
+                    @csrf @method('PUT')
+                    <input type="hidden" name="order" id="links-order" value="">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <small class="text-muted">{{ __('Drag the handle or use the arrows, then Save order.') }}</small>
+                        <button type="submit" class="btn btn-sm btn-primary" id="links-save-order" disabled><i class="fas fa-save me-1"></i>{{ __('Save order') }}</button>
+                    </div>
+                </form>
             @endif
         </div>
     </div>
@@ -347,6 +368,59 @@
     // Sync the editor's Markdown back into the form field before the article saves.
     var form = ta.closest('form');
     if (form) { form.addEventListener('submit', function () { ta.value = editor.getMarkdown(); }); }
+})();
+</script>
+{{-- Linked-articles reorder: HTML5 drag on desktop + up/down arrows for touch/mobile
+     (HTML5 drag does not fire on touch). Both mutate the list, then a single
+     "Save order" button posts the resulting id order. --}}
+<script>
+(function () {
+    var ul = document.getElementById('links-sortable');
+    if (!ul) return;
+    var orderInput = document.getElementById('links-order');
+    var saveBtn = document.getElementById('links-save-order');
+    var dragEl = null;
+
+    function sync() {
+        if (!orderInput) return;
+        orderInput.value = Array.prototype.map.call(
+            ul.querySelectorAll('[data-id]'), function (li) { return li.getAttribute('data-id'); }
+        ).join(',');
+    }
+    function dirty() { if (saveBtn) saveBtn.disabled = false; sync(); }
+    sync();
+
+    // Arrows — reliable on mobile/keyboard.
+    ul.addEventListener('click', function (e) {
+        var up = e.target.closest('.links-up');
+        var down = e.target.closest('.links-down');
+        if (!up && !down) return;
+        var li = e.target.closest('[data-id]');
+        if (!li) return;
+        if (up && li.previousElementSibling) { ul.insertBefore(li, li.previousElementSibling); dirty(); }
+        if (down && li.nextElementSibling) { ul.insertBefore(li.nextElementSibling, li); dirty(); }
+    });
+
+    // HTML5 drag — desktop.
+    ul.addEventListener('dragstart', function (e) {
+        var li = e.target.closest('[data-id]');
+        if (!li) return;
+        dragEl = li; li.classList.add('opacity-50');
+        if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; }
+    });
+    ul.addEventListener('dragend', function () {
+        if (dragEl) { dragEl.classList.remove('opacity-50'); dragEl = null; }
+    });
+    ul.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        if (!dragEl) return;
+        var li = e.target.closest('[data-id]');
+        if (!li || li === dragEl) return;
+        var rect = li.getBoundingClientRect();
+        var after = (e.clientY - rect.top) > rect.height / 2;
+        ul.insertBefore(dragEl, after ? li.nextElementSibling : li);
+    });
+    ul.addEventListener('drop', function (e) { e.preventDefault(); dirty(); });
 })();
 </script>
 @endpush

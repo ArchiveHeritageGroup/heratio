@@ -162,9 +162,17 @@ class ArticlePersistenceService
                 if (! isset($row['post_id'], $row['related_post_id'])) {
                     continue;
                 }
+                $vals = ['created_at' => $row['created_at'] ?? now()];
+                // Restore the link's order + description too (columns ensured above).
+                if (array_key_exists('sort_order', $row)) {
+                    $vals['sort_order'] = $row['sort_order'];
+                }
+                if (array_key_exists('description', $row)) {
+                    $vals['description'] = $row['description'];
+                }
                 DB::table('blog_post_link')->updateOrInsert(
                     ['post_id' => $row['post_id'], 'related_post_id' => $row['related_post_id']],
-                    ['created_at' => $row['created_at'] ?? now()]
+                    $vals
                 );
             }
         });

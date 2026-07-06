@@ -45,6 +45,7 @@
                         @foreach($related as $rel)
                             <li class="mb-2">
                                 <a href="{{ route('articles.show', $rel['slug']) }}">{{ $rel['title'] }}</a>
+                                @if(!empty($rel['description']))<span class="d-block text-muted small">{{ $rel['description'] }}</span>@endif
                             </li>
                         @endforeach
                     </ul>

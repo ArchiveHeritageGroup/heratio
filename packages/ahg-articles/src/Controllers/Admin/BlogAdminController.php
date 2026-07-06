@@ -148,7 +148,7 @@ class BlogAdminController extends Controller
         if (! $targetId) {
             return back()->with('error', 'Could not find that article — pick one from the list or paste its /articles/… URL.');
         }
-        \AhgArticles\Services\BlogLinkService::add($id, $targetId);
+        \AhgArticles\Services\BlogLinkService::add($id, $targetId, (string) $request->input('description', ''));
 
         return redirect()->route('admin.articles.edit', $id)->with('success', 'Link added.');
     }
@@ -163,6 +163,22 @@ class BlogAdminController extends Controller
         \AhgArticles\Services\BlogLinkService::remove($id, $targetId);
 
         return redirect()->route('admin.articles.edit', $id)->with('success', 'Link removed.');
+    }
+
+    /** heratio#1399 — persist a drag/arrow-reordered linked-articles order. */
+    public function linksReorder(Request $request, int $id)
+    {
+        $this->guard();
+        if (! $this->blog->find($id)) {
+            abort(404);
+        }
+        $order = $request->input('order', []);
+        if (is_string($order)) {
+            $order = array_filter(array_map('trim', explode(',', $order)), fn ($v) => $v !== '');
+        }
+        \AhgArticles\Services\BlogLinkService::reorder($id, (array) $order);
+
+        return redirect()->route('admin.articles.edit', $id)->with('success', 'Order saved.');
     }
 
     public function update(Request $request, int $id)
