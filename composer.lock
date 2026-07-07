@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dd1d2b52ba18a23b9e67105275312250",
+    "content-hash": "72554edab2370338d7b7abe57f37adf5",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -350,6 +350,36 @@
                 }
             },
             "description": "Heratio ApiPlugin package (migrated from ahgAPIPlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/archivematica",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-archivematica",
+                "reference": "0906f95f69cfc27434da05767aff07103e2f190d"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgArchivematica\\AhgArchivematicaServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgArchivematica\\": "src/"
+                }
+            },
+            "description": "Archivematica connector for Heratio (SS + Dashboard, DIP ingest and transfer driving)",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -15149,6 +15179,7 @@
         "ahg/ai-services": 20,
         "ahg/annotations": 20,
         "ahg/api": 20,
+        "ahg/archivematica": 20,
         "ahg/api-plugin": 20,
         "ahg/audit-trail": 20,
         "ahg/authority-resolution": 20,

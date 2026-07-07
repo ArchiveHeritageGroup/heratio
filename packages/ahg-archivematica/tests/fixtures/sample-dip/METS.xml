@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Minimal Archivematica-style DIP METS fixture for MetsParser / DipMatcher
+  unit tests. One dmdSec (Dublin Core), one access file with an inline fixity,
+  and one PREMIS techMD carrying the same digest + a PRONOM format id.
+-->
+<mets:mets xmlns:mets="http://www.loc.gov/METS/"
+           xmlns:xlink="http://www.w3.org/1999/xlink"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           OBJID="f0c9a5b1-1111-4a2b-8c3d-000000000001"
+           LABEL="DIP">
+
+  <mets:dmdSec ID="dmdSec_1">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dc="http://purl.org/dc/elements/1.1/"
+                            xmlns:dcterms="http://purl.org/dc/terms/">
+          <dc:title>Minutes of the founding meeting</dc:title>
+          <dc:identifier>ZA-HER-2026-0001</dc:identifier>
+          <dc:date>1926-03-14</dc:date>
+          <dc:description>Bound manuscript minutes.</dc:description>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+
+  <mets:amdSec ID="amdSec_1">
+    <mets:techMD ID="techMD_1">
+      <mets:mdWrap MDTYPE="PREMIS">
+        <mets:xmlData>
+          <premis:object xmlns:premis="http://www.loc.gov/premis/v3"
+                         xsi:type="premis:file">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>a1b2c3d4-2222-4a2b-8c3d-000000000002</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>1024</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>JPEG File Interchange Format</premis:formatName>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/44</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+            </premis:objectCharacteristics>
+            <premis:originalName>minutes-access.jpg</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+
+  <mets:fileSec>
+    <mets:fileGrp USE="access">
+      <mets:file ID="file-access-1"
+                 MIMETYPE="image/jpeg"
+                 SIZE="1024"
+                 ADMID="techMD_1"
+                 CHECKSUM="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                 CHECKSUMTYPE="SHA-256">
+        <mets:FLocat LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"
+                     xlink:href="objects/access/minutes-access.jpg"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+
+  <mets:structMap TYPE="physical">
+    <mets:div TYPE="Directory" LABEL="DIP">
+      <mets:div TYPE="Item" LABEL="minutes-access.jpg">
+        <mets:fptr FILEID="file-access-1"/>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

@@ -1,0 +1,20 @@
+{
+    "name": "ahg/archivematica",
+    "description": "Archivematica connector for Heratio (SS + Dashboard, DIP ingest and transfer driving)",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgArchivematica\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgArchivematica\\AhgArchivematicaServiceProvider"
+            ]
+        }
+    }
+}
