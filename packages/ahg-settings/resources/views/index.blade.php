@@ -167,6 +167,7 @@
     $addTile('E-Commerce',            'fa-store',              'Shopping cart, product pricing, payment gateway and order management', 'cart.admin.settings', 'success');
     $addTile('Order Management',      'fa-shopping-bag',       'View and manage customer orders', 'cart.admin.orders', 'success', 'Manage');
     $addTile('Preservation & Backup', 'fa-cloud-upload-alt',   'Configure backup replication targets, verify integrity, and manage preservation', 'settings.section', 'success', 'Configure', 'fa-cog', 'preservation');
+    $addTile('Archivematica Integration', 'fa-archive',        'Connect to an Archivematica instance — receive DIPs (access copies) and drive preservation transfers', 'settings.archivematica', 'success');
 
     // 9 tiles missing from AtoM parity (all have existing routes — were sidebar-only)
     $addTile('Accession Management',   'fa-inbox',              'Intake workflow, numbering, appraisal, container and rights settings', 'settings.ahg.accession');
