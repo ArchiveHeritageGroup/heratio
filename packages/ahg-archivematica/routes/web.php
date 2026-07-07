@@ -37,6 +37,11 @@ Route::middleware('auth')->group(function () {
         ->name('archivematica.settings.update')
         ->middleware('acl:update');
 
+    // Alias so the AHG Settings dashboard tile/menu (route('settings.archivematica'))
+    // resolves to the Archivematica settings page.
+    Route::get('/admin/settings/archivematica', fn () => redirect()->route('archivematica.settings'))
+        ->name('settings.archivematica');
+
     // --- Direction 2: Heratio -> Archivematica (drive transfers) ---
     // Trigger a transfer for an information_object, and read its status.
     // Controllers are owned/delivered by other agents; referenced by FQCN.

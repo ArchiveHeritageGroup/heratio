@@ -99,6 +99,7 @@ class SettingsController extends Controller
         ['action' => 'levels', 'label' => 'Levels of description', 'icon' => 'fa-layer-group'],
         ['action' => 'paths', 'label' => 'Paths', 'icon' => 'fa-folder-open'],
         ['action' => 'preservation', 'label' => 'Preservation', 'icon' => 'fa-cloud-upload-alt'],
+        ['action' => 'archivematica', 'label' => 'Archivematica', 'icon' => 'fa-archive'],
         ['action' => 'webhooks', 'label' => 'Webhooks', 'icon' => 'fa-broadcast-tower'],
         ['action' => 'tts', 'label' => 'Text-to-Speech', 'icon' => 'fa-volume-up'],
         ['action' => 'icip-settings', 'label' => 'ICIP Settings', 'icon' => 'fa-shield-alt'],
