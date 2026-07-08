@@ -65,10 +65,20 @@
                         <p class="lead mb-3">{{ $article->attachments_label }}</p>
                     @endif
                     <div class="list-group">
+                        @php $currentGroup = '__START__'; @endphp
                         @foreach($attachments as $att)
+                            @php $g = trim((string) ($att->group_label ?? '')); @endphp
+                            @if($g !== $currentGroup)
+                                @php $currentGroup = $g; @endphp
+                                @if($g !== '')
+                                    <div class="list-group-item bg-light border-top mt-2 text-uppercase small fw-bold text-muted">
+                                        <i class="fas fa-folder-open me-2"></i>{{ $g }}
+                                    </div>
+                                @endif
+                            @endif
                             <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($att->file_path) }}"
                                class="list-group-item list-group-item-action d-flex align-items-start gap-3"
-                               target="_blank" rel="noopener" download>
+                               target="_blank" rel="noopener" download="{{ $att->file_name }}">
                                 <i class="fas {{ $att->kind === 'template' ? 'fa-file-lines' : 'fa-book' }} fa-lg mt-1 text-{{ $att->kind === 'template' ? 'info' : 'success' }}"></i>
                                 <span class="flex-grow-1">
                                     <span class="fw-semibold">{{ $att->title }}</span>

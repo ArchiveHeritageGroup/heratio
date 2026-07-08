@@ -139,13 +139,14 @@
                     <div class="table-responsive mb-4">
                         <table class="table table-sm align-middle mb-0">
                             <thead><tr>
-                                <th>{{ __('Type') }}</th><th>{{ __('Title') }}</th>
+                                <th>{{ __('Section') }}</th><th>{{ __('Type') }}</th><th>{{ __('Title') }}</th>
                                 <th>{{ __('Description') }}</th><th>{{ __('File') }}</th>
                                 <th class="text-end">{{ __('Size') }}</th><th></th>
                             </tr></thead>
                             <tbody>
                             @foreach($attachments as $att)
                                 <tr>
+                                    <td class="small">@if(!empty($att->group_label))<span class="badge bg-secondary"><i class="fas fa-folder-open me-1"></i>{{ $att->group_label }}</span>@else<span class="text-muted">—</span>@endif</td>
                                     <td><span class="badge bg-{{ $att->kind === 'template' ? 'info' : 'success' }}">{{ __(ucfirst($att->kind)) }}</span></td>
                                     <td>{{ $att->title }}</td>
                                     <td class="text-muted small">{{ $att->description }}</td>
@@ -191,6 +192,10 @@
                                             <input type="text" name="title" class="form-control" value="{{ $att->title }}" maxlength="255">
                                         </div>
                                         <div class="mb-3">
+                                            <label class="form-label">{{ __('Section') }}</label>
+                                            <input type="text" name="group_label" list="section-options" class="form-control" value="{{ $att->group_label }}" maxlength="150" placeholder="{{ __('Optional heading — group files under it') }}">
+                                        </div>
+                                        <div class="mb-3">
                                             <label class="form-label">{{ __('Description') }}</label>
                                             <input type="text" name="description" class="form-control" value="{{ $att->description }}" maxlength="500">
                                         </div>
@@ -216,6 +221,14 @@
                     <p class="text-muted">{{ __('No guides or templates attached yet.') }}</p>
                 @endif
 
+                @php
+                    $sectionOptions = collect($attachments ?? [])
+                        ->pluck('group_label')->filter()->map(fn ($s) => trim((string) $s))
+                        ->filter()->unique()->values();
+                @endphp
+                <datalist id="section-options">
+                    @foreach($sectionOptions as $s)<option value="{{ $s }}"></option>@endforeach
+                </datalist>
                 <form method="POST" action="{{ route('admin.articles.attachments.store', $article->id) }}" enctype="multipart/form-data" class="row g-3 align-items-end border-top pt-3">
                     @csrf
                     <div class="col-md-2">
@@ -230,15 +243,20 @@
                         </select>
                         <div class="form-text"><a href="{{ url('/admin/dropdowns') }}" target="_blank" rel="noopener">{{ __('Manage types') }}</a></div>
                     </div>
+                    <div class="col-md-2">
+                        <label for="att_group" class="form-label">{{ __('Section') }}</label>
+                        <input type="text" name="group_label" id="att_group" list="section-options" class="form-control" placeholder="{{ __('e.g. Policies') }}" maxlength="150">
+                        <div class="form-text">{{ __('Optional heading') }}</div>
+                    </div>
                     <div class="col-md-3">
                         <label for="att_title" class="form-label">{{ __('Title') }}</label>
                         <input type="text" name="title" id="att_title" class="form-control" placeholder="{{ __('defaults to file name') }}" maxlength="255">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="att_description" class="form-label">{{ __('Description') }}</label>
                         <input type="text" name="description" id="att_description" class="form-control" placeholder="{{ __('Short description') }}" maxlength="500">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="att_file" class="form-label">{{ __('File') }}</label>
                         <input type="file" name="file" id="att_file" required class="form-control">
                     </div>
@@ -246,7 +264,7 @@
                         <button type="submit" class="btn btn-primary w-100"><i class="fas fa-upload"></i></button>
                     </div>
                     <div class="col-12">
-                        <div class="form-text">{{ __('PDF, Word, Excel, PowerPoint, OpenDocument, CSV, TXT or ZIP.') }}</div>
+                        <div class="form-text">{{ __('PDF, Word, Excel, PowerPoint, OpenDocument, CSV, TXT or ZIP.') }} {{ __('Give files the same Section name to group them under one heading.') }}</div>
                     </div>
                 </form>
             </div>

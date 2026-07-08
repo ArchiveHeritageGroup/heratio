@@ -18,6 +18,7 @@ namespace AhgArticles\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -223,12 +224,38 @@ class BlogService
     ];
     public const ATTACHMENT_MAX_KB = 20480; // 20 MB
 
-    /** All attachments for an article, guides first, then by sort order. */
+    /**
+     * Idempotently add the attachment "section" divider column on existing
+     * installs (and re-add it after the nightly baseline restore). Lets uploads
+     * be grouped under headers on the article page.
+     */
+    public static function ensureAttachmentGroupColumn(): void
+    {
+        if (Schema::hasTable('blog_attachment') && ! Schema::hasColumn('blog_attachment', 'group_label')) {
+            Schema::table('blog_attachment', function ($t) {
+                $t->string('group_label', 150)->nullable()->after('kind');
+            });
+        }
+    }
+
+    /**
+     * All attachments for an article. Ungrouped files first (no header), then
+     * each named section alphabetically; within a section guides precede
+     * templates, then sort_order. The stable ordering lets the view emit a
+     * divider whenever group_label changes.
+     */
     public function listAttachments(int $postId): array
     {
-        return DB::table('blog_attachment')
-            ->where('blog_post_id', $postId)
-            ->orderByRaw("FIELD(kind, 'guide', 'template'), sort_order, id")
+        $q = DB::table('blog_attachment')->where('blog_post_id', $postId);
+
+        if (Schema::hasColumn('blog_attachment', 'group_label')) {
+            // 0 = ungrouped (shown first, no header), 1 = grouped.
+            $q->orderByRaw("(COALESCE(NULLIF(group_label, ''), '') <> '') ASC")
+                ->orderBy('group_label');
+        }
+
+        return $q->orderByRaw("FIELD(kind, 'guide', 'template')")
+            ->orderBy('sort_order')->orderBy('id')
             ->get()
             ->all();
     }
@@ -246,7 +273,7 @@ class BlogService
         // presentation/report/policy/etc. to "guide".
         $kind = $meta['kind'] ?? 'guide';
 
-        return (int) DB::table('blog_attachment')->insertGetId([
+        $insert = [
             'blog_post_id' => $postId,
             'kind'         => $kind,
             'title'        => $meta['title'] ?: $file->getClientOriginalName(),
@@ -259,7 +286,13 @@ class BlogService
             'created_by'   => $meta['created_by'] ?? null,
             'created_at'   => now(),
             'updated_at'   => now(),
-        ]);
+        ];
+        if (Schema::hasColumn('blog_attachment', 'group_label')) {
+            $g = trim((string) ($meta['group_label'] ?? ''));
+            $insert['group_label'] = $g !== '' ? $g : null;
+        }
+
+        return (int) DB::table('blog_attachment')->insertGetId($insert);
     }
 
     public function findAttachment(int $id): ?object
@@ -285,6 +318,10 @@ class BlogService
             'sort_order'  => (int) ($meta['sort_order'] ?? $row->sort_order),
             'updated_at'  => now(),
         ];
+        if (Schema::hasColumn('blog_attachment', 'group_label')) {
+            $g = trim((string) ($meta['group_label'] ?? ''));
+            $fields['group_label'] = $g !== '' ? $g : null;
+        }
 
         if ($file) {
             $ext  = strtolower($file->getClientOriginalExtension() ?: 'bin');

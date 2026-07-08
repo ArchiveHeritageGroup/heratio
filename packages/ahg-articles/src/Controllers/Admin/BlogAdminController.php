@@ -249,6 +249,7 @@ class BlogAdminController extends Controller
             'kind'        => 'required|in:' . implode(',', $this->attachmentKindCodes()),
             'title'       => 'nullable|string|max:255',
             'description' => 'nullable|string|max:500',
+            'group_label' => 'nullable|string|max:150',
             'sort_order'  => 'nullable|integer|min:0',
             'file'        => $this->attachmentFileRule(true),
         ]);
@@ -257,6 +258,7 @@ class BlogAdminController extends Controller
             'kind'        => $data['kind'],
             'title'       => $data['title'] ?? '',
             'description' => $data['description'] ?? null,
+            'group_label' => $data['group_label'] ?? null,
             'sort_order'  => $data['sort_order'] ?? 0,
             'created_by'  => Auth::id(),
         ]);
@@ -278,6 +280,7 @@ class BlogAdminController extends Controller
             'kind'        => 'required|in:' . implode(',', $this->attachmentKindCodes()),
             'title'       => 'nullable|string|max:255',
             'description' => 'nullable|string|max:500',
+            'group_label' => 'nullable|string|max:150',
             'sort_order'  => 'nullable|integer|min:0',
             'file'        => $this->attachmentFileRule(false),
         ]);
@@ -286,6 +289,7 @@ class BlogAdminController extends Controller
             'kind'        => $data['kind'],
             'title'       => $data['title'] ?? '',
             'description' => $data['description'] ?? null,
+            'group_label' => $data['group_label'] ?? null,
             'sort_order'  => $data['sort_order'] ?? 0,
         ], $request->file('file'));
 

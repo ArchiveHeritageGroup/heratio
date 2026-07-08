@@ -86,6 +86,8 @@ class AhgArticlesServiceProvider extends ServiceProvider
             if (! Schema::hasTable('blog_post')) {
                 DB::unprepared((string) file_get_contents(__DIR__.'/../../database/install.sql'));
             }
+            // Additive column for grouping attachments under section dividers.
+            \AhgArticles\Services\BlogService::ensureAttachmentGroupColumn();
         } catch (\Throwable $e) {
             Log::warning('ahg-articles: table install skipped: '.$e->getMessage());
         }

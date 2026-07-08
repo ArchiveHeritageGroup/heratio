@@ -126,6 +126,9 @@ class ArticlePersistenceService
         // a CREATE TABLE inside a transaction implicit-commits in MySQL and would
         // break the surrounding DB::transaction().
         \AhgArticles\Services\BlogLinkService::ensureLinkTable();
+        // Re-add the attachment "section" column dropped by the baseline restore,
+        // so re-inserting captured attachments (which carry group_label) succeeds.
+        \AhgArticles\Services\BlogService::ensureAttachmentGroupColumn();
 
         $restored = 0;
         DB::transaction(function () use ($state, &$restored) {
