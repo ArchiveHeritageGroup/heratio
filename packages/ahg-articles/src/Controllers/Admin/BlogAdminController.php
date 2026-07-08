@@ -259,7 +259,7 @@ class BlogAdminController extends Controller
             'title'       => $data['title'] ?? '',
             'description' => $data['description'] ?? null,
             'group_label' => $data['group_label'] ?? null,
-            'sort_order'  => $data['sort_order'] ?? 0,
+            // No sort_order → the service appends the new file to the end.
             'created_by'  => Auth::id(),
         ]);
 
@@ -332,6 +332,22 @@ class BlogAdminController extends Controller
                 }
             },
         ];
+    }
+
+    /** Persist a drag/arrow-reordered file order for an article's attachments. */
+    public function attachmentsReorder(Request $request, int $id)
+    {
+        $this->guard();
+        if (! $this->blog->find($id)) {
+            abort(404);
+        }
+        $order = $request->input('order', []);
+        if (is_string($order)) {
+            $order = array_filter(array_map('trim', explode(',', $order)), fn ($v) => $v !== '');
+        }
+        $this->blog->reorderAttachments($id, (array) $order);
+
+        return redirect()->route('admin.articles.edit', $id)->with('success', __('File order saved.'));
     }
 
     /** Remove a child attachment + its stored file. */

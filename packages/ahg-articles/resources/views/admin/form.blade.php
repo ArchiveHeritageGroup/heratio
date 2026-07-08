@@ -136,23 +136,27 @@
             </div>
             <div class="card-body">
                 @if(!empty($attachments))
-                    <div class="table-responsive mb-4">
+                    <div class="table-responsive mb-2">
                         <table class="table table-sm align-middle mb-0">
                             <thead><tr>
+                                <th></th>
                                 <th>{{ __('Section') }}</th><th>{{ __('Type') }}</th><th>{{ __('Title') }}</th>
                                 <th>{{ __('Description') }}</th><th>{{ __('File') }}</th>
                                 <th class="text-end">{{ __('Size') }}</th><th></th>
                             </tr></thead>
-                            <tbody>
+                            <tbody id="att-sortable">
                             @foreach($attachments as $att)
-                                <tr>
+                                <tr data-id="{{ $att->id }}" draggable="true">
+                                    <td class="text-muted" style="cursor:grab;" title="{{ __('Drag to reorder') }}"><i class="fas fa-grip-vertical att-drag-handle"></i></td>
                                     <td class="small">@if(!empty($att->group_label))<span class="badge bg-secondary"><i class="fas fa-folder-open me-1"></i>{{ $att->group_label }}</span>@else<span class="text-muted">—</span>@endif</td>
                                     <td><span class="badge bg-{{ $att->kind === 'template' ? 'info' : 'success' }}">{{ __(ucfirst($att->kind)) }}</span></td>
                                     <td>{{ $att->title }}</td>
                                     <td class="text-muted small">{{ $att->description }}</td>
-                                    <td><a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($att->file_path) }}" target="_blank" rel="noopener"><i class="fas fa-download me-1"></i>{{ $att->file_name }}</a></td>
+                                    <td><a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($att->file_path) }}" target="_blank" rel="noopener" download="{{ $att->file_name }}"><i class="fas fa-download me-1"></i>{{ $att->file_name }}</a></td>
                                     <td class="text-end text-muted small">{{ number_format($att->file_size / 1024, 0) }} KB</td>
                                     <td class="text-end text-nowrap">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary att-up" title="{{ __('Move up') }}"><i class="fas fa-arrow-up"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary att-down" title="{{ __('Move down') }}"><i class="fas fa-arrow-down"></i></button>
                                         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#attEdit{{ $att->id }}" title="{{ __('Edit') }}"><i class="fas fa-pen"></i></button>
                                         <form method="POST" action="{{ route('admin.articles.attachments.destroy', [$article->id, $att->id]) }}" onsubmit="return confirm('{{ __('Remove this attachment?') }}');" class="d-inline">
                                             @csrf @method('DELETE')
@@ -164,6 +168,17 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Standalone reorder form (outside the table so the per-row
+                         delete forms are never nested). JS fills #att-order. --}}
+                    <form action="{{ route('admin.articles.attachments.reorder', $article->id) }}" method="post" class="mb-4" id="att-reorder-form">
+                        @csrf @method('PUT')
+                        <input type="hidden" name="order" id="att-order" value="">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <small class="text-muted">{{ __('Drag the handle or use the arrows, then Save order. Files stay within their Section.') }}</small>
+                            <button type="submit" class="btn btn-sm btn-primary" id="att-save-order" disabled><i class="fas fa-save me-1"></i>{{ __('Save order') }}</button>
+                        </div>
+                    </form>
 
                     {{-- Per-attachment edit modals (Update side of CRUD). --}}
                     @foreach($attachments as $att)
@@ -439,6 +454,56 @@
         ul.insertBefore(dragEl, after ? li.nextElementSibling : li);
     });
     ul.addEventListener('drop', function (e) { e.preventDefault(); dirty(); });
+})();
+</script>
+{{-- Attachments (Guides & Templates) reorder — HTML5 drag on desktop + up/down
+     arrows for touch/mobile, over table rows; Save order posts the id sequence. --}}
+<script>
+(function () {
+    var tb = document.getElementById('att-sortable');
+    if (!tb) return;
+    var orderInput = document.getElementById('att-order');
+    var saveBtn = document.getElementById('att-save-order');
+    var dragEl = null;
+
+    function sync() {
+        if (!orderInput) return;
+        orderInput.value = Array.prototype.map.call(
+            tb.querySelectorAll('tr[data-id]'), function (tr) { return tr.getAttribute('data-id'); }
+        ).join(',');
+    }
+    function dirty() { if (saveBtn) saveBtn.disabled = false; sync(); }
+    sync();
+
+    tb.addEventListener('click', function (e) {
+        var up = e.target.closest('.att-up');
+        var down = e.target.closest('.att-down');
+        if (!up && !down) return;
+        var tr = e.target.closest('tr[data-id]');
+        if (!tr) return;
+        if (up && tr.previousElementSibling) { tb.insertBefore(tr, tr.previousElementSibling); dirty(); }
+        if (down && tr.nextElementSibling) { tb.insertBefore(tr.nextElementSibling, tr); dirty(); }
+    });
+
+    tb.addEventListener('dragstart', function (e) {
+        var tr = e.target.closest('tr[data-id]');
+        if (!tr) return;
+        dragEl = tr; tr.classList.add('opacity-50');
+        if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; }
+    });
+    tb.addEventListener('dragend', function () {
+        if (dragEl) { dragEl.classList.remove('opacity-50'); dragEl = null; }
+    });
+    tb.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        if (!dragEl) return;
+        var tr = e.target.closest('tr[data-id]');
+        if (!tr || tr === dragEl) return;
+        var rect = tr.getBoundingClientRect();
+        var after = (e.clientY - rect.top) > rect.height / 2;
+        tb.insertBefore(dragEl, after ? tr.nextElementSibling : tr);
+    });
+    tb.addEventListener('drop', function (e) { e.preventDefault(); dirty(); });
 })();
 </script>
 @endpush

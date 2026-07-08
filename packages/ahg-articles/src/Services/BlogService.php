@@ -240,9 +240,11 @@ class BlogService
 
     /**
      * All attachments for an article. Ungrouped files first (no header), then
-     * each named section alphabetically; within a section guides precede
-     * templates, then sort_order. The stable ordering lets the view emit a
-     * divider whenever group_label changes.
+     * each named section alphabetically. Within a section the admin's own
+     * drag/arrow order (sort_order) wins; kind (guide/template) and id are only
+     * tie-breaks so an un-reordered list still reads guides-first by upload
+     * order. The stable ordering lets the view emit a divider when group_label
+     * changes.
      */
     public function listAttachments(int $postId): array
     {
@@ -254,10 +256,32 @@ class BlogService
                 ->orderBy('group_label');
         }
 
-        return $q->orderByRaw("FIELD(kind, 'guide', 'template')")
-            ->orderBy('sort_order')->orderBy('id')
+        return $q->orderBy('sort_order')
+            ->orderByRaw("FIELD(kind, 'guide', 'template')")
+            ->orderBy('id')
             ->get()
             ->all();
+    }
+
+    /**
+     * Persist a new file order for an article. $orderedIds is the attachment ids
+     * in the desired sequence; each gets sort_order = its index. Ids not owned by
+     * the post are ignored. Section grouping still applies on read, so this
+     * reorders files within their section.
+     */
+    public function reorderAttachments(int $postId, array $orderedIds): void
+    {
+        $owned = DB::table('blog_attachment')->where('blog_post_id', $postId)
+            ->pluck('id')->map(fn ($v) => (int) $v)->all();
+        $i = 0;
+        foreach ($orderedIds as $id) {
+            $id = (int) $id;
+            if ($id <= 0 || ! in_array($id, $owned, true)) {
+                continue;
+            }
+            DB::table('blog_attachment')->where('id', $id)->update(['sort_order' => $i]);
+            $i++;
+        }
     }
 
     /** Store an uploaded guide/template file and its child row; returns new id. */
@@ -282,7 +306,11 @@ class BlogService
             'file_name'    => $file->getClientOriginalName(),
             'mime'         => $file->getClientMimeType(),
             'file_size'    => $file->getSize() ?: 0,
-            'sort_order'   => (int) ($meta['sort_order'] ?? 0),
+            // New uploads append to the end of the current order; an explicit
+            // sort_order (from the edit modal) is respected when provided.
+            'sort_order'   => array_key_exists('sort_order', $meta)
+                ? (int) $meta['sort_order']
+                : 1 + (int) DB::table('blog_attachment')->where('blog_post_id', $postId)->max('sort_order'),
             'created_by'   => $meta['created_by'] ?? null,
             'created_at'   => now(),
             'updated_at'   => now(),
