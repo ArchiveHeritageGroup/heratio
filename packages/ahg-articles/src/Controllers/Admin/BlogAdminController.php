@@ -41,6 +41,21 @@ class BlogAdminController extends Controller
         }
     }
 
+    /**
+     * Refresh the pre-reset snapshot after an article edit so grouping, file
+     * order, links and descriptions survive tonight's demo reset even on
+     * non-protected articles. Best-effort: never let a snapshot failure break
+     * the admin action.
+     */
+    private function snapshot(): void
+    {
+        try {
+            (new ArticlePersistenceService())->capture();
+        } catch (\Throwable $e) {
+            // no-op: the scheduled 01:50 capture is the backstop.
+        }
+    }
+
     public function index()
     {
         $this->guard();
@@ -149,6 +164,7 @@ class BlogAdminController extends Controller
             return back()->with('error', 'Could not find that article — pick one from the list or paste its /articles/… URL.');
         }
         \AhgArticles\Services\BlogLinkService::add($id, $targetId, (string) $request->input('description', ''));
+        $this->snapshot();
 
         return redirect()->route('admin.articles.edit', $id)->with('success', 'Link added.');
     }
@@ -161,6 +177,7 @@ class BlogAdminController extends Controller
             abort(404);
         }
         \AhgArticles\Services\BlogLinkService::remove($id, $targetId);
+        $this->snapshot();
 
         return redirect()->route('admin.articles.edit', $id)->with('success', 'Link removed.');
     }
@@ -177,6 +194,7 @@ class BlogAdminController extends Controller
             $order = array_filter(array_map('trim', explode(',', $order)), fn ($v) => $v !== '');
         }
         \AhgArticles\Services\BlogLinkService::reorder($id, (array) $order);
+        $this->snapshot();
 
         return redirect()->route('admin.articles.edit', $id)->with('success', 'Order saved.');
     }
@@ -262,6 +280,7 @@ class BlogAdminController extends Controller
             // No sort_order → the service appends the new file to the end.
             'created_by'  => Auth::id(),
         ]);
+        $this->snapshot();
 
         return redirect()->route('admin.articles.edit', $id)
             ->with('success', __('Attachment uploaded.'));
@@ -292,6 +311,7 @@ class BlogAdminController extends Controller
             'group_label' => $data['group_label'] ?? null,
             'sort_order'  => $data['sort_order'] ?? 0,
         ], $request->file('file'));
+        $this->snapshot();
 
         return redirect()->route('admin.articles.edit', $id)
             ->with('success', __('Attachment updated.'));
@@ -346,6 +366,7 @@ class BlogAdminController extends Controller
             $order = array_filter(array_map('trim', explode(',', $order)), fn ($v) => $v !== '');
         }
         $this->blog->reorderAttachments($id, (array) $order);
+        $this->snapshot();
 
         return redirect()->route('admin.articles.edit', $id)->with('success', __('File order saved.'));
     }
@@ -359,6 +380,7 @@ class BlogAdminController extends Controller
             abort(404);
         }
         $this->blog->deleteAttachment($attachmentId);
+        $this->snapshot();
 
         return redirect()->route('admin.articles.edit', $id)
             ->with('success', __('Attachment removed.'));

@@ -78,13 +78,29 @@ class ArticlePersistenceService
             ? DB::table('blog_post_link')->get()->map(fn ($r) => (array) $r)->all()
             : [];
 
+        // Per-attachment presentation metadata (section grouping, drag order,
+        // description) for EVERY article - not just protected ones. The baseline
+        // restore keeps the files but drops these edits; we overlay them back by
+        // id in apply(). This makes grouping/reorder stick on demo articles too,
+        // matching how links persist globally.
+        $hasGroup = Schema::hasTable('blog_attachment') && Schema::hasColumn('blog_attachment', 'group_label');
+        $attachmentMeta = Schema::hasTable('blog_attachment')
+            ? DB::table('blog_attachment')->get()->map(fn ($r) => [
+                'id'          => $r->id,
+                'group_label' => $hasGroup ? ($r->group_label ?? null) : null,
+                'sort_order'  => $r->sort_order ?? 0,
+                'description' => $r->description ?? null,
+            ])->all()
+            : [];
+
         $state = [
-            'captured_at' => now()->toIso8601String(),
-            'posts'       => $protected->map(fn ($r) => (array) $r)->all(),
-            'attachments' => $attachments->map(fn ($r) => (array) $r)->all(),
-            'comments'    => $comments->map(fn ($r) => (array) $r)->all(),
-            'links'       => $links,
-            'view_counts' => $viewCounts,
+            'captured_at'     => now()->toIso8601String(),
+            'posts'           => $protected->map(fn ($r) => (array) $r)->all(),
+            'attachments'     => $attachments->map(fn ($r) => (array) $r)->all(),
+            'attachment_meta' => $attachmentMeta,
+            'comments'        => $comments->map(fn ($r) => (array) $r)->all(),
+            'links'           => $links,
+            'view_counts'     => $viewCounts,
         ];
 
         File::ensureDirectoryExists(dirname($this->stateFile()));
@@ -177,6 +193,25 @@ class ArticlePersistenceService
                     ['post_id' => $row['post_id'], 'related_post_id' => $row['related_post_id']],
                     $vals
                 );
+            }
+
+            // Overlay per-attachment grouping/order/description onto the
+            // baseline-restored files (every article, keyed by id). Only touches
+            // rows that still exist post-reset, so it never resurrects a deleted
+            // file - it just re-applies the presentation edits the reset wiped.
+            $hasGroup = Schema::hasColumn('blog_attachment', 'group_label');
+            foreach (($state['attachment_meta'] ?? []) as $m) {
+                if (! isset($m['id'])) {
+                    continue;
+                }
+                $upd = [
+                    'sort_order'  => $m['sort_order'] ?? 0,
+                    'description' => $m['description'] ?? null,
+                ];
+                if ($hasGroup) {
+                    $upd['group_label'] = $m['group_label'] ?? null;
+                }
+                DB::table('blog_attachment')->where('id', $m['id'])->update($upd);
             }
         });
 
