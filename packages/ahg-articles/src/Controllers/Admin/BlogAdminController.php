@@ -129,6 +129,7 @@ class BlogAdminController extends Controller
         }
 
         $id = $this->blog->create($data);
+        $this->snapshot();
 
         return redirect()->route('admin.articles.edit', $id)
             ->with('success', __('Article created.'));
@@ -213,6 +214,7 @@ class BlogAdminController extends Controller
         }
 
         $this->blog->update($id, $data);
+        $this->snapshot();
 
         return redirect()->route('admin.articles.edit', $id)
             ->with('success', __('Article saved.'));
