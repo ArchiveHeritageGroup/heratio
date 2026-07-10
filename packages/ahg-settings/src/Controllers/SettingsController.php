@@ -820,6 +820,10 @@ class SettingsController extends Controller
               // every rule that reads them — dropdown-hovers, action bars, toolbars and so on.
               .'--ahg-primary-color: var(--ahg-primary); --ahg-primary-dark: var(--ahg-secondary);'
               .'--ahg-accent-color: var(--ahg-primary); --ahg-accent-dark: var(--ahg-secondary);'
+              // The bundle paints `.btn-primary` from `--ahg-button-bg` (its own hardcoded
+              // #005837), while this sheet defines `--ahg-btn-bg`. Same colour, different
+              // name — so every primary button stayed green whatever the operator picked.
+              .'--ahg-button-bg: var(--ahg-btn-bg); --ahg-button-text: var(--ahg-btn-text);'
               .'--ahg-border-color: #dee2e6;'
               // Bootstrap list-group active state: bundle defaults are #dee2e6 light-grey bg
               // with dark text, but blades add `text-white` (looks unreadable). Override so
