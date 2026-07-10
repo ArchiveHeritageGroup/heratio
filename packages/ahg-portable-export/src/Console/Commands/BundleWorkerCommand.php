@@ -58,6 +58,11 @@ class BundleWorkerCommand extends Command
     /** #role-based — whether the exporting operator may see draft/unpublished records. */
     private bool $operatorCanViewDraft = false;
 
+    /** #1357 — whether this bundle actually kept unpublished records (operator override).
+     *  Recorded in disclosure_summary so an anonymous share link can refuse a
+     *  draft-containing bundle. */
+    private bool $includedUnpublished = false;
+
     public function handle(): int
     {
         $rows = $this->pickRows();
@@ -205,6 +210,7 @@ class BundleWorkerCommand extends Command
             'generated_at'     => now()->toIso8601String(),
             'records_in_scope' => count($rawIds),
             'records_included' => count($ioIds),
+            'included_unpublished' => $this->includedUnpublished,
             'withheld'         => $this->excluded,
             'exported_by'      => (int) ($row->user_id ?? 0),
             'note'             => 'Content was excluded to honour (1) the exporting operator\'s role/ACL — perm_masters/perm_references/perm_thumbnails=1 mean that derivative tier was dropped because the operator lacks the read grant, and drafts are withheld unless the operator has viewDraft; and (2) the public disclosure gates: publication status, ICIP/TK cultural protocols, ODRL access policies, and PII redaction. Counts reflect what was NOT exported.',
@@ -290,6 +296,7 @@ class BundleWorkerCommand extends Command
         $includeUnpublished = $this->operatorCanViewDraft
             && (string) (DB::table('ahg_settings')
                 ->where('setting_key', 'portable_export_include_unpublished')->value('setting_value')) === '1';
+        $this->includedUnpublished = $includeUnpublished;
         $published = [];
         if (! $includeUnpublished && Schema::hasTable('status')) {
             $published = array_flip(DB::table('status')

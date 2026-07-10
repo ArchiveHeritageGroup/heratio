@@ -148,11 +148,76 @@ class PortableExportController extends Controller
             abort(404, 'Export file not found');
         }
 
+        return $this->serveBundle($export);
+    }
+
+    /**
+     * #1357 — anonymous, token-gated public download of a shared bundle. NOT
+     * admin-gated (that is the point of a share link); the safety is the 128-bit
+     * token, the expiry, the optional download cap, and the published-only gate
+     * below. ICIP/TK, ODRL and PII were already excluded at BUILD time, so the
+     * only residual risk — a bundle the operator built with the include-drafts
+     * override — is refused here.
+     */
+    public function share(Request $request, string $token)
+    {
+        $this->abortIfDisabled();
+
+        if (! Schema::hasTable('portable_export_share_token') || ! preg_match('/^[a-f0-9]{32}$/', $token)) {
+            abort(404);
+        }
+        $share = DB::table('portable_export_share_token')->where('token', $token)->first();
+        if (! $share) {
+            abort(404);
+        }
+        if (! empty($share->expires_at) && now()->greaterThan($share->expires_at)) {
+            abort(410, 'This share link has expired.');
+        }
+        if (! empty($share->revoked_at)) {
+            abort(410, 'This share link has been revoked.');
+        }
+        if (! empty($share->max_downloads) && (int) $share->download_count >= (int) $share->max_downloads) {
+            abort(410, 'This share link has reached its download limit.');
+        }
+
+        $export = DB::table('portable_export')->where('id', $share->export_id)->first();
+        if (! $export || ($export->status ?? '') !== 'complete'
+            || empty($export->output_path) || ! file_exists($export->output_path)) {
+            abort(404, 'Export file not found');
+        }
+
+        // Publication-status gate: a public share link may only serve a bundle
+        // that contains NO unpublished records. Bundles built with the operator's
+        // include-drafts override are refused (they can still be shared from the
+        // authenticated admin download page).
+        $summary = json_decode((string) ($export->disclosure_summary ?? ''), true);
+        if (is_array($summary) && ! empty($summary['included_unpublished'])) {
+            abort(403, 'This bundle includes unpublished records and cannot be served through a public share link.');
+        }
+
+        // Count the download before streaming, so a mid-stream abort still counts
+        // against the cap (fail-safe toward fewer, not more, downloads).
+        DB::table('portable_export_share_token')->where('id', $share->id)->update([
+            'download_count' => (int) $share->download_count + 1,
+            'updated_at' => now(),
+        ]);
+
+        return $this->serveBundle($export);
+    }
+
+    /**
+     * Stream a completed export bundle, honouring its destination: a staged
+     * uncompressed dir is zipped on the fly (ZIP64, no second copy), a server
+     * 'folder' export points the operator at the path, and a prebuilt zip is sent
+     * as a file. Shared by the admin download() and the public share().
+     */
+    private function serveBundle(object $export)
+    {
         $destination = (string) ($export->destination ?? 'zip');
 
         // 'download' — the bundle is staged uncompressed; stream it as a ZIP64 on
         // the fly (the zip CLI handles >4 GB natively, and no second full copy is
-        // ever written to the server disk). Lands in the operator's browser Downloads.
+        // ever written to the server disk). Lands in the browser Downloads.
         if ($destination === 'download' && is_dir($export->output_path)) {
             $bundleDir = $export->output_path;
             $name = preg_replace('/[^A-Za-z0-9_-]/', '-', (string) $export->title).'-'.$export->id.'.zip';
@@ -448,20 +513,38 @@ class PortableExportController extends Controller
         if (! $id) {
             return response()->json(['success' => false, 'error' => 'Missing id'], 400);
         }
+
+        $export = Schema::hasTable('portable_export')
+            ? DB::table('portable_export')->where('id', $id)->first() : null;
+        if (! $export) {
+            return response()->json(['success' => false, 'error' => 'Export not found'], 404);
+        }
+
+        // #1357 — a public share link may only be minted for a published-only
+        // bundle. If the operator built it with the include-drafts override,
+        // refuse (the authenticated admin download link is still available).
+        $summary = json_decode((string) ($export->disclosure_summary ?? ''), true);
+        if (is_array($summary) && ! empty($summary['included_unpublished'])) {
+            return response()->json(['success' => false,
+                'error' => 'This bundle includes unpublished records, so a public share link is not allowed. Re-export it published-only to share.'], 422);
+        }
+        if (! Schema::hasTable('portable_export_share_token')) {
+            return response()->json(['success' => false,
+                'error' => 'Share links are unavailable (token store missing — run migrations).'], 503);
+        }
+
         $token = bin2hex(random_bytes(16));
         $expiresHours = (int) $request->input('expires_hours', 168);
         $maxDownloads = $request->input('max_downloads');
 
-        if (Schema::hasTable('portable_export_share_token')) {
-            DB::table('portable_export_share_token')->insert([
-                'export_id' => $id,
-                'token' => $token,
-                'expires_at' => now()->addHours($expiresHours),
-                'max_downloads' => $maxDownloads ?: null,
-                'download_count' => 0,
-                'created_at' => now(),
-            ]);
-        }
+        DB::table('portable_export_share_token')->insert([
+            'export_id' => $id,
+            'token' => $token,
+            'expires_at' => now()->addHours($expiresHours),
+            'max_downloads' => $maxDownloads ?: null,
+            'download_count' => 0,
+            'created_at' => now(),
+        ]);
 
         return response()->json([
             'success' => true,

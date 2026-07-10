@@ -3,6 +3,16 @@
 use AhgPortableExport\Controllers\PortableExportController;
 use Illuminate\Support\Facades\Route;
 
+// #1357 — anonymous, token-gated public download of a shared bundle. Deliberately
+// OUTSIDE the admin group (a share link is meant to be opened by a recipient who
+// isn't logged in). Safety: a 128-bit token in the path, expiry + optional
+// download cap + a published-only gate enforced in share(), plus a throttle to
+// blunt enumeration. ICIP/TK, ODRL and PII are already excluded at bundle-build.
+Route::get('/portable-export/share/{token}', [PortableExportController::class, 'share'])
+    ->where('token', '[a-f0-9]{32}')
+    ->middleware('throttle:30,1')
+    ->name('portable-export.share');
+
 Route::middleware('admin')->group(function () {
     // AtoM-canonical URLs
     Route::get('/portable-export', [PortableExportController::class, 'index'])->name('portable-export.index');
