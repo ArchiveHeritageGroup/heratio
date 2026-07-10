@@ -84,10 +84,12 @@ class ArchivematicaDashboardClient
      * @param string        $name  human-readable transfer name
      * @param string        $type  transfer type (standard|zipfile|dspace|...)
      * @param array<string> $paths one or more source paths. Each is sent as
-     *                             base64("{pipeline_uuid}:{path}") per the
-     *                             Dashboard API contract.
-     * @param string|null   $pipelineUuid pipeline the paths belong to;
-     *                             defaults to am_default_pipeline_uuid.
+     *                             base64("{transfer_source_location_uuid}:{path}")
+     *                             — the SS *location* UUID, per the Dashboard API
+     *                             contract (the pipeline is implied by the
+     *                             authenticated Dashboard).
+     * @param string|null   $pipelineUuid retained for signature compatibility;
+     *                             no longer used for the path prefix (#1357-follow).
      * @param string|null   $accession optional accession number.
      *
      * @return array<string,mixed> decoded JSON body, e.g. {message, path}
@@ -99,24 +101,72 @@ class ArchivematicaDashboardClient
         ?string $pipelineUuid = null,
         ?string $accession = null
     ): array {
-        $pipelineUuid = $pipelineUuid ?: (string) config('archivematica.am_default_pipeline_uuid', '');
-
-        $encodedPaths = [];
-        foreach ($paths as $p) {
-            $encodedPaths[] = base64_encode($pipelineUuid . ':' . $p);
+        // The path prefix is the Transfer Source LOCATION uuid (from the SS), NOT
+        // the pipeline uuid — encoding the pipeline uuid made AM fail to resolve a
+        // location and reply "No path provided".
+        $locationUuid = (string) config('archivematica.am_transfer_source_location_uuid', '');
+        if ($locationUuid === '') {
+            throw new RuntimeException(
+                'Archivematica transfer source location UUID is not configured '
+                . '(am_transfer_source_location_uuid — from the SS Locations page).'
+            );
         }
 
-        $payload = [
-            'name'     => $name,
-            'type'     => $type,
-            'paths[]'  => $encodedPaths,
-            'row_ids[]' => [''],
+        // Build the body by hand. AM reads request.POST.getlist('paths[]'), so the
+        // wire form must carry repeated literal `paths[]=` / `row_ids[]=` keys.
+        // Passing an array under key 'paths[]' to form_params serialises it as
+        // `paths[][0]=…`, which AM ignores → the other cause of "No path provided".
+        $fields = [
+            'name=' . rawurlencode($name),
+            'type=' . rawurlencode($type),
         ];
+        foreach ($paths as $p) {
+            $fields[] = 'paths[]=' . rawurlencode(base64_encode($locationUuid . ':' . $p));
+            $fields[] = 'row_ids[]=';
+        }
         if ($accession !== null && $accession !== '') {
-            $payload['accession'] = $accession;
+            $fields[] = 'accession=' . rawurlencode($accession);
         }
 
-        return $this->request('POST', '/api/transfer/start_transfer/', $payload);
+        return $this->postForm('/api/transfer/start_transfer/', implode('&', $fields));
+    }
+
+    /**
+     * POST a hand-built application/x-www-form-urlencoded body (for endpoints that
+     * need repeated `key[]=` fields Guzzle's form_params can't express), decoding
+     * the JSON reply. Mirrors request()'s auth + error handling.
+     *
+     * @return array<string,mixed>
+     */
+    private function postForm(string $path, string $body): array
+    {
+        if ($this->baseUrl === '') {
+            throw new RuntimeException('Archivematica Dashboard URL is not configured.');
+        }
+        $url = $this->baseUrl . $path;
+
+        try {
+            $response = $this->http()
+                ->withBody($body, 'application/x-www-form-urlencoded')
+                ->post($url);
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Archivematica Dashboard request to {$path} failed: " . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+
+        if (! $response->successful()) {
+            throw new RuntimeException(
+                "Archivematica Dashboard POST {$path} returned HTTP "
+                . $response->status() . ': ' . $response->body()
+            );
+        }
+
+        $decoded = $response->json();
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     /**

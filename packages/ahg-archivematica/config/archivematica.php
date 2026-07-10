@@ -76,6 +76,12 @@ return [
     'am_default_pipeline_uuid' => $amSetting('am_default_pipeline_uuid', 'AM_DEFAULT_PIPELINE_UUID'),
     'am_transfer_source_path'  => $amSetting('am_transfer_source_path', 'AM_TRANSFER_SOURCE_PATH'),
 
+    // Transfer Source LOCATION uuid (from the Storage Service — Locations, purpose
+    // "Transfer source"). start_transfer encodes base64("{location_uuid}:{path}");
+    // the pipeline is implied by the authenticated Dashboard, so this is the SS
+    // location UUID, NOT the pipeline UUID.
+    'am_transfer_source_location_uuid' => $amSetting('am_transfer_source_location_uuid', 'AM_TRANSFER_SOURCE_LOCATION_UUID'),
+
     // --- DIP -> information_object matching strategy: uuid | identifier | slug ---
     'am_dip_match_strategy' => $amSetting('am_dip_match_strategy', 'AM_DIP_MATCH_STRATEGY', 'identifier'),
 
