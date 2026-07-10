@@ -122,13 +122,6 @@ class PortableExportController extends Controller
         ]);
     }
 
-    public function export(Request $request)
-    {
-        // Legacy POST handler kept for backward compatibility with the old form.
-        // The new wizard hits apiStart() instead.
-        return $this->apiStart($request);
-    }
-
     public function import(Request $request)
     {
         $this->abortIfDisabled();
