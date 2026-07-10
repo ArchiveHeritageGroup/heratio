@@ -74,6 +74,11 @@ class TransferService
         ]);
 
         try {
+            // 1.5 Stage the record's digital objects into the shared transfer
+            // source (the host mount AM reads) so there are files to ingest.
+            $staged = $this->stageFiles($objectId, $sourcePath);
+            Log::info('[archivematica] staged files', ['object_id' => $objectId, 'files' => $staged]);
+
             // 2. Start the transfer in the watched dir.
             $started = $this->client->startTransfer(
                 $transferName,
@@ -85,6 +90,11 @@ class TransferService
             // The approve step needs the directory name Archivematica created.
             // start_transfer returns a `path`; its basename is the directory.
             $directory = $this->directoryFromStartResponse($started, $transferName);
+
+            // 2.5 Wait until the transfer shows up in the unapproved list — the
+            // copy into the watched dir is async, so approving immediately fails
+            // with "Unable to start the transfer".
+            $directory = $this->awaitUnapproved($directory, $type);
 
             // 3. Approve to obtain the transfer UUID.
             $approved = $this->client->approveTransfer($type, $directory);
@@ -187,6 +197,54 @@ class TransferService
     }
 
     /**
+     * Copy the record's digital-object files into the transfer staging directory
+     * — the host mount of the AM transfer source ({staging}/{relativeSourcePath}).
+     * Archivematica reads the same directory inside its own filesystem, so the
+     * staged files become the transfer payload. Returns the count staged.
+     */
+    private function stageFiles(int $objectId, string $relativeSourcePath): int
+    {
+        $stagingBase = rtrim((string) config('archivematica.am_transfer_staging_path', ''), '/');
+        if ($stagingBase === '') {
+            throw new RuntimeException(
+                'Archivematica transfer staging path is not configured '
+                . '(am_transfer_staging_path — the local mount of the AM transfer source).'
+            );
+        }
+        $destDir = $stagingBase . '/' . trim($relativeSourcePath, '/');
+        if (! is_dir($destDir) && ! @mkdir($destDir, 0775, true) && ! is_dir($destDir)) {
+            throw new RuntimeException("Could not create staging directory: {$destDir}");
+        }
+
+        // Same on-disk resolution the portable-export builder uses:
+        // {uploads_path}/{digital_object.path}{digital_object.name}.
+        $uploadsBase = rtrim((string) config('heratio.uploads_path', '/tmp'), '/');
+        $dos = DB::table('digital_object')->where('object_id', $objectId)
+            ->whereNotNull('path')->where('path', '!=', '')->get();
+
+        $staged = 0;
+        foreach ($dos as $do) {
+            $src = $uploadsBase . '/' . ltrim((string) $do->path, '/') . $do->name;
+            if (! is_file($src)) {
+                continue;
+            }
+            $name = $do->name !== '' ? $do->name : basename($src);
+            if (@copy($src, $destDir . '/' . $name)) {
+                $staged++;
+            }
+        }
+
+        if ($staged === 0) {
+            throw new RuntimeException(
+                "No digital-object files found on disk to stage for object #{$objectId} "
+                . "(looked under {$uploadsBase})."
+            );
+        }
+
+        return $staged;
+    }
+
+    /**
      * Build a stable, human-readable transfer name for a record.
      */
     private function transferName(int $objectId): string
@@ -212,5 +270,30 @@ class TransferService
         }
 
         return basename(rtrim($path, '/'));
+    }
+
+    /**
+     * Poll the unapproved-transfer list until our transfer appears, returning the
+     * authoritative directory name Archivematica assigned (it may differ from our
+     * requested name). Falls back to the given directory if it never shows.
+     */
+    private function awaitUnapproved(string $directory, string $type, int $tries = 12, int $sleepMs = 1000): string
+    {
+        $needle = rtrim($directory, '/');
+        for ($i = 0; $i < $tries; $i++) {
+            try {
+                foreach ($this->client->unapproved() as $t) {
+                    $d = rtrim((string) ($t['directory'] ?? ''), '/');
+                    if ($d !== '' && ($d === $needle || str_starts_with($d, $needle) || str_starts_with($needle, $d))) {
+                        return $d;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // transient (AM still copying) — keep polling
+            }
+            usleep($sleepMs * 1000);
+        }
+
+        return $directory;
     }
 }

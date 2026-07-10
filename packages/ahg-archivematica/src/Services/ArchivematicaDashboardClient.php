@@ -187,6 +187,20 @@ class ArchivematicaDashboardClient
     }
 
     /**
+     * List transfers awaiting approval. start_transfer copies the payload into the
+     * watched dir asynchronously, so a transfer only becomes approvable once it
+     * appears here — callers poll this before approveTransfer().
+     *
+     * @return array<int,array<string,mixed>> each e.g. {type, directory, uuid}
+     */
+    public function unapproved(): array
+    {
+        $resp = $this->request('GET', '/api/transfer/unapproved/');
+
+        return is_array($resp['results'] ?? null) ? $resp['results'] : [];
+    }
+
+    /**
      * Poll transfer-stage status for a transfer UUID. When the transfer has
      * moved into ingest the response carries `sip_uuid`, the handle used to
      * poll ingestStatus().

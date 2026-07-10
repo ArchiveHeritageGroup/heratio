@@ -82,6 +82,12 @@ return [
     // location UUID, NOT the pipeline UUID.
     'am_transfer_source_location_uuid' => $amSetting('am_transfer_source_location_uuid', 'AM_TRANSFER_SOURCE_LOCATION_UUID'),
 
+    // Host-side staging path = the local mount of the AM transfer source location
+    // (e.g. an NFS mount of the SS location root). send() copies a record's digital
+    // objects to {staging}/{am_transfer_source_path}/{slug} so Archivematica, which
+    // reads the same directory inside its own filesystem, can ingest them.
+    'am_transfer_staging_path' => $amSetting('am_transfer_staging_path', 'AM_TRANSFER_STAGING_PATH'),
+
     // --- DIP -> information_object matching strategy: uuid | identifier | slug ---
     'am_dip_match_strategy' => $amSetting('am_dip_match_strategy', 'AM_DIP_MATCH_STRATEGY', 'identifier'),
 
