@@ -17,6 +17,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/actor/{slug}/rename', [ActorController::class, 'rename'])->name('actor.rename');
     Route::post('/actor/{slug}/rename', [ActorController::class, 'processRename'])->name('actor.processRename')->middleware('acl:update');
 
+    // Link a digital object to an authority record. The show view previously
+    // pointed at AtoM's /{slug}/linkDigitalObject, which has no Heratio route;
+    // the generic {slug}/object/addDigitalObject is information-object-only
+    // (DigitalObjectController::addDigitalObject aborts 404 on a non-IO slug).
+    Route::get('/actor/{slug}/object/addDigitalObject', [ActorController::class, 'addDigitalObject'])->name('actor.digitalobject.add');
+    Route::post('/actor/{slug}/object/addDigitalObject', [ActorController::class, 'storeDigitalObject'])->name('actor.digitalobject.store')->middleware('acl:update');
+
     // =========================================================================
     // External Authority Reconciliation
     // =========================================================================

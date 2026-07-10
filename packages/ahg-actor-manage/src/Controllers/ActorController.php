@@ -1746,4 +1746,98 @@ class ActorController extends Controller
             'padded' => $candidate !== $base,
         ]);
     }
+
+    // =========================================================================
+    // Digital object
+    //
+    // Authority records could already *display* a linked digital object
+    // (ActorService::getDigitalObjects) and *rename* one, but there was no way
+    // to attach it: no route, no form, no upload handler. The show view linked
+    // to AtoM's /{slug}/linkDigitalObject, which has never existed in Heratio
+    // and 404'd for every actor. DigitalObjectService::upload() takes any
+    // object id, and an actor id *is* an object id, so this is the missing
+    // third of a feature rather than a new one.
+    // =========================================================================
+
+    /**
+     * Render the "Link digital object" form for an authority record.
+     */
+    public function addDigitalObject(string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (! $actor) {
+            abort(404);
+        }
+
+        if ($this->actorMaster((int) $actor->id)) {
+            return redirect()->route('actor.show', $slug)
+                ->with('info', __('A digital object is already linked. Delete it before attaching another.'));
+        }
+
+        return view('ahg-actor-manage::add-digital-object', ['actor' => $actor]);
+    }
+
+    /**
+     * Attach an uploaded file to an authority record as its master digital object.
+     */
+    public function storeDigitalObject(Request $request, string $slug)
+    {
+        $request->validate([
+            'digital_object' => 'required|file|max:'.$this->phpUploadMaxKb(),
+        ]);
+
+        $actor = $this->service->getBySlug($slug);
+        if (! $actor) {
+            abort(404);
+        }
+
+        // Re-check after validation: one master per object, same rule the IO uploader enforces.
+        if ($this->actorMaster((int) $actor->id)) {
+            return redirect()->route('actor.show', $slug)
+                ->with('error', __('A digital object already exists. Delete the current one before uploading a new file.'));
+        }
+
+        try {
+            \AhgCore\Services\DigitalObjectService::upload((int) $actor->id, $request->file('digital_object'));
+        } catch (\Throwable $e) {
+            \Log::error('actor digital object upload failed', ['actor' => $actor->id, 'error' => $e->getMessage()]);
+
+            return redirect()->route('actor.show', $slug)
+                ->with('error', __('Upload failed: ').$e->getMessage());
+        }
+
+        return redirect()->route('actor.show', $slug)
+            ->with('success', __('Digital object linked successfully.'));
+    }
+
+    /**
+     * The actor's master digital object row, if any.
+     */
+    private function actorMaster(int $actorId): ?object
+    {
+        return DB::table('digital_object')
+            ->where('object_id', $actorId)
+            ->where('usage_id', \AhgCore\Services\DigitalObjectService::USAGE_MASTER)
+            ->first();
+    }
+
+    /**
+     * Upload ceiling (KB) taken from PHP's own upload_max_filesize, so the
+     * controller never rejects a file PHP would have accepted.
+     * Mirrors DigitalObjectController::phpUploadMaxKb().
+     */
+    private function phpUploadMaxKb(): int
+    {
+        $raw = (string) ini_get('upload_max_filesize');
+        $raw = $raw !== '' ? $raw : '256M';
+        $num = (int) $raw;
+        $bytes = match (strtolower(substr($raw, -1))) {
+            'g' => $num * 1024 ** 3,
+            'm' => $num * 1024 ** 2,
+            'k' => $num * 1024,
+            default => $num,
+        };
+
+        return max(1, (int) ($bytes / 1024));
+    }
 }
