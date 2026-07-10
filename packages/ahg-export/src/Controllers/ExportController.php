@@ -53,6 +53,9 @@ class ExportController extends Controller
      */
     public function csv(Request $request)
     {
+        if ($request->isMethod('post')) {
+            return $this->exportService->streamInformationObjectCsv($request->all());
+        }
         $repositories = $this->exportService->getRepositories();
         $levels = $this->exportService->getLevelsOfDescription();
         $ioCount = $this->exportService->getInformationObjectCount();
@@ -61,10 +64,30 @@ class ExportController extends Controller
     }
 
     /**
-     * EAD export page.
+     * EAD export — form (GET) or EAD 2002 XML download (POST). Reuses the
+     * working ahg-metadata-export serializer rather than re-implementing EAD.
      */
     public function ead(Request $request)
     {
+        if ($request->isMethod('post')) {
+            $objectId = (int) $request->input('object_id');
+            if ($objectId <= 0) {
+                return back()->with('error', __('Please choose a record to export.'));
+            }
+            $cls = \AhgMetadataExport\Services\Exporters\Ead2002Serializer::class;
+            if (! class_exists($cls)) {
+                return back()->with('error', __('The EAD exporter is unavailable.'));
+            }
+            $xml = (new $cls())->serializeRecord($objectId, 'en', (bool) $request->input('include_descendants', false));
+            if (trim($xml) === '') {
+                return back()->with('error', __('No EAD could be generated for that record.'));
+            }
+
+            return response('<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $xml, 200, [
+                'Content-Type' => 'application/xml; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="ead-' . $objectId . '.xml"',
+            ]);
+        }
         $repositories = $this->exportService->getRepositories();
         $fonds = $this->exportService->getTopLevelFonds();
 
@@ -72,30 +95,49 @@ class ExportController extends Controller
     }
 
     /**
-     * Archival description export page.
+     * Archival description export — form (GET) or CSV download (POST). The
+     * single-record EAD/DC formats are handled on the dedicated EAD page.
      */
     public function archival(Request $request)
     {
+        if ($request->isMethod('post')) {
+            $format = (string) $request->input('format', 'csv');
+            if ($format === 'ead' || $format === 'dc') {
+                return redirect()->route('export.ead')
+                    ->with('info', __('EAD / Dublin Core export is per-record — choose a record below.'));
+            }
+
+            return $this->exportService->streamInformationObjectCsv([
+                'repository_id' => $request->input('repository_id'),
+                'limit' => $request->input('limit'),
+            ]);
+        }
         $repositories = $this->exportService->getRepositories();
 
         return view('ahg-export::archival', compact('repositories'));
     }
 
     /**
-     * Authority record export page.
+     * Authority record export — form (GET) or CSV download (POST).
      */
     public function authority(Request $request)
     {
+        if ($request->isMethod('post')) {
+            return $this->exportService->streamActorCsv((int) $request->input('limit', 0));
+        }
         $authorityCount = $this->exportService->getAuthorityCount();
 
         return view('ahg-export::authority', compact('authorityCount'));
     }
 
     /**
-     * Repository export page.
+     * Repository export — form (GET) or CSV download (POST).
      */
     public function repository(Request $request)
     {
+        if ($request->isMethod('post')) {
+            return $this->exportService->streamRepositoryCsv((int) $request->input('limit', 0));
+        }
         $repositoryCount = $this->exportService->getRepositoryCount();
         $repositories = $this->exportService->getRepositories();
 
@@ -103,10 +145,13 @@ class ExportController extends Controller
     }
 
     /**
-     * Accession CSV export page.
+     * Accession CSV export — form (GET) or CSV download (POST).
      */
     public function accessionCsv(Request $request)
     {
+        if ($request->isMethod('post')) {
+            return $this->exportService->streamAccessionCsv($request->all());
+        }
         $repositories = $this->exportService->getRepositories();
         $accessionCount = $this->exportService->getAccessionCount();
 
