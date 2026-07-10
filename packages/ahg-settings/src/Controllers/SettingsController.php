@@ -692,9 +692,15 @@ class SettingsController extends Controller
         if ($request->isMethod('post')) {
             foreach ($themeKeys as $key) {
                 $value = $request->input($key, '');
-                DB::table('ahg_settings')
-                    ->where('setting_key', $key)
-                    ->update(['setting_value' => $value]);
+                // updateOrInsert, not update: a fresh install has no ahg_settings
+                // theme rows at all, so a plain UPDATE matched nothing and every
+                // theme save silently no-op'd (regenerateThemeCss then re-emitted
+                // the built-in defaults). setting_group must be 'general' — that
+                // is the group regenerateThemeCss() reads.
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key],
+                    ['setting_value' => $value, 'setting_group' => 'general']
+                );
             }
             $this->regenerateThemeCss();
 

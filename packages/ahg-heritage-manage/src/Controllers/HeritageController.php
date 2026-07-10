@@ -1518,7 +1518,8 @@ class HeritageController extends Controller
     // ──────────────────────────────────────────────────────────────────────
 
     public function adminAccessRequests() { return view('ahg-heritage-manage::admin-access-requests', ['items' => collect()]); }
-    public function adminBranding() { return view('ahg-heritage-manage::admin-branding', ['items' => collect()]); }
+    // adminBranding() removed: theme/branding lives only in Settings → Themes.
+    // The route now redirects to `settings.themes`.
     /**
      * Heritage Landing Config admin form. GET renders the form pre-filled
      * from the single-row heritage_landing_config table + heritage_hero_slide

@@ -342,6 +342,22 @@
   </div>
 @endif
 
+{{-- ========== TOP-LEVEL FILTER ========== --}}
+{{-- AtoM parity: browse can default to top-level descriptions and offers a
+     removable filter to show every description. Mirrors AtoM's
+     informationobject/browse `topLod` chip. --}}
+<div class="d-flex align-items-center gap-2 mb-2">
+  @if(($topLevelOnly ?? '0') === '1')
+    <a href="{{ glamBrowseUrl($fp, ['topLevel' => '0']) }}" class="btn atom-btn-outline-success btn-sm">
+      <i class="fas fa-times me-1"></i> {{ __('Only top-level descriptions') }}
+    </a>
+  @else
+    <a href="{{ glamBrowseUrl($fp, ['topLevel' => '1']) }}" class="btn atom-btn-outline-success btn-sm">
+      <i class="fas fa-layer-group me-1"></i> {{ __('Top-level descriptions only') }}
+    </a>
+  @endif
+</div>
+
 {{-- ========== RESULTS INFO ========== --}}
 @if(($total ?? 0) > 0)
   <div class="small text-muted mb-2">

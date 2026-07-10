@@ -84,7 +84,11 @@ Route::middleware('admin')->group(function () {
 
     // Admin sub-pages
     Route::get('/heritage/admin/access-requests', [HeritageController::class, 'adminAccessRequests'])->name('heritage.admin-access-requests');
-    Route::get('/heritage/admin/branding', [HeritageController::class, 'adminBranding'])->name('heritage.admin-branding');
+    // Theme/branding is owned solely by Settings → Themes (`settings.themes`).
+    // This page duplicated those controls, wrote to a table nothing reads, and
+    // POSTed to a GET-only route (405 on save). Kept as a redirect so existing
+    // bookmarks land on the canonical page.
+    Route::get('/heritage/admin/branding', fn () => redirect()->route('settings.themes'))->name('heritage.admin-branding');
     Route::match(['get', 'post'], '/heritage/admin/config', [HeritageController::class, 'adminConfig'])->name('heritage.admin-config');
     Route::get('/heritage/admin/embargoes', [HeritageController::class, 'adminEmbargoes'])->name('heritage.admin-embargoes');
     Route::get('/heritage/admin/featured-collections', [HeritageController::class, 'adminFeaturedCollections'])->name('heritage.admin-featured-collections');

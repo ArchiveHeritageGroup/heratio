@@ -42,6 +42,21 @@ class DisplayController extends Controller
     protected DisplayService $service;
     protected UserBrowseSettingsRepository $settingsRepo;
 
+    /**
+     * Default for the topLevel browse filter when the request omits it.
+     * Operator setting `browse_default_top_level`; '0' (show all descriptions)
+     * preserves the historical behaviour when the setting is unset.
+     *
+     * AtoM defaults browse to top-level (informationobject/browseAction sets
+     * topLod = true) and offers a removable filter to show everything.
+     */
+    protected static function defaultTopLevel(): string
+    {
+        $v = trim((string) \AhgCore\Services\AhgSettingsService::get('browse_default_top_level', '0'));
+
+        return filter_var($v, FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+    }
+
     // Browse state properties (shared between browse/applyFilters/helper methods)
     protected ?string $typeFilter = null;
     protected ?string $parentId = null;
@@ -154,7 +169,7 @@ class DisplayController extends Controller
             }
         }
         $this->parentId = $request->input('parent');
-        $this->topLevelOnly = $request->input('topLevel', '0');
+        $this->topLevelOnly = $request->input('topLevel', self::defaultTopLevel());
         $page = max(1, (int) $request->input('page', 1));
 
         // Read limit: display browse has its own 10-100 range control
@@ -664,7 +679,7 @@ class DisplayController extends Controller
 
         $typeFilter = $request->input('type');
         $parentId = $request->input('parent');
-        $topLevelOnly = $request->input('topLevel', '0');
+        $topLevelOnly = $request->input('topLevel', self::defaultTopLevel());
         // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
         // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
         // users get separate defaults. Unrecognised tokens fall through the
@@ -781,7 +796,7 @@ class DisplayController extends Controller
 
         $typeFilter = $request->input('type');
         $parentId = $request->input('parent');
-        $topLevelOnly = $request->input('topLevel', '0');
+        $topLevelOnly = $request->input('topLevel', self::defaultTopLevel());
         // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
         // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
         // users get separate defaults. Unrecognised tokens fall through the

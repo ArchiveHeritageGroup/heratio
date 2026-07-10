@@ -19,11 +19,6 @@
     <i class="fas fa-toggle-on me-2" style="width:18px;text-align:center;"></i>
     {{ __('Feature Toggles') }}
   </a>
-  <a href="{{ route('heritage.admin-branding') }}"
-     class="list-group-item list-group-item-action d-flex align-items-center{{ request()->routeIs('heritage.admin-branding') ? ' active' : '' }}">
-    <i class="fas fa-palette me-2" style="width:18px;text-align:center;"></i>
-    {{ __('Branding') }}
-  </a>
   <a href="{{ route('heritage.admin-hero-slides') }}"
      class="list-group-item list-group-item-action d-flex align-items-center{{ request()->routeIs('heritage.admin-hero-slides') ? ' active' : '' }}">
     <i class="fas fa-images me-2" style="width:18px;text-align:center;"></i>

@@ -411,7 +411,10 @@
     {{-- Dynamic theme CSS — only when "Theme Enabled" is checked at /admin/ahgSettings/themes.
          When off, the bundled theme defaults take over — useful as an instant undo if the
          admin breaks their colour palette. --}}
-    @if((string) \AhgCore\Services\AhgSettingsService::get('ahg_theme_enabled', 'true') === 'true')
+    {{-- Truthy test, not === 'true': the checkbox posts "true", but any other
+         truthy value ("1", "on", "yes") silently disabled the whole dynamic
+         stylesheet, leaving every var(--ahg-*) on its hardcoded fallback. --}}
+    @if(filter_var(\AhgCore\Services\AhgSettingsService::get('ahg_theme_enabled', 'true'), FILTER_VALIDATE_BOOLEAN))
       <link href="{{ route('settings.dynamic-css') }}" rel="stylesheet">
     @endif
     <link href="{{ asset('vendor/ahg-theme-b5/css/custom.css') }}" rel="stylesheet">
