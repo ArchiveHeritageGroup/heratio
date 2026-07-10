@@ -37,6 +37,7 @@
   $materialLanguages = $materialLanguages ?? collect();
   $materialScripts = $materialScripts ?? collect();
   $languageNotes = $languageNotes ?? '';
+  $languageOfDescription = $languageOfDescription ?? '';
   $technicalAccess = $technicalAccess ?? '';
   $relatedMaterialDescriptions = $relatedMaterialDescriptions ?? collect();
   $parentTitle = $parentTitle ?? null;
@@ -358,7 +359,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">{{ __('Language(s) of description') }}</label>
-            <input type="text" name="languageNotes" class="form-control" value="{{ old('languageNotes', $languageNotes) }}">
+            <input type="text" name="languageOfDescription" class="form-control" value="{{ old('languageOfDescription', $languageOfDescription) }}">
           </div>
           <div class="mb-3">
             <label class="form-label">{{ __('Sources') }}</label>

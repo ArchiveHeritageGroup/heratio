@@ -143,8 +143,12 @@ class DacsManageController extends Controller
                     'revision_history' => $request->input('revision_history'),
                 ]);
 
-            // DACS-specific properties: languageNotes, technicalAccess
+            // DACS-specific properties. languageNotes (Conditions — language/script
+            // OF THE MATERIAL) and languageOfDescription (Description control —
+            // DACS 8.3, language the finding aid is written in) are distinct fields
+            // that previously collided on the same `languageNotes` name (#1357).
             $this->saveProperty($io->id, 'languageNotes', $request->input('languageNotes'), $culture);
+            $this->saveProperty($io->id, 'languageOfDescription', $request->input('languageOfDescription'), $culture);
             $this->saveProperty($io->id, 'technicalAccess', $request->input('technicalAccess'), $culture);
 
             // Languages/scripts of material
@@ -370,8 +374,9 @@ class DacsManageController extends Controller
         $materialLanguages = $this->loadSerializedProperty($io->id, 'language', $culture);
         $materialScripts = $this->loadSerializedProperty($io->id, 'script', $culture);
 
-        // DACS-specific properties: languageNotes, technicalAccess
+        // DACS-specific properties: languageNotes + languageOfDescription (#1357)
         $languageNotes = $this->loadProperty($io->id, 'languageNotes', $culture);
+        $languageOfDescription = $this->loadProperty($io->id, 'languageOfDescription', $culture);
         $technicalAccess = $this->loadProperty($io->id, 'technicalAccess', $culture);
 
         // Related material descriptions
@@ -422,6 +427,7 @@ class DacsManageController extends Controller
                 'materialLanguages' => $materialLanguages,
                 'materialScripts' => $materialScripts,
                 'languageNotes' => $languageNotes,
+                'languageOfDescription' => $languageOfDescription,
                 'technicalAccess' => $technicalAccess,
                 'relatedMaterialDescriptions' => $relatedMaterialDescriptions,
                 'parentTitle' => $parentTitle,
