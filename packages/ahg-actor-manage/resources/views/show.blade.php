@@ -655,20 +655,11 @@
       @endif
       @if($canUpdate)
         <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>{{ __('Rename') }}</a></li>
-        <li>
-          <div class="dropup">
-            <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              {{ __('More') }}
-            </button>
-            <ul class="dropdown-menu mb-2">
-              @if(isset($digitalObject) && $digitalObject)
-                <li><a href="{{ url('/' . $actor->slug . '/editDigitalObject') }}" class="dropdown-item">Edit digital object</a></li>
-              @else
-                <li><a href="{{ url('/' . $actor->slug . '/linkDigitalObject') }}" class="dropdown-item">Link digital object</a></li>
-              @endif
-            </ul>
-          </div>
-        </li>
+        {{-- The "More" dropdown held only Link/Edit digital object, both of which
+             pointed at AtoM URLs (/{slug}/linkDigitalObject) that have no Heratio
+             route — actors have no digital-object routes at all, so both 404'd.
+             The guard was also dead: show() passes `digitalObjects` (plural), never
+             `$digitalObject`, so the Edit branch could never be reached. --}}
       @endif
       @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
           && \AhgCore\Services\AclService::check($actor, 'translate'))

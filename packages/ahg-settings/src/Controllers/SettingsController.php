@@ -810,7 +810,16 @@ class SettingsController extends Controller
         return ".card-header { background-color: var(--ahg-card-header-bg) !important; color: var(--ahg-card-header-text) !important; }\n"
             .".card-header * { color: var(--ahg-card-header-text) !important; }\n"
             .".btn-primary { background-color: var(--ahg-btn-bg) !important; border-color: var(--ahg-btn-bg) !important; color: var(--ahg-btn-text) !important; }\n"
-            .".btn-primary:hover, .btn-primary:focus { filter: brightness(0.9); }\n"
+            // The base rule above pins background-color with !important, so Bootstrap's
+            // --bs-btn-hover-bg can never fire on .btn-primary and the button looked dead
+            // on hover. Darken the background explicitly (transition: all .3s ease from the
+            // bundle animates it). Selector list matches the bundle's own, which is more
+            // specific than a bare .btn-primary:hover and would otherwise win.
+            .'.btn-primary:hover, .btn-primary:focus, .btn.btn-primary:hover, .btn.btn-primary:focus, '
+            .'button.btn-primary:hover, button.btn-primary:focus, a.btn-primary:hover, input.btn-primary:hover '
+            .'{ background-color: color-mix(in srgb, var(--ahg-btn-bg) 85%, #000) !important; '
+            .'border-color: color-mix(in srgb, var(--ahg-btn-bg) 85%, #000) !important; '
+            ."color: var(--ahg-btn-text) !important; filter: none; }\n"
             ."a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n"
             .".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
             .':root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); '

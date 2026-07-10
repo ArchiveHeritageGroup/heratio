@@ -151,3 +151,17 @@ Route::middleware(['auth.required', 'admin'])->group(function () {
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/homepage', [App\Http\Controllers\HomeController::class, 'index'])->name('homepage'); // AtoM alias
+
+// Catch every unmatched path so the 404 renders inside the `web` group.
+// Without this, only single-segment misses (which hit the {slug} catch-all)
+// had a session; anything deeper — /foo/bar, /{actor}/linkDigitalObject —
+// threw NotFoundHttpException before session/auth booted, so the error page
+// rendered a logged-out header at a signed-in user. Laravel always gives
+// fallback the lowest priority, so no real route is shadowed.
+Route::fallback(function () {
+    if (request()->expectsJson()) {
+        return response()->json(['message' => 'Not Found'], 404);
+    }
+
+    return response()->view('errors.404', [], 404);
+});
