@@ -54,8 +54,9 @@ class InjectChatbotWidget
         if ($response->getStatusCode() >= 300) return false;
 
         $path = $request->path();
-        // Don't inject into chatbot's own routes or asset paths.
-        foreach (['chatbot', 'admin/chatbot', 'api', 'oai', 'sru', '_debugbar'] as $skip) {
+        // Don't inject into chatbot's own routes, asset paths, or the MVA Claims sub-app
+        // (it has its own feedback/assistant UI and a standalone layout).
+        foreach (['chatbot', 'admin/chatbot', 'api', 'oai', 'sru', '_debugbar', 'mva'] as $skip) {
             if (str_starts_with($path, $skip)) return false;
         }
 
