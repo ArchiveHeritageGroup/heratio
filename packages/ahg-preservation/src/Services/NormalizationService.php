@@ -117,6 +117,7 @@ class NormalizationService
 
         $start = microtime(true);
         $options = is_string($rule->options ?? null) ? (json_decode($rule->options, true) ?: []) : [];
+        $ioId = isset($do->object_id) ? (int) $do->object_id : null;
 
         try {
             $result = $this->executeConversion($rule->tool, $sourcePath, $outputPath, (string) $rule->target_ext, $options);
@@ -130,12 +131,18 @@ class NormalizationService
             }
 
             if (! ($result['success'] ?? false) || ! is_file($outputPath)) {
+                $err = (string) ($result['error'] ?? 'conversion produced no output');
                 DB::table('preservation_format_conversion')->where('id', $conversionId)->update([
                     'status' => 'failed',
-                    'error_message' => substr((string) ($result['error'] ?? 'conversion produced no output'), 0, 2000),
+                    'error_message' => substr($err, 0, 2000),
                     'completed_at' => now()->format('Y-m-d H:i:s'),
                     'duration_ms' => (int) ((microtime(true) - $start) * 1000),
                 ]);
+                // #1385 Phase 3 — a tool error / no-output is a provenance-worthy
+                // failure, not a silent skip: record a failed PREMIS normalization event.
+                $this->premis($digitalObjectId, $ioId, 'normalization',
+                    ucfirst($purpose) . " normalization FAILED for DO {$digitalObjectId} → {$rule->target_format} via {$rule->tool}: " . substr($err, 0, 400),
+                    'fail');
                 return null;
             }
 
@@ -154,18 +161,28 @@ class NormalizationService
             // master or access copy, per purpose).
             $derivativeId = $this->attachDerivative($do, $outputPath, (string) $rule->target_mime, $outSize, $outChecksum, $usageId);
 
-            // PREMIS normalization event.
-            try {
-                app(PreservationService::class)->logEvent(
-                    $derivativeId ?: $digitalObjectId,
-                    isset($do->object_id) ? (int) $do->object_id : null,
-                    'normalization',
-                    ucfirst($purpose) . " copy created: normalized to {$rule->target_format} via {$rule->tool} (source DO {$digitalObjectId})",
-                    'success'
-                );
-            } catch (\Throwable $e) {
-                Log::warning('[normalization] PREMIS event failed: ' . $e->getMessage());
-            }
+            // PREMIS normalization event (success).
+            $this->premis(
+                $derivativeId ?: $digitalObjectId,
+                $ioId,
+                'normalization',
+                ucfirst($purpose) . " copy created: normalized to {$rule->target_format} via {$rule->tool} (source DO {$digitalObjectId})",
+                'success'
+            );
+
+            // #1385 Phase 3 — post-normalization verification: re-hash the stored
+            // derivative and confirm it matches the checksum we recorded, emitted as
+            // a PREMIS fixity-check event so the AIP carries a verifiable QA step
+            // (not just the checksum column).
+            $verified = is_file($outputPath) && hash_file('sha256', $outputPath) === $outChecksum;
+            $this->premis(
+                $derivativeId ?: $digitalObjectId,
+                $ioId,
+                'fixity check',
+                "Post-normalization fixity verification of the {$purpose} derivative (sha256:" . substr($outChecksum, 0, 16) . "…): "
+                    . ($verified ? 'verified — file matches recorded checksum' : 'MISMATCH — derivative does not match its recorded checksum'),
+                $verified ? 'success' : 'fail'
+            );
 
             return [
                 'conversion_id' => $conversionId,
@@ -179,8 +196,22 @@ class NormalizationService
                 'completed_at' => now()->format('Y-m-d H:i:s'),
                 'duration_ms' => (int) ((microtime(true) - $start) * 1000),
             ]);
+            // #1385 Phase 3 — record the exception as a failed PREMIS normalization event.
+            $this->premis($digitalObjectId, $ioId, 'normalization',
+                ucfirst($purpose) . " normalization threw for DO {$digitalObjectId} → {$rule->target_format} via {$rule->tool}: " . substr($e->getMessage(), 0, 400),
+                'fail');
             Log::warning("[normalization] DO {$digitalObjectId} failed: " . $e->getMessage());
             return null;
+        }
+    }
+
+    /** Best-effort PREMIS event — never let provenance logging break normalization. */
+    private function premis(int $objectId, ?int $ioId, string $type, string $detail, string $outcome): void
+    {
+        try {
+            app(PreservationService::class)->logEvent($objectId, $ioId, $type, $detail, $outcome);
+        } catch (\Throwable $e) {
+            Log::warning("[normalization] PREMIS {$type} event failed: " . $e->getMessage());
         }
     }
 
