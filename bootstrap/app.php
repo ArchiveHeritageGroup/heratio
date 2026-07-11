@@ -196,6 +196,28 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 419);
             }
 
+            // The MVA claims app runs on its own auth guards (claimant / legal /
+            // officer) and its own hostname (mva.theahg.co.za), where Heratio's
+            // `/login` does not exist and just 404s. Keep 419 recovery inside MVA:
+            // if any MVA guard is still authenticated, bounce back to the form;
+            // otherwise send them to the matching MVA login, never Heratio's.
+            if ($request->is('mva') || $request->is('mva/*')) {
+                if (Auth::guard('claimant')->check()
+                    || Auth::guard('legal')->check()
+                    || Auth::guard('web')->check()) {
+                    return redirect()->back()
+                        ->withInput($request->except(['_token', 'password', 'password_confirmation']))
+                        ->with('warning', __('Your session was refreshed for security. Please try again.'));
+                }
+
+                $mvaLogin = $request->is('mva/officer', 'mva/officer/*') ? 'mva.officer.login'
+                          : ($request->is('mva/legal', 'mva/legal/*') ? 'mva.legal.login'
+                          : 'mva.login');
+
+                return redirect()->route($mvaLogin)
+                    ->with('warning', __('Your session expired for security reasons. Please sign in again.'));
+            }
+
             if (Auth::check()) {
                 return redirect()->back()
                     ->withInput($request->except(['_token', 'password', 'password_confirmation']))
