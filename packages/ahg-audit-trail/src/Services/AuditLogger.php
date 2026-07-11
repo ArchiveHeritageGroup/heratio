@@ -218,17 +218,29 @@ class AuditLogger
             return null;
         }
         try {
-            // Resolve user context from auth() (Laravel) — fall back to
-            // session if auth() isn't available (CLI / queue worker).
+            // Resolve the actor. #1404 — user_id is FK'd to `user`(id), so it may
+            // ONLY ever hold an id resolved from the staff ('web') guard. A second
+            // / non-staff guard's principal (a public claimant, an API consumer, a
+            // service account) lives in an unrelated id-space; writing its id here
+            // either drops the row (FK reject) or, worse, misattributes the action
+            // to whatever staff row happens to share that id. So take user_id from
+            // the web guard alone, and record a non-staff actor's identity only in
+            // the no-FK username / user_email columns.
             $userId = null;
             $username = null;
             $userEmail = null;
             try {
-                if (auth()->check()) {
-                    $u = auth()->user();
-                    $userId = $u->id ?? null;
-                    $username = $u->username ?? $u->email ?? null;
-                    $userEmail = $u->email ?? null;
+                $staff = auth('web')->user();
+                if ($staff) {
+                    $userId = $staff->id ?? null;
+                    $username = $staff->username ?? $staff->email ?? null;
+                    $userEmail = $staff->email ?? null;
+                } elseif (auth()->check()) {
+                    // A non-staff principal is acting: capture WHO for attribution
+                    // (no FK on these columns), but leave user_id NULL.
+                    $actor = auth()->user();
+                    $username = $actor->username ?? $actor->email ?? null;
+                    $userEmail = $actor->email ?? null;
                 }
             } catch (\Throwable $e) {
                 // No auth context (CLI / queue) — leave nulls
@@ -257,7 +269,7 @@ class AuditLogger
             //   2. config('ahg.tenant_id') / env('AHG_TENANT_ID')
             //   3. Auth::user()->tenant_id when authenticated
             //   4. NULL (single-tenant / unknown)
-            $tenantId = $this->resolveTenantId($userId !== null ? auth()->user() : null);
+            $tenantId = $this->resolveTenantId($userId !== null ? auth('web')->user() : null);
 
             $row = array_merge([
                 'uuid' => (string) Str::uuid(),
