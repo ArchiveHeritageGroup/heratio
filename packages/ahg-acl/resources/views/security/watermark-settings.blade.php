@@ -16,6 +16,27 @@
 
 @section('content')
 
+@php
+    // #1351: source watermark positions from ahg_dropdown (taxonomy: watermark_position)
+    // instead of hardcoding; fall back to the built-in list when the taxonomy is empty.
+    $watermarkPositions = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
+        ->where('taxonomy', 'watermark_position')
+        ->where('is_active', 1)
+        ->orderBy('sort_order')
+        ->get(['code', 'label', 'is_default']);
+    if ($watermarkPositions->isEmpty()) {
+        $watermarkPositions = collect([
+            (object) ['code' => 'center',       'label' => 'Center',       'is_default' => 0],
+            (object) ['code' => 'top_left',     'label' => 'Top Left',     'is_default' => 0],
+            (object) ['code' => 'top_right',    'label' => 'Top Right',    'is_default' => 0],
+            (object) ['code' => 'bottom_left',  'label' => 'Bottom Left',  'is_default' => 0],
+            (object) ['code' => 'bottom_right', 'label' => 'Bottom Right', 'is_default' => 1],
+            (object) ['code' => 'tile',         'label' => 'Repeat/Tile',  'is_default' => 0],
+        ]);
+    }
+    $wmDefaultPosition = optional($watermarkPositions->firstWhere('is_default', 1))->code ?? 'bottom_right';
+@endphp
+
 <h1>{{ __('Watermark Settings') }}</h1>
 
 @if(session('success'))
@@ -141,12 +162,9 @@
         <div class="col-md-4">
           <label for="custom_watermark_position" class="form-label">{{ __('Position') }}</label>
           <select class="form-select" id="custom_watermark_position" name="custom_watermark_position">
-            <option value="center">{{ __('Center') }}</option>
-            <option value="top-left">{{ __('Top Left') }}</option>
-            <option value="top-right">{{ __('Top Right') }}</option>
-            <option value="bottom-left">{{ __('Bottom Left') }}</option>
-            <option value="bottom-right" selected>{{ __('Bottom Right') }}</option>
-            <option value="repeat">{{ __('Repeat/Tile') }}</option>
+            @foreach($watermarkPositions as $wmPos)
+              <option value="{{ $wmPos->code }}" {{ $wmPos->code === $wmDefaultPosition ? 'selected' : '' }}>{{ __($wmPos->label) }}</option>
+            @endforeach
           </select>
         </div>
         <div class="col-md-3">

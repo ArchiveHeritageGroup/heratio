@@ -5,6 +5,25 @@
 
 @section('content')
 
+@php
+    // #1351: source audit action types from ahg_dropdown (taxonomy: security_audit_action)
+    // instead of hardcoding; fall back to the built-in list when the taxonomy is empty.
+    $auditActions = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
+        ->where('taxonomy', 'security_audit_action')
+        ->where('is_active', 1)
+        ->orderBy('sort_order')
+        ->get(['code', 'label']);
+    if ($auditActions->isEmpty()) {
+        $auditActions = collect([
+            (object) ['code' => 'view',          'label' => 'View'],
+            (object) ['code' => 'download',      'label' => 'Download'],
+            (object) ['code' => 'print',         'label' => 'Print'],
+            (object) ['code' => 'classify',      'label' => 'Classify'],
+            (object) ['code' => 'access_denied', 'label' => 'Denied'],
+        ]);
+    }
+@endphp
+
 <h1><i class="fas fa-history"></i> {{ __('Security Audit Log') }}</h1>
 
 {{-- Filters --}}
@@ -24,11 +43,9 @@
           <label class="form-label">{{ __('Action') }}</label>
           <select name="form_action" class="form-select">
             <option value="">{{ __('All') }}</option>
-            <option value="view" {{ (($filters['form_action'] ?? '') === 'view') ? 'selected' : '' }}>{{ __('View') }}</option>
-            <option value="download" {{ (($filters['form_action'] ?? '') === 'download') ? 'selected' : '' }}>{{ __('Download') }}</option>
-            <option value="print" {{ (($filters['form_action'] ?? '') === 'print') ? 'selected' : '' }}>{{ __('Print') }}</option>
-            <option value="classify" {{ (($filters['form_action'] ?? '') === 'classify') ? 'selected' : '' }}>{{ __('Classify') }}</option>
-            <option value="access_denied" {{ (($filters['form_action'] ?? '') === 'access_denied') ? 'selected' : '' }}>{{ __('Denied') }}</option>
+            @foreach($auditActions as $auditAction)
+              <option value="{{ $auditAction->code }}" {{ (($filters['form_action'] ?? '') === $auditAction->code) ? 'selected' : '' }}>{{ __($auditAction->label) }}</option>
+            @endforeach
           </select>
         </div>
         <div class="col-md-2">

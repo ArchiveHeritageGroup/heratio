@@ -38,6 +38,31 @@ if (isset($resource) && ($resource->id ?? null)) {
         $currentOpacity = $watermarkSetting->opacity ?? 0.40;
     }
 }
+
+// #1351: source watermark positions from ahg_dropdown (taxonomy: watermark_position)
+// instead of hardcoding; fall back to the built-in list when the taxonomy is empty.
+$watermarkPositions = DB::table('ahg_dropdown')
+    ->where('taxonomy', 'watermark_position')
+    ->where('is_active', 1)
+    ->orderBy('sort_order')
+    ->get(['code', 'label']);
+if ($watermarkPositions->isEmpty()) {
+    $watermarkPositions = collect([
+        (object) ['code' => 'center',       'label' => 'Center'],
+        (object) ['code' => 'top_left',     'label' => 'Top Left'],
+        (object) ['code' => 'top_right',    'label' => 'Top Right'],
+        (object) ['code' => 'bottom_left',  'label' => 'Bottom Left'],
+        (object) ['code' => 'bottom_right', 'label' => 'Bottom Right'],
+        (object) ['code' => 'tile',         'label' => 'Repeat (tile)'],
+    ]);
+}
+// Stored positions may use legacy spaced/hyphenated values ('bottom right',
+// 'repeat') — normalise both sides before comparing for the selected option.
+$normalisePosition = function ($value) {
+    $value = str_replace([' ', '-'], '_', strtolower(trim((string) $value)));
+
+    return $value === 'repeat' ? 'tile' : $value;
+};
 @endphp
 
 {{-- Security Classification --}}
@@ -182,12 +207,9 @@ if (isset($resource) && ($resource->id ?? null)) {
               <div class="col-md-6 mb-2">
                 <label for="new_watermark_position" class="form-label">{{ __('Position') }}</label>
                 <select class="form-select form-select-sm" id="new_watermark_position" name="new_watermark_position">
-                  <option value="center" {{ $currentPosition == 'center' ? 'selected' : '' }}>{{ __('Center') }}</option>
-                  <option value="repeat" {{ $currentPosition == 'repeat' ? 'selected' : '' }}>{{ __('Repeat (tile)') }}</option>
-                  <option value="bottom right" {{ $currentPosition == 'bottom right' ? 'selected' : '' }}>{{ __('Bottom Right') }}</option>
-                  <option value="bottom left" {{ $currentPosition == 'bottom left' ? 'selected' : '' }}>{{ __('Bottom Left') }}</option>
-                  <option value="top right" {{ $currentPosition == 'top right' ? 'selected' : '' }}>{{ __('Top Right') }}</option>
-                  <option value="top left" {{ $currentPosition == 'top left' ? 'selected' : '' }}>{{ __('Top Left') }}</option>
+                  @foreach($watermarkPositions as $wmPos)
+                    <option value="{{ $wmPos->code }}" {{ $normalisePosition($currentPosition) === $normalisePosition($wmPos->code) ? 'selected' : '' }}>{{ __($wmPos->label) }}</option>
+                  @endforeach
                 </select>
               </div>
               <div class="col-md-6 mb-2">

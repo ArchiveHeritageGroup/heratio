@@ -5,6 +5,32 @@
 
 @section('content')
 
+@php
+    // #1351: source access type + priority options from ahg_dropdown instead of
+    // hardcoding; fall back to the built-in lists when a taxonomy is empty.
+    $fetchDropdown = fn (string $taxonomy) => \Illuminate\Support\Facades\DB::table('ahg_dropdown')
+        ->where('taxonomy', $taxonomy)
+        ->where('is_active', 1)
+        ->orderBy('sort_order')
+        ->get(['code', 'label']);
+    $accessTypes = $fetchDropdown('security_access_request_type');
+    if ($accessTypes->isEmpty()) {
+        $accessTypes = collect([
+            (object) ['code' => 'view',     'label' => 'View Only'],
+            (object) ['code' => 'download', 'label' => 'Download'],
+            (object) ['code' => 'print',    'label' => 'Print'],
+        ]);
+    }
+    $accessPriorities = $fetchDropdown('security_access_request_priority');
+    if ($accessPriorities->isEmpty()) {
+        $accessPriorities = collect([
+            (object) ['code' => 'normal',    'label' => 'Normal'],
+            (object) ['code' => 'urgent',    'label' => 'Urgent'],
+            (object) ['code' => 'immediate', 'label' => 'Immediate'],
+        ]);
+    }
+@endphp
+
 <div class="row justify-content-center">
   <div class="col-md-8">
     <h1><i class="fas fa-hand-paper"></i> {{ __('Request Access') }}</h1>
@@ -67,18 +93,18 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Type of Access *') }}</label>
             <select name="request_type" class="form-select" required>
-              <option value="view">{{ __('View Only') }}</option>
-              <option value="download">{{ __('Download') }}</option>
-              <option value="print">{{ __('Print') }}</option>
+              @foreach($accessTypes as $accessType)
+                <option value="{{ $accessType->code }}">{{ __($accessType->label) }}</option>
+              @endforeach
             </select>
           </div>
 
           <div class="mb-3">
             <label class="form-label">{{ __('Priority') }}</label>
             <select name="priority" class="form-select">
-              <option value="normal">{{ __('Normal') }}</option>
-              <option value="urgent">{{ __('Urgent') }}</option>
-              <option value="immediate">{{ __('Immediate') }}</option>
+              @foreach($accessPriorities as $accessPriority)
+                <option value="{{ $accessPriority->code }}">{{ __($accessPriority->label) }}</option>
+              @endforeach
             </select>
           </div>
 
