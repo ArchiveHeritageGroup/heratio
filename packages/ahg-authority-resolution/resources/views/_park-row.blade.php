@@ -20,8 +20,8 @@
 <tr class="{{ $hasNewCand ? 'table-warning' : '' }}">
     <td class="text-muted small">#{{ (int) $r->mention_id }}</td>
     <td>
-        <span class="badge bg-{{ $typeBadges[$r->entity_type] ?? 'secondary' }}">
-            {{ $r->entity_type }}
+        <span class="badge bg-{{ $typeBadges[$r->entity_type] ?? 'secondary' }}" title="{{ $r->entity_type }}">
+            {{ \AhgAiServices\Support\EntityTypeLabels::label($r->entity_type) }}
         </span>
     </td>
     <td><strong>{{ $r->entity_value }}</strong></td>

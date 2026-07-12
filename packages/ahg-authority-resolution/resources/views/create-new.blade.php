@@ -42,8 +42,8 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="mb-0">
             <i class="bi bi-plus-circle me-2"></i>{{ __('Create new authority record') }}
-            <span class="badge bg-{{ $typeBadges[$entityType] ?? 'secondary' }} ms-2">
-                {{ $entityType }}
+            <span class="badge bg-{{ $typeBadges[$entityType] ?? 'secondary' }} ms-2" title="{{ $entityType }}">
+                {{ \AhgAiServices\Support\EntityTypeLabels::label($entityType) }}
             </span>
         </h1>
         <a href="{{ route('auth-res.settings.show') }}" class="btn btn-sm btn-outline-secondary">
@@ -207,7 +207,7 @@
                 <div class="card-body">
                     <div class="fw-bold text-break">{{ $mention->entity_value }}</div>
                     <div class="text-muted small mt-1">
-                        {{ $mention->entity_type }} / state {{ $mention->state }}
+                        {{ \AhgAiServices\Support\EntityTypeLabels::label($mention->entity_type) }} / {{ __('state') }} {{ ucfirst(str_replace('_', ' ', $mention->state)) }}
                     </div>
                     @if($context && $context->surrounding_text_before)
                         <div class="bg-light p-2 rounded small mt-3" style="font-family: monospace; line-height: 1.5;">

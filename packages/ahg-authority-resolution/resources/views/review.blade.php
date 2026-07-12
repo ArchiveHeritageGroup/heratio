@@ -64,8 +64,8 @@
 
     <h1 class="mb-3">
         <i class="bi bi-bank me-2"></i>{{ __('Review mention') }}
-        <span class="badge bg-{{ $typeBadges[$mention->entity_type] ?? 'secondary' }} ms-2">
-            {{ $mention->entity_type }}
+        <span class="badge bg-{{ $typeBadges[$mention->entity_type] ?? 'secondary' }} ms-2" title="{{ $mention->entity_type }}">
+            {{ \AhgAiServices\Support\EntityTypeLabels::label($mention->entity_type) }}
         </span>
         <span class="badge bg-{{ $stateBadges[$mention->state] ?? 'secondary' }} ms-1">
             {{ $mention->state }}
