@@ -172,10 +172,16 @@ function renderEntities(entities) {
     var html = '';
     var typeConfig = {
         'PERSON': { icon: 'fa-user', color: 'primary', label: 'People', createAction: 'create_actor' },
-        'ORG': { icon: 'fa-building', color: 'success', label: 'Organizations', createAction: 'create_actor' },
+        'ORG': { icon: 'fa-building', color: 'success', label: 'Organisations', createAction: 'create_actor' },
         'GPE': { icon: 'fa-map-marker-alt', color: 'info', label: 'Places', createAction: 'create_place' },
         'DATE': { icon: 'fa-calendar', color: 'warning', label: 'Dates', createAction: 'create_date' }
     };
+    // Human-readable labels for any NER code not in typeConfig (ORG -> Organisation, GPE -> Place, ...).
+    var entityTypeLabels = @json(\AhgAiServices\Support\EntityTypeLabels::all());
+    function entityLabel(t) {
+        return entityTypeLabels[String(t).toUpperCase()]
+            || String(t).replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
 
     var totalCount = 0;
 
@@ -183,7 +189,7 @@ function renderEntities(entities) {
         var items = entities[type];
         if (!items || !items.length) continue;
 
-        var config = typeConfig[type] || { icon: 'fa-tag', color: 'secondary', label: type, createAction: 'create_subject' };
+        var config = typeConfig[type] || { icon: 'fa-tag', color: 'secondary', label: entityLabel(type), createAction: 'create_subject' };
 
         html += '<div class="mb-4">';
         html += '<h5 class="text-' + config.color + ' border-bottom pb-2"><i class="fas ' + config.icon + ' me-2"></i>' + config.label;

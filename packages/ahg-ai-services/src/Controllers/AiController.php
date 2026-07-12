@@ -1020,7 +1020,7 @@ class AiController extends Controller
         $typeConfig = [
             'PERSON'      => ['color' => 'rgba(78, 121, 167, 0.35)', 'border' => '#4e79a7', 'label' => 'Person'],
             'PER'         => ['color' => 'rgba(78, 121, 167, 0.35)', 'border' => '#4e79a7', 'label' => 'Person'],
-            'ORG'         => ['color' => 'rgba(89, 161, 79, 0.35)', 'border' => '#59a14f', 'label' => 'Organization'],
+            'ORG'         => ['color' => 'rgba(89, 161, 79, 0.35)', 'border' => '#59a14f', 'label' => 'Organisation'],
             'GPE'         => ['color' => 'rgba(225, 87, 89, 0.35)', 'border' => '#e15759', 'label' => 'Place'],
             'LOC'         => ['color' => 'rgba(225, 87, 89, 0.35)', 'border' => '#e15759', 'label' => 'Location'],
             'DATE'        => ['color' => 'rgba(176, 122, 161, 0.35)', 'border' => '#b07aa1', 'label' => 'Date'],
@@ -1033,7 +1033,7 @@ class AiController extends Controller
         foreach ($entities as $entity) {
             $type = $entity->entity_type;
             if (!isset($grouped[$type])) {
-                $config = $typeConfig[$type] ?? ['color' => 'rgba(186, 186, 186, 0.35)', 'border' => '#bababa', 'label' => $type];
+                $config = $typeConfig[$type] ?? ['color' => 'rgba(186, 186, 186, 0.35)', 'border' => '#bababa', 'label' => \AhgAiServices\Support\EntityTypeLabels::label($type)];
                 $grouped[$type] = [
                     'type'        => $type,
                     'label'       => $config['label'],

@@ -82,7 +82,7 @@
             @php $entity = (object) $entity; @endphp
             <tr>
               <td><strong>{{ e($entity->entity_value) }}</strong></td>
-              <td><span class="badge bg-secondary">{{ e($entity->entity_type) }}</span></td>
+              <td><span class="badge bg-secondary" title="{{ e($entity->entity_type) }}">{{ \AhgAiServices\Support\EntityTypeLabels::label($entity->entity_type) }}</span></td>
               <td>{{ number_format(($entity->confidence ?? 0) * 100, 1) }}%</td>
               <td><small>{{ e($entity->source_title ?? '') }}</small></td>
               <td>
@@ -125,7 +125,7 @@
             @endphp
             <tr>
               <td>{{ e($stub->entity_value) }}</td>
-              <td><span class="badge bg-secondary">{{ e($stub->entity_type) }}</span></td>
+              <td><span class="badge bg-secondary" title="{{ e($stub->entity_type) }}">{{ \AhgAiServices\Support\EntityTypeLabels::label($stub->entity_type) }}</span></td>
               <td>
                 @if ($stub->slug)
                   <a href="{{ route('actor.show', $stub->slug) }}">{{ e($stub->actor_name ?? '') }}</a>

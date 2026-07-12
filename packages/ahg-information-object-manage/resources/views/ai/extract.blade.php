@@ -85,14 +85,17 @@ function displayResults(entities, count, time) {
 
     let html = `<p class="text-muted small">Found ${count} entities in ${time}ms</p>`;
 
-    const icons = { PERSON: 'bi-person', ORG: 'bi-building', GPE: 'bi-geo-alt', DATE: 'bi-calendar' };
-    const colors = { PERSON: 'primary', ORG: 'success', GPE: 'info', DATE: 'warning' };
+    const icons = { PERSON: 'bi-person', ORG: 'bi-building', GPE: 'bi-geo-alt', LOC: 'bi-geo', NORP: 'bi-people', FAC: 'bi-buildings', EVENT: 'bi-calendar-event', DATE: 'bi-calendar', TIME: 'bi-clock' };
+    const colors = { PERSON: 'primary', ORG: 'success', GPE: 'info', LOC: 'info', NORP: 'secondary', FAC: 'success', EVENT: 'warning', DATE: 'warning', TIME: 'warning' };
+    // Human-readable labels for the raw NER codes (ORG -> Organisation, GPE -> Place, ...).
+    const typeLabels = @json(\AhgAiServices\Support\EntityTypeLabels::all());
+    const labelFor = t => typeLabels[String(t).toUpperCase()] || String(t).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
     for (const [type, items] of Object.entries(entities)) {
         if (!items.length) continue;
 
-        html += `<div class="mb-2"><strong><i class="${icons[type]} me-1"></i>${type}</strong><br>`;
-        html += items.map(i => `<span class="badge bg-${colors[type]} me-1 mb-1">${i}</span>`).join('');
+        html += `<div class="mb-2"><strong><i class="${icons[type] || 'bi-tag'} me-1"></i>${labelFor(type)}</strong><br>`;
+        html += items.map(i => `<span class="badge bg-${colors[type] || 'secondary'} me-1 mb-1">${i}</span>`).join('');
         html += '</div>';
     }
 
