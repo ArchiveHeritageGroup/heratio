@@ -613,27 +613,60 @@ class CartController extends Controller
     public function paymentNotify(Request $request)
     {
         $data = $request->all();
-
-        // SECURITY: a PayFast ITN must be cryptographically verified before it is
-        // trusted - otherwise anyone can POST payment_status=COMPLETE to mark any
-        // order paid. Verify the md5 signature (param string + passphrase) and the
-        // merchant id against our stored settings; only then act on it.
         $settings = $this->ecommerceService->getSettings();
-        $valid = $this->verifyPayfastSignature($data, $settings->payfast_passphrase ?? null)
-            && (empty($settings->payfast_merchant_id)
-                || (string) ($data['merchant_id'] ?? '') === (string) $settings->payfast_merchant_id);
+        $sandbox = (bool) ($settings->payfast_sandbox ?? 1);
+
+        // SECURITY: a PayFast ITN must be fully verified before it is trusted -
+        // otherwise anyone can POST payment_status=COMPLETE to mark any order
+        // paid. The bare md5 signature alone is forgeable when no passphrase is
+        // configured (the default), so we run the full four-check verification
+        // used by the marketplace (MarketplacePaymentService::verifyItn):
+        //   1. md5 signature (param string + passphrase)
+        //   2. source IP in PayFast's published allow-list (skipped in sandbox)
+        //   3. the server-to-server /eng/query/validate postback returns VALID
+        //   4. amount_gross matches the stored order total
+        // plus a merchant_id equality guard and a refusal to settle live orders
+        // when no passphrase is set. Reusing the marketplace service keeps the
+        // validate URL and IP list identical across both PayFast integrations.
+        $payments = app(\AhgMarketplace\Services\MarketplacePaymentService::class);
+
+        // Load the referenced order up-front so the ITN amount can be checked
+        // against the actual order total (mirrors verifyItn's amount check).
+        $order = ! empty($data['m_payment_id'])
+            ? DB::table('ahg_order')->where('id', $data['m_payment_id'])->first()
+            : null;
+
+        $reason = null;
+        if (! $sandbox && empty($settings->payfast_passphrase)) {
+            // Live e-commerce must have a passphrase configured; without one the
+            // signature is attacker-computable. Refuse to settle until it is set.
+            $reason = 'no_passphrase';
+        } elseif (! $order) {
+            $reason = 'unknown_order';
+        } else {
+            // verifyItn compares $transaction->grand_total to amount_gross; the
+            // cart order stores its payable total in the `total` column.
+            $syntheticTxn = (object) ['grand_total' => $order->total];
+            $verified = $payments->verifyItn($data, (string) $request->ip(), $syntheticTxn)
+                && (empty($settings->payfast_merchant_id)
+                    || (string) ($data['merchant_id'] ?? '') === (string) $settings->payfast_merchant_id);
+            if (! $verified) {
+                $reason = 'verification_failed';
+            }
+        }
+        $valid = $reason === null;
 
         // Always record the raw notification (flagged if it failed verification).
         DB::table('ahg_payment_notifications')->insert([
             'gateway' => 'payfast',
             'payload' => json_encode($data),
-            'status' => $valid ? ($data['payment_status'] ?? 'unknown') : 'invalid_signature',
+            'status' => $valid ? ($data['payment_status'] ?? 'unknown') : ('invalid_'.$reason),
             'order_id' => $data['m_payment_id'] ?? null,
             'created_at' => now(),
         ]);
 
-        // Only a signature-verified COMPLETE notification updates the order.
-        if ($valid && ! empty($data['m_payment_id']) && ($data['payment_status'] ?? '') === 'COMPLETE') {
+        // Only a fully verified COMPLETE notification updates the order.
+        if ($valid && ($data['payment_status'] ?? '') === 'COMPLETE') {
             DB::table('ahg_order')
                 ->where('id', $data['m_payment_id'])
                 ->update([
@@ -646,32 +679,5 @@ class CartController extends Controller
 
         // PayFast expects a 200 acknowledgement regardless; do not leak validity.
         return response('OK', 200);
-    }
-
-    /**
-     * Verify a PayFast ITN signature: md5 of the urlencoded parameter string in
-     * the order received (excluding 'signature'), with the merchant passphrase
-     * appended when configured. Constant-time compared to the posted signature.
-     */
-    private function verifyPayfastSignature(array $data, ?string $passphrase): bool
-    {
-        $posted = $data['signature'] ?? '';
-        if (! is_string($posted) || $posted === '') {
-            return false;
-        }
-
-        $pairs = [];
-        foreach ($data as $key => $val) {
-            if ($key === 'signature' || is_array($val)) {
-                continue;
-            }
-            $pairs[] = $key.'='.urlencode(trim((string) $val));
-        }
-        $str = implode('&', $pairs);
-        if (! empty($passphrase)) {
-            $str .= '&passphrase='.urlencode(trim((string) $passphrase));
-        }
-
-        return hash_equals(md5($str), $posted);
     }
 }

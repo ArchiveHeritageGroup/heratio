@@ -18,8 +18,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/loan/create', [LoanController::class, 'store'])->name('loan.store')->middleware('acl:create');
     Route::get('/loan/search-objects', [LoanController::class, 'searchObjects'])->name('loan.search-objects');
     Route::get('/loan/dashboard', [LoanController::class, 'dashboard'])->name('loan.dashboard');
-    Route::get('/loan/{id}', [LoanController::class, 'show'])->where('id', '[0-9]+')->name('loan.show');
-    Route::get('/loan/{id}/edit', [LoanController::class, 'edit'])->name('loan.edit');
+    Route::get('/loan/{id}', [LoanController::class, 'show'])->where('id', '[0-9]+')->name('loan.show')->middleware('acl:read');
+    Route::get('/loan/{id}/edit', [LoanController::class, 'edit'])->name('loan.edit')->middleware('acl:read');
     Route::post('/loan/{id}/edit', [LoanController::class, 'update'])->name('loan.update')->middleware('acl:update');
     Route::post('/loan/{id}/delete', [LoanController::class, 'delete'])->name('loan.delete')->middleware('acl:delete');
     Route::post('/loan/{id}/add-object', [LoanController::class, 'addObject'])->name('loan.add-object')->middleware('acl:create');

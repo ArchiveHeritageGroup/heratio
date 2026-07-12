@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\AuthorizesProjectAccess;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use AhgResearch\Services\OdrlService;
@@ -51,6 +52,7 @@ use Illuminate\Support\Facades\DB;
 class ResearchOdrlPoliciesController extends Controller
 {
     use ResearchControllerHelpers;
+    use AuthorizesProjectAccess;
 
     protected ResearchService $service;
 
@@ -153,6 +155,11 @@ class ResearchOdrlPoliciesController extends Controller
             $formAction = $request->input('form_action');
 
             if ($formAction === 'create') {
+                // SECURITY (#1308-parity): a policy targeting a project may only be
+                // authored by a member (owner/accepted collaborator) or an admin.
+                if ($request->input('target_type') === 'project') {
+                    $this->assertProjectMember((int) $request->input('target_id'), (int) $researcher->id);
+                }
                 $constraintsJson = $request->input('constraints_json');
                 if ($constraintsJson) {
                     $decoded = json_decode($constraintsJson, true);
@@ -174,6 +181,11 @@ class ResearchOdrlPoliciesController extends Controller
 
             if ($formAction === 'update') {
                 $policyId = (int) $request->input('policy_id');
+                // SECURITY (#1308-parity): a policy targeting a project may only be
+                // rewritten by a member (owner/accepted collaborator) or an admin.
+                if ($request->input('target_type') === 'project') {
+                    $this->assertProjectMember((int) $request->input('target_id'), (int) $researcher->id);
+                }
                 $constraintsJson = $request->input('constraints_json');
                 if ($constraintsJson) {
                     $decoded = json_decode($constraintsJson, true);

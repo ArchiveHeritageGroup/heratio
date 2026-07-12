@@ -139,7 +139,7 @@ trait InformationObjectFetcher
 
     protected function fetchDescendants($io, string $culture)
     {
-        return DB::table('information_object')
+        $query = DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
             ->where('information_object.lft', '>', $io->lft)
             ->where('information_object.rgt', '<', $io->rgt)
@@ -153,8 +153,16 @@ trait InformationObjectFetcher
                 'information_object_i18n.scope_and_content',
                 'information_object_i18n.extent_and_medium',
                 'information_object_i18n.arrangement',
-            ])
-            ->get();
+            ]);
+
+        // This subtree is reached anonymously via public OAI-PMH / EAD export.
+        // Apply the SAME publication-status gate the OAI top-level set uses
+        // (DisclosureGate::wherePublished) so unpublished descendants are never
+        // embedded in the anonymous export.
+        app(\AhgCore\Services\DisclosureGate::class)
+            ->wherePublished($query, 'information_object');
+
+        return $query->get();
     }
 
     protected function escXml(?string $value): string

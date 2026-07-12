@@ -66,7 +66,13 @@ class HierarchyDataController extends Controller
         }
 
         $culture = app()->getLocale();
-        $isAuthenticated = auth()->check();
+        // Draft-visibility gate: only users who can read drafts (administrators
+        // and editors, per AclService::canAdmin - the same predicate
+        // addFilterDraftsCriteria() uses) may see unpublished titles/slugs in the
+        // tree feed. Authenticated NON-editors were previously treated like
+        // editors here and leaked draft titles; they now get the published-only
+        // filter, same as anonymous visitors.
+        $canSeeDrafts = auth()->check() && \AhgCore\Services\AclService::canAdmin(auth()->id());
 
         $query = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
@@ -81,7 +87,7 @@ class HierarchyDataController extends Controller
             )
             ->orderBy('io.lft');
 
-        if (!$isAuthenticated) {
+        if (!$canSeeDrafts) {
             $query->join('status as st', function ($j) {
                 $j->on('io.id', '=', 'st.object_id')->where('st.type_id', '=', 158);
             })->where('st.status_id', 160);

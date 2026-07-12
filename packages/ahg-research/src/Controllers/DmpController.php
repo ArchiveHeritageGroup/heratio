@@ -25,6 +25,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\AuthorizesProjectAccess;
 use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\DmpService;
 use AhgResearch\Services\ResearchService;
@@ -48,6 +49,7 @@ use Illuminate\Support\Facades\Schema;
 class DmpController extends Controller
 {
     use LogsResearchActivity;
+    use AuthorizesProjectAccess;
 
     public function __construct(
         private DmpService $dmp,
@@ -269,6 +271,8 @@ class DmpController extends Controller
         if (! $project) {
             abort(404, 'Project not found');
         }
+        // SECURITY (#1308-parity): authorize the caller against the resolved project.
+        $this->assertProjectMember($projectId, (int) $researcher->id);
 
         return [$project, $researcher];
     }

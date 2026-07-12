@@ -2,6 +2,7 @@
 
 namespace AhgApi\Controllers\V1;
 
+use AhgCore\Services\AclService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -192,11 +193,15 @@ class ActorApiController extends Controller
                 ];
             });
 
-        // An authenticated staff session may see contact PII + draft-linked
-        // resources; an anonymous caller may not. Actor authority data itself
-        // stays public (the issue keeps list/search/biography open), but the
-        // contact PII and any link to an unpublished record are gated.
-        $isStaff = auth()->check();
+        // A staff (admin/editor) session may see contact PII + draft-linked
+        // resources; an anonymous caller OR a mere self-registered login may
+        // not. Actor authority data itself stays public (the issue keeps
+        // list/search/biography open), but the contact PII and any link to an
+        // unpublished record are gated. #1395: being logged in is NOT staff -
+        // gate on the ACL admin/editor capability (same AclService::canAdmin
+        // used across ahg-api / the GraphQL callerIsAdmin) so a researcher
+        // login cannot harvest actor contact PII.
+        $isStaff = AclService::canAdmin(auth()->id());
 
         // Contact information
         $contacts = DB::table('contact_information')

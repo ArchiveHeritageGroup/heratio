@@ -20,6 +20,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\AuthorizesProjectAccess;
 use AhgResearch\Services\ResearchService;
 use AhgResearch\Services\SourceTriageService;
 use Illuminate\Http\Request;
@@ -36,6 +37,8 @@ use Illuminate\Support\Facades\DB;
  */
 class SourceTriageController extends Controller
 {
+    use AuthorizesProjectAccess;
+
     protected ResearchService $research;
 
     protected SourceTriageService $triage;
@@ -61,6 +64,8 @@ class SourceTriageController extends Controller
         if (! $project) {
             abort(404, 'Project not found');
         }
+        // SECURITY (#1308-parity): authorize the caller against the resolved project.
+        $this->assertProjectMember($projectId, (int) $researcher->id);
 
         $sources = $this->triage->getBoard($projectId);
 
@@ -185,6 +190,8 @@ class SourceTriageController extends Controller
         if (! $project) {
             abort(404, 'Project not found');
         }
+        // SECURITY (#1308-parity): authorize the caller against the resolved project.
+        $this->assertProjectMember($projectId, (int) $researcher->id);
 
         return [(int) $researcher->id, $project];
     }

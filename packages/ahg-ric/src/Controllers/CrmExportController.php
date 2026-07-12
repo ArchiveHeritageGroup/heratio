@@ -42,10 +42,12 @@
 
 namespace AhgRic\Controllers;
 
+use AhgCore\Services\AclService;
 use AhgRic\Crm\CrmSerializer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CrmExportController extends Controller
@@ -78,6 +80,18 @@ class CrmExportController extends Controller
      */
     protected function emit(Request $request, int $objectId): Response
     {
+        // Per-record read gate. These routes sit under a `web`-only group
+        // (the docblock's "ACL is left to the route" claim is wrong - there is
+        // no admin middleware), so enforce here: mirror
+        // InformationObjectController::show()'s per-record read check, and also
+        // let admins/editors through. Authorised staff still export normally;
+        // draft / ACL-restricted records are blocked with 403 for everyone else.
+        abort_unless(
+            AclService::canAdmin(Auth::id())
+                || AclService::hasPermission(Auth::id(), 'read', (int) $objectId),
+            403
+        );
+
         $culture = (string) $request->query('culture', app()->getLocale() ?: 'en');
         $format = $this->resolveFormat($request);
 

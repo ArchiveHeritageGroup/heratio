@@ -26,6 +26,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\AuthorizesProjectAccess;
 use AhgResearch\Services\TimeMachineService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -48,6 +49,8 @@ use Illuminate\Support\Facades\DB;
  */
 class TimeMachineController extends Controller
 {
+    use AuthorizesProjectAccess;
+
     protected TimeMachineService $machine;
 
     public function __construct()
@@ -66,6 +69,8 @@ class TimeMachineController extends Controller
         if (! $project) {
             abort(404, 'Project not found');
         }
+        // SECURITY (#1308-parity): authorize the caller against the resolved project.
+        $this->assertProjectAccess($projectId);
         return $project;
     }
 

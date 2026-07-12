@@ -22,6 +22,7 @@
 
 namespace AhgResearch\Controllers;
 
+use AhgResearch\Concerns\AuthorizesProjectAccess;
 use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\PublicationStudioService;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ use Illuminate\Support\Facades\DB;
 class PublicationStudioController extends Controller
 {
     use LogsResearchActivity;
+    use AuthorizesProjectAccess;
 
     public function __construct(
         private PublicationStudioService $service,
@@ -47,6 +49,11 @@ class PublicationStudioController extends Controller
             $project = DB::table('research_project')->where('id', $projectId)->first();
         } catch (\Throwable $e) {
             $project = null;
+        }
+
+        // SECURITY (#1308-parity): authorize the caller against the resolved project.
+        if ($project) {
+            $this->assertProjectAccess($projectId);
         }
 
         return $project ?: null;

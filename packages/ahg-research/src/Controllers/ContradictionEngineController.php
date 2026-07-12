@@ -26,6 +26,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\AuthorizesProjectAccess;
 use AhgResearch\Services\ContradictionEngineService;
 use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
@@ -45,6 +46,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ContradictionEngineController extends Controller
 {
+    use AuthorizesProjectAccess;
+
     protected ContradictionEngineService $engine;
     protected ResearchService $research;
 
@@ -65,6 +68,8 @@ class ContradictionEngineController extends Controller
         if (! $project) {
             abort(404, 'Project not found');
         }
+        // SECURITY (#1308-parity): authorize the caller against the resolved project.
+        $this->assertProjectMember($projectId, (int) $researcher->id);
         return [$project, $researcher];
     }
 

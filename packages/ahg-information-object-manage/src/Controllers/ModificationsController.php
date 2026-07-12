@@ -70,6 +70,11 @@ class ModificationsController extends Controller
             abort(404);
         }
 
+        // Per-record read gate: the audit trail leaks staff usernames/emails and
+        // the edit history of draft records. Mirror InformationObjectController::show()
+        // - admins/editors pass (built-in bypass), unauthorised users are denied.
+        abort_unless(\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $resource->id), 403);
+
         // The ahg_audit_log table is shipped by ahg-audit-trail. If the
         // package is not installed (fresh dev sandbox) bail gracefully
         // with an empty list instead of 500-ing.

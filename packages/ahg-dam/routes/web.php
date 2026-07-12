@@ -9,21 +9,21 @@ Route::get('/dam/browse', [DamController::class, 'browse'])->name('dam.browse');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dam/create', [DamController::class, 'create'])->name('dam.create');
-    Route::post('/dam/store', [DamController::class, 'store'])->name('dam.store');
+    Route::post('/dam/store', [DamController::class, 'store'])->name('dam.store')->middleware('acl:create');
     Route::get('/dam/{slug}/edit', [DamController::class, 'edit'])->name('dam.edit')
         ->where('slug', '[a-z0-9\-]+');
     Route::put('/dam/{slug}', [DamController::class, 'update'])->name('dam.update')
-        ->where('slug', '[a-z0-9\-]+');
+        ->where('slug', '[a-z0-9\-]+')->middleware('acl:update');
     Route::post('/dam/{slug}/delete', [DamController::class, 'destroy'])->name('dam.destroy')
-        ->where('slug', '[a-z0-9\-]+');
+        ->where('slug', '[a-z0-9\-]+')->middleware('acl:delete');
 });
 
 Route::get('/dam/{slug}', [DamController::class, 'show'])->name('dam.show')
     ->where('slug', '(?!browse|create|dashboard|store|bulk-create|index|reports)[a-z0-9\-]+');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dam/bulk-create', [DamController::class, 'bulkCreate'])->name('dam.bulk-create');
-    Route::match(['get','post'], '/dam/{slug}/edit-iptc', [DamController::class, 'editIptc'])->name('dam.edit-iptc');
+    Route::get('/dam/bulk-create', [DamController::class, 'bulkCreate'])->name('dam.bulk-create')->middleware('acl:create');
+    Route::match(['get','post'], '/dam/{slug}/edit-iptc', [DamController::class, 'editIptc'])->name('dam.edit-iptc')->middleware('acl:update');
     Route::get('/dam/index', [DamController::class, 'damIndex'])->name('dam.index');
     Route::get('/dam/reports', [DamController::class, 'reportIndex'])->name('dam.reports');
     Route::get('/dam/reports/assets', [DamController::class, 'reportAssets'])->name('dam.reports.assets');

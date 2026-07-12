@@ -26,6 +26,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\AuthorizesProjectAccess;
 use AhgResearch\Concerns\LogsResearchActivity;
 use AhgResearch\Services\ResearchService;
 use AhgResearch\Services\WritingStudioService;
@@ -45,6 +46,7 @@ use Illuminate\Support\Facades\DB;
 class WritingStudioController extends Controller
 {
     use LogsResearchActivity;
+    use AuthorizesProjectAccess;
 
     protected WritingStudioService $studio;
     protected ResearchService $research;
@@ -66,6 +68,8 @@ class WritingStudioController extends Controller
         if (! $project) {
             abort(404, 'Project not found');
         }
+        // SECURITY (#1308-parity): authorize the caller against the resolved project.
+        $this->assertProjectMember($projectId, (int) $researcher->id);
         return [$project, $researcher];
     }
 

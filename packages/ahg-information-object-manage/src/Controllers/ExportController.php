@@ -600,7 +600,7 @@ class ExportController extends Controller
 
     private function getIO(string $slug, string $culture)
     {
-        return DB::table('information_object')
+        $io = DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->join('object', 'information_object.id', '=', 'object.id')
@@ -643,6 +643,22 @@ class ExportController extends Controller
                 'slug.slug',
             ])
             ->first();
+
+        // Per-record read gate - mirrors InformationObjectController::show()'s
+        // #51 ACL enforcement exactly. AclService::hasPermission returns true
+        // for administrators (admin bypass built in) and false for
+        // unauthenticated users without per-record read grants, so authorised
+        // staff/editors still export normally while draft / ACL-restricted
+        // records are blocked with 403. Applied here in getIO() so every export
+        // action (EAD/DC/MODS/METS/CSV/OCR/...) is gated at one choke point.
+        if ($io) {
+            abort_unless(
+                \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $io->id),
+                403
+            );
+        }
+
+        return $io;
     }
 
     private function getRepository($io, string $culture)
@@ -736,24 +752,33 @@ class ExportController extends Controller
             return collect();
         }
 
-        return DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-            ->where('information_object.lft', '>', $io->lft)
-            ->where('information_object.rgt', '<', $io->rgt)
-            ->where('information_object_i18n.culture', $culture)
-            ->orderBy('information_object.lft')
+        // Base table aliased as `i` so AclService::addFilterDraftsCriteria()
+        // (which correlates on `i.id`) can layer the publication-status gate.
+        $query = DB::table('information_object as i')
+            ->join('information_object_i18n as i18n', 'i.id', '=', 'i18n.id')
+            ->where('i.lft', '>', $io->lft)
+            ->where('i.rgt', '<', $io->rgt)
+            ->where('i18n.culture', $culture)
+            ->orderBy('i.lft')
             ->select([
-                'information_object.id',
-                'information_object.identifier',
-                'information_object.level_of_description_id',
-                'information_object.lft',
-                'information_object.rgt',
-                'information_object_i18n.title',
-                'information_object_i18n.scope_and_content',
-                'information_object_i18n.extent_and_medium',
-                'information_object_i18n.arrangement',
-            ])
-            ->get();
+                'i.id',
+                'i.identifier',
+                'i.level_of_description_id',
+                'i.lft',
+                'i.rgt',
+                'i18n.title',
+                'i18n.scope_and_content',
+                'i18n.extent_and_medium',
+                'i18n.arrangement',
+            ]);
+
+        // Exclude unpublished descendants for non-editors so the exported
+        // subtree never embeds draft children. Administrators/editors (and
+        // owners of their own drafts) are unaffected - same predicate the
+        // browse/show ACL uses.
+        \AhgCore\Services\AclService::addFilterDraftsCriteria($query);
+
+        return $query->get();
     }
 
     private function e(string $value = null): string

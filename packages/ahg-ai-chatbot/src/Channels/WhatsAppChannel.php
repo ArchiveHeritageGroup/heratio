@@ -66,7 +66,18 @@ class WhatsAppChannel
     {
         $secret = (string) config('ahg-ai-chatbot.whatsapp.app_secret', '');
         if ($secret === '') {
-            return true; // validation not configured
+            // Fail closed. When the channel is enabled every inbound webhook
+            // MUST carry a verifiable X-Hub-Signature-256; an unset app_secret
+            // means we cannot verify, so reject rather than accept unsigned
+            // payloads (was fail-open - returned true). Only when the channel
+            // is disabled (inert) do we skip verification.
+            if ($this->isEnabled()) {
+                Log::warning('WhatsApp webhook rejected: channel is enabled but ahg-ai-chatbot.whatsapp.app_secret is not configured; cannot verify signature.');
+
+                return false;
+            }
+
+            return true; // channel disabled - verification not applicable
         }
         if (! is_string($signatureHeader) || ! str_starts_with($signatureHeader, 'sha256=')) {
             return false;

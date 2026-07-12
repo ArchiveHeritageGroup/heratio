@@ -1148,6 +1148,16 @@ class AclController extends Controller
         $accessRequest = DB::table('security_access_request')->where('id', $id)->first()
             ?? (object) ['id' => $id, 'requester_name' => '', 'object_title' => '', 'justification' => '', 'created_at' => '', 'request_type' => '', 'priority' => 'normal', 'duration_hours' => 24, 'user_id' => 0, 'status' => 'pending'];
 
+        // Ownership gate (IDOR): this record exposes the requester's identity +
+        // justification. Only the owner or an admin/editor may view it (was
+        // unguarded - any authed user could enumerate ids). Uses the AhgCore
+        // AclService (the imported AhgAcl\Services\AclService has no canAdmin).
+        abort_unless(
+            (int) ($accessRequest->user_id ?? 0) === (int) auth()->id()
+                || \AhgCore\Services\AclService::canAdmin(auth()->id()),
+            403
+        );
+
         return view('ahg-acl::security.review-request', ['accessRequest' => $accessRequest]);
     }
 }

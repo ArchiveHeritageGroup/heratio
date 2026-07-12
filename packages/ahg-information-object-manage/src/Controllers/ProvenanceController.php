@@ -54,6 +54,11 @@ class ProvenanceController extends Controller
             abort(404);
         }
 
+        // Per-record read gate: provenance leaks ownership/valuation history and
+        // draft-record detail. Mirror InformationObjectController::show() - admins
+        // pass (built-in bypass), anonymous/unauthorised users are denied.
+        abort_unless(\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $io->id), 403);
+
         $events       = $this->service->getChain($io->id);
         $timelineData = json_decode($this->service->getTimelineData($io->id), true);
 
@@ -136,6 +141,9 @@ class ProvenanceController extends Controller
         if (!$io) {
             abort(404);
         }
+
+        // Per-record read gate (mirror index()): don't expose draft provenance.
+        abort_unless(\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $io->id), 403);
 
         $events       = $this->service->getChain($io->id);
         $timelineData = $this->service->getTimelineData($io->id);
@@ -270,6 +278,9 @@ class ProvenanceController extends Controller
         if (!$io) {
             abort(404);
         }
+
+        // Per-record read gate (mirror index()): don't export draft provenance.
+        abort_unless(\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $io->id), 403);
 
         $entries = $this->service->getChain($io->id);
 

@@ -2225,6 +2225,16 @@ class InformationObjectController extends Controller
 
         $ioId = $io->id;
 
+        // #51 ACL enforcement: object-aware write gate, mirroring the read-side
+        // gate in show(). CheckAcl only evaluates the GLOBAL (object-blind)
+        // update grant, so an object-level DENY was bypassed on edit and a
+        // global-update Contributor could edit records they cannot even read.
+        // hasPermission falls back to the global grant when no object rule
+        // exists, so a global-grant user with no override still passes.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'update', (int) $ioId)) {
+            abort(403, 'You do not have permission to edit this record.');
+        }
+
         // Snapshot before — this controller writes the IO directly rather
         // than calling InformationObjectService::update, so the v1.52.23
         // service-level wrap doesn't fire for the main archival edit form.
@@ -3989,6 +3999,12 @@ class InformationObjectController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: object-aware write gate (mirrors show() read gate).
+        // Falls back to the global update grant when no object rule exists.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'update', (int) $ioRow->id)) {
+            abort(403, 'You do not have permission to rename this record.');
+        }
+
         $newTitle = $request->input('title');
         $newSlug = $request->input('slug');
 
@@ -4276,6 +4292,12 @@ class InformationObjectController extends Controller
             ->first();
         if (!$io) abort(404);
 
+        // #51 ACL enforcement: object-aware write gate (mirrors show() read gate).
+        // Falls back to the global update grant when no object rule exists.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'update', (int) $io->id)) {
+            abort(403, 'You do not have permission to move this record.');
+        }
+
         // PSIS-style "browsed parent": defaults to the IO's current parent so
         // the user starts looking at where the record lives now. Override with
         // ?parent=<slug> when the user clicks a child / breadcrumb / search hit.
@@ -4392,6 +4414,12 @@ class InformationObjectController extends Controller
                      'information_object.lft', 'information_object.rgt', 'slug.slug')
             ->first();
         if (!$ioRow) abort(404);
+
+        // #51 ACL enforcement: object-aware write gate (mirrors show() read gate).
+        // Falls back to the global update grant when no object rule exists.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'update', (int) $ioRow->id)) {
+            abort(403, 'You do not have permission to move this record.');
+        }
 
         // PSIS posts parent (slug); the older form posts new_parent_id (int).
         $newParentId = null;

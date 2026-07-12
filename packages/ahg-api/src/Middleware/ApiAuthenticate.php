@@ -30,7 +30,21 @@ class ApiAuthenticate
             // get write (and delete/publish where their role allows); admins get
             // everything. Prevents unauthorised CRUD via the api routes.
             $u = (object) ['id' => $userId];
-            $scopes = ['read'];
+            // #1395(B) - 'read' is itself an ACL capability, not a freebie for
+            // any logged-in session. Previously EVERY authenticated session got
+            // 'read' unconditionally, so a self-registered researcher could hit
+            // read-gated api routes returning decrypted donor/actor/accession
+            // PII. Mirror the #1395(A) derivation below: grant 'read' only to a
+            // user who actually has the read capability (contributors/editors/
+            // admins) via the SAME AclService::check() the write/delete/publish
+            // scopes use. A researcher with no read grant gets an empty scope
+            // set and is rejected by checkScopes. Public catalogue routes are
+            // NOT api.auth-gated, so they are unaffected. The API-KEY branch
+            // below is untouched: its scopes still come from the key record.
+            $scopes = [];
+            if (\AhgCore\Services\AclService::check(null, 'read', $u)) {
+                $scopes[] = 'read';
+            }
             if (\AhgCore\Services\AclService::check(null, ['create', 'update'], $u)) {
                 $scopes[] = 'write';
             }

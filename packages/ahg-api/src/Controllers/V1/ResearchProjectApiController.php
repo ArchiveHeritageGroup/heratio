@@ -19,6 +19,7 @@
 
 namespace AhgApi\Controllers\V1;
 
+use AhgCore\Services\AclService;
 use AhgResearch\Events\ProjectClosed;
 use AhgResearch\Events\ProjectCreated;
 use AhgResearch\Events\ProjectUpdated;
@@ -60,6 +61,17 @@ class ResearchProjectApiController extends Controller
         $sortDir = strtolower($request->get('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
 
         $query = DB::table('research_project');
+
+        // SECURITY (#1378-parity): research_project.visibility is an enum
+        // (private/collaborators/public). Non-admin callers only ever see
+        // public projects; admins/editors see all. Mirrors the GraphQL
+        // resolveResearchProjects() visibility scope (AclService::canAdmin +
+        // ->where('visibility','public')). owner_id references
+        // research_researcher.id, not the auth-user id, so there is no
+        // trustworthy owner->auth mapping to widen this.
+        if (! AclService::canAdmin(auth()->id())) {
+            $query->where('visibility', 'public');
+        }
 
         if (($q = trim((string) $request->get('q', ''))) !== '') {
             $query->where(function ($w) use ($q) {
@@ -105,17 +117,34 @@ class ResearchProjectApiController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $project = DB::table('research_project')->where('id', $id)->first();
+        $isAdmin = AclService::canAdmin(auth()->id());
+
+        // SECURITY (#1378-parity): non-admin callers only ever see public
+        // projects; admins/editors see all. Mirrors the GraphQL
+        // resolveResearchProject() visibility scope. A private/collaborators
+        // project is a 404 (not-visible) to a non-admin, never leaked.
+        $query = DB::table('research_project')->where('id', $id);
+        if (! $isAdmin) {
+            $query->where('visibility', 'public');
+        }
+        $project = $query->first();
 
         if (! $project) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
         // Owner researcher summary (owner_id is research_researcher.id).
-        $project->owner = DB::table('research_researcher')
+        $owner = DB::table('research_researcher')
             ->where('id', $project->owner_id)
             ->select('id', 'user_id', 'first_name', 'last_name', 'email', 'institution')
             ->first();
+
+        // Strip the owner's email (PII) for non-admin callers, mirroring the
+        // GraphQL resolver which never exposes owner contact PII to non-admins.
+        if ($owner && ! $isAdmin) {
+            $owner->email = null;
+        }
+        $project->owner = $owner;
 
         return response()->json($project);
     }

@@ -550,6 +550,12 @@ class ActorController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: object-aware write gate (mirrors show() read gate).
+        // Falls back to the global update grant when no object rule exists.
+        if (! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'update', (int) $actor->id)) {
+            abort(403, 'You do not have permission to edit this record.');
+        }
+
         $request->validate([
             'authorized_form_of_name' => 'required|string|max:1024',
             'entity_type_id' => 'required|integer|exists:term,id',
@@ -746,6 +752,12 @@ class ActorController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: object-aware write gate (mirrors show() read gate).
+        // Falls back to the global update grant when no object rule exists.
+        if (! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'update', (int) $actor->id)) {
+            abort(403, 'You do not have permission to rename this record.');
+        }
+
         $request->validate([
             'authorized_form_of_name' => 'nullable|string|max:1024',
             'slug' => 'nullable|string|max:255',
@@ -831,6 +843,12 @@ class ActorController extends Controller
         $actor = $this->service->getBySlug($slug);
         if (! $actor) {
             abort(404);
+        }
+
+        // #51 ACL enforcement: object-aware delete gate (mirrors show() read gate).
+        // Falls back to the global delete grant when no object rule exists.
+        if (! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'delete', (int) $actor->id)) {
+            abort(403, 'You do not have permission to delete this record.');
         }
 
         $this->service->delete($actor->id);
