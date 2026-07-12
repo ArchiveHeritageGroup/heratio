@@ -26,11 +26,34 @@
 // (heratio-av-overlay, heratio-compare-overlay, heratio-mirador-workspace,
 // heratio-scalebar, heratio-loupe) are reachable.
 var manifestUrl = @json($manifestUrl ?? '');
-Mirador.viewer({
+var miradorConfig = {
   id: 'mirador-mount',
   windows: manifestUrl ? [{ manifestId: manifestUrl }] : [],
   window: { allowClose: true, allowMaximize: true, allowFullscreen: true }
-});
+};
+// The bundle-compiled annotation plugin (mirador-annotation-editor, wired
+// in tools/mirador-build/src/index.js) dereferences config.annotation.adapter
+// unconditionally during init, so the annotation block must always be
+// defined (#1397). Mirror the adapter wiring from ahg-iiif-viewer.js —
+// HeratioAnnotationAdapter is exposed on window by the same bundle; fall
+// back to a no-op adapter if a stale bundle ever omits it.
+miradorConfig.annotation = {
+  adapter: function (canvasId) {
+    if (typeof window.HeratioAnnotationAdapter === 'function') {
+      return new window.HeratioAnnotationAdapter(canvasId);
+    }
+    return {
+      canvasId: canvasId,
+      annotationPageId: window.location.origin + '/api/annotations/page/' + encodeURIComponent(canvasId),
+      all: function () { return Promise.resolve({ id: this.annotationPageId, type: 'AnnotationPage', items: [] }); },
+      create: function (annotation) { return Promise.resolve(annotation); },
+      update: function (annotation) { return Promise.resolve(annotation); },
+      delete: function () { return Promise.resolve(); }
+    };
+  },
+  exportLocalStorageAnnotations: false
+};
+Mirador.viewer(miradorConfig);
 </script>
 </body>
 </html>
