@@ -96,7 +96,10 @@ class TreeViewPageController extends Controller
     public function sync(int $id): JsonResponse
     {
         $culture = app()->getLocale();
-        $isAuthenticated = auth()->check();
+        // Only editors/admins may see unpublished (draft) nodes; a plain
+        // authenticated account is filtered to published, same as anonymous
+        // (parity with HierarchyDataController - closes the draft-title leak).
+        $canSeeDrafts = auth()->check() && \AhgCore\Services\AclService::canAdmin(auth()->id());
 
         $query = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
@@ -111,7 +114,7 @@ class TreeViewPageController extends Controller
             )
             ->orderBy('io.lft');
 
-        if (!$isAuthenticated) {
+        if (!$canSeeDrafts) {
             $query->join('status as st', function ($j) {
                 $j->on('io.id', '=', 'st.object_id')->where('st.type_id', '=', 158);
             })->where('st.status_id', 160);

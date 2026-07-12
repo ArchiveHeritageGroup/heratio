@@ -5,7 +5,9 @@
  * WAN). Posts an image (+ optional prompt + params) and gets an MP4 back.
  *
  * The video-server lives at packages/ahg-image-ar/tools/video-server/ and
- * runs on the Heratio AI host (default http://192.168.0.78:5052).
+ * runs on the Heratio AI host. Requests are routed through the AHG AI gateway
+ * (https://ai.theahg.co.za/ai/v1/ar) per #1361; a raw-node ar_server_url
+ * override is deliberately ignored so a stale setting cannot bypass the gateway.
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems

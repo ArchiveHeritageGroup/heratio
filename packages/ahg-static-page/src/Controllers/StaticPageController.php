@@ -162,7 +162,7 @@ class StaticPageController extends Controller
                 'id' => $objectId,
                 'culture' => $culture,
                 'title' => $request->input('title'),
-                'content' => $request->input('content', ''),
+                'content' => \AhgCore\Support\HtmlSanitizer::clean($request->input('content', '')) ?? '',
             ]);
 
             DB::table('slug')->insert([
@@ -236,14 +236,14 @@ class StaticPageController extends Controller
                     ->where('id', $id)->where('culture', $culture)
                     ->update([
                         'title' => $request->input('title'),
-                        'content' => $request->input('content', ''),
+                        'content' => \AhgCore\Support\HtmlSanitizer::clean($request->input('content', '')) ?? '',
                     ]);
             } else {
                 DB::table('static_page_i18n')->insert([
                     'id' => $id,
                     'culture' => $culture,
                     'title' => $request->input('title'),
-                    'content' => $request->input('content', ''),
+                    'content' => \AhgCore\Support\HtmlSanitizer::clean($request->input('content', '')) ?? '',
                 ]);
             }
 
