@@ -758,15 +758,11 @@ class ResearchService
 
     public function sanitizeHtml(string $html): string
     {
-        // Strip dangerous tags but allow basic formatting
-        $allowed = '<p><br><strong><b><em><i><u><s><h1><h2><h3><h4><h5><h6><ul><ol><li><a><blockquote><code><pre><hr><table><thead><tbody><tr><th><td><img><span><div><sub><sup>';
-        $html = strip_tags($html, $allowed);
-
-        // Remove javascript: URLs and on* event handlers
-        $html = preg_replace('/\bon\w+\s*=/i', 'data-removed=', $html);
-        $html = preg_replace('/javascript\s*:/i', '', $html);
-
-        return $html;
+        // Delegate to the shared DOM-based allow-list sanitiser so research
+        // narrative fields share the exact same policy as actor/archival ones
+        // (#1309 follow-up; the old strip_tags + regex pass was bypassable via
+        // HTML-entity-encoded javascript: URLs).
+        return \AhgCore\Support\HtmlSanitizer::clean($html) ?? '';
     }
 
     // =========================================================================
