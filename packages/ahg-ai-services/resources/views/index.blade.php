@@ -450,12 +450,14 @@ function aiTest(action) {
 
 function renderEntities(entities, count) {
     let html = '<p class="mb-2"><strong>' + count + '</strong> entities found</p>';
-    const labels = { persons: 'Persons', organizations: 'Organizations', places: 'Places', dates: 'Dates' };
+    const labels = { persons: 'Persons', organizations: 'Organisations', places: 'Places', dates: 'Dates' };
     const colors = { persons: 'primary', organizations: 'info', places: 'success', dates: 'warning' };
+    // Fall back to the canonical NER labels for any raw code key (ORG, GPE, ...).
+    const typeLabels = @json(\AhgAiServices\Support\EntityTypeLabels::all());
 
     for (const [type, values] of Object.entries(entities)) {
         if (values.length === 0) continue;
-        html += '<div class="mb-2"><strong>' + (labels[type] || type) + ':</strong> ';
+        html += '<div class="mb-2"><strong>' + (labels[type] || typeLabels[String(type).toUpperCase()] || type) + ':</strong> ';
         values.forEach(v => {
             html += '<span class="badge bg-' + (colors[type] || 'secondary') + ' me-1">' + escapeHtml(v) + '</span>';
         });

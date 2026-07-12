@@ -1272,6 +1272,9 @@
   var objectId = {{ $io->id }};
   var icons = { PERSON: 'fa-user', ORG: 'fa-building', GPE: 'fa-map-marker-alt', DATE: 'fa-calendar', LOC: 'fa-globe', NORP: 'fa-users', EVENT: 'fa-bolt', WORK_OF_ART: 'fa-palette', LANGUAGE: 'fa-language', FAC: 'fa-landmark' };
   var colors = { PERSON: 'primary', ORG: 'success', GPE: 'info', DATE: 'warning', LOC: 'info', NORP: 'secondary', EVENT: 'danger', WORK_OF_ART: 'dark', LANGUAGE: 'secondary', FAC: 'secondary' };
+  // Human-readable labels for the raw NER codes (ORG -> Organisation, GPE -> Place, ...).
+  var typeLabels = @json(\AhgAiServices\Support\EntityTypeLabels::all());
+  var labelFor = function (t) { return typeLabels[String(t).toUpperCase()] || String(t).replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); }); };
 
   document.getElementById('nerExtractBtn').addEventListener('click', function() {
     var btn = this;
@@ -1314,7 +1317,7 @@
         if (!items || !items.length) continue;
         var icon = icons[type] || 'fa-tag';
         var color = colors[type] || 'secondary';
-        html += '<div class="mb-3"><h6 class="mb-1"><i class="fas ' + icon + ' me-1"></i>' + type + ' <span class="badge bg-' + color + '">' + items.length + '</span></h6>';
+        html += '<div class="mb-3"><h6 class="mb-1"><i class="fas ' + icon + ' me-1"></i>' + labelFor(type) + ' <span class="badge bg-' + color + '">' + items.length + '</span></h6>';
         html += '<div class="d-flex flex-wrap gap-1">';
         items.forEach(function(item) {
           html += '<span class="badge bg-' + color + ' bg-opacity-75 fw-normal py-1 px-2">' + item + '</span>';
