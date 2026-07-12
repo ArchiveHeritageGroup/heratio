@@ -21,7 +21,6 @@
 
 namespace AhgArticles\Providers;
 
-use AhgArticles\Console\PersistArticlesCommand;
 use AhgArticles\Controllers\Admin\BlogAdminController;
 use AhgArticles\Controllers\BlogController;
 use Illuminate\Pagination\Paginator;
@@ -74,10 +73,6 @@ class AhgArticlesServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'articles');
         Paginator::useBootstrapFive();   // the articles index paginator uses BS5 markup
         $this->install();
-
-        if ($this->app->runningInConsole()) {
-            $this->commands([PersistArticlesCommand::class]);
-        }
     }
 
     /** First-boot self-install of tables + the attachment-type dropdown taxonomy. */
