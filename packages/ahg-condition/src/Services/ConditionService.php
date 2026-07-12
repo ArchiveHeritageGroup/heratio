@@ -193,6 +193,52 @@ class ConditionService
             ->get();
     }
 
+    /**
+     * Photo-type options [code => label] from the condition_photo_type
+     * taxonomy in ahg_dropdown (Dropdown-Manager-managed, #1355), with a
+     * hardcoded fallback for instances that haven't seeded yet.
+     */
+    public function getPhotoTypes(): array
+    {
+        $fallback = [
+            'overall' => 'Overall View',
+            'general' => 'General',
+            'detail'  => 'Detail',
+            'damage'  => 'Damage',
+            'before'  => 'Before Treatment',
+            'after'   => 'After Treatment',
+            'raking'  => 'Raking Light',
+            'uv'      => 'UV Light',
+            'ir'      => 'Infrared',
+            'xray'    => 'X-Ray',
+            'other'   => 'Other',
+        ];
+
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')) {
+                return $fallback;
+            }
+            $rows = DB::table('ahg_dropdown')
+                ->where('taxonomy', 'condition_photo_type')
+                ->where('is_active', 1)
+                ->orderBy('sort_order')
+                ->get(['code', 'label']);
+
+            if ($rows->isEmpty()) {
+                return $fallback;
+            }
+
+            $out = [];
+            foreach ($rows as $r) {
+                $out[(string) $r->code] = (string) $r->label;
+            }
+
+            return $out;
+        } catch (\Throwable $e) {
+            return $fallback;
+        }
+    }
+
     public function getPhoto(int $id): ?object
     {
         return DB::table('spectrum_condition_photo')->where('id', $id)->first();

@@ -58,6 +58,21 @@ class AiDropdownSeeder
             ['taxonomy' => 'ai_confidence_level', 'taxonomy_label' => 'AI Confidence Level', 'taxonomy_section' => 'ai', 'code' => 'medium',    'label' => 'Medium (50-75%)',  'color' => '#ffc107', 'sort_order' => 20, 'is_default' => 0],
             ['taxonomy' => 'ai_confidence_level', 'taxonomy_label' => 'AI Confidence Level', 'taxonomy_section' => 'ai', 'code' => 'high',      'label' => 'High (75-90%)',    'color' => '#198754', 'sort_order' => 30, 'is_default' => 1],
             ['taxonomy' => 'ai_confidence_level', 'taxonomy_label' => 'AI Confidence Level', 'taxonomy_section' => 'ai', 'code' => 'very_high', 'label' => 'Very High (>90%)', 'color' => '#0d6efd', 'sort_order' => 40, 'is_default' => 0],
+
+            // #1355 — condition-photo type vocabulary. Was hardcoded (and had
+            // drifted apart) in photos.blade.php / annotate.blade.php; the help
+            // guide already documents it as Dropdown-Manager-managed.
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'overall', 'label' => 'Overall View',     'color' => '#0d6efd', 'sort_order' => 10,  'is_default' => 1],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'general', 'label' => 'General',          'color' => '#6c757d', 'sort_order' => 20,  'is_default' => 0],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'detail',  'label' => 'Detail',           'color' => '#0dcaf0', 'sort_order' => 30,  'is_default' => 0],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'damage',  'label' => 'Damage',           'color' => '#dc3545', 'sort_order' => 40,  'is_default' => 0],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'before',  'label' => 'Before Treatment', 'color' => '#ffc107', 'sort_order' => 50,  'is_default' => 0],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'after',   'label' => 'After Treatment',  'color' => '#198754', 'sort_order' => 60,  'is_default' => 0],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'raking',  'label' => 'Raking Light',     'color' => '#6f42c1', 'sort_order' => 70,  'is_default' => 0],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'uv',      'label' => 'UV Light',         'color' => '#6f42c1', 'sort_order' => 80,  'is_default' => 0],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'ir',      'label' => 'Infrared',         'color' => '#6f42c1', 'sort_order' => 90,  'is_default' => 0],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'xray',    'label' => 'X-Ray',            'color' => '#6f42c1', 'sort_order' => 100, 'is_default' => 0],
+            ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'other',   'label' => 'Other',            'color' => '#6c757d', 'sort_order' => 110, 'is_default' => 0],
         ]);
     }
 }

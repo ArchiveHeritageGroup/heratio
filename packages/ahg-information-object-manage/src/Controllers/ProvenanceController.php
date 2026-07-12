@@ -71,6 +71,8 @@ class ProvenanceController extends Controller
             'certaintyLevels'          => $this->service->getCertaintyLevels(),
             'currencies'               => $this->service->getCurrencies(),
             'documentTypes'            => $this->service->getDocumentTypes(),
+            'ownerTypes'               => $this->service->getOwnerTypes(),
+            'transferTypes'            => $this->service->getTransferTypeOptions(),
         ]);
     }
 

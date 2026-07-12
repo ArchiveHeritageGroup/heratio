@@ -27,6 +27,15 @@ class AhgInformationObjectManageServiceProvider extends ServiceProvider
 
         $this->ensureSecurityTable();
         $this->ensureTemplateExtensions();
+
+        // #1355 — provenance controlled vocabularies live in ahg_dropdown so
+        // site admins manage them via the Dropdown Manager (skips itself once
+        // seeded; ProvenanceService falls back to hardcoded lists until then).
+        try {
+            \AhgInformationObjectManage\Services\ProvenanceDropdownSeeder::seed();
+        } catch (\Throwable $e) {
+            // No DB or partial schema — seeder retries on next boot.
+        }
     }
 
     /**

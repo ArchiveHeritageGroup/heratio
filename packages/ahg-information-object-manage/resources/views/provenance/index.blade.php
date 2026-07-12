@@ -535,16 +535,9 @@
               <div class="col-md-4">
                 <label for="owner_type" class="form-label">{{ __('Owner Type') }}</label>
                 <select class="form-select" name="owner_type" id="owner_type">
-                  <option value="unknown">{{ __('Unknown') }}</option>
-                  <option value="person">{{ __('Person') }}</option>
-                  <option value="family">{{ __('Family') }}</option>
-                  <option value="dealer">{{ __('Dealer') }}</option>
-                  <option value="auction_house">{{ __('Auction House') }}</option>
-                  <option value="museum">{{ __('Museum') }}</option>
-                  <option value="corporate">{{ __('Corporate') }}</option>
-                  <option value="government">{{ __('Government') }}</option>
-                  <option value="religious">{{ __('Religious') }}</option>
-                  <option value="artist">{{ __('Artist') }}</option>
+                  @foreach($ownerTypes as $k => $label)
+                    <option value="{{ $k }}">{{ $label }}</option>
+                  @endforeach
                 </select>
               </div>
             </div>
@@ -557,11 +550,9 @@
               <div class="col-md-4">
                 <label for="certainty" class="form-label">{{ __('Certainty') }}</label>
                 <select class="form-select" name="certainty" id="certainty">
-                  <option value="certain">{{ __('Certain') }}</option>
-                  <option value="probable">{{ __('Probable') }}</option>
-                  <option value="possible">{{ __('Possible') }}</option>
-                  <option value="uncertain">{{ __('Uncertain') }}</option>
-                  <option value="unknown">{{ __('Unknown') }}</option>
+                  @foreach($certaintyLevels as $k => $label)
+                    <option value="{{ $k }}">{{ $label }}</option>
+                  @endforeach
                 </select>
               </div>
             </div>
@@ -578,18 +569,9 @@
               <div class="col-md-6">
                 <label for="transfer_type" class="form-label">{{ __('Transfer Method') }}</label>
                 <select class="form-select" name="transfer_type" id="transfer_type">
-                  <option value="unknown">{{ __('Unknown') }}</option>
-                  <option value="sale">{{ __('Sale') }}</option>
-                  <option value="auction">{{ __('Auction') }}</option>
-                  <option value="gift">{{ __('Gift') }}</option>
-                  <option value="bequest">{{ __('Bequest') }}</option>
-                  <option value="inheritance">{{ __('Inheritance') }}</option>
-                  <option value="commission">{{ __('Commission') }}</option>
-                  <option value="exchange">{{ __('Exchange') }}</option>
-                  <option value="transfer">{{ __('Transfer') }}</option>
-                  <option value="found">{{ __('Found/Discovery') }}</option>
-                  <option value="restitution">{{ __('Restitution') }}</option>
-                  <option value="repatriation">{{ __('Repatriation') }}</option>
+                  @foreach($transferTypes as $k => $label)
+                    <option value="{{ $k }}">{{ $label }}</option>
+                  @endforeach
                 </select>
               </div>
             </div>
@@ -602,11 +584,9 @@
               <div class="col-md-2">
                 <label for="sale_currency" class="form-label">{{ __('Currency') }}</label>
                 <select class="form-select" name="sale_currency" id="sale_currency">
-                  <option value="">--</option>
-                  <option value="ZAR">{{ __('ZAR') }}</option>
-                  <option value="USD">{{ __('USD') }}</option>
-                  <option value="EUR">{{ __('EUR') }}</option>
-                  <option value="GBP">{{ __('GBP') }}</option>
+                  @foreach($currencies as $k => $label)
+                    <option value="{{ $k }}">{{ $label }}</option>
+                  @endforeach
                 </select>
               </div>
               <div class="col-md-4">

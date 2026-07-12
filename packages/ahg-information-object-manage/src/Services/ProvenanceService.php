@@ -49,6 +49,9 @@ class ProvenanceService
         'provenance_summary', 'is_complete', 'is_public',
     ];
 
+    /** Per-request cache for dropdownOptions() taxonomy reads. */
+    private array $dropdownCache = [];
+
     /**
      * Get the provenance governance header for an information object (or null).
      */
@@ -86,16 +89,52 @@ class ProvenanceService
     }
 
     /**
+     * Generic ahg_dropdown reader [code => label] with a hardcoded fallback,
+     * so site admins manage these vocabularies via the Dropdown Manager
+     * (#1355). Falls back when the table/taxonomy is missing or empty.
+     */
+    private function dropdownOptions(string $taxonomy, array $fallback): array
+    {
+        if (isset($this->dropdownCache[$taxonomy])) {
+            return $this->dropdownCache[$taxonomy];
+        }
+
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')) {
+                return $fallback;
+            }
+            $rows = DB::table('ahg_dropdown')
+                ->where('taxonomy', $taxonomy)
+                ->where('is_active', 1)
+                ->orderBy('sort_order')
+                ->get(['code', 'label']);
+
+            if ($rows->isEmpty()) {
+                return $fallback;
+            }
+
+            $out = [];
+            foreach ($rows as $r) {
+                $out[(string) $r->code] = (string) $r->label;
+            }
+
+            return $this->dropdownCache[$taxonomy] = $out;
+        } catch (\Throwable $e) {
+            return $fallback;
+        }
+    }
+
+    /**
      * Research-status options for the governance header.
      */
     public function getResearchStatuses(): array
     {
-        return [
+        return $this->dropdownOptions('provenance_research_status', [
             'not_started' => 'Not started',
             'in_progress' => 'In progress',
             'complete'    => 'Complete',
             'blocked'     => 'Blocked',
-        ];
+        ]);
     }
 
     /**
@@ -103,13 +142,13 @@ class ProvenanceService
      */
     public function getCulturalPropertyStatuses(): array
     {
-        return [
+        return $this->dropdownOptions('provenance_cultural_property_status', [
             'none'      => 'None — no concern',
             'flagged'   => 'Flagged for review',
             'claimed'   => 'Subject to a restitution claim',
             'restituted' => 'Restituted / repatriated',
             'cleared'   => 'Reviewed — cleared',
-        ];
+        ]);
     }
 
     /**
@@ -117,8 +156,7 @@ class ProvenanceService
      */
     public function getAcquisitionTypes(): array
     {
-        return [
-            ''            => '— Select —',
+        return ['' => '— Select —'] + $this->dropdownOptions('provenance_acquisition_type', [
             'purchase'    => 'Purchase',
             'gift'        => 'Gift / Donation',
             'bequest'     => 'Bequest',
@@ -130,7 +168,7 @@ class ProvenanceService
             'loan'        => 'Loan',
             'found'       => 'Found in collection',
             'unknown'     => 'Unknown',
-        ];
+        ]);
     }
 
     /**
@@ -138,13 +176,13 @@ class ProvenanceService
      */
     public function getCurrentStatuses(): array
     {
-        return [
+        return $this->dropdownOptions('provenance_current_status', [
             'owned'     => 'Owned',
             'on_loan'   => 'On loan',
             'deposited' => 'Deposited',
             'disputed'  => 'Disputed',
             'unknown'   => 'Unknown',
-        ];
+        ]);
     }
 
     /**
@@ -152,12 +190,12 @@ class ProvenanceService
      */
     public function getCustodyTypes(): array
     {
-        return [
+        return $this->dropdownOptions('provenance_custody_type', [
             'permanent' => 'Permanent',
             'temporary' => 'Temporary',
             'loan'      => 'Loan',
             'deposit'   => 'Deposit',
-        ];
+        ]);
     }
 
     /**
@@ -165,13 +203,12 @@ class ProvenanceService
      */
     public function getCurrencies(): array
     {
-        return [
-            ''    => '—',
+        return ['' => '—'] + $this->dropdownOptions('provenance_currency', [
             'ZAR' => 'ZAR — South African Rand',
             'USD' => 'USD — US Dollar',
             'GBP' => 'GBP — British Pound',
             'EUR' => 'EUR — Euro',
-        ];
+        ]);
     }
 
     /**
@@ -179,7 +216,7 @@ class ProvenanceService
      */
     public function getDocumentTypes(): array
     {
-        return [
+        return $this->dropdownOptions('provenance_document_type', [
             'deed_of_gift'       => 'Deed of Gift',
             'bill_of_sale'       => 'Bill of Sale',
             'invoice'            => 'Invoice',
@@ -202,7 +239,7 @@ class ProvenanceService
             'affidavit'          => 'Affidavit',
             'legal_document'     => 'Legal Document',
             'other'              => 'Other',
-        ];
+        ]);
     }
 
     /**
@@ -534,20 +571,37 @@ class ProvenanceService
     }
 
     /**
+     * Get transfer type options as a flat [code => label] list for selects.
+     */
+    public function getTransferTypeOptions(): array
+    {
+        $flat = ['unknown' => 'Unknown', 'found' => 'Found/Discovery'];
+        foreach ($this->getTransferTypes() as $group) {
+            $flat += $group;
+        }
+
+        return $this->dropdownOptions('provenance_transfer_type', $flat);
+    }
+
+    /**
      * Get owner type options.
      */
     public function getOwnerTypes(): array
     {
-        return [
+        return $this->dropdownOptions('provenance_owner_type', [
+            'unknown'      => 'Unknown',
             'person'       => 'Person',
             'family'       => 'Family',
             'organization' => 'Organization',
             'institution'  => 'Institution',
             'dealer'       => 'Dealer',
             'auction_house' => 'Auction House',
+            'museum'       => 'Museum',
+            'corporate'    => 'Corporate',
             'government'   => 'Government',
-            'unknown'      => 'Unknown',
-        ];
+            'religious'    => 'Religious',
+            'artist'       => 'Artist',
+        ]);
     }
 
     /**
@@ -555,13 +609,13 @@ class ProvenanceService
      */
     public function getCertaintyLevels(): array
     {
-        return [
+        return $this->dropdownOptions('provenance_certainty', [
             'certain'   => 'Certain - Documented evidence',
             'probable'  => 'Probable - Strong circumstantial evidence',
             'possible'  => 'Possible - Some supporting evidence',
             'uncertain' => 'Uncertain - Limited evidence',
             'unknown'   => 'Unknown - No evidence',
-        ];
+        ]);
     }
 
     /**
@@ -569,10 +623,7 @@ class ProvenanceService
      */
     private function getTransferTypeLabel(string $type): string
     {
-        $flat = [];
-        foreach ($this->getTransferTypes() as $group) {
-            $flat = array_merge($flat, $group);
-        }
+        $flat = $this->getTransferTypeOptions();
 
         return $flat[$type] ?? ucfirst(str_replace('_', ' ', $type));
     }

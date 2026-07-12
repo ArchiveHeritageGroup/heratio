@@ -16,17 +16,8 @@
 
 @section('content')
 @php
-  $photoTypes = [
-    'general' => 'General',
-    'detail'  => 'Detail',
-    'damage'  => 'Damage',
-    'before'  => 'Before Treatment',
-    'after'   => 'After Treatment',
-    'raking'  => 'Raking Light',
-    'uv'      => 'UV Light',
-    'ir'      => 'Infrared',
-    'xray'    => 'X-Ray',
-  ];
+  // Sourced from the condition_photo_type taxonomy in ahg_dropdown (#1355)
+  $photoTypes = $photoTypes ?? [];
   $photo = $photo ?? (object)[];
   $conditionCheck = $conditionCheck ?? (object)[];
   $annotations = $annotations ?? [];

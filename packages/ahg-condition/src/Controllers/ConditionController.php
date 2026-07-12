@@ -144,8 +144,9 @@ class ConditionController extends Controller
         $photos = $this->service->getPhotosForCheck($checkId);
         $stats = $this->service->getAnnotationStats($checkId);
         $canEdit = auth()->check();
+        $photoTypes = $this->service->getPhotoTypes();
 
-        return view('ahg-condition::photos', compact('conditionCheck', 'photos', 'stats', 'canEdit'));
+        return view('ahg-condition::photos', compact('conditionCheck', 'photos', 'stats', 'canEdit', 'photoTypes'));
     }
 
     public function annotate(int $id)
@@ -157,8 +158,9 @@ class ConditionController extends Controller
         $annotations = $this->service->getAnnotations($id);
         $canEdit = auth()->check();
         $imageUrl = '/uploads/condition_photos/' . $photo->filename;
+        $photoTypes = $this->service->getPhotoTypes();
 
-        return view('ahg-condition::annotate', compact('photo', 'conditionCheck', 'annotations', 'canEdit', 'imageUrl'));
+        return view('ahg-condition::annotate', compact('photo', 'conditionCheck', 'annotations', 'canEdit', 'imageUrl', 'photoTypes'));
     }
 
     public function getAnnotation(Request $request)

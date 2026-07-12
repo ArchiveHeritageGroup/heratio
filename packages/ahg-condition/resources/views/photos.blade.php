@@ -16,15 +16,8 @@
 
 @section('content')
 @php
-  $photoTypes = [
-    'overall' => 'Overall View',
-    'detail'  => 'Detail',
-    'damage'  => 'Damage',
-    'before'  => 'Before Treatment',
-    'after'   => 'After Treatment',
-    'general' => 'General',
-    'other'   => 'Other',
-  ];
+  // Sourced from the condition_photo_type taxonomy in ahg_dropdown (#1355)
+  $photoTypes = $photoTypes ?? [];
   $photos = $photos ?? collect();
   $conditionCheck = $conditionCheck ?? (object)[];
   $canEdit = $canEdit ?? false;
