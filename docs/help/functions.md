@@ -340,15 +340,15 @@ Complete listing of every function available in the Heratio framework and plugin
 - Set CPU threshold for pausing
 
 ### CLI Commands
-- php symfony ai:ner-extract
-- php symfony ai:ner-review
-- php symfony ai:translate
-- php symfony ai:summarize
-- php symfony ai:spellcheck
-- php symfony ai:suggest
-- php symfony ai:batch-process
-- php symfony ai:queue-status
-- php symfony ai:install
+- php artisan ahg:ai-ner
+- php artisan ahg:ai-translate
+- php artisan ahg:ai-summarize
+- php artisan ahg:ai-spellcheck
+- php artisan ahg:ai-suggest-description
+- php artisan ahg:ai-htr
+- php artisan ahg:ai-process-pending
+- php artisan ahg:llm-health
+- php artisan ahg:ai-install
 
 ---
 
@@ -487,10 +487,11 @@ Complete listing of every function available in the Heratio framework and plugin
 - Generate custom compliance report
 
 ### CLI Commands
-- php symfony audit:view
-- php symfony audit:export
-- php symfony audit:purge
-- php symfony audit:stats
+- php artisan auditlog:report
+- php artisan auditlog:verify-chain
+- php artisan audit:prune
+- php artisan ahg:audit-retention
+- php artisan ahg:audit-purge
 
 ---
 
@@ -544,11 +545,11 @@ Complete listing of every function available in the Heratio framework and plugin
 - Configure notification recipients
 
 ### CLI Commands
-- php symfony backup:create
-- php symfony backup:list
-- php symfony backup:restore
-- php symfony backup:verify
-- php symfony backup:cleanup
+- php artisan ahg:backup
+- php artisan ahg:backup-cleanup
+- php artisan backup:verify-integrity
+- php artisan backup:restore-table
+- php artisan backup:pitr
 
 ---
 
@@ -706,8 +707,10 @@ Complete listing of every function available in the Heratio framework and plugin
 - Print condition report
 
 ### CLI Commands
-- php symfony condition:report
-- php symfony condition:due-list
+- php artisan ahg:ai-condition-scan
+- php artisan ahg:ai-condition-status
+- php artisan ahg:spectrum-condition-check-reminder
+- Condition reports are generated from the Heratio UI (no CLI)
 
 ---
 
@@ -1053,10 +1056,14 @@ Complete listing of every function available in the Heratio framework and plugin
 - Include Dublin Core metadata
 
 ### CLI Commands
-- php symfony migration:import
-- php symfony migration:preview
-- php symfony migration:status
-- php symfony migration:export
+- php artisan sector:archives-csv-import
+- php artisan sector:museum-csv-import
+- php artisan sector:library-csv-import
+- php artisan sector:gallery-csv-import
+- php artisan sector:dam-csv-import
+- php artisan ahg:csv-import
+- Add --validate-only to any sector import to preview without importing
+- Preservica (XIP/PAX/OPEX) export runs from the Admin UI (no CLI)
 
 ---
 
@@ -1145,10 +1152,9 @@ Complete listing of every function available in the Heratio framework and plugin
 - View merge history
 
 ### CLI Commands
-- php symfony dedupe:scan
-- php symfony dedupe:status
-- php symfony dedupe:merge
-- php symfony dedupe:report
+- php artisan ahg:dedupe-scan
+- php artisan ahg:dedupe-merge
+- php artisan ahg:dedupe-report
 
 ---
 
@@ -1260,8 +1266,8 @@ Complete listing of every function available in the Heratio framework and plugin
 - Standard web view
 
 ### CLI Commands
-- php symfony display:auto-detect
-- php symfony display:reindex
+- php artisan ahg:display-auto-detect
+- php artisan ahg:display-reindex
 
 ---
 
@@ -1350,10 +1356,11 @@ Complete listing of every function available in the Heratio framework and plugin
 - View activity log
 
 ### CLI Commands
-- php symfony doi:mint
-- php symfony doi:process-queue
-- php symfony doi:verify
-- php symfony doi:stats
+- php artisan ahg:doi-mint
+- php artisan ahg:doi-process-queue
+- php artisan ahg:doi-verify
+- php artisan ahg:doi-sync
+- php artisan ahg:doi-report
 
 ---
 
@@ -1626,10 +1633,8 @@ Complete listing of every function available in the Heratio framework and plugin
 - Track export history
 
 ### CLI Commands
-- php symfony export:csv
-- php symfony export:ead
-- php symfony export:dc
-- php symfony export:package
+- php artisan ahg:export-bulk (--format=ead, ead3, dc, mods, marc, lido, ric, csv)
+- php artisan ahg:metadata-export (--format=ead3, lido, marc21, rico, premis, bibframe, all)
 
 ---
 
@@ -2387,8 +2392,7 @@ Complete listing of every function available in the Heratio framework and plugin
 - Export loans to CSV
 
 ### CLI Commands
-- php symfony loan:reminders
-- php symfony loan:overdue-report
+- None - loan reminders and reports are generated from the Heratio UI
 
 ---
 

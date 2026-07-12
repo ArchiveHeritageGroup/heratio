@@ -26,12 +26,12 @@ binary does not exist in Heratio. 46 articles contain it.
 | 1 | preservation-user-guide.md | 60 | DONE (v1.154.194) |
 | 2 | ai-tools-user-guide.md | 55 | DONE (v1.154.195) |
 | 3 | data-migration-user-guide.md | 47 | DONE (v1.154.201) |
-| 4 | functions.md | 40 | todo |
+| 4 | functions.md | 40 | DONE |
 | 5 | ner-user-guide.md | 18 | todo |
 | 6 | duplicate-detection-user-guide.md | 18 | todo |
 | 7 | statistics-user-guide.md | 16 | todo |
 | 8 | privacy-user-guide.md | 15 | todo |
-| 9 | portable-export-user-guide.md | 14 | todo |
+| 9 | portable-export-user-guide.md | 14 | DONE (v1.154.222) |
 | 10 | ner-knowledge-graph-technical.md | 14 | todo |
 | 11 | heritage-accounting-user-guide.md | 14 | todo |
 | 12 | doi-user-guide.md | 14 | todo |
@@ -76,3 +76,11 @@ operator instructions: `database-erd.md` (83), `database-views.md`, and similar.
 - preservation-user-guide.md - safe-trimmed, re-ingested (help #56), v1.154.194.
 - ai-tools-user-guide.md - safe-trimmed, re-ingested (help #5), v1.154.195.
 - data-migration-user-guide.md - safe-trimmed, re-ingested (help #18), v1.154.201. Real: sector:*-csv-import (kept), ahg:csv-import; Preservica + batch export are UI-only; queue:work not Gearman.
+- portable-export-user-guide.md - rewritten around ahg:portable-export-worker queue model, v1.154.222.
+- functions.md - all 10 fabricated per-module `php symfony` CLI lists replaced with real
+  `php artisan` commands verified against packages/ (ahg:ai-*, auditlog:*/audit:prune,
+  ahg:backup*/backup:*, ahg:ai-condition-*/ahg:spectrum-condition-check-reminder,
+  sector:*-csv-import/ahg:csv-import, ahg:dedupe-*, ahg:display-*, ahg:doi-*,
+  ahg:export-bulk/ahg:metadata-export); loan module marked UI-only (no loan CLI exists).
+  Section headings keep the historical `ahg<Name>Plugin` module names (Bucket-3-style
+  class names, and the doc's own TOC anchors depend on them).
