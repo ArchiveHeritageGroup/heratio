@@ -238,6 +238,16 @@ class EncryptionService
     public const FILE_SENTINEL = "AHG_ENC_DERIV_v1\n";
 
     /**
+     * Foreign encrypted-at-rest envelope (leading magic bytes "AHG-ENC-V2")
+     * carried by masters ingested from external AHG tooling. No code in this
+     * codebase produces or decrypts it - the constant exists for DETECTION
+     * ONLY, so the IIIF / viewer surfaces can flag such a file as unservable
+     * ciphertext instead of failing silently (heratio#1396: Cantaloupe 501s
+     * with "Unsupported source format" on these bytes).
+     */
+    public const FILE_SENTINEL_FOREIGN_V2 = 'AHG-ENC-V2';
+
+    /**
      * Encrypt a file in-place. Idempotent (already-encrypted files are
      * left alone). Returns true on success, false when the category is
      * off or the file is missing.
@@ -350,6 +360,28 @@ class EncryptionService
         fclose($fp);
 
         return $head === self::FILE_SENTINEL;
+    }
+
+    /**
+     * Whether a file is encrypted at rest in ANY known envelope - Heratio's
+     * own (decryptable) FILE_SENTINEL or the foreign AHG-ENC-V2 one. Use this
+     * for "can Cantaloupe / ImageMagick read these bytes?" checks
+     * (heratio#1396): either envelope means the on-disk bytes are ciphertext,
+     * even though only the Heratio envelope can be decrypted here. Reads only
+     * the first sentinel-length bytes, so it is safe on multi-GB masters.
+     */
+    public function isFileEncryptedAtRest(string $path): bool
+    {
+        $len = max(strlen(self::FILE_SENTINEL), strlen(self::FILE_SENTINEL_FOREIGN_V2));
+        $fp = @fopen($path, 'rb');
+        if (! $fp) {
+            return false;
+        }
+        $head = (string) fread($fp, $len);
+        fclose($fp);
+
+        return str_starts_with($head, self::FILE_SENTINEL)
+            || str_starts_with($head, self::FILE_SENTINEL_FOREIGN_V2);
     }
 
     /**

@@ -259,6 +259,23 @@ class IiifPresentationController extends Controller
                 continue;
             }
 
+            // heratio#1396: an encrypted-at-rest master (Heratio's own envelope
+            // or the foreign AHG-ENC-V2 one) is ciphertext on disk - Cantaloupe
+            // cannot identify a source format and every Image API request for
+            // it 501s ("Unsupported source format"). Skip the Canvas so the
+            // manifest never points a viewer / aggregator at a guaranteed-dead
+            // image service. Detection failure fails OPEN (canvas kept) so a
+            // transient filesystem error cannot hide servable images.
+            try {
+                $disk = \AhgCore\Services\DigitalObjectService::resolveDiskPath($do);
+                if ($disk !== null
+                    && app(\AhgCore\Services\EncryptionService::class)->isFileEncryptedAtRest($disk)) {
+                    continue;
+                }
+            } catch (\Throwable $e) {
+                // Fail-open: keep the canvas.
+            }
+
             // SAME identifier construction as the deployed viewer and the
             // (locked) IiifCollectionService: file path relative to uploads,
             // '/' -> '_SL_', then the filename appended.

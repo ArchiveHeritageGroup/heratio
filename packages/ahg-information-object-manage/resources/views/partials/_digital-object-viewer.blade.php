@@ -104,6 +104,20 @@
               $is3DModel = false;   // gs3d replaces the mesh viewer for a splat .ply
           }
       }
+
+      // heratio#1396 - encrypted-at-rest master detection. Either envelope
+      // (Heratio's decryptable AHG_ENC_DERIV_v1 or the foreign AHG-ENC-V2)
+      // means the master bytes on disk are ciphertext: Cantaloupe returns
+      // 501 "Unsupported source format" and deep zoom can never render, so
+      // the viewer must degrade deliberately instead of failing silently.
+      $masterEncryptedAtRest = false;
+      if ($masterObj && ($masterObj->name ?? '')) {
+          try {
+              $__masterDisk = \AhgCore\Services\DigitalObjectService::resolveDiskPath($masterObj);
+              $masterEncryptedAtRest = $__masterDisk !== null
+                  && app(\AhgCore\Services\EncryptionService::class)->isFileEncryptedAtRest($__masterDisk);
+          } catch (\Throwable $e) { /* treat as plain */ }
+      }
     @endphp
 
     <div class="digital-object-reference text-center p-3 border-bottom">
@@ -426,6 +440,13 @@
           if (in_array($__viewerOverride, ['carousel', 'single', 'mirador', 'openseadragon'], true)) {
               $vType = $__viewerOverride;
           }
+          // heratio#1396: deep zoom is impossible for an encrypted-at-rest
+          // master (Cantaloupe 501s on the ciphertext), so never OPEN in a
+          // deep-zoom mode - fall back to the plaintext reference image
+          // instead of an empty viewer.
+          if ($masterEncryptedAtRest && in_array($vType, ['openseadragon', 'mirador'], true)) {
+              $vType = 'single';
+          }
           $vHeight = $__vSettings['viewer_height'] ?? '500px';
           $vBg = $__vSettings['background_color'] ?? '#1a1a1a';
           $vAutoplay = (string)($__vSettings['carousel_autoplay'] ?? '1') === '1';
@@ -480,6 +501,16 @@
             : null;
           $splatEmbedUrl = ($splatDoUrl ?? null) ?: ($splatRow ? '/splat/'.$splatRow->slug.'?embed=1' : null);
         @endphp
+
+        @if($masterEncryptedAtRest)
+          @auth
+          {{-- heratio#1396: surface the IIIF incompatibility to staff instead of a silently blank deep-zoom pane --}}
+          <div class="alert alert-warning py-2 mb-2 text-start" role="alert">
+            <i class="fas fa-lock me-1" aria-hidden="true"></i>
+            {{ __('The master file is encrypted at rest, so IIIF deep zoom (OpenSeadragon / Mirador) cannot render it. Showing the reference image instead.') }}
+          </div>
+          @endauth
+        @endif
 
         {{-- Viewer toggle --}}
         <div class="d-flex justify-content-between align-items-center mb-2" style="position:relative;z-index:10;">
@@ -681,8 +712,12 @@
       @else
         {{-- No displayable object: show download link --}}
         <div class="py-4">
-          <i class="fas fa-file fa-3x text-muted mb-3 d-block"></i>
+          <i class="fas {{ $masterEncryptedAtRest ? 'fa-lock' : 'fa-file' }} fa-3x text-muted mb-3 d-block"></i>
           <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Digital object' }}</p>
+          @if($masterEncryptedAtRest)
+            {{-- heratio#1396: say WHY nothing renders instead of failing silently --}}
+            <p class="text-muted mb-2"><small>{{ __('This master file is encrypted at rest, so it cannot be previewed or served through the IIIF deep-zoom pipeline.') }}</small></p>
+          @endif
           @auth
             <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
               <i class="fas fa-download me-1"></i>{{ __('Download file') }}
