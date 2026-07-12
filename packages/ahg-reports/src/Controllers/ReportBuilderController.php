@@ -1186,7 +1186,14 @@ class ReportBuilderController extends Controller
         }
 
         try {
-            $html = @file_get_contents($url);
+            // #1395(C) - never follow redirects: UrlGuard already vetted $url, but a
+            // 30x to an internal host would otherwise re-open the SSRF hole.
+            $ctx = stream_context_create(['http' => [
+                'timeout' => 15,
+                'follow_location' => 0,
+                'max_redirects' => 0,
+            ]]);
+            $html = @file_get_contents($url, false, $ctx);
             if (!$html) {
                 return response()->json(['success' => false, 'error' => 'Unable to fetch URL']);
             }

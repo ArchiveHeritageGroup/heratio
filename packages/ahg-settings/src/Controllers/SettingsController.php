@@ -3037,11 +3037,21 @@ class SettingsController extends Controller
         }
 
         $health = rtrim($url, '/').'/health';
+
+        // #1395(C) - SSRF guard on the request-controlled URL; a blocked/internal
+        // host surfaces as a failed test (not a 500).
+        try {
+            app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($health);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'error' => 'URL not allowed'], 200);
+        }
+
         $ch = curl_init($health);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 10,
             CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_HTTPHEADER => array_filter([
                 'Accept: application/json',
                 $apiKey !== '' ? 'X-API-Key: '.$apiKey : null,
@@ -3090,11 +3100,23 @@ class SettingsController extends Controller
             $apiKey !== '' ? 'X-API-Key: '.$apiKey : null,
         ]);
 
-        $ch = curl_init(rtrim($base, '/').'/health');
+        $healthUrl = rtrim($base, '/').'/health';
+
+        // #1395(C) - SSRF guard both request-controlled targets (/health probe and
+        // the translate endpoint); a blocked/internal host is a failed test, not a 500.
+        try {
+            app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($healthUrl);
+            app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($endpoint);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'error' => 'Endpoint not allowed'], 200);
+        }
+
+        $ch = curl_init($healthUrl);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 10,
             CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_HTTPHEADER => $headers,
         ]);
         $body = curl_exec($ch);
@@ -3116,6 +3138,7 @@ class SettingsController extends Controller
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 30,
             CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_POSTFIELDS => json_encode([
@@ -3269,8 +3292,12 @@ class SettingsController extends Controller
                 $url = $request->input('settings.ahg_central_api_url', '');
                 if (! empty($url)) {
                     try {
+                        // #1395(C) - SSRF guard on the request-controlled Central URL
+                        // before pinging; redirects off so a 30x cannot rebind to a
+                        // private IP after the check.
+                        app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($url.'/ping');
                         $ch = curl_init($url.'/ping');
-                        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 5]);
+                        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 5, CURLOPT_FOLLOWLOCATION => false]);
                         $resp = curl_exec($ch);
                         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         curl_close($ch);

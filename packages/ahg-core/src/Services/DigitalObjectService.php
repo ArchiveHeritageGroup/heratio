@@ -54,6 +54,75 @@ class DigitalObjectService
     const UPLOAD_DIR = '/mnt/nas/heratio/archive';
 
     /**
+     * Security deny-list: browser-executable / server-executable extensions
+     * that must never be accepted as a digital object. These are served
+     * same-origin from /uploads/, so an SVG/HTML/XML carrying <script> would
+     * execute stored XSS in a viewer's session, and a .php/.phar is latent
+     * RCE. This is a DENY-list (not an allow-list) so legitimate archival
+     * formats (pdf, tif, dng, mp4, docx, csv, zip, ...) keep flowing through
+     * untouched - only the dangerous handful below are refused. Matched
+     * case-insensitively against the CLIENT original extension AND the
+     * mime-guessed extension at every upload entry point. Keep in sync with
+     * the controller-level guards in DigitalObjectController.
+     */
+    const DENIED_UPLOAD_EXTENSIONS = [
+        'html', 'htm', 'xhtml', 'shtml', 'xml', 'xsl', 'xslt',
+        'svg', 'svgz',
+        'php', 'php3', 'php4', 'php5', 'php7', 'phtml', 'phar', 'pht',
+        'js', 'mjs',
+        'htaccess', 'hta', 'jar',
+    ];
+
+    /**
+     * Return the offending extension if this upload's client original
+     * extension OR its mime-guessed extension is on the security deny-list,
+     * otherwise null. Also catches dot-files whose whole basename is the
+     * token (e.g. ".htaccess", ".hta") which pathinfo would report with an
+     * empty filename. Case-insensitive.
+     *
+     * @return string|null  the denied extension (lower-case), or null when safe
+     */
+    public static function deniedUploadExtension(UploadedFile $file): ?string
+    {
+        $candidates = [];
+
+        // Client-supplied original extension + a pathinfo pass over the
+        // original name (covers dot-files where getClientOriginalExtension
+        // can come back empty).
+        $original = (string) $file->getClientOriginalName();
+        $candidates[] = strtolower((string) $file->getClientOriginalExtension());
+        $candidates[] = strtolower((string) pathinfo($original, PATHINFO_EXTENSION));
+
+        // Bare dot-file basenames like ".htaccess" -> treat the basename as
+        // the token so they can't slip through with an empty extension.
+        $candidates[] = strtolower(ltrim(basename($original), '.'));
+
+        // Server-guessed extension from the actual bytes/mime - blocks a
+        // renamed poc.svg -> poc.txt whose sniffed type is still image/svg+xml.
+        try {
+            $candidates[] = strtolower((string) $file->guessExtension());
+        } catch (\Throwable $__e) {
+            // guessExtension can throw on an unreadable temp file; ignore.
+        }
+
+        foreach ($candidates as $ext) {
+            if ($ext !== '' && in_array($ext, self::DENIED_UPLOAD_EXTENSIONS, true)) {
+                return $ext;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Human-facing rejection message for a denied upload extension.
+     */
+    public static function deniedUploadMessage(string $ext): string
+    {
+        return 'File type .'.$ext.' is not permitted for security reasons.';
+    }
+
+    /**
      * Get all digital objects for an entity, organized by usage type.
      * Returns: ['master' => ..., 'reference' => ..., 'thumbnail' => ..., 'all' => Collection]
      */
@@ -270,6 +339,19 @@ class DigitalObjectService
      */
     public static function upload(int $objectId, UploadedFile $file): int
     {
+        // Security choke point (defence in depth): reject browser/server
+        // executable file types even when a caller reaches the service
+        // directly, bypassing the controller-level validation. Served
+        // same-origin from /uploads/, an .svg/.html/.xml with <script> is
+        // stored XSS and a .php/.phar is latent RCE, so they never land on
+        // disk. Throws so both the single-upload (catches \Exception) and
+        // bulkUpload (catches \Throwable) controller paths surface a clear
+        // error instead of storing the file.
+        $deniedExt = self::deniedUploadExtension($file);
+        if ($deniedExt !== null) {
+            throw new \RuntimeException(self::deniedUploadMessage($deniedExt));
+        }
+
         $mimeType = $file->getMimeType() ?: $file->getClientMimeType();
         $originalName = $file->getClientOriginalName();
         $mediaTypeId = self::resolveMediaTypeId($mimeType);

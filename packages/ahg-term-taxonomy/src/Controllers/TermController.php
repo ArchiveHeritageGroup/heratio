@@ -1234,7 +1234,9 @@ class TermController extends Controller
                 if (! \AhgCore\Support\UrlGuard::isAllowed($url)) {
                     return back()->with('error', 'URL not allowed.');
                 }
-                $ctx = stream_context_create(['http' => ['timeout' => 30, 'header' => 'Accept: application/rdf+xml,text/xml,*/*']]);
+                // #1395(C) - never follow redirects: UrlGuard already vetted $url, but a
+                // 30x to an internal host would otherwise re-open the SSRF hole.
+                $ctx = stream_context_create(['http' => ['timeout' => 30, 'follow_location' => 0, 'max_redirects' => 0, 'header' => 'Accept: application/rdf+xml,text/xml,*/*']]);
                 $xmlContent = @file_get_contents($url, false, $ctx);
                 if ($xmlContent === false) {
                     return back()->with('error', 'Failed to fetch SKOS file from URL: '.$url);

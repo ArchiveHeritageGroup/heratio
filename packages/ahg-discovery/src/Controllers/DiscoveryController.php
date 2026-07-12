@@ -1262,6 +1262,7 @@ class DiscoveryController extends Controller
                     ],
                     'pre_tags' => ['<mark>'],
                     'post_tags' => ['</mark>'],
+                    'encoder' => 'html',
                 ],
             ];
 
@@ -1353,6 +1354,7 @@ class DiscoveryController extends Controller
                     'fields' => ['nerEntityValues' => (object) []],
                     'pre_tags' => ['<mark>'],
                     'post_tags' => ['</mark>'],
+                    'encoder' => 'html',
                 ],
             ];
             $resp = $es->search('qubitinformationobject', $body, 0, $limit);

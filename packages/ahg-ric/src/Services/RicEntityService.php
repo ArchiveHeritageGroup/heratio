@@ -1606,8 +1606,14 @@ class RicEntityService
     {
         $page = (int) ($params['page'] ?? 1);
         $perPage = (int) ($params['per_page'] ?? 30);
-        $sort = $params['sort'] ?? $nameColumn;
-        $direction = $params['direction'] ?? 'asc';
+        // Whitelist the sort column + direction (both come from the browse*
+        // request). The column is interpolated into orderBy() below, so an
+        // unknown value would throw and 500 the browse page; coerce to the
+        // name column (routed to the i18n table) or the entity id, and coerce
+        // the direction to asc|desc, with safe defaults.
+        $rawSort = $params['sort'] ?? $nameColumn;
+        $sort = in_array($rawSort, [$nameColumn, 'id'], true) ? $rawSort : $nameColumn;
+        $direction = strtolower((string) ($params['direction'] ?? 'asc')) === 'desc' ? 'desc' : 'asc';
         $search = $params['search'] ?? null;
 
         $query = DB::table($table)

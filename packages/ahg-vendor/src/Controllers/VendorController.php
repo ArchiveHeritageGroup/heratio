@@ -166,7 +166,17 @@ class VendorController extends Controller
                 ->where('ahg_vendors.insurance_expiry_date', '>=', date('Y-m-d'));
         }
 
-        $query->orderBy($filters['sort'], $filters['direction']);
+        // Whitelist the sort column + direction (both come from the request).
+        // An unknown column or a bad direction would throw and 500 the browse
+        // page; coerce to the real sortable set with a safe default instead.
+        $sortableColumns = [
+            'name', 'vendor_code', 'vendor_type', 'city', 'status',
+            'quality_rating', 'reliability_rating', 'price_rating',
+            'created_at', 'updated_at', 'transaction_count', 'active_transactions',
+        ];
+        $sortColumn = in_array($filters['sort'], $sortableColumns, true) ? $filters['sort'] : 'name';
+        $sortDirection = strtolower((string) $filters['direction']) === 'desc' ? 'desc' : 'asc';
+        $query->orderBy($sortColumn, $sortDirection);
 
         $vendors = $query->get();
         // #1264 decrypt PII columns for display (no-op on plaintext rows).

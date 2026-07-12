@@ -61,7 +61,15 @@ class CaptionTrackService
         }
 
         try {
-            $content = Http::timeout(15)->get($track->source_url)->body();
+            // #1395(C) - SSRF guard on the DB-controlled source URL before fetching
+            // (fetched body is stored and later served publicly); redirects off so a
+            // 30x cannot rebind to a private IP after the check.
+            app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($track->source_url);
+
+            $content = Http::timeout(15)
+                ->withOptions(['allow_redirects' => false])
+                ->get($track->source_url)
+                ->body();
 
             // Detect SRT and convert to VTT
             if (str_contains(trim(substr($content, 0, 200)), '-->') && !str_starts_with(trim($content), 'WEBVTT')) {

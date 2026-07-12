@@ -129,6 +129,18 @@ class DigitalObjectController extends Controller
             ]);
         }
 
+        // Security deny-list: refuse browser/server-executable uploads
+        // (svg/html/xml/php/js/...) before they are ever stored. Served
+        // same-origin from /uploads/, such a file is stored XSS / latent RCE.
+        // Checks the client original extension AND the mime-guessed extension.
+        if ($hasFile) {
+            $deniedExt = DigitalObjectService::deniedUploadExtension($request->file('digital_object'));
+            if ($deniedExt !== null) {
+                return redirect()->back()->withInput()
+                    ->with('error', DigitalObjectService::deniedUploadMessage($deniedExt));
+            }
+        }
+
         $io = $this->getIO($slug);
         if (!$io) {
             abort(404);
@@ -374,6 +386,18 @@ class DigitalObjectController extends Controller
         foreach ($files as $i => $upload) {
             if (!$upload || !$upload->isValid()) {
                 $errors[] = ['index' => $i, 'reason' => 'upload invalid: ' . ($upload ? $upload->getErrorMessage() : 'no file')];
+                continue;
+            }
+
+            // Security deny-list: skip any browser/server-executable file
+            // (svg/html/xml/php/js/...) so it is never written to disk. Recorded
+            // as a per-file error so the rest of the batch still imports.
+            $deniedExt = DigitalObjectService::deniedUploadExtension($upload);
+            if ($deniedExt !== null) {
+                $errors[] = [
+                    'index'  => $i,
+                    'reason' => DigitalObjectService::deniedUploadMessage($deniedExt),
+                ];
                 continue;
             }
 
@@ -699,6 +723,19 @@ class DigitalObjectController extends Controller
         $doRow = DB::table('digital_object')->where('id', $id)->first();
         if (!$doRow) {
             abort(404);
+        }
+
+        // Security deny-list: refuse browser/server-executable uploads on the
+        // replace-master / reference / thumbnail paths before any ->move(). A
+        // single denied file aborts the whole update so nothing is written.
+        foreach (['replace_file', 'repFile_reference', 'repFile_thumbnail'] as $field) {
+            if ($request->hasFile($field)) {
+                $deniedExt = DigitalObjectService::deniedUploadExtension($request->file($field));
+                if ($deniedExt !== null) {
+                    return redirect()->back()->withInput()
+                        ->with('error', DigitalObjectService::deniedUploadMessage($deniedExt));
+                }
+            }
         }
 
         $updates = [];
@@ -1058,6 +1095,18 @@ class DigitalObjectController extends Controller
         }
 
         $orig = $file->getClientOriginalName() ?: 'file';
+
+        // Security deny-list: refuse browser/server-executable files at the
+        // staging step so no tmpName is ever returned - the form-submit phase
+        // of multiFileUpload() then has nothing to import into /uploads.
+        $deniedExt = DigitalObjectService::deniedUploadExtension($file);
+        if ($deniedExt !== null) {
+            return response()->json(['files' => [[
+                'name'  => $orig,
+                'error' => DigitalObjectService::deniedUploadMessage($deniedExt),
+            ]]], 200);
+        }
+
         try {
             $tmpDir = storage_path('app/uploads/tmp');
             if (!is_dir($tmpDir)) {

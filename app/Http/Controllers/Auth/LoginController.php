@@ -36,8 +36,12 @@ class LoginController extends Controller
 
         $next = $request->query('next', $request->headers->get('referer', ''));
 
-        // Don't redirect back to login/logout pages
-        if ($next && (str_contains($next, '/login') || str_contains($next, '/logout'))) {
+        // Don't reflect login/logout pages - or an off-host absolute URL -
+        // back into the form's hidden `next` field. The same-host check
+        // mirrors the /set-locale handler in routes/web.php; any absolute
+        // http(s) URL that is not on this host is dropped to ''.
+        if ($next && (str_contains($next, '/login') || str_contains($next, '/logout')
+            || (preg_match('#^https?://#i', $next) && ! str_starts_with($next, $request->getSchemeAndHttpHost())))) {
             $next = '';
         }
 
@@ -99,7 +103,14 @@ class LoginController extends Controller
 
             // Set atom_authenticated cookie (30-day expiry)
             $next = $request->input('next', '/');
-            if (empty($next) || str_contains($next, '/login') || str_contains($next, '/logout')) {
+            // Reject open-redirect targets before $next feeds any downstream
+            // redirect (MFA return url, OTP/two-factor verify, and the final
+            // redirect($next) below): never /login or /logout, and only honour
+            // same-host URLs. The same-host check mirrors the /set-locale
+            // handler in routes/web.php - any absolute off-host http(s) URL
+            // falls back to '/'.
+            if (empty($next) || str_contains($next, '/login') || str_contains($next, '/logout')
+                || (preg_match('#^https?://#i', $next) && ! str_starts_with($next, $request->getSchemeAndHttpHost()))) {
                 $next = '/';
             }
 

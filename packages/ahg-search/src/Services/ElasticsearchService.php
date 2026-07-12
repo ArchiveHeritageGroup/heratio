@@ -216,6 +216,7 @@ class ElasticsearchService
                 ],
                 'pre_tags' => ['<mark>'],
                 'post_tags' => ['</mark>'],
+                'encoder' => 'html',
             ],
         ];
 
@@ -864,6 +865,7 @@ class ElasticsearchService
                 ],
                 'pre_tags' => ['<mark>'],
                 'post_tags' => ['</mark>'],
+                'encoder' => 'html',
             ],
         ];
 

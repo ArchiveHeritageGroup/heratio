@@ -285,8 +285,16 @@ class AuthorityCompletenessService
             $query->where('c.completeness_score', '<=', $filters['max_score']);
         }
 
-        $sort = $filters['sort'] ?? 'completeness_score';
-        $dir = $filters['sortDir'] ?? 'asc';
+        // Whitelist the sort column + direction (both come from the workqueue
+        // request). An unknown column or a bad direction would throw and 500
+        // the workqueue; coerce to the real sortable set with a safe default.
+        $sortableColumns = [
+            'completeness_score', 'completeness_level', 'name',
+            'assigned_to', 'assigned_at', 'scored_at', 'created_at', 'updated_at',
+        ];
+        $rawSort = $filters['sort'] ?? 'completeness_score';
+        $sort = in_array($rawSort, $sortableColumns, true) ? $rawSort : 'completeness_score';
+        $dir = strtolower((string) ($filters['sortDir'] ?? 'asc')) === 'desc' ? 'desc' : 'asc';
         $query->orderBy($sort, $dir);
 
         $limit = $filters['limit'] ?? 50;

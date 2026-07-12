@@ -224,6 +224,7 @@ class LibraryOpacSearchService
                 ],
                 'pre_tags'  => ['<mark>'],
                 'post_tags' => ['</mark>'],
+                'encoder'   => 'html',
             ],
         ];
 

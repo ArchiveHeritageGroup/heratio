@@ -49,6 +49,17 @@
     var ddBtn = document.getElementById('{{ $uid }}-dd');
     var menu = document.getElementById('{{ $uid }}-menu');
     if (!btn) return;
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+    function safeIcon(s) {
+        return (typeof s === 'string' && /^[a-z0-9 _-]+$/.test(s)) ? s : 'fa-folder';
+    }
+    function safeColor(s) {
+        return (typeof s === 'string' && /^(#[0-9a-fA-F]{3,8}|rgba?\([0-9.,\s%]+\))$/.test(s)) ? s : '#6c757d';
+    }
     var foldersLoaded = false;
     function toggleFav(folderId) {
         var body = 'object_id=' + encodeURIComponent(btn.dataset.objectId) +
@@ -101,7 +112,7 @@
                         var li = document.createElement('li');
                         var a = document.createElement('a');
                         a.className = 'dropdown-item'; a.href = '#';
-                        a.innerHTML = '<i class="fas ' + (f.icon || 'fa-folder') + ' me-2" style="color:' + (f.color || '#6c757d') + ';"></i>' + (f.name || '') + (f.item_count ? ' <span class="badge bg-secondary ms-1">' + f.item_count + '</span>' : '');
+                        a.innerHTML = '<i class="fas ' + safeIcon(f.icon) + ' me-2" style="color:' + safeColor(f.color) + ';"></i>' + esc(f.name || '') + (f.item_count ? ' <span class="badge bg-secondary ms-1">' + esc(f.item_count) + '</span>' : '');
                         (function(fId) { a.addEventListener('click', function(ev) { ev.preventDefault(); toggleFav(fId); }); })(f.id);
                         li.appendChild(a); menu.appendChild(li);
                     });
