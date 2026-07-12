@@ -33,6 +33,9 @@ class SemanticSearchController extends Controller
 {
     protected SemanticSearchService $service;
 
+    /** #1355 - per-request cache for dropdownOptions() taxonomy reads. */
+    private array $dropdownCache = [];
+
     public function __construct()
     {
         $this->service = new SemanticSearchService;
@@ -84,7 +87,60 @@ class SemanticSearchController extends Controller
             return redirect()->route('semantic-search.terms')->with('notice', 'Term added');
         }
 
-        return view('ahg-semantic-search::term-add');
+        // #1355 - the Domain / Relationship controlled vocabularies live in
+        // ahg_dropdown so site admins manage them via the Dropdown Manager;
+        // fall back to the shipped lists until the taxonomies are seeded.
+        $domains = $this->dropdownOptions('semantic_term_domain', [
+            'general'       => 'General',
+            'archival'      => 'Archival',
+            'museum'        => 'Museum',
+            'library'       => 'Library',
+            'south_african' => 'South African',
+        ]);
+        $relationships = $this->dropdownOptions('semantic_term_relationship', [
+            'exact'    => 'Exact (synonym)',
+            'related'  => 'Related',
+            'broader'  => 'Broader',
+            'narrower' => 'Narrower',
+        ]);
+
+        return view('ahg-semantic-search::term-add', compact('domains', 'relationships'));
+    }
+
+    /**
+     * Generic ahg_dropdown reader [code => label] with a hardcoded fallback,
+     * so site admins manage these vocabularies via the Dropdown Manager
+     * (#1355). Falls back when the table/taxonomy is missing or empty.
+     */
+    private function dropdownOptions(string $taxonomy, array $fallback): array
+    {
+        if (isset($this->dropdownCache[$taxonomy])) {
+            return $this->dropdownCache[$taxonomy];
+        }
+
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')) {
+                return $fallback;
+            }
+            $rows = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
+                ->where('taxonomy', $taxonomy)
+                ->where('is_active', 1)
+                ->orderBy('sort_order')
+                ->get(['code', 'label']);
+
+            if ($rows->isEmpty()) {
+                return $fallback;
+            }
+
+            $out = [];
+            foreach ($rows as $r) {
+                $out[(string) $r->code] = (string) $r->label;
+            }
+
+            return $this->dropdownCache[$taxonomy] = $out;
+        } catch (\Throwable $e) {
+            return $fallback;
+        }
     }
 
     public function termView(int $id)

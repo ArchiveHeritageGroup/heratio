@@ -90,16 +90,16 @@
                     <label class="form-label small mb-1">{{ __('Entity type') }}</label>
                     <select name="entity_type" class="form-select form-select-sm">
                         <option value="">{{ __('All types') }}</option>
-                        @foreach(['PERSON', 'ORG', 'GPE', 'LOC', 'PLACE'] as $et)
-                            <option value="{{ $et }}" {{ $filterEntityType === $et ? 'selected' : '' }}>{{ $et }}</option>
+                        @foreach($entityTypes as $et)
+                            <option value="{{ $et }}" {{ $filterEntityType === $et ? 'selected' : '' }}>{{ \AhgAiServices\Support\EntityTypeLabels::label($et) }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small mb-1">{{ __('State') }}</label>
                     <select name="state" class="form-select form-select-sm">
-                        @foreach(['pending', 'linked', 'parked', 'rejected', 'new_record_created', 'any'] as $s)
-                            <option value="{{ $s }}" {{ $filterState === $s ? 'selected' : '' }}>{{ $s }}</option>
+                        @foreach($states as $s)
+                            <option value="{{ $s }}" {{ $filterState === $s ? 'selected' : '' }}>{{ $s === 'any' ? __('Any') : ucfirst(str_replace('_', ' ', $s)) }}</option>
                         @endforeach
                     </select>
                 </div>

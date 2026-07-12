@@ -33,6 +33,7 @@
 namespace AhgAuthorityResolution\Console\Commands;
 
 use AhgAuthorityResolution\Services\PromoteToMentionService;
+use AhgAuthorityResolution\Support\MentionVocabulary;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -51,7 +52,7 @@ class PromoteSampleCommand extends Command
 
         $entityCount = DB::table('ahg_ner_entity')
             ->where('object_id', $objectId)
-            ->whereIn('entity_type', ['PERSON', 'ORG', 'GPE', 'PLACE', 'LOC'])
+            ->whereIn('entity_type', MentionVocabulary::ENTITY_TYPES)
             ->count();
 
         if ($entityCount === 0) {

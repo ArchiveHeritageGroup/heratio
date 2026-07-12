@@ -53,21 +53,18 @@
                         <div class="mb-3">
                             <label class="form-label" for="domain">{{ __('Domain') }}</label>
                             <select class="form-select" id="domain" name="domain">
-                                <option value="general">{{ __('General') }}</option>
-                                <option value="archival">{{ __('Archival') }}</option>
-                                <option value="museum">{{ __('Museum') }}</option>
-                                <option value="library">{{ __('Library') }}</option>
-                                <option value="south_african">{{ __('South African') }}</option>
+                                @foreach($domains as $code => $label)
+                                <option value="{{ $code }}" @selected(old('domain', 'general') == $code)>{{ __($label) }}</option>
+                                @endforeach
                             </select>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label" for="relationship">{{ __('Relationship Type') }}</label>
                             <select class="form-select" id="relationship" name="relationship">
-                                <option value="exact">{{ __('Exact (synonym)') }}</option>
-                                <option value="related">{{ __('Related') }}</option>
-                                <option value="broader">{{ __('Broader') }}</option>
-                                <option value="narrower">{{ __('Narrower') }}</option>
+                                @foreach($relationships as $code => $label)
+                                <option value="{{ $code }}" @selected(old('relationship', 'exact') == $code)>{{ __($label) }}</option>
+                                @endforeach
                             </select>
                         </div>
 

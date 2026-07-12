@@ -34,6 +34,9 @@ class ActorService
 {
     use WithCultureFallback;
 
+    /** Per-request cache for dropdownOptions() taxonomy reads. */
+    private array $dropdownCache = [];
+
     protected string $culture;
 
     public function __construct(?string $culture = null)
@@ -667,7 +670,49 @@ class ActorService
             'descriptionDetails' => $termLookup(31),   // Description Detail Levels
             'nameTypes' => $termLookup(36),            // Actor Name Types
             'relationTypes' => $termLookup(55),        // Actor Relation Type
+            'relationCategories' => $this->dropdownOptions('actor_relation_category', [
+                'hierarchical' => 'Hierarchical',
+                'temporal'     => 'Temporal',
+                'family'       => 'Family',
+                'associative'  => 'Associative',
+            ]),
         ];
+    }
+
+    /**
+     * Generic ahg_dropdown reader [code => label] with a hardcoded fallback,
+     * so site admins manage these vocabularies via the Dropdown Manager
+     * (#1355). Falls back when the table/taxonomy is missing or empty.
+     */
+    private function dropdownOptions(string $taxonomy, array $fallback): array
+    {
+        if (isset($this->dropdownCache[$taxonomy])) {
+            return $this->dropdownCache[$taxonomy];
+        }
+
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')) {
+                return $fallback;
+            }
+            $rows = DB::table('ahg_dropdown')
+                ->where('taxonomy', $taxonomy)
+                ->where('is_active', 1)
+                ->orderBy('sort_order')
+                ->get(['code', 'label']);
+
+            if ($rows->isEmpty()) {
+                return $fallback;
+            }
+
+            $out = [];
+            foreach ($rows as $r) {
+                $out[(string) $r->code] = (string) $r->label;
+            }
+
+            return $this->dropdownCache[$taxonomy] = $out;
+        } catch (\Throwable $e) {
+            return $fallback;
+        }
     }
 
     /**

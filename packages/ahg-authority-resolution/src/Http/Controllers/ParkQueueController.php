@@ -19,6 +19,7 @@
 namespace AhgAuthorityResolution\Http\Controllers;
 
 use AhgAuthorityResolution\Services\ParkQueueService;
+use AhgAuthorityResolution\Support\MentionVocabulary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -79,6 +80,7 @@ class ParkQueueController extends Controller
 
         return view('auth-res::park', [
             'rows' => $rows,
+            'entityTypes' => MentionVocabulary::ENTITY_TYPES,
             'archivistNames' => $archivistNames,
             'totalParked' => $totalParked,
             'totalNewCandidate' => $totalNewCandidate,

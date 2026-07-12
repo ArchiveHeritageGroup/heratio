@@ -97,8 +97,8 @@
                     <label class="form-label small mb-1">{{ __('Entity type') }}</label>
                     <select name="entity_type" class="form-select form-select-sm">
                         <option value="">{{ __('All') }}</option>
-                        @foreach(['PERSON', 'ORG', 'GPE', 'PLACE', 'LOC'] as $et)
-                            <option value="{{ $et }}" {{ $filterEntityType === $et ? 'selected' : '' }}>{{ $et }}</option>
+                        @foreach($entityTypes as $et)
+                            <option value="{{ $et }}" {{ $filterEntityType === $et ? 'selected' : '' }}>{{ \AhgAiServices\Support\EntityTypeLabels::label($et) }}</option>
                         @endforeach
                     </select>
                 </div>

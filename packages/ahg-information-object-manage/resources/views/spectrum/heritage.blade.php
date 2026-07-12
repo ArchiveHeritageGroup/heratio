@@ -59,9 +59,9 @@
               <div class="col-md-4">
                 <label class="form-label">{{ __('Recognition Status') }}</label>
                 <select name="recognition_status" class="form-select">
-                  <option value="pending" selected>{{ __('Pending') }}</option>
-                  <option value="recognised">{{ __('Recognised') }}</option>
-                  <option value="not_recognised">{{ __('Not Recognised') }}</option>
+                  @foreach($recognitionStatuses as $code => $label)
+                  <option value="{{ $code }}" @selected(old('recognition_status', 'pending') == $code)>{{ __($label) }}</option>
+                  @endforeach
                 </select>
               </div>
               <div class="col-md-4">
@@ -71,10 +71,9 @@
               <div class="col-md-4">
                 <label class="form-label">{{ __('Measurement Basis') }}</label>
                 <select name="measurement_basis" class="form-select">
-                  <option value="cost" selected>{{ __('Cost') }}</option>
-                  <option value="fair_value">{{ __('Fair Value') }}</option>
-                  <option value="nominal">{{ __('Nominal') }}</option>
-                  <option value="not_practicable">{{ __('Not Practicable') }}</option>
+                  @foreach($measurementBases as $code => $label)
+                  <option value="{{ $code }}" @selected(old('measurement_basis', 'cost') == $code)>{{ __($label) }}</option>
+                  @endforeach
                 </select>
               </div>
               <div class="col-12">
@@ -94,13 +93,9 @@
                 <label class="form-label">{{ __('Acquisition Method') }}</label>
                 <select name="acquisition_method" class="form-select">
                   <option value="">{{ __('-- Select --') }}</option>
-                  <option value="purchase">{{ __('Purchase') }}</option>
-                  <option value="donation">{{ __('Donation') }}</option>
-                  <option value="bequest">{{ __('Bequest') }}</option>
-                  <option value="transfer">{{ __('Transfer') }}</option>
-                  <option value="found">{{ __('Found') }}</option>
-                  <option value="exchange">{{ __('Exchange') }}</option>
-                  <option value="other">{{ __('Other') }}</option>
+                  @foreach($acquisitionMethods as $code => $label)
+                  <option value="{{ $code }}" @selected(old('acquisition_method') == $code)>{{ __($label) }}</option>
+                  @endforeach
                 </select>
               </div>
               <div class="col-md-4">
@@ -158,10 +153,9 @@
               <label class="form-label">{{ __('Significance') }}</label>
               <select name="heritage_significance" class="form-select">
                 <option value="">{{ __('-- Select --') }}</option>
-                <option value="exceptional">{{ __('Exceptional') }}</option>
-                <option value="high">{{ __('High') }}</option>
-                <option value="medium">{{ __('Medium') }}</option>
-                <option value="low">{{ __('Low') }}</option>
+                @foreach($heritageSignificances as $code => $label)
+                <option value="{{ $code }}" @selected(old('heritage_significance') == $code)>{{ __($label) }}</option>
+                @endforeach
               </select>
             </div>
             <div class="mb-3">
@@ -176,11 +170,9 @@
               <label class="form-label">{{ __('Condition') }}</label>
               <select name="condition_rating" class="form-select">
                 <option value="">{{ __('-- Select --') }}</option>
-                <option value="excellent">{{ __('Excellent') }}</option>
-                <option value="good">{{ __('Good') }}</option>
-                <option value="fair">{{ __('Fair') }}</option>
-                <option value="poor">{{ __('Poor') }}</option>
-                <option value="critical">{{ __('Critical') }}</option>
+                @foreach($conditionRatings as $code => $label)
+                <option value="{{ $code }}" @selected(old('condition_rating') == $code)>{{ __($label) }}</option>
+                @endforeach
               </select>
             </div>
           </div>

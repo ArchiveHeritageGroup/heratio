@@ -36,6 +36,37 @@ use Illuminate\Support\Facades\DB;
  */
 class SpectrumController extends Controller
 {
+    /** Per-request cache of resolved dropdown option lists (taxonomy => [code => label]). */
+    private array $dropdownCache = [];
+
+    /**
+     * Resolve a controlled-vocabulary option list from ahg_dropdown, falling
+     * back to the supplied hardcoded map when the table or taxonomy is
+     * missing/empty. #1355 - mirrors the ProvenanceService reader.
+     *
+     * @param array<string,string> $fallback code => label
+     * @return array<string,string> code => label
+     */
+    private function dropdownOptions(string $taxonomy, array $fallback): array
+    {
+        if (array_key_exists($taxonomy, $this->dropdownCache)) {
+            return $this->dropdownCache[$taxonomy];
+        }
+
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')) {
+            return $this->dropdownCache[$taxonomy] = $fallback;
+        }
+
+        $rows = DB::table('ahg_dropdown')
+            ->where('taxonomy', $taxonomy)
+            ->where('is_active', 1)
+            ->orderBy('sort_order')
+            ->pluck('label', 'code')
+            ->all();
+
+        return $this->dropdownCache[$taxonomy] = (!empty($rows) ? $rows : $fallback);
+    }
+
     /**
      * Spectrum data for an IO: condition checks, valuations, and locations.
      */
@@ -208,7 +239,43 @@ class SpectrumController extends Controller
             try { if (\Illuminate\Support\Facades\Schema::hasTable('heritage_asset_class')) { $classes = DB::table('heritage_asset_class')->orderBy('name')->get(); } } catch (\Exception $e) {}
         }
 
-        return view('ahg-io-manage::spectrum.heritage', compact('io', 'asset', 'valuations', 'impairments', 'movements', 'journals', 'standards', 'classes'));
+        // #1355 - admin-managed controlled vocabularies (fall back to the
+        // formerly-hardcoded label maps when ahg_dropdown is absent/empty).
+        $recognitionStatuses = $this->dropdownOptions('spectrum_recognition_status', [
+            'pending'        => 'Pending',
+            'recognised'     => 'Recognised',
+            'not_recognised' => 'Not Recognised',
+        ]);
+        $measurementBases = $this->dropdownOptions('spectrum_measurement_basis', [
+            'cost'            => 'Cost',
+            'fair_value'      => 'Fair Value',
+            'nominal'         => 'Nominal',
+            'not_practicable' => 'Not Practicable',
+        ]);
+        $acquisitionMethods = $this->dropdownOptions('spectrum_acquisition_method', [
+            'purchase' => 'Purchase',
+            'donation' => 'Donation',
+            'bequest'  => 'Bequest',
+            'transfer' => 'Transfer',
+            'found'    => 'Found',
+            'exchange' => 'Exchange',
+            'other'    => 'Other',
+        ]);
+        $heritageSignificances = $this->dropdownOptions('spectrum_heritage_significance', [
+            'exceptional' => 'Exceptional',
+            'high'        => 'High',
+            'medium'      => 'Medium',
+            'low'         => 'Low',
+        ]);
+        $conditionRatings = $this->dropdownOptions('spectrum_condition_rating', [
+            'excellent' => 'Excellent',
+            'good'      => 'Good',
+            'fair'      => 'Fair',
+            'poor'      => 'Poor',
+            'critical'  => 'Critical',
+        ]);
+
+        return view('ahg-io-manage::spectrum.heritage', compact('io', 'asset', 'valuations', 'impairments', 'movements', 'journals', 'standards', 'classes', 'recognitionStatuses', 'measurementBases', 'acquisitionMethods', 'heritageSignificances', 'conditionRatings'));
     }
 
     /**

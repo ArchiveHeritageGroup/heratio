@@ -555,6 +555,16 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-semantic-search');
 
+        // #1355 - semantic-search "Add Term" controlled vocabularies (Domain /
+        // Relationship) live in ahg_dropdown so site admins manage them via the
+        // Dropdown Manager (skips itself once seeded; SemanticSearchController
+        // falls back to hardcoded lists until then).
+        try {
+            \AhgSemanticSearch\Services\SemanticSearchDropdownSeeder::seed();
+        } catch (\Throwable $e) {
+            // No DB or partial schema - seeder retries on next boot.
+        }
+
         // heratio#1210 - persistence layer for generative scholarship. The
         // curated discovery set is stored in ahg_scholarship_discovery so the
         // public page can render stable, browsable, citable discoveries instead

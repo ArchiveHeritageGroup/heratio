@@ -28,6 +28,7 @@ use AhgAuthorityResolution\Services\DecisionRecorder;
 use AhgAuthorityResolution\Services\FieldProvenanceWriter;
 use AhgAuthorityResolution\Services\Lookup\PrefillEngine;
 use AhgAuthorityResolution\Services\PromoteToMentionService;
+use AhgAuthorityResolution\Support\MentionVocabulary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -150,6 +151,8 @@ class AuthorityReviewController extends Controller
         return view('auth-res::queue', [
             'rows' => $rows,
             'counts' => $counts,
+            'entityTypes' => MentionVocabulary::ENTITY_TYPES,
+            'states' => array_merge(MentionVocabulary::MENTION_STATES, ['any']),
             'filterEntityType' => $entityType,
             'filterObjectId' => $objectId,
             'filterState' => $state,

@@ -258,16 +258,26 @@
                     <th><span class="visually-hidden">{{ __('Actions') }}</span></th>
                   </tr>
                 </thead>
+                @php
+                  // #1355 - related-actor relationship categories now come from
+                  // ahg_dropdown (taxonomy actor_relation_category) via
+                  // $formChoices['relationCategories']. Build the <option> markup
+                  // once so both the server-rendered row below and the JS-cloned
+                  // template row (see @push('js')) emit the same list.
+                  $relCatOptions = '<option value=""></option>';
+                  foreach (($formChoices['relationCategories'] ?? []) as $relCatCode => $relCatLabel) {
+                      $relCatOptions .= '<option value="' . e($relCatCode) . '">' . e(__($relCatLabel)) . '</option>';
+                  }
+                @endphp
                 <tbody>
                   <tr>
                     <td><input type="text" name="relatedActors[0][name]" class="form-control form-control-sm" placeholder="{{ __('Type to search...') }}"></td>
                     <td>
                       <select name="relatedActors[0][category]" class="form-select form-select-sm">
                         <option value=""></option>
-                        <option value="hierarchical">{{ __('Hierarchical') }}</option>
-                        <option value="temporal">{{ __('Temporal') }}</option>
-                        <option value="family">{{ __('Family') }}</option>
-                        <option value="associative">{{ __('Associative') }}</option>
+                        @foreach($formChoices['relationCategories'] ?? [] as $code => $label)
+                        <option value="{{ $code }}">{{ __($label) }}</option>
+                        @endforeach
                       </select>
                     </td>
                     <td><input type="text" name="relatedActors[0][type]" class="form-control form-control-sm"></td>
@@ -690,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('add-relactor-row')?.addEventListener('click', function() {
     var tr = document.createElement('tr');
     tr.innerHTML = '<td><input type="text" name="relatedActors[' + relActorIdx + '][name]" class="form-control form-control-sm" placeholder="Type to search..."></td>' +
-      '<td><select name="relatedActors[' + relActorIdx + '][category]" class="form-select form-select-sm"><option value=""></option><option value="hierarchical">Hierarchical</option><option value="temporal">Temporal</option><option value="family">Family</option><option value="associative">Associative</option></select></td>' +
+      '<td><select name="relatedActors[' + relActorIdx + '][category]" class="form-select form-select-sm">' + @json($relCatOptions) + '</select></td>' +
       '<td><input type="text" name="relatedActors[' + relActorIdx + '][type]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="relatedActors[' + relActorIdx + '][dates]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="relatedActors[' + relActorIdx + '][description]" class="form-control form-control-sm"></td>' +

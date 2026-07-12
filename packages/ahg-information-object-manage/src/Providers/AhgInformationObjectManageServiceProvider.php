@@ -28,13 +28,30 @@ class AhgInformationObjectManageServiceProvider extends ServiceProvider
         $this->ensureSecurityTable();
         $this->ensureTemplateExtensions();
 
-        // #1355 — provenance controlled vocabularies live in ahg_dropdown so
+        // #1355 - provenance controlled vocabularies live in ahg_dropdown so
         // site admins manage them via the Dropdown Manager (skips itself once
         // seeded; ProvenanceService falls back to hardcoded lists until then).
         try {
             \AhgInformationObjectManage\Services\ProvenanceDropdownSeeder::seed();
         } catch (\Throwable $e) {
-            // No DB or partial schema — seeder retries on next boot.
+            // No DB or partial schema - seeder retries on next boot.
+        }
+
+        $this->seedSpectrumDropdowns();
+    }
+
+    /**
+     * #1355 - move the SPECTRUM / GRAP heritage-form controlled vocabularies
+     * (recognition status, measurement basis, acquisition method, heritage
+     * significance, condition rating) into admin-managed ahg_dropdown
+     * taxonomies. Idempotent + guarded so a schema hiccup never kills boot.
+     */
+    private function seedSpectrumDropdowns(): void
+    {
+        try {
+            \AhgInformationObjectManage\Services\SpectrumDropdownSeeder::seed();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[ahg-io-manage] seedSpectrumDropdowns failed: ' . $e->getMessage());
         }
     }
 
