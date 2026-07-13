@@ -1,4 +1,4 @@
-@extends('theme::layouts.app')
+@extends('theme::layouts.1col')
 @section('title', __('Work Offline'))
 @push('meta')
     <link rel="manifest" href="/manifest.webmanifest">
