@@ -329,6 +329,13 @@ RULES:
 7. Respect POPIA / GDPR / applicable privacy law: do not reveal
    personally-identifiable information beyond what is already in the
    public catalogue description.
+8. Do NOT infer or state specific titles, authors, personal names, dates, or
+   holdings that are not written verbatim in a SOURCE. A general or vague
+   description (e.g. "science fiction and fantasy titles") does NOT mean any
+   particular work, author, or item is held - never name a specific work or
+   person unless a source explicitly lists it. If the user asks about something
+   specific and no source names it, reply exactly: "I could not find anything in
+   the catalogue matching your query."
 PROMPT;
     }
 
@@ -523,6 +530,19 @@ PROMPT;
             }
         }
 
+        // Enforce grounding: if the answer is not supported by the retrieved
+        // sources (hallucination / over-extrapolation of a vague description -
+        // e.g. inventing specific titles or authors a source never named), do
+        // NOT present it. Replace with an honest "not found" and drop the
+        // fabricated citations, so the assistant never surfaces invented
+        // records or attributes claims to sources that do not contain them.
+        $ungroundedSuppressed = false;
+        if ($success && $groundingResult !== null && !($groundingResult['grounded'] ?? true)) {
+            $reply   = 'I could not find anything in the catalogue matching your query.';
+            $sources = [];
+            $ungroundedSuppressed = true;
+        }
+
         // #1273: localize the English reply into the visitor's language via the MT route
         // (AnswerLocalizer -> gateway /translate), never a qwen "reply in X" prompt. The
         // grounding check above ran on the English reply; we translate only the presented
@@ -557,6 +577,9 @@ PROMPT;
         ));
         if ($groundingResult !== null && !($groundingResult['grounded'] ?? true)) {
             $flags[] = 'low_grounding';
+        }
+        if ($ungroundedSuppressed) {
+            $flags[] = 'ungrounded_suppressed';
         }
 
         // Persist user message
