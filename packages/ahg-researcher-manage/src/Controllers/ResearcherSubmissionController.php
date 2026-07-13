@@ -232,7 +232,20 @@ class ResearcherSubmissionController extends Controller
      */
     public function newSubmission()
     {
-        return view('ahg-researcher-manage::new-submission');
+        $culture = app()->getLocale();
+
+        $repositories = DB::table('repository')
+            ->join('actor_i18n', function ($join) use ($culture) {
+                $join->on('repository.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $culture);
+            })
+            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->orderBy('actor_i18n.authorized_form_of_name', 'asc')
+            ->get();
+
+        return view('ahg-researcher-manage::new-submission', [
+            'repositories' => $repositories,
+        ]);
     }
 
     /**

@@ -1186,6 +1186,27 @@ class PrivacyController extends Controller
         return view('privacy::pii-review', compact('entities', 'typeBadges'));
     }
 
+    public function piiEntityAction(Request $request)
+    {
+        $request->validate([
+            'entity_id' => 'required|integer|min:1',
+            'entity_action' => 'required|string|in:approved,redacted,rejected',
+        ]);
+
+        $id = (int) $request->input('entity_id');
+        if (Schema::hasTable('ahg_ner_entity')) {
+            DB::table('ahg_ner_entity')->where('id', $id)->update([
+                'status' => $request->input('entity_action'),
+                'reviewed_by' => (int) Auth::id(),
+                'reviewed_at' => now(),
+            ]);
+        }
+
+        session()->flash('success', 'Entity updated successfully');
+
+        return redirect()->route('ahgprivacy.pii-review');
+    }
+
     public function piiScanObject(Request $request)
     {
         $id = $request->input('id');

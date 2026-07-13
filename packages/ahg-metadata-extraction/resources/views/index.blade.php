@@ -110,7 +110,7 @@
                 <td><code class="small">{{ e($obj->mime_type ?? 'unknown') }}</code></td>
                 <td>{{ $obj->byte_size ? number_format($obj->byte_size / 1024, 1) . ' KB' : '-' }}</td>
                 <td>
-                  @if($obj->information_object_id)
+                  @if($obj->object_id ?? null)
                     {{ e(mb_substr($obj->record_title ?? 'Untitled', 0, 40)) }}
                   @else
                     <span class="text-muted">-</span>

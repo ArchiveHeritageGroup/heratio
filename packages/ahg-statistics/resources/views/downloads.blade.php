@@ -77,7 +77,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach(array_slice($topDownloads ?? [], 0, 15) as $idx => $item)
+                                @foreach(array_slice(collect($topDownloads ?? [])->all(), 0, 15) as $idx => $item)
                                     <tr>
                                         <td>{{ $idx + 1 }}</td>
                                         <td>

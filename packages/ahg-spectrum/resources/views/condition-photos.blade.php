@@ -97,9 +97,11 @@ $objectSlug = $resource->slug ?? '';
             </p>
         </div>
         <div class="btn-group">
-            <a href="{{ route('io.spectrum', ['slug' => $resource->slug ?? '']) }}" class="btn btn-secondary">
+            @if(!empty($objectSlug))
+            <a href="{{ route('io.spectrum', ['slug' => $objectSlug]) }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> {{ __('Back') }}
             </a>
+            @endif
         </div>
     </div>
 

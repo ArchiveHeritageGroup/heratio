@@ -140,6 +140,16 @@ class KbartService
         $limit = $limit ?? 50000;
         $culture = (string) app()->getLocale();
 
+        // library_serial is an optional module (LibrarySerialService guards every
+        // access with Schema::hasTable). Only join it when both the table and the
+        // library_item.serial_id column exist, otherwise the export hard-fails on
+        // installs that never provisioned the serials schema.
+        $hasSerial = Schema::hasTable('library_serial')
+            && Schema::hasColumn('library_item', 'serial_id');
+        // eisbn is likewise not present on every library_item schema; fall back
+        // to NULL so the electronic-ISSN column exports blank rather than 500ing.
+        $hasEisbn = Schema::hasColumn('library_item', 'eisbn');
+
         $query = DB::table('library_item')
             ->join('information_object', 'library_item.information_object_id', '=', 'information_object.id')
             ->leftJoin('information_object_i18n', function ($j) use ($culture) {
@@ -147,26 +157,39 @@ class KbartService
                     ->where('information_object_i18n.culture', '=', $culture);
             })
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
-            ->leftJoin('library_item_creator', 'library_item.id', '=', 'library_item_creator.library_item_id')
-            ->leftJoin('library_serial', 'library_item.serial_id', '=', 'library_serial.id')
-            ->select([
+            ->leftJoin('library_item_creator', 'library_item.id', '=', 'library_item_creator.library_item_id');
+
+        if ($hasSerial) {
+            $query->leftJoin('library_serial', 'library_item.serial_id', '=', 'library_serial.id');
+        }
+
+        // Rows are grouped by library_item.id, so library_item.* columns are
+        // functionally dependent on the group key, but columns pulled through the
+        // joins (title, language, first_author, title_url, serial frequency) are
+        // not - wrap those in ANY_VALUE() so the export stays valid under MySQL's
+        // ONLY_FULL_GROUP_BY sql_mode instead of erroring out.
+        $query->select([
                 'library_item.id as library_item_id',
-                'information_object_i18n.title as publication_title',
+                DB::raw('ANY_VALUE(information_object_i18n.title) as publication_title'),
                 'library_item.isbn',
                 'library_item.issn as print_identifier',
-                'library_item.eisbn as eisbn',
+                $hasEisbn
+                    ? 'library_item.eisbn as eisbn'
+                    : DB::raw('NULL as eisbn'),
                 'library_item.publisher',
                 'library_item.publication_date as date_monograph_published',
                 'library_item.doi',
                 'library_item.barcode as proprietary_id',
                 'library_item.material_type',
-                'information_object.source_culture as language',
+                DB::raw('ANY_VALUE(information_object.source_culture) as language'),
                 'library_item.edition',
                 'library_item.volume_designation as volume',
                 'library_item.responsibility_statement as author',
-                'library_item_creator.name as first_author',
-                'library_serial.frequency as rel_membership',
-                'slug.slug as title_url',
+                DB::raw('ANY_VALUE(library_item_creator.name) as first_author'),
+                $hasSerial
+                    ? DB::raw('ANY_VALUE(library_serial.frequency) as rel_membership')
+                    : DB::raw('NULL as rel_membership'),
+                DB::raw('ANY_VALUE(slug.slug) as title_url'),
                 'library_item.barcode',
             ]);
 

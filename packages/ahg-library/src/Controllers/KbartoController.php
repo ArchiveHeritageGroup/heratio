@@ -58,7 +58,7 @@ class KbartoController extends Controller
      *   end_date    YYYY-MM-DD
      *   limit       int (default 50 000)
      */
-    public function export(Request $request): Response
+    public function export(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $startDate = $request->query('start_date');
         $endDate   = $request->query('end_date');
@@ -78,7 +78,7 @@ class KbartoController extends Controller
     /**
      * Alias for export() so both /export and /export-csv work.
      */
-    public function exportCsv(Request $request): Response
+    public function exportCsv(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         return $this->export($request);
     }

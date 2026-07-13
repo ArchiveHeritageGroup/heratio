@@ -208,7 +208,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/ill/settings', [LibraryController::class, 'illSettings'])->name('library.ill-settings');
     Route::post('/library-manage/ill/settings', [LibraryController::class, 'illSettingsStore'])->name('library.ill-settings-store')->middleware('acl:update');
     Route::get('/opac/ill/create', [LibraryController::class, 'opacIllCreate'])->name('library.opac-ill-create');
-    Route::post('/opac/ill/create', [LibraryController::class, 'opacIllStore'])->name('library.ill-opac-store');
+    Route::post('/opac/ill/create', [LibraryController::class, 'opacIllStore'])->name('library.opac-ill-store');
 
     // ── ISBN ───────────────────────────────────────────────────────────────
     Route::get('/library-manage/isbn-lookup', [LibraryController::class, 'isbnLookup'])->name('library.isbn-lookup');
@@ -281,9 +281,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/library-manage/usage/subscriptions', [LibraryUsageController::class, 'subscriptionsStore'])->name('library.usage-subscriptions-store');
     Route::get('/library-manage/usage/subscriptions/test', [LibraryUsageController::class, 'testConnection'])->name('library.usage-subscriptions-test');
     Route::get('/library-manage/usage/export/{type}', [LibraryUsageController::class, 'export'])->name('library.usage-export')->where('type', 'PR|TR|TR_J1|TR_J3|DR|IR');
-    // Dotted-name alias: the tr/dr/index views reference route('library.usage.export');
-    // permissive constraint so lower-case report types (e.g. 'tr') resolve too.
-    Route::get('/library-manage/usage/export/{type}', [LibraryUsageController::class, 'export'])->name('library.usage.export')->where('type', '[A-Za-z0-9_]+');
+    // Dotted-name alias: the tr view references route('library.usage.export');
+    // distinct URI so it does not overwrite the hyphenated route above in the
+    // route collection, plus a permissive constraint so lower-case report types
+    // (e.g. 'tr') resolve too.
+    Route::get('/library-manage/usage/export-report/{type}', [LibraryUsageController::class, 'export'])->name('library.usage.export')->where('type', '[A-Za-z0-9_]+');
 });
 
 // OPAC

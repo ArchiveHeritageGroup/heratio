@@ -3739,7 +3739,7 @@ class MarketplaceService
     /**
      * Get the pending payout amount for a seller (earned minus already paid out).
      */
-    private function getSellerPendingPayoutAmount(int $sellerId): float
+    public function getSellerPendingPayoutAmount(int $sellerId): float
     {
         $paidOut = DB::table($this->payoutTable)
             ->where('seller_id', $sellerId)

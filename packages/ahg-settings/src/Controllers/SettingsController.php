@@ -3440,7 +3440,7 @@ class SettingsController extends Controller
         $dropdowns = collect();
         if (Schema::hasTable('ahg_dropdown')) {
             $dropdowns = DB::table('ahg_dropdown')
-                ->selectRaw('taxonomy as slug, MAX(taxonomy_label) as name, MAX(taxonomy_section) as description, COUNT(*) as value_count')
+                ->selectRaw('taxonomy as id, taxonomy as slug, MAX(taxonomy_label) as name, MAX(taxonomy_section) as description, COUNT(*) as value_count')
                 ->groupBy('taxonomy')
                 ->orderBy('taxonomy')
                 ->get();

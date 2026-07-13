@@ -127,6 +127,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 114. [Museum Collections Workflow and Spectrum Compliance (ahg-workflow)](#museum-collections-workflow-and-spectrum-compliance-ahg-workflow)
 115. [Vendor and Procurement Management (ahg-vendor)](#vendor-and-procurement-management-ahg-vendor)
 116. [Z39.50 / SRU Bibliographic Search and Copy Cataloguing (ahg-z3950)](#z3950-sru-bibliographic-search-and-copy-cataloguing-ahg-z3950)
+117. [Route Health Check - 2026-07-13](#route-health-check---2026-07-13)
 
 ---
 
@@ -2854,3 +2855,268 @@ Complete listing of the user-facing functionality across the Heratio platform an
 
 ### CLI Commands
 - `php artisan z3950:server {--host=0.0.0.0} {--port=210} {--timeout=30}` - Start the Z39.50 bibliographic server daemon (ISO 23950), binding the given host/port with a per-client socket timeout
+
+
+---
+
+## Route Health Check - 2026-07-13
+
+Automated authenticated link sweep (logged in as an administrator) of every parameterless GET route. Each link was hit and its HTTP status recorded. 3xx redirects that do not bounce to `/login` count as reachable (PASS).
+
+**Result: 1602 / 1790 links pass (89%). 188 fail.** 6 destructive/session-killing routes (logout, delete, purge) were excluded from the sweep.
+
+**Fixes applied - 2026-07-13:** all 29 code-related server-errors below were fixed and re-verified to return 200 in this release (view null-safety, undefined variables/routes, controller return-types, a private-method call, a route-name collision, built-out search-enhancement stub views, and defensive `hasTable` guards on the optional FRBR/BIBFRAME and KBART-serials scaffolds). The only server-errors still open are the 2 `/ric-api/*` entries, which are a dev-only infrastructure issue (the dev RiC Explorer service calls back to the prod host and times out) and work on prod. The remaining non-500 failures below (401/400/422/403 and most 302 -> /login) are expected behaviour: API endpoints that need a bearer token or query params, permission-gated actions, and separate login portals (MVA, OPAC-patron, CAS, OIDC). Note: the full 5-table `library_biblio_work` FRBR/BIBFRAME scaffold remains unmigrated (a separate feature task); the export pages now degrade gracefully instead of 500ing.
+
+| Status | Count | Meaning |
+|---|---|---|
+| 200 | 1398 | OK |
+| 302 | 187 | redirect (mostly OK) |
+| 301 | 38 | redirect (OK) |
+| 500 | 29 | Server Error - BUG |
+| 502 | 2 | Bad Gateway - upstream down |
+| 404 | 43 | Not Found |
+| 403 | 18 | Forbidden |
+| 401 | 39 | Unauthorized (API) |
+| 400 | 28 | Bad Request (needs params) |
+| 422 | 5 | needs params |
+| 429 | 1 | rate limit |
+| 405 | 1 | method |
+| 000 | 1 | timeout |
+
+### Server errors (500 / 502) - fix targets
+
+| Link | HTTP | Exception | Reason | Location |
+|---|---|---|---|---|
+| `/admin/data-migration/export` | 500 | ViewException | Undefined property: stdClass::$authorized_form_of_name (View: /usr/share/nginx/heratio-dev/packages/ahg-data-migration/resources/views/export.blade.ph | storage/framework/views/d94bfe77773959dc03dd1e4d38fe9e79.php:55 |
+| `/admin/data-migration/preservica/export` | 500 | ViewException | Undefined property: stdClass::$authorized_form_of_name (View: /usr/share/nginx/heratio-dev/packages/ahg-data-migration/resources/views/preservica-expo | storage/framework/views/2dd34771162349080e3ac594d442d983.php:52 |
+| `/admin/data-migration/preservica/import` | 500 | ViewException | Undefined property: stdClass::$authorized_form_of_name (View: /usr/share/nginx/heratio-dev/packages/ahg-data-migration/resources/views/preservica-impo | storage/framework/views/10f2aaeb1bb43846c8bdb5d63142beb9.php:61 |
+| `/admin/iiif-3d-reports/models` | 500 | ViewException | Undefined property: stdClass::$thumbnail_path (View: /usr/share/nginx/heratio-dev/packages/ahg-iiif-collection/resources/views/threeDReports/models.bl | storage/framework/views/5dc8841af28bea2b3af3997a548847d4.php:29 |
+| `/admin/metadata-extraction` | 500 | ViewException | Undefined property: stdClass::$information_object_id (View: /usr/share/nginx/heratio-dev/packages/ahg-metadata-extraction/resources/views/index.blade. | storage/framework/views/60e4313ee2fb6c7ed9bdd3b5752d57c6.php:116 |
+| `/admin/privacy/pii-review` | 500 | ViewException | Undefined property: stdClass::$object_slug (View: /usr/share/nginx/heratio-dev/packages/ahg-privacy/resources/views/pii-review.blade.php) | storage/framework/views/850542167bb0f911da5d9a24a573fb44.php:89 |
+| `/admin/settings/dropdown` | 500 | ViewException | Undefined property: stdClass::$id (View: /usr/share/nginx/heratio-dev/packages/ahg-settings/resources/views/ahgDropdown/index.blade.php) | storage/framework/views/d62770b49bacfaf2b42d79ae3dbc0e19.php:31 |
+| `/admin/spectrum/condition-photos` | 500 | ViewException | Missing required parameter for [Route: io.spectrum] [URI: spectrum/{slug}] [Missing parameter: slug]. (View: /usr/share/nginx/heratio-dev/packages/ahg | vendor/laravel/framework/src/Illuminate/Routing/Exceptions/UrlGenerationException.php:35 |
+| `/admin/spectrum/general-workflow` | 500 | ViewException | Attempt to read property "config_json" on array (View: /usr/share/nginx/heratio-dev/packages/ahg-spectrum/resources/views/general-workflow.blade.php) | storage/framework/views/117363dcbedc0cf4dce90659695d6bf9.php:6 |
+| `/admin/spectrum/label` | 500 | ViewException | Attempt to read property "slug" on null (View: /usr/share/nginx/heratio-dev/packages/ahg-spectrum/resources/views/label.blade.php) | storage/framework/views/f9f55100929af82861e0aafc2cfe36bd.php:1 |
+| `/bibframe/export` | 500 | QueryException | SQLSTATE[42S02]: Base table or view not found: 1146 Table 'heratio_dev.library_biblio_work' doesn't exist (Connection: heratio, Socket: /var/run/mysql | vendor/laravel/framework/src/Illuminate/Database/Connection.php:838 |
+| `/frbr/export` | 500 | QueryException | SQLSTATE[42S02]: Base table or view not found: 1146 Table 'heratio_dev.library_biblio_work' doesn't exist (Connection: heratio, Socket: /var/run/mysql | vendor/laravel/framework/src/Illuminate/Database/Connection.php:838 |
+| `/library-manage/kbart/export` | 500 | TypeError | AhgLibrary\Controllers\KbartoController::export(): Return value must be of type Illuminate\Http\Response, Symfony\Component\HttpFoundation\StreamedRes | packages/ahg-library/src/Controllers/KbartoController.php:75 |
+| `/library-manage/kbart/export-csv` | 500 | TypeError | AhgLibrary\Controllers\KbartoController::export(): Return value must be of type Illuminate\Http\Response, Symfony\Component\HttpFoundation\StreamedRes | packages/ahg-library/src/Controllers/KbartoController.php:75 |
+| `/library-manage/usage` | 500 | ViewException | Route [library.usage-export] not defined. (View: /usr/share/nginx/heratio-dev/packages/ahg-library/resources/views/usage/index.blade.php) | vendor/laravel/framework/src/Illuminate/Routing/UrlGenerator.php:534 |
+| `/library-manage/usage/dr` | 500 | ViewException | Route [library.usage-export] not defined. (View: /usr/share/nginx/heratio-dev/packages/ahg-library/resources/views/usage/dr.blade.php) | vendor/laravel/framework/src/Illuminate/Routing/UrlGenerator.php:534 |
+| `/marketplace/seller/payouts` | 500 | Error | Call to private method AhgMarketplace\Services\MarketplaceService::getSellerPendingPayoutAmount() from scope AhgMarketplace\Controllers\MarketplaceCon | packages/ahg-marketplace/src/Controllers/MarketplaceController.php:3321 |
+| `/opac/ill/create` | 500 | ViewException | Route [library.opac-ill-store] not defined. (View: /usr/share/nginx/heratio-dev/packages/ahg-library/resources/views/ill/patron-create.blade.php) | vendor/laravel/framework/src/Illuminate/Routing/UrlGenerator.php:534 |
+| `/researcher/submission/new` | 500 | ViewException | Undefined variable $repositories (View: /usr/share/nginx/heratio-dev/packages/ahg-researcher-manage/resources/views/new-submission.blade.php) | storage/framework/views/0fd5a6e0df5fffc3a4b924670c982d2f.php:41 |
+| `/ric-api/autocomplete` | 502 | - | upstream RiC API service not responding (infra, not code) |  |
+| `/ric-api/dashboard` | 502 | - | upstream RiC API service not responding (infra, not code) |  |
+| `/search-enhancement/admin-templates` | 500 | InvalidArgumentException | No hint path defined for [search]. | vendor/laravel/framework/src/Illuminate/View/FileViewFinder.php:111 |
+| `/search-enhancement/history` | 500 | InvalidArgumentException | No hint path defined for [search]. | vendor/laravel/framework/src/Illuminate/View/FileViewFinder.php:111 |
+| `/search-enhancement/save-search` | 500 | InvalidArgumentException | No hint path defined for [search]. | vendor/laravel/framework/src/Illuminate/View/FileViewFinder.php:111 |
+| `/search-enhancement/saved-searches` | 500 | InvalidArgumentException | No hint path defined for [search]. | vendor/laravel/framework/src/Illuminate/View/FileViewFinder.php:111 |
+| `/semantic-search-admin/test-expand` | 500 | InvalidArgumentException | No hint path defined for [search]. | vendor/laravel/framework/src/Illuminate/View/FileViewFinder.php:111 |
+| `/semantic-search/saved-searches` | 500 | ViewException | Route [search.index] not defined. (View: /usr/share/nginx/heratio-dev/packages/ahg-semantic-search/resources/views/saved-searches.blade.php) | vendor/laravel/framework/src/Illuminate/Routing/UrlGenerator.php:534 |
+| `/statistics/downloads` | 500 | ViewException | array_slice(): Argument #1 ($array) must be of type array, Illuminate\Support\Collection given (View: /usr/share/nginx/heratio-dev/packages/ahg-statis | storage/framework/views/3cee2faf31eb4a65130932d551c8c698.php:67 |
+| `/user/clipboard` | 500 | InvalidArgumentException | View [clipboard] not found. | vendor/laravel/framework/src/Illuminate/View/FileViewFinder.php:138 |
+| `/user/passwordEdit` | 500 | ViewException | Undefined variable $resource (View: /usr/share/nginx/heratio-dev/packages/ahg-user-manage/resources/views/password-edit.blade.php) | storage/framework/views/a1ab3f52490e1ca440022e14d411cda7.php:15 |
+| `/user/passwordReset` | 500 | ViewException | Undefined variable $resource (View: /usr/share/nginx/heratio-dev/packages/ahg-user-manage/resources/views/password-edit.blade.php) | storage/framework/views/a1ab3f52490e1ca440022e14d411cda7.php:15 |
+
+### 302 -> /login bounces (mostly expected: separate portals/guards - MVA, OPAC-patron, CAS, OIDC, heritage-contributor) - 21
+
+| Link | Why not 200 |
+|---|---|
+| `/admin/governance` | 302 -> /login (unexpected auth bounce) |
+| `/admin/governance/inferences` | 302 -> /login (unexpected auth bounce) |
+| `/admin/governance/models` | 302 -> /login (unexpected auth bounce) |
+| `/api/v1/provenance/coverage` | 302 -> /login (unexpected auth bounce) |
+| `/cas/login` | 302 -> /login (unexpected auth bounce) |
+| `/heritage/contributor/login` | 302 -> /login (unexpected auth bounce) |
+| `/heritage/login` | 302 -> /login (unexpected auth bounce) |
+| `/mva/claims` | 302 -> /login (unexpected auth bounce) |
+| `/mva/claims/new` | 302 -> /login (unexpected auth bounce) |
+| `/mva/legal/claims` | 302 -> /login (unexpected auth bounce) |
+| `/mva/legal/claims/new` | 302 -> /login (unexpected auth bounce) |
+| `/mva/legal/profile` | 302 -> /login (unexpected auth bounce) |
+| `/mva/practitioner/portal` | 302 -> /login (unexpected auth bounce) |
+| `/mva/profile` | 302 -> /login (unexpected auth bounce) |
+| `/oidc/login` | 302 -> /login (unexpected auth bounce) |
+| `/opac/patron/account` | 302 -> /login (unexpected auth bounce) |
+| `/opac/patron/fines` | 302 -> /login (unexpected auth bounce) |
+| `/opac/patron/holds` | 302 -> /login (unexpected auth bounce) |
+| `/opac/patron/loans` | 302 -> /login (unexpected auth bounce) |
+| `/research/inbox` | 302 -> /login (unexpected auth bounce) |
+| `/user/login` | 302 -> /login (unexpected auth bounce) |
+
+### 404 Not Found (missing page, disabled feature, or AJAX endpoint needing params) - 43
+
+| Link | Why not 200 |
+|---|---|
+| `/3d-models/preview-file` | 404 Not Found |
+| `/admin/ai/htr/fs-index/image` | 404 Not Found |
+| `/admin/ai/htr/fs-overlay/serve-cropped` | 404 Not Found |
+| `/admin/ai/htr/serve-image` | 404 Not Found |
+| `/admin/icip/community-view` | 404 Not Found |
+| `/admin/icip/consent-view` | 404 Not Found |
+| `/admin/icip/consultation-view` | 404 Not Found |
+| `/admin/icip/object-consent` | 404 Not Found |
+| `/admin/icip/object-consultations` | 404 Not Found |
+| `/admin/icip/object-icip` | 404 Not Found |
+| `/admin/icip/object-labels` | 404 Not Found |
+| `/admin/icip/object-notices` | 404 Not Found |
+| `/admin/icip/object-restrictions` | 404 Not Found |
+| `/admin/icip/report-community` | 404 Not Found |
+| `/admin/privacy/dsar-view` | 404 Not Found |
+| `/admin/spectrum/barcode/scan` | 404 Not Found |
+| `/admin/spectrum/export-annotated-photo` | 404 Not Found |
+| `/admin/spectrum/get-annotations` | 404 Not Found |
+| `/api-autocomplete` | 404 Not Found |
+| `/api-delete-file` | 404 Not Found |
+| `/api-upload` | 404 Not Found |
+| `/audit` | 404 Not Found |
+| `/embargo` | 404 Not Found |
+| `/extended-rights` | 404 Not Found |
+| `/home` | 404 Not Found |
+| `/homepage` | 404 Not Found |
+| `/index.php/ar3DModel/addHotspot` | 404 Not Found |
+| `/marketplace/seller/artist/edit` | 404 Not Found |
+| `/media/export-snippet` | 404 Not Found |
+| `/mva` | 404 Not Found |
+| `/opac` | 404 Not Found |
+| `/portable-export/download` | 404 Not Found |
+| `/research/evidence-viewer` | 404 Not Found |
+| `/research/viewCollection` | 404 Not Found |
+| `/rights-admin` | 404 Not Found |
+| `/share-link/new` | 404 Not Found |
+| `/sharepoint` | 404 Not Found |
+| `/sharepoint/columns` | 404 Not Found |
+| `/spectrum/chain` | 404 Not Found |
+| `/spectrum/dashboard` | 404 Not Found |
+| `/spectrum/export.csv` | 404 Not Found |
+| `/statistics/item` | 404 Not Found |
+| `/webhooks/whatsapp` | 404 Not Found |
+
+### 403 Forbidden (permission gate - not granted to this admin) - 18
+
+| Link | Why not 200 |
+|---|---|
+| `/api/docs` | 403 Forbidden (permission gate) |
+| `/api/openapi.json` | 403 Forbidden (permission gate) |
+| `/mva/officer/ai` | 403 Forbidden (permission gate) |
+| `/mva/officer/audit-log` | 403 Forbidden (permission gate) |
+| `/mva/officer/branding` | 403 Forbidden (permission gate) |
+| `/mva/officer/claims` | 403 Forbidden (permission gate) |
+| `/mva/officer/dashboard` | 403 Forbidden (permission gate) |
+| `/mva/officer/dashboard/export` | 403 Forbidden (permission gate) |
+| `/mva/officer/feedback` | 403 Forbidden (permission gate) |
+| `/mva/officer/mail` | 403 Forbidden (permission gate) |
+| `/mva/officer/org` | 403 Forbidden (permission gate) |
+| `/mva/officer/reports` | 403 Forbidden (permission gate) |
+| `/mva/officer/reports/management` | 403 Forbidden (permission gate) |
+| `/mva/officer/reports/management/download` | 403 Forbidden (permission gate) |
+| `/mva/officer/settings` | 403 Forbidden (permission gate) |
+| `/mva/officer/users` | 403 Forbidden (permission gate) |
+| `/research/copilot/answers` | 403 Forbidden (permission gate) |
+| `/vendor/transactions` | 403 Forbidden (permission gate) |
+
+### 401 Unauthorized (API endpoints requiring a bearer token) - 39
+
+| Link | Why not 200 |
+|---|---|
+| `/api/cataloguing/marc/export` | 401 Unauthorized (API token/guard) |
+| `/api/library/budgets` | 401 Unauthorized (API token/guard) |
+| `/api/library/orders` | 401 Unauthorized (API token/guard) |
+| `/api/library/serial-subscriptions` | 401 Unauthorized (API token/guard) |
+| `/api/library/serials` | 401 Unauthorized (API token/guard) |
+| `/api/library/vendors` | 401 Unauthorized (API token/guard) |
+| `/api/v1/accessions` | 401 Unauthorized (API token/guard) |
+| `/api/v1/donors` | 401 Unauthorized (API token/guard) |
+| `/api/v1/exhibitions` | 401 Unauthorized (API token/guard) |
+| `/api/v1/physicalobjects` | 401 Unauthorized (API token/guard) |
+| `/api/v1/research-bibliographies` | 401 Unauthorized (API token/guard) |
+| `/api/v1/research-outputs` | 401 Unauthorized (API token/guard) |
+| `/api/v1/research-projects` | 401 Unauthorized (API token/guard) |
+| `/api/v2/assets` | 401 Unauthorized (API token/guard) |
+| `/api/v2/audit` | 401 Unauthorized (API token/guard) |
+| `/api/v2/authorities` | 401 Unauthorized (API token/guard) |
+| `/api/v2/conditions` | 401 Unauthorized (API token/guard) |
+| `/api/v2/descriptions` | 401 Unauthorized (API token/guard) |
+| `/api/v2/events` | 401 Unauthorized (API token/guard) |
+| `/api/v2/exhibitions` | 401 Unauthorized (API token/guard) |
+| `/api/v2/identifiers/detect` | 401 Unauthorized (API token/guard) |
+| `/api/v2/identifiers/lookup` | 401 Unauthorized (API token/guard) |
+| `/api/v2/identifiers/validate` | 401 Unauthorized (API token/guard) |
+| `/api/v2/keys` | 401 Unauthorized (API token/guard) |
+| `/api/v2/marketplace/categories` | 401 Unauthorized (API token/guard) |
+| `/api/v2/marketplace/currencies` | 401 Unauthorized (API token/guard) |
+| `/api/v2/marketplace/search` | 401 Unauthorized (API token/guard) |
+| `/api/v2/privacy/breaches` | 401 Unauthorized (API token/guard) |
+| `/api/v2/privacy/dsars` | 401 Unauthorized (API token/guard) |
+| `/api/v2/repositories` | 401 Unauthorized (API token/guard) |
+| `/api/v2/scan/destinations` | 401 Unauthorized (API token/guard) |
+| `/api/v2/search` | 401 Unauthorized (API token/guard) |
+| `/api/v2/spectrum/events` | 401 Unauthorized (API token/guard) |
+| `/api/v2/spectrum/statistics` | 401 Unauthorized (API token/guard) |
+| `/api/v2/sync/changes` | 401 Unauthorized (API token/guard) |
+| `/api/v2/taxonomies` | 401 Unauthorized (API token/guard) |
+| `/api/v2/valuations` | 401 Unauthorized (API token/guard) |
+| `/api/v2/webhooks` | 401 Unauthorized (API token/guard) |
+| `/metrics` | 401 Unauthorized (API token/guard) |
+
+### 400 Bad Request (endpoints that need query params / request body) - 28
+
+| Link | Why not 200 |
+|---|---|
+| `/admin/dedupe/dismiss` | 400 Bad Request (needs params) |
+| `/admin/metadata-export/cidoc-crm` | 400 Bad Request (needs params) |
+| `/admin/metadata-export/cidoc-crm-actor` | 400 Bad Request (needs params) |
+| `/admin/metadata-export/cidoc-crm-term` | 400 Bad Request (needs params) |
+| `/admin/metadata-export/premis` | 400 Bad Request (needs params) |
+| `/admin/ric/export/jsonld` | 400 Bad Request (needs params) |
+| `/admin/ric/lookup-external` | 400 Bad Request (needs params) |
+| `/admin/sparql` | 400 Bad Request (needs params) |
+| `/api/museum/vocabulary-search` | 400 Bad Request (needs params) |
+| `/api/oai` | 400 Bad Request (needs params) |
+| `/api/records/search` | 400 Bad Request (needs params) |
+| `/api/resolver` | 400 Bad Request (needs params) |
+| `/api/ric/v1/graph` | 400 Bad Request (needs params) |
+| `/api/ric/v1/sparql` | 400 Bad Request (needs params) |
+| `/api/search/io` | 400 Bad Request (needs params) |
+| `/api/sparql` | 400 Bad Request (needs params) |
+| `/api/v1/informationobjects/search` | 400 Bad Request (needs params) |
+| `/condition/photo` | 400 Bad Request (needs params) |
+| `/federation/search` | 400 Bad Request (needs params) |
+| `/informationobject/treeview` | 400 Bad Request (needs params) |
+| `/informationobject/treeview-data` | 400 Bad Request (needs params) |
+| `/media/snippets` | 400 Bad Request (needs params) |
+| `/oembed` | 400 Bad Request (needs params) |
+| `/term/export/skos` | 400 Bad Request (needs params) |
+| `/term/export/skos/jsonld` | 400 Bad Request (needs params) |
+| `/term/export/skos/ntriples` | 400 Bad Request (needs params) |
+| `/term/export/skos/rdf-xml` | 400 Bad Request (needs params) |
+| `/term/export/skos/turtle` | 400 Bad Request (needs params) |
+
+### 422 Unprocessable (needs params) - 5
+
+| Link | Why not 200 |
+|---|---|
+| `/admin/chatbot/preservation-knowledge` | 422 Unprocessable (needs params) |
+| `/api/ric/ground` | 422 Unprocessable (needs params) |
+| `/api/search/semantic` | 422 Unprocessable (needs params) |
+| `/iiif/auth/2/probe` | 422 Unprocessable (needs params) |
+| `/iiif/content-state/decode` | 422 Unprocessable (needs params) |
+
+### 405 Method - 1
+
+| Link | Why not 200 |
+|---|---|
+| `/sharepoint/webhook` | 405 Method Not Allowed |
+
+### 429 Rate limited - 1
+
+| Link | Why not 200 |
+|---|---|
+| `/discovery/pageindex/api` | 429 Too Many Requests (rate limit) |
+
+### Timeout - 1
+
+| Link | Why not 200 |
+|---|---|
+| `/discoveries` | no response / timeout |

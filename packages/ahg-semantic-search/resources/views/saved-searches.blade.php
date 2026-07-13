@@ -54,7 +54,7 @@
         <td>
           @php
             $params = json_decode($search->search_params ?? '{}', true) ?: [];
-            $runUrl = route('search.index') . '?' . http_build_query($params);
+            $runUrl = route('search') . '?' . http_build_query($params);
           @endphp
           <a href="{{ $runUrl }}" class="btn btn-primary btn-sm" title="{{ __('Run') }}">
             <i class="fa fa-play"></i> {{ __('Run') }}
@@ -77,7 +77,7 @@
 @endif
 
 <div class="mt-3">
-  <a href="{{ route('search.index') }}" class="btn btn-secondary">
+  <a href="{{ route('search') }}" class="btn btn-secondary">
     <i class="fa fa-search me-1"></i>{{ __('Browse Records') }}
   </a>
 </div>

@@ -1,16 +1,16 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('General Workflow') . ': ' . ($workflowConfig->name ?? ucwords(str_replace('_', ' ', $procedureType))))
+@section('title', __('General Workflow') . ': ' . ($workflowConfig['name'] ?? ucwords(str_replace('_', ' ', $procedureType))))
 
 @section('content')
 
 @php
-$configData = $workflowConfig ? json_decode($workflowConfig->config_json, true) : null;
+$configData = is_array($workflowConfig) ? $workflowConfig : null;
 $steps = $configData['steps'] ?? [];
 $states = $configData['states'] ?? [];
 $transitions = $configData['transitions'] ?? [];
 
-$currentStateName = $currentState->current_state ?? ($configData['initial_state'] ?? 'pending');
+$currentStateName = $currentState ?? ($configData['initial_state'] ?? 'pending');
 
 // Get available transitions from current state
 $availableTransitions = [];
@@ -21,7 +21,7 @@ foreach ($transitions as $transKey => $transDef) {
 }
 @endphp
 
-<h1>{{ __('General Workflow') }}: {{ $workflowConfig->name ?? ucwords(str_replace('_', ' ', $procedureType)) }}</h1>
+<h1>{{ __('General Workflow') }}: {{ $workflowConfig['name'] ?? ucwords(str_replace('_', ' ', $procedureType)) }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
@@ -74,7 +74,7 @@ foreach ($transitions as $transKey => $transDef) {
         <!-- Current Status Card -->
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">{{ $workflowConfig->name }}</h5>
+                <h5 class="mb-0">{{ $workflowConfig['name'] ?? ucwords(str_replace('_', ' ', $procedureType)) }}</h5>
                 <span class="badge bg-primary fs-6">{{ ucwords(str_replace('_', ' ', $currentStateName)) }}</span>
             </div>
             <div class="card-body">
@@ -193,7 +193,7 @@ foreach ($transitions as $transKey => $transDef) {
                 <h6 class="mb-0">{{ __('Activity History') }}</h6>
             </div>
             <div class="card-body">
-                @if ($history->isEmpty())
+                @if (empty($history))
                 <div class="alert alert-info mb-0">
                     {{ __('No activity recorded yet. Use the actions above to start the workflow.') }}
                 </div>

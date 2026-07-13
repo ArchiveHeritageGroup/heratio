@@ -1,17 +1,21 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Print Labels') . ': ' . ($resource->title ?? $resource->slug))
+@section('title', __('Print Labels') . ': ' . ($resource?->title ?? $resource?->slug ?? ''))
 
 @section('content')
 
-@php
-use Illuminate\Support\Facades\DB;
+@if (!$resource)
+<div class="alert alert-info">
+    {{ __('Select a record to print labels for.') }}
+</div>
+@else
 
+@php
 $objectId = $resource->id;
 
 function safeSpectrumQuery($table, $objectId, $column) {
     try {
-        return DB::table($table)->where('information_object_id', $objectId)->value($column);
+        return \Illuminate\Support\Facades\DB::table($table)->where('information_object_id', $objectId)->value($column);
     } catch (\Exception $e) {
         return null;
     }
@@ -20,7 +24,7 @@ function safeSpectrumQuery($table, $objectId, $column) {
 $sector = 'archive';
 $sectorConfig = null;
 try {
-    $sectorConfig = DB::table('display_object_config')
+    $sectorConfig = \Illuminate\Support\Facades\DB::table('display_object_config')
         ->where('object_id', $objectId)
         ->value('object_type');
 } catch (\Exception $e) {}
@@ -296,5 +300,7 @@ function downloadLabel() {
     }
 }
 </script>
+
+@endif
 
 @endsection

@@ -84,12 +84,16 @@ class FrbrController extends Controller
      */
     public function export(): Response
     {
-        $works = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->select(['id', 'title', 'author', 'created_at'])
-            ->orderBy('created_at', 'desc')
-            ->limit(200)
-            ->get();
+        // The library_biblio_work scaffold is optional - render an empty
+        // export list gracefully when it has not been provisioned.
+        $works = \Illuminate\Support\Facades\Schema::connection('heratio')->hasTable('library_biblio_work')
+            ? DB::connection('heratio')
+                ->table('library_biblio_work')
+                ->select(['id', 'title', 'author', 'created_at'])
+                ->orderBy('created_at', 'desc')
+                ->limit(200)
+                ->get()
+            : collect();
 
         return response()->view('ahg-biblio-frbr::export', [
             'works' => $works,

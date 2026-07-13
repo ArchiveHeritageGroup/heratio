@@ -553,7 +553,12 @@ class UserController extends Controller
      */
     public function passwordEdit()
     {
-        return view('ahg-user-manage::password-edit');
+        $resource = $this->service->getById(auth()->id());
+        if (! $resource) {
+            abort(404);
+        }
+
+        return view('ahg-user-manage::password-edit', compact('resource'));
     }
 
     /**
@@ -580,7 +585,12 @@ class UserController extends Controller
             return redirect()->route('user.profile')->with('success', 'Password updated successfully.');
         }
 
-        return view('ahg-user-manage::password-edit');
+        $resource = $this->service->getById(auth()->id());
+        if (! $resource) {
+            abort(404);
+        }
+
+        return view('ahg-user-manage::password-edit', compact('resource'));
     }
 
     /**

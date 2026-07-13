@@ -28,7 +28,7 @@
         <td>{{ e($m->object_title ?? '-') }}</td>
         <td><code>{{ strtoupper($m->format ?? '-') }}</code></td>
         <td class="text-end">@php $b=$m->file_size??0;$u=['B','KB','MB','GB'];$p=floor(($b?log($b):0)/log(1024));echo round($b/pow(1024,min($p,3)),1).' '.$u[min($p,3)]; @endphp</td>
-        <td class="text-center">@if($m->thumbnail_path)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-muted"></i>@endif</td>
+        <td class="text-center">@if($m->thumbnail_path ?? null)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-muted"></i>@endif</td>
         <td class="text-center">@if($m->ar_enabled ?? false)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-muted"></i>@endif</td>
         <td class="text-center">@if($m->is_public ?? true)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-muted"></i>@endif</td>
       </tr>

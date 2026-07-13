@@ -261,7 +261,7 @@
 </div>
 
 @if($item)
-<script @php echo $nattr @endphp>
+<script nonce="{{ csp_nonce() }}">
 (function() {
   // Toggle sections based on item type
   var typeSelect = document.getElementById('itemType');

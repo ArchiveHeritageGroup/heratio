@@ -85,7 +85,7 @@ $typeBadges = [
                                 <code>{{ $entity->entity_value }}</code>
                             </td>
                             <td>
-                                <a href="/index.php/{{ $entity->object_slug }}" target="_blank">
+                                <a href="/index.php/{{ $entity->object_slug ?? '' }}" target="_blank">
                                     {{ substr($entity->object_title ?? 'Untitled', 0, 50) }}
                                     @if(strlen($entity->object_title ?? '') > 50)...@endif
                                 </a>

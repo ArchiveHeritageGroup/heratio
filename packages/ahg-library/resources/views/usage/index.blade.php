@@ -53,7 +53,7 @@
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link @if($reportType === 'TR') active @endif"
-               href="{{ route('library.usage-tr', ['from' => $fromDate, 'to' => $toDate]) }}"
+               href="{{ route('library.usage.title-report', ['from' => $fromDate, 'to' => $toDate]) }}"
                role="tab">
                 TR — Title
             </a>

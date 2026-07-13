@@ -95,7 +95,7 @@
 
 </div>
 
-<script @php echo $nattr @endphp>
+<script nonce="{{ csp_nonce() }}">
 (function() {
   var searchInput = document.getElementById('parentSearch');
   var hiddenInput = document.getElementById('parentObjectId');

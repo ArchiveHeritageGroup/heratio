@@ -59,7 +59,7 @@
           <select class="form-select" id="target_repository" name="target_repository">
             <option value="">-- Select repository --</option>
             @foreach($repositories ?? [] as $repo)
-              <option value="{{ $repo->id }}">{{ $repo->authorized_form_of_name }}</option>
+              <option value="{{ $repo->id }}">{{ $repo->name ?? $repo->authorized_form_of_name ?? ('#' . $repo->id) }}</option>
             @endforeach
           </select>
         </div>
