@@ -38,4 +38,11 @@ Turns "the title is X" into "on date D, Agent M (v1.2) produced X at 0.71 confid
 
 Platform already models provenance, PREMIS-style events, fixity, digital-object representations, role-based audit; the AI-metadata pattern reuses that rather than a parallel system. AI services (OCR/HTR, NER, summarisation) route through a governed gateway that returns model identity, version and confidence per result, so provenance + confidence are captured at generation, not reconstructed. Rights on AI-touched objects expressed as machine-enforceable ODRL policies. Costs to be honest about: human-verification gating consumes scarce professional time (target by risk, not uniform); confidence + per-Event provenance grows metadata volume (negligible vs content); model-version identifiers depend on vendor disclosure (opacity is itself a preservation risk worth recording); significant-property definitions for AI outputs are not yet standardised (community work opportunity under PREMIS).
 
+## Key standards (verified editions, 2026-07)
+
+- **OAIS** - current edition is **ISO 14721:2025** (= CCSDS 650.0-M-3, 3rd edn, Magenta Book, published Dec 2024). This supersedes the 2012 second edition (ISO 14721:2012 / CCSDS 650.0-M-2). Cite the 2025/CCSDS-650.0-M-3 edition. Three information packages (SIP/AIP/DIP); six functional entities (Ingest, Archival Storage, Data Management, Administration, Preservation Planning, Access).
+- **PREMIS** - **Data Dictionary v3.0**, Library of Congress, 10 June 2015 (current). Five entities: Intellectual Entities, Objects, Events, Agents, Rights.
+- **ISO/IEC 42001:2023** - AI management system standard (documented, auditable, human-overseen AI).
+- **Colavizza, Blanke, Jeurgens & Noordegraaf (2022)** 'Archives and AI: an overview of current debates and future perspectives', *Journal on Computing and Cultural Heritage*, 15(1), Article 4, doi:10.1145/3479010.
+
 See [[project_cfp_watch_2027]], and the companion docs `preservation-in-ai-archives.md` and `indigenous-knowledge-rights-in-archives.md`.
