@@ -36,6 +36,12 @@ BACKUP_DIR="${BACKUP_DIR:-/var/backups/fuseki}"
 EXTRACT_DIR="${EXTRACT_DIR:-/tmp/ric_extract}"
 LOG_FILE="${LOG_FILE:-/var/log/ric_sync.log}"
 
+# Post-sync TDB2 compaction — reclaims dead space so /ric never re-bloats.
+# TDB2 never reclaims in place: every load (and even CLEAR ALL) appends, so
+# without this the store grows unbounded until queries thrash (272G incident).
+COMPACT_AFTER_SYNC="${RIC_COMPACT_AFTER_SYNC:-true}"
+COMPACT_POLL_TIMEOUT="${RIC_COMPACT_POLL_TIMEOUT:-3600}"
+
 # Source DB — prefer RIC_SOURCE_DB_* (jurisdiction-neutral), fall back to
 # ATOM_DB_* (legacy hybrid-install names). The Python extractor still reads
 # the ATOM_DB_* names, so we export both sets pointing at the same values.
@@ -65,6 +71,8 @@ BACKUP=false
 LINK_AUTHORITIES=false
 SPECIFIC_FONDS=""
 STATUS_ONLY=false
+FORCE_COMPACT=false
+NO_COMPACT=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -76,7 +84,9 @@ while [[ $# -gt 0 ]]; do
         --link-authorities) LINK_AUTHORITIES=true; shift ;;
         --fonds) SPECIFIC_FONDS="$2"; shift 2 ;;
         --status) STATUS_ONLY=true; shift ;;
-        --help) 
+        --compact) FORCE_COMPACT=true; shift ;;
+        --no-compact) NO_COMPACT=true; shift ;;
+        --help)
             echo "Usage: $0 [options]"
             echo "Options:"
             echo "  --clear            Clear triplestore before sync"
@@ -86,6 +96,8 @@ while [[ $# -gt 0 ]]; do
             echo "  --link-authorities Run authority linking after sync"
             echo "  --cron             Silent mode for cron jobs"
             echo "  --status           Show triplestore status"
+            echo "  --compact          Force TDB2 compaction after sync"
+            echo "  --no-compact       Skip the post-sync compaction"
             exit 0
             ;;
         *) echo "Unknown option: $1"; exit 1 ;;
@@ -131,7 +143,7 @@ check_prerequisites() {
 # Get triplestore status
 get_status() {
     local count=$(curl -s -u "${FUSEKI_USER}:${FUSEKI_PASS}" \
-        -X POST "${FUSEKI_URL}/$/ping" \
+        -X POST "${FUSEKI_URL}/${FUSEKI_DATASET}/query" \
         -H "Content-Type: application/sparql-query" \
         -d "SELECT (COUNT(*) as ?count) WHERE { ?s ?p ?o }" \
         | grep -oP '"value"\s*:\s*"\K[0-9]+' | head -1)
@@ -161,7 +173,7 @@ LIMIT 15'
     log ""
     log "Entities by type:"
     curl -s -u "${FUSEKI_USER}:${FUSEKI_PASS}" \
-        -X POST "${FUSEKI_URL}/$/ping" \
+        -X POST "${FUSEKI_URL}/${FUSEKI_DATASET}/query" \
         -H "Content-Type: application/sparql-query" \
         -H "Accept: text/csv" \
         -d "$query" | tail -n +2 | while IFS=, read type count; do
@@ -182,7 +194,7 @@ GROUP BY ?actType'
     log ""
     log "Activity types:"
     curl -s -u "${FUSEKI_USER}:${FUSEKI_PASS}" \
-        -X POST "${FUSEKI_URL}/$/ping" \
+        -X POST "${FUSEKI_URL}/${FUSEKI_DATASET}/query" \
         -H "Content-Type: application/sparql-query" \
         -H "Accept: text/csv" \
         -d "$spectrum_query" | tail -n +2 | while IFS=, read type count; do
@@ -227,6 +239,52 @@ clear_triplestore() {
         -d "CLEAR ALL"
     
     log "Triplestore cleared"
+}
+
+# Compact the TDB2 store to reclaim dead space. TDB2 never reclaims in place —
+# every load (and even CLEAR ALL) appends, so without periodic compaction the
+# /ric store grows unbounded until queries thrash (the 272G bloat incident).
+# Online compaction writes a fresh generation of live triples only; deleteOld
+# discards the old one. It runs async server-side, so we poll until it clears.
+compact_triplestore() {
+    log "Compacting ${FUSEKI_DATASET} (reclaim dead space)..."
+
+    local resp code body taskid
+    resp=$(curl -s -w '\n%{http_code}' -u "${FUSEKI_USER}:${FUSEKI_PASS}" \
+        -X POST "${FUSEKI_URL}/$/compact/${FUSEKI_DATASET}?deleteOld=true")
+    code=$(printf '%s' "$resp" | tail -n1)
+    body=$(printf '%s' "$resp" | sed '$d')
+    if [ "$code" != "200" ]; then
+        log_error "Compaction request failed (HTTP ${code:-000}); run manually: POST ${FUSEKI_URL}/\$/compact/${FUSEKI_DATASET}?deleteOld=true"
+        return 1
+    fi
+
+    taskid=$(printf '%s' "$body" | grep -oE '"taskId"[[:space:]]*:[[:space:]]*"[0-9]+"' | grep -oE '[0-9]+' | head -1)
+    if [ -z "$taskid" ]; then
+        log "Compaction started (no task id returned) — not polling."
+        return 0
+    fi
+
+    # Poll the specific task for its "finished" field. Jena does NOT remove a
+    # completed Compact task from /$/tasks, so we must detect completion via the
+    # "finished" timestamp, not the task's absence. Never fail the sync over a
+    # slow compaction — the data load already succeeded.
+    local waited=0 detail
+    while [ "$waited" -lt "$COMPACT_POLL_TIMEOUT" ]; do
+        detail=$(curl -s -u "${FUSEKI_USER}:${FUSEKI_PASS}" "${FUSEKI_URL}/$/tasks/${taskid}")
+        if printf '%s' "$detail" | grep -q '"finished"'; then
+            if printf '%s' "$detail" | grep -qE '"success"[[:space:]]*:[[:space:]]*true'; then
+                log "Compaction finished OK (waited ${waited}s)"
+            else
+                log_error "Compaction finished but reported failure: $detail"
+            fi
+            return 0
+        fi
+        sleep 15
+        waited=$((waited + 15))
+    done
+    log "Compaction still running after ${COMPACT_POLL_TIMEOUT}s; left running in background — check ${FUSEKI_URL}/\$/tasks/${taskid}"
+    return 0
 }
 
 # Get list of fonds
@@ -385,6 +443,21 @@ main() {
     log "  Skipped: $skipped records"
     log "  Total triples: $final_count"
     log "=========================================="
+
+    # Reclaim TDB2 dead space after a full load. Targeted --fonds syncs are
+    # small appends, so skip them unless --compact is given. Controlled by
+    # RIC_COMPACT_AFTER_SYNC (default true) / --compact / --no-compact.
+    local run_compact=false
+    if [ "$NO_COMPACT" != true ]; then
+        if [ "$FORCE_COMPACT" = true ]; then
+            run_compact=true
+        elif [ "$COMPACT_AFTER_SYNC" = "true" ] && [ -z "$SPECIFIC_FONDS" ]; then
+            run_compact=true
+        fi
+    fi
+    if [ "$run_compact" = true ]; then
+        compact_triplestore || log_error "Compaction step had an issue (sync data is intact)"
+    fi
 }
 
 # Run
