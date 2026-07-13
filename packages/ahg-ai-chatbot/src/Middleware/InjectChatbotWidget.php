@@ -48,9 +48,10 @@ class InjectChatbotWidget
     {
         if (!config('ahg-ai-chatbot.widget.enabled', true)) return false;
         if (!config('ahg-ai-chatbot.enabled', true)) return false;
-        // The assistant is the "AI Library Assistant" - only surface it when the
-        // Library plugin (ahgLibraryPlugin) is enabled.
+        // The assistant is the "AI Library Assistant" - only surface it when BOTH
+        // the Library plugin (ahgLibraryPlugin) and AI (ahgAIPlugin) are enabled.
         if (!\AhgCore\Services\MenuService::isPluginEnabled('ahgLibraryPlugin')) return false;
+        if (!\AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin')) return false;
         if (!Auth::check()) return false;
         if (!$response->headers->has('Content-Type')) return false;
         if (!str_contains((string) $response->headers->get('Content-Type'), 'text/html')) return false;

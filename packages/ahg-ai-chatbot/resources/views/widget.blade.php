@@ -4,7 +4,8 @@
 --}}
 @php
     $chatbotEnabled = config('ahg-ai-chatbot.enabled', true) && config('ahg-ai-chatbot.widget.enabled', true)
-        && \AhgCore\Services\MenuService::isPluginEnabled('ahgLibraryPlugin');
+        && \AhgCore\Services\MenuService::isPluginEnabled('ahgLibraryPlugin')
+        && \AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin');
     $showWidget    = $chatbotShowWidget ?? $chatbotEnabled;
 @endphp
 @if ($showWidget)
