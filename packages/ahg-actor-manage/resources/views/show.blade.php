@@ -129,8 +129,6 @@
 @endsection
 
 @section('right')
-  @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
-
   <nav>
     {{-- Clipboard --}}
     <h4 class="h5 mb-2">{{ __('Clipboard') }}</h4>
@@ -214,6 +212,10 @@
       <li class="breadcrumb-item active" aria-current="page">{{ $actor->authorized_form_of_name }}</li>
     </ol>
   </nav>
+
+  {{-- Digital object image, shown at the top of the record content (was a small
+       thumbnail in the right column; #actor-DO moved it to the top of the middle block). --}}
+  @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
 
   @if(!empty($translations))
     @include('ahg-core::_translation-links')
