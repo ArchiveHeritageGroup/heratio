@@ -519,15 +519,19 @@ PROMPT;
             $groundingResult = $this->guardrail->checkGrounding($reply, $sourceTexts);
             if ($groundingResult !== null) {
                 $groundingScore = (float) $groundingResult['grounding_score'];
-                $sources = array_map(function ($rec, int $i) {
-                    return [
-                        'title'      => $rec['title'],
-                        'identifier' => $rec['identifier'],
-                        'url'        => $rec['url'],
-                        'ref'        => '[' . ($i + 1) . ']',
-                    ];
-                }, $records, array_keys($records));
             }
+            // Build the source chips from the retrieved records regardless of
+            // whether the grounding check ran, so an inline [N] citation in the
+            // reply always has a matching source chip (no dangling [N]). When the
+            // answer is suppressed as ungrounded below, $sources is cleared again.
+            $sources = array_map(function ($rec, int $i) {
+                return [
+                    'title'      => $rec['title'],
+                    'identifier' => $rec['identifier'],
+                    'url'        => $rec['url'],
+                    'ref'        => '[' . ($i + 1) . ']',
+                ];
+            }, $records, array_keys($records));
         }
 
         // Enforce grounding: if the answer is not supported by the retrieved

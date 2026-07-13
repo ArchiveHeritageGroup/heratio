@@ -29,7 +29,7 @@
     </button>
 
     <div id="ahg-chatbot-panel" class="card shadow"
-         style="display:none;position:absolute;bottom:72px;left:0;width:380px;max-width:90vw;height:520px;max-height:80vh;">
+         style="display:none;position:absolute;bottom:72px;left:0;width:380px;max-width:90vw;height:520px;max-height:calc(100vh - 108px);">
         <div class="card-header d-flex align-items-center justify-content-between bg-primary text-white">
             <strong>{{ __('AI Library Assistant') }}</strong>
             <div>
@@ -39,7 +39,7 @@
                 <button type="button" id="ahg-chatbot-close" class="btn-close btn-close-white" aria-label="{{ __('Close') }}"></button>
             </div>
         </div>
-        <div id="ahg-chatbot-log" class="card-body overflow-auto" style="background:#f8f9fa;font-size:0.92rem;"></div>
+        <div id="ahg-chatbot-log" class="card-body overflow-auto" style="background:#f8f9fa;font-size:0.92rem;min-height:0;flex:1 1 auto;"></div>
         <div class="card-footer p-2">
             <form id="ahg-chatbot-form" class="d-flex gap-2 mb-2">
                 <input type="text" id="ahg-chatbot-input" class="form-control form-control-sm"
