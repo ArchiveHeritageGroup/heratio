@@ -118,7 +118,12 @@ class HeritageController extends Controller
                     ->where('is_enabled', 1)
                     ->where('show_on_landing', 1)
                     ->orderBy('start_year')
-                    ->get();
+                    ->get()
+                    // De-duplicate by (short_name, start_year): the seed ran more
+                    // than once with no unique key, so the same period could sit
+                    // in the table 5x and squash the "Explore by Time" bar.
+                    ->unique(fn ($p) => ($p->short_name ?? $p->name) . '|' . $p->start_year)
+                    ->values();
             }
         } catch (\Exception $e) {
             $timelinePeriods = collect();
@@ -295,7 +300,9 @@ class HeritageController extends Controller
                 $periods = DB::table('heritage_timeline_period')
                     ->where('is_enabled', 1)
                     ->orderBy('start_year')
-                    ->get();
+                    ->get()
+                    ->unique(fn ($p) => ($p->short_name ?? $p->name) . '|' . $p->start_year)
+                    ->values();
             }
         } catch (\Exception $e) {
             $periods = collect();
@@ -331,7 +338,9 @@ class HeritageController extends Controller
                 $periods = DB::table('heritage_timeline_period')
                     ->where('is_enabled', 1)
                     ->orderBy('start_year')
-                    ->get();
+                    ->get()
+                    ->unique(fn ($p) => ($p->short_name ?? $p->name) . '|' . $p->start_year)
+                    ->values();
 
                 $currentPeriod = DB::table('heritage_timeline_period')
                     ->where('id', $period_id)

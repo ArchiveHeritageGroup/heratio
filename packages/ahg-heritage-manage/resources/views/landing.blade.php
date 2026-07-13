@@ -102,29 +102,40 @@
             @if(isset($exploreCategories) && $exploreCategories->count() > 0)
                 @foreach($exploreCategories as $cat)
                 @php
-                    // Map category codes to routes
-                    $catUrl = match($cat->code) {
-                        'time'     => url('/heritage/timeline'),
-                        'place'    => url('/heritage/explore') . '?category=place',
-                        'people'   => url('/heritage/creators'),
-                        'theme'    => url('/heritage/explore') . '?category=theme',
-                        'format'   => url('/heritage/explore') . '?category=format',
-                        'trending' => url('/heritage/trending'),
-                        'graph'    => url('/heritage/graph'),
-                        default    => url('/heritage/explore') . '?category=' . $cat->code,
-                    };
-                    // Map Bootstrap Icons (bi-*) to Font Awesome equivalents
-                    $catIcon = match($cat->icon) {
-                        'bi-clock-history' => 'fas fa-clock',
-                        'bi-geo-alt'       => 'fas fa-map-marker-alt',
-                        'bi-people'        => 'fas fa-users',
-                        'bi-tag'           => 'fas fa-tag',
-                        'bi-collection'    => 'fas fa-layer-group',
-                        'bi-graph-up'      => 'fas fa-chart-line',
-                        'bi-diagram-3'     => 'fas fa-project-diagram',
-                        'bi-grid'          => 'fas fa-th',
-                        default            => 'fas fa-folder',
-                    };
+                    // A category may name its own target directly (source_type = 'url',
+                    // source_reference = a path or absolute URL). This lets an operator
+                    // point a topic at any real browse filter, e.g.
+                    // /glam/browse?topLevel=0&hasDigital=1, instead of being limited to
+                    // the fixed code map below. Falls back to the code map when unset.
+                    $catUrl = (($cat->source_type ?? null) === 'url' && !empty($cat->source_reference))
+                        ? (\Illuminate\Support\Str::startsWith($cat->source_reference, ['http://', 'https://'])
+                            ? $cat->source_reference
+                            : url($cat->source_reference))
+                        : match($cat->code) {
+                            'time'     => url('/heritage/timeline'),
+                            'place'    => url('/heritage/explore') . '?category=place',
+                            'people'   => url('/heritage/creators'),
+                            'theme'    => url('/heritage/explore') . '?category=theme',
+                            'format'   => url('/heritage/explore') . '?category=format',
+                            'trending' => url('/heritage/trending'),
+                            'graph'    => url('/heritage/graph'),
+                            default    => url('/heritage/explore') . '?category=' . $cat->code,
+                        };
+                    // Icon: a Font Awesome class ('fa...') is used verbatim; the older
+                    // Bootstrap Icon names (bi-*) are mapped to their FA equivalents.
+                    $catIcon = \Illuminate\Support\Str::startsWith($cat->icon ?? '', 'fa')
+                        ? $cat->icon
+                        : match($cat->icon) {
+                            'bi-clock-history' => 'fas fa-clock',
+                            'bi-geo-alt'       => 'fas fa-map-marker-alt',
+                            'bi-people'        => 'fas fa-users',
+                            'bi-tag'           => 'fas fa-tag',
+                            'bi-collection'    => 'fas fa-layer-group',
+                            'bi-graph-up'      => 'fas fa-chart-line',
+                            'bi-diagram-3'     => 'fas fa-project-diagram',
+                            'bi-grid'          => 'fas fa-th',
+                            default            => 'fas fa-folder',
+                        };
                 @endphp
                 <a href="{{ $catUrl }}" class="heritage-explore-btn">
                     <i class="{{ $catIcon }}"></i> {{ $cat->name }}
