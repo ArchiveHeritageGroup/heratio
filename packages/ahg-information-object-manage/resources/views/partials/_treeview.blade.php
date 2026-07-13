@@ -106,14 +106,33 @@
 @endswitch
 
 <style>
-  #treeview-tree li { padding: 2px 0; }
-  #treeview-tree .tv-node { cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-  #treeview-tree .tv-node:hover { background: rgba(0,0,0,.04); border-radius: 3px; }
-  #treeview-tree .tv-node.tv-active { font-weight: 700; color: #0d6efd; }
+  /* AtoM-style hierarchy: connector guide-lines + highlighted current record. */
+  #treeview-tree { position: relative; font-size: .9rem; }
+  #treeview-tree li { padding: 1px 0; position: relative; }
+  #treeview-tree .tv-node {
+    cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: block; padding: 2px 6px; border-radius: 3px; line-height: 1.4;
+  }
+  #treeview-tree .tv-node:hover { background: rgba(13,110,253,.07); }
+  /* Current record: highlighted band + left accent, like AtoM's active node. */
+  #treeview-tree .tv-node.tv-active {
+    font-weight: 600; color: #084298; background: #cfe2ff;
+    border-left: 3px solid #0d6efd; padding-left: 3px;
+  }
+  #treeview-tree .tv-node.tv-active:hover { background: #b6d4fe; }
   #treeview-tree .tv-toggle { cursor: pointer; display: inline-block; width: 16px; text-align: center; color: #6c757d; }
   #treeview-tree .tv-toggle:hover { color: #0d6efd; }
-  #treeview-tree .tv-children { padding-left: 15px; }
-  #treeview-tree .tv-load-more { cursor: pointer; color: #6c757d; font-style: italic; }
+  /* Nested children get a vertical guide-line + a horizontal tick to each node. */
+  #treeview-tree .tv-children { padding-left: 18px; position: relative; }
+  #treeview-tree .tv-children::before {
+    content: ""; position: absolute; left: 7px; top: 0; bottom: 10px;
+    border-left: 1px solid #ced4da;
+  }
+  #treeview-tree .tv-children > li::before {
+    content: ""; position: absolute; left: -11px; top: 13px; width: 10px;
+    border-top: 1px solid #ced4da;
+  }
+  #treeview-tree .tv-load-more { cursor: pointer; color: #6c757d; font-style: italic; padding-left: 6px; }
   #treeview-tree .tv-load-more:hover { color: #0d6efd; }
 </style>
 
