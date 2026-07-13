@@ -3,7 +3,8 @@
      Honours role gates: pass $chatbotShowWidget = false in the host view to suppress.
 --}}
 @php
-    $chatbotEnabled = config('ahg-ai-chatbot.enabled', true) && config('ahg-ai-chatbot.widget.enabled', true);
+    $chatbotEnabled = config('ahg-ai-chatbot.enabled', true) && config('ahg-ai-chatbot.widget.enabled', true)
+        && \AhgCore\Services\MenuService::isPluginEnabled('ahgLibraryPlugin');
     $showWidget    = $chatbotShowWidget ?? $chatbotEnabled;
 @endphp
 @if ($showWidget)
