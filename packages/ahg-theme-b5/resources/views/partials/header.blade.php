@@ -64,7 +64,7 @@
                 <li><a class="dropdown-item" href="{{ url('/admin/ric/queue') }}"><i class="fas fa-tasks me-2"></i>{{ __('Queue') }}</a></li>
                 <li><a class="dropdown-item" href="{{ url('/admin/ric/logs') }}"><i class="fas fa-history me-2"></i>{{ __('Sync Logs') }}</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{{ url('/admin/ahg-settings/section/?section=fuseki') }}"><i class="fas fa-cog me-2"></i>{{ __('Settings') }}</a></li>
+                <li><a class="dropdown-item" href="{{ route('settings.section', 'fuseki') }}"><i class="fas fa-cog me-2"></i>{{ __('Settings') }}</a></li>
                 <li><a class="dropdown-item" href="https://www.ica.org/standards/RiC/ontology" target="_blank"><i class="fas fa-book me-2"></i>{{ __('RiC-O Reference') }}</a></li>
               </ul>
             </li>

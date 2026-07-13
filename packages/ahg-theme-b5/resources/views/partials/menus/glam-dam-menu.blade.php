@@ -23,14 +23,14 @@
       <li><a class="dropdown-item" href="{{ url('/dam/browse') }}"><i class="fas fa-images me-2"></i>{{ __('Digital Assets') }}</a></li>
     @endif
     @if($hasCondition)
-      <li><a class="dropdown-item" href="{{ url('/condition/browse') }}"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition Assessments') }}</a></li>
+      <li><a class="dropdown-item" href="{{ url('/admin/ai/condition/browse') }}"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition Assessments') }}</a></li>
     @endif
     @if($hasProvenance)
-      <li><a class="dropdown-item" href="{{ url('/provenance/browse') }}"><i class="fas fa-route me-2"></i>{{ __('Provenance') }}</a></li>
+      <li><a class="dropdown-item" href="{{ url('/museum/reports/provenance') }}"><i class="fas fa-route me-2"></i>{{ __('Provenance') }}</a></li>
     @endif
     @if($hasReports)
       <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item" href="{{ url('/reports/dashboard') }}"><i class="fas fa-chart-bar me-2"></i>{{ __('Reports') }}</a></li>
+      <li><a class="dropdown-item" href="{{ url('/reports') }}"><i class="fas fa-chart-bar me-2"></i>{{ __('Reports') }}</a></li>
     @endif
   </ul>
 </li>
