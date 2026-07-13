@@ -547,6 +547,16 @@ PROMPT;
             $ungroundedSuppressed = true;
         }
 
+        // A reply that cites sources [N] while there are NO source chips to back
+        // them (empty retrieval - e.g. an unindexed catalogue) is fabricating
+        // records and citations. Suppress it rather than present invented
+        // holdings with dangling citation markers.
+        if ($success && !$ungroundedSuppressed && empty($sources)
+            && preg_match('/\[\d+\]/', (string) $reply)) {
+            $reply   = 'I could not find anything in the catalogue matching your query.';
+            $ungroundedSuppressed = true;
+        }
+
         // #1273: localize the English reply into the visitor's language via the MT route
         // (AnswerLocalizer -> gateway /translate), never a qwen "reply in X" prompt. The
         // grounding check above ran on the English reply; we translate only the presented
