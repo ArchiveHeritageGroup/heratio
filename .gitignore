@@ -109,3 +109,8 @@ docs/READVERTISEMENT*.pdf
 tmp/
 .env.bak-*
 .env.bak
+
+# Per-instance generated branding CSS (regenerated from theme settings; each
+# branded instance rewrites these, so tracking them blocked every deploy).
+public/css/ahg-theme-dynamic.css
+public/vendor/ahg-theme-b5/css/ahg-generated.css
