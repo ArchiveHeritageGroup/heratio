@@ -90,6 +90,28 @@ test.describe('Demo: Authority Record - full CRUD (complete record)', () => {
       await narrate(page, 'The change has been saved.', 2000);
     });
 
+    await test.step('Switch views: standard and Records in Contexts', async () => {
+      await page.goto(recordUrl);
+      await page.waitForLoadState('networkidle');
+      const stdBtn = page.locator('form:has(input[name="mode"][value="heratio"]) button[type="submit"]').first();
+      const ricBtn = page.locator('form:has(input[name="mode"][value="ric"]) button[type="submit"]').first();
+      await narrate(page, 'On the record we can switch between the standard ISAAR view and the Records in Contexts view.', 5200);
+      await stdBtn.scrollIntoViewIfNeeded();
+      await stdBtn.click();
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(1200);
+      await narrate(page, 'The RiC view places the record within the wider knowledge graph.', 3600);
+      await page.locator('form:has(input[name="mode"][value="ric"]) button[type="submit"]').first().click();
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(1500);
+      await narrate(page, 'Scrolling down reveals the Records in Contexts relationships and connections.', 4200);
+      await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }));
+      await page.waitForTimeout(3000);
+      // back to the standard view for the delete action
+      await page.locator('form:has(input[name="mode"][value="heratio"]) button[type="submit"]').first().click();
+      await page.waitForLoadState('networkidle');
+    });
+
     await test.step('Delete the record', async () => {
       await narrate(page, 'Finally we delete the record and confirm.', 2600);
       await page.getByRole('link', { name: 'Delete', exact: true }).first().click();
@@ -104,6 +126,6 @@ test.describe('Demo: Authority Record - full CRUD (complete record)', () => {
       await narrate(page, 'The record has been removed. That completes the full authority record lifecycle.', 4000);
     });
 
-    writeNarration(NAME);
+    writeNarration(NAME, 'Authority Record CRUD');
   });
 });

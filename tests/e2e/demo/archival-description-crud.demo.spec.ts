@@ -6,9 +6,11 @@
  * description, then views, edits and deletes it. Non-prod only.
  */
 import { test, expect } from '@playwright/test';
+import * as path from 'path';
 import { HERATIO_URL, isProd, expandAccordion, fillFields, startNarration, narrate, writeNarration } from './demo-helpers';
 
 const NAME = 'archival-description-crud';
+const IMAGE = path.join(path.dirname(new URL(import.meta.url).pathname), 'fixtures', 'demo-asset.jpg');
 
 test.describe('Demo: Archival Description - full CRUD (complete record)', () => {
   test.skip(isProd, 'Demo CRUD must run against a non-prod target - set HERATIO_URL to the dev box.');
@@ -18,6 +20,7 @@ test.describe('Demo: Archival Description - full CRUD (complete record)', () => 
     const title = `Demo Fonds ${Date.now()}`;
     const updatedTitle = `${title} (edited)`;
     let recordUrl = '';
+    let slug = '';
 
     await test.step('Browse Archival Descriptions', async () => {
       await narrate(page, 'In this walkthrough we create a complete archival description, filling every area, then view, edit and delete it.', 5400);
@@ -92,6 +95,7 @@ test.describe('Demo: Archival Description - full CRUD (complete record)', () => 
       await page.waitForLoadState('networkidle');
       await expect(page.locator('body')).toContainText(title, { timeout: 15000 });
       recordUrl = page.url();
+      slug = new URL(recordUrl).pathname.split('/').filter(Boolean).pop() || '';
       await narrate(page, 'The complete archival description has been created and is displayed across all its areas.', 4200);
     });
 
@@ -109,6 +113,35 @@ test.describe('Demo: Archival Description - full CRUD (complete record)', () => 
       await narrate(page, 'The change has been saved.', 2000);
     });
 
+    await test.step('Link a digital object', async () => {
+      await narrate(page, 'We can also link a digital object to the description by uploading an image.', 4400);
+      await page.goto(`${HERATIO_URL}/${slug}/object/addDigitalObject`);
+      await page.locator('input[name="digital_object"]').setInputFiles(IMAGE);
+      await narrate(page, 'Then we save it to attach the object to the record.', 2600);
+      await page.locator('input[type="submit"][value="Create"]').first().click();
+      await page.waitForLoadState('networkidle');
+      await expect(page.locator('img[src*="/uploads/r/"]').first()).toBeVisible({ timeout: 25000 });
+      await narrate(page, 'The digital object is now attached and shown on the record.', 3400);
+    });
+
+    await test.step('Switch views: standard and Records in Contexts', async () => {
+      await page.goto(recordUrl);
+      await page.waitForLoadState('networkidle');
+      await narrate(page, 'On the record we can switch between the standard ISAD view and the Records in Contexts view.', 5200);
+      await page.locator('form:has(input[name="mode"][value="heratio"]) button[type="submit"]').first().click();
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(1200);
+      await narrate(page, 'The RiC view places the record within the wider knowledge graph.', 3600);
+      await page.locator('form:has(input[name="mode"][value="ric"]) button[type="submit"]').first().click();
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(1500);
+      await narrate(page, 'Scrolling down reveals the Records in Contexts relationships and connections.', 4200);
+      await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }));
+      await page.waitForTimeout(3000);
+      await page.locator('form:has(input[name="mode"][value="heratio"]) button[type="submit"]').first().click();
+      await page.waitForLoadState('networkidle');
+    });
+
     await test.step('Delete the record', async () => {
       await narrate(page, 'Finally we delete the description and confirm.', 2600);
       page.on('dialog', (d) => d.accept());
@@ -122,6 +155,6 @@ test.describe('Demo: Archival Description - full CRUD (complete record)', () => 
       await narrate(page, 'The description has been removed. That completes the full archival description lifecycle.', 4200);
     });
 
-    writeNarration(NAME);
+    writeNarration(NAME, 'Archival Description CRUD');
   });
 });

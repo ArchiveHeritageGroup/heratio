@@ -61,6 +61,9 @@ class FeedbackController extends Controller
         }
 
         if ($request->isMethod('post')) {
+            // The per-record feedback form posts to feedback.general (no slug
+            // route param), so recover the record slug from the hidden field.
+            $slug = $slug ?: $request->input('slug');
             $request->validate([
                 'subject' => 'required|string|max:1024',
                 'remarks' => 'required|string',

@@ -18,6 +18,8 @@
 
 <form method="POST" action="{{ route('feedback.general') }}">
   @csrf
+  {{-- Carry the record slug so per-record feedback links to the right description --}}
+  <input type="hidden" name="slug" value="{{ $slug ?? '' }}">
 
   <div class="row justify-content-center">
     <div class="col-lg-8">

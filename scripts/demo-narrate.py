@@ -17,7 +17,10 @@ import json, os, glob, re, subprocess, sys, tempfile, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "test-results", "demo-videos")
 F5_URL = os.environ.get("F5_TTS_BASE_URL", "http://192.168.0.76:7860").rstrip("/")
-F5_VOICE = os.environ.get("DEMO_F5_VOICE", "johan-c2")
+# Use the 'johan' voice (neutral reference). The 'johan-c2' reference audio says
+# "...the glam and dam sector on the left hand side..." which F5 bleeds into cues
+# that are semantically close (browse/facets), so it is avoided for demos.
+F5_VOICE = os.environ.get("DEMO_F5_VOICE", "johan-demo")
 PIPER_BIN = "/opt/piper-tts/.venv/bin/piper"
 PIPER_MODEL = "/opt/piper-tts/voices/en_GB-alba-medium.onnx"
 
@@ -111,11 +114,21 @@ def main():
     if not videos:
         print("  no video.webm found - run the demo project first"); sys.exit(1)
 
+    narr_dir = os.path.join(ROOT, "test-results", "narration")
+    manifests = {f[:-5]: os.path.join(narr_dir, f)
+                 for f in (os.listdir(narr_dir) if os.path.isdir(narr_dir) else [])
+                 if f.endswith(".json")}
     for webm in videos:
-        name = re.sub(r"\..*$", "", os.path.basename(os.path.dirname(webm)))
-        manifest = os.path.join(ROOT, "test-results", "narration", f"{name}.json")
-        if not os.path.exists(manifest):
-            print(f"  {name}: no narration manifest, skipping"); continue
+        # Playwright truncates long result-dir names, so match the manifest by
+        # the spec-name prefix (strip the -<hash>... / .demo suffix) rather than
+        # an exact derive.
+        basename = os.path.basename(os.path.dirname(webm))
+        dir_key = re.split(r"\.demo|-[0-9a-f]{5,}", basename)[0].rstrip("-.")
+        name = next((m for m in manifests
+                     if m == dir_key or m.startswith(dir_key) or dir_key.startswith(m)), None)
+        if not name:
+            print(f"  {basename}: no narration manifest, skipping"); continue
+        manifest = manifests[name]
         mdata = json.load(open(manifest))
         cues = mdata["cues"]
         display = mdata.get("displayName") or name

@@ -92,6 +92,6 @@ test.describe('Demo: Digital Asset (DAM) - full CRUD (complete record)', () => {
       await narrate(page, 'The asset has been removed. That completes the full digital asset lifecycle.', 4000);
     });
 
-    writeNarration(NAME);
+    writeNarration(NAME, 'Digital Asset CRUD');
   });
 });
