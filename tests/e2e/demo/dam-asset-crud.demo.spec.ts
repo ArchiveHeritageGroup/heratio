@@ -5,12 +5,13 @@
  * fields, then views, edits and deletes it. Non-prod only.
  */
 import { test, expect } from '@playwright/test';
-import { HERATIO_URL, isProd, fillFields, startNarration, narrate, writeNarration } from './demo-helpers';
+import { HERATIO_URL, isProd, ensureLoggedIn, fillFields, startNarration, narrate, writeNarration } from './demo-helpers';
 
 const NAME = 'dam-asset-crud';
 
 test.describe('Demo: Digital Asset (DAM) - full CRUD (complete record)', () => {
   test.skip(isProd, 'Demo CRUD must run against a non-prod target - set HERATIO_URL to the dev box.');
+  test.beforeEach(async ({ page }) => { await ensureLoggedIn(page); });
 
   test('Browse, create a complete asset, view, edit and delete', async ({ page }) => {
     startNarration();

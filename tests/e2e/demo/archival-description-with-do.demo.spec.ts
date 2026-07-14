@@ -9,7 +9,7 @@
  */
 import { test, expect } from '@playwright/test';
 import * as path from 'path';
-import { HERATIO_URL, isProd, expandAccordion, startNarration, narrate, writeNarration } from './demo-helpers';
+import { HERATIO_URL, isProd, ensureLoggedIn, expandAccordion, startNarration, narrate, writeNarration } from './demo-helpers';
 
 const NAME = 'archival-description-with-do';
 const DISPLAY = 'Archival Description with digital object';
@@ -17,6 +17,7 @@ const IMAGE = path.join(path.dirname(new URL(import.meta.url).pathname), 'fixtur
 
 test.describe('Demo: Archival Description with digital object', () => {
   test.skip(isProd, 'Demo CRUD must run against a non-prod target - set HERATIO_URL to the dev box.');
+  test.beforeEach(async ({ page }) => { await ensureLoggedIn(page); });
 
   test('Create a description, link a digital object, and switch IIIF viewers', async ({ page }) => {
     startNarration();
