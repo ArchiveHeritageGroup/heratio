@@ -46,6 +46,9 @@ const reportsDir = 'tests/e2e/reports';
 
 export default defineConfig({
   testDir: './tests/e2e',
+  // The 'demo' project (video walkthroughs) lives under tests/e2e/demo and is
+  // excluded from the normal browser projects so it never runs in CI matrices.
+  testIgnore: ['**/demo/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -82,6 +85,26 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    // Demo walkthroughs: full-CRUD videos of each screen, for the how-to library.
+    // Chromium only, 1080p, slowed down + single worker so the recording is
+    // watchable. Run against a NON-PROD target:
+    //   HERATIO_URL=http://192.168.0.112:8090 npx playwright test --project=demo --workers=1
+    {
+      name: 'demo',
+      testDir: './tests/e2e/demo',
+      testIgnore: [],
+      fullyParallel: false,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+        video: { mode: 'on', size: { width: 1920, height: 1080 } },
+        screenshot: 'on',
+        launchOptions: { slowMo: 350 },
+        actionTimeout: 20000,
+        navigationTimeout: 45000,
+      },
+    },
+
     // Primary test on Chromium (fastest for CI)
     {
       name: 'chromium',
