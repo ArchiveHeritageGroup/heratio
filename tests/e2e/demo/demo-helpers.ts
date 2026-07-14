@@ -2,6 +2,42 @@
  * Shared helpers for the demo (video walkthrough) specs.
  */
 import { Page } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// ---------------------------------------------------------------------------
+// Narration: each demo records a manifest of spoken cues with the timestamp
+// (seconds into the recording) at which each line should be heard. A post-run
+// script (scripts/demo-narrate.sh) synthesises each line in the operator's
+// cloned voice (F5-TTS f5:johan-c2) and muxes them onto the silent video.
+// ---------------------------------------------------------------------------
+interface Cue { t: number; text: string }
+let _cues: Cue[] = [];
+let _t0 = 0;
+
+/** Call at the very start of a test, right after the context/video begins. */
+export function startNarration(): void {
+  _cues = [];
+  _t0 = Date.now();
+}
+
+/**
+ * Speak a line: records it at the current video-relative timestamp and holds
+ * the page long enough for the line to be heard (~360ms/word + buffer), so the
+ * on-screen action stays in sync with the voiceover.
+ */
+export async function narrate(page: Page, text: string, holdMs?: number): Promise<void> {
+  _cues.push({ t: Math.max(0, (Date.now() - _t0) / 1000), text });
+  const words = text.trim().split(/\s+/).length;
+  await page.waitForTimeout(holdMs ?? Math.min(9000, 900 + words * 360));
+}
+
+/** Write the narration manifest for this demo (matched to the video by name). */
+export function writeNarration(name: string): void {
+  const dir = path.join(process.cwd(), 'test-results', 'narration');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, `${name}.json`), JSON.stringify({ name, cues: _cues }, null, 2));
+}
 
 export const HERATIO_URL = process.env.HERATIO_URL || 'https://heratio.theahg.co.za';
 export const EMAIL = process.env.TEST_ADMIN_EMAIL || 'johan@theahg.co.za';

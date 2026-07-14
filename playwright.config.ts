@@ -94,6 +94,9 @@ export default defineConfig({
       testDir: './tests/e2e/demo',
       testIgnore: [],
       fullyParallel: false,
+      // Narrated walkthroughs are slow (slowMo + per-cue voiceover holds), so
+      // they need a much larger per-test budget than the 60s global default.
+      timeout: 240000,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
