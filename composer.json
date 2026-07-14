@@ -89,7 +89,6 @@
         "ahg/metadata-export": "@dev",
         "ahg/metadata-extraction": "@dev",
         "ahg/mods-manage": "@dev",
-        "ahg/mva-claims": "@dev",
         "ahg/multi-tenant": "@dev",
         "ahg/museum": "@dev",
         "ahg/narssa": "@dev",

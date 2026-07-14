@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "785d7f9ee3552fa5c9bbdf5451a00cb2",
+    "content-hash": "72554edab2370338d7b7abe57f37adf5",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -2206,40 +2206,6 @@
                 }
             },
             "description": "Museum cataloguing (CCO standard) browse and management for Heratio",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "ahg/mva-claims",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "packages/ahg-mva-claims",
-                "reference": "1476b6cedece198901f55914e08c280439c44fb8"
-            },
-            "require": {
-                "ahg/core": "@dev",
-                "php": "^8.2"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "AhgMvaClaims\\Providers\\AhgMvaClaimsServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "AhgMvaClaims\\": "src/"
-                }
-            },
-            "license": [
-                "proprietary"
-            ],
-            "description": "RAF motor-vehicle-accident claims intake for Heratio: conditional document-completeness checking over private, ownership-scoped claimant records",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -15271,7 +15237,6 @@
         "ahg/metadata-export": 20,
         "ahg/metadata-extraction": 20,
         "ahg/mods-manage": 20,
-        "ahg/mva-claims": 20,
         "ahg/multi-tenant": 20,
         "ahg/museum": 20,
         "ahg/narssa": 20,
