@@ -22,10 +22,12 @@ while IFS= read -r webm; do
   found=1
   dir="$(basename "$(dirname "$webm")")"
   # test-results dir looks like: authority-record-crud.demo-<hash>--<title>-demo
-  name="$(printf '%s' "$dir" | sed -E 's/\.demo-.*$//; s/[^a-zA-Z0-9]+/-/g; s/-+$//')"
+  # dir is "<spec-basename>.demo-<hash>--<title>-demo" (Playwright may truncate);
+  # the clean function name is everything before the first dot.
+  name="$(printf '%s' "$dir" | sed -E 's/\..*$//; s/[^a-zA-Z0-9]+/-/g; s/-+$//')"
   [ -z "$name" ] && name="demo-$(printf '%s' "$dir" | cut -c1-8)"
   mp4="$OUT/${name}.mp4"
-  ffmpeg -y -loglevel error -i "$webm" \
+  ffmpeg -nostdin -y -loglevel error -i "$webm" \
     -c:v libx264 -pix_fmt yuv420p -crf 22 -preset medium -movflags +faststart \
     "$mp4"
   dur="$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$mp4" 2>/dev/null | cut -d. -f1)"
