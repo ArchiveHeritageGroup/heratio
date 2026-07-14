@@ -156,17 +156,20 @@ def main():
                             "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "22",
                             "-preset", "medium", "-c:a", "aac", "-shortest",
                             "-movflags", "+faststart", body], check=True)
-            # narration-only audio track as <display>.wav (no splash silence)
-            wav = os.path.join(OUT, f"{display}.wav")
-            subprocess.run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
-                            "-i", body, "-vn", "-acodec", "pcm_s16le", wav], check=True)
+            # optional narration-only .wav (set DEMO_WAV=1); mp4 is the default output
+            wav_note = ""
+            if os.environ.get("DEMO_WAV"):
+                wav = os.path.join(OUT, f"{display}.wav")
+                subprocess.run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
+                                "-i", body, "-vn", "-acodec", "pcm_s16le", wav], check=True)
+                wav_note = f"  + {os.path.basename(wav)}"
             # prepend the AHG/Heratio splash (logo + presenter)
             splash = os.path.join(tmp, "splash.mp4")
             make_splash(display, splash, tmp)
             mp4 = os.path.join(OUT, f"{display}.mp4")
             concat_av(splash, body, mp4)
             sz = subprocess.check_output(["du", "-h", mp4]).split()[0].decode()
-            print(f"  {mp4}  ({ncl} cues + splash, {sz})  + {os.path.basename(wav)}")
+            print(f"  {mp4}  ({ncl} cues + splash, {sz}){wav_note}")
     print(f"Done. Narrated mp4s in {OUT}")
 
 
