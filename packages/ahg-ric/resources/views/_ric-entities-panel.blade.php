@@ -7,7 +7,9 @@
     $recordId = $record->id ?? null;
 @endphp
 
-@if($recordId)
+{{-- Only render inside the RiC view (matches _ric-panel); never in the standard
+     cataloguing view - the RiC Context / OpenRiC / Validate panel is RiC-only. --}}
+@if($recordId && session('ric_view_mode', config('ric.default_view', 'heratio')) === 'ric')
 @php
     $recordType = $recordType ?? 'record';
     $ricIsAdmin = \AhgCore\Services\AclService::check($record ?? null, 'update');

@@ -300,16 +300,18 @@
     </div>
   </section>
 
-  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $donor, 'recordType' => 'agent'])
-  @endif
   @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $donor->id])
 
-  {{-- RiC Explorer Panel --}}
-  @include('ahg-ric::_ric-panel', ['resourceId' => $donor->id])
+  {{-- RiC Explorer Panel + entities panel - only in the RiC view (not the standard view) --}}
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-panel', ['resourceId' => $donor->id])
+    @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+      @include('ahg-ric::_ric-entities-panel', ['record' => $donor, 'recordType' => 'agent'])
+    @endif
+  @endif
 
 @endsection
 

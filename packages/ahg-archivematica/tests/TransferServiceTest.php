@@ -40,6 +40,10 @@ class TransferServiceTest extends TestCase
 
     private int $objectId;
 
+    private string $stagingDir = '';
+
+    private string $uploadsDir = '';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -52,12 +56,52 @@ class TransferServiceTest extends TestCase
         config()->set('archivematica.am_default_pipeline_uuid', 'PIPELINE-UUID');
         config()->set('archivematica.am_transfer_source_path', '/var/archivematica/source');
 
-        $this->objectId = 990000 + random_int(1, 8999);
+        // The parent record (FK-valid, so digital_object below can reference it).
+        $this->objectId = (int) DB::table('object')->insertGetId([
+            'class_name' => 'QubitInformationObject',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // send() now stages the record's digital objects into a local mount
+        // (am_transfer_staging_path) before starting the transfer, so give the
+        // test a real staging dir, uploads root, and one digital object on disk.
+        $this->stagingDir = sys_get_temp_dir().'/am-stage-'.$this->objectId;
+        $this->uploadsDir = sys_get_temp_dir().'/am-uploads-'.$this->objectId;
+        @mkdir($this->stagingDir, 0775, true);
+        @mkdir($this->uploadsDir.'/r', 0775, true);
+        file_put_contents($this->uploadsDir.'/r/sample.txt', 'demo digital object');
+        config()->set('archivematica.am_transfer_staging_path', $this->stagingDir);
+        config()->set('heratio.uploads_path', $this->uploadsDir);
+
+        $doId = (int) DB::table('object')->insertGetId([
+            'class_name' => 'QubitDigitalObject',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('digital_object')->insert([
+            'id'        => $doId,
+            'object_id' => $this->objectId,
+            'name'      => 'sample.txt',
+            'path'      => 'r/',
+        ]);
     }
 
     protected function tearDown(): void
     {
         Mockery::close();
+        foreach ([$this->stagingDir, $this->uploadsDir] as $dir) {
+            if ($dir !== '' && is_dir($dir)) {
+                $it = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::CHILD_FIRST
+                );
+                foreach ($it as $f) {
+                    $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
+                }
+                @rmdir($dir);
+            }
+        }
         parent::tearDown();
     }
 
