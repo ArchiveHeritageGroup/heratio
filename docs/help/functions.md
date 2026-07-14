@@ -128,6 +128,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 115. [Vendor and Procurement Management (ahg-vendor)](#vendor-and-procurement-management-ahg-vendor)
 116. [Z39.50 / SRU Bibliographic Search and Copy Cataloguing (ahg-z3950)](#z3950-sru-bibliographic-search-and-copy-cataloguing-ahg-z3950)
 117. [Route Health Check - 2026-07-13](#route-health-check---2026-07-13)
+118. [User-Facing Screens: GLAM / DAM](#user-facing-screens-glam--dam)
 
 ---
 
@@ -3120,3 +3121,81 @@ Automated authenticated link sweep (logged in as an administrator) of every para
 | Link | Why not 200 |
 |---|---|
 | `/discoveries` | no response / timeout |
+
+
+---
+
+## User-Facing Screens: GLAM / DAM
+
+Screen-oriented reference for the GLAM/DAM area, complementing the package-oriented sections above. Each entry lists the on-screen facets ("Narrow your results by"), search options, and the record actions / edit-form structure a user sees. Facet availability and the Edit/Delete/Add-new actions are ACL- and plugin-gated, so a given user may see a subset.
+
+### Archival Description - Browse (`/glam/browse`)
+
+The main archival (GLAM) browse. Results list on the right, faceted filters on the left.
+
+**Narrow your results by (facets):**
+- GLAM Type (object type)
+- Creator
+- Place
+- Subject
+- Genre
+- Level of description
+- Media type
+- Material type
+- Circulation status
+- Repository (hidden in single-repository mode)
+
+Additional query filters accepted by the browse: parent / collection / ancestor, top-level only, has-digital-object, media-only, condition grade, acquisition method.
+
+**Search:**
+- Keyword search box
+- Advanced search options (field-scoped queries, boolean, limit-to)
+- "Search in sector" (optional sector scope)
+- Sort and results-per-page controls; list / gallery view modes
+
+**Record actions** (on a description, ACL-gated): Edit, Delete, Add new (child/sibling), plus Duplicate and digital-object attach where enabled.
+
+**Edit form:** ISAD(G)-structured areas (Identity, Context, Content and structure, Conditions of access and use, Allied materials, Notes, Access points, Control), each with inline field help and Save / Cancel actions.
+
+### Authority Records - Browse (`/actor/browse`)
+
+Browse of authority (agent) records - persons, families, corporate bodies.
+
+**Narrow your results by (facets):**
+- Language
+- Entity type (Person / Family / Corporate body, with per-value counts)
+- Maintained by (the maintaining agency/repository, with counts)
+- Media type
+
+**Search:**
+- Authority-record keyword search
+- Advanced search options: "Find results with" (any field / specific field), "Limit results to" (Repository)
+
+**CRUD (ACL-gated):**
+- Add new - creates a new authority record (Create button)
+- Edit - opens the full authority record for editing
+- Delete - removes the record (permission-checked)
+- On the record view, each area also has an inline edit pencil that jumps straight to that section of the edit form.
+
+**Edit form (ISAAR-structured accordion):**
+- Identity area - Entity type (required), Authorized form of name (required), Parallel form(s) of name, Standardized form(s) of name (other rules), Other form(s) of name, Identifiers for corporate bodies, Parent actor
+- Description area - Dates of existence, history, places, legal status, functions, mandates, internal structures, general context
+- Relationships area - related authority records and resources
+- Contact information
+- Access points area
+- Cultural sensitivity (ICIP) - Traditional Knowledge labels / notices
+- Control area - description identifier, institution identifier, rules/conventions, status, level of detail, dates, language/script, sources, maintenance notes
+
+**Buttons:** Save (existing record) or Create (new record); Cancel returns to the record (edit) or the browse (new). Repeatable fields have add-row / remove-row controls.
+
+### Digital Assets - DAM Browse (`/dam/browse`)
+
+Digital Asset Management browse of media/digital objects (gated by the DAM plugin): thumbnail grid of assets with type/format facets, linked back to their parent descriptions; supports upload and per-asset metadata.
+
+### Browse by Sector (`/display/browse`)
+
+Sector-aware landing/browse (Galleries, Libraries, Archives, Museums) that routes into the sector-appropriate description type and facet set (gated by the Display plugin).
+
+### GLAM / DAM menu (dropdown)
+
+The GLAM/DAM header dropdown (icon: landmark) exposes, subject to enabled plugins: Browse by Sector (`/display/browse`), Digital Assets (`/dam/browse`), Condition Assessments (`/admin/ai/condition/browse`), Provenance (`/museum/reports/provenance`), and Reports (`/reports`).
