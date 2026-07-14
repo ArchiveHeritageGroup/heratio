@@ -90,19 +90,30 @@ export default defineConfig({
     // watchable. Run against a NON-PROD target:
     //   HERATIO_URL=http://192.168.0.112:8090 npx playwright test --project=demo --workers=1
     {
+      // Logs in once and saves the session so demos start authenticated (no
+      // login on camera). No video.
+      name: 'demo-setup',
+      testDir: './tests/e2e/demo',
+      testMatch: /auth\.setup\.ts/,
+      testIgnore: [],
+    },
+    {
       name: 'demo',
       testDir: './tests/e2e/demo',
-      testIgnore: [],
+      testIgnore: ['**/auth.setup.ts'],
+      dependencies: ['demo-setup'],
       fullyParallel: false,
-      // Narrated walkthroughs are slow (slowMo + per-cue voiceover holds), so
-      // they need a much larger per-test budget than the 60s global default.
-      timeout: 240000,
+      // Narrated walkthroughs are slow (slowMo + per-cue voiceover holds + all
+      // form areas), so they need a large per-test budget.
+      timeout: 360000,
       use: {
         ...devices['Desktop Chrome'],
+        // Start already authenticated - the login screen never appears.
+        storageState: 'test-results/demo-auth.json',
         viewport: { width: 1920, height: 1080 },
         video: { mode: 'on', size: { width: 1920, height: 1080 } },
         screenshot: 'on',
-        launchOptions: { slowMo: 350 },
+        launchOptions: { slowMo: 200 },
         actionTimeout: 20000,
         navigationTimeout: 45000,
       },

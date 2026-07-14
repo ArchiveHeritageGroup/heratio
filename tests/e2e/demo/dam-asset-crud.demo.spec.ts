@@ -1,58 +1,73 @@
 /**
- * DEMO WALKTHROUGH - Digital Asset (DAM): full CRUD (narrated)
+ * DEMO WALKTHROUGH - Digital Asset (DAM): full CRUD, FULL requirement set (narrated)
  *
- * Narrated video of a digital asset's lifecycle in the DAM: Browse -> Create ->
- * View -> Edit -> Delete. Non-prod only. Run with:
- *   HERATIO_URL=http://192.168.0.112:8090 npx playwright test --project=demo --workers=1
- * then: scripts/demo-narrate.py
+ * Creates a digital asset completing the descriptive, technical and IPTC/rights
+ * fields, then views, edits and deletes it. Non-prod only.
  */
 import { test, expect } from '@playwright/test';
-import { HERATIO_URL, isProd, login, startNarration, narrate, writeNarration } from './demo-helpers';
+import { HERATIO_URL, isProd, fillFields, startNarration, narrate, writeNarration } from './demo-helpers';
 
 const NAME = 'dam-asset-crud';
 
-test.describe('Demo: Digital Asset (DAM) - full CRUD', () => {
+test.describe('Demo: Digital Asset (DAM) - full CRUD (complete record)', () => {
   test.skip(isProd, 'Demo CRUD must run against a non-prod target - set HERATIO_URL to the dev box.');
 
-  test('Browse, create, view, edit and delete a digital asset', async ({ page }) => {
+  test('Browse, create a complete asset, view, edit and delete', async ({ page }) => {
     startNarration();
     const title = `Demo Asset ${Date.now()}`;
     const updatedTitle = `${title} (edited)`;
     let recordUrl = '';
-    // The DAM create/edit form's Save button, scoped to the form that holds the
-    // title field (so we never hit the chrome's clipboard/feedback buttons).
     const saveBtn = () => page.locator('form:has(input[name="title"]) button[type="submit"]').first();
 
-    await test.step('Log in', async () => {
-      await narrate(page, 'In this walkthrough we will create, edit and delete a digital asset in the Digital Asset Manager.', 4200);
-      await login(page);
-      await page.goto(`${HERATIO_URL}/dam/create`);
-      await expect(page.locator('body')).not.toContainText(/must log in|Sign in to/i, { timeout: 15000 });
-    });
-
     await test.step('Browse the DAM', async () => {
+      await narrate(page, 'In this walkthrough we create a complete digital asset in the Digital Asset Manager, then view, edit and delete it.', 5600);
       await page.goto(`${HERATIO_URL}/dam/browse`);
       await expect(page.locator('body')).toContainText(/digital asset|DAM|assets/i, { timeout: 15000 });
       await narrate(page, 'This is the Digital Asset Manager browse, showing the media assets in the repository.', 4600);
     });
 
-    await test.step('Create a digital asset', async () => {
-      await narrate(page, 'To create an asset, we open the create form and enter the asset details.', 4000);
+    await test.step('Open the create form', async () => {
+      await narrate(page, 'We open the create form, which captures descriptive, technical and rights metadata.', 4400);
       await page.goto(`${HERATIO_URL}/dam/create`);
       await page.locator('input[name="title"]').waitFor({ state: 'visible', timeout: 15000 });
-      await page.fill('input[name="title"]', title);
-      await page.fill('input[name="identifier"]', `DEMO-${Date.now()}`).catch(() => {});
-      await page.fill('[name="remarks"]', 'A demonstration digital asset created by the walkthrough.').catch(() => {});
-      await narrate(page, 'Now we save the asset.', 1800);
+    });
+
+    await test.step('Complete the descriptive fields', async () => {
+      await narrate(page, 'First the descriptive fields: reference, title, asset type, extent and genre.', 4800);
+      await fillFields(page, {
+        identifier: `DEMO-${Date.now()}`,
+        title,
+        asset_type: '',
+        extent_and_medium: 'One digital image, JPEG',
+        genre: 'Photograph',
+        remarks: 'A demonstration digital asset created by the walkthrough.',
+      });
+    });
+
+    await test.step('Complete the IPTC and rights fields', async () => {
+      await narrate(page, 'Then the IPTC and rights metadata: caption, creator, copyright, and location.', 5200);
+      await fillFields(page, {
+        iptc_caption: 'Demonstration image for the Heratio walkthrough.',
+        iptc_creator: 'Heratio Demo',
+        iptc_copyright_notice: 'Public domain - demonstration only.',
+        iptc_city: 'Cape Town',
+        iptc_country: 'South Africa',
+        iptc_artwork_title: 'Demo Asset',
+        iptc_artwork_creator: 'Heratio Demo',
+      });
+    });
+
+    await test.step('Create the asset', async () => {
+      await narrate(page, 'With the metadata complete, we save the asset.', 2800);
       await saveBtn().click();
       await page.waitForLoadState('networkidle');
       await expect(page.locator('body')).toContainText(title, { timeout: 15000 });
       recordUrl = page.url();
-      await narrate(page, 'The new digital asset has been created and is now displayed.', 3200);
+      await narrate(page, 'The complete digital asset has been created and is now displayed.', 3600);
     });
 
     await test.step('Edit the asset', async () => {
-      await narrate(page, 'Next we edit the asset and change its title.', 2600);
+      await narrate(page, 'Next we edit the asset and change its title.', 2800);
       await page.getByRole('link', { name: 'Edit', exact: true }).first().click();
       await page.waitForLoadState('networkidle');
       const titleField = page.locator('input[name="title"]');
@@ -65,7 +80,7 @@ test.describe('Demo: Digital Asset (DAM) - full CRUD', () => {
     });
 
     await test.step('Delete the asset', async () => {
-      await narrate(page, 'Finally, we delete the asset and confirm.', 2600);
+      await narrate(page, 'Finally we delete the asset and confirm.', 2600);
       page.on('dialog', (d) => d.accept());
       await page.getByRole('button', { name: 'Delete', exact: true }).first().click();
       await page.waitForLoadState('networkidle');
@@ -74,7 +89,7 @@ test.describe('Demo: Digital Asset (DAM) - full CRUD', () => {
     await test.step('Confirm gone', async () => {
       await page.goto(recordUrl);
       await expect(page.locator('body')).not.toContainText(updatedTitle);
-      await narrate(page, 'The asset has been removed. That completes the digital asset lifecycle.', 3600);
+      await narrate(page, 'The asset has been removed. That completes the full digital asset lifecycle.', 4000);
     });
 
     writeNarration(NAME);

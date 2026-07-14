@@ -39,6 +39,22 @@ def piper_synth(text, out_wav):
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def trim_silence(wav):
+    """Strip leading/trailing silence (F5-TTS clips start with a blank gap)."""
+    tmp = wav + ".trim.wav"
+    sr = ("silenceremove=start_periods=1:start_duration=0:start_threshold=-45dB:"
+          "detection=peak,areverse,"
+          "silenceremove=start_periods=1:start_duration=0:start_threshold=-45dB:"
+          "detection=peak,areverse")
+    r = subprocess.run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
+                        "-i", wav, "-af", sr, tmp],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if r.returncode == 0 and os.path.getsize(tmp) > 0:
+        os.replace(tmp, wav)
+    elif os.path.exists(tmp):
+        os.remove(tmp)
+
+
 def pick_engine():
     want = os.environ.get("DEMO_TTS", "auto")
     if want in ("f5", "piper"):
@@ -50,6 +66,39 @@ def pick_engine():
     except Exception as e:
         print(f"  F5-TTS unavailable ({e}); falling back to Piper placeholder.")
         return "piper"
+
+
+LOGO = os.path.join(ROOT, "public/vendor/ahg-theme-b5/images/heratio_logo.png")
+PRESENTER = os.environ.get("DEMO_PRESENTER", "Presented by: Dr. Johan Pieterse")
+
+
+def make_splash(display, out, tmp):
+    """Render the intro splash: logo + scenario title + presenter, 4.5s silent."""
+    tf = os.path.join(tmp, "title.txt"); open(tf, "w").write(display)
+    pf = os.path.join(tmp, "pres.txt"); open(pf, "w").write(PRESENTER)
+    fc = ("[0:v]scale=-1:300[lg];"
+          "[1:v][lg]overlay=(W-w)/2:(H-h)/2-160[bg];"
+          f"[bg]drawtext=textfile={tf}:fontcolor=white:fontsize=58:x=(w-tw)/2:y=h/2+70[t1];"
+          f"[t1]drawtext=textfile={pf}:fontcolor=0xC9D6E3:fontsize=40:x=(w-tw)/2:y=h/2+160[out]")
+    subprocess.run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
+                    "-loop", "1", "-t", "4.5", "-i", LOGO,
+                    "-f", "lavfi", "-t", "4.5", "-i", "color=c=0x0F1E33:s=1920x1080",
+                    "-f", "lavfi", "-t", "4.5", "-i", "anullsrc=r=44100:cl=stereo",
+                    "-filter_complex", fc, "-map", "[out]", "-map", "2:a",
+                    "-r", "30", "-pix_fmt", "yuv420p", "-c:v", "libx264",
+                    "-c:a", "aac", "-ar", "44100", "-shortest", out], check=True)
+
+
+def concat_av(splash, body, out):
+    """Prepend the splash before the narrated body (normalise + re-encode)."""
+    fc = ("[0:v]scale=1920:1080,setsar=1,fps=30[v0];[0:a]aresample=44100[a0];"
+          "[1:v]scale=1920:1080,setsar=1,fps=30[v1];[1:a]aresample=44100[a1];"
+          "[v0][a0][v1][a1]concat=n=2:v=1:a=1[v][a]")
+    subprocess.run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
+                    "-i", splash, "-i", body, "-filter_complex", fc,
+                    "-map", "[v]", "-map", "[a]", "-c:v", "libx264",
+                    "-pix_fmt", "yuv420p", "-crf", "22", "-preset", "medium",
+                    "-c:a", "aac", "-ar", "44100", "-movflags", "+faststart", out], check=True)
 
 
 def main():
@@ -67,13 +116,16 @@ def main():
         manifest = os.path.join(ROOT, "test-results", "narration", f"{name}.json")
         if not os.path.exists(manifest):
             print(f"  {name}: no narration manifest, skipping"); continue
-        cues = json.load(open(manifest))["cues"]
+        mdata = json.load(open(manifest))
+        cues = mdata["cues"]
+        display = mdata.get("displayName") or name
         with tempfile.TemporaryDirectory() as tmp:
             inputs, filt, labels = ["-i", webm], [], ""
             for i, c in enumerate(cues):
                 wav = os.path.join(tmp, f"c{i}.wav")
                 try:
                     synth(c["text"], wav)
+                    trim_silence(wav)
                 except Exception as e:
                     print(f"    cue {i} synth failed: {e}"); continue
                 inputs += ["-i", wav]
@@ -85,15 +137,23 @@ def main():
                 print(f"  {name}: no audio produced"); continue
             ncl = labels.count("[a")
             fc = ";".join(filt) + f";{labels}amix=inputs={ncl}:normalize=0:dropout_transition=0,apad[aout]"
-            mp4 = os.path.join(OUT, f"{name}.mp4")
-            cmd = ["ffmpeg", "-nostdin", "-y", "-loglevel", "error", *inputs,
-                   "-filter_complex", fc, "-map", "0:v", "-map", "[aout]",
-                   "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "22",
-                   "-preset", "medium", "-c:a", "aac", "-shortest",
-                   "-movflags", "+faststart", mp4]
-            subprocess.run(cmd, check=True)
+            body = os.path.join(tmp, "body.mp4")
+            subprocess.run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error", *inputs,
+                            "-filter_complex", fc, "-map", "0:v", "-map", "[aout]",
+                            "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "22",
+                            "-preset", "medium", "-c:a", "aac", "-shortest",
+                            "-movflags", "+faststart", body], check=True)
+            # narration-only audio track as <display>.wav (no splash silence)
+            wav = os.path.join(OUT, f"{display}.wav")
+            subprocess.run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
+                            "-i", body, "-vn", "-acodec", "pcm_s16le", wav], check=True)
+            # prepend the AHG/Heratio splash (logo + presenter)
+            splash = os.path.join(tmp, "splash.mp4")
+            make_splash(display, splash, tmp)
+            mp4 = os.path.join(OUT, f"{display}.mp4")
+            concat_av(splash, body, mp4)
             sz = subprocess.check_output(["du", "-h", mp4]).split()[0].decode()
-            print(f"  {mp4}  ({ncl} cues, {sz})")
+            print(f"  {mp4}  ({ncl} cues + splash, {sz})  + {os.path.basename(wav)}")
     print(f"Done. Narrated mp4s in {OUT}")
 
 

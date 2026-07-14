@@ -32,11 +32,29 @@ export async function narrate(page: Page, text: string, holdMs?: number): Promis
   await page.waitForTimeout(holdMs ?? Math.min(9000, 900 + words * 360));
 }
 
-/** Write the narration manifest for this demo (matched to the video by name). */
-export function writeNarration(name: string): void {
+/**
+ * Write the narration manifest for this demo. `name` is the machine key (must
+ * match the spec's file basename so the mux can pair video<->manifest);
+ * optional `displayName` is the human title the final mp4/wav is saved under
+ * (e.g. "Archival Description with digital object").
+ */
+export async function fillFields(page: Page, fields: Record<string, string>): Promise<void> {
+  for (const [name, val] of Object.entries(fields)) {
+    const loc = page.locator(`[name="${name}"]`).first();
+    if ((await loc.count()) === 0) continue;
+    const tag = await loc.evaluate((el) => el.tagName.toLowerCase()).catch(() => '');
+    try {
+      if (tag === 'select') await page.selectOption(`[name="${name}"]`, { index: 1 });
+      else await loc.fill(val);
+    } catch { /* optional / not interactable - skip */ }
+  }
+}
+
+export function writeNarration(name: string, displayName?: string): void {
   const dir = path.join(process.cwd(), 'test-results', 'narration');
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, `${name}.json`), JSON.stringify({ name, cues: _cues }, null, 2));
+  fs.writeFileSync(path.join(dir, `${name}.json`),
+    JSON.stringify({ name, displayName: displayName || name, cues: _cues }, null, 2));
 }
 
 export const HERATIO_URL = process.env.HERATIO_URL || 'https://heratio.theahg.co.za';
