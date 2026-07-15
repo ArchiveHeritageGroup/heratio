@@ -27,7 +27,13 @@ test.describe('Browse and Search', () => {
     await page.goto(`${HERATIO_URL}/login`);
     await page.fill('input[name="email"]', credentials.roles.admin.email);
     await page.fill('input[name="password"]', credentials.roles.admin.password);
-    await page.click('button[type="submit"]');
+    // Submit via Enter on the password field, not a bare button[type=submit]:
+    // the login page carries several chrome forms (clipboard/feedback) and on
+    // mobile viewports the first submit button is hidden behind the collapsed
+    // nav, so a click times out and throws before the graceful skip below can
+    // fire - failing every mobile test in this describe. Enter always submits
+    // the focused login form and never hangs on a hidden button.
+    await page.locator('input[name="password"]').press('Enter');
     // Heratio redirects to '/' on successful login (not '/dashboard'). Treat
     // "navigated away from /login" as success. If we're still on the login page
     // after ~8s, the admin account isn't available on this target (e.g. no
