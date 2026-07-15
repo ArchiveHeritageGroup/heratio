@@ -1017,13 +1017,16 @@ class RicEntityService
         }
 
         if (in_array('actor', $types)) {
+            $actorQuery = DB::table('actor')
+                ->join('actor_i18n', function ($j) {
+                    $j->on('actor.id', '=', 'actor_i18n.id')
+                        ->where('actor_i18n.culture', '=', $this->culture);
+                })
+                ->where('actor_i18n.authorized_form_of_name', 'like', $q);
+            // Guests must not see draft / embargoed authority records.
+            \AhgCore\Services\AclService::addActorVisibilityCriteria($actorQuery, 'actor.id');
             $results = $results->merge(
-                DB::table('actor')
-                    ->join('actor_i18n', function ($j) {
-                        $j->on('actor.id', '=', 'actor_i18n.id')
-                            ->where('actor_i18n.culture', '=', $this->culture);
-                    })
-                    ->where('actor_i18n.authorized_form_of_name', 'like', $q)
+                $actorQuery
                     ->select(['actor.id', 'actor_i18n.authorized_form_of_name as label', DB::raw("'Agent' as type")])
                     ->limit($limit)
                     ->get()

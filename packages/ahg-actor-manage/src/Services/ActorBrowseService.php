@@ -141,6 +141,10 @@ class ActorBrowseService extends BrowseService
             });
         }
 
+        // Draft / embargoed authority records are hidden from guests + non-editors
+        // (editors/admins bypass inside the helper).
+        \AhgCore\Services\AclService::addActorVisibilityCriteria($query, 'actor.id');
+
         return $query;
     }
 

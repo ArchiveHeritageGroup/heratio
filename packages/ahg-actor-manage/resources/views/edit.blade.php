@@ -479,6 +479,32 @@
         </h2>
         <div id="control-collapse" class="accordion-collapse collapse" aria-labelledby="control-heading">
           <div class="accordion-body">
+            {{-- Part B: publication status + embargo (living-persons / GDPR-POPIA). --}}
+            <div class="mb-3 p-3 border rounded bg-light">
+              <label class="form-label fw-semibold d-block mb-2">
+                <i class="fas fa-eye me-1"></i>{{ __('Publication & access') }}
+              </label>
+              <div class="mb-2">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="publication_status_id" id="pub_published" value="160"
+                         @checked((int) old('publication_status_id', $publicationStatusId ?? 160) === 160)>
+                  <label class="form-check-label" for="pub_published">{{ __('Published') }}</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="publication_status_id" id="pub_draft" value="159"
+                         @checked((int) old('publication_status_id', $publicationStatusId ?? 160) === 159)>
+                  <label class="form-check-label" for="pub_draft">{{ __('Draft') }} <span class="text-muted small">({{ __('hidden from the public') }})</span></label>
+                </div>
+              </div>
+              <div>
+                <label for="embargo_until" class="form-label small mb-1">{{ __('Embargo until') }}
+                  <span class="text-muted">({{ __('optional - hide a published record from the public until this date, e.g. a living person') }})</span>
+                </label>
+                <input type="date" name="embargo_until" id="embargo_until" class="form-control"
+                       value="{{ old('embargo_until', isset($actor->embargo_until) && $actor->embargo_until ? substr((string) $actor->embargo_until, 0, 10) : '') }}">
+              </div>
+            </div>
+
             <div class="mb-3">
               <label for="description_identifier" class="form-label">
                 Authority record identifier

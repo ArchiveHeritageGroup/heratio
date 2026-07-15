@@ -209,6 +209,12 @@ class ActorController extends Controller
             abort(403, 'You do not have permission to view this record.');
         }
 
+        // Draft / embargoed authority records must not leak to guests (the ACL
+        // 'read' gate above is a no-op for anonymous). Editors/admins bypass.
+        if (! \AhgCore\Services\AclService::isActorVisible((int) $actor->id)) {
+            abort(404);
+        }
+
         $entityTypeName = $this->service->getEntityTypeName($actor->entity_type_id);
         $otherNames = $this->service->getOtherNames($actor->id);
         $contacts = $this->service->getContacts($actor->id);
@@ -289,6 +295,9 @@ class ActorController extends Controller
         // the operator picks an unimplemented value, so changing the setting can never break the page.
         return view(\AhgCore\Services\SettingHelper::resolveTemplateView('actor', 'ahg-actor-manage::show', 'isaar'), [
             'actor' => $actor,
+            'publicationStatusId' => (int) (DB::table('status')
+                ->where('object_id', $actor->id)->where('type_id', 158)
+                ->value('status_id') ?: 160),
             'entityTypeName' => $entityTypeName,
             'otherNames' => $otherNames,
             'nameTypeNames' => $nameTypeNames,
@@ -417,6 +426,7 @@ class ActorController extends Controller
             'formChoices' => $formChoices,
             'externalIdentifiers' => collect(),
             'structuredOccupations' => collect(),
+            'publicationStatusId' => 160,
         ]);
     }
 
@@ -450,8 +460,15 @@ class ActorController extends Controller
         $languages = $this->service->getLanguages($actor->id);
         $scripts = $this->service->getScripts($actor->id);
 
+        // Part B: current publication status (159 draft / 160 published, default
+        // published) so the ISAAR Control-area toggle reflects the saved state.
+        $publicationStatusId = (int) (DB::table('status')
+            ->where('object_id', $actor->id)->where('type_id', 158)
+            ->value('status_id') ?: 160);
+
         return view('ahg-actor-manage::edit', [
             'actor' => $actor,
+            'publicationStatusId' => $publicationStatusId,
             'contacts' => $contacts,
             'otherNames' => $otherNames,
             'maintenanceNotes' => $maintenanceNotes,
@@ -522,6 +539,13 @@ class ActorController extends Controller
         ]);
 
         $id = $this->service->create($data);
+
+        // Publication status (159 draft / 160 published) + embargo date (Part B).
+        $embargo = $request->input('embargo_until');
+        $embargo = ($embargo && strtotime($embargo)) ? date('Y-m-d', strtotime($embargo)) : null;
+        \AhgCore\Services\AclService::setActorPublicationStatus(
+            $id, (int) $request->input('publication_status_id', 160), $embargo
+        );
 
         // Save external identifiers if provided
         if ($request->has('external_identifiers')) {
@@ -612,6 +636,13 @@ class ActorController extends Controller
         ]);
 
         $this->service->update($actor->id, $data);
+
+        // Publication status (159 draft / 160 published) + embargo date (Part B).
+        $embargo = $request->input('embargo_until');
+        $embargo = ($embargo && strtotime($embargo)) ? date('Y-m-d', strtotime($embargo)) : null;
+        \AhgCore\Services\AclService::setActorPublicationStatus(
+            $actor->id, (int) $request->input('publication_status_id', 160), $embargo
+        );
 
         // Save external identifiers if provided
         if ($request->has('external_identifiers')) {
@@ -921,13 +952,18 @@ class ActorController extends Controller
         $culture = app()->getLocale();
         $limit = (int) $request->get('limit', 10);
 
-        $results = DB::table('actor')
+        $builder = DB::table('actor')
             ->join('actor_i18n', function ($j) use ($culture) {
                 $j->on('actor.id', '=', 'actor_i18n.id')
                     ->where('actor_i18n.culture', '=', $culture);
             })
             ->join('slug', 'slug.object_id', '=', 'actor.id')
-            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%'.$query.'%')
+            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%'.$query.'%');
+
+        // Guests must not see draft or embargoed authority records.
+        \AhgCore\Services\AclService::addActorVisibilityCriteria($builder, 'actor.id');
+
+        $results = $builder
             ->select(
                 'actor.id',
                 'actor_i18n.authorized_form_of_name as name',
@@ -1123,6 +1159,11 @@ class ActorController extends Controller
 
     public function apiGraphData(Request $request, int $actorId)
     {
+        // Draft / embargoed authority records must not leak to guests.
+        if (! \AhgCore\Services\AclService::isActorVisible($actorId)) {
+            abort(404);
+        }
+
         $graphService = new AuthorityGraphService;
 
         $depth = (int) $request->get('depth', 1);
@@ -1545,6 +1586,11 @@ class ActorController extends Controller
     {
         $actor = $this->getActorById($actorId);
         if (! $actor) {
+            return response()->json(['success' => false, 'error' => 'Actor not found'], 404);
+        }
+
+        // Draft / embargoed authority records must not leak to guests.
+        if (! \AhgCore\Services\AclService::isActorVisible($actorId)) {
             return response()->json(['success' => false, 'error' => 'Actor not found'], 404);
         }
 

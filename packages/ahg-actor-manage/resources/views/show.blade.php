@@ -194,6 +194,15 @@
 
   <h1>
     {{ $actor->authorized_form_of_name }}@include('ahg-translation::components.badge', ['source' => $translationSources['authorized_form_of_name'] ?? null])
+    {{-- Part B: draft / embargo state - only guests are blocked, so this badge
+         is informational for the staff who can still see the record. --}}
+    @auth
+      @if(($publicationStatusId ?? 160) === 159)
+        <span class="badge bg-secondary align-middle" title="{{ __('Hidden from the public') }}"><i class="fas fa-eye-slash me-1"></i>{{ __('Draft') }}</span>
+      @elseif(!empty($actor->embargo_until) && substr((string) $actor->embargo_until, 0, 10) > now()->format('Y-m-d'))
+        <span class="badge bg-warning text-dark align-middle" title="{{ __('Hidden from the public until this date') }}"><i class="fas fa-user-clock me-1"></i>{{ __('Embargoed until') }} {{ substr((string) $actor->embargo_until, 0, 10) }}</span>
+      @endif
+    @endauth
     {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b). --}}
     @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $actor->icip_sensitivity ?? null])
     @if($completeness ?? null)

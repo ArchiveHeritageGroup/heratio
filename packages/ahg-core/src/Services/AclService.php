@@ -258,6 +258,88 @@ class AclService
     }
 
     /**
+     * Part B - authority-record visibility. Restrict an actor query so guests
+     * (and non-editor users) see only records that are BOTH published
+     * (status type 158 / status_id 160) AND not currently embargoed
+     * (embargo_until NULL or in the past). Editors/administrators see all.
+     *
+     * $idColumn is the actor id column of the outer query (e.g. 'actor.id' or
+     * 'a.id'); the embargo column is derived from it so the filter is
+     * alias-agnostic and needs no extra join.
+     */
+    public static function addActorVisibilityCriteria($query, string $idColumn = 'actor.id'): mixed
+    {
+        $user = self::getUser();
+        if ($user) {
+            $groups = self::getUserGroups($user->id ?? null);
+            if (in_array(AclGroup::ADMINISTRATOR_ID, $groups) || in_array(AclGroup::EDITOR_ID, $groups)) {
+                return $query; // staff see drafts + embargoed
+            }
+        }
+
+        // Published only.
+        $query->whereExists(function ($sub) use ($idColumn) {
+            $sub->select(DB::raw(1))
+                ->from('status')
+                ->whereColumn('status.object_id', $idColumn)
+                ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
+                ->where('status.status_id', 160);
+        });
+
+        // Not currently embargoed.
+        $embargoCol = preg_replace('/\.id$/', '.embargo_until', $idColumn);
+        $query->where(function ($q) use ($embargoCol) {
+            $q->whereNull($embargoCol)->orWhereRaw("$embargoCol <= CURDATE()");
+        });
+
+        return $query;
+    }
+
+    /**
+     * Single-record form of addActorVisibilityCriteria() for show pages: true if
+     * the current user may see this authority record.
+     */
+    public static function isActorVisible(int $actorId): bool
+    {
+        $user = self::getUser();
+        if ($user) {
+            $groups = self::getUserGroups($user->id ?? null);
+            if (in_array(AclGroup::ADMINISTRATOR_ID, $groups) || in_array(AclGroup::EDITOR_ID, $groups)) {
+                return true;
+            }
+        }
+
+        $published = DB::table('status')
+            ->where('object_id', $actorId)
+            ->where('type_id', TermId::STATUS_TYPE_PUBLICATION)
+            ->where('status_id', 160)
+            ->exists();
+        if (! $published) {
+            return false;
+        }
+
+        $embargo = DB::table('actor')->where('id', $actorId)->value('embargo_until');
+
+        return $embargo === null || $embargo <= date('Y-m-d');
+    }
+
+    /**
+     * Set an authority record's publication status (159 draft / 160 published)
+     * and embargo date. Upserts the single type-158 status row.
+     */
+    public static function setActorPublicationStatus(int $actorId, int $statusId, ?string $embargoUntil = null): void
+    {
+        $statusId = $statusId === 159 ? 159 : 160;
+        DB::table('status')->updateOrInsert(
+            ['object_id' => $actorId, 'type_id' => TermId::STATUS_TYPE_PUBLICATION],
+            ['status_id' => $statusId]
+        );
+        DB::table('actor')->where('id', $actorId)->update([
+            'embargo_until' => $embargoUntil ?: null,
+        ]);
+    }
+
+    /**
      * Get all group IDs for a user (with caching).
      * If no user (anonymous), return [98].
      * If authenticated, always include [99] + their actual groups.

@@ -16,6 +16,7 @@ class AhgActorManageServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-actor-manage');
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 
         // #1355 - actor controlled vocabularies live in ahg_dropdown so site
         // admins manage them via the Dropdown Manager (skips itself once

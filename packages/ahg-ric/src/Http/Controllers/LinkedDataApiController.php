@@ -101,6 +101,9 @@ class LinkedDataApiController extends Controller
                 'at_i18n.name as type',
             ]);
 
+        // Guests must not see draft / embargoed authority records.
+        \AhgCore\Services\AclService::addActorVisibilityCriteria($query, 'a.id');
+
         if ($type) {
             $query->where('at_i18n.name', $type);
         }
@@ -1707,6 +1710,10 @@ class LinkedDataApiController extends Controller
     {
         // Best-effort for actor / information_object etc.
         if ($className === 'QubitActor') {
+            // Guests must not see draft / embargoed authority-record names.
+            if (! \AhgCore\Services\AclService::isActorVisible($id)) {
+                return;
+            }
             $row = DB::table('actor_i18n')->where('id', $id)->where('culture', 'en')->value('authorized_form_of_name');
             if ($row) $info['name'] = $row;
         } elseif ($className === 'QubitInformationObject') {
