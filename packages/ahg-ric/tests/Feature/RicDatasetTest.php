@@ -150,6 +150,9 @@ class RicDatasetTest extends TestCase
         DB::table('information_object_i18n')->insert([
             'id' => $id, 'culture' => 'en', 'title' => 'Deprecation Subject '.$id,
         ]);
+        // Published, so the guest-facing RiC read API (records/export) serves it
+        // (unpublished records now 404 for anonymous - Part A hardening).
+        DB::table('status')->insert(['object_id' => $id, 'type_id' => 158, 'status_id' => 160]);
 
         return $id;
     }

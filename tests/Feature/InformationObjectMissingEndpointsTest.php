@@ -63,20 +63,23 @@ class InformationObjectMissingEndpointsTest extends TestCase
         return $io;
     }
 
-    public function test_modifications_page_renders_for_known_slug(): void
+    public function test_modifications_page_is_auth_gated(): void
     {
+        // The modifications page exposes editor username/email from the audit
+        // log, so it is now staff-only: an anonymous visitor is redirected to
+        // login rather than served the page (Part A hardening).
         $io = $this->makeIoWithSlug('Test Modifications IO', 'test-modifications-' . uniqid());
+        $slug = DB::table('slug')->where('object_id', $io->id)->value('slug');
 
-        $resp = $this->get('/informationobject/' . DB::table('slug')->where('object_id', $io->id)->value('slug') . '/modifications');
-
-        $resp->assertOk();
-        $resp->assertSee('Modifications');
+        $this->get('/informationobject/' . $slug . '/modifications')->assertRedirect();
     }
 
-    public function test_modifications_page_404s_for_unknown_slug(): void
+    public function test_modifications_page_blocks_anonymous_for_unknown_slug(): void
     {
+        // Auth is enforced before slug resolution, so an anonymous probe is
+        // redirected regardless of whether the slug exists.
         $this->get('/informationobject/does-not-exist-' . uniqid() . '/modifications')
-            ->assertNotFound();
+            ->assertRedirect();
     }
 
     public function test_tree_view_page_renders_for_known_slug(): void
