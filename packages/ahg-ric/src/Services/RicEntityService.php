@@ -1031,14 +1031,17 @@ class RicEntityService
         }
 
         if (in_array('io', $types)) {
+            $ioQuery = DB::table('information_object')
+                ->join('information_object_i18n', function ($j) {
+                    $j->on('information_object.id', '=', 'information_object_i18n.id')
+                        ->where('information_object_i18n.culture', '=', $this->culture);
+                })
+                ->where('information_object_i18n.title', 'like', $q)
+                ->where('information_object.id', '!=', 1); // skip root
+            // Guests must not see draft (unpublished) descriptions.
+            \AhgCore\Services\AclService::addFilterDraftsCriteria($ioQuery, 'information_object.id');
             $results = $results->merge(
-                DB::table('information_object')
-                    ->join('information_object_i18n', function ($j) {
-                        $j->on('information_object.id', '=', 'information_object_i18n.id')
-                            ->where('information_object_i18n.culture', '=', $this->culture);
-                    })
-                    ->where('information_object_i18n.title', 'like', $q)
-                    ->where('information_object.id', '!=', 1) // skip root
+                $ioQuery
                     ->select(['information_object.id', 'information_object_i18n.title as label', DB::raw("'Record' as type")])
                     ->limit($limit)
                     ->get()

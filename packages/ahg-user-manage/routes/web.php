@@ -69,7 +69,11 @@ Route::middleware('admin')->group(function () {
 });
 Route::match(['get', 'post'], '/user/register', [UserController::class, 'register'])->name('user.register');
 Route::get('/user/verify/{token}', [UserController::class, 'verify'])->name('user.verify');
-Route::get('/user/view/{slug}', [UserController::class, 'userView'])->name('user.view');
+// Admin-only: userView() reuses show(), which populates username, email,
+// roles, security clearance AND live REST/OAI API keys. Previously anonymous
+// (it sat between the admin and auth groups); gated to admins to match the
+// canonical /user/{slug} route it duplicates.
+Route::get('/user/view/{slug}', [UserController::class, 'userView'])->name('user.view')->middleware('admin');
 
 // Authenticated user self-service routes
 Route::middleware('auth')->group(function () {

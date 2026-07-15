@@ -297,6 +297,20 @@ class ElasticsearchService
             $bool['filter'] = [$tenantClause];
         }
 
+        // Published-only for archival descriptions - mirrors search()'s
+        // publicationStatusId=160 filter so draft titles never surface in
+        // autocomplete. Non-IO docs (actor/repository/term) carry no
+        // publicationStatusId and pass through the should/must_not-exists arm.
+        $bool['filter'][] = [
+            'bool' => [
+                'should' => [
+                    ['bool' => ['must_not' => ['exists' => ['field' => 'publicationStatusId']]]],
+                    ['term' => ['publicationStatusId' => 160]],
+                ],
+                'minimum_should_match' => 1,
+            ],
+        ];
+
         $body = [
             'size' => $size,
             '_source' => ['slug', "i18n.{$culture}", 'identifier'],

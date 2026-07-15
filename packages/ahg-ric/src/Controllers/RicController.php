@@ -1022,7 +1022,7 @@ class RicController extends Controller
 
         $culture = app()->getLocale() === 'en' ? 'en' : app()->getLocale();
 
-        $results = DB::table('information_object as io')
+        $query = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', function ($j) use ($culture) {
                 $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
             })
@@ -1035,7 +1035,12 @@ class RicController extends Controller
                 $query->where('ioi.title', 'LIKE', '%' . $q . '%')
                       ->orWhere('io.identifier', 'LIKE', '%' . $q . '%')
                       ->orWhere('s.slug', 'LIKE', '%' . $q . '%');
-            })
+            });
+
+        // Guests must not see draft (unpublished) descriptions.
+        \AhgCore\Services\AclService::addFilterDraftsCriteria($query, 'io.id');
+
+        $results = $query
             ->select('io.id', 'ioi.title', 'io.identifier', 'lod.name as level_of_description', 's.slug')
             ->orderByRaw('CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END', [$q . '%'])
             ->limit(15)

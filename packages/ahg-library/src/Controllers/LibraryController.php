@@ -107,6 +107,13 @@ class LibraryController extends Controller
             abort(404);
         }
 
+        // Draft records must never leak to anonymous visitors (guests see
+        // published only; the ACL 'read' gate is a no-op for anonymous).
+        if (\Illuminate\Support\Facades\Auth::guest()
+            && ! app(\AhgCore\Services\MultilingualRecordService::class)->isPublished((int) $item->id)) {
+            abort(404);
+        }
+
         $levelName = $this->service->getTermName($item->level_of_description_id);
 
         $creators = collect();

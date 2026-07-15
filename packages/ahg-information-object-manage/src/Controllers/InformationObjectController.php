@@ -343,6 +343,16 @@ class InformationObjectController extends Controller
             abort(403, 'You do not have permission to view this record.');
         }
 
+        // Draft records must never leak to anonymous visitors. The global
+        // anonymous 'read' grant (group 98) makes the ACL gate above a no-op
+        // for guests, so publication status is enforced directly here: a guest
+        // may only see published records. 404 (not 403) so drafts are not even
+        // confirmed to exist.
+        if (\Illuminate\Support\Facades\Auth::guest()
+            && ! app(\AhgCore\Services\MultilingualRecordService::class)->isPublished((int) $io->id)) {
+            abort(404);
+        }
+
         // #74 encryption_field_access_restrictions: decrypt the two
         // registered i18n columns before the show-page blade renders them.
         // The show() method does its own inline query (not via
@@ -4548,13 +4558,18 @@ class InformationObjectController extends Controller
         $culture = app()->getLocale();
         $limit = (int) $request->get('limit', 10);
 
-        $results = DB::table('information_object')
+        $builder = DB::table('information_object')
             ->join('information_object_i18n', function ($j) use ($culture) {
                 $j->on('information_object.id', '=', 'information_object_i18n.id')
                   ->where('information_object_i18n.culture', '=', $culture);
             })
             ->join('slug', 'slug.object_id', '=', 'information_object.id')
-            ->where('information_object_i18n.title', 'LIKE', '%' . $query . '%')
+            ->where('information_object_i18n.title', 'LIKE', '%' . $query . '%');
+
+        // Guests must not see draft (unpublished) descriptions.
+        \AhgCore\Services\AclService::addFilterDraftsCriteria($builder, 'information_object.id');
+
+        $results = $builder
             ->select(
                 'information_object.id',
                 'information_object_i18n.title as name',

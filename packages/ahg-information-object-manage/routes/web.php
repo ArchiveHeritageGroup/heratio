@@ -52,8 +52,11 @@ Route::get('/informationobject/{slug}/print', [InformationObjectController::clas
 // per-controller lock notes.
 
 // 1. Filtered audit log for one IO (Bootstrap 5 + bi-* icons). Public read.
+// Auth-only: the modifications page lists per-record edit history including
+// editor username/email from ahg_audit_log - staff-facing, never anonymous.
 Route::get('/informationobject/{slug}/modifications', [ModificationsController::class, 'index'])
-    ->name('informationobject.modifications');
+    ->name('informationobject.modifications')
+    ->middleware('auth');
 
 // 2. Full-width jstree page. Public read (auth gates the move-by-drag JS).
 Route::get('/informationobject/{slug}/tree-view', [TreeViewPageController::class, 'show'])

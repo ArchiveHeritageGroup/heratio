@@ -104,6 +104,13 @@ class GalleryController extends Controller
             abort(404);
         }
 
+        // Draft records must never leak to anonymous visitors (guests see
+        // published only; the ACL 'read' gate is a no-op for anonymous).
+        if (\Illuminate\Support\Facades\Auth::guest()
+            && ! app(\AhgCore\Services\MultilingualRecordService::class)->isPublished((int) $artwork->id)) {
+            abort(404);
+        }
+
         // Repository
         $repository = null;
         if ($artwork->repository_id) {

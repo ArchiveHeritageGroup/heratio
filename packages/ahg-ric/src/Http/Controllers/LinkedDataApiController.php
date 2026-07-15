@@ -182,6 +182,9 @@ class LinkedDataApiController extends Controller
                 'level_i18n.name as level',
             ]);
 
+        // Guests must not see draft (unpublished) descriptions.
+        \AhgCore\Services\AclService::addFilterDraftsCriteria($query, 'io.id');
+
         if ($level) {
             $query->where('level_i18n.name', $level);
         }
@@ -226,6 +229,12 @@ class LinkedDataApiController extends Controller
             return response()->json(['error' => 'Record not found'], 404);
         }
 
+        // Guests must not see draft (unpublished) descriptions.
+        if (\Illuminate\Support\Facades\Auth::guest()
+            && ! app(\AhgCore\Services\MultilingualRecordService::class)->isPublished((int) $io->id)) {
+            return response()->json(['error' => 'Record not found'], 404);
+        }
+
         $ric = $this->serializer->serializeRecord($io->id);
         $ric = $this->serializer->addIscapCompliance($ric, $io->id, 'information_object');
 
@@ -248,6 +257,12 @@ class LinkedDataApiController extends Controller
             ->first();
 
         if (!$io) {
+            return response()->json(['error' => 'Record not found'], 404);
+        }
+
+        // Guests must not see draft (unpublished) descriptions.
+        if (\Illuminate\Support\Facades\Auth::guest()
+            && ! app(\AhgCore\Services\MultilingualRecordService::class)->isPublished((int) $io->id)) {
             return response()->json(['error' => 'Record not found'], 404);
         }
 
@@ -1695,6 +1710,11 @@ class LinkedDataApiController extends Controller
             $row = DB::table('actor_i18n')->where('id', $id)->where('culture', 'en')->value('authorized_form_of_name');
             if ($row) $info['name'] = $row;
         } elseif ($className === 'QubitInformationObject') {
+            // Guests must not see draft (unpublished) description titles.
+            if (\Illuminate\Support\Facades\Auth::guest()
+                && ! app(\AhgCore\Services\MultilingualRecordService::class)->isPublished($id)) {
+                return;
+            }
             $row = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->value('title');
             if ($row) $info['name'] = $row;
         }

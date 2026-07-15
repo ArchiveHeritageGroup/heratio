@@ -211,16 +211,16 @@ class AclService
      * Status type_id 158 = publicationStatusId
      * Status status_id 160 = PUBLICATION_STATUS_PUBLISHED_ID
      */
-    public static function addFilterDraftsCriteria($query): mixed
+    public static function addFilterDraftsCriteria($query, string $idColumn = 'i.id'): mixed
     {
         $user = self::getUser();
 
         // No user → only show published
         if (! $user) {
-            $query->whereExists(function ($sub) {
+            $query->whereExists(function ($sub) use ($idColumn) {
                 $sub->select(DB::raw(1))
                     ->from('status')
-                    ->whereColumn('status.object_id', 'i.id')
+                    ->whereColumn('status.object_id', $idColumn)
                     ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
                     ->where('status.status_id', 160);
             });
@@ -236,19 +236,19 @@ class AclService
         }
 
         // Contributors can see their own drafts + all published
-        $query->where(function ($q) use ($user) {
-            $q->whereExists(function ($sub) {
+        $query->where(function ($q) use ($user, $idColumn) {
+            $q->whereExists(function ($sub) use ($idColumn) {
                 $sub->select(DB::raw(1))
                     ->from('status')
-                    ->whereColumn('status.object_id', 'i.id')
+                    ->whereColumn('status.object_id', $idColumn)
                     ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
                     ->where('status.status_id', 160);
             });
             if ($user->id ?? null) {
-                $q->orWhereExists(function ($sub) use ($user) {
+                $q->orWhereExists(function ($sub) use ($user, $idColumn) {
                     $sub->select(DB::raw(1))
                         ->from('object')
-                        ->whereColumn('object.id', 'i.id')
+                        ->whereColumn('object.id', $idColumn)
                         ->where('object.created_by', $user->id);
                 });
             }
