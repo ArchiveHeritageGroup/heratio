@@ -536,6 +536,8 @@ class TermController extends Controller
             'lastPage' => max(1, (int) ceil($totalRelated / $limit)),
             'sort' => $sort,
             'icon' => $icon,
+            // #1388 P1.5 - community-protocol provenance badge (TK/BC label + owner).
+            'termProtocol' => \AhgCore\Services\TermProtocolService::protocolsForTerm((int) $term->id)->first(),
         ]);
     }
 
@@ -1389,6 +1391,20 @@ class TermController extends Controller
             'converse_term' => $request->input('converse_term'),
             'narrow_terms' => $request->input('narrow_terms'),
         ], $culture);
+
+        // #1388 - persist the community protocol on create too (mirror update()).
+        $newTerm = $this->termService->getBySlug($slug, $culture);
+        if ($newTerm) {
+            \AhgCore\Services\TermProtocolService::set(
+                (int) $newTerm->id,
+                $request->input('protocol_label_family'),
+                $request->input('protocol_label_code'),
+                (string) $request->input('protocol_access_condition', 'open'),
+                $request->filled('protocol_owner_actor_id') ? (int) $request->input('protocol_owner_actor_id') : null,
+                $request->input('protocol_region_module'),
+                (int) auth()->id() ?: null
+            );
+        }
 
         return redirect()
             ->route('term.show', $slug)

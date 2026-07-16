@@ -172,6 +172,35 @@
       {{-- Title --}}
       <h1>{{ $term->name }}</h1>
 
+      {{-- #1388 P1.5 - community-protocol provenance badge (TK/BC label + access condition + region). --}}
+      @if($termProtocol ?? null)
+        @php
+          $tp = $termProtocol;
+          $famLabel = ['tk' => 'TK', 'bc' => 'BC'][$tp->label_family ?? ''] ?? strtoupper($tp->label_family ?? '');
+          $condLabels = [
+            'open' => 'Open', 'attribution' => 'Attribution', 'non_commercial' => 'Non-commercial',
+            'community_voice' => 'Community voice', 'seasonal' => 'Seasonal', 'gendered' => 'Gendered',
+            'restricted' => 'Restricted', 'sacred_secret' => 'Sacred / secret',
+          ];
+          $cond = $tp->access_condition ?? 'open';
+          $restricted = in_array($cond, ['sacred_secret', 'restricted', 'gendered', 'seasonal', 'community_voice'], true);
+          // Build the badge caption in PHP - avoids inline @if directives glued to text.
+          $badgeText = $condLabels[$cond] ?? ucfirst(str_replace('_', ' ', $cond));
+          if ($famLabel) {
+              $prefix = $famLabel.' Label'.($tp->label_code ? ' - '.$tp->label_code : '');
+              $badgeText = $prefix.' · '.$badgeText;
+          }
+        @endphp
+        <div class="mb-3">
+          <span class="badge {{ $restricted ? 'bg-danger' : 'bg-info text-dark' }}" title="Community access protocol (#1388) - Traditional Knowledge / Biocultural labelling">
+            <i class="fas fa-hands-helping me-1"></i>{{ $badgeText }}
+          </span>
+          @if($tp->region_module)
+            <span class="badge bg-secondary">{{ ucwords(str_replace('_', ' ', $tp->region_module)) }}</span>
+          @endif
+        </div>
+      @endif
+
       {{-- #3 Navigate Related tabs --}}
       <nav>
         <ul class="nav nav-pills mb-3 d-flex gap-2">

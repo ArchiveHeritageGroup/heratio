@@ -187,6 +187,8 @@ class LinkedDataApiController extends Controller
 
         // Guests must not see draft (unpublished) descriptions.
         \AhgCore\Services\AclService::addFilterDraftsCriteria($query, 'io.id');
+        // #1388 - nor records tagged with a restricted community-protocol term.
+        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id');
 
         if ($level) {
             $query->where('level_i18n.name', $level);
@@ -238,6 +240,11 @@ class LinkedDataApiController extends Controller
             return response()->json(['error' => 'Record not found'], 404);
         }
 
+        // #1388 - nor a record tagged with a restricted community-protocol term.
+        if (! \AhgCore\Services\TermProtocolGate::allowsRecord((int) $io->id)) {
+            return response()->json(['error' => 'Record not found'], 404);
+        }
+
         $ric = $this->serializer->serializeRecord($io->id);
         $ric = $this->serializer->addIscapCompliance($ric, $io->id, 'information_object');
 
@@ -266,6 +273,11 @@ class LinkedDataApiController extends Controller
         // Guests must not see draft (unpublished) descriptions.
         if (\Illuminate\Support\Facades\Auth::guest()
             && ! app(\AhgCore\Services\MultilingualRecordService::class)->isPublished((int) $io->id)) {
+            return response()->json(['error' => 'Record not found'], 404);
+        }
+
+        // #1388 - nor a record tagged with a restricted community-protocol term.
+        if (! \AhgCore\Services\TermProtocolGate::allowsRecord((int) $io->id)) {
             return response()->json(['error' => 'Record not found'], 404);
         }
 

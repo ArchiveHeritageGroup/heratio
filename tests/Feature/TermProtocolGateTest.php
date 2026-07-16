@@ -133,4 +133,24 @@ class TermProtocolGateTest extends TestCase
         $this->assertTrue(G::allowsRecord($this->objId));
         $this->assertTrue($this->recordVisibleToGuest());
     }
+
+    public function test_set_persists_then_clears_the_protocol(): void
+    {
+        S::set($this->termId, 'tk', 'tk_secret', 'restricted', null, 'southern_africa');
+        $this->assertSame('restricted', S::effectiveCondition($this->termId));
+
+        // An 'open' condition with no label family/code clears the protocol.
+        S::set($this->termId, null, null, 'open');
+        $this->assertSame('open', S::effectiveCondition($this->termId));
+        $this->assertTrue(S::protocolsForTerm($this->termId)->isEmpty());
+    }
+
+    public function test_protocols_for_term_exposes_badge_data(): void
+    {
+        $this->protocol('attribution'); // usage obligation - stays public, badge renders
+        $row = S::protocolsForTerm($this->termId)->first();
+        $this->assertNotNull($row);
+        $this->assertSame('tk', $row->label_family);
+        $this->assertSame('attribution', $row->access_condition);
+    }
 }

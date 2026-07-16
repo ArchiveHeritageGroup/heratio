@@ -347,6 +347,10 @@ class OaiPmhController extends Controller
         // the single funnel for every OAI verb (list/get/isPublished).
         app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($q, 'io.id');
 
+        // #1388 — drop records tagged with a restricted community-protocol term
+        // from the harvest too (sacred_secret/restricted/gendered/seasonal/community_voice).
+        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($q, 'io.id');
+
         if ($from !== null) {
             $q->where('o.updated_at', '>=', $this->datestampToSql($from, false));
         }
