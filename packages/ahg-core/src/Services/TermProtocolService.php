@@ -55,6 +55,24 @@ class TermProtocolService
     }
 
     /**
+     * IO ids tagged (via object_term_relation) with a term carrying a restricted
+     * protocol - for batch gates (offline export bundles) that need the full set
+     * up front rather than per-record checks. Empty on any error (fail-open here
+     * is safe: the per-record gate still fires on the live surfaces).
+     */
+    public static function restrictedRecordIds(): array
+    {
+        try {
+            return DB::table('object_term_relation as otr')
+                ->join('term_protocol as tp', 'tp.term_id', '=', 'otr.term_id')
+                ->whereIn('tp.access_condition', self::RESTRICTED)
+                ->pluck('otr.object_id')->map('intval')->unique()->values()->all();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
      * Set (replace) a term's community protocol from the ISAAR/term edit form.
      * A blank family+code with an 'open' condition clears the protocol.
      */

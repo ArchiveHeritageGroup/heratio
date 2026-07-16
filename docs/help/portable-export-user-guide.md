@@ -215,6 +215,7 @@ Every portable export is **fail-closed** and gated on two levels, so a package c
 - **Publication status** — draft / unpublished records are excluded by default.
 - **ICIP / TK cultural protocols** — culturally restricted records (and their descendant subtrees) are excluded.
 - **ODRL access policies** — records under a "use" prohibition are excluded.
+- **Community access protocols** — records tagged with a term carrying a restricted community protocol (TK/BC label, e.g. sacred/secret, restricted, gendered, seasonal, community-voice) are excluded. Counted as `protocol` in the summary. There is **no** operator override for this reason — it is unconditionally fail-closed.
 - **PII redaction** — records carrying redaction regions never ship their original files.
 
 Every package includes a **`data/disclosure-summary.json`** recording exactly what was withheld and why — counts by reason, plus `perm_masters` / `perm_references` / `perm_thumbnails` flags when a tier was dropped by your role, and `exported_by`. The admin list shows an **"N withheld"** badge on each export.

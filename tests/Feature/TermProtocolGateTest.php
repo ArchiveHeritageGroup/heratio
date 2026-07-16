@@ -153,4 +153,15 @@ class TermProtocolGateTest extends TestCase
         $this->assertSame('tk', $row->label_family);
         $this->assertSame('attribution', $row->access_condition);
     }
+
+    public function test_restricted_record_ids_lists_tagged_records_only_when_restricted(): void
+    {
+        // Open/usage-obligation protocol -> the record is NOT in the batch set.
+        $this->protocol('attribution');
+        $this->assertNotContains($this->objId, S::restrictedRecordIds());
+
+        // Restricted protocol -> the tagged record IS in the batch set (offline gate).
+        $this->protocol('sacred_secret');
+        $this->assertContains($this->objId, S::restrictedRecordIds());
+    }
 }

@@ -150,8 +150,53 @@ Useful for handing the institution's controlled vocabulary to a partner or to a 
 
 ---
 
+## Community protocols (African taxonomies)
+
+Some vocabulary terms carry an **Indigenous / community access protocol** - a Traditional Knowledge (TK) or Biocultural (BC) label plus an access condition that governs who may see the term and the records tagged with it. This lets a community assert governance over its own knowledge (the "term-plus-protocol-plus-owner" model from the African-taxonomies governance work, issue #1388), grounded in the CARE principles and Local Contexts labelling.
+
+### Setting a protocol
+
+On the **term add / edit form** (`/term/<slug>/edit`) a **Community protocol** fieldset carries:
+
+| Field | Meaning |
+| --- | --- |
+| **Access condition** | How the term is disclosed - see the table below. |
+| **Label family** | `TK` (Traditional Knowledge) or `BC` (Biocultural). |
+| **Label code** | The specific label, e.g. `tk_attribution`, `tk_secret`. |
+| **Region module** | The community-governance region, e.g. `southern_africa`. |
+| **Owner** | The authority record (community) that owns the protocol. |
+
+A blank family + code with an **Open** condition clears the protocol.
+
+### Access conditions
+
+| Condition | Effect on the public |
+| --- | --- |
+| **Open** | Fully visible - no restriction. |
+| **Attribution** / **Non-commercial** | Visible - these are *usage obligations*, not access restrictions. The obligation rides the export; the content stays viewable, and a provenance **badge** shows on the term page. |
+| **Community voice**, **Seasonal**, **Gendered**, **Restricted**, **Sacred / secret** | **Restricted** - the term and any record tagged with it are hidden from guests and non-editors. |
+
+Editors and administrators always bypass the gate (they see everything, restricted or not).
+
+### Where the gate applies
+
+A **restricted** protocol fails closed across every public surface at once:
+
+- **Term page** (`/term/<slug>`) - 404 for guests.
+- **Term browse** - the term is omitted from the list.
+- **Public record display, print, and export** - records tagged with the term drop out.
+- **OAI-PMH harvest** and the **RiC linked-data API** - excluded from `ListRecords` / `GetRecord` and the record list / single-record / export endpoints.
+- **Portable offline export** - tagged records are withheld from the bundle (counted as `protocol` in the bundle's `disclosure-summary.json`).
+
+A **usage-obligation** label (open / attribution / non-commercial) stays visible and simply renders a coloured badge on the term page.
+
+> Term-level protocols here are the lightweight vocabulary-governance layer. For object-level ICIP infrastructure - communities, consent, notices, OCAP dashboards - see the **ICIP** user guide.
+
+---
+
 ## Common gotchas
 
+- **A restricted protocol hides the term everywhere at once.** If a term "disappears" for the public (404 on its page, gone from browse, dropped from OAI/RiC/exports) check its Community-protocol access condition - a restricted condition is doing exactly that by design. Editors still see it.
 - **Don't delete a term that is in use.** The delete refuses if any object_term link or term_relation references it. Reassign first.
 - **Slug stability.** Renaming a term's preferred label does *not* rename its slug. Use **Rename slug** explicitly if you need the URL to change — and remember the old URL will 404 unless an admin adds a redirect.
 - **Built-in taxonomy IDs are referenced from code.** `taxonomy.id = 35` is `Subject`. Don't reassign or delete the row — code paths break.
@@ -167,4 +212,5 @@ Useful for handing the institution's controlled vocabulary to a partner or to a 
 - **`ahgActorManagePlugin`** — uses entity-type and occupation taxonomies.
 - **`ahgRicExplorerPlugin`** — RiC graph view of concept relationships.
 - **`ahgAIPlugin`** — NER pipeline that suggests new subject terms from IO content.
-- **Help articles**: *Multilingual Cataloguing*, *AHG Authority Records — User Guide*
+- **`ahgIcipPlugin`** — object-level Indigenous cultural protocols (communities, consent, notices), complementary to term-level community protocols.
+- **Help articles**: *Multilingual Cataloguing*, *AHG Authority Records — User Guide*, *ICIP — User Guide*

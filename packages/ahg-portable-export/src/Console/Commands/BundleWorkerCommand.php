@@ -53,7 +53,7 @@ class BundleWorkerCommand extends Command
      * #1389 disclosure tally for the run in progress — records withheld by each
      * gate. Reset per row in processOne().
      */
-    private array $excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'redacted_objects' => 0];
+    private array $excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'protocol' => 0, 'redacted_objects' => 0];
 
     /** #role-based — whether the exporting operator may see draft/unpublished records. */
     private bool $operatorCanViewDraft = false;
@@ -133,7 +133,7 @@ class BundleWorkerCommand extends Command
         // Resolve scope -> IO id list, then apply the #1389 disclosure gates
         // (publication status, ICIP/TK protocols, ODRL) BEFORE anything is
         // written — over-inclusion into an offline package is unrecoverable.
-        $this->excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'redacted_objects' => 0,
+        $this->excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'protocol' => 0, 'redacted_objects' => 0,
             'perm_masters' => 0, 'perm_references' => 0, 'perm_thumbnails' => 0];
 
         // #role-based export — the operator can only export what THEIR role permits.
@@ -167,10 +167,12 @@ class BundleWorkerCommand extends Command
 
         $rawIds = $this->resolveScopeIoIds($row);
         $ioIds = $this->applyDisclosureGates($rawIds, $row);
-        $withheld = $this->excluded['unpublished'] + $this->excluded['icip'] + $this->excluded['odrl'];
+        $withheld = $this->excluded['unpublished'] + $this->excluded['icip'] + $this->excluded['odrl']
+            + $this->excluded['protocol'];
         $this->line('  '.count($ioIds).' IOs in scope'
             .($withheld ? ' ('.$withheld.' withheld: '.$this->excluded['unpublished'].' unpublished, '
-                .$this->excluded['icip'].' ICIP-restricted, '.$this->excluded['odrl'].' ODRL-gated)' : ''));
+                .$this->excluded['icip'].' ICIP-restricted, '.$this->excluded['odrl'].' ODRL-gated, '
+                .$this->excluded['protocol'].' protocol-restricted)' : ''));
 
         // Destination: for a 'folder' export, build the bundle DIRECTLY on the
         // target drive (no temp staging → large dumps needn't fit in /tmp, and we
@@ -213,7 +215,7 @@ class BundleWorkerCommand extends Command
             'included_unpublished' => $this->includedUnpublished,
             'withheld'         => $this->excluded,
             'exported_by'      => (int) ($row->user_id ?? 0),
-            'note'             => 'Content was excluded to honour (1) the exporting operator\'s role/ACL — perm_masters/perm_references/perm_thumbnails=1 mean that derivative tier was dropped because the operator lacks the read grant, and drafts are withheld unless the operator has viewDraft; and (2) the public disclosure gates: publication status, ICIP/TK cultural protocols, ODRL access policies, and PII redaction. Counts reflect what was NOT exported.',
+            'note'             => 'Content was excluded to honour (1) the exporting operator\'s role/ACL — perm_masters/perm_references/perm_thumbnails=1 mean that derivative tier was dropped because the operator lacks the read grant, and drafts are withheld unless the operator has viewDraft; and (2) the public disclosure gates: publication status, ICIP/TK cultural protocols, ODRL access policies, community access protocols (term-level TK/BC restrictions), and PII redaction. Counts reflect what was NOT exported (protocol = records tagged with a restricted community-protocol term).',
         ];
         @file_put_contents($workDir.'/data/disclosure-summary.json',
             json_encode($disclosure, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
@@ -290,6 +292,9 @@ class BundleWorkerCommand extends Command
         $gate = app(\AhgCore\Services\DisclosureGate::class);
         $icip = array_flip($gate->icipRestrictedIds());
         $odrl = array_flip($gate->odrlRestrictedIds());
+        // #1388 - records tagged with a restricted community-protocol term must
+        // not enter an offline package either (no operator override; unrecoverable).
+        $protocol = array_flip(\AhgCore\Services\TermProtocolService::restrictedRecordIds());
 
         // #role-based — unpublished may be exported only when the setting allows it
         // AND the operator actually has the viewDraft grant.
@@ -311,6 +316,7 @@ class BundleWorkerCommand extends Command
             if (! $includeUnpublished && ! isset($published[$id])) { $this->excluded['unpublished']++; continue; }
             if (isset($icip[$id])) { $this->excluded['icip']++; continue; }
             if (isset($odrl[$id])) { $this->excluded['odrl']++; continue; }
+            if (isset($protocol[$id])) { $this->excluded['protocol']++; continue; }
             $kept[] = $id;
         }
 

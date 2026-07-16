@@ -1,7 +1,7 @@
 # African taxonomies - governance-and-access implementation plan (#1388)
 
 Date: 2026-07-16
-Status: Plan (approved to plan; not yet built)
+Status: **Phase 0 + Phase 1 BUILT & shipped** (v1.154.342-344, dev + prod + sasa + atom). See "Phase 1 - delivered" below. Remaining: ahg-icip label-metadata bind, CLI serializers (EAD/portable/metadata) operator-vs-public decision, badge owner-name resolution, Phase 2+.
 Companion: `docs/reference/indigenous-tk-bc-plugin-design.md` (TK/BC-as-plugin + terminology), issue #1388, conference paper "Beyond Translation".
 
 Turns the #1388 design (6 principles, CARE+FAIR, TK/BC Labels, RiC) into phased Heratio build work. The unit of curation is **term-plus-protocol-plus-owner**: a peer-identified, equally-multilingual/oral concept carrying a community-set access condition enforced at retrieval, display and export, crosswalked sideways to international standards.
@@ -86,4 +86,22 @@ CARE (Indigenous Data Governance) + FAIR; Local Contexts TK/BC Labels; RiC-CM/Ri
 - **1.7 Tests** - guest vs owner vs editor across retrieval/display/export for a protocol-bearing term + record inheritance + the `no_equivalent` state.
 
 Sequencing: 0.2 then 0.3 (validate), then 1.1 -> 1.3 (the gate is the linchpin, build it before wiring), then 1.4 surface-by-surface, then 1.5/1.6/1.7. Per-region modules (P5) only after the neutral core is solid.
+
+---
+
+## Phase 1 - delivered (v1.154.342 - v1.154.344)
+
+Built and deployed to dev + prod + sasa + atom.
+
+- **1.1 Migration** - `term_protocol` table via `ahg-term-taxonomy` (`loadMigrationsFrom` registered): `term_id`, `label_family` (tk/bc), `label_code`, `access_condition`, `owner_actor_id`, `region_module`, `pid`, `no_equivalent`, `created_by`. No hard FKs (fail-soft on partial installs). *(v1.154.342)*
+- **1.2 `TermProtocolService`** (`ahg-core`) - `effectiveCondition(termId)`, `conditionForRecord(objectId)` (strictest inherited condition via `object_term_relation`), `isRestricted()`, `set()` (persist/clear from the form), `protocolsForTerm()` (badge data), `restrictedRecordIds()` (batch set for offline-export gate). `RESTRICTED = sacred_secret / restricted / gendered / seasonal / community_voice`; usage-obligation labels (open/attribution/non_commercial) stay visible. Try/catch → `open` so a missing table never 500s.
+- **1.3 `TermProtocolGate`** (`ahg-core`, sibling to `DisclosureGate`) - `allowsTerm()`, `allowsRecord()`, query scopes `addTermVisibilityCriteria()` + `excludeRestrictedRecords()`. Editors/admins bypass via `AclService` group check.
+- **1.4 Choke points wired** - term show (404 for guests), term browse (`TermBrowseService`), public display / print / export (`DisplayController`), OAI-PMH harvest (shared `publishedQuery`), RiC linked-data API (list + showRecord + exportRecordSet), portable offline-export bundle (`BundleWorkerCommand::applyDisclosureGates`, counted as `protocol` in `disclosure-summary.json`). *(v1.154.343-344)*
+- **1.6 Admin UI + badge** - term add/edit form Community-protocol fieldset; `store()` + `update()` both persist; provenance badge on the public term show page (TK/BC label + condition + region, colour-coded). *(v1.154.343-344)*
+- **1.7 Tests** - `tests/Feature/TermProtocolGateTest.php` 6/6 (restricted term/record hidden, open stays visible, editor bypass, `set()` round-trip, badge data). Made deterministic via `AclService::forgetUser()`.
+
+**Remaining (Phase 1 tail / later):**
+- **1.5** full bind to `ahg-icip` `LocalContextsHubService` label metadata (banner/tooltip from `label_code`) and `OcapService` governance events - only the lightweight term-level protocol is wired so far.
+- **EAD / portable / metadata *CLI* serializers** - the public OAI/RiC surfaces and the portable *bundle* fail closed; the operator-run CLI export commands need an explicit operator-vs-public gating decision (they run with an operator identity, not a guest).
+- Badge **owner-actor name** resolution (currently shows label + condition + region, not the owning community's authority-record name).
 
