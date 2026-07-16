@@ -23,10 +23,11 @@ class HeritageInstallCommand extends Command
             return self::FAILURE;
         }
         if ($this->option('list')) {
-            $rows = DB::table('heritage_accounting_standard')->get(['id', 'code', 'name', 'jurisdiction', 'is_installed', 'is_active']);
+            $rows = DB::table('heritage_accounting_standard')->get(['id', 'code', 'name', 'country', 'is_active']);
             foreach ($rows as $r) {
-                $marker = $r->is_installed ? ($r->is_active ? 'ACTIVE  ' : 'inst.   ') : '-       ';
-                $this->line(sprintf('  %s  %-12s  %-30s  %s', $marker, $r->code, $r->name, $r->jurisdiction));
+                // Presence in the table = installed; the schema only tracks is_active.
+                $marker = $r->is_active ? 'ACTIVE  ' : 'inst.   ';
+                $this->line(sprintf('  %s  %-12s  %-30s  %s', $marker, $r->code, $r->name, $r->country));
             }
 
             return self::SUCCESS;
@@ -46,7 +47,7 @@ class HeritageInstallCommand extends Command
 
         $installed = (int) DB::table('heritage_accounting_standard')
             ->whereIn('code', $regions)
-            ->update(['is_installed' => 1, 'is_active' => 1, 'installed_at' => now()]);
+            ->update(['is_active' => 1]);
         $this->info("installed/activated {$installed} region(s)");
 
         return self::SUCCESS;

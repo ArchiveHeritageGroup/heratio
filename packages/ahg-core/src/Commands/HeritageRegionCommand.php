@@ -32,13 +32,13 @@ class HeritageRegionCommand extends Command
             return self::SUCCESS;
         }
         if ($code = $this->option('install')) {
-            DB::table('heritage_accounting_standard')->where('code', $code)->update(['is_installed' => 1, 'is_active' => 1, 'installed_at' => now()]);
+            DB::table('heritage_accounting_standard')->where('code', $code)->update(['is_active' => 1]);
             $this->info("installed region={$code}");
 
             return self::SUCCESS;
         }
         if ($code = $this->option('uninstall')) {
-            DB::table('heritage_accounting_standard')->where('code', $code)->update(['is_installed' => 0, 'is_active' => 0]);
+            DB::table('heritage_accounting_standard')->where('code', $code)->update(['is_active' => 0]);
             $this->info("uninstalled region={$code}");
 
             return self::SUCCESS;
@@ -57,11 +57,12 @@ class HeritageRegionCommand extends Command
         }
 
         // Default: list installed regions
-        $rows = DB::table('heritage_accounting_standard')->get(['code', 'name', 'jurisdiction', 'is_installed', 'is_active']);
+        $rows = DB::table('heritage_accounting_standard')->get(['code', 'name', 'country', 'is_active']);
         $this->info('=== heritage regions ===');
         foreach ($rows as $r) {
-            $marker = $r->is_installed ? ($r->is_active ? 'ACTIVE  ' : 'inst.   ') : '-       ';
-            $this->line(sprintf('  %s  %-12s  %-30s  %s', $marker, $r->code, $r->name, $r->jurisdiction ?? '-'));
+            // Presence in the table = installed; the schema only tracks is_active.
+            $marker = $r->is_active ? 'ACTIVE  ' : 'inst.   ';
+            $this->line(sprintf('  %s  %-12s  %-30s  %s', $marker, $r->code, $r->name, $r->country ?? '-'));
         }
 
         return self::SUCCESS;
