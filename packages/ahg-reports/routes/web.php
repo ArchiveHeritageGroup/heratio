@@ -210,5 +210,5 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/report-builder/{id}/clone', fn ($id) => redirect("/admin/reports/builder/{$id}/clone", 301))->where('id', '[0-9]+');
     Route::get('/admin/report-builder/archive', fn () => redirect('/admin/reports/builder/archive', 301));
     Route::post('/admin/report-builder/{id}/schedule', [ReportBuilderController::class, 'scheduleStore'])->where('id', '[0-9]+');
-    Route::post('/admin/report-builder/{id}/delete', [ReportBuilderController::class, 'destroy'])->where('id', '[0-9]+');
+    Route::post('/admin/report-builder/{id}/delete', [ReportBuilderController::class, 'apiDelete'])->where('id', '[0-9]+');
 });
