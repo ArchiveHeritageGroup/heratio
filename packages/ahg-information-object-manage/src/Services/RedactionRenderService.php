@@ -148,8 +148,16 @@ class RedactionRenderService
                 break;
             }
         }
+        // Heratio's real on-disk layout is <uploads_path>/r/<hash>/, i.e. the
+        // '/r/' segment IS part of the filesystem path - so strip only the
+        // leading 'uploads/' (keep 'r/'). The canonical strip above drops '/r/'
+        // and only matches the flatter AtoM legacy layout.
+        $uploadsOnly = str_starts_with($rawPath, 'uploads/')
+            ? substr($rawPath, strlen('uploads/'))
+            : $rawPath;
         $candidates = [
-            $uploads . '/' . $stripped . $master->name,           // canonical
+            $uploads . '/' . $uploadsOnly . $master->name,        // Heratio: <uploads>/r/<hash>/
+            $uploads . '/' . $stripped . $master->name,           // canonical (AtoM legacy, no /r/)
             $uploads . '/' . $rawPath . $master->name,            // belt-and-braces
             rtrim((string) $master->path, '/') . '/' . $master->name, // raw (works if path is already absolute)
             $uploads . '/' . $master->name,                       // last-resort flat
