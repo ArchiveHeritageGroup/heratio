@@ -21,4 +21,9 @@ An ontology is a promise, not a diagram - a long-lived commitment about how mean
 
 A single, citable one-page **ontology governance pin** (see `ontology-governance-pin.md`) declaring pinned versions, canonical namespaces + IRI policy, the source-of-truth rule, the change process, the conformance gate + export guarantees (Turtle/JSON-LD round-trip; read-only SPARQL; no proprietary-only path), and the AI-provenance requirement. Closing move: govern the ontology like public infrastructure and contribute extensions back to a community standard (OpenRiC), not a proprietary model.
 
+## Companion assets
+
+- **Downloadable template attached to the article** (`blog_attachment`, kind `template`): "The Ontology Governance Pin (one-page template)" - a reusable, sanitised one-pager readers can steal.
+- **Shareable one-page card graphic** (navy/teal, six-card layout): https://heratio.theahg.co.za/storage/blog/ontology-governance-pin-card.png - used as LinkedIn carousel image 2 alongside the article cover.
+
 See [[project_thought_leadership_blog]]; technical detail in `ontology-governance-pin.md`; and the companion `preservation-in-ai-archives.md`, `ipres-ai-metadata-preservation-paper.md`.
