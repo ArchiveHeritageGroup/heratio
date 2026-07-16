@@ -237,13 +237,13 @@ If two records are not actually duplicates:
 
 ```bash
 # Scan a specific repository
-php symfony dedupe:scan --repository=1
+php artisan ahg:dedupe-scan --repository=1
 
 # Scan entire system
-php symfony dedupe:scan --all
+php artisan ahg:dedupe-scan
 
 # Limit records scanned
-php symfony dedupe:scan --all --limit=1000
+php artisan ahg:dedupe-scan --limit=1000
 ```
 
 ### Scan Progress
@@ -358,17 +358,14 @@ Go to **Admin** > **Duplicate Detection** > **Reports**
 ### Exporting Reports
 
 ```bash
-# Export to CSV
-php symfony dedupe:report --format=csv --output=duplicates.csv
+# Export to JSON (redirect to a file)
+php artisan ahg:dedupe-report --format=json > duplicates.json
 
-# Export to JSON
-php symfony dedupe:report --format=json --output=duplicates.json
+# Filter by scan status
+php artisan ahg:dedupe-report --status=pending --format=json
 
-# Filter by status
-php symfony dedupe:report --status=pending --format=csv
-
-# Filter by minimum score
-php symfony dedupe:report --min-score=0.9 --format=table
+# Show as a table (default), limit rows
+php artisan ahg:dedupe-report --format=table --limit=20
 ```
 
 ---
@@ -402,40 +399,37 @@ php symfony dedupe:report --min-score=0.9 --format=table
 ### Scanning
 ```bash
 # Scan specific repository
-php symfony dedupe:scan --repository=1
+php artisan ahg:dedupe-scan --repository=1
 
 # Scan entire system
-php symfony dedupe:scan --all
+php artisan ahg:dedupe-scan
 
 # Limit records
-php symfony dedupe:scan --all --limit=5000
+php artisan ahg:dedupe-scan --limit=5000
 ```
 
 ### Merging
 ```bash
-# Merge a duplicate pair (keep record A)
-php symfony dedupe:merge 123
+# Merge a duplicate pair (keep the winner, redirect the loser)
+php artisan ahg:dedupe-merge --keep=456 --remove=123
 
-# Merge keeping record B
-php symfony dedupe:merge 123 --primary=b
+# Preview the merge without writing
+php artisan ahg:dedupe-merge --keep=456 --remove=123 --dry-run
 
-# Preview merge without changes
-php symfony dedupe:merge 123 --dry-run
-
-# Force merge without confirmation
-php symfony dedupe:merge 123 --force
+# Merge every approved candidate from a scan run
+php artisan ahg:dedupe-merge --scan-id=42
 ```
 
 ### Reporting
 ```bash
-# Show pending duplicates
-php symfony dedupe:report --status=pending
+# Show pending scan runs
+php artisan ahg:dedupe-report --status=pending
 
-# High confidence matches only
-php symfony dedupe:report --min-score=0.9
+# Limit rows returned
+php artisan ahg:dedupe-report --limit=20
 
-# Export to file
-php symfony dedupe:report --format=csv --output=report.csv
+# Output as JSON (redirect to a file)
+php artisan ahg:dedupe-report --format=json > report.json
 ```
 
 ---
@@ -475,7 +469,7 @@ php symfony dedupe:report --format=csv --output=report.csv
   Import Data
       |
       v
-  Run Scan (php symfony dedupe:scan --repository=X)
+  Run Scan (php artisan ahg:dedupe-scan --repository=X)
       |
       v
   Review High-Score Matches (90%+)

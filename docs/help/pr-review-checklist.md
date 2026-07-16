@@ -111,7 +111,7 @@ Use this checklist when reviewing pull requests for `atom-framework` and `atom-a
 - [ ] Functionality verified in browser
 - [ ] No PHP syntax errors (`php -l` on changed files)
 - [ ] No JavaScript console errors
-- [ ] Cache cleared after testing (`php symfony cc`)
+- [ ] Cache cleared after testing (`php artisan optimize:clear`)
 
 ---
 

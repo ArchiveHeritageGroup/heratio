@@ -304,44 +304,44 @@ For large archives, batch processing via CLI is more efficient than processing r
 
 #### NER Extraction
 ```bash
-# Extract from all unprocessed records
-php symfony ner:extract --all --limit=1000
+# Extract from all records that have no NER entities yet
+php artisan ahg:ai-ner --unprocessed --limit=1000
 
-# Extract from specific repository
-php symfony ner:extract --repository=5 --limit=500
-
-# Extract from single record
-php symfony ner:extract --object=12345
+# Set the reporting batch size while processing
+php artisan ahg:ai-ner --unprocessed --limit=500 --batch=50
 
 # Preview only (dry run)
-php symfony ner:extract --all --dry-run --limit=10
+php artisan ahg:ai-ner --unprocessed --dry-run --limit=10
 
-# Force PDF extraction regardless of setting
-php symfony ner:extract --all --with-pdf --limit=100
+# Read descriptions from a specific culture
+php artisan ahg:ai-ner --unprocessed --culture=af --limit=100
 ```
 
 #### Summarization
 ```bash
 # Summarize records with empty scope_and_content
-php symfony ner:summarize --all-empty --limit=100
+php artisan ahg:ai-summarize --all-empty --limit=100
 
 # Summarize specific record
-php symfony ner:summarize --object=12345
+php artisan ahg:ai-summarize --object=12345
+
+# Limit to one repository
+php artisan ahg:ai-summarize --all-empty --repository=5 --limit=100
 
 # Specify different target field
-php symfony ner:summarize --all-empty --field=abstract --limit=100
+php artisan ahg:ai-summarize --all-empty --field=abstract --limit=100
 ```
 
 #### Spell Check
 ```bash
 # Check all records
-php symfony ner:spellcheck --all --limit=100
+php artisan ahg:ai-spellcheck --all --limit=100
 
 # Check specific repository
-php symfony ner:spellcheck --repository=5 --limit=500
+php artisan ahg:ai-spellcheck --repository=5 --limit=500
 
-# Use different language
-php symfony ner:spellcheck --all --language=af_ZA --limit=100
+# Use different culture
+php artisan ahg:ai-spellcheck --all --culture=af --limit=100
 ```
 
 ### Running Long Batches
@@ -352,7 +352,7 @@ For large-scale processing, use `screen` to run in the background:
 screen -S batch_ner
 
 # Run the batch
-php symfony ner:extract --all --limit=100000
+php artisan ahg:ai-ner --unprocessed --limit=100000
 
 # Detach from screen: Ctrl+A, then D
 # Reattach later: screen -r batch_ner
@@ -423,7 +423,7 @@ SELECT
 **Solutions**:
 1. Check ES running: `systemctl status elasticsearch`
 2. Verify Elastica version matches Elasticsearch version
-3. Rebuild index: `php symfony search:populate`
+3. Rebuild index: `php artisan ahg:search-populate`
 
 #### Summary Not Saving
 
@@ -447,15 +447,14 @@ SELECT
 ### CLI Commands
 ```bash
 # NER
-php symfony ner:extract --all --limit=N
-php symfony ner:extract --object=ID
+php artisan ahg:ai-ner --unprocessed --limit=N
 
 # Summarize
-php symfony ner:summarize --all-empty --limit=N
-php symfony ner:summarize --object=ID
+php artisan ahg:ai-summarize --all-empty --limit=N
+php artisan ahg:ai-summarize --object=ID
 
 # Spell Check
-php symfony ner:spellcheck --all --limit=N
+php artisan ahg:ai-spellcheck --all --limit=N
 ```
 
 ### Monitor Progress

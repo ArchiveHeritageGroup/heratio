@@ -457,32 +457,32 @@ Go to **Workflow** → **Admin** → **New Workflow**
 
 ### Process Workflow Tasks
 ```bash
-# Process notifications and escalations
-php symfony workflow:process
-
-# Only send pending notifications
-php symfony workflow:process --notifications
+# Process pending tasks (claim -> in_progress; escalate overdue)
+php artisan ahg:workflow-process
 
 # Only escalate overdue tasks
-php symfony workflow:process --escalate
+php artisan ahg:workflow-process --escalate
 
-# Cleanup old completed tasks
-php symfony workflow:process --cleanup --days=90
+# Preview what would happen without writing
+php artisan ahg:workflow-process --dry-run
+
+# Notify assignees of tasks past their due date
+php artisan workflow:notify-overdue
 ```
 
 ### View Workflow Status
 ```bash
-# Show summary statistics
-php symfony workflow:status
+# Show summary statistics (counts by status, breaches)
+php artisan ahg:workflow-status
 
-# Show only pending tasks
-php symfony workflow:status --pending
-
-# Show only overdue tasks
-php symfony workflow:status --overdue
+# Include queue statistics
+php artisan ahg:workflow-status --queues
 
 # Output as JSON
-php symfony workflow:status --format=json
+php artisan ahg:workflow-status --format=json
+
+# Detect SLA breaches (open tasks past their deadline)
+php artisan ahg:workflow-sla-check
 ```
 
 ---
@@ -522,7 +522,7 @@ php symfony workflow:status --format=json
 │                                                                     │
 │  ✓ Monitor overdue tasks regularly                                  │
 │                                                                     │
-│  ✓ Run workflow:process via cron for automation                     │
+│  ✓ Run ahg:workflow-process via cron for automation                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```

@@ -124,7 +124,7 @@ This document catalogs all API endpoints, reporting systems, export functionalit
 
 **Security:** HMAC-SHA256 signature in `X-Webhook-Signature` header. Exponential backoff for failed deliveries.
 
-**CLI:** `php symfony api:webhook-process-retries` — process failed webhook deliveries
+**CLI:** `php artisan ahg:webhook-retry` - process failed webhook deliveries
 
 ### 1.11 Legacy API Endpoints
 
@@ -277,7 +277,7 @@ This document catalogs all API endpoints, reporting systems, export functionalit
 
 ### 4.3 Auto-Mint
 
-Hooks `QubitInformationObject.postSave` — if `shouldAutoMint($record)` is true, queues for background minting without blocking save.
+Hooks the information object post-save event - if `shouldAutoMint($record)` is true, queues for background minting without blocking save.
 
 ### 4.4 CLI Commands
 
@@ -615,7 +615,7 @@ Denormalized SQL views for Power BI, Tableau, Metabase, and other BI tools:
 1. **Clipboard Export** — Select records → Export
 2. **Individual Record** — View page → Export sidebar
 3. **Admin Bulk Export** — Admin → Import/Export
-4. **CLI Export** — `php bin/atom export:bulk`
+4. **CLI Export** - `php artisan ahg:export-bulk`
 
 ### 8.2 AHG Export UI (ahgExportPlugin)
 
@@ -673,16 +673,15 @@ Denormalized SQL views for Power BI, Tableau, Metabase, and other BI tools:
 #### CLI Command
 
 ```bash
-php symfony metadata:export \
+php artisan ahg:metadata-export \
   --format=ead3 \
   --slug=my-fonds \
   --repository=my-repo \
-  --output=/tmp/export.xml \
+  --output=/tmp/exports \
   --include-digital-objects \
   --include-children \
-  --max-depth=5 \
-  --list          # List available formats
-  --preview       # Preview without download
+  --include-drafts \
+  --list          # List available formats (--output is a directory)
 ```
 
 **Database:** `metadata_export_config` (per-format settings), `metadata_export_log` (export audit trail)
@@ -758,7 +757,7 @@ descriptions, authorities, taxonomies, rights, accessions, physical_objects, eve
 
 **Features:** PDF/A output, customizable templates, hierarchical structure, digital object thumbnails
 
-**CLI:** `php bin/atom finding-aid:generate`
+**CLI:** `php artisan ahg:finding-aid-generate`
 
 ### 8.6 TIFF to PDF Merge
 
@@ -831,123 +830,104 @@ text, textarea, date, number, boolean, dropdown, url, select, multiselect, radio
 
 ## 9. CLI Commands Reference
 
-### 9.1 Framework Export Commands (`php bin/atom`)
+### 9.1 Framework Export Commands (`php artisan`)
+
+In Heratio the granular per-entity AtoM CSV exporters are consolidated into a small set of commands:
 
 | Command | Description |
 |---------|-------------|
-| `csv:export` | Export descriptions as CSV (`--standard`, `--single-slug`, `--rows-per-file`) |
-| `export:bulk` | Bulk EAD/XML/MODS export (`--format`, `--single-slug`, `--public`, `--criteria`) |
-| `export:bulk-csv` | Bulk CSV export of descriptions |
-| `csv:accession-export` | Export accessions as CSV |
-| `csv:authority-export` | Export authority records as CSV |
-| `csv:repository-export` | Export repositories as CSV |
-| `csv:export-term-usage` | Export term usage statistics (`--taxonomy-id`) |
-| `csv:physicalstorage-holdings` | Export physical storage holdings |
-| `export:auth-recs` | EAC-CPF authority records export |
-| `finding-aid:generate` | Generate EAD finding aid |
+| `heratio:export:csv` | Export data to CSV format |
+| `ahg:export-bulk` | Bulk export descriptions in a GLAM standard (`--format`, `--criteria`, `--path`, `--limit`) |
+| `ahg:metadata-export` | GLAM metadata export (EAD3, LIDO, MARC21, RIC-O, PREMIS, BIBFRAME) |
+| `ahg:finding-aid-generate` | Generate a finding aid (`--slug`, `--all`, `--format`) |
 
-### 9.2 Framework Import Commands (`php bin/atom`)
+### 9.2 Framework Import Commands (`php artisan`)
+
+The granular per-entity AtoM CSV importers are consolidated into the CLI import and sector-import commands:
 
 | Command | Description |
 |---------|-------------|
-| `import:csv` | Import descriptions from CSV |
-| `import:bulk` | Bulk EAD/XML import |
-| `import:csv-accession` | Import accessions |
-| `import:csv-authority-record` | Import authority records |
-| `import:csv-authority-record-relation` | Import authority relationships |
-| `import:csv-event` | Import events |
-| `import:csv-deaccession` | Import deaccessions |
-| `import:csv-physical-object` | Import physical objects |
-| `import:csv-repository` | Import repositories |
-| `import:csv-custom` | Custom CSV import |
-| `import:csv-check` | Validate CSV before import |
-| `import:csv-digital-object-paths-check` | Validate digital object paths |
-| `import:csv-audit` | Import audit log data |
-| `import:dip-objects` | Import DIP digital objects |
-| `import:delete` | Delete import records |
+| `heratio:import:csv` | Import CSV data via the Heratio CLI |
+| `ahg:csv-import` | CSV import (ISAD(G) archives sector) |
+| `ahg:ead-import` | Bulk EAD/XML import (EAD2002, EAD3) |
+| `ahg:load-digital-objects` | Batch load digital objects under a parent IO |
+| `sector:archives-csv-import` | Import archives CSV data with ISAD(G) validation |
+| `sector:library-csv-import` | Import library CSV data with MARC/RDA validation |
+| `sector:museum-csv-import` | Import museum CSV data with Spectrum 5.0 validation |
+| `sector:gallery-csv-import` | Import gallery CSV data with CCO validation |
+| `sector:dam-csv-import` | Import DAM CSV data with Dublin Core/IPTC validation |
 
-### 9.3 Plugin CLI Commands (`php symfony`)
+### 9.3 Plugin CLI Commands (`php artisan`)
 
-| Command | Plugin | Description |
+| Command | Module | Description |
 |---------|--------|-------------|
-| `ai:install` | ahgAIPlugin | Install AI database tables |
-| `ai:ner-extract` | ahgAIPlugin | Extract named entities |
-| `ai:ner-sync` | ahgAIPlugin | Sync NER training data |
-| `ai:translate` | ahgAIPlugin | Translate records |
-| `ai:summarize` | ahgAIPlugin | Summarize content |
-| `ai:spellcheck` | ahgAIPlugin | Check spelling |
-| `ai:suggest-description` | ahgAIPlugin | LLM-powered description suggestions |
-| `ai:process-pending` | ahgAIPlugin | Process pending AI tasks |
-| `ai:sync-entity-cache` | ahgAIPlugin | Sync entity cache |
-| `preservation:convert` | ahgPreservationPlugin | Convert formats |
-| `preservation:fixity` | ahgPreservationPlugin | Run fixity checks |
-| `preservation:identify` | ahgPreservationPlugin | Format identification |
-| `preservation:migration` | ahgPreservationPlugin | Format migration |
-| `preservation:package` | ahgPreservationPlugin | Create preservation package |
-| `preservation:pronom-sync` | ahgPreservationPlugin | Sync PRONOM registry |
-| `preservation:replicate` | ahgPreservationPlugin | Replicate to backup |
-| `preservation:scheduler` | ahgPreservationPlugin | Run scheduled tasks |
-| `preservation:verify-backup` | ahgPreservationPlugin | Verify backup integrity |
-| `preservation:virus-scan` | ahgPreservationPlugin | Virus scan |
-| `doi:mint` | ahgDoiPlugin | Mint DOI |
-| `doi:deactivate` | ahgDoiPlugin | Deactivate DOI |
-| `doi:sync` | ahgDoiPlugin | Sync to DataCite |
-| `doi:process-queue` | ahgDoiPlugin | Process mint queue |
-| `doi:verify` | ahgDoiPlugin | Verify DOI resolution |
-| `cdpa:license-check` | ahgCDPAPlugin | License compliance check |
-| `cdpa:report` | ahgCDPAPlugin | CDPA report |
-| `cdpa:requests` | ahgCDPAPlugin | Process CDPA requests |
-| `cdpa:status` | ahgCDPAPlugin | CDPA status |
-| `naz:closure-check` | ahgNAZPlugin | 25-year closure check |
-| `naz:permit-expiry` | ahgNAZPlugin | Permit expiry check |
-| `naz:report` | ahgNAZPlugin | NAZ report |
-| `naz:transfer-due` | ahgNAZPlugin | Transfer due check |
-| `dedupe:merge` | ahgDedupePlugin | Merge duplicates |
-| `dedupe:report` | ahgDedupePlugin | Duplicate report |
-| `dedupe:scan` | ahgDedupePlugin | Scan for duplicates |
-| `forms:export` | ahgFormsPlugin | Export form templates |
-| `forms:import` | ahgFormsPlugin | Import form templates |
-| `forms:list` | ahgFormsPlugin | List form templates |
-| `heritage:build-graph` | ahgHeritagePlugin | Build heritage graph |
-| `heritage:install` | ahgHeritagePlugin | Install heritage tables |
-| `heritage:region` | ahgHeritagePlugin | Manage regions |
-| `display:auto-detect` | ahgDisplayPlugin | Auto-detect GLAM types |
-| `display:reindex` | ahgDisplayPlugin | Reindex display cache |
-| `privacy:jurisdiction` | ahgPrivacyPlugin | Manage jurisdictions |
-| `privacy:scan-pii` | ahgPrivacyPlugin | Scan for PII |
-| `embargo:process` | ahgExtendedRightsPlugin | Process embargoes |
-| `embargo:report` | ahgExtendedRightsPlugin | Embargo report |
-| `museum:exhibition` | ahgMuseumPlugin | Exhibition management |
-| `museum:getty-link` | ahgMuseumPlugin | Getty vocabulary linking |
-| `museum:migrate` | ahgMuseumPlugin | Museum data migration |
-| `ingest:commit` | ahgIngestPlugin | Commit ingest session |
-| `ipsas:report` | ahgIPSASPlugin | IPSAS report |
-| `nmmz:report` | ahgNMMZPlugin | NMMZ report |
-| `metadata:export` | ahgMetadataExportPlugin | GLAM metadata export |
-| `library:process-covers` | ahgLibraryPlugin | Process book covers |
-| `portable:export` | ahgPortableExportPlugin | Portable export |
-| `portable:import` | ahgPortableExportPlugin | Portable import |
-| `portable:verify` | ahgPortableExportPlugin | Verify package |
-| `portable:cleanup` | ahgPortableExportPlugin | Cleanup old packages |
-| `api:webhook-process-retries` | ahgAPIPlugin | Process failed webhooks |
+| `ahg:ai-install` | AI | Install AI database tables |
+| `ahg:ai-ner` | AI | Extract named entities |
+| `ahg:ai-ner-sync` | AI | Sync NER training data |
+| `ahg:ai-translate` | AI | Translate records |
+| `ahg:ai-summarize` | AI | Summarize content |
+| `ahg:ai-spellcheck` | AI | Check spelling |
+| `ahg:ai-suggest-description` | AI | LLM-powered description suggestions |
+| `ahg:ai-process-pending` | AI | Process pending AI tasks |
+| `ahg:ai-sync-entity-cache` | AI | Sync entity cache |
+| `ahg:preservation-fixity` | Preservation | Run fixity checks |
+| `ahg:preservation-identify` | Preservation | Format identification |
+| `ahg:preservation-migrate` | Preservation | Format migration/conversion |
+| `ahg:preservation-package` | Preservation | Create preservation package |
+| `ahg:preservation-replicate` | Preservation | Replicate to backup |
+| `ahg:preservation-scheduler` | Preservation | Run scheduled tasks |
+| `ahg:preservation-virus-scan` | Preservation | Virus scan |
+| `ahg:doi-mint` | DOI | Mint DOI |
+| `ahg:doi-deactivate` | DOI | Deactivate DOI |
+| `ahg:doi-sync` | DOI | Sync to DataCite |
+| `ahg:doi-process-queue` | DOI | Process mint queue |
+| `ahg:doi-verify` | DOI | Verify DOI resolution |
+| `ahg:cdpa-license-check` | CDPA | License compliance check |
+| `ahg:cdpa-status` | CDPA | CDPA status |
+| `ahg:naz-closure-check` | NAZ | 25-year closure check |
+| `ahg:naz-transfer-due` | NAZ | Transfer due check |
+| `ahg:dedupe-merge` | Dedupe | Merge duplicates |
+| `ahg:dedupe-report` | Dedupe | Duplicate report |
+| `ahg:dedupe-scan` | Dedupe | Scan for duplicates |
+| `ahg:forms-export` | Forms | Export form templates |
+| `ahg:forms-import` | Forms | Import form templates |
+| `ahg:heritage-build-graph` | Heritage | Build heritage graph |
+| `ahg:heritage-install` | Heritage | Install heritage tables |
+| `ahg:heritage-region` | Heritage | Manage regions |
+| `ahg:display-auto-detect` | Display | Auto-detect GLAM types |
+| `ahg:display-reindex` | Display | Reindex display cache |
+| `ahg:privacy-jurisdiction` | Privacy | View compliance jurisdictions |
+| `ahg:privacy-scan-pii` | Privacy | Scan for PII |
+| `embargo:process` | Extended Rights | Process embargoes |
+| `embargo:report` | Extended Rights | Embargo report |
+| `ahg:museum-exhibition` | Museum | Exhibition management |
+| `ahg:museum-aat-sync` | Museum | Getty AAT vocabulary sync |
+| `ahg:ingest-commit` | Ingest | Commit ingest session |
+| `ahg:ipsas-report` | IPSAS | IPSAS report |
+| `ahg:nmmz-report` | NMMZ | NMMZ report |
+| `ahg:metadata-export` | Metadata Export | GLAM metadata export |
+| `ahg:library-process-covers` | Library | Process book covers |
+| `ahg:portable-export` | Portable Export | Portable export |
+| `ahg:portable-import` | Portable Export | Portable import |
+| `ahg:portable-verify` | Portable Export | Verify package |
+| `ahg:portable-cleanup` | Portable Export | Cleanup old packages |
+| `ahg:webhook-retry` | API | Retry failed webhook deliveries |
 
-### 9.4 Queue Commands (`php bin/atom`)
+### 9.4 Queue Commands (`php artisan`)
 
 | Command | Description |
 |---------|-------------|
-| `queue:work` | Start queue worker (MySQL-backed, `SELECT FOR UPDATE SKIP LOCKED`) |
-| `queue:status` | Show queue statistics |
-| `queue:failed` | List failed jobs |
-| `queue:retry` | Retry a failed job |
-| `queue:cleanup` | Purge old completed/failed jobs |
+| `heratio:queue:work` | Process jobs from the AHG queue (MySQL-backed, `SELECT FOR UPDATE SKIP LOCKED`) |
+| `heratio:queue:status` | Show AHG queue statistics |
+| `heratio:queue:retry` | Retry failed jobs in the AHG queue |
+| `heratio:queue:cleanup` | Remove old completed and failed jobs from the AHG queue |
+| `queue:failed` | List failed jobs (Laravel queue) |
 
-### 9.5 Legacy Job Commands (`php bin/atom`)
+### 9.5 Built-in Job Worker (`php artisan`)
 
 | Command | Description |
 |---------|-------------|
-| `jobs:list` | List background jobs |
-| `jobs:clear` | Clear old jobs |
-| `jobs:worker` | Legacy job worker |
+| `heratio:jobs:worker` | Process Heratio's built-in job queue |
 
 ---
 
@@ -1009,7 +989,7 @@ arTiffPdfMergeJob                   - Multi-TIFF to PDF conversion
 ### 11.1 Elasticsearch
 
 - Powers search, autocomplete, and discovery
-- Index sync via `arUpdateEsIoDocumentsJob` or `php bin/atom search:populate`
+- Index sync via `php artisan ahg:es-reindex` or `php artisan ahg:search-populate`
 - Enhanced by ahgSearchPlugin and ahgDiscoveryPlugin
 
 ### 11.2 Apache Jena Fuseki

@@ -186,8 +186,8 @@ On individual record view pages, Discovery can show a **Related Content** sideba
 | Issue | Solution |
 |-------|----------|
 | No results for any query | Check OpenSearch is running: `curl http://localhost:9200` |
-| No results but no errors | Run `php symfony search:populate` to rebuild the search index |
-| Entity tags never appear | Run `php symfony ai:ner-extract` to extract NER entities |
+| No results but no errors | Run `php artisan ahg:search-populate` to rebuild the search index |
+| Entity tags never appear | Run `php artisan ahg:ai-ner` to extract NER entities |
 | Synonyms not expanding | Populate the thesaurus in ahgSemanticSearchPlugin |
 | Search is slow | Results are cached for 1 hour — first search may be slower |
 | Popular searches empty | Needs at least 2 searches for the same query in the last 30 days |

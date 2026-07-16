@@ -7,13 +7,12 @@ or air-gapped deployment, and for anyone responsible for routine AI audits. It
 covers the air-gapped install checklist, the TEE attestation workflow, the
 routine audit procedures, and the model-update / key-rotation procedure.
 
-It applies to **both** deployments - Heratio (the Laravel platform) and the
-AtoM-AHG plugins. Where a command differs the runbook gives both; Heratio uses
-`php artisan`, AtoM-AHG uses `php symfony`.
+It applies to Heratio, the Laravel platform. Commands are run with
+`php artisan`.
 
 ## Deployment modes
 
-Heratio and the AtoM-AHG plugins are AI *clients* - they never host a model.
+Heratio is an AI *client* - it never hosts a model.
 Every AI call leaves the application as an HTTP request. Three modes:
 
 - **Local / air-gapped** - models run in-host on a GPU box inside the same
@@ -61,8 +60,7 @@ Work through this before the deployment processes any records.
 
 **RAG guardrails**
 - [ ] Set the guardrail mode for a sovereign deployment:
-      Heratio - `rag_guardrail_mode` in `ahg_ner_settings`;
-      AtoM-AHG - `rag_guardrail_mode` in `ahg_ai_settings` (feature `guardrails`).
+      `rag_guardrail_mode` in `ahg_ner_settings`.
       `block` is the strict choice; `mask` redacts PII on any cloud-bound
       prompt. In a fully air-gapped install with no cloud providers, `warn` is
       sufficient because no data leaves the trust domain.
@@ -70,8 +68,8 @@ Work through this before the deployment processes any records.
 
 **AI gateway**
 - [ ] The AI gateway URL points at the LAN endpoint, not a public host.
-- [ ] HTR is resolved from the `htr_url` setting (Heratio) / `app_htr_url`
-      config (AtoM-AHG) - confirm it is the local gateway.
+- [ ] HTR is resolved from the `htr_url` setting - confirm it is the local
+      gateway.
 
 ## 2. TEE attestation workflow
 
@@ -104,22 +102,19 @@ produced which result.
 The AI Inventory & Governance dashboard is the audit surface: model inventory,
 recent inferences, signed status, manifest coverage.
 
-- Heratio: **Admin -> AI Inventory & Governance** (`/admin/governance`).
-- AtoM-AHG: the AI menu **AI Governance** (`/ai/governance`).
+- **Admin -> AI Inventory & Governance** (`/admin/governance`).
 
-Both are read-only and admin-gated.
+It is read-only and admin-gated.
 
 ### Verifying inference signatures
 
 Each recorded inference is Ed25519-signed over a canonical manifest. Verifying
 re-derives the manifest and checks the signature against the public key.
 
-- AtoM-AHG: `php symfony ai-provenance:verify` (re-checks recorded rows;
-  `--id=N` for one row, `--limit=N` to widen the batch; exits non-zero on any
-  failure). Rows signed by a retired key are skipped with a note.
-- Heratio: the Governance dashboard's **signed** column reads the real
+- The Governance dashboard's **signed** column reads the real
   `signer_key_id`; signature verification is performed by `InferenceSigner`
-  over the canonical manifest.
+  over the canonical manifest. Rows signed by a retired key still verify
+  against that retired public key.
 
 A failed verification means the manifest was altered after recording -
 investigate immediately.
@@ -141,11 +136,10 @@ of the routine audit.
 
 ### Exporting inference records (retention / FOIA / legal defensibility)
 
-- Heratio: the JSON endpoints `GET /admin/governance/models` and
+- The JSON endpoints `GET /admin/governance/models` and
   `GET /admin/governance/inferences`; the per-record provenance trace
   `GET /api/v1/provenance/{entityType}/{id}/trace`; and the coverage endpoint
   `GET /api/v1/provenance/coverage?days=N`.
-- AtoM-AHG: `GET /ai/governance/models` and `GET /ai/governance/inferences`.
 
 These give the inventory and the inference log in machine-readable form for an
 auditor or a freedom-of-information response.
@@ -155,10 +149,8 @@ auditor or a freedom-of-information response.
 The RDF-Star / PROV-O writes to Fuseki are SQL-first: a row whose synchronous
 Fuseki write failed keeps a NULL graph URI and is retried by the replay job.
 
-- AtoM-AHG: schedule `php symfony ai-provenance:replay` on cron, every five
-  minutes.
-- Heratio: `php artisan ahg:provenance-ai:replay` is registered on the
-  scheduler; confirm the Laravel scheduler cron is running.
+- `php artisan ahg:provenance-ai:replay` is registered on the scheduler;
+  confirm the Laravel scheduler cron is running.
 
 ### Suggested audit cadence
 
@@ -192,30 +184,27 @@ The inference-signing keypair should be rotated annually, or immediately on
 suspected compromise.
 
 1. Generate a fresh keypair:
-   - Heratio: `php artisan ahg:provenance-ai:keygen --force`
-   - AtoM-AHG: `php symfony ai-provenance:keygen --force`
+   `php artisan ahg:provenance-ai:keygen --force`
 2. New inferences are signed with the new key automatically.
 3. **Retain every retired public key.** Signatures made with an old key still
-   verify against that old public key - `ai-provenance:verify` skips rows
-   signed by a key other than the current one, so keep the retired public keys
-   for historical verification.
+   verify against that old public key, so keep the retired public keys for
+   historical verification.
 4. The private key is written to a gitignored directory -
-   `storage/app/ai-signing/` (Heratio) or `data/ahg-ai-signing/` (AtoM-AHG) -
-   never the database, never git. Run the keygen task as the web user so the
-   web request can read the key.
+   `storage/app/ai-signing/` - never the database, never git. Run the keygen
+   task as the web user so the web request can read the key.
 
 ## 5. Command quick reference
 
-| Action | Heratio (Laravel) | AtoM-AHG (Symfony) |
-|---|---|---|
-| Generate signing keypair | `php artisan ahg:provenance-ai:keygen` | `php symfony ai-provenance:keygen` |
-| Rotate signing keypair | `php artisan ahg:provenance-ai:keygen --force` | `php symfony ai-provenance:keygen --force` |
-| Verify signatures | via the Governance dashboard / `InferenceSigner` | `php symfony ai-provenance:verify` |
-| Replay deferred Fuseki writes | `php artisan ahg:provenance-ai:replay` | `php symfony ai-provenance:replay` |
-| Governance dashboard | `/admin/governance` | `/ai/governance` |
+| Action | Command / location |
+|---|---|
+| Generate signing keypair | `php artisan ahg:provenance-ai:keygen` |
+| Rotate signing keypair | `php artisan ahg:provenance-ai:keygen --force` |
+| Verify signatures | via the Governance dashboard / `InferenceSigner` |
+| Replay deferred Fuseki writes | `php artisan ahg:provenance-ai:replay` |
+| Governance dashboard | `/admin/governance` |
 
-Run artisan / symfony tasks as the web user (`sudo -u www-data ...`) so they do
-not leave root-owned cache, log or key files.
+Run artisan tasks as the web user (`sudo -u www-data ...`) so they do not leave
+root-owned cache, log or key files.
 
 ## See also
 

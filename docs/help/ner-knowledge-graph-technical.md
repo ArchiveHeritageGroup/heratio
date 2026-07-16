@@ -171,35 +171,35 @@ The `applyCondition()` method handles:
 
 ```bash
 # Sync all approved NER entities
-php symfony ai:sync-entity-cache
+php artisan ahg:ai-sync-entity-cache
 
 # Sync with limit
-php symfony ai:sync-entity-cache --limit=500
+php artisan ahg:ai-sync-entity-cache --limit=500
 
 # Sync specific object
-php symfony ai:sync-entity-cache --object-id=12345
+php artisan ahg:ai-sync-entity-cache --object-id=12345
 
 # Dry run (show what would be synced)
-php symfony ai:sync-entity-cache --dry-run
+php artisan ahg:ai-sync-entity-cache --dry-run
 
 # Show statistics
-php symfony ai:sync-entity-cache --stats
+php artisan ahg:ai-sync-entity-cache --stats
 ```
 
 ### Knowledge Graph Build
 
 ```bash
 # Build graph from entity cache
-php symfony heritage:build-graph
+php artisan ahg:heritage-build-graph
 
-# Rebuild entire graph
-php symfony heritage:build-graph --rebuild
+# Full rebuild (truncate + repopulate)
+php artisan ahg:heritage-build-graph --full
 
 # Build with limit
-php symfony heritage:build-graph --limit=1000
+php artisan ahg:heritage-build-graph --limit=1000
 
-# Show statistics only
-php symfony heritage:build-graph --stats
+# Also link entities to the Getty AAT vocabulary
+php artisan ahg:heritage-build-graph --link-getty
 ```
 
 ---
@@ -267,10 +267,10 @@ Add to system crontab for automated sync:
 
 ```bash
 # Sync NER entities every 15 minutes
-*/15 * * * * cd /usr/share/nginx/archive && php symfony ai:sync-entity-cache --limit=500
+*/15 * * * * cd /usr/share/nginx/heratio && php artisan ahg:ai-sync-entity-cache --limit=500
 
 # Rebuild knowledge graph daily at 3am
-0 3 * * * cd /usr/share/nginx/archive && php symfony heritage:build-graph --limit=5000
+0 3 * * * cd /usr/share/nginx/heratio && php artisan ahg:heritage-build-graph --limit=5000
 ```
 
 ---
@@ -328,13 +328,13 @@ After initial sync and graph build:
 ### 1. Verify Entity Cache Sync
 
 ```bash
-php symfony ai:sync-entity-cache --stats
+php artisan ahg:ai-sync-entity-cache --stats
 ```
 
 ### 2. Verify Knowledge Graph
 
 ```bash
-php symfony heritage:build-graph --stats
+mysql heratio -e "SELECT COUNT(*) FROM heritage_entity_cache;"
 ```
 
 ### 3. Test Graph API
@@ -357,7 +357,7 @@ curl -s "https://your-site/heritage/search?place[]=France"
 
 1. Check JavaScript console for errors
 2. Verify `/heritage/graph/data` returns JSON
-3. Clear Symfony cache: `rm -rf cache/* && php symfony cc`
+3. Clear cache: `php artisan optimize:clear`
 
 ### Filter not working
 

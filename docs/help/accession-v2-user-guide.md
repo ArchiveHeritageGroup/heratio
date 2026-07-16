@@ -332,47 +332,47 @@ Navigate to **Admin > AHG Settings > Accession Management** to configure:
 
 ```bash
 # View the intake queue
-php symfony accession:intake --queue
+php artisan ahg:accession-intake --queue
 
 # Filter by status
-php symfony accession:intake --queue --status=submitted
+php artisan ahg:accession-intake --queue --status=submitted
 
 # View statistics
-php symfony accession:intake --stats
+php artisan ahg:accession-intake --stats
 
 # Assign accession 123 to user 5
-php symfony accession:intake --assign=123 --user=5
+php artisan ahg:accession-intake --assign=123 --user=5
 
 # Accept accession
-php symfony accession:intake --accept=123
+php artisan ahg:accession-intake --accept=123
 
 # Reject accession
-php symfony accession:intake --reject=123 --reason="Incomplete documentation"
+php artisan ahg:accession-intake --reject=123 --reason="Incomplete documentation"
 
 # View checklist
-php symfony accession:intake --checklist=123
+php artisan ahg:accession-intake --checklist=123
 
 # View timeline
-php symfony accession:intake --timeline=123
+php artisan ahg:accession-intake --timeline=123
 ```
 
 ### Reporting
 
 ```bash
 # Status summary
-php symfony accession:report --status
+php artisan ahg:accession-report --status
 
 # Portfolio valuation report
-php symfony accession:report --valuation
+php artisan ahg:accession-report --valuation
 
 # Export to CSV
-php symfony accession:report --export-csv
+php artisan ahg:accession-report --export-csv
 
 # Export with date filter
-php symfony accession:report --export-csv --date-from=2024-01-01 --date-to=2025-12-31
+php artisan ahg:accession-report --export-csv --date-from=2024-01-01 --date-to=2025-12-31
 
 # Export for specific repository
-php symfony accession:report --export-csv --repository=12345
+php artisan ahg:accession-report --export-csv --repository=my-repository
 ```
 
 ---
@@ -381,12 +381,12 @@ php symfony accession:report --export-csv --repository=12345
 
 | Issue | Solution |
 |-------|----------|
-| Queue shows no accessions | Run `install.sql` to create V2 tables. Existing accessions won't have V2 records until opened or created anew. |
+| Queue shows no accessions | Run `php artisan heratio:install-bootstrap` to create the V2 tables. Existing accessions won't have V2 records until opened or created anew. |
 | Checklist not appearing | Apply a checklist template from the dropdown on the checklist tab. |
 | Cannot submit accession | Check that the current status is "draft" or "returned". |
 | Rights inheritance shows 0 | Ensure container items are linked to information objects first. |
 | Numbering not working | Check that `auto_assign_enabled` is set to `1` in configuration. |
-| Settings section not visible | Ensure ahgAccessionManagePlugin is enabled in the plugin manager. |
+| Settings section not visible | Ensure the Accession Management plugin is enabled in Admin > Plugins. |
 
 ---
 

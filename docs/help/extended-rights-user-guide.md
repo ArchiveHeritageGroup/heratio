@@ -512,19 +512,19 @@ For system administrators, the plugin provides command-line tools for automated 
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  Process all (lift expired + send notifications):           │
-│  $ php symfony embargo:process                              │
+│  $ php artisan embargo:process                              │
 │                                                             │
 │  Preview without making changes:                            │
-│  $ php symfony embargo:process --dry-run                    │
+│  $ php artisan embargo:process --dry-run                    │
 │                                                             │
 │  Send notifications only:                                   │
-│  $ php symfony embargo:process --notify-only                │
+│  $ php artisan embargo:process --notify-only                │
 │                                                             │
 │  Lift expired embargoes only:                               │
-│  $ php symfony embargo:process --lift-only                  │
+│  $ php artisan embargo:process --lift-only                  │
 │                                                             │
 │  Custom warning intervals:                                  │
-│  $ php symfony embargo:process --warn-days=14,7,3           │
+│  $ php artisan embargo:process --warn-days=14,7,3           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -540,8 +540,8 @@ For system administrators, the plugin provides command-line tools for automated 
 │  • Send expiry warning notifications (30, 7, 1 days)        │
 │                                                             │
 │  Add to crontab:                                            │
-│  0 6 * * * cd /usr/share/nginx/archive && \                 │
-│            php symfony embargo:process                      │
+│  0 6 * * * cd /usr/share/nginx/heratio && \                 │
+│            php artisan embargo:process                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -553,22 +553,22 @@ For system administrators, the plugin provides command-line tools for automated 
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  Summary statistics:                                        │
-│  $ php symfony embargo:report                               │
+│  $ php artisan embargo:report                               │
 │                                                             │
 │  List all active embargoes:                                 │
-│  $ php symfony embargo:report --active                      │
+│  $ php artisan embargo:report --active                      │
 │                                                             │
 │  List embargoes expiring in N days:                         │
-│  $ php symfony embargo:report --expiring=30                 │
+│  $ php artisan embargo:report --expiring=30                 │
 │                                                             │
 │  List recently lifted embargoes:                            │
-│  $ php symfony embargo:report --lifted --days=7             │
+│  $ php artisan embargo:report --lifted --days=7             │
 │                                                             │
 │  List expired but not lifted:                               │
-│  $ php symfony embargo:report --expired                     │
+│  $ php artisan embargo:report --expired                     │
 │                                                             │
 │  Export as CSV:                                             │
-│  $ php symfony embargo:report --active --format=csv \       │
+│  $ php artisan embargo:report --active --format=csv \       │
 │                               --output=/tmp/report.csv      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
@@ -576,7 +576,7 @@ For system administrators, the plugin provides command-line tools for automated 
 
 ### Report Output Example
 ```
-$ php symfony embargo:report
+$ php artisan embargo:report
 
 === Embargo Status Report ===
 

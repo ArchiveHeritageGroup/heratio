@@ -2,7 +2,7 @@
 
 # SharePoint Integration
 
-Microsoft 365 SharePoint integration for AtoM Heratio and Heratio standalone. One-way ingest from SharePoint into the archive, with eventual records-handoff via Graph webhooks and federated search across both surfaces.
+Microsoft 365 SharePoint integration for Heratio. One-way ingest from SharePoint into the archive, with eventual records-handoff via Graph webhooks and federated search across both surfaces.
 
 This guide covers what the integration does, how to set it up against an Azure AD tenant, and how to use it day-to-day.
 
@@ -45,7 +45,7 @@ Both modes share:
 
 In your Azure AD admin portal:
 
-1. **Create an app registration**. Name it something like `AtoM Heratio SharePoint Integration`. Single-tenant is fine for AHG-internal use.
+1. **Create an app registration**. Name it something like `Heratio SharePoint Integration`. Single-tenant is fine for AHG-internal use.
 2. **Note the values** you will plug into the archive admin UI:
    - **Directory (tenant) ID**
    - **Application (client) ID**
@@ -64,16 +64,12 @@ In your Azure AD admin portal:
 On a server shell:
 
 ```bash
-# Pull the JWT library (Phase 2.B)
-cd /usr/share/nginx/archive/atom-framework      # AtoM
-composer update firebase/php-jwt --no-dev
-
-cd /usr/share/nginx/heratio                      # Heratio standalone
-composer install                                  # firebase/php-jwt is in ahg/sharepoint composer.json
+# Pull the JWT library (Phase 2.B) - firebase/php-jwt ships in the ahg-sharepoint composer.json
+cd /usr/share/nginx/heratio
+composer install
 
 # Install schema + reporting view
-php symfony sharepoint:install                    # AtoM
-php artisan sharepoint:install                    # Heratio standalone
+php artisan sharepoint:install
 ```
 
 `sharepoint:install` is idempotent — safe to re-run after upgrades.
@@ -85,7 +81,7 @@ In **Admin > AHG Settings > SharePoint Integration**:
 - Toggle **SharePoint integration enabled**.
 - Toggle **Records handoff (auto/declare)** if Mode B is wanted.
 - Toggle **Auto-create user on first manual push** if Mode A is wanted (recommended on; turn off to require pre-provisioning).
-- Set the **Public webhook URL** — must be HTTPS-reachable from Microsoft, e.g. `https://psis.theahg.co.za/sharepoint/webhook` (AtoM) or your equivalent for Heratio standalone.
+- Set the **Public webhook URL** - must be HTTPS-reachable from Microsoft, e.g. `https://your-heratio-host/sharepoint/webhook`.
 - Provide the **Retention label → disposition map** as a JSON object keyed by Purview compliance tag, e.g.:
   ```json
   {
@@ -105,9 +101,6 @@ Then go to **SharePoint admin** (`/sharepoint/tenants`) and create a tenant row:
 Verify it works:
 
 ```bash
-# AtoM
-php symfony sharepoint:test-connection --tenant=1
-# Heratio standalone
 php artisan sharepoint:test-connection --tenant=1
 ```
 
@@ -123,7 +116,7 @@ At `/sharepoint/drives`:
 4. Optionally set the **auto-ingest label allowlist**: a JSON array of compliance tag names, e.g. `["Archive-Permanent", "Records-Manage"]`. When empty/null, Mode B is OFF for this drive (Mode A — manual push — still works). Items whose `_ComplianceTag` is NOT in the list are silently skipped, even if they otherwise qualify.
 5. Toggle **ingest_enabled**.
 
-Edit the per-drive **column mapping** at `/sharepoint/drives/<id>/mapping`. Map source SharePoint columns (e.g. `Title`, `Author`, `fields._ComplianceTag`) to AtoM target fields (e.g. `title`, `creators`, `_compliance_tag`). Supported transforms: `date_iso`, `html_strip`, `lowercase`, `uppercase`. The `fields.` prefix tells the mapper to read from the listItem fields object rather than the driveItem itself.
+Edit the per-drive **column mapping** at `/sharepoint/drives/<id>/mapping`. Map source SharePoint columns (e.g. `Title`, `Author`, `fields._ComplianceTag`) to Heratio target fields (e.g. `title`, `creators`, `_compliance_tag`). Supported transforms: `date_iso`, `html_strip`, `lowercase`, `uppercase`. The `fields.` prefix tells the mapper to read from the listItem fields object rather than the driveItem itself.
 
 ### 5. Mode A — install the SPFx package
 
@@ -143,7 +136,7 @@ Then in the SharePoint admin centre:
 2. Approve the Microsoft Graph permission request (`Files.Read.All`) when prompted.
 3. Install the app on every site that should expose the **Send to Archive** button.
 4. Configure the SPFx command set's tenant properties:
-   - `atomBaseUrl` — e.g. `https://psis.theahg.co.za` or your Heratio URL
+   - `atomBaseUrl` - e.g. `https://your-heratio-host`
    - `atomTenantId` — the `sharepoint_tenant.id` row created in step 3 (numeric)
 
 The button now appears in the document-library command bar whenever one or more files are selected.
@@ -153,9 +146,6 @@ The button now appears in the document-library command bar whenever one or more 
 For each ingest-enabled drive that should auto-ingest:
 
 ```bash
-# AtoM
-php symfony sharepoint:subscribe --drive=1
-# Heratio standalone
 php artisan sharepoint:subscribe --drive=1
 ```
 
@@ -165,8 +155,8 @@ Subscriptions expire (driveItem subscriptions max 30 days). Schedule the renewal
 
 ```cron
 # crontab -e
-5  * * * * cd /usr/share/nginx/archive && php symfony sharepoint:renew-subscriptions  >> /var/log/atom/sharepoint-renew.log 2>&1
-15 * * * * cd /usr/share/nginx/archive && php symfony sharepoint:sync                  >> /var/log/atom/sharepoint-sync.log 2>&1
+5  * * * * cd /usr/share/nginx/heratio && php artisan sharepoint:renew-subscriptions  >> storage/logs/sharepoint-renew.log 2>&1
+15 * * * * cd /usr/share/nginx/heratio && php artisan sharepoint:sync                  >> storage/logs/sharepoint-sync.log 2>&1
 ```
 
 Both entries are also documented under **Admin > AHG Settings > Cron Jobs > External Integrations**.
@@ -180,7 +170,7 @@ Both entries are also documented under **Admin > AHG Settings > Cron Jobs > Exte
 1. Open a SharePoint document library, select one or more files.
 2. Click **Send to Archive** in the command bar.
 3. Review the metadata (prefilled by the column mapping), pick the target repository and parent description, edit any fields that need correction, and submit.
-4. The dialog shows the ingest job ID and polls until completion. The new descriptions appear in AtoM/Heratio with the digital objects attached.
+4. The dialog shows the ingest job ID and polls until completion. The new descriptions appear in Heratio with the digital objects attached.
 
 ### Mode B — automatic on label
 
@@ -191,8 +181,7 @@ Both entries are also documented under **Admin > AHG Settings > Cron Jobs > Exte
 ### Inspecting health
 
 ```bash
-php symfony sharepoint:status   # AtoM
-php artisan sharepoint:status   # Heratio
+php artisan sharepoint:status
 ```
 
 Prints tenants, drives, sync state, subscription expiries, event counts (last 24h).
@@ -202,7 +191,7 @@ Prints tenants, drives, sync state, subscription expiries, event counts (last 24
 If webhooks miss events (transient delivery failure, expired subscription) the hourly `sharepoint:sync` cron picks them up via Graph delta query. Force a full refresh with:
 
 ```bash
-php symfony sharepoint:sync --drive=1 --full
+php artisan sharepoint:sync --drive=1 --full
 ```
 
 ---
@@ -232,10 +221,9 @@ php symfony sharepoint:sync --drive=1 --full
 | `sharepoint:test-connection` fails with `HTTP 401 invalid_client` | Wrong client ID, wrong tenant ID, or the secret was not encrypted correctly on save. Re-enter the secret in the tenant edit page. |
 | `sharepoint:test-connection` works but `GET /sites` returns empty | Admin consent not granted for `Sites.Read.All`, or the AAD tenant has site discovery restricted. Grant consent in the Azure portal. |
 | Webhook subscription create returns `Subscription validation request failed` | The `Public webhook URL` (admin settings) is not reachable from Microsoft IP space, or returns non-200/text-plain on the validation handshake. The webhook URL must be HTTPS, public, and respond within 10 seconds. |
-| Events stay at `queued` and never advance | Queue worker is not running. Start it: `php symfony queue:work --queue=integrations` (AtoM) or `php artisan queue:work --queue=integrations` (Heratio). |
+| Events stay at `queued` and never advance | Queue worker is not running. Start it: `php artisan queue:work --queue=integrations`. |
 | `skipped_not_allowlisted` for items that should ingest | The drive's `auto_ingest_labels` list does not include the item's `_ComplianceTag` value. Check at `/sharepoint/drives/<id>` and update the allowlist. |
 | `skipped_duplicate` shows up after a Purview policy fires | Idempotency working as intended — the same (drive, item, etag) was already ingested. To force re-ingest, change the etag (edit the file content) or bump `_ComplianceTagWrittenTime`. |
-| Files larger than 100 MB fail to download (AtoM target) | Phase 1 cap. Heratio target streams natively (no cap). Phase 2.B.1 adds streaming to AtoM. Workaround: configure smaller files. |
 | Manual push returns `aad_user_not_mapped` | Auto-create is OFF and there is no row in `sharepoint_user_mapping` for this AAD user. Either enable auto-create in settings, or create a mapping row at `/sharepoint/user-mappings`. |
 | Manual push returns `403 Files.Read.All` from Graph | OBO flow failed — the AAD app does not have *delegated* `Files.Read.All` granted, or the user has not consented to the SPFx app. Re-grant in Azure portal. |
 | Subscriptions silently expired and stopped delivering | The renewal cron is not running. Check `/sharepoint/subscriptions` — any sub with `expires_at` in the past needs `sharepoint:subscribe` re-run. |
@@ -244,7 +232,7 @@ php symfony sharepoint:sync --drive=1 --full
 
 ## Security notes
 
-- **Client secret**: stored encrypted at rest via the framework `EncryptionService` (AtoM) or Laravel `Crypt` facade (Heratio). Never written to logs.
+- **Client secret**: stored encrypted at rest via the Laravel `Crypt` facade. Never written to logs.
 - **Webhook authentication**: the `clientState` echoed in every Graph notification is checked against the stored value (constant-time compare). Mismatches are dropped with HTTP 401 and never enqueued.
 - **OBO flow**: manual push uses on-behalf-of so the user's actual SharePoint permissions are enforced. App-only credentials are never used to read SharePoint files for manual push.
 - **Audit trail**: every successful ingest writes a row to the audit log with the source (`sharepoint_auto` or `sharepoint_push`), the SharePoint item id, the eTag, and the actor (the AAD user for Mode A; a service identity for Mode B).
@@ -293,7 +281,6 @@ locked-file unlock steps an operator must run, is documented in
 
 - Migration / cutover plan: `heratio/packages/ahg-sharepoint/MIGRATION.md`
 - Implementation plan: `atom-extensions-catalog/docs/technical/ahgSharePointPlugin_Implementation_Plan.md`
-- AtoM plugin source: `atom-ahg-plugins/ahgSharePointPlugin/`
 - Heratio package source: `heratio/packages/ahg-sharepoint/`
 - SPFx package: `atom-extensions-catalog/spfx/atom-archive-push/`
 - Microsoft Graph change-notifications reference: <https://learn.microsoft.com/graph/api/resources/change-notifications-api-overview>

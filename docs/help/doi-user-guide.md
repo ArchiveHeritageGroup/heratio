@@ -144,10 +144,10 @@ When record metadata changes, the DOI metadata in DataCite should be updated:
 
 ```bash
 # CLI: Sync all DOI metadata
-php symfony doi:sync --all
+php artisan ahg:doi-sync --all
 
-# CLI: Sync specific DOI
-php symfony doi:sync --id=123
+# CLI: Sync a specific DOI (by DOI string)
+php artisan ahg:doi-sync --id=10.12345/archive.2024.00001
 ```
 
 ### Verify DOI Resolution
@@ -173,14 +173,14 @@ When a record is deleted or should no longer be accessible:
 ### Via CLI
 
 ```bash
-# Deactivate by DOI record ID
-php symfony doi:deactivate --id=123 --reason="Record deleted"
+# Deactivate by DOI string
+php artisan ahg:doi-deactivate --doi=10.12345/archive.2024.00001 --reason="Record deleted"
 
 # Deactivate by object ID
-php symfony doi:deactivate --object-id=456 --reason="Duplicate record"
+php artisan ahg:doi-deactivate --object-id=456 --reason="Duplicate record"
 
 # List all deactivated DOIs
-php symfony doi:deactivate --list-deleted
+php artisan ahg:doi-deactivate --list-deleted
 ```
 
 ### What Happens?
@@ -279,12 +279,11 @@ Click **"Test Connection"** to verify your DataCite credentials before saving.
 
 | Command | Description |
 |---------|-------------|
-| `php symfony doi:mint --id=X` | Mint DOI for record X |
-| `php symfony doi:mint --all --limit=100` | Batch mint with limit |
-| `php symfony doi:sync --all` | Sync all DOI metadata |
-| `php symfony doi:sync --status=findable` | Sync only findable DOIs |
-| `php symfony doi:deactivate --id=X` | Deactivate DOI |
-| `php symfony doi:deactivate --reactivate --id=X` | Reactivate DOI |
+| `php artisan ahg:doi-mint --object-id=X` | Mint DOI for record X |
+| `php artisan ahg:doi-mint --repository=X --limit=100` | Batch mint a repository (with limit) |
+| `php artisan ahg:doi-sync --all` | Sync all DOI metadata |
+| `php artisan ahg:doi-sync --status=findable` | Sync only findable DOIs |
+| `php artisan ahg:doi-deactivate --object-id=X` | Deactivate (tombstone) a DOI |
 
 ---
 
@@ -294,10 +293,10 @@ Set up automatic DOI processing:
 
 ```bash
 # Process DOI queue every 5 minutes
-*/5 * * * * cd /usr/share/nginx/atom && php symfony doi:process-queue >> /var/log/atom/doi.log 2>&1
+*/5 * * * * cd /usr/share/nginx/heratio && php artisan ahg:doi-process-queue >> storage/logs/doi.log 2>&1
 
 # Weekly metadata sync (Sundays at 4 AM)
-0 4 * * 0 cd /usr/share/nginx/atom && php symfony doi:sync --all --limit=500 >> /var/log/atom/doi-sync.log 2>&1
+0 4 * * 0 cd /usr/share/nginx/heratio && php artisan ahg:doi-sync --all --limit=500 >> storage/logs/doi-sync.log 2>&1
 ```
 
 ---
@@ -320,7 +319,7 @@ Set up automatic DOI processing:
 
 ### Metadata Not Updating
 
-1. Run `php symfony doi:sync --id=X` for specific DOI
+1. Run `php artisan ahg:doi-sync --id=X` for specific DOI
 2. Check DataCite API response
 3. Verify record has all required fields
 

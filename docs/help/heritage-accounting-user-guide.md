@@ -584,55 +584,48 @@ For system administrators, the plugin provides command-line tools for installati
 
 ### Installation Commands
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  INSTALL HERITAGE ACCOUNTING                                │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  Install core schema only:                                  │
-│  $ php symfony heritage:install                             │
-│                                                             │
-│  Install with a specific region:                            │
-│  $ php symfony heritage:install --region=africa_ipsas       │
-│                                                             │
-│  Install with multiple regions:                             │
-│  $ php symfony heritage:install --region=africa_ipsas,uk_frs│
-│                                                             │
-│  Install with ALL regions:                                  │
-│  $ php symfony heritage:install --all-regions               │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  INSTALL HERITAGE ACCOUNTING                                    │
+├─────────────────────────────────────────────────────────────────┤
+│  Install core schema only:                                      │
+│  $ php artisan ahg:heritage-install                             │
+│                                                                 │
+│  Install with a specific region:                                │
+│  $ php artisan ahg:heritage-install --region=africa_ipsas       │
+│                                                                 │
+│  Install with multiple regions:                                 │
+│  $ php artisan ahg:heritage-install --region=africa_ipsas,uk_frs│
+│                                                                 │
+│  Install with ALL regions:                                      │
+│  $ php artisan ahg:heritage-install --all-regions               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Region Management Commands
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  MANAGE REGIONS                                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  List all available regions:                                │
-│  $ php symfony heritage:region                              │
-│                                                             │
-│  Install a region:                                          │
-│  $ php symfony heritage:region --install=africa_ipsas       │
-│                                                             │
-│  Uninstall a region:                                        │
-│  $ php symfony heritage:region --uninstall=uk_frs           │
-│                                                             │
-│  Set active region globally:                                │
-│  $ php symfony heritage:region --set-active=africa_ipsas    │
-│                                                             │
-│  Set active region for a repository:                        │
-│  $ php symfony heritage:region --set-active=africa_ipsas \  │
-│                                --repository=5               │
-│                                                             │
-│  Override currency:                                         │
-│  $ php symfony heritage:region --set-active=africa_ipsas \  │
-│                                --currency=USD               │
-│                                                             │
-│  View region details:                                       │
-│  $ php symfony heritage:region --info=africa_ipsas          │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  MANAGE REGIONS                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│  List all available regions:                                    │
+│  $ php artisan ahg:heritage-region                              │
+│                                                                 │
+│  Install a region:                                              │
+│  $ php artisan ahg:heritage-region --install=africa_ipsas       │
+│                                                                 │
+│  Uninstall a region:                                            │
+│  $ php artisan ahg:heritage-region --uninstall=uk_frs           │
+│                                                                 │
+│  Set active region globally:                                    │
+│  $ php artisan ahg:heritage-region --set-active=africa_ipsas    │
+│                                                                 │
+│  Deactivate a region:                                           │
+│  $ php artisan ahg:heritage-region --set-inactive=africa_ipsas  │
+│                                                                 │
+│  View region details:                                           │
+│  $ php artisan ahg:heritage-region --info=africa_ipsas          │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Available Regions
@@ -668,7 +661,7 @@ For system administrators, the plugin provides command-line tools for installati
 
 ### Region Output Example
 ```
-$ php symfony heritage:region
+$ php artisan ahg:heritage-region
 
 === Heritage Accounting Regions ===
 
@@ -682,8 +675,8 @@ uk_frs                   United Kingdom (FRS 102)           [not installed]
 usa_government           USA Government (GASB 34)           [not installed]
 ...
 
-To install a region: php symfony heritage:region --install=<region_code>
-To see region details: php symfony heritage:region --info=<region_code>
+To install a region: php artisan ahg:heritage-region --install=<region_code>
+To see region details: php artisan ahg:heritage-region --info=<region_code>
 ```
 
 ---

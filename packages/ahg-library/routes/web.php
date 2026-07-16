@@ -321,10 +321,13 @@ Route::middleware('auth')->group(function () {
         ->name('library.circulation.loans');
 
     // Holds
-    Route::post('/library-manage/circulation/hold', [CirculationDeskController::class, 'placeHold'])
+    // placeHold/cancelHold live on LibraryController (CirculationDeskController
+    // has neither - the bind was broken, so the "Cancel hold" buttons 500'd).
+    // Param renamed {hold} -> {holdId} to match cancelHold(Request, int $holdId).
+    Route::post('/library-manage/circulation/hold', [LibraryController::class, 'placeHold'])
         ->name('library.hold-place')->middleware('acl:update');
-    Route::post('/library-manage/circulation/hold/{hold}/cancel', [CirculationDeskController::class, 'cancelHold'])
-        ->name('library.hold-cancel')->where('hold', '[0-9]+')->middleware('acl:update');
+    Route::post('/library-manage/circulation/hold/{holdId}/cancel', [LibraryController::class, 'cancelHold'])
+        ->name('library.hold-cancel')->where('holdId', '[0-9]+')->middleware('acl:update');
 });
 
 // ── OPAC Patron Self-Service (Phase 2) ─────────────────────────────────────

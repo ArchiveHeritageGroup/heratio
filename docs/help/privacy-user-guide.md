@@ -493,29 +493,26 @@ HIGH-RISK RECORDS (Review Required):
 ### PII Scanning Commands
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  PRIVACY:SCAN-PII - Scan Records for PII                    │
+│  PRIVACY-SCAN-PII - Scan Records for PII                    │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  Show statistics only:                                      │
-│  $ php symfony privacy:scan-pii --stats                     │
+│  Dry run (report matches, no writes):                       │
+│  $ php artisan ahg:privacy-scan-pii --dry-run               │
 │                                                             │
-│  Scan specific object:                                      │
-│  $ php symfony privacy:scan-pii --id=123                    │
+│  Scan records updated since a date:                         │
+│  $ php artisan ahg:privacy-scan-pii --since=2026-01-01      │
 │                                                             │
-│  Batch scan (default 100 objects):                          │
-│  $ php symfony privacy:scan-pii                             │
+│  Batch scan (default 2000 objects):                         │
+│  $ php artisan ahg:privacy-scan-pii                         │
 │                                                             │
 │  Limit batch size:                                          │
-│  $ php symfony privacy:scan-pii --limit=50                  │
+│  $ php artisan ahg:privacy-scan-pii --limit=50              │
 │                                                             │
-│  Scan specific repository:                                  │
-│  $ php symfony privacy:scan-pii --repository=5              │
-│                                                             │
-│  Re-scan already scanned objects:                           │
-│  $ php symfony privacy:scan-pii --rescan                    │
+│  Scan a specific source connection:                         │
+│  $ php artisan ahg:privacy-scan-pii --connection=atom       │
 │                                                             │
 │  Verbose output (show entity details):                      │
-│  $ php symfony privacy:scan-pii --verbose                   │
+│  $ php artisan ahg:privacy-scan-pii --verbose               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -523,28 +520,20 @@ HIGH-RISK RECORDS (Review Required):
 ### Jurisdiction Management Commands
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  PRIVACY:JURISDICTION - Manage Compliance Jurisdictions     │
+│  PRIVACY-JURISDICTION - Compliance Jurisdictions            │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  List all jurisdictions:                                    │
-│  $ php symfony privacy:jurisdiction                         │
+│  List all installed jurisdictions:                          │
+│  $ php artisan ahg:privacy-jurisdiction                     │
 │                                                             │
-│  Install a jurisdiction:                                    │
-│  $ php symfony privacy:jurisdiction --install=popia         │
-│  $ php symfony privacy:jurisdiction --install=gdpr          │
+│  View details for one jurisdiction:                         │
+│  $ php artisan ahg:privacy-jurisdiction --code=popia        │
 │                                                             │
-│  Uninstall a jurisdiction:                                  │
-│  $ php symfony privacy:jurisdiction --uninstall=ccpa        │
+│  JSON output:                                               │
+│  $ php artisan ahg:privacy-jurisdiction --format=json       │
 │                                                             │
-│  Set active jurisdiction globally:                          │
-│  $ php symfony privacy:jurisdiction --set-active=popia      │
-│                                                             │
-│  Set for specific repository:                               │
-│  $ php symfony privacy:jurisdiction --set-active=popia \    │
-│                                     --repository=5          │
-│                                                             │
-│  View jurisdiction details:                                 │
-│  $ php symfony privacy:jurisdiction --info=popia            │
+│  Installing / activating a jurisdiction is done in          │
+│  the UI: Admin > Privacy > Configuration.                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -580,7 +569,7 @@ HIGH-RISK RECORDS (Review Required):
 
 ### Example CLI Output
 ```
-$ php symfony privacy:scan-pii --stats
+$ php artisan ahg:privacy-scan-pii --dry-run
 
   ╔════════════════════════════════════════════════════════╗
   ║              PII Detection Statistics                  ║
@@ -684,7 +673,7 @@ DSAR deadline wrong           →  Check jurisdiction setting
 
 PII scan not finding entities →  Ensure OCR is enabled
                                  Check NER service running
-                                 Re-scan with --rescan
+                                 Re-run the PII scan
 
 Redacted PDF not showing      →  Clear cache
                                  Check entity status = redacted

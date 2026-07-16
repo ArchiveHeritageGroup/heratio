@@ -469,46 +469,43 @@ All reports support CSV export for external analysis:
 ### Aggregate Statistics
 ```bash
 # Run all aggregations (recommended for daily cron)
-php symfony statistics:aggregate --all
+php artisan ahg:statistics-aggregate --all
 
 # Daily aggregation only
-php symfony statistics:aggregate --daily
+php artisan ahg:statistics-aggregate --daily
 
 # Monthly aggregation
-php symfony statistics:aggregate --monthly
+php artisan ahg:statistics-aggregate --monthly
 
 # Cleanup old raw events (keep 90 days)
-php symfony statistics:aggregate --cleanup --days=90
+php artisan ahg:statistics-aggregate --cleanup --days=90
 
-# Backfill missing daily aggregates (30 days)
-php symfony statistics:aggregate --backfill=30
+# Backfill aggregates from a start date (Y-m-d)
+php artisan ahg:statistics-aggregate --backfill=2026-01-01
 ```
 
 ### Generate Reports
 ```bash
 # Summary report (default)
-php symfony statistics:report
+php artisan ahg:statistics-report
 
-# Views report
-php symfony statistics:report --type=views
+# Detailed report
+php artisan ahg:statistics-report --type=detailed
 
-# Downloads report
-php symfony statistics:report --type=downloads
+# Trends report
+php artisan ahg:statistics-report --type=trends
 
-# Top items report
-php symfony statistics:report --type=top_items --limit=100
-
-# Geographic report
-php symfony statistics:report --type=geographic
+# Limit the number of rows
+php artisan ahg:statistics-report --type=detailed --limit=100
 
 # Custom date range
-php symfony statistics:report --start=2026-01-01 --end=2026-01-31
+php artisan ahg:statistics-report --start=2026-01-01 --end=2026-01-31
 
 # Export to CSV
-php symfony statistics:report --type=views --format=csv --output=/tmp/views.csv
+php artisan ahg:statistics-report --type=detailed --format=csv --output=/tmp/stats.csv
 
 # JSON output
-php symfony statistics:report --type=summary --format=json
+php artisan ahg:statistics-report --type=summary --format=json
 ```
 
 ---
@@ -519,13 +516,13 @@ php symfony statistics:report --type=summary --format=json
 
 ```bash
 # Aggregate daily statistics at 2am
-0 2 * * * cd /usr/share/nginx/archive && php symfony statistics:aggregate --daily
+0 2 * * * cd /usr/share/nginx/heratio && php artisan ahg:statistics-aggregate --daily
 
 # Monthly aggregation on 1st of month at 3am
-0 3 1 * * cd /usr/share/nginx/archive && php symfony statistics:aggregate --monthly
+0 3 1 * * cd /usr/share/nginx/heratio && php artisan ahg:statistics-aggregate --monthly
 
 # Weekly cleanup of old raw events (Sunday 4am)
-0 4 * * 0 cd /usr/share/nginx/archive && php symfony statistics:aggregate --cleanup
+0 4 * * 0 cd /usr/share/nginx/heratio && php artisan ahg:statistics-aggregate --cleanup
 ```
 
 ---
@@ -632,7 +629,7 @@ php symfony statistics:report --type=summary --format=json
 | No statistics showing | Check if tracking is enabled in Settings |
 | Bot traffic included | Enable bot filtering, update bot patterns |
 | No geographic data | Install MaxMind GeoLite2 database |
-| Dashboard slow | Run `statistics:aggregate --all` to build aggregates |
+| Dashboard slow | Run `php artisan ahg:statistics-aggregate --all` to build aggregates |
 | Data not current | Ensure daily cron job is running |
 | Export fails | Check write permissions on export directory |
 

@@ -180,11 +180,11 @@ CREATE FULLTEXT INDEX ft_ti_name ON term_i18n(name);
 
 ### Installation
 
-```bash
-php symfony ahg:add-fulltext-indexes
-```
-
-The task is idempotent - checks if indexes exist before creating.
+These four FULLTEXT indexes ship as part of the Heratio core schema
+(`database/core/00_core_schema.sql`) and are created when the database is
+installed, so no separate command is required. To add them to an existing
+database, run the `CREATE FULLTEXT INDEX` statements above - MySQL skips any
+index that already exists.
 
 ### Behavior
 
@@ -312,15 +312,15 @@ Every layer is wrapped in try/catch. A failure in any layer never breaks the bro
 
 ---
 
-## 9. CLI Commands
+## 9. FULLTEXT Index Setup
 
 ### Create FULLTEXT Indexes
 
-```bash
-php symfony ahg:add-fulltext-indexes
-```
-
-Creates the four FULLTEXT indexes. Idempotent (checks existence first). Non-blocking on MySQL 8.0.12+.
+The four FULLTEXT indexes ship with the Heratio core schema
+(`database/core/00_core_schema.sql`) and are created at database install time.
+To (re)create them on an existing database, run the `CREATE FULLTEXT INDEX`
+statements from section 4. MySQL skips any index that already exists, and index
+creation is non-blocking on MySQL 8.0.12+.
 
 ---
 

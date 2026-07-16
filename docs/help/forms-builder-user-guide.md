@@ -396,17 +396,17 @@ Share templates between systems or create backups.
 ### CLI Export/Import
 
 ```bash
-# Export template to file
-php symfony forms:export --template-id=1 --output=my-template.json
+# Export a single template to file
+php artisan ahg:forms-export --template-id=1 --output=my-template.json
 
-# Import template from file
-php symfony forms:import --input=my-template.json
+# Export all templates of a given type
+php artisan ahg:forms-export --type=information_object --output=io-forms.json
 
-# Import with new name
-php symfony forms:import --input=template.json --name="Custom Form"
+# Import templates from file
+php artisan ahg:forms-import --file=my-template.json
 
-# Preview import without creating
-php symfony forms:import --input=template.json --dry-run
+# Import, auto-renaming to "<original> (imported)" to avoid name collisions
+php artisan ahg:forms-import --file=template.json --rename
 ```
 
 ---
@@ -457,48 +457,39 @@ Forms automatically save work in progress.
 
 ---
 
-## CLI Commands
+## Listing Templates
 
-### List Templates
+Form templates are managed from the web UI at **Admin** > **Form Templates**
+(`/admin/formTemplates`). The listing shows every template grouped by type, with
+its field count, version, and whether it is a built-in **[SYSTEM]** template.
+Open a template to view its fields, or the **Assignments** tab to see where it
+applies. Use the type filter to narrow to a single entity type (for example
+`information_object`).
 
-```bash
-# List all templates
-php symfony forms:list
-
-# Filter by type
-php symfony forms:list --type=information_object
-
-# Show fields for a template
-php symfony forms:list --fields=1
-
-# Show assignments
-php symfony forms:list --assignments
-```
-
-### Example Output
+### Example Listing
 
 ```
->> forms  === Form Templates ===
->> forms  Found 5 templates:
+=== Form Templates ===
+Found 5 templates:
 
->> forms  INFORMATION_OBJECT:
->> forms    #1: ISAD-G Minimal [SYSTEM]
->> forms        Fields: 8 | Version: 1
->> forms        Minimal ISAD(G) compliant form
+INFORMATION_OBJECT:
+  #1: ISAD-G Minimal [SYSTEM]
+      Fields: 8 | Version: 1
+      Minimal ISAD(G) compliant form
 
->> forms    #2: ISAD-G Full [SYSTEM]
->> forms        Fields: 26 | Version: 1
->> forms        Complete ISAD(G) form with all elements
+  #2: ISAD-G Full [SYSTEM]
+      Fields: 26 | Version: 1
+      Complete ISAD(G) form with all elements
 
->> forms    #3: Dublin Core Simple [SYSTEM]
->> forms        Fields: 15 | Version: 1
+  #3: Dublin Core Simple [SYSTEM]
+      Fields: 15 | Version: 1
 
->> forms    #4: Photo Collection Item [SYSTEM]
->> forms        Fields: 19 | Version: 1
+  #4: Photo Collection Item [SYSTEM]
+      Fields: 19 | Version: 1
 
->> forms  ACCESSION:
->> forms    #5: Accession Standard [SYSTEM]
->> forms        Fields: 15 | Version: 1
+ACCESSION:
+  #5: Accession Standard [SYSTEM]
+      Fields: 15 | Version: 1
 ```
 
 ---
@@ -560,7 +551,7 @@ php symfony forms:list --assignments
 
 1. **Check required fields** - Are all required fields filled?
 2. **Check validation** - Does the data meet validation rules?
-3. **Clear cache** - Run `php symfony cc`
+3. **Clear cache** - Run `php artisan optimize:clear`
 
 ### Import Fails
 

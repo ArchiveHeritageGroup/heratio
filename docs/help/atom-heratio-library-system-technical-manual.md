@@ -879,10 +879,10 @@ The `library_entity_subject_map` table bridges NER-extracted entities to subject
 
 ## 8. CLI Commands
 
-### library:process-covers
+### ahg:library-process-covers
 
 ```bash
-php symfony library:process-covers [--limit=N] [--force]
+php artisan ahg:library-process-covers [--limit=N] [--missing-only]
 ```
 
 Implemented in `lib/task/libraryCoverProcessTask.class.php` and `lib/Commands/ProcessCoversCommand.php`.

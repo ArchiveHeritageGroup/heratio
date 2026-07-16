@@ -852,23 +852,20 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │ CLI COMMANDS FOR PII SCANNING                               │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  # Show statistics                                          │
-│  php symfony privacy:scan-pii --stats                       │
+│  # Report matches without writing (dry run)                 │
+│  php artisan ahg:privacy-scan-pii --dry-run                 │
 │                                                             │
-│  # Scan a specific record                                   │
-│  php symfony privacy:scan-pii --id=123                      │
+│  # Scan records updated since a date                        │
+│  php artisan ahg:privacy-scan-pii --since=2026-01-01        │
 │                                                             │
 │  # Batch scan 50 records                                    │
-│  php symfony privacy:scan-pii --limit=50                    │
+│  php artisan ahg:privacy-scan-pii --limit=50                │
 │                                                             │
-│  # Scan specific repository only                            │
-│  php symfony privacy:scan-pii --repository=5                │
-│                                                             │
-│  # Re-scan already scanned records                          │
-│  php symfony privacy:scan-pii --rescan                      │
+│  # Scan from a specific source connection                   │
+│  php artisan ahg:privacy-scan-pii --connection=atom         │
 │                                                             │
 │  # Show detailed output                                     │
-│  php symfony privacy:scan-pii --verbose                     │
+│  php artisan ahg:privacy-scan-pii --verbose                 │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```

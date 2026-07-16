@@ -348,53 +348,65 @@ Navigate to **Data Migration** → **View Jobs** or `/dataMigration/jobs`
 ## 7. Command Line Interface
 
 ### 7.1 Available Commands
+
+The CLI importers ingest **CSV** files. Richer source formats (Excel, XML, JSON,
+Preservica OPEX/PAX) and mapping-by-name are handled through the Data Migration
+web UI at `/dataMigration`; convert or preview those there, then use the CLI for
+scripted CSV loads.
+
 ```bash
-# List all saved mappings
-php symfony migration:import --list-mappings
+# Import a CSV with a saved mapping profile (archives sector)
+php artisan sector:archives-csv-import /path/to/file.csv --mapping=10
 
-# Import with mapping ID
-php symfony migration:import /path/to/file.csv --mapping=10
+# Other sectors use the same options
+php artisan sector:museum-csv-import /path/to/file.csv --mapping=10
+php artisan sector:library-csv-import /path/to/file.csv --mapping=10
+php artisan sector:gallery-csv-import /path/to/file.csv --mapping=10
+php artisan sector:dam-csv-import /path/to/file.csv --mapping=10
 
-# Import with mapping name
-php symfony migration:import /path/to/file.xlsx --mapping="Vernon CMS (Museum)"
-
-# Dry run (preview without importing)
-php symfony migration:import /path/to/file.csv --mapping=10 --dry-run
+# Validate only (preview without importing)
+php artisan sector:archives-csv-import /path/to/file.csv --mapping=10 --validate-only
 
 # Import with options
-php symfony migration:import /path/to/file.csv --mapping=10 \
-  --repository=5 \
-  --parent=1234 \
-  --culture=en \
-  --update
+php artisan sector:archives-csv-import /path/to/file.csv --mapping=10 \
+  --repository=my-repo-slug \
+  --update=identifier \
+  --update-mode=update \
+  --culture=en
 
-# Export to Heratio CSV format
-php symfony migration:import /path/to/file.xlsx --mapping=10 \
-  --output=csv \
-  --output-file=/tmp/atom_import.csv
-
-# Preservica OPEX import
-php symfony migration:import /path/to/export.opex --mapping="Preservica OPEX"
+# Generic importer (no sector validation) - tag rows with a source name and reindex
+php artisan ahg:csv-import /path/to/file.csv --source-name="Vernon CMS" --index
 
 # Limit rows for testing
-php symfony migration:import /path/to/file.csv --mapping=10 --limit=10
+php artisan sector:archives-csv-import /path/to/file.csv --mapping=10 --limit=10
 ```
 
 ### 7.2 CLI Options Reference
 
+**Sector importers** (`sector:archives-csv-import`, `sector:museum-csv-import`,
+`sector:library-csv-import`, `sector:gallery-csv-import`, `sector:dam-csv-import`):
+
 | Option | Description |
 |--------|-------------|
-| `--mapping` | Mapping ID or name (required) |
-| `--repository` | Repository ID for imported records |
-| `--parent` | Parent information object ID |
-| `--culture` | Language code (default: en) |
-| `--update` | Update existing records if found |
-| `--match-field` | Field to match existing (legacyId/identifier) |
-| `--output` | Output mode: import, csv, preview |
-| `--output-file` | Path for CSV export |
-| `--dry-run` | Simulate without database changes |
-| `--limit` | Maximum rows to import |
-| `--sheet` | Excel sheet index (0-based) |
+| `--mapping` | Mapping profile ID to use |
+| `--repository` | Target repository slug |
+| `--update` | Match field for updates (identifier, legacyId; default legacyId) |
+| `--update-mode` | Update mode: skip, update, merge (default skip) |
+| `--culture` | Default culture for i18n fields (default: en) |
+| `--validate-only` | Validate without importing |
+| `--limit` | Maximum rows to process |
+| `--skip` | Number of rows to skip (default: 0) |
+
+**Generic importer** (`ahg:csv-import`):
+
+| Option | Description |
+|--------|-------------|
+| `--source-name` | Source name identifier tagged onto imported rows |
+| `--default-legacy-parent-id` | Default parent ID for orphan records |
+| `--update` | Update strategy (match, overwrite, skip) |
+| `--skip-matched` | Skip records that already exist |
+| `--limit` | Maximum records to import |
+| `--index` | Reindex after import |
 
 ---
 
@@ -493,8 +505,8 @@ php symfony migration:import /path/to/file.csv --mapping=10 --limit=10
 **Solutions:**
 - Check records were created under correct parent
 - Verify publication status
-- Rebuild search index: `php symfony search:populate`
-- Clear cache: `php symfony cc`
+- Rebuild search index: `php artisan ahg:search-populate`
+- Clear cache: `php artisan optimize:clear`
 
 #### Character Encoding Issues
 
@@ -510,7 +522,7 @@ php symfony migration:import /path/to/file.csv --mapping=10 --limit=10
 | Error | Cause | Solution |
 |-------|-------|----------|
 | "No data found in file" | Empty file or wrong format | Check file contents and format |
-| "Mapping not found" | Invalid mapping ID | Use `--list-mappings` to verify |
+| "Mapping not found" | Invalid mapping ID | Verify the mapping ID in the Data Migration UI (`/dataMigration`) |
 | "Title is required" | Records missing title field | Map a field to `title` |
 | "Parent not found" | Invalid parent ID | Verify parent record exists |
 | "Permission denied" | File system permissions | Check directory permissions |
@@ -518,7 +530,7 @@ php symfony migration:import /path/to/file.csv --mapping=10 --limit=10
 ### 9.3 Getting Help
 
 1. Check this documentation
-2. Review error logs: `/log/qubit.log`
+2. Review error logs: `storage/logs/`
 3. Contact support with:
    - Error message
    - Source file sample (anonymized)
@@ -612,14 +624,11 @@ Upload → Map Fields → Preview → Import
 
 ### CLI Quick Commands
 ```bash
-# List mappings
-php symfony migration:import --list-mappings
-
-# Test import (dry run)
-php symfony migration:import file.csv --mapping=10 --dry-run
+# Validate import (no writes)
+php artisan sector:archives-csv-import file.csv --mapping=10 --validate-only
 
 # Full import
-php symfony migration:import file.csv --mapping=10 --repository=5
+php artisan sector:archives-csv-import file.csv --mapping=10 --repository=my-repo-slug
 ```
 
 ### URLs

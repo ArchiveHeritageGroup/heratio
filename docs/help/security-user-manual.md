@@ -148,14 +148,14 @@ Navigate to **Admin > AHG Settings > Security & Access Control** to configure:
 Set up these cron jobs for ongoing security maintenance:
 
 ```bash
-# Breach notification check (hourly) — POPIA Section 22
-0 * * * * cd /usr/share/nginx/archive && php symfony privacy:breach-check --email=dpo@example.com
+# Breach notification check (hourly) - POPIA Section 22
+0 * * * * cd /usr/share/nginx/heratio && php artisan ahg:popia-breach-check
 
 # Login attempt cleanup (daily)
-0 3 * * * cd /usr/share/nginx/archive && php bin/atom tools:cleanup-login-attempts
+0 3 * * * cd /usr/share/nginx/heratio && php artisan ahg:cleanup-login-attempts
 
 # Audit log retention (weekly)
-0 4 * * 0 cd /usr/share/nginx/archive && php bin/atom tools:audit-retention
+0 4 * * 0 cd /usr/share/nginx/heratio && php artisan ahg:audit-retention
 ```
 
 ### Compliance Standards

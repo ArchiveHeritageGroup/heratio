@@ -24,7 +24,7 @@
 │  ┌─────────────────────────────────────────────────────────────────────────┐   │
 │  │ Step 1: Discover Available Plugins                                       │   │
 │  │                                                                          │   │
-│  │   $ php bin/atom extension:discover                                      │   │
+│  │   Admin -> Settings -> Plugins  (/admin/ahgSettings/plugins)             │   │
 │  │                                                                          │   │
 │  │   Output:                                                                │   │
 │  │   ┌──────────────────────────────────────────────────────────────────┐  │   │
@@ -42,7 +42,7 @@
 │  ┌─────────────────────────────────────────────────────────────────────────┐   │
 │  │ Step 2: Enable Plugin                                                    │   │
 │  │                                                                          │   │
-│  │   $ php bin/atom extension:enable ahgPrivacyPlugin                       │   │
+│  │   In Admin -> Settings -> Plugins, toggle "Privacy" on and Save.         │   │
 │  │                                                                          │   │
 │  │   ┌──────────────────────────────────────────────────────────────────┐  │   │
 │  │   │ ✓ Plugin ahgPrivacyPlugin enabled                                 │  │   │
@@ -58,7 +58,7 @@
 │  │ Step 3: Restart Services                                                 │   │
 │  │                                                                          │   │
 │  │   $ sudo systemctl restart php8.3-fpm                                    │   │
-│  │   $ php symfony cc                                                       │   │
+│  │   $ php artisan optimize:clear                                           │   │
 │  └─────────────────────────────────────────────────────────────────────────┘   │
 │           │                                                                      │
 │           ▼                                                                      │
@@ -103,13 +103,10 @@
 │  ┌─────────────────────────────────────────────────────────────────────────┐   │
 │  │ Step 1: Enable appropriate sector plugin                                 │   │
 │  │                                                                          │   │
-│  │   $ php bin/atom extension:enable ahgMuseumPlugin                        │   │
-│  │                      OR                                                  │   │
-│  │   $ php bin/atom extension:enable ahgLibraryPlugin                       │   │
-│  │                      OR                                                  │   │
-│  │   $ php bin/atom extension:enable ahgGalleryPlugin                       │   │
-│  │                      OR                                                  │   │
-│  │   $ php bin/atom extension:enable ahgDAMPlugin                           │   │
+│  │   Set the sector in Admin -> Sector Profile:                             │   │
+│  │       (/admin/sector-profile)                                            │   │
+│  │                                                                          │   │
+│  │       Museum   OR   Library   OR   Gallery   OR   DAM                    │   │
 │  └─────────────────────────────────────────────────────────────────────────┘   │
 │             │                                                                    │
 │             ▼                                                                    │

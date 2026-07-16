@@ -126,7 +126,7 @@ To manage ISBN lookup providers, navigate to `/library/isbn-providers`. You can 
 Cover images are retrieved automatically during ISBN lookup from Open Library and Google Books APIs. The system uses a cover proxy (`/library/cover/:isbn`) to serve cached cover images. Background processing of cover images is available via the CLI command:
 
 ```bash
-php symfony library:process-covers
+php artisan ahg:library-process-covers
 ```
 
 ### 3.5 Subject Headings
@@ -872,7 +872,7 @@ The Circulation module provides real-time statistics including:
 
 | Command | Description |
 |---------|-------------|
-| `php symfony library:process-covers` | Process and cache cover images for items with ISBNs |
+| `php artisan ahg:library-process-covers` | Process and cache cover images for items with ISBNs |
 
 ---
 

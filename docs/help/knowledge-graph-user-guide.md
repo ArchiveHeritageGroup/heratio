@@ -239,21 +239,21 @@ Entities must appear in the same record to show a connection. Records processed 
 
 Run periodically to sync new approved entities:
 ```bash
-php symfony ai:sync-entity-cache
+php artisan ahg:ai-sync-entity-cache
 ```
 
 ### Rebuilding the Graph
 
 Rebuild to include new relationships:
 ```bash
-php symfony heritage:build-graph
+php artisan ahg:heritage-build-graph
 ```
 
 ### Statistics
 
-View current graph statistics:
+View current graph size:
 ```bash
-php symfony heritage:build-graph --stats
+mysql heratio -e "SELECT COUNT(*) FROM heritage_entity_cache;"
 ```
 
 ---

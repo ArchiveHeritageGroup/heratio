@@ -134,9 +134,9 @@ Institutions can extend this vocabulary with their own codes via **Admin > Dropd
 
 ## Installation
 
-1. Enable the plugin via CLI: `php bin/atom extension:enable ahgCustomFieldsPlugin`
-2. Run the database install: `mysql -u root archive < plugins/ahgCustomFieldsPlugin/database/install.sql`
-3. Clear cache: `rm -rf cache/* && php symfony cc`
+1. Custom Fields ship with Heratio as the `ahg-custom-fields` package - no separate plugin activation is required.
+2. Apply any outstanding migrations (e.g. after an upgrade): `php artisan migrate`
+3. Clear cache: `php artisan optimize:clear`
 4. Navigate to **Admin > Custom Fields** to begin defining fields
 
 ---

@@ -219,43 +219,40 @@ Batch processing is available via command line for large-scale operations.
 #### NER Extraction
 
 ```bash
-# Extract from all unprocessed records
-php symfony ner:extract --all --limit=1000
+# Extract from all records not yet processed
+php artisan ahg:ai-ner --unprocessed --limit=1000
 
-# Extract from specific repository
-php symfony ner:extract --repository=5 --limit=500
-
-# Extract from single record
-php symfony ner:extract --object=12345
+# Extract a capped batch (blank/0 limit = all matching)
+php artisan ahg:ai-ner --limit=500
 
 # Dry run (show what would be processed)
-php symfony ner:extract --all --dry-run --limit=10
+php artisan ahg:ai-ner --unprocessed --dry-run --limit=10
 ```
 
 #### Summarization
 
 ```bash
 # Summarize records with empty scope_and_content
-php symfony ner:summarize --all-empty --limit=100
+php artisan ahg:ai-summarize --all-empty --limit=100
 
 # Summarize specific record
-php symfony ner:summarize --object=12345
+php artisan ahg:ai-summarize --object=12345
 
 # Specify target field
-php symfony ner:summarize --all-empty --field=abstract --limit=100
+php artisan ahg:ai-summarize --all-empty --field=abstract --limit=100
 ```
 
 #### Spell Check
 
 ```bash
 # Check all records
-php symfony ner:spellcheck --all --limit=100
+php artisan ahg:ai-spellcheck --all --limit=100
 
 # Check specific repository
-php symfony ner:spellcheck --repository=5 --limit=500
+php artisan ahg:ai-spellcheck --repository=5 --limit=500
 
-# Specify language
-php symfony ner:spellcheck --all --language=af_ZA --limit=100
+# Specify culture
+php artisan ahg:ai-spellcheck --all --culture=af --limit=100
 ```
 
 ### Running Long Batches
@@ -267,7 +264,7 @@ For large archives, use `screen` to run batches in the background:
 screen -S batch_ner
 
 # Run the batch
-php symfony ner:extract --all --limit=10000
+php artisan ahg:ai-ner --unprocessed --limit=10000
 
 # Detach: Ctrl+A, D
 # Reattach: screen -r batch_ner
@@ -319,7 +316,7 @@ WHERE scope_and_content IS NOT NULL AND scope_and_content != '';
 
 1. Check Elasticsearch is running: `systemctl status elasticsearch`
 2. Verify Elastica version matches ES version
-3. Rebuild index: `php symfony search:populate`
+3. Rebuild index: `php artisan ahg:search-populate`
 
 #### API Connection Errors
 

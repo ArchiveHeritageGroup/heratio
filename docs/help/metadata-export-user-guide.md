@@ -93,13 +93,13 @@ The CLI is ideal for bulk exports and automation.
 
 ```bash
 # List all available formats
-php symfony metadata:export --list
+php artisan ahg:metadata-export --list
 
 # Export single record to EAD3
-php symfony metadata:export --format=ead3 --slug=my-fonds
+php artisan ahg:metadata-export --format=ead3 --slug=my-fonds
 
 # Export to all formats at once
-php symfony metadata:export --format=all --slug=my-fonds --output=/exports/
+php artisan ahg:metadata-export --format=all --slug=my-fonds --output=/exports/
 ```
 
 ### Export Options
@@ -108,7 +108,7 @@ php symfony metadata:export --format=all --slug=my-fonds --output=/exports/
 |--------|-------------|
 | `--format=FORMAT` | Export format (ead3, rico, lido, marc21, etc.) |
 | `--slug=SLUG` | Record slug to export |
-| `--repository=ID` | Export all records from a repository |
+| `--repository=SLUG` | Export all records from a repository (by repository slug) |
 | `--output=PATH` | Output directory (default: /tmp) |
 | `--include-children` | Include child records |
 | `--include-digital-objects` | Include digital object metadata |
@@ -118,22 +118,22 @@ php symfony metadata:export --format=all --slug=my-fonds --output=/exports/
 
 **Export a finding aid to EAD3:**
 ```bash
-php symfony metadata:export --format=ead3 --slug=smith-family-papers --output=/exports/
+php artisan ahg:metadata-export --format=ead3 --slug=smith-family-papers --output=/exports/
 ```
 
 **Export entire repository to RIC-O linked data:**
 ```bash
-php symfony metadata:export --format=rico --repository=5 --include-children --output=/exports/rico/
+php artisan ahg:metadata-export --format=rico --repository=my-repository --include-children --output=/exports/rico/
 ```
 
 **Export museum objects to LIDO:**
 ```bash
-php symfony metadata:export --format=lido --repository=3 --include-digital-objects --output=/exports/lido/
+php artisan ahg:metadata-export --format=lido --repository=my-repository --include-digital-objects --output=/exports/lido/
 ```
 
 **Export all formats for a record:**
 ```bash
-php symfony metadata:export --format=all --slug=my-record --output=/exports/multi-format/
+php artisan ahg:metadata-export --format=all --slug=my-record --output=/exports/multi-format/
 ```
 
 ---
@@ -400,30 +400,25 @@ When you export records, any existing DOIs are automatically included in the app
 </datafield>
 ```
 
-### DOI Export Options
+### DOI Handling in Exports
 
-| Option | Description |
-|--------|-------------|
-| `--include-doi` | Include DOI in export (default: yes) |
-| `--mint-doi` | Mint new DOI for records without one |
-| `--doi-state=STATE` | State for new DOIs: draft, registered, findable |
-| `--skip-no-doi` | Only export records that have DOIs |
+Any existing DOIs are included automatically in every export - there are no extra
+flags to enable this. To mint DOIs for records that do not yet have one, use the
+DOI Management command (`php artisan ahg:doi-mint`) before running the export.
 
 ### CLI Examples with DOI
 
-**Export records with existing DOIs:**
+**Export records (existing DOIs are embedded automatically):**
 ```bash
-php symfony metadata:export --format=ead3 --repository=5 --output=/exports/
+php artisan ahg:metadata-export --format=ead3 --repository=my-repository --output=/exports/
 ```
 
-**Export only records that have DOIs:**
+**Mint a DOI first, then export the record:**
 ```bash
-php symfony metadata:export --format=marc21 --repository=5 --skip-no-doi --output=/exports/
-```
-
-**Mint DOIs during export (requires ahgDoiPlugin):**
-```bash
-php symfony metadata:export --format=rico --slug=my-fonds --mint-doi --doi-state=findable
+# Mint by information-object ID (ahg:doi-mint --repository takes a numeric ID)
+php artisan ahg:doi-mint --object-id=456
+# Export that record by its slug
+php artisan ahg:metadata-export --format=rico --slug=my-fonds --output=/exports/
 ```
 
 ### Benefits of DOI in Exports
@@ -435,7 +430,7 @@ php symfony metadata:export --format=rico --slug=my-fonds --mint-doi --doi-state
 
 ### Requirements
 
-- DOIs are managed via the **ahgDoiPlugin** (DOI Management module)
+- DOIs are managed via the **DOI Management** plugin
 - DOI minting requires DataCite credentials configured in Admin > DOI Settings
 - Existing DOIs are included automatically; no configuration needed
 
@@ -449,17 +444,17 @@ Set up regular exports for data synchronization:
 
 **Weekly EAD3 export (Sundays at 2am):**
 ```bash
-0 2 * * 0 cd /usr/share/nginx/archive && php symfony metadata:export --format=ead3 --repository=5 --output=/exports/ead3 >> /var/log/atom/ead3-export.log 2>&1
+0 2 * * 0 cd /usr/share/nginx/heratio && php artisan ahg:metadata-export --format=ead3 --repository=my-repository --output=/exports/ead3 >> storage/logs/ead3-export.log 2>&1
 ```
 
 **Daily PREMIS export for preservation (4am):**
 ```bash
-0 4 * * * cd /usr/share/nginx/archive && php symfony metadata:export --format=premis --output=/exports/premis >> /var/log/atom/premis-export.log 2>&1
+0 4 * * * cd /usr/share/nginx/heratio && php artisan ahg:metadata-export --format=premis --output=/exports/premis >> storage/logs/premis-export.log 2>&1
 ```
 
 **Monthly all-format export (1st of month, 3am):**
 ```bash
-0 3 1 * * cd /usr/share/nginx/archive && php symfony metadata:export --format=all --repository=5 --output=/exports/monthly >> /var/log/atom/monthly-export.log 2>&1
+0 3 1 * * cd /usr/share/nginx/heratio && php artisan ahg:metadata-export --format=all --repository=my-repository --output=/exports/monthly >> storage/logs/monthly-export.log 2>&1
 ```
 
 ---
