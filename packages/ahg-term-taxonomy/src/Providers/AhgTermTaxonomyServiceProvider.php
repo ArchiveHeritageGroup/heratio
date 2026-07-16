@@ -26,6 +26,7 @@ class AhgTermTaxonomyServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-term-taxonomy');
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 
         // #661 Phase 3 -- ensure ahg_term_cross_match table exists. Wrapped in
         // a single try so a missing connection during CI / asset-only builds
