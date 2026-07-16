@@ -264,6 +264,15 @@ class EsReindexCommand extends Command
             $additions['workKey'] = ['type' => 'keyword'];
         }
 
+        // Part B: authority-record visibility. Guests' search filter needs these
+        // on the actor index (strict mapping rejects them otherwise).
+        if (!isset($props['publicationStatusId'])) {
+            $additions['publicationStatusId'] = ['type' => 'integer'];
+        }
+        if (!isset($props['embargoUntil'])) {
+            $additions['embargoUntil'] = ['type' => 'date'];
+        }
+
         if (empty($additions)) {
             return;
         }
@@ -652,6 +661,10 @@ class EsReindexCommand extends Command
      */
     protected function reindexActor(string $index): void
     {
+        // Ensure the (strict) actor mapping carries publicationStatusId +
+        // embargoUntil before indexing them.
+        $this->ensureGeoPointMapping($index);
+
         $total = DB::table('actor')->where('id', '!=', 3)->count(); // exclude ROOT
         $this->info("  Found {$total} actors");
         $bar = $this->output->createProgressBar($total);
@@ -676,6 +689,13 @@ class EsReindexCommand extends Command
                     ->get()
                     ->keyBy('object_id');
 
+                // Publication status (type 158) so the guest search filter can
+                // exclude draft / embargoed authority records (Part B parity).
+                $statuses = DB::table('status')
+                    ->whereIn('object_id', $ids)
+                    ->where('type_id', 158)
+                    ->pluck('status_id', 'object_id');
+
                 $bulk = '';
                 foreach ($rows as $row) {
                     $i18nGroup = $i18nRows[$row->id] ?? collect();
@@ -686,6 +706,9 @@ class EsReindexCommand extends Command
                         'slug' => $slug,
                         'entityTypeId' => $row->entity_type_id,
                         'corporateBodyIdentifiers' => $row->corporate_body_identifiers,
+                        'publicationStatusId' => (int) ($statuses[$row->id] ?? 160),
+                        'embargoUntil' => ! empty($row->embargo_until ?? null)
+                            ? date('Y-m-d', strtotime((string) $row->embargo_until)) : null,
                         'hasDigitalObject' => $do !== null,
                         'createdAt' => ! empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
                         'updatedAt' => ! empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,

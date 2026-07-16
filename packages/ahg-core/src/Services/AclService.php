@@ -62,6 +62,9 @@ class AclService
 
     private static ?object $user = null;
 
+    /** Cached presence of actor.embargo_until - schema drift must not 500 actor pages. */
+    private static ?bool $actorEmbargoCol = null;
+
     private static ?array $userGroups = null;
 
     public static function setUser(?object $user): void
@@ -287,10 +290,12 @@ class AclService
         });
 
         // Not currently embargoed.
-        $embargoCol = preg_replace('/\.id$/', '.embargo_until', $idColumn);
-        $query->where(function ($q) use ($embargoCol) {
-            $q->whereNull($embargoCol)->orWhereRaw("$embargoCol <= CURDATE()");
-        });
+        if (self::actorHasEmbargoColumn()) {
+            $embargoCol = preg_replace('/\.id$/', '.embargo_until', $idColumn);
+            $query->where(function ($q) use ($embargoCol) {
+                $q->whereNull($embargoCol)->orWhereRaw("$embargoCol <= CURDATE()");
+            });
+        }
 
         return $query;
     }
@@ -318,6 +323,9 @@ class AclService
             return false;
         }
 
+        if (! self::actorHasEmbargoColumn()) {
+            return true; // published + no embargo capability = visible
+        }
         $embargo = DB::table('actor')->where('id', $actorId)->value('embargo_until');
 
         return $embargo === null || $embargo <= date('Y-m-d');
@@ -334,9 +342,30 @@ class AclService
             ['object_id' => $actorId, 'type_id' => TermId::STATUS_TYPE_PUBLICATION],
             ['status_id' => $statusId]
         );
-        DB::table('actor')->where('id', $actorId)->update([
-            'embargo_until' => $embargoUntil ?: null,
-        ]);
+        if (self::actorHasEmbargoColumn()) {
+            DB::table('actor')->where('id', $actorId)->update([
+                'embargo_until' => $embargoUntil ?: null,
+            ]);
+        }
+    }
+
+    /**
+     * Whether actor.embargo_until exists (cached). If the column is absent -
+     * e.g. the Part-B migration hasn't run or was reverted on an instance - the
+     * embargo clauses are skipped so actor pages degrade to publication-only
+     * instead of 500-ing on "Unknown column 'embargo_until'".
+     */
+    private static function actorHasEmbargoColumn(): bool
+    {
+        if (self::$actorEmbargoCol === null) {
+            try {
+                self::$actorEmbargoCol = \Illuminate\Support\Facades\Schema::hasColumn('actor', 'embargo_until');
+            } catch (\Throwable $e) {
+                self::$actorEmbargoCol = false;
+            }
+        }
+
+        return self::$actorEmbargoCol;
     }
 
     /**

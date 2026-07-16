@@ -311,6 +311,10 @@ class ElasticsearchService
             ],
         ];
 
+        // Exclude currently-embargoed authority records (embargoUntil in the
+        // future). Docs without the field (IO / non-embargoed) are unaffected.
+        $bool['must_not'][] = ['range' => ['embargoUntil' => ['gt' => 'now/d']]];
+
         $body = [
             'size' => $size,
             '_source' => ['slug', "i18n.{$culture}", 'identifier'],
