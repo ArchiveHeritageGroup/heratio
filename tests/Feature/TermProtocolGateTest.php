@@ -32,6 +32,7 @@ class TermProtocolGateTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        \AhgCore\Services\AclService::forgetUser(); // no actingAs state leaking across cases
         foreach (['object', 'term', 'object_term_relation', 'information_object', 'term_protocol', 'user'] as $t) {
             if (! Schema::hasTable($t)) {
                 $this->markTestSkipped("$t not present in this install.");

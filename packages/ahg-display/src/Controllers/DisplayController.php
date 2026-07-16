@@ -729,6 +729,7 @@ class DisplayController extends Controller
                     ->where('pub_st.status_id', '=', 160);
             });
         }
+        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id'); // #1388 export gate
 
         if ($parentId) {
             $query->where('io.parent_id', $parentId);
@@ -846,6 +847,7 @@ class DisplayController extends Controller
                     ->where('pub_st.status_id', '=', 160);
             });
         }
+        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id'); // #1388 export gate
 
         if ($parentId) {
             $query->where('io.parent_id', $parentId);
@@ -1236,6 +1238,10 @@ class DisplayController extends Controller
                     ->where('pub_st.status_id', '=', 160);
             });
         }
+
+        // #1388: hide records tagged with a restricted-protocol term from
+        // guests/non-editors (editors/admins bypass inside the gate).
+        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id');
 
         if ($this->parentId) {
             // #1333 read-swap: the record itself + all descendants via the closure

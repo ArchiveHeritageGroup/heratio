@@ -54,7 +54,7 @@ class TermBrowseService extends BrowseService
         // when the user is browsing in af / xh / zu / etc.
         $this->joinI18nWithFallback($query, 'term_i18n', 'term', aliasPrefix: 'term');
 
-        return $query
+        $query
             ->join('object', 'term.id', '=', 'object.id')
             ->join('slug', 'term.id', '=', 'slug.object_id')
             // At least one culture must have a non-empty name.
@@ -65,6 +65,12 @@ class TermBrowseService extends BrowseService
                     $qq->whereNotNull('term_fb.name')->where('term_fb.name', '!=', '');
                 });
             });
+
+        // #1388: hide terms carrying a restricted community protocol from
+        // guests/non-editors (editors/admins bypass inside the gate).
+        \AhgCore\Services\TermProtocolGate::addTermVisibilityCriteria($query, 'term.id');
+
+        return $query;
     }
 
     protected function getBaseSelect(): array

@@ -73,6 +73,14 @@ class AclService
         self::$userGroups = null;
     }
 
+    /** Clear the per-request user/group cache (tests: prevents actingAs state leaking across cases). */
+    public static function forgetUser(): void
+    {
+        self::$user = null;
+        self::$userGroups = null;
+        self::$actorEmbargoCol = null;
+    }
+
     public static function getUser(): ?object
     {
         if (! self::$user) {

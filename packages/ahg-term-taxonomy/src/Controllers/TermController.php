@@ -213,6 +213,12 @@ class TermController extends Controller
             abort(403, 'You do not have permission to view this term.');
         }
 
+        // #1388: a term carrying a restricted community protocol must not leak to
+        // the public (the ACL 'read' gate is a no-op for anonymous). Editors bypass.
+        if (! \AhgCore\Services\TermProtocolGate::allowsTerm((int) $term->id)) {
+            abort(404);
+        }
+
         $taxonomyName = $this->termService->getTaxonomyName($term->taxonomy_id, $culture);
         $scopeNote = $this->termService->getScopeNote($term->id, $culture);
         $relatedDescriptionsCount = $this->termService->getRelatedDescriptionCount($term->id);
@@ -1477,6 +1483,7 @@ class TermController extends Controller
 
         return view('ahg-term-taxonomy::edit', [
             'term' => $term,
+            'termProtocol' => \AhgCore\Services\TermProtocolService::protocolsForTerm((int) $term->id)->first(),
             'taxonomies' => $taxonomies,
             'taxonomyName' => $taxonomyName,
             'selectedTaxonomyId' => $term->taxonomy_id,
@@ -1526,6 +1533,17 @@ class TermController extends Controller
             'sourceNotes' => $request->input('sourceNotes', []),
             'displayNotes' => $request->input('displayNotes', []),
         ], $culture);
+
+        // #1388 - community protocol (TK/BC label + access condition + owner).
+        \AhgCore\Services\TermProtocolService::set(
+            (int) $term->id,
+            $request->input('protocol_label_family'),
+            $request->input('protocol_label_code'),
+            (string) $request->input('protocol_access_condition', 'open'),
+            $request->filled('protocol_owner_actor_id') ? (int) $request->input('protocol_owner_actor_id') : null,
+            $request->input('protocol_region_module'),
+            (int) auth()->id() ?: null
+        );
 
         // #661 Phase 3 - persist the cross-vocab matches panel. Empty rows
         // (no URI) drop on the floor; the service does per-row validation.

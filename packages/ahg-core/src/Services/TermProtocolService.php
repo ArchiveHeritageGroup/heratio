@@ -54,6 +54,37 @@ class TermProtocolService
         return in_array($condition, self::RESTRICTED, true);
     }
 
+    /**
+     * Set (replace) a term's community protocol from the ISAAR/term edit form.
+     * A blank family+code with an 'open' condition clears the protocol.
+     */
+    public static function set(
+        int $termId,
+        ?string $labelFamily,
+        ?string $labelCode,
+        string $condition = 'open',
+        ?int $ownerActorId = null,
+        ?string $regionModule = null,
+        ?int $createdBy = null
+    ): void {
+        DB::table('term_protocol')->where('term_id', $termId)->delete();
+        $condition = $condition ?: 'open';
+        if ($condition === 'open' && empty($labelFamily) && empty($labelCode)) {
+            return; // nothing to record
+        }
+        DB::table('term_protocol')->insert([
+            'term_id'          => $termId,
+            'label_family'     => $labelFamily ?: null,
+            'label_code'       => $labelCode ?: null,
+            'access_condition' => $condition,
+            'owner_actor_id'   => $ownerActorId,
+            'region_module'    => $regionModule ?: null,
+            'created_by'       => $createdBy,
+            'created_at'       => now(),
+            'updated_at'       => now(),
+        ]);
+    }
+
     /** The protocol row(s) on a term (label family/code, owner, pid) - for display. */
     public static function protocolsForTerm(int $termId): \Illuminate\Support\Collection
     {

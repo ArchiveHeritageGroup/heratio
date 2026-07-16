@@ -74,6 +74,46 @@
                      value="{{ old('code', $term->code ?? '') }}">
             </div>
 
+            {{-- #1388 Community protocol: TK/BC label + access condition + owner. --}}
+            @php $tp = $termProtocol ?? null; @endphp
+            <div class="mb-3 p-3 border rounded bg-light">
+              <label class="form-label fw-semibold d-block mb-2"><i class="fas fa-hands-helping me-1"></i>{{ __('Community protocol') }}
+                <span class="text-muted small">({{ __('Traditional Knowledge / Biocultural label + access condition') }})</span></label>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label small mb-1">{{ __('Access condition') }}</label>
+                  @php $pc = old('protocol_access_condition', $tp->access_condition ?? 'open'); @endphp
+                  <select name="protocol_access_condition" class="form-select form-select-sm">
+                    @foreach(['open'=>'Open','attribution'=>'Attribution','non_commercial'=>'Non-commercial','community_voice'=>'Community voice (hidden from public)','seasonal'=>'Seasonal (hidden)','gendered'=>'Gendered (hidden)','restricted'=>'Restricted (hidden)','sacred_secret'=>'Sacred / secret (hidden)'] as $v => $lbl)
+                      <option value="{{ $v }}" @selected($pc === $v)>{{ __($lbl) }}</option>
+                    @endforeach
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small mb-1">{{ __('Label family') }}</label>
+                  @php $pf = old('protocol_label_family', $tp->label_family ?? ''); @endphp
+                  <select name="protocol_label_family" class="form-select form-select-sm">
+                    <option value="">-</option>
+                    <option value="tk" @selected($pf === 'tk')>TK</option>
+                    <option value="bc" @selected($pf === 'bc')>BC</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small mb-1">{{ __('Label code') }}</label>
+                  <input type="text" name="protocol_label_code" class="form-control form-control-sm" value="{{ old('protocol_label_code', $tp->label_code ?? '') }}" placeholder="tk_secret">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small mb-1">{{ __('Region module') }}</label>
+                  <input type="text" name="protocol_region_module" class="form-control form-control-sm" value="{{ old('protocol_region_module', $tp->region_module ?? '') }}" placeholder="southern_africa">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small mb-1">{{ __('Owning community (actor id)') }}</label>
+                  <input type="number" name="protocol_owner_actor_id" class="form-control form-control-sm" value="{{ old('protocol_owner_actor_id', $tp->owner_actor_id ?? '') }}">
+                </div>
+              </div>
+              <p class="text-muted small mt-2 mb-0">{{ __('Restricted conditions hide the term - and records tagged with it - from the public; editors always see them.') }}</p>
+            </div>
+
             {{-- Scope note(s) - multi-row table --}}
             <h3 class="fs-6 mb-2">{{ __('Scope note(s)') }}</h3>
             <div class="table-responsive mb-2">
