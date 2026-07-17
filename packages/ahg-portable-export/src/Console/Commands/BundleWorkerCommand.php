@@ -50,23 +50,23 @@ class BundleWorkerCommand extends Command
     protected $description = 'Process pending portable_export rows: dump entities, copy assets, build viewer, zip.';
 
     /**
-     * #1389 disclosure tally for the run in progress — records withheld by each
+     * #1389 disclosure tally for the run in progress - records withheld by each
      * gate. Reset per row in processOne().
      */
     private array $excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'protocol' => 0, 'redacted_objects' => 0];
 
-    /** #role-based — whether the exporting operator may see draft/unpublished records. */
+    /** #role-based - whether the exporting operator may see draft/unpublished records. */
     private bool $operatorCanViewDraft = false;
 
-    /** #1357 — whether this bundle actually kept unpublished records (operator override).
+    /** #1357 - whether this bundle actually kept unpublished records (operator override).
      *  Recorded in disclosure_summary so an anonymous share link can refuse a
      *  draft-containing bundle. */
     private bool $includedUnpublished = false;
 
-    /** #1390 — per-file fixity records built during copyAssets (path, sha256, size, stored checksum). */
+    /** #1390 - per-file fixity records built during copyAssets (path, sha256, size, stored checksum). */
     private array $fixity = [];
 
-    /** #1390 — count of C2PA manifests/sidecars carried into the bundle. */
+    /** #1390 - count of C2PA manifests/sidecars carried into the bundle. */
     private int $c2paCarried = 0;
 
     public function handle(): int
@@ -138,13 +138,13 @@ class BundleWorkerCommand extends Command
 
         // Resolve scope -> IO id list, then apply the #1389 disclosure gates
         // (publication status, ICIP/TK protocols, ODRL) BEFORE anything is
-        // written — over-inclusion into an offline package is unrecoverable.
+        // written - over-inclusion into an offline package is unrecoverable.
         $this->excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'protocol' => 0, 'redacted_objects' => 0,
             'perm_masters' => 0, 'perm_references' => 0, 'perm_thumbnails' => 0];
         $this->fixity = [];          // #1390
         $this->c2paCarried = 0;      // #1390
 
-        // #role-based export — the operator can only export what THEIR role permits.
+        // #role-based export - the operator can only export what THEIR role permits.
         // Force off any derivative tier they lack the ACL grant for (so a user
         // without master access can never dump masters), and gate draft inclusion
         // on viewDraft. Admins/editors pass; lower roles are trimmed. The public
@@ -191,7 +191,7 @@ class BundleWorkerCommand extends Command
             // Operator-chosen directory / mounted drive.
             $workDir = rtrim((string) $row->destination_path, '/').'/'.$folderName;
         } elseif ($destination === 'download') {
-            // Managed staging area (on the large uploads volume) — the bundle is
+            // Managed staging area (on the large uploads volume) - the bundle is
             // left uncompressed and streamed as a ZIP64 on download (no second copy).
             $stagingBase = rtrim((string) config('heratio.uploads_path', sys_get_temp_dir()), '/').'/portable-export-staging';
             @mkdir($stagingBase, 0775, true);
@@ -214,10 +214,10 @@ class BundleWorkerCommand extends Command
         $this->line('  copied '.$copied.' asset file(s)'
             .($this->excluded['redacted_objects'] ? ' ('.$this->excluded['redacted_objects'].' redacted object(s) withheld)' : ''));
 
-        // #1390 — authenticity-carrying package: fixity manifest + C2PA + offline verifier.
+        // #1390 - authenticity-carrying package: fixity manifest + C2PA + offline verifier.
         $this->writeAuthenticity($workDir, $ioIds);
 
-        // #1389 — write the disclosure summary into the package so the recipient
+        // #1389 - write the disclosure summary into the package so the recipient
         // (and the operator, via the stamped column) can see what was withheld.
         $disclosure = [
             'generated_at'     => now()->toIso8601String(),
@@ -226,7 +226,7 @@ class BundleWorkerCommand extends Command
             'included_unpublished' => $this->includedUnpublished,
             'withheld'         => $this->excluded,
             'exported_by'      => (int) ($row->user_id ?? 0),
-            'note'             => 'Content was excluded to honour (1) the exporting operator\'s role/ACL — perm_masters/perm_references/perm_thumbnails=1 mean that derivative tier was dropped because the operator lacks the read grant, and drafts are withheld unless the operator has viewDraft; and (2) the public disclosure gates: publication status, ICIP/TK cultural protocols, ODRL access policies, community access protocols (term-level TK/BC restrictions), and PII redaction. Counts reflect what was NOT exported (protocol = records tagged with a restricted community-protocol term).',
+            'note'             => 'Content was excluded to honour (1) the exporting operator\'s role/ACL - perm_masters/perm_references/perm_thumbnails=1 mean that derivative tier was dropped because the operator lacks the read grant, and drafts are withheld unless the operator has viewDraft; and (2) the public disclosure gates: publication status, ICIP/TK cultural protocols, ODRL access policies, community access protocols (term-level TK/BC restrictions), and PII redaction. Counts reflect what was NOT exported (protocol = records tagged with a restricted community-protocol term).',
         ];
         @file_put_contents($workDir.'/data/disclosure-summary.json',
             json_encode($disclosure, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
@@ -280,7 +280,7 @@ class BundleWorkerCommand extends Command
      *   clipboard  - explicit list of slugs from scope_items.items
      */
     /**
-     * #1389 — apply disclosure gates to the resolved IO id set before export.
+     * #1389 - apply disclosure gates to the resolved IO id set before export.
      * Removes records that must not enter an ungated offline package:
      *   - unpublished (status type_id 158 / status_id 160), unless the
      *     portable_export_include_unpublished setting is explicitly on;
@@ -307,7 +307,7 @@ class BundleWorkerCommand extends Command
         // not enter an offline package either (no operator override; unrecoverable).
         $protocol = array_flip(\AhgCore\Services\TermProtocolService::restrictedRecordIds());
 
-        // #role-based — unpublished may be exported only when the setting allows it
+        // #role-based - unpublished may be exported only when the setting allows it
         // AND the operator actually has the viewDraft grant.
         $includeUnpublished = $this->operatorCanViewDraft
             && (string) (DB::table('ahg_settings')
@@ -398,9 +398,9 @@ class BundleWorkerCommand extends Command
             'unpublished'        => 'unpublished / draft records withheld',
             'icip'               => 'records withheld under ICIP / cultural (TK) protocols',
             'odrl'               => 'records withheld under ODRL access policies',
-            'perm_masters'       => 'master (full-resolution) files withheld — exporter lacks the read grant',
-            'perm_references'    => 'reference derivatives withheld — exporter lacks the read grant',
-            'perm_thumbnails'    => 'thumbnails withheld — exporter lacks the read grant',
+            'perm_masters'       => 'master (full-resolution) files withheld - exporter lacks the read grant',
+            'perm_references'    => 'reference derivatives withheld - exporter lacks the read grant',
+            'perm_thumbnails'    => 'thumbnails withheld - exporter lacks the read grant',
         ] as $k => $label) {
             $n = (int) ($w[$k] ?? 0);
             if ($n > 0) {
@@ -413,7 +413,7 @@ class BundleWorkerCommand extends Command
 
         $viewerBlock = $hasViewer
             ? "1. Open  index.html  in any modern web browser (double-click it). No\n"
-              ."   internet connection, server, or install is required — the viewer and\n"
+              ."   internet connection, server, or install is required - the viewer and\n"
               ."   all data travel inside this bundle.\n"
               ."2. Browse the archival descriptions, authority records and digital\n"
               ."   objects offline.\n"
@@ -431,12 +431,27 @@ class BundleWorkerCommand extends Command
         $readme = <<<TXT
 ================================================================================
  {$title}
- Portable archival export
+ Portable archival export - a self-contained RESCUE copy
 ================================================================================
 
 Generated : {$gen}
 Contents  : {$descriptions} archival description(s), {$objects} digital object(s),
             {$actors} authority record(s), {$repos} repository record(s).
+
+--------------------------------------------------------------------------------
+ WHAT THIS IS
+--------------------------------------------------------------------------------
+This package is a preservation RESCUE / dark-archive copy of the collection. It
+is built to keep opening even when the original Heratio system, its database,
+the storage/NAS, power or the internet are gone - no server, no install, no
+network. Double-click index.html and it just works, on a USB stick or a burned
+disc, years from now.
+
+It is the ACCESS (dissemination) copy. For preservation custody keep your OCFL /
+BagIt masters alongside it - those hold the full-fidelity originals + PREMIS.
+This package answers a different question: "can a human still read this with
+nothing but a web browser?" You can verify it has not been tampered with offline
+(see VERIFYING AUTHENTICITY below).
 
 --------------------------------------------------------------------------------
  HOW TO OPEN THIS PACKAGE
@@ -457,17 +472,27 @@ Contents  : {$descriptions} archival description(s), {$objects} digital object(s
       c2pa/ .............. C2PA Content Credentials for the records (if any).
   assets/ ................ Exported image / media files (where permitted).
   SHA256SUMS ............. Checksums for every exported file.
-  verify.sh / verify.html  Verify OFFLINE that nothing was tampered with:
-                          run  sh verify.sh  (uses sha256sum/shasum), or open
-                          verify.html in a browser. No network / Heratio needed.
+  verify.sh / verify.html  Verify OFFLINE that nothing was tampered with.
+
+--------------------------------------------------------------------------------
+ VERIFYING AUTHENTICITY
+--------------------------------------------------------------------------------
+This rescue copy is self-verifying - you can prove offline that no file was
+altered, with no network and no Heritage system:
+
+  - Terminal:  run   sh verify.sh   in this folder. It checks every file against
+    SHA256SUMS (uses sha256sum on Linux, shasum on macOS) and prints OK / FAILED.
+  - Browser:   open  verify.html  to re-hash the files and see a pass/fail table.
+  - Provenance: any C2PA Content Credentials travel in  data/c2pa/  and as
+    .c2pa.json sidecars next to their asset.
 
 --------------------------------------------------------------------------------
  SECURITY & PERMISSIONS
 --------------------------------------------------------------------------------
 This package contains ONLY what the exporting user was permitted to see. Access
-is enforced two ways: (1) the exporter's own role / ACL — derivative tiers and
+is enforced two ways: (1) the exporter's own role / ACL - derivative tiers and
 draft records they cannot read are dropped; and (2) the public disclosure gates
-— publication status, ICIP/TK cultural protocols, ODRL access policies, and PII
+- publication status, ICIP/TK cultural protocols, ODRL access policies, and PII
 redaction.
 
 {$withheldBlock}
@@ -509,41 +534,41 @@ TXT;
         $manual = <<<TXT
 ================================================================================
  {$title}
- OFFLINE RESEARCH — USER MANUAL
+ OFFLINE RESEARCH - USER MANUAL
 ================================================================================
 
 This package is a complete, self-contained copy of your selected records that
 runs in a web browser with NO internet, server or install. You can read and
-ANNOTATE it anywhere — on a laptop, a USB stick, or in the field — and then
+ANNOTATE it anywhere - on a laptop, a USB stick, or in the field - and then
 bring your work back into Heratio.
 
 --------------------------------------------------------------------------------
  1. OPENING THE PACKAGE
 --------------------------------------------------------------------------------
   * Double-click  index.html . It opens in your default browser (Chrome, Edge,
-    Firefox or Safari — a recent version).
+    Firefox or Safari - a recent version).
   * To use it from a USB stick or CD, copy this WHOLE folder and keep every file
     and sub-folder together.
   * Pick a record from the list on the left to see its full details and images.
 
 --------------------------------------------------------------------------------
- 2. WORKING OFFLINE — WHAT YOU CAN ADD
+ 2. WORKING OFFLINE - WHAT YOU CAN ADD
 --------------------------------------------------------------------------------
 Open any record. Below its details you will find "Your offline work on this
 record" with four tabs:
 
   NOTES        Free-text research notes about the record. Click "Save note".
 
-  SOURCES      References and citations you want to attach — title, author,
+  SOURCES      References and citations you want to attach - title, author,
                year and a URL or shelf reference. Click "Add source".
 
   SUGGESTIONS  Proposed corrections or additions to the record's metadata.
                Give the field name (e.g. Title, Dates, Scope and content) and
-               your suggested text, then "Add suggestion". These are proposals —
+               your suggested text, then "Add suggestion". These are proposals -
                a curator reviews them before anything changes in the catalogue.
 
   FILES        Photos or documents you gather offline (e.g. field-work images).
-               Choose files to attach them to the record. Keep them small — they
+               Choose files to attach them to the record. Keep them small - they
                are stored inside your browser and embedded in the sync file.
 
 Everything you add is saved automatically in THIS browser on THIS computer. The
@@ -557,7 +582,7 @@ When you are finished (and back where you can reach Heratio):
   1. Click  "Save for sync"  in the bar at the bottom of the viewer.
   2. Your browser downloads a file named  researcher-sync-<number>.json .
      This holds all your notes, sources, suggestions and files.
-  3. Keep that file — you will upload it in the next step.
+  3. Keep that file - you will upload it in the next step.
 
   * "Clear" wipes all your offline changes in this package. Use with care.
   * Work in ONE browser on ONE computer per package, so all your changes end up
@@ -577,13 +602,13 @@ When you are finished (and back where you can reach Heratio):
 --------------------------------------------------------------------------------
   * This package only contains records you are permitted to see. Restricted,
     embargoed or unpublished records are automatically left out.
-  * Your offline changes never alter the live catalogue directly — they come
+  * Your offline changes never alter the live catalogue directly - they come
     back as YOUR contributions and (for metadata) as suggestions for review.
   * Handle the package in line with the access conditions of the originating
     repository; redistribution may be restricted.
 
 ================================================================================
- Heratio — archival & heritage management by The Archive & Heritage Group
+ Heratio - archival & heritage management by The Archive & Heritage Group
  https://theahg.co.za
  Copyright (C) {$year} The Archive & Heritage Group. All rights reserved.
 ================================================================================
@@ -723,7 +748,7 @@ TXT;
             return 0;
         }
 
-        // #1389 — records carrying PII visual-redaction regions must not ship
+        // #1389 - records carrying PII visual-redaction regions must not ship
         // their ORIGINAL derivatives (the exporter has no redacted rendition).
         // The central DisclosureGate decides; withhold every derivative of a
         // redacted record and tally it.
@@ -763,7 +788,7 @@ TXT;
             $dest = $destDir.'/'.$destName;
             if (@copy($src, $dest)) {
                 $copied++;
-                // #1390 — fixity record for the copied file (SHA-256 over the bytes as shipped).
+                // #1390 - fixity record for the copied file (SHA-256 over the bytes as shipped).
                 $rel = 'assets/'.$usageDir.'/'.$do->object_id.'/'.$destName;
                 $this->fixity[] = [
                     'path'                 => $rel,
@@ -774,7 +799,7 @@ TXT;
                     'stored_checksum'      => $do->checksum ?: null,
                     'stored_checksum_type' => $do->checksum_type ?: null,
                 ];
-                // #1390 — carry any on-disk C2PA sidecar sitting next to the source.
+                // #1390 - carry any on-disk C2PA sidecar sitting next to the source.
                 if (is_file($src.'.c2pa.json') && @copy($src.'.c2pa.json', $dest.'.c2pa.json')) {
                     $this->c2paCarried++;
                 }
@@ -787,7 +812,7 @@ TXT;
     }
 
     /**
-     * #1390 — authenticity-carrying package. So a recipient can verify OFFLINE
+     * #1390 - authenticity-carrying package. So a recipient can verify OFFLINE
      * that nothing was tampered with, the bundle ships:
      *   - SHA256SUMS        coreutils `sha256sum -c` / `shasum -a 256 -c` format
      *   - data/fixity.json  richer per-file manifest (size, usage, stored checksum)
@@ -841,7 +866,7 @@ TXT;
         $this->line('  authenticity: '.count($this->fixity).' checksum(s), '.$this->c2paCarried.' C2PA manifest(s)');
     }
 
-    /** #1390 — POSIX one-command offline verifier. */
+    /** #1390 - POSIX one-command offline verifier. */
     private function verifyScript(): string
     {
         return <<<'SH'
@@ -860,7 +885,7 @@ TXT;
             SH;
     }
 
-    /** #1390 — self-contained in-browser verifier (works best when served; SubtleCrypto). */
+    /** #1390 - self-contained in-browser verifier (works best when served; SubtleCrypto). */
     private function verifyHtml(): string
     {
         return <<<'HTML'
@@ -879,7 +904,7 @@ TXT;
             <p>Re-computes SHA-256 over every exported file and compares it to <code>data/fixity.json</code>.
             Nothing leaves your device.</p>
             <div class="note"><strong>If the button does nothing</strong> (some browsers block reading local files
-            from <code>file://</code>): serve the folder — e.g. <code>python3 -m http.server</code> — and open this page over
+            from <code>file://</code>): serve the folder - e.g. <code>python3 -m http.server</code> - and open this page over
             <code>http://localhost:8000/verify.html</code>, or run <code>sh verify.sh</code> in a terminal instead.</div>
             <p><button id="go">Verify files</button> <span id="summary" class="muted"></span></p>
             <table id="out"><thead><tr><th>File</th><th>Result</th></tr></thead><tbody></tbody></table>
@@ -925,7 +950,7 @@ TXT;
         $countLine = sprintf('%d descriptions, %d actors, %d repositories, %d digital objects',
             $stats['descriptions'], $stats['actors'], $stats['repositories'], $stats['digital_objects']);
 
-        // Sync identity — lets the offline editable viewer produce a
+        // Sync identity - lets the offline editable viewer produce a
         // researcher-sync.json the online app can verify + consume (Phase 2/3).
         $syncCfg = json_encode([
             'package_id' => (int) $row->id,
@@ -1143,7 +1168,7 @@ footer{background:#234;color:#fff;padding:.6rem 1.25rem;font-size:.8rem;opacity:
       + '</div>'
       + '</div>';
   }
-  function srcLabel(s){ return esc((s.title || '(untitled source)') + (s.author ? ' — ' + s.author : '') + (s.year ? ' (' + s.year + ')' : '')); }
+  function srcLabel(s){ return esc((s.title || '(untitled source)') + (s.author ? ' - ' + s.author : '') + (s.year ? ' (' + s.year + ')' : '')); }
   function sugLabel(s){ return esc((s.field || '?') + ': ' + (s.text || '')); }
   function fileLabel(f){ return esc(f.name + ' (' + Math.round((f.size || 0) / 1024) + ' KB)'); }
   function renderEntries(arr, labeller, kind){

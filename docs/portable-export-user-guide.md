@@ -4,6 +4,8 @@
 
 Export your catalogue as a self-contained, portable HTML/JS application on CD, USB, or downloadable ZIP. The viewer opens in any modern browser with no server, installation, or internet connection required - a "mini Heratio" for offline use.
 
+It is also a **preservation rescue format**: the static package keeps opening even when the Heratio stack, its database, the NAS, power, or connectivity are gone - the last-mile, sovereignty-preserving copy that survives the server's death, and (since v1.154.360) carries its own SHA-256 fixity + C2PA credentials so it stays verifiable offline. It is the access/DIP layer that complements your OCFL/BagIt preservation masters (AIP): OCFL is what you preserve; the portable package is what you hand someone so the collection can never be locked behind a dead server.
+
 ---
 
 ## Overview

@@ -4,7 +4,9 @@
 
 ## User Guide
 
-Export your catalogue as a self-contained, portable HTML/JS application on CD, USB, or downloadable ZIP. The viewer opens in any modern browser with no server, installation, or internet connection required — a "mini Heratio" for offline use.
+Export your catalogue as a self-contained, portable HTML/JS application on CD, USB, or downloadable ZIP. The viewer opens in any modern browser with no server, installation, or internet connection required - a "mini Heratio" for offline use.
+
+It is also a **preservation rescue format**: the static package is designed to keep opening even when the Heratio stack, its database, the NAS, power, or connectivity are gone. It is the last-mile, sovereignty-preserving copy that survives the server's death - and, since v1.154.360, it carries its own SHA-256 fixity + C2PA credentials so it stays verifiable offline (see *Verifying authenticity offline*). See **Preservation role** below for where it sits alongside OCFL/BagIt.
 
 ---
 
@@ -41,6 +43,26 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
 |                                                              |
 +-------------------------------------------------------------+
 ```
+
+---
+
+## Preservation role - a rescue / dark-archive format
+
+Portable export is not only an access convenience; it is a deliberate **rescue format**. Position it in preservation terms:
+
+| Layer (OAIS) | Format | Purpose |
+| --- | --- | --- |
+| **Preservation / AIP** | **OCFL** (`ahg-ocfl`), **BagIt** | The authoritative, fixity-checked archival master - full-fidelity originals + PREMIS, built for long-term custody and audit. |
+| **Access / DIP** | **Portable export** (this feature) | A human-usable, dependency-free *dissemination* copy that opens on any browser with zero stack - the artifact that survives when everything else is gone. |
+
+Why it matters:
+
+- **Survives the server's death.** No database, no PHP, no web server, no internet - double-click `index.html`. A collection remains readable on a USB stick, a burned disc, or a dark-archive drive years later.
+- **Sovereignty-preserving.** A community, a small institution, or a repatriation partner can hold and open their own copy independently of any AHG-hosted service - aligned with the data-sovereignty work (local vocabulary mirroring, community protocols, DOCiD).
+- **Self-verifying.** The package carries `SHA256SUMS` + `data/fixity.json` + any C2PA Content Credentials and a `verify.sh` / `verify.html`, so a recipient can prove offline that nothing was tampered with (see *Verifying authenticity offline*).
+- **Complementary, not a replacement.** Keep your OCFL/BagIt AIPs for preservation custody; use portable export as the resilient access/rescue copy layered on top. The two answer different questions - "is the master intact and auditable?" (OCFL) vs "can a human still read this with nothing but a browser?" (portable export).
+
+> Rule of thumb: **OCFL/BagIt is what you preserve; the portable package is what you hand someone so the collection can never be locked away behind a dead server.**
 
 ---
 
@@ -145,9 +167,9 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
 
 ---
 
-## Creating an Export (Web UI — 4-Step Wizard)
+## Creating an Export (Web UI - 4-Step Wizard)
 
-### Step 1: Scope — What to Export
+### Step 1: Scope - What to Export
 ```
   +-----------------------------------------------------------+
   |  Step 1 of 4: Scope                                        |
@@ -163,7 +185,7 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
   +-----------------------------------------------------------+
 ```
 
-### Step 2: Content — Digital Objects & Mode
+### Step 2: Content - Digital Objects & Mode
 ```
   +-----------------------------------------------------------+
   |  Step 2 of 4: Content                                      |
@@ -175,7 +197,7 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
   |  Image Derivatives:                                         |
   |  [x] Thumbnails   (small previews, ~150px)                 |
   |  [x] References   (medium display, ~480-800px)             |
-  |  [ ] Masters      (original files — can be very large!)    |
+  |  [ ] Masters      (original files - can be very large!)    |
   |                                                             |
   |  Viewer Mode:                                               |
   |  [x] Read Only    (browse + search only)                    |
@@ -186,53 +208,53 @@ Export your catalogue as a self-contained, portable HTML/JS application on CD, U
 ```
 
 **About image derivatives:**
-- **Thumbnails** — Small preview images (~150px wide) used in search results and tree navigation
-- **References** — Medium-sized images (~480-800px) used for on-screen viewing in the detail panel
-- **Masters** — Original full-resolution files as uploaded. These can be very large (10-50+ MB each for high-res scans/TIFFs). Only include if you need print-quality originals for offline use. Excluding masters is recommended for most use cases.
+- **Thumbnails** - Small preview images (~150px wide) used in search results and tree navigation
+- **References** - Medium-sized images (~480-800px) used for on-screen viewing in the detail panel
+- **Masters** - Original full-resolution files as uploaded. These can be very large (10-50+ MB each for high-res scans/TIFFs). Only include if you need print-quality originals for offline use. Excluding masters is recommended for most use cases.
 
-### Destination — where the package goes
+### Destination - where the package goes
 
-The wizard also asks **where to write the export** — this is the answer to "a quick download" vs. "a collection too big for a ZIP":
+The wizard also asks **where to write the export** - this is the answer to "a quick download" vs. "a collection too big for a ZIP":
 
 | Destination | What you get | Best for |
 |---|---|---|
-| **ZIP file** | A downloadable `.zip`, stored on the server and offered as a normal download. | Small–medium sets. |
-| **Download (large)** | The bundle is staged uncompressed on the server and **streamed to your browser as a ZIP on demand** — no 4 GB ZIP limit, and no second full copy is written to the server disk. It lands in your browser's Downloads folder. | Large collections you want **on your own PC / laptop**. |
+| **ZIP file** | A downloadable `.zip`, stored on the server and offered as a normal download. | Small-medium sets. |
+| **Download (large)** | The bundle is staged uncompressed on the server and **streamed to your browser as a ZIP on demand** - no 4 GB ZIP limit, and no second full copy is written to the server disk. It lands in your browser's Downloads folder. | Large collections you want **on your own PC / laptop**. |
 | **Folder / drive** | The uncompressed bundle is written **directly to a server-side directory or mounted drive** you specify (e.g. a USB / NAS path). No ZIP, no size cap. | Very large exports staged onto external storage. |
 
-For **Folder / drive** you enter the target path — it must already exist and be writable by the server. The ZIP **size cap** (`portable_export_max_size_mb`) applies to **ZIP** exports only; the other two destinations are for exports that deliberately exceed it. In the Past Exports table, a Folder/drive export shows an **"On drive"** badge with its path instead of a download button.
+For **Folder / drive** you enter the target path - it must already exist and be writable by the server. The ZIP **size cap** (`portable_export_max_size_mb`) applies to **ZIP** exports only; the other two destinations are for exports that deliberately exceed it. In the Past Exports table, a Folder/drive export shows an **"On drive"** badge with its path instead of a download button.
 
-### Security & permissions — you can only export what you may see
+### Security & permissions - you can only export what you may see
 
 Every portable export is **fail-closed** and gated on two levels, so a package can never carry content the operator (or the public) shouldn't have.
 
-**1. The operator's role (ACL) — you only export what *you* are permitted to see:**
+**1. The operator's role (ACL) - you only export what *you* are permitted to see:**
 - No **Read Master** grant → **master files are excluded**, even if you ticked "Masters".
 - No **Read Reference** / **Read Thumbnail** grant → that derivative tier is excluded.
 - No **View Draft** grant → **unpublished / draft records are withheld**.
 
-**2. Public disclosure gates — regardless of who exports, records are withheld to honour:**
-- **Publication status** — draft / unpublished records are excluded by default.
-- **ICIP / TK cultural protocols** — culturally restricted records (and their descendant subtrees) are excluded.
-- **ODRL access policies** — records under a "use" prohibition are excluded.
-- **Community access protocols** — records tagged with a term carrying a restricted community protocol (TK/BC label, e.g. sacred/secret, restricted, gendered, seasonal, community-voice) are excluded. Counted as `protocol` in the summary. There is **no** operator override for this reason — it is unconditionally fail-closed.
-- **PII redaction** — records carrying redaction regions never ship their original files.
+**2. Public disclosure gates - regardless of who exports, records are withheld to honour:**
+- **Publication status** - draft / unpublished records are excluded by default.
+- **ICIP / TK cultural protocols** - culturally restricted records (and their descendant subtrees) are excluded.
+- **ODRL access policies** - records under a "use" prohibition are excluded.
+- **Community access protocols** - records tagged with a term carrying a restricted community protocol (TK/BC label, e.g. sacred/secret, restricted, gendered, seasonal, community-voice) are excluded. Counted as `protocol` in the summary. There is **no** operator override for this reason - it is unconditionally fail-closed.
+- **PII redaction** - records carrying redaction regions never ship their original files.
 
-Every package includes a **`data/disclosure-summary.json`** recording exactly what was withheld and why — counts by reason, plus `perm_masters` / `perm_references` / `perm_thumbnails` flags when a tier was dropped by your role, and `exported_by`. The admin list shows an **"N withheld"** badge on each export.
+Every package includes a **`data/disclosure-summary.json`** recording exactly what was withheld and why - counts by reason, plus `perm_masters` / `perm_references` / `perm_thumbnails` flags when a tier was dropped by your role, and `exported_by`. The admin list shows an **"N withheld"** badge on each export.
 
 ### Verifying authenticity offline (#1390)
 
-Every package is **authenticity-carrying** — a recipient can confirm, with no network and no Heratio, that nothing was tampered with in transit:
+Every package is **authenticity-carrying** - a recipient can confirm, with no network and no Heratio, that nothing was tampered with in transit:
 
-- **`SHA256SUMS`** (bundle root) — a SHA-256 checksum for every exported file, in the standard `sha256sum` format.
-- **`data/fixity.json`** — a richer per-file manifest (size, usage tier, and the checksum stored in Heratio for cross-reference).
-- **`data/c2pa/`** — any **C2PA Content Credentials** (signed provenance manifests) held for the exported records travel with the package; on-disk `.c2pa.json` sidecars are copied next to their asset too.
-- **`verify.sh`** — one-command check: `sh verify.sh` (uses `sha256sum` on Linux or `shasum` on macOS). Prints `OK` per file, or `FAILED` if a file was altered.
-- **`verify.html`** — open in a browser to re-hash the files in-page (SubtleCrypto) and see a pass/fail table; serve the folder (or use `verify.sh`) if the browser blocks local file reads.
+- **`SHA256SUMS`** (bundle root) - a SHA-256 checksum for every exported file, in the standard `sha256sum` format.
+- **`data/fixity.json`** - a richer per-file manifest (size, usage tier, and the checksum stored in Heratio for cross-reference).
+- **`data/c2pa/`** - any **C2PA Content Credentials** (signed provenance manifests) held for the exported records travel with the package; on-disk `.c2pa.json` sidecars are copied next to their asset too.
+- **`verify.sh`** - one-command check: `sh verify.sh` (uses `sha256sum` on Linux or `shasum` on macOS). Prints `OK` per file, or `FAILED` if a file was altered.
+- **`verify.html`** - open in a browser to re-hash the files in-page (SubtleCrypto) and see a pass/fail table; serve the folder (or use `verify.sh`) if the browser blocks local file reads.
 
 This closes the loop with Heratio's content-authenticity chain, so the static package on a USB stick or dark-archive drive remains self-verifying long after it leaves the system.
 
-### Step 3: Configure — Title, Language, Branding
+### Step 3: Configure - Title, Language, Branding
 ```
   +-----------------------------------------------------------+
   |  Step 3 of 4: Configure                                    |
@@ -344,7 +366,7 @@ This button can be hidden via: Admin > AHG Settings > Portable Export > "Show ex
 
 ## Command Line (worker & queue)
 
-Heratio does **not** create exports from the command line — exports are created through the **web wizard** (or the quick / clipboard exports), which queues a job in the `portable_export` table. A background **worker** then builds the package. It runs automatically on the scheduler and can also be invoked by hand.
+Heratio does **not** create exports from the command line - exports are created through the **web wizard** (or the quick / clipboard exports), which queues a job in the `portable_export` table. A background **worker** then builds the package. It runs automatically on the scheduler and can also be invoked by hand.
 
 ### Running the worker
 ```bash
@@ -358,7 +380,7 @@ sudo -u www-data php artisan ahg:portable-export-worker --id=42
 sudo -u www-data php artisan ahg:portable-export-worker --all-pending
 ```
 
-The scheduler runs `ahg:portable-export-worker --all-pending` automatically (registered in the package's service provider), so a queued export is normally picked up within a minute — no manual step is needed. Run the command by hand only to process immediately or to reprocess a job. Run artisan as `www-data` so the generated files stay writable by the server.
+The scheduler runs `ahg:portable-export-worker --all-pending` automatically (registered in the package's service provider), so a queued export is normally picked up within a minute - no manual step is needed. Run the command by hand only to process immediately or to reprocess a job. Run artisan as `www-data` so the generated files stay writable by the server.
 
 ### Worker options
 ```
@@ -371,8 +393,8 @@ The scheduler runs `ahg:portable-export-worker --all-pending` automatically (reg
 +----------------+-----------------------------------------------------+
 ```
 
-Everything about *what* an export contains — scope, mode, destination, which
-derivative tiers, title, culture, branding — is chosen in the wizard and stored
+Everything about *what* an export contains - scope, mode, destination, which
+derivative tiers, title, culture, branding - is chosen in the wizard and stored
 on the queued row; the worker just builds what was requested (subject to the
 security gates described below).
 
@@ -380,10 +402,10 @@ security gates described below).
 Completed exports carry an **`expires_at`** date, driven by the
 `portable_export_retention_days` setting (default **30 days**). Any export can
 be deleted immediately from the **Portable Export** admin page (trash icon),
-which also removes its ZIP file. There is no separate cleanup command —
+which also removes its ZIP file. There is no separate cleanup command -
 retention is data-driven; prune expired packages per your policy. (Note: a
 **Folder / drive** export leaves its files on the target drive after the DB
-record is deleted — that folder is your deliverable to manage.)
+record is deleted - that folder is your deliverable to manage.)
 
 ---
 
@@ -532,9 +554,9 @@ Exports are automatically assigned an expiry date based on the retention period 
 
 ### Automatic Cleanup
 
-Retention is **data-driven**: each completed export stores an `expires_at`, and the "Expires" column flags when it is eligible for removal. Delete exports as they expire from the **Portable Export** admin page (trash icon) — that removes the ZIP file and the database record together. There is no separate `portable:cleanup` command; if you want automatic pruning, add a small scheduled job that deletes rows whose `expires_at` has passed (and unlinks their `output_path`) per your policy.
+Retention is **data-driven**: each completed export stores an `expires_at`, and the "Expires" column flags when it is eligible for removal. Delete exports as they expire from the **Portable Export** admin page (trash icon) - that removes the ZIP file and the database record together. There is no separate `portable:cleanup` command; if you want automatic pruning, add a small scheduled job that deletes rows whose `expires_at` has passed (and unlinks their `output_path`) per your policy.
 
-> A **Folder / drive** export leaves its files on the target drive even after the database record is deleted — that folder is the deliverable you asked Heratio to write, so managing/removing it is up to you.
+> A **Folder / drive** export leaves its files on the target drive even after the database record is deleted - that folder is the deliverable you asked Heratio to write, so managing/removing it is up to you.
 
 ---
 
@@ -629,7 +651,7 @@ Retention is **data-driven**: each completed export stores an `expires_at`, and 
 |  TIP: Large exports with master files can be very large.     |
 |  Consider excluding masters for most use cases.              |
 +-------------------------------------------------------------+
-|  TIP: The CLI command is better for large exports — the      |
+|  TIP: The CLI command is better for large exports - the      |
 |  web UI launches the same process in the background.         |
 +-------------------------------------------------------------+
 |  TIP: Edit mode exports include import.js which adds ~5KB   |
@@ -644,7 +666,7 @@ Retention is **data-driven**: each completed export stores an `expires_at`, and 
 |  TIP: Delete expired exports from the admin page as they     |
 |  pass their expiry to reclaim disk space (retention-driven). |
 +-------------------------------------------------------------+
-|  TIP: Use the clipboard export for targeted deliveries —     |
+|  TIP: Use the clipboard export for targeted deliveries -     |
 |  add specific items to clipboard, then export as portable.   |
 +-------------------------------------------------------------+
 |  TIP: Configure default settings at Admin > AHG Settings >   |
