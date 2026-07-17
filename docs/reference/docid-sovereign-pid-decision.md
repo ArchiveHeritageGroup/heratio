@@ -57,3 +57,32 @@ Capture their answers back into this doc; they resolve the "three open items" ab
 Proceed to **Phase 0.3** (one-term end-to-end prototype) using a **provisional/local PID** so the term-protocol + enforcement work is not blocked on APA onboarding; wire the real DOCiD mint in Phase 2/4 once the APA conversation confirms the three open items.
 
 Sources: africapidalliance.org; docid.africapidalliance.org/docs; github.com/Africa-PID-Alliance/DOCiD; UNESCO Open Science (DOCiD); TCC Africa DOCiD papers.
+
+## Outreach - Africa PID Alliance contact
+
+**2026-07-17:** Outreach email prepared and sent to APA via the africapidalliance.org contact / partnership form. Status: **awaiting reply.** Follow-up reminder set for **2026-07-31** (workbench bell). This conversation is the long-pole dependency that resolves the three open items above and unblocks #1388 Phase 2/4.
+
+### Email sent
+Subject: *Heratio (The AHG) - DOCiD sovereign-PID integration for TK/BC cultural heritage: membership, API access, self-hosting*
+
+> Dear Africa PID Alliance team,
+>
+> I am writing on behalf of **The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)** about integrating **DOCiD** as the sovereign persistent identifier in our archival platform, **Heratio**.
+>
+> Heratio is an open-source (AGPL, Laravel) archival and heritage management platform built for the African and wider international GLAM sector. We have implemented native support for **Traditional Knowledge (TK) and Biocultural (BC) labels and Local Contexts protocols** - communities self-identify, protocols are enforced at every access and export point, and our data model already reserves a persistent-identifier field on each protocol record. DOCiD is, to our assessment, the only PID that models African data sovereignty and TK/BC protocols natively rather than as a bolt-on, so we would like to adopt it and, ideally, become a reference integration for the archives and heritage community.
+>
+> Before we wire DOCiD minting into Heratio, we would be grateful for your guidance on five points:
+>
+> 1. **Membership and onboarding** - How does an institution join the Alliance and obtain minting rights and a `20.` handle prefix? Is there a membership tier structure or cost we should plan for?
+> 2. **REST API access** - Could you share the API base URL(s), the authentication model (API key / OAuth / token), the API reference, and how we obtain **sandbox / test credentials** so we can prototype against a non-production endpoint?
+> 3. **Self-hosting and federation** - For data-sovereignty reasons we would prefer to run our own DOCiD instance (your Docker stack) rather than depend on an external service. Is self-hosting a supported and sanctioned deployment, and how does a self-hosted node **federate and resolve** against the APA CORDRA network?
+> 4. **TK/BC and Local Contexts schema mapping** - We would like to confirm the DOCiD schema fields onto which our protocol model maps - specifically our `label_family`, `label_code`, `access_condition`, and owning-community fields - and, importantly, whether **protocol/access conditions travel with the resolved record**.
+> 5. **Partnership** - We would welcome positioning Heratio as an open-source integration / reference implementation for GLAM and archives, and are happy to collaborate, test, and provide feedback on the schema and API.
+>
+> Heratio is at https://github.com/ArchiveHeritageGroup/heratio if it is useful for context. I would be glad to arrange a call at your convenience.
+>
+> With thanks and appreciation for the Alliance's work,
+> Johan Pieterse - The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG) - johan@theahg.co.za
+
+### APA answers
+_(capture here when APA replies - each answer resolves an open item: Q1->#2 membership/prefix, Q2->#1 API spec, Q3->#3 self-host vs hosted, Q4->TK/BC mapping. Then move #1388 Phase 2/4 off blocked.)_
