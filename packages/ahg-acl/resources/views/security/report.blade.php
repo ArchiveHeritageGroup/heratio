@@ -168,7 +168,7 @@
     $objColors = collect($objectsByLevel ?? [])->pluck('color')->toArray();
 @endphp
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/chart.umd.min.js') }}"></script>{{-- #1351: vendored locally (was cdn.jsdelivr) - offline/CSP --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var clearancesEl = document.getElementById('clearancesChart');

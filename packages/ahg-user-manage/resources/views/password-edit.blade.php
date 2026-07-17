@@ -1,4 +1,4 @@
-@extends('theme::layout_1col')
+@extends('theme::layouts.1col')
 
 @section('title')
   <h1>{{ __('User %1%', ['%1%' => $resource->authorized_form_of_name ?? $resource->username ?? '']) }}</h1>

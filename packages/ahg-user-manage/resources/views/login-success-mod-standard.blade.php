@@ -1,4 +1,4 @@
-@extends('theme::layout_1col')
+@extends('theme::layouts.1col')
 
 @section('content')
   @if($errors->any())

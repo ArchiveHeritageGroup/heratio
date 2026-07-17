@@ -16,8 +16,9 @@ $mapId = 'map-' . uniqid();
 @else
   <div id="{{ $mapId }}" style="height: {{ $height }};" class="rounded border"></div>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  {{-- #1351: vendored locally (was unpkg.com) - offline/CSP --}}
+  <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/leaflet.min.css') }}" />
+  <script src="{{ asset('vendor/ahg-theme-b5/js/leaflet.min.js') }}"></script>
 
   <script nonce="{{ csp_nonce() }}">
   (function() {

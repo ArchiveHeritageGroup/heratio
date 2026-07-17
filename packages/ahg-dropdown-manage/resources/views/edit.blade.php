@@ -354,7 +354,7 @@
 @endpush
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/sortable.min.js') }}"></script>{{-- #1351: vendored locally (was cdn.jsdelivr) - offline/CSP --}}
 <script>
 (function() {
   const csrfToken = document.querySelector('meta[name="csrf-token"]').content;

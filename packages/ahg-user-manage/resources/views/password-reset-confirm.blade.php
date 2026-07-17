@@ -1,4 +1,4 @@
-@extends('theme::layout_1col')
+@extends('theme::layouts.1col')
 
 @section('title')
   <h1>{{ __('Reset Your Password') }}</h1>
