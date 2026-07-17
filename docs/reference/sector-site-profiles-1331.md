@@ -1,7 +1,7 @@
 # Sector site profiles + sample content (#1331)
 
 One-click provisioning of an opinionated starting point per GLAM sector
-(archive / museum / gallery / library / dam / research). Jurisdiction-NEUTRAL
+(archive / museum / gallery / library / dam / research / personal). Jurisdiction-NEUTRAL
 (sector only, no compliance regime). A profile sets defaults; it removes no
 package and is re-applicable any time.
 
@@ -44,6 +44,10 @@ Depth per sector ("bundled media"):
   for a JPEG). The image is copied to a temp file first because `upload()` MOVES
   the file.
 - **research:** 2 described records.
+- **personal:** a family-collection starting point (#1331) - a `My Family Collection`
+  fonds with a sample photograph (media) and a sample document nested under it,
+  worded to guide a non-technical user to rename and populate it. Warm-terracotta
+  palette, identifier mask `PC/%Y%/%04i%`.
 
 Sector-specific rows are guarded by `Schema::hasTable` so the loader is safe when
 a package isn't installed. The level term id is resolved by name from taxonomy 34

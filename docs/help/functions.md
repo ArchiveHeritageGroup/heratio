@@ -646,7 +646,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - Show visitor-facing "Collection at a glance", "Explore", and "Recently added" (HTML, JSON and Atom) overviews
 - Publish open-data exports and an OpenSearch description + suggestions endpoint
 ### Sector Profiles and Identifiers
-- Apply a sector site profile (archive/museum/gallery/library/dam/research) - theme, identifier mask, defaults - optionally with sample content
+- Apply a sector site profile (archive/museum/gallery/library/dam/research/personal) - theme, identifier mask, defaults - optionally with sample content
 - Auto-generate sector-aware identifiers from configured numbering masks
 - Bridge sector-local subjects into the cross-cutting AHG subject taxonomy for global browse/search
 ### Platform Services and Operations
