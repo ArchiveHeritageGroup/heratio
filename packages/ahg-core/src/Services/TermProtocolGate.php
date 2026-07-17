@@ -28,7 +28,11 @@ class TermProtocolGate
         return ! TermProtocolService::isRestricted(TermProtocolService::effectiveCondition($termId));
     }
 
-    /** May the current viewer see this record, given the terms tagged on it? */
+    /**
+     * May the current viewer see this record? Considers BOTH the terms tagged on
+     * it (inherited) AND any protocol attached directly to the object (#1406 P1);
+     * {@see TermProtocolService::conditionForRecord} unions the two.
+     */
     public static function allowsRecord(int $objectId): bool
     {
         if (self::staffBypass()) {
@@ -36,6 +40,21 @@ class TermProtocolGate
         }
 
         return ! TermProtocolService::isRestricted(TermProtocolService::conditionForRecord($objectId));
+    }
+
+    /**
+     * May the current viewer see this object, considering ONLY protocols attached
+     * directly to it (object_protocol), ignoring inherited-term protocols. Use at
+     * choke points that operate on a bare object id where term inheritance has
+     * already been evaluated (e.g. a digital_object download).
+     */
+    public static function allowsObject(int $targetId, string $targetType = 'information_object'): bool
+    {
+        if (self::staffBypass()) {
+            return true;
+        }
+
+        return ! TermProtocolService::isRestricted(TermProtocolService::conditionForObject($targetId, $targetType));
     }
 
     /**
@@ -63,16 +82,29 @@ class TermProtocolGate
      */
     public static function excludeRestrictedRecords($query, string $idColumn = 'io.id'): mixed
     {
-        if (self::staffBypass() || ! self::protocolTableExists()) {
+        if (self::staffBypass()) {
             return $query;
         }
-        $query->whereNotExists(function ($sub) use ($idColumn) {
-            $sub->select(DB::raw(1))
-                ->from('object_term_relation as otrx')
-                ->join('term_protocol as tpx', 'tpx.term_id', '=', 'otrx.term_id')
-                ->whereColumn('otrx.object_id', $idColumn)
-                ->whereIn('tpx.access_condition', TermProtocolService::RESTRICTED);
-        });
+        // (a) records tagged with a protocol-restricted TERM (inherited)
+        if (self::protocolTableExists()) {
+            $query->whereNotExists(function ($sub) use ($idColumn) {
+                $sub->select(DB::raw(1))
+                    ->from('object_term_relation as otrx')
+                    ->join('term_protocol as tpx', 'tpx.term_id', '=', 'otrx.term_id')
+                    ->whereColumn('otrx.object_id', $idColumn)
+                    ->whereIn('tpx.access_condition', TermProtocolService::RESTRICTED);
+            });
+        }
+        // (b) records with a restricted protocol attached DIRECTLY (#1406 P1)
+        if (TermProtocolService::objectProtocolTableExists()) {
+            $query->whereNotExists(function ($sub) use ($idColumn) {
+                $sub->select(DB::raw(1))
+                    ->from('object_protocol as opx')
+                    ->where('opx.target_type', 'information_object')
+                    ->whereColumn('opx.target_id', $idColumn)
+                    ->whereIn('opx.access_condition', TermProtocolService::RESTRICTED);
+            });
+        }
 
         return $query;
     }

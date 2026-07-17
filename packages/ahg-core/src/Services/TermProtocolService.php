@@ -32,21 +32,68 @@ class TermProtocolService
     }
 
     /**
-     * The strictest condition among the protocol-bearing terms tagged on a
-     * record (inheritance term -> record via object_term_relation).
+     * The strictest condition governing a record, unioning BOTH:
+     *  - protocols inherited from terms tagged on it (object_term_relation), and
+     *  - a protocol attached DIRECTLY to the object (object_protocol, #1406 P1).
+     * Resolution is "strictest wins" across the union; a direct object protocol
+     * therefore overrides a laxer inherited one (and vice versa).
      */
     public static function conditionForRecord(int $objectId): string
     {
+        $conds = [];
         try {
             $conds = DB::table('object_term_relation as otr')
                 ->join('term_protocol as tp', 'tp.term_id', '=', 'otr.term_id')
                 ->where('otr.object_id', $objectId)
                 ->pluck('tp.access_condition')->all();
         } catch (\Throwable $e) {
-            return 'open';
+            // inherited-term protocols unavailable; fall through to direct
         }
+        $conds = array_merge($conds, self::directConditions($objectId));
 
         return self::strictest($conds);
+    }
+
+    /**
+     * The strictest condition attached DIRECTLY to an object (object_protocol),
+     * ignoring inherited-term protocols. 'open' if none / table absent.
+     */
+    public static function conditionForObject(int $targetId, string $targetType = 'information_object'): string
+    {
+        return self::strictest(self::directConditions($targetId, $targetType));
+    }
+
+    /** Raw access-condition list from object_protocol for one target. Empty on any error/absent table. */
+    private static function directConditions(int $targetId, string $targetType = 'information_object'): array
+    {
+        try {
+            if (! self::objectProtocolTableExists()) {
+                return [];
+            }
+
+            return DB::table('object_protocol')
+                ->where('target_type', $targetType)
+                ->where('target_id', $targetId)
+                ->pluck('access_condition')->all();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /** Whether the object_protocol table is present (cached per request). */
+    private static ?bool $objectProtocolTable = null;
+
+    public static function objectProtocolTableExists(): bool
+    {
+        if (self::$objectProtocolTable === null) {
+            try {
+                self::$objectProtocolTable = \Illuminate\Support\Facades\Schema::hasTable('object_protocol');
+            } catch (\Throwable $e) {
+                self::$objectProtocolTable = false;
+            }
+        }
+
+        return self::$objectProtocolTable;
     }
 
     public static function isRestricted(string $condition): bool
@@ -62,14 +109,28 @@ class TermProtocolService
      */
     public static function restrictedRecordIds(): array
     {
+        $ids = [];
         try {
-            return DB::table('object_term_relation as otr')
+            $ids = DB::table('object_term_relation as otr')
                 ->join('term_protocol as tp', 'tp.term_id', '=', 'otr.term_id')
                 ->whereIn('tp.access_condition', self::RESTRICTED)
-                ->pluck('otr.object_id')->map('intval')->unique()->values()->all();
+                ->pluck('otr.object_id')->all();
         } catch (\Throwable $e) {
-            return [];
+            // inherited-term set unavailable; still return direct-object set below
         }
+        try {
+            if (self::objectProtocolTableExists()) {
+                $direct = DB::table('object_protocol')
+                    ->where('target_type', 'information_object')
+                    ->whereIn('access_condition', self::RESTRICTED)
+                    ->pluck('target_id')->all();
+                $ids = array_merge($ids, $direct);
+            }
+        } catch (\Throwable $e) {
+            // direct set unavailable
+        }
+
+        return collect($ids)->map('intval')->unique()->values()->all();
     }
 
     /**
@@ -157,6 +218,81 @@ class TermProtocolService
             return DB::table('term_protocol')->where('term_id', $termId)->get();
         } catch (\Throwable $e) {
             return collect();
+        }
+    }
+
+    /** Inherited protocol row(s) from the terms tagged on a record - for the badge/tooltip. */
+    public static function protocolsForRecord(int $objectId): \Illuminate\Support\Collection
+    {
+        try {
+            return DB::table('object_term_relation as otr')
+                ->join('term_protocol as tp', 'tp.term_id', '=', 'otr.term_id')
+                ->where('otr.object_id', $objectId)
+                ->select('tp.*')
+                ->get();
+        } catch (\Throwable $e) {
+            return collect();
+        }
+    }
+
+    /** The protocol row(s) attached DIRECTLY to an object (#1406 P1) - for the badge/tooltip. */
+    public static function protocolsForObject(int $targetId, string $targetType = 'information_object'): \Illuminate\Support\Collection
+    {
+        try {
+            if (! self::objectProtocolTableExists()) {
+                return collect();
+            }
+
+            return DB::table('object_protocol')
+                ->where('target_type', $targetType)
+                ->where('target_id', $targetId)
+                ->get();
+        } catch (\Throwable $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Add a direct community protocol to an object (#1406 P1). Unlike {@see set()}
+     * an object may legitimately carry MORE than one label (e.g. a TK Attribution
+     * plus a BC Provenance notice), so this appends rather than replacing. Use
+     * {@see clearObjectProtocol()} to remove one. Returns the new row id.
+     */
+    public static function setObject(
+        int $targetId,
+        ?string $labelFamily,
+        ?string $labelCode,
+        string $condition = 'open',
+        string $targetType = 'information_object',
+        ?int $ownerActorId = null,
+        ?string $regionModule = null,
+        bool $isNotice = false,
+        ?int $createdBy = null
+    ): int {
+        $condition = $condition ?: 'open';
+
+        return (int) DB::table('object_protocol')->insertGetId([
+            'target_type'      => $targetType,
+            'target_id'        => $targetId,
+            'label_family'     => $labelFamily ?: null,
+            'label_code'       => $labelCode ?: null,
+            'access_condition' => $condition,
+            'owner_actor_id'   => $ownerActorId,
+            'region_module'    => $regionModule ?: null,
+            'is_notice'        => $isNotice,
+            'created_by'       => $createdBy,
+            'created_at'       => now(),
+            'updated_at'       => now(),
+        ]);
+    }
+
+    /** Remove a single direct object protocol row by id. */
+    public static function clearObjectProtocol(int $protocolId): void
+    {
+        try {
+            DB::table('object_protocol')->where('id', $protocolId)->delete();
+        } catch (\Throwable $e) {
+            // no-op if table absent
         }
     }
 

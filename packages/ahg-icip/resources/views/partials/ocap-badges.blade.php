@@ -49,3 +49,9 @@
     @endif
   </div>
 @endif
+
+{{-- #1388 / #1406 P1 - TK/BC community-protocol badge (object-level + inherited).
+     Mounted here because this partial is always included by the (locked) IO show
+     page; it renders independently of the OCAP overlay above and no-ops when the
+     record carries no protocols. --}}
+@include('icip::partials.community-protocol-badge', ['ioId' => $ioId])
