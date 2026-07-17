@@ -43,6 +43,7 @@ class AhgIcipServiceProvider extends ServiceProvider
         $this->ensureOcapColumns();
         $this->ensureProtocolColumns();
         $this->ensureGovernanceTables();
+        $this->ensureRegionPacks();
     }
 
     /**
@@ -94,6 +95,87 @@ class AhgIcipServiceProvider extends ServiceProvider
                     INDEX idx_cs_user (user_id)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
             );
+        } catch (\Throwable $e) {
+            // Don't break boot if the DB isn't reachable yet
+        }
+    }
+
+    /**
+     * #1388 / #1406 P5 - pluggable per-region packs.
+     *
+     * A "region pack" is the jurisdiction context a community operates within
+     * (region_module on icip_community / icip_tk_label_type / *_protocol). This
+     * registry makes region_module a first-class, documented concept instead of a
+     * free-text field, and seeds the first packs (International-neutral default +
+     * South Africa + SADC).
+     *
+     * DELIBERATELY ships NO named communities and NO invented community labels:
+     * that would impose identity, the opposite of #1388 Principle 1 (self-
+     * identification) and CARE. Communities are added by the institution/their
+     * stewards through the governance UI and tagged to a region here. A pack
+     * carries only public jurisdiction/legal-framework context.
+     *
+     * Idempotent (CREATE TABLE IF NOT EXISTS + INSERT IGNORE by code).
+     */
+    private function ensureRegionPacks(): void
+    {
+        try {
+            DB::statement(
+                'CREATE TABLE IF NOT EXISTS icip_region_module (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    code VARCHAR(64) NOT NULL UNIQUE,
+                    name VARCHAR(255) NOT NULL,
+                    jurisdiction VARCHAR(255) NULL,
+                    frameworks JSON NULL,
+                    care_note TEXT NULL,
+                    display_order INT DEFAULT 100,
+                    is_active TINYINT(1) DEFAULT 1,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_region_active (is_active)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+            );
+
+            $packs = [
+                [
+                    'code' => 'international', 'name' => 'International (jurisdiction-neutral)',
+                    'jurisdiction' => null, 'display_order' => 0,
+                    'frameworks' => ['CARE Principles', 'UNDRIP', 'Local Contexts (TK/BC Labels & Notices)', 'SKOS'],
+                    'care_note' => 'The neutral core. Communities self-identify; no jurisdiction-specific regime is assumed.',
+                ],
+                [
+                    'code' => 'za', 'name' => 'South Africa', 'jurisdiction' => 'South Africa',
+                    'display_order' => 10,
+                    'frameworks' => [
+                        'Protection, Promotion, Development and Management of Indigenous Knowledge Act 6 of 2019',
+                        'National Indigenous Knowledge Systems Office (NIKSO)',
+                        'Nagoya Protocol / Access and Benefit-sharing (ABS)',
+                        'Protection of Personal Information Act (POPIA)',
+                    ],
+                    'care_note' => 'South African deployments. Communities are added by their stewards and self-identify; this pack ships only the legal/jurisdiction context, not identities.',
+                ],
+                [
+                    'code' => 'sadc', 'name' => 'SADC (Southern African Development Community)',
+                    'jurisdiction' => 'SADC region', 'display_order' => 20,
+                    'frameworks' => [
+                        'ARIPO Swakopmund Protocol on the Protection of Traditional Knowledge and Expressions of Folklore',
+                        'Nagoya Protocol / Access and Benefit-sharing (ABS)',
+                        'CARE Principles',
+                    ],
+                    'care_note' => 'Southern African deployments beyond South Africa. Self-identification and steward governance as per the core.',
+                ],
+            ];
+            foreach ($packs as $p) {
+                DB::table('icip_region_module')->insertOrIgnore([
+                    'code'          => $p['code'],
+                    'name'          => $p['name'],
+                    'jurisdiction'  => $p['jurisdiction'],
+                    'frameworks'    => json_encode($p['frameworks']),
+                    'care_note'     => $p['care_note'],
+                    'display_order' => $p['display_order'],
+                    'is_active'     => 1,
+                    'created_at'    => now(),
+                ]);
+            }
         } catch (\Throwable $e) {
             // Don't break boot if the DB isn't reachable yet
         }

@@ -183,6 +183,22 @@ class IcipController extends Controller
         }
     }
 
+    /** #1406 P5 - active region packs for the region_module dropdown. */
+    private function regionModules()
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('icip_region_module')) {
+                return collect();
+            }
+
+            return DB::table('icip_region_module')->where('is_active', 1)
+                ->orderBy('display_order')->orderBy('name')
+                ->get(['code', 'name', 'jurisdiction']);
+        } catch (\Throwable $e) {
+            return collect();
+        }
+    }
+
     /** #1406 P2c - stewards of a community, joined to user for display. */
     private function communityStewards(int $communityId)
     {
@@ -452,6 +468,7 @@ class IcipController extends Controller
             'community' => $community,
             'states' => self::STATE_TERRITORIES,
             'stewards' => $id ? $this->communityStewards((int) $id) : collect(),
+            'regions' => $this->regionModules(),
         ]);
     }
 

@@ -68,9 +68,18 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">{{ __('Region Module') }}</label>
-                <input type="text" name="region_module" class="form-control" value="{{ $community->region_module ?? '' }}" placeholder="e.g. za, sadc, au">
-                <div class="form-text">{{ __('Owning per-region plugin (optional).') }}</div>
+                <label class="form-label">{{ __('Region Pack') }}</label>
+                @if(isset($regions) && $regions->isNotEmpty())
+                  <select name="region_module" class="form-select">
+                    <option value="">{{ __('- none -') }}</option>
+                    @foreach($regions as $rg)
+                      <option value="{{ $rg->code }}" @selected(($community->region_module ?? '') === $rg->code)>{{ $rg->name }}</option>
+                    @endforeach
+                  </select>
+                @else
+                  <input type="text" name="region_module" class="form-control" value="{{ $community->region_module ?? '' }}" placeholder="e.g. za, sadc, international">
+                @endif
+                <div class="form-text">{{ __('Pluggable per-region pack this community belongs to (optional).') }}</div>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ __('Persistent Identifier (PID)') }}</label>
