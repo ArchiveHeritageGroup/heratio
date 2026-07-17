@@ -123,6 +123,11 @@ class QdrantIndexCommand extends Command
         $rowOffset = $offset;
         $remaining = $cap;
 
+        // #1406 P3 - AI fence (#1388 Principle 5): community-restricted material
+        // must never be embedded/vectorised (the vector store is an AI surface).
+        // Computed once; the restricted set is small (sacred/secret/gendered/etc.).
+        $restrictedSet = array_flip(\AhgCore\Services\TermProtocolService::restrictedRecordIds());
+
         $chunkSize = 500;
         while ($remaining > 0) {
             $take = min($chunkSize, $remaining);
@@ -148,6 +153,13 @@ class QdrantIndexCommand extends Command
 
             foreach ($rows as $row) {
                 $bar->setMessage('id=' . $row->id);
+
+                // #1406 P3 - skip community-restricted records (never embed them).
+                if (isset($restrictedSet[(int) $row->id])) {
+                    $skipped++;
+                    $bar->advance();
+                    continue;
+                }
 
                 $text = $this->buildText($row);
                 if ($text === '') {

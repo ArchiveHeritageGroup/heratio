@@ -58,6 +58,22 @@ class TermProtocolGate
     }
 
     /**
+     * #1406 P3 - the AI fence (#1388 Principle 5). Whether a record's content may
+     * be handed to an AI model (NER, summary, translate, HTR/OCR, embeddings,
+     * vision). FALSE when a community protocol restricts the record.
+     *
+     * Unlike {@see allowsRecord()} this is DATA-centric and deliberately does NOT
+     * staff-bypass: feeding sacred/secret material to a model (which may store
+     * embeddings, extract entities, or ship bytes to a gateway) is a data-
+     * sovereignty breach regardless of operator privilege. Open records - the
+     * default - are eligible, so this is a no-op for material carrying no protocol.
+     */
+    public static function isModelEligible(int $objectId): bool
+    {
+        return ! TermProtocolService::isRestricted(TermProtocolService::conditionForRecord($objectId));
+    }
+
+    /**
      * Retrieval scope: hide protocol-restricted terms from guests/non-editors.
      * $idColumn is the term id column of the outer query (e.g. 'term.id').
      */

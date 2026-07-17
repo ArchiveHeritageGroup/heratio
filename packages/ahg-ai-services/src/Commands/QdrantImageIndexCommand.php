@@ -119,6 +119,10 @@ class QdrantImageIndexCommand extends Command
         $rowOffset = 0;
         $chunkSize = 500;
 
+        // #1406 P3 - AI fence (#1388 Principle 5): never embed images belonging to
+        // a community-restricted record into the vision/image vector store.
+        $restrictedSet = array_flip(\AhgCore\Services\TermProtocolService::restrictedRecordIds());
+
         while (true) {
             $rows = (clone $base)
                 ->offset($rowOffset)
@@ -132,6 +136,12 @@ class QdrantImageIndexCommand extends Command
 
             foreach ($rows as $row) {
                 $bar->advance();
+
+                // #1406 P3 - skip images of community-restricted records.
+                if (isset($restrictedSet[(int) $row->object_id])) {
+                    $skipped++;
+                    continue;
+                }
 
                 $ext = strtolower(pathinfo((string) $row->name, PATHINFO_EXTENSION));
                 if (! in_array($ext, self::IMAGE_EXTS, true)) {

@@ -508,6 +508,9 @@ class AiController extends Controller
      */
     public function nerExtract(int $id)
     {
+        if ($fenced = $this->aiFence($id)) {
+            return $fenced;
+        }
         $culture = app()->getLocale();
         $object  = $this->getInformationObject($id, $culture);
 
@@ -1067,11 +1070,34 @@ class AiController extends Controller
     }
 
     /**
+     * #1406 P3 - the AI fence (#1388 Principle 5). Restricted community material
+     * must never be handed to an AI model - it would leave the sovereignty
+     * boundary (bytes to the gateway, embeddings stored, entities extracted).
+     * Data-centric: no staff/admin bypass. Returns a 403 refusal response when
+     * the record is ineligible, or null to proceed.
+     */
+    private function aiFence(int $id)
+    {
+        if (! \AhgCore\Services\TermProtocolGate::isModelEligible($id)) {
+            return response()->json([
+                'success' => false,
+                'error'   => 'This record carries a community access protocol that restricts automated (AI) processing. A community steward or administrator must review it before AI tools can run on it.',
+                'fence'   => 'community_protocol',
+            ], 403);
+        }
+
+        return null;
+    }
+
+    /**
      * GET /admin/ai/htr/{id}
      * HTR (Handwriting Text Recognition) for a single object.
      */
     public function htrForObject(Request $request, int $id)
     {
+        if ($fenced = $this->aiFence($id)) {
+            return $fenced;
+        }
         $culture = app()->getLocale();
         $object  = $this->getInformationObject($id, $culture);
 
@@ -1145,6 +1171,9 @@ class AiController extends Controller
      */
     public function summarizeObject(Request $request, int $id)
     {
+        if ($fenced = $this->aiFence($id)) {
+            return $fenced;
+        }
         $culture   = app()->getLocale();
         $maxLength = (int) $request->input('max_length', 1000);
         $minLength = (int) $request->input('min_length', 100);
@@ -1229,6 +1258,9 @@ class AiController extends Controller
      */
     public function translateObject(Request $request, int $id)
     {
+        if ($fenced = $this->aiFence($id)) {
+            return $fenced;
+        }
         $culture    = app()->getLocale();
         $targetLang = (string) $request->input('target_lang', 'en');
 
@@ -1298,6 +1330,9 @@ class AiController extends Controller
      */
     public function suggest(Request $request, int $id)
     {
+        if ($fenced = $this->aiFence($id)) {
+            return $fenced;
+        }
         $templateId  = $request->input('template_id');
         $llmConfigId = $request->input('llm_config_id');
         $userId      = auth()->id();
@@ -1317,6 +1352,9 @@ class AiController extends Controller
      */
     public function suggestPreview(Request $request, int $id)
     {
+        if ($fenced = $this->aiFence($id)) {
+            return $fenced;
+        }
         $templateId  = $request->input('template_id');
         $llmConfigId = $request->input('llm_config_id');
 
