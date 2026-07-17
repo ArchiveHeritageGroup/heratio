@@ -220,6 +220,18 @@ Every portable export is **fail-closed** and gated on two levels, so a package c
 
 Every package includes a **`data/disclosure-summary.json`** recording exactly what was withheld and why — counts by reason, plus `perm_masters` / `perm_references` / `perm_thumbnails` flags when a tier was dropped by your role, and `exported_by`. The admin list shows an **"N withheld"** badge on each export.
 
+### Verifying authenticity offline (#1390)
+
+Every package is **authenticity-carrying** — a recipient can confirm, with no network and no Heratio, that nothing was tampered with in transit:
+
+- **`SHA256SUMS`** (bundle root) — a SHA-256 checksum for every exported file, in the standard `sha256sum` format.
+- **`data/fixity.json`** — a richer per-file manifest (size, usage tier, and the checksum stored in Heratio for cross-reference).
+- **`data/c2pa/`** — any **C2PA Content Credentials** (signed provenance manifests) held for the exported records travel with the package; on-disk `.c2pa.json` sidecars are copied next to their asset too.
+- **`verify.sh`** — one-command check: `sh verify.sh` (uses `sha256sum` on Linux or `shasum` on macOS). Prints `OK` per file, or `FAILED` if a file was altered.
+- **`verify.html`** — open in a browser to re-hash the files in-page (SubtleCrypto) and see a pass/fail table; serve the folder (or use `verify.sh`) if the browser blocks local file reads.
+
+This closes the loop with Heratio's content-authenticity chain, so the static package on a USB stick or dark-archive drive remains self-verifying long after it leaves the system.
+
 ### Step 3: Configure — Title, Language, Branding
 ```
   +-----------------------------------------------------------+

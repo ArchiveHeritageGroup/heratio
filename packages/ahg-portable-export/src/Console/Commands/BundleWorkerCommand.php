@@ -63,6 +63,12 @@ class BundleWorkerCommand extends Command
      *  draft-containing bundle. */
     private bool $includedUnpublished = false;
 
+    /** #1390 — per-file fixity records built during copyAssets (path, sha256, size, stored checksum). */
+    private array $fixity = [];
+
+    /** #1390 — count of C2PA manifests/sidecars carried into the bundle. */
+    private int $c2paCarried = 0;
+
     public function handle(): int
     {
         $rows = $this->pickRows();
@@ -135,6 +141,8 @@ class BundleWorkerCommand extends Command
         // written — over-inclusion into an offline package is unrecoverable.
         $this->excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'protocol' => 0, 'redacted_objects' => 0,
             'perm_masters' => 0, 'perm_references' => 0, 'perm_thumbnails' => 0];
+        $this->fixity = [];          // #1390
+        $this->c2paCarried = 0;      // #1390
 
         // #role-based export — the operator can only export what THEIR role permits.
         // Force off any derivative tier they lack the ACL grant for (so a user
@@ -205,6 +213,9 @@ class BundleWorkerCommand extends Command
         DB::table('portable_export')->where('id', $row->id)->update(['progress' => 70]);
         $this->line('  copied '.$copied.' asset file(s)'
             .($this->excluded['redacted_objects'] ? ' ('.$this->excluded['redacted_objects'].' redacted object(s) withheld)' : ''));
+
+        // #1390 — authenticity-carrying package: fixity manifest + C2PA + offline verifier.
+        $this->writeAuthenticity($workDir, $ioIds);
 
         // #1389 — write the disclosure summary into the package so the recipient
         // (and the operator, via the stamped column) can see what was withheld.
@@ -442,7 +453,13 @@ Contents  : {$descriptions} archival description(s), {$objects} digital object(s
       digital_objects.json Digital object metadata.
       manifest.json ...... Export manifest (scope, counts, versions).
       disclosure-summary.json  What was included / withheld and why.
+      fixity.json ........ Per-file SHA-256 checksums (authenticity).
+      c2pa/ .............. C2PA Content Credentials for the records (if any).
   assets/ ................ Exported image / media files (where permitted).
+  SHA256SUMS ............. Checksums for every exported file.
+  verify.sh / verify.html  Verify OFFLINE that nothing was tampered with:
+                          run  sh verify.sh  (uses sha256sum/shasum), or open
+                          verify.html in a browser. No network / Heratio needed.
 
 --------------------------------------------------------------------------------
  SECURITY & PERMISSIONS
@@ -717,7 +734,7 @@ TXT;
         $copied = 0;
         $dos = DB::table('digital_object')->whereIn('object_id', $ioIds)
             ->whereIn('usage_id', array_keys($usagesToCopy))
-            ->select('id', 'object_id', 'usage_id', 'name', 'path')->get();
+            ->select('id', 'object_id', 'usage_id', 'name', 'path', 'checksum', 'checksum_type', 'byte_size')->get();
         foreach ($dos as $do) {
             if ($gate->hasRedactions((int) $do->object_id)) {
                 $skippedRedacted[(int) $do->object_id] = true;
@@ -743,14 +760,151 @@ TXT;
                 @mkdir($destDir, 0775, true);
             }
             $destName = $do->name ?: ('file-'.$do->id);
-            if (@copy($src, $destDir.'/'.$destName)) {
+            $dest = $destDir.'/'.$destName;
+            if (@copy($src, $dest)) {
                 $copied++;
+                // #1390 — fixity record for the copied file (SHA-256 over the bytes as shipped).
+                $rel = 'assets/'.$usageDir.'/'.$do->object_id.'/'.$destName;
+                $this->fixity[] = [
+                    'path'                 => $rel,
+                    'object_id'            => (int) $do->object_id,
+                    'usage'                => $usageDir,
+                    'bytes'                => @filesize($dest) ?: null,
+                    'sha256'               => @hash_file('sha256', $dest) ?: null,
+                    'stored_checksum'      => $do->checksum ?: null,
+                    'stored_checksum_type' => $do->checksum_type ?: null,
+                ];
+                // #1390 — carry any on-disk C2PA sidecar sitting next to the source.
+                if (is_file($src.'.c2pa.json') && @copy($src.'.c2pa.json', $dest.'.c2pa.json')) {
+                    $this->c2paCarried++;
+                }
             }
         }
 
         $this->excluded['redacted_objects'] += count($skippedRedacted);
 
         return $copied;
+    }
+
+    /**
+     * #1390 — authenticity-carrying package. So a recipient can verify OFFLINE
+     * that nothing was tampered with, the bundle ships:
+     *   - SHA256SUMS        coreutils `sha256sum -c` / `shasum -a 256 -c` format
+     *   - data/fixity.json  richer per-file manifest (size, usage, stored checksum)
+     *   - data/c2pa/*.c2pa.json  any persisted C2PA manifest for the exported records
+     *   - verify.sh         one-command CLI verification
+     *   - verify.html       self-contained in-browser verifier (SubtleCrypto)
+     * Closes the loop with the content-authenticity work (docs/reference/content-authenticity-architecture.md).
+     */
+    private function writeAuthenticity(string $workDir, array $ioIds): void
+    {
+        // Persisted C2PA manifests for the exported records -> data/c2pa/io-<id>.c2pa.json
+        if (! empty($ioIds) && Schema::hasTable('ahg_c2pa_manifest')) {
+            $c2paDir = $workDir.'/data/c2pa';
+            $manifests = DB::table('ahg_c2pa_manifest')
+                ->whereIn('information_object_id', $ioIds)
+                ->whereNotNull('manifest_json')
+                ->orderBy('id')
+                ->get(['information_object_id', 'manifest_json']);
+            foreach ($manifests as $m) {
+                if (! is_dir($c2paDir)) {
+                    @mkdir($c2paDir, 0775, true);
+                }
+                if (@file_put_contents($c2paDir.'/io-'.$m->information_object_id.'.c2pa.json', (string) $m->manifest_json) !== false) {
+                    $this->c2paCarried++;
+                }
+            }
+        }
+
+        // SHA256SUMS (checksum + two-space + relative path, per coreutils) at the bundle root.
+        $sums = '';
+        foreach ($this->fixity as $f) {
+            if (! empty($f['sha256'])) {
+                $sums .= $f['sha256'].'  '.$f['path'].PHP_EOL;
+            }
+        }
+        @file_put_contents($workDir.'/SHA256SUMS', $sums);
+
+        // Richer machine-readable manifest.
+        @file_put_contents($workDir.'/data/fixity.json', json_encode([
+            'algorithm'      => 'sha256',
+            'generated_at'   => now()->toIso8601String(),
+            'file_count'     => count($this->fixity),
+            'c2pa_manifests' => $this->c2paCarried,
+            'files'          => $this->fixity,
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+        @file_put_contents($workDir.'/verify.sh', $this->verifyScript());
+        @chmod($workDir.'/verify.sh', 0755);
+        @file_put_contents($workDir.'/verify.html', $this->verifyHtml());
+
+        $this->line('  authenticity: '.count($this->fixity).' checksum(s), '.$this->c2paCarried.' C2PA manifest(s)');
+    }
+
+    /** #1390 — POSIX one-command offline verifier. */
+    private function verifyScript(): string
+    {
+        return <<<'SH'
+            #!/bin/sh
+            # Offline authenticity check - verifies every exported file against SHA256SUMS.
+            # No network, no Heratio needed. Run from the bundle root: sh verify.sh
+            cd "$(dirname "$0")" || exit 1
+            if [ ! -f SHA256SUMS ]; then echo "SHA256SUMS not found."; exit 1; fi
+            if command -v sha256sum >/dev/null 2>&1; then
+                sha256sum -c SHA256SUMS
+            elif command -v shasum >/dev/null 2>&1; then
+                shasum -a 256 -c SHA256SUMS
+            else
+                echo "Need 'sha256sum' (Linux) or 'shasum' (macOS) on PATH."; exit 1
+            fi
+            SH;
+    }
+
+    /** #1390 — self-contained in-browser verifier (works best when served; SubtleCrypto). */
+    private function verifyHtml(): string
+    {
+        return <<<'HTML'
+            <!doctype html><html lang="en"><head><meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>Verify authenticity - Heratio portable export</title>
+            <style>
+              body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#222}
+              h1{font-size:1.4rem} table{border-collapse:collapse;width:100%;font-size:.85rem}
+              td,th{border:1px solid #ddd;padding:.35rem .5rem;text-align:left} th{background:#f5f5f5}
+              .ok{color:#0a0} .bad{color:#c00;font-weight:bold} .muted{color:#777}
+              button{padding:.5rem 1rem;font-size:1rem;cursor:pointer} code{background:#f2f2f2;padding:.1rem .3rem}
+              .note{background:#fff8e1;border:1px solid #ffe082;padding:.6rem .8rem;border-radius:4px;margin:1rem 0}
+            </style></head><body>
+            <h1>Verify this package</h1>
+            <p>Re-computes SHA-256 over every exported file and compares it to <code>data/fixity.json</code>.
+            Nothing leaves your device.</p>
+            <div class="note"><strong>If the button does nothing</strong> (some browsers block reading local files
+            from <code>file://</code>): serve the folder — e.g. <code>python3 -m http.server</code> — and open this page over
+            <code>http://localhost:8000/verify.html</code>, or run <code>sh verify.sh</code> in a terminal instead.</div>
+            <p><button id="go">Verify files</button> <span id="summary" class="muted"></span></p>
+            <table id="out"><thead><tr><th>File</th><th>Result</th></tr></thead><tbody></tbody></table>
+            <script>
+            const tbody=document.querySelector('#out tbody'), sum=document.querySelector('#summary');
+            async function sha256(buf){const d=await crypto.subtle.digest('SHA-256',buf);
+              return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+            document.getElementById('go').onclick=async()=>{
+              tbody.innerHTML=''; sum.textContent='working...';
+              let man; try{man=await (await fetch('data/fixity.json')).json();}
+              catch(e){sum.innerHTML='<span class="bad">Could not read data/fixity.json - see the note above.</span>';return;}
+              let ok=0,bad=0;
+              for(const f of man.files){
+                const tr=document.createElement('tr'); const c1=document.createElement('td'); c1.textContent=f.path;
+                const c2=document.createElement('td'); tr.append(c1,c2); tbody.append(tr);
+                if(!f.sha256){c2.innerHTML='<span class="muted">no checksum</span>';continue;}
+                try{const buf=await (await fetch(f.path)).arrayBuffer(); const h=await sha256(buf);
+                  if(h===f.sha256){c2.innerHTML='<span class="ok">verified</span>';ok++;}
+                  else{c2.innerHTML='<span class="bad">MODIFIED</span>';bad++;}}
+                catch(e){c2.innerHTML='<span class="bad">unreadable</span>';bad++;}
+              }
+              sum.innerHTML=`${ok} verified, ${bad?('<span class="bad">'+bad+' failed</span>'):'0 failed'} of ${man.files.length}.`;
+            };
+            </script></body></html>
+            HTML;
     }
 
     /**
