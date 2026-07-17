@@ -102,8 +102,9 @@ Built and deployed to dev + prod + sasa + atom.
 
 - **1.5 (partial)** - bound to `ahg-icip`'s canonical Local Contexts catalog (`icip_tk_label_type`): the term edit form offers a TK/BC label **dropdown** (`TermProtocolService::labelCatalog()`), the family auto-derives from the chosen code, and the term-page badge resolves the official **name + description tooltip + Local Contexts link** (`labelMeta()`) plus the **owning-community name**. *(v1.154.346)*
 
+- **CLI / offline serializers** - fail closed on community protocols. *Policy* (matches the portable-bundle precedent): cultural protocols are **unconditional** in exports - unlike draft/unpublished (an operator override), a restricted community protocol is never emitted, even by an authenticated operator. Wired at: the shared `InformationObjectFetcher::fetchDescendants` (feeds EAD/MODS/DACS/RAD/MARC/CIDOC/PREMIS serializers); `EadFindingAidCommand` (refuses a restricted root, filters restricted descendants); `ExportCidocGraphCommand` (whereNotIn); `MetadataExportCommand` + `ExportBulkCommand` (bulk id selection). Also closed an **adjacent leak**: the shared fetcher applied only publication status, not the ICIP/ODRL `excludeRestricted` that OAI's `publishedQuery` uses - now at parity. *(v1.154.350)*
+
 **Remaining (Phase 1 tail / later):**
 - **1.5 (rest)** - the external `LocalContextsHubService` Hub API is still a stub (live project/notice sync), and `OcapService` governance events aren't emitted on protocol change.
-- **EAD / portable / metadata *CLI* serializers** - the public OAI/RiC surfaces and the portable *bundle* fail closed; the operator-run CLI export commands need an explicit operator-vs-public gating decision (they run with an operator identity, not a guest).
 - Badge **owner-actor name** resolution (currently shows label + condition + region, not the owning community's authority-record name).
 

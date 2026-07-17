@@ -155,12 +155,18 @@ trait InformationObjectFetcher
                 'information_object_i18n.arrangement',
             ]);
 
-        // This subtree is reached anonymously via public OAI-PMH / EAD export.
-        // Apply the SAME publication-status gate the OAI top-level set uses
-        // (DisclosureGate::wherePublished) so unpublished descendants are never
-        // embedded in the anonymous export.
-        app(\AhgCore\Services\DisclosureGate::class)
-            ->wherePublished($query, 'information_object');
+        // This subtree is reached anonymously via public OAI-PMH / EAD export, so
+        // apply the SAME gates OAI's publishedQuery uses: publication status PLUS
+        // the ICIP/TK + ODRL exclusion (previously this path had only the former,
+        // leaking culturally/ODRL-restricted descendants into EAD/MODS/DACS output).
+        $gate = app(\AhgCore\Services\DisclosureGate::class);
+        $gate->wherePublished($query, 'information_object');
+        $gate->excludeRestricted($query, 'information_object.id');
+
+        // #1388 - and drop descendants tagged with a restricted community-protocol
+        // term (sacred/secret, restricted, gendered, seasonal, community-voice).
+        // Fail-closed for anonymous web + CLI exports; editors bypass in the gate.
+        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'information_object.id');
 
         return $query->get();
     }

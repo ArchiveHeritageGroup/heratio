@@ -100,6 +100,10 @@ class MetadataExportCommand extends Command
             ->select('i.id', 'i.identifier', 'i.repository_id', 'i.lft', 'i.rgt',
                 'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium');
 
+        // #1388 - never export a record under a restricted community protocol
+        // (also nulls a restricted root below, yielding an empty result).
+        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($q, 'i.id');
+
         if ($slug = $this->option('slug')) {
             $q->join('slug as s', 's.object_id', '=', 'i.id')->where('s.slug', $slug);
             $base = $q->first();
@@ -107,14 +111,15 @@ class MetadataExportCommand extends Command
                 return collect();
             }
             if ($this->option('include-children')) {
-                return DB::table('information_object as i')
+                $children = DB::table('information_object as i')
                     ->leftJoin('information_object_i18n as i18n', function ($j) {
                         $j->on('i18n.id', '=', 'i.id')->where('i18n.culture', '=', 'en');
                     })
                     ->whereBetween('i.lft', [$base->lft, $base->rgt])
                     ->select('i.id', 'i.identifier', 'i.repository_id', 'i.lft', 'i.rgt',
-                        'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium')
-                    ->get();
+                        'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium');
+                \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($children, 'i.id'); // #1388
+                return $children->get();
             }
 
             return collect([$base]);

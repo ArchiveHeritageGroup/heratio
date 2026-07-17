@@ -32,6 +32,8 @@ class ExportBulkCommand extends Command
                 $j->on('ti.id', '=', 'i.level_of_description_id')->where('ti.culture', '=', 'en')->where('ti.name', '=', $criteria['level']);
             });
         }
+        // #1388 - exclude records under a restricted community protocol from bulk export.
+        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($q, 'i.id');
         $ids = $q->limit((int) $this->option('limit'))->pluck('i.id');
         $this->info("matched IOs: {$ids->count()}");
 

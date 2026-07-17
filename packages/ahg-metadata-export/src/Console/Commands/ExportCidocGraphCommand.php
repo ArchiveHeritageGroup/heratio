@@ -96,6 +96,9 @@ class ExportCidocGraphCommand extends Command
     private const TAXONOMY_SUBJECT = 35;
     private const TAXONOMY_PLACE   = 42;
 
+    /** #1388 - ids of records under a restricted community protocol; excluded from the graph. Memoised across batches. */
+    private ?array $protocolRestrictedIds = null;
+
     public function handle(): int
     {
         if (! Schema::hasTable('information_object') || ! Schema::hasTable('status')) {
@@ -250,12 +253,22 @@ class ExportCidocGraphCommand extends Command
      */
     private function nextPublishedIdBatch(int $lastId, int $batch): array
     {
-        return DB::table('status')
+        // #1388 - community-protocol-restricted ids, resolved once and reused per batch.
+        $this->protocolRestrictedIds ??= \AhgCore\Services\TermProtocolService::restrictedRecordIds();
+
+        $query = DB::table('status')
             ->where('type_id', self::STATUS_TYPE_PUBLICATION)
             ->where('status_id', self::PUBLICATION_STATUS_PUBLISHED)
             ->where('object_id', '>', max(1, $lastId)) // root id 1 excluded
             // #1384/#1389 — exclude ICIP/TK + ODRL-restricted records from the graph
-            ->whereNotIn('object_id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
+            ->whereNotIn('object_id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds());
+
+        // #1388 — and community-protocol-restricted records.
+        if (! empty($this->protocolRestrictedIds)) {
+            $query->whereNotIn('object_id', $this->protocolRestrictedIds);
+        }
+
+        return $query
             ->orderBy('object_id')
             ->limit($batch)
             ->pluck('object_id')

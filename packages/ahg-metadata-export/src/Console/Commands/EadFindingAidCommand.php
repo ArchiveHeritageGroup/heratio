@@ -54,6 +54,14 @@ class EadFindingAidCommand extends Command
             return self::FAILURE;
         }
 
+        // #1388 - refuse to build a finding aid whose root carries a restricted
+        // community protocol; a circulating PDF must not surface sacred/secret
+        // material. Descendants are filtered in fetchDescendants().
+        if (! \AhgCore\Services\TermProtocolGate::allowsRecord($ioId)) {
+            $this->error('Information object #'.$ioId.' carries a restricted community protocol and cannot be exported to a finding aid.');
+            return self::FAILURE;
+        }
+
         $repository = $this->fetchRepository($io, $culture);
         $events = $this->fetchEvents($io);
         $creators = $this->fetchCreators($io, $culture);
@@ -148,7 +156,7 @@ class EadFindingAidCommand extends Command
 
     private function fetchDescendants($io, string $culture)
     {
-        return DB::table('information_object as io')
+        $query = DB::table('information_object as io')
             ->join('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
             })
@@ -158,8 +166,12 @@ class EadFindingAidCommand extends Command
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt', 'io.level_of_description_id',
                 'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium'
-            )
-            ->get();
+            );
+
+        // #1388 - never list a restricted-protocol descendant in the finding aid.
+        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id');
+
+        return $query->get();
     }
 
     private function renderHtml($io, $repository, $events, $creators, $descendants): string
