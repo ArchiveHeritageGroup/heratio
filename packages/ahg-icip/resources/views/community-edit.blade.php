@@ -44,6 +44,12 @@
             </div>
 
             <div class="mb-3">
+              <label class="form-label">{{ __('Self-Identified Term') }}</label>
+              <input type="text" name="self_identified_term" class="form-control" value="{{ $community->self_identified_term ?? '' }}">
+              <div class="form-text">{{ __("The term this community uses for itself. This is rendered in preference to any imposed label - never assume \"Indigenous\" (communities self-identify).") }}</div>
+            </div>
+
+            <div class="mb-3">
               <label class="form-label">{{ __('Alternate Names') }}</label>
               <input type="text" name="alternate_names" class="form-control" value="{{ $community && !empty($community->alternate_names) ? implode(', ', json_decode($community->alternate_names, true) ?? []) : '' }}">
               <div class="form-text">Separate multiple names with commas</div>
@@ -60,14 +66,34 @@
               </div>
             </div>
 
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ __('Region Module') }}</label>
+                <input type="text" name="region_module" class="form-control" value="{{ $community->region_module ?? '' }}" placeholder="e.g. za, sadc, au">
+                <div class="form-text">{{ __('Owning per-region plugin (optional).') }}</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ __('Persistent Identifier (PID)') }}</label>
+                <input type="text" name="pid" class="form-control" value="{{ $community->pid ?? '' }}">
+                <div class="form-text">{{ __('Sovereign PID / DOCiD, if minted.') }}</div>
+              </div>
+            </div>
+
             <div class="mb-3">
-              <label class="form-label">State/Territory <span class="text-danger">*</span></label>
-              <select name="state_territory" class="form-select" required>
-                <option value="">{{ __('Select state/territory') }}</option>
+              <label class="form-label">{{ __('CARE Statement') }}</label>
+              <textarea name="care_statement" class="form-control" rows="2" placeholder="{{ __('Collective benefit, Authority to control, Responsibility, Ethics') }}">{{ $community->care_statement ?? '' }}</textarea>
+              <div class="form-text">{{ __('The community\'s data-governance statement under the CARE Principles.') }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">{{ __('State/Territory') }} <span class="text-muted small">({{ __('Australia') }})</span></label>
+              <select name="state_territory" class="form-select">
+                <option value="">{{ __('Not applicable') }}</option>
                 @foreach($states as $code => $name)
                   <option value="{{ $code }}" @selected(($community->state_territory ?? '') === $code)>{{ $name }}</option>
                 @endforeach
               </select>
+              <div class="form-text">{{ __('AU-specific. Leave as "Not applicable" outside Australia.') }}</div>
             </div>
           </div>
         </div>
@@ -97,7 +123,7 @@
         </div>
 
         <div class="card mb-4">
-          <div class="card-header"><h5 class="mb-0">{{ __('Native Title Information') }}</h5></div>
+          <div class="card-header"><h5 class="mb-0">{{ __('Native Title Information') }} <span class="text-muted small fw-normal">({{ __('Australia') }})</span></h5></div>
           <div class="card-body">
             <div class="mb-3">
               <label class="form-label">{{ __('Native Title Reference') }}</label>

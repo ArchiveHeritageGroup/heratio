@@ -147,6 +147,42 @@ class IcipController extends Controller
         }
     }
 
+    /**
+     * #1406 P2 - append a CARE provenance entry for a TK/BC label apply/withdraw.
+     * Append-only; never throws into the request (the assignment itself has
+     * already happened, and a missing log table must not 500 the operator).
+     */
+    private function logLabelAssignment(
+        int $objectId,
+        ?int $labelTypeId,
+        ?int $communityId,
+        string $action,
+        ?string $appliedBy = null,
+        ?string $authority = null,
+        ?string $notes = null,
+        ?int $inferenceReceiptId = null
+    ): void {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('icip_label_assignment_log')) {
+                return;
+            }
+            DB::table('icip_label_assignment_log')->insert([
+                'information_object_id' => $objectId,
+                'label_type_id'        => $labelTypeId,
+                'community_id'          => $communityId,
+                'action'                => $action,
+                'applied_by'            => $appliedBy,
+                'authority'             => $authority,
+                'inference_receipt_id'  => $inferenceReceiptId,
+                'notes'                 => $notes,
+                'actor_id'              => auth()->id(),
+                'created_at'            => now(),
+            ]);
+        } catch (\Throwable $e) {
+            // provenance log is best-effort; never break the operator flow
+        }
+    }
+
     // ========================================
     // DASHBOARD
     // ========================================
@@ -258,16 +294,26 @@ class IcipController extends Controller
 
             $request->validate([
                 'name' => 'required|string|max:255',
-                'state_territory' => 'required|string|max:47',
+                // state_territory is an AU-region field; nullable for the international core (#1406 P2)
+                'state_territory' => 'nullable|string|max:57',
+                'self_identified_term' => 'nullable|string|max:255',
+                'region_module' => 'nullable|string|max:64',
+                'care_statement' => 'nullable|string',
+                'pid' => 'nullable|string|max:255',
             ]);
 
             $alternateNames = $request->input('alternate_names');
             $data = [
                 'name' => $request->input('name'),
+                // the community's OWN term for itself - never hard-code "Indigenous" (#1388 Principle 1)
+                'self_identified_term' => $request->input('self_identified_term') ?: null,
                 'alternate_names' => $alternateNames ? json_encode(array_filter(array_map('trim', explode(',', $alternateNames)))) : null,
                 'language_group' => $request->input('language_group'),
                 'region' => $request->input('region'),
-                'state_territory' => $request->input('state_territory'),
+                'region_module' => $request->input('region_module') ?: null,
+                'state_territory' => $request->input('state_territory') ?: null,
+                'care_statement' => $request->input('care_statement') ?: null,
+                'pid' => $request->input('pid') ?: null,
                 'contact_name' => $request->input('contact_name'),
                 'contact_email' => $request->input('contact_email'),
                 'contact_phone' => $request->input('contact_phone'),
@@ -1305,11 +1351,15 @@ class IcipController extends Controller
                     'label_type_id' => 'required|integer',
                 ]);
 
+                $labelTypeId = (int) $request->input('label_type_id');
+                $communityId = $request->input('community_id') ?: null;
+                $appliedBy = $request->input('applied_by', 'institution');
+
                 DB::table('icip_tk_label')->insertOrIgnore([
                     'information_object_id' => $object->id,
-                    'label_type_id' => $request->input('label_type_id'),
-                    'community_id' => $request->input('community_id') ?: null,
-                    'applied_by' => $request->input('applied_by', 'institution'),
+                    'label_type_id' => $labelTypeId,
+                    'community_id' => $communityId,
+                    'applied_by' => $appliedBy,
                     'local_contexts_project_id' => $request->input('local_contexts_project_id'),
                     'notes' => $request->input('notes'),
                     'created_by' => auth()->id(),
@@ -1317,16 +1367,32 @@ class IcipController extends Controller
                 ]);
 
                 $this->updateObjectSummary($object->id);
+                $this->logLabelAssignment(
+                    $object->id, $labelTypeId, $communityId ? (int) $communityId : null,
+                    'apply', $appliedBy, null, $request->input('notes')
+                );
 
                 return redirect()->route('ahgicip.object-labels', ['slug' => $slug])
                     ->with('notice', 'TK Label added.');
             } elseif ($action === 'remove') {
+                $removed = DB::table('icip_tk_label')
+                    ->where('id', $request->input('label_id'))
+                    ->where('information_object_id', $object->id)
+                    ->first();
+
                 DB::table('icip_tk_label')
                     ->where('id', $request->input('label_id'))
                     ->where('information_object_id', $object->id)
                     ->delete();
 
                 $this->updateObjectSummary($object->id);
+                if ($removed) {
+                    $this->logLabelAssignment(
+                        $object->id, (int) $removed->label_type_id,
+                        $removed->community_id ? (int) $removed->community_id : null,
+                        'withdraw', $removed->applied_by ?? null, null, $removed->notes ?? null
+                    );
+                }
 
                 return redirect()->route('ahgicip.object-labels', ['slug' => $slug])
                     ->with('notice', 'TK Label removed.');

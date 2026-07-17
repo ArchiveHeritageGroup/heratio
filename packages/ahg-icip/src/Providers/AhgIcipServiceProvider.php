@@ -42,6 +42,44 @@ class AhgIcipServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'icip');
         $this->ensureOcapColumns();
         $this->ensureProtocolColumns();
+        $this->ensureGovernanceTables();
+    }
+
+    /**
+     * #1388 / #1406 P2 - CARE provenance for label assignment.
+     *
+     * icip_label_assignment_log is an APPEND-ONLY audit of every TK/BC label
+     * apply/withdraw: who did it, on whose authority, whether AI-proposed (an
+     * AhgInferenceReceipt id), and the community. CARE Principle "Responsibility"
+     * + "Ethics": the record of who controls a label is itself part of the
+     * governance, so it is never mutated or deleted. Idempotent (CREATE TABLE
+     * IF NOT EXISTS), mirrors the install.sql style.
+     */
+    private function ensureGovernanceTables(): void
+    {
+        try {
+            DB::statement(
+                'CREATE TABLE IF NOT EXISTS icip_label_assignment_log (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    information_object_id INT NOT NULL,
+                    label_type_id INT NULL,
+                    community_id INT NULL,
+                    action VARCHAR(16) NOT NULL,
+                    applied_by VARCHAR(34) NULL,
+                    authority VARCHAR(255) NULL,
+                    inference_receipt_id BIGINT NULL,
+                    notes TEXT NULL,
+                    actor_id INT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_ala_object (information_object_id),
+                    INDEX idx_ala_type (label_type_id),
+                    INDEX idx_ala_action (action),
+                    INDEX idx_ala_created (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+            );
+        } catch (\Throwable $e) {
+            // Don't break boot if the DB isn't reachable yet
+        }
     }
 
     /**
