@@ -4,6 +4,8 @@
 **Category:** Admin
 **Dependencies:** ahgCorePlugin, atom-framework
 
+> **⚠️ Historical / AtoM-era document (#1351).** Describes the original AtoM Symfony plugin. The current landing-page/blocks feature runs on **Laravel** (`ahg-landing-page` package); AtoM/Symfony specifics below are retained for architectural history only.
+
 ---
 
 ## Overview

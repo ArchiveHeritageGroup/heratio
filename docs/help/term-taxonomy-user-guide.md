@@ -25,7 +25,7 @@ Controlled vocabularies make the catalogue searchable, faceted, and machine-read
 | Surface | URL |
 | --- | --- |
 | Taxonomy index | `/taxonomy/list` |
-| Browse taxonomy terms | `/taxonomy/<slug>` |
+| Browse taxonomy terms | `/taxonomy/{id}` |
 | Term browse | `/term/browse?taxonomy=<id>` |
 | Term show | `/term/<slug>` |
 | Add term | `/term/add?taxonomy=<id>` |
@@ -111,7 +111,7 @@ Rule of thumb: **if a researcher might want to search/browse by it, it's a taxon
 
 The plugin has no top-level settings page; behaviour is configured per taxonomy:
 
-- **Taxonomy edit form** (`/taxonomy/<slug>/edit`):
+- **Taxonomy configuration** (via the Dropdown Manager at `/admin/dropdowns/{taxonomy}/edit`):
   - **Use as facet on browse** — adds the taxonomy to the GLAM browse facet sidebar.
   - **Allow multiple values per record** — single vs many on the IO edit form.
   - **Source authority** — VIAF / Getty TGN / Library of Congress — drives external lookup buttons on term add.

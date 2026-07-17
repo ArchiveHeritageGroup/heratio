@@ -32,7 +32,7 @@ For administrators, the visible appearance is controlled through the Settings mo
 3. Footer text and the branding line come from `ahg_footer_text` and `ahg_show_branding` in `ahg_settings`.
 4. Branding colours are emitted through the dynamic theme CSS endpoint, so changes apply across the site without rebuilding assets.
 
-The module also registers simple `/logout` and `/register` view routes that render the theme's logout and register screens.
+Authentication routes (`/login`, `/logout`, registration) are owned by the user-management module, not by this theme — the theme only supplies the screens they render into.
 
 ## Configuration
 

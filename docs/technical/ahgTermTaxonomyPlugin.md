@@ -4,6 +4,8 @@
 **Category:** Browse
 **Dependencies:** atom-framework, ahgCorePlugin
 
+> **⚠️ Historical / AtoM-era document (#1351).** This describes the original AtoM Symfony plugin and its **Elasticsearch**-backed browse. In the current **Laravel** Heratio, taxonomy and term browse are **DB-backed** (Laravel Query Builder against `term`/`term_i18n`, MPTT `lft`/`rgt` range scans) — there is no Elasticsearch dependency in this path. The Elasticsearch sections below are retained for architectural history only; treat the Laravel Query Builder side of every comparison as the live behaviour. For current usage see the *Term Taxonomy* user guide.
+
 ---
 
 ## Overview

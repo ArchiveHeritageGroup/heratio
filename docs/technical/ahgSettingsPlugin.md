@@ -5,6 +5,8 @@
 **Dependencies:** atom-framework, ahgCorePlugin
 **Load Order:** 20
 
+> **⚠️ Historical / AtoM-era document (#1351).** Describes the original AtoM Symfony plugin. In current **Laravel** Heratio the settings hub lives under `/admin/ahgSettings/{page}` (see the *AHG Settings* user guide); AtoM `sfConfig`/Symfony specifics below are retained for history only.
+
 ---
 
 ## Overview
