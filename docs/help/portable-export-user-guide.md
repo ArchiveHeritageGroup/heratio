@@ -532,6 +532,18 @@ When browsing descriptions in edit mode, each description has a
 The "Export Changes" button downloads a `researcher-exchange.json` file
 that can be submitted to the archive for import via ahgResearcherPlugin.
 
+### What happens to corrections when they sync back (curator moderation)
+
+Notes and sources sync straight in, but **metadata corrections / suggestions** do
+**not** silently overwrite the catalogue - they land in a **curator review queue**
+for a person to approve. Staff review them at **`/research/admin/metadata-suggestions`**
+(Research admin sidebar -> *Metadata Suggestions*): each shows the target record, the
+field, the suggested value and who submitted it. **Approve** applies the value to the
+record when the field maps to a known descriptive field (title, scope and content,
+arrangement, extent, access conditions, ...) and stamps who reviewed it; **Reject**
+discards it. This keeps community/researcher contributions moderated - nothing changes
+the catalogue without archivist sign-off (#1390 #4a).
+
 ---
 
 ## Sharing Exports

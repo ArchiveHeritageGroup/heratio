@@ -12,8 +12,10 @@ is **per-host** (not vendored in the repo), exactly like FBX2glTF and PotreeConv
 `c2patool` is absent the package degrades gracefully to signed sidecars + DB records -- nothing
 breaks, you just don't get in-file credentials.
 
-Supported embeddable container formats: **JPEG, PNG, TIFF, MP4**. Other formats (PDF, glTF,
-plain text, JP2, ...) stay sidecar-only.
+Supported `c2patool`-embeddable container formats: **JPEG, PNG, TIFF, MP4**.
+**PDF** is embedded a different way (#1387) - Heratio writes the credential into the PDF
+itself as a C2PA-associated file (no c2patool needed for PDFs), guarded to safe PDFs with
+sidecar fallback. Other formats (glTF, plain text, JP2, ...) stay sidecar-only.
 
 ## 1. Install the c2patool binary
 

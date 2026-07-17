@@ -35,7 +35,7 @@ The aim is trust: letting researchers, partners, and the public satisfy themselv
 ## Good to know
 
 - The provenance chain answers "where did this come from and what happened to it?", while the record-level trace answers "how was this catalogue description built?" - they are complementary views.
-- Content credentials make a downloaded file self-describing: even away from the platform, the file can be checked against its recorded provenance.
+- Content credentials make a downloaded file self-describing: even away from the platform, the file can be checked against its recorded provenance. Images/video (JPEG, PNG, TIFF, MP4) and now **PDFs** (#1387) carry the credential **inside the file itself**; a PDF's credential rides along as an embedded attachment and the document still opens and renders exactly the same in any viewer. Other formats travel with a small sidecar file instead.
 - The verify badge is a convenient way to extend trust to partner sites, exhibitions, and publications without copying data around.
 - Verification reflects the provenance the platform holds. A clean result confirms the recorded chain is intact; it does not assert anything beyond what has been documented.
 - Verification respects access rules - a trace will not reveal content you are not permitted to see.

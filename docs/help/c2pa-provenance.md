@@ -45,7 +45,10 @@ C2PA manifests satisfy Article 50 of the EU AI Act (transparency: machine-readab
 
 ## Sidecar vs. embedded
 
-By default Heratio writes a sidecar JSON next to the artefact. This works for any file type (text, PDF, image, video). For JPEGs you can optionally install the open-source `c2patool` binary (Content Authenticity Initiative) and Heratio will embed the manifest directly in the file - so it travels with the image when shared.
+By default Heratio writes a sidecar JSON next to the artefact. This works for any file type (text, image, video, etc.). Heratio can also embed the credential **directly inside the file** so it travels with the document when shared:
+
+- **Images / video** (JPEG, PNG, TIFF, MP4) - embedded via the open-source `c2patool` binary (Content Authenticity Initiative) when it is installed.
+- **PDF** (#1387) - embedded as a C2PA-associated file inside the PDF via an append-only update. The original bytes are untouched and the document renders identically in every viewer; the credential rides inside as a standard attachment (`c2pa.json`). Heratio guards this to safe PDFs (unsigned, unencrypted, classic cross-reference) and falls back to a sidecar otherwise - so strip the sidecar and, for PDFs, the binding still survives inside the file.
 
 ## Specification
 

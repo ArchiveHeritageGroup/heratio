@@ -117,6 +117,15 @@ class ResearchAdminController extends Controller
         }
         $filter = (string) $request->query('filter', 'open');
 
+        // Degrade gracefully if the queue table isn't present yet (schema-only
+        // artifact install before `php artisan migrate` has run).
+        if (! \Illuminate\Support\Facades\Schema::hasTable('research_metadata_suggestion')) {
+            return view('research::research.metadata-suggestions', array_merge(
+                $this->getSidebarData('metadataSuggestions'),
+                ['suggestions' => collect(), 'filter' => $filter, 'counts' => ['open' => 0, 'approved' => 0, 'rejected' => 0]]
+            ));
+        }
+
         $counts = [
             'open'     => DB::table('research_metadata_suggestion')->where('status', 'open')->count(),
             'approved' => DB::table('research_metadata_suggestion')->where('status', 'approved')->count(),
