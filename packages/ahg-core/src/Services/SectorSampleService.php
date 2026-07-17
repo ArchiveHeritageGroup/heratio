@@ -91,6 +91,15 @@ class SectorSampleService
             ['title' => 'Sample Research Record B', 'level' => 'item', 'identifier' => 'SAMPLE-RES-002',
                 'desc' => 'A second sample described record.'],
         ],
+        // #1331 - gentle, jargon-free starting point for a family / personal collection.
+        'personal' => [
+            ['title' => 'My Family Collection (Sample)', 'level' => 'fonds', 'identifier' => 'SAMPLE-PC-001',
+                'desc' => 'A sample personal collection. Rename it to your own family or collection name, then add your photographs, documents and letters beneath it.'],
+            ['title' => 'Family Photographs (Sample)', 'level' => 'item', 'identifier' => 'SAMPLE-PC-002', 'parent' => 0, 'media' => true,
+                'desc' => 'A sample photograph with an attached image, nested under your collection.'],
+            ['title' => "Grandfather's Letter (Sample)", 'level' => 'item', 'identifier' => 'SAMPLE-PC-003', 'parent' => 0,
+                'desc' => 'A sample document within your personal collection.'],
+        ],
     ];
 
     /**

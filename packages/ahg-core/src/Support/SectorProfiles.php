@@ -63,6 +63,13 @@ final class SectorProfiles
             'mask'  => 'RES/%Y%/%04i%',
             'theme' => self::PALETTE_RESEARCH,
         ],
+        // #1331 - the personal / small-collection starting point the issue is
+        // motivated by (family archives, personal libraries, hobbyist collectors).
+        'personal' => [
+            'label' => 'Personal / family collection',
+            'mask'  => 'PC/%Y%/%04i%',
+            'theme' => self::PALETTE_PERSONAL,
+        ],
     ];
 
     // Each palette sets the coordinated theme keys the BS5 theme actually reads
@@ -114,6 +121,15 @@ final class SectorProfiles
         'ahg_card_header_bg' => '#3b3b8f', 'ahg_card_header_text' => '#ffffff',
         'ahg_button_bg' => '#3b3b8f', 'ahg_button_text' => '#ffffff',
         'ahg_sidebar_bg' => '#3b3b8f', 'ahg_sidebar_text' => '#ffffff',
+    ];
+
+    // Warm terracotta - approachable, distinct from the institutional palettes.
+    private const PALETTE_PERSONAL = [
+        'ahg_primary_color' => '#a1523a', 'ahg_secondary_color' => '#c07a5e', 'ahg_link_color' => '#b0603f',
+        'ahg_header_bg' => '#a1523a', 'ahg_header_text' => '#ffffff',
+        'ahg_card_header_bg' => '#a1523a', 'ahg_card_header_text' => '#ffffff',
+        'ahg_button_bg' => '#a1523a', 'ahg_button_text' => '#ffffff',
+        'ahg_sidebar_bg' => '#a1523a', 'ahg_sidebar_text' => '#ffffff',
     ];
 
     /** @return array<string,array{label:string,mask:string,theme:array<string,string>}> */
