@@ -105,6 +105,16 @@ class TermProtocolGate
                     ->whereIn('opx.access_condition', TermProtocolService::RESTRICTED);
             });
         }
+        // (c) records with a restricted ICIP TK/BC label applied via ahg-icip (#1406 P2)
+        if (TermProtocolService::icipLabelTablesExist()) {
+            $query->whereNotExists(function ($sub) use ($idColumn) {
+                $sub->select(DB::raw(1))
+                    ->from('icip_tk_label as ilx')
+                    ->join('icip_tk_label_type as iltx', 'iltx.id', '=', 'ilx.label_type_id')
+                    ->whereColumn('ilx.information_object_id', $idColumn)
+                    ->whereIn('iltx.default_access_condition', TermProtocolService::RESTRICTED);
+            });
+        }
 
         return $query;
     }

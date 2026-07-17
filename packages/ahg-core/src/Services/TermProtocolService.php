@@ -32,11 +32,12 @@ class TermProtocolService
     }
 
     /**
-     * The strictest condition governing a record, unioning BOTH:
+     * The strictest condition governing a record, unioning THREE sources:
      *  - protocols inherited from terms tagged on it (object_term_relation), and
-     *  - a protocol attached DIRECTLY to the object (object_protocol, #1406 P1).
-     * Resolution is "strictest wins" across the union; a direct object protocol
-     * therefore overrides a laxer inherited one (and vice versa).
+     *  - a protocol attached DIRECTLY to the object (object_protocol, #1406 P1), and
+     *  - an ICIP TK/BC label applied via ahg-icip (icip_tk_label ->
+     *    icip_tk_label_type.default_access_condition, #1406 P2).
+     * Resolution is "strictest wins" across the union; any source can raise the bar.
      */
     public static function conditionForRecord(int $objectId): string
     {
@@ -49,9 +50,48 @@ class TermProtocolService
         } catch (\Throwable $e) {
             // inherited-term protocols unavailable; fall through to direct
         }
-        $conds = array_merge($conds, self::directConditions($objectId));
+        $conds = array_merge($conds, self::directConditions($objectId), self::icipLabelConditions($objectId));
 
         return self::strictest($conds);
+    }
+
+    /**
+     * Access conditions from ICIP TK/BC labels applied to a record through the
+     * ahg-icip governance UI (#1406 P2). Joins icip_tk_label to its type to read
+     * the type's default_access_condition. Empty on any error / tables absent, so
+     * ahg-icip being uninstalled simply contributes no conditions.
+     */
+    private static function icipLabelConditions(int $objectId): array
+    {
+        try {
+            if (! self::icipLabelTablesExist()) {
+                return [];
+            }
+
+            return DB::table('icip_tk_label as il')
+                ->join('icip_tk_label_type as ilt', 'ilt.id', '=', 'il.label_type_id')
+                ->where('il.information_object_id', $objectId)
+                ->pluck('ilt.default_access_condition')->all();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /** Whether ahg-icip's applied-label tables are present (cached per request). */
+    private static ?bool $icipLabelTables = null;
+
+    public static function icipLabelTablesExist(): bool
+    {
+        if (self::$icipLabelTables === null) {
+            try {
+                self::$icipLabelTables = \Illuminate\Support\Facades\Schema::hasTable('icip_tk_label')
+                    && \Illuminate\Support\Facades\Schema::hasColumn('icip_tk_label_type', 'default_access_condition');
+            } catch (\Throwable $e) {
+                self::$icipLabelTables = false;
+            }
+        }
+
+        return self::$icipLabelTables;
     }
 
     /**
@@ -128,6 +168,17 @@ class TermProtocolService
             }
         } catch (\Throwable $e) {
             // direct set unavailable
+        }
+        try {
+            if (self::icipLabelTablesExist()) {
+                $icip = DB::table('icip_tk_label as il')
+                    ->join('icip_tk_label_type as ilt', 'ilt.id', '=', 'il.label_type_id')
+                    ->whereIn('ilt.default_access_condition', self::RESTRICTED)
+                    ->pluck('il.information_object_id')->all();
+                $ids = array_merge($ids, $icip);
+            }
+        } catch (\Throwable $e) {
+            // icip-label set unavailable
         }
 
         return collect($ids)->map('intval')->unique()->values()->all();
@@ -247,6 +298,33 @@ class TermProtocolService
                 ->where('target_type', $targetType)
                 ->where('target_id', $targetId)
                 ->get();
+        } catch (\Throwable $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * ICIP TK/BC labels applied to a record through ahg-icip (#1406 P2), shaped
+     * like a protocol row for the badge: label_family (tk|bc), label_code,
+     * access_condition (from the type's default), applied_by. Empty if ahg-icip
+     * is absent.
+     */
+    public static function icipLabelsForObject(int $objectId): \Illuminate\Support\Collection
+    {
+        try {
+            if (! self::icipLabelTablesExist()) {
+                return collect();
+            }
+
+            return DB::table('icip_tk_label as il')
+                ->join('icip_tk_label_type as ilt', 'ilt.id', '=', 'il.label_type_id')
+                ->where('il.information_object_id', $objectId)
+                ->get([
+                    DB::raw('LOWER(ilt.category) as label_family'),
+                    'ilt.code as label_code',
+                    'ilt.default_access_condition as access_condition',
+                    'il.applied_by as applied_by',
+                ]);
         } catch (\Throwable $e) {
             return collect();
         }

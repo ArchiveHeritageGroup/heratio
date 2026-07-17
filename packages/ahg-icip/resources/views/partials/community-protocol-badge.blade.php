@@ -24,6 +24,10 @@
           ->concat(
               __TPS::protocolsForRecord((int) $ioId)         // inherited from tagged terms
                   ->map(function ($r) { $r->_scope = 'term'; return $r; })
+          )
+          ->concat(
+              __TPS::icipLabelsForObject((int) $ioId)        // ICIP TK/BC labels via ahg-icip (P2)
+                  ->map(function ($r) { $r->_scope = 'icip'; return $r; })
           );
   } catch (\Throwable $e) {
       $__cpRows = collect();
@@ -57,7 +61,11 @@
             ($__fam ? "$__fam " : '')
             . ($__isNote ? __('Notice') : __('Label')) . ': '
             . ($__meta->description ?? $__cpLabel($__p->access_condition) . ' access')
-            . (($__p->_scope ?? '') === 'object' ? ' (' . __('on this item') . ')' : ' (' . __('inherited from a subject term') . ')')
+            . match ($__p->_scope ?? '') {
+                'object' => ' (' . __('on this item') . ')',
+                'icip'   => ' (' . __('applied to this item') . (($__p->applied_by ?? '') === 'community' ? ' - ' . __('by the community') : '') . ')',
+                default  => ' (' . __('inherited from a subject term') . ')',
+            }
         );
       @endphp
       <span class="badge {{ $__cpClass($__p->access_condition ?? null) }} me-1"
