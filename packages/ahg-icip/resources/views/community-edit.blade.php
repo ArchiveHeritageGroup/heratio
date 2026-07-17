@@ -187,5 +187,54 @@
       </div>
     </div>
   </form>
+
+  @if($id)
+    {{-- #1406 P2c - Community Stewards. Only a steward (or an administrator) may
+         apply/withdraw this community's labels with applied_by='community'. While
+         a community has no stewards, staff ICIP-write governs (no workflow break). --}}
+    <div class="card mt-2 mb-4">
+      <div class="card-header d-flex align-items-center">
+        <h5 class="mb-0">{{ __('Community Stewards') }}</h5>
+        <span class="badge bg-secondary ms-2">{{ $stewards->count() }}</span>
+      </div>
+      <div class="card-body">
+        <p class="small text-muted">
+          {{ __('Stewards are the actors this community authorises to apply or withdraw its own (applied_by = community) labels. Until a steward is named, staff with ICIP-write permission manage the labels.') }}
+        </p>
+
+        @if($stewards->isNotEmpty())
+          <ul class="list-group mb-3">
+            @foreach($stewards as $s)
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-person-badge me-1"></i>{{ $s->username ?? ('user #'.$s->user_id) }}
+                  @if($s->email)<span class="text-muted small">- {{ $s->email }}</span>@endif
+                </span>
+                <form method="post" action="{{ route('ahgicip.community-steward-remove') }}" class="m-0">
+                  @csrf
+                  <input type="hidden" name="community_id" value="{{ $id }}">
+                  <input type="hidden" name="steward_id" value="{{ $s->id }}">
+                  <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Remove') }}</button>
+                </form>
+              </li>
+            @endforeach
+          </ul>
+        @else
+          <p class="text-muted"><em>{{ __('No stewards named yet.') }}</em></p>
+        @endif
+
+        <form method="post" action="{{ route('ahgicip.community-steward-add') }}" class="row g-2 align-items-end">
+          @csrf
+          <input type="hidden" name="community_id" value="{{ $id }}">
+          <div class="col-md-8">
+            <label class="form-label">{{ __('Add steward') }}</label>
+            <input type="text" name="user_ident" class="form-control" placeholder="{{ __('username or email') }}" autocomplete="off">
+          </div>
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus-circle me-1"></i>{{ __('Add Steward') }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  @endif
 </div>
 @endsection

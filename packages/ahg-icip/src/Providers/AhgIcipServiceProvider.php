@@ -77,6 +77,23 @@ class AhgIcipServiceProvider extends ServiceProvider
                     INDEX idx_ala_created (created_at)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
             );
+
+            // #1406 P2c - Community Steward: the per-community actor(s) authorised to
+            // apply/withdraw THAT community's labels with applied_by='community'
+            // (#1388 Principle 4). A community with no stewards falls back to staff
+            // ICIP-write governance, so this never breaks the existing workflow.
+            DB::statement(
+                'CREATE TABLE IF NOT EXISTS icip_community_steward (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    community_id INT NOT NULL,
+                    user_id INT NOT NULL,
+                    created_by INT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE KEY uniq_steward (community_id, user_id),
+                    INDEX idx_cs_community (community_id),
+                    INDEX idx_cs_user (user_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+            );
         } catch (\Throwable $e) {
             // Don't break boot if the DB isn't reachable yet
         }

@@ -14,6 +14,8 @@ Route::prefix('admin/icip')->middleware(['web', 'auth', 'audit.icip'])->group(fu
     Route::match(['get', 'post'], '/community-edit', [\AhgIcip\Controllers\IcipController::class, 'communityEdit'])->name('ahgicip.community-edit'); // POST mutation ACL-gated in controller via requireIcipWrite() (Route::match)
     Route::get('/community-view', [\AhgIcip\Controllers\IcipController::class, 'communityView'])->name('ahgicip.community-view');
     Route::post('/community-delete', [\AhgIcip\Controllers\IcipController::class, 'communityDelete'])->name('ahgicip.community-delete')->middleware('acl:delete');
+    Route::post('/community-steward-add', [\AhgIcip\Controllers\IcipController::class, 'stewardAdd'])->name('ahgicip.community-steward-add')->middleware('acl:update');
+    Route::post('/community-steward-remove', [\AhgIcip\Controllers\IcipController::class, 'stewardRemove'])->name('ahgicip.community-steward-remove')->middleware('acl:update');
 
     // Consent
     Route::get('/consent-list', [\AhgIcip\Controllers\IcipController::class, 'consentList'])->name('ahgicip.consent-list');

@@ -183,6 +183,114 @@ class IcipController extends Controller
         }
     }
 
+    /** #1406 P2c - stewards of a community, joined to user for display. */
+    private function communityStewards(int $communityId)
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('icip_community_steward')) {
+                return collect();
+            }
+
+            return DB::table('icip_community_steward as cs')
+                ->leftJoin('user as u', 'u.id', '=', 'cs.user_id')
+                ->where('cs.community_id', $communityId)
+                ->orderBy('u.username')
+                ->get(['cs.id', 'cs.user_id', 'u.username', 'u.email']);
+        } catch (\Throwable $e) {
+            return collect();
+        }
+    }
+
+    /** #1406 P2c - does this community have any designated stewards? */
+    private function communityHasStewards(int $communityId): bool
+    {
+        try {
+            return \Illuminate\Support\Facades\Schema::hasTable('icip_community_steward')
+                && DB::table('icip_community_steward')->where('community_id', $communityId)->exists();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /** #1406 P2c - is $userId a steward of $communityId? */
+    private function isCommunitySteward(?int $userId, int $communityId): bool
+    {
+        if (! $userId) {
+            return false;
+        }
+        try {
+            return \Illuminate\Support\Facades\Schema::hasTable('icip_community_steward')
+                && DB::table('icip_community_steward')
+                    ->where('community_id', $communityId)
+                    ->where('user_id', $userId)
+                    ->exists();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * #1406 P2c - governance gate for community-authored labels (Principle 4).
+     * When a label is applied with applied_by='community' on a community that HAS
+     * designated stewards, only a steward of that community (or an administrator)
+     * may apply/withdraw it. A community with no stewards falls back to the staff
+     * ICIP-write permission already checked by requireIcipWrite() - so nothing
+     * breaks for institutions that haven't stood up community stewardship yet.
+     */
+    private function requireStewardship(string $appliedBy, ?int $communityId): void
+    {
+        if ($appliedBy !== 'community' || ! $communityId || ! $this->communityHasStewards($communityId)) {
+            return;
+        }
+        $groups = AclService::getUserGroups(auth()->id());
+        $isAdmin = in_array(\AhgCore\Models\AclGroup::ADMINISTRATOR_ID, $groups);
+        if (! $isAdmin && ! $this->isCommunitySteward(auth()->id(), $communityId)) {
+            abort(403, 'Only a steward of this community (or an administrator) may apply or withdraw its community-authored labels.');
+        }
+    }
+
+    /** #1406 P2c - add a steward to a community (POST). */
+    public function stewardAdd(Request $request)
+    {
+        $this->requireIcipWrite();
+        $communityId = (int) $request->input('community_id');
+        $ident = trim((string) $request->input('user_ident'));
+        if (! $communityId || $ident === '') {
+            return back()->with('error', 'A community and a username or email are required.');
+        }
+        $user = DB::table('user')
+            ->where('username', $ident)
+            ->orWhere('email', $ident)
+            ->when(ctype_digit($ident), fn ($q) => $q->orWhere('id', (int) $ident))
+            ->first(['id', 'username']);
+        if (! $user) {
+            return back()->with('error', 'No user found for "'.$ident.'".');
+        }
+        DB::table('icip_community_steward')->insertOrIgnore([
+            'community_id' => $communityId,
+            'user_id'      => $user->id,
+            'created_by'   => auth()->id(),
+            'created_at'   => now(),
+        ]);
+
+        return redirect()->route('ahgicip.community-edit', ['id' => $communityId])
+            ->with('notice', 'Steward '.$user->username.' added.');
+    }
+
+    /** #1406 P2c - remove a steward from a community (POST). */
+    public function stewardRemove(Request $request)
+    {
+        $this->requireIcipWrite();
+        $communityId = (int) $request->input('community_id');
+        DB::table('icip_community_steward')
+            ->where('id', (int) $request->input('steward_id'))
+            ->where('community_id', $communityId)
+            ->delete();
+
+        return redirect()->route('ahgicip.community-edit', ['id' => $communityId])
+            ->with('notice', 'Steward removed.');
+    }
+
     // ========================================
     // DASHBOARD
     // ========================================
@@ -343,6 +451,7 @@ class IcipController extends Controller
             'id' => $id,
             'community' => $community,
             'states' => self::STATE_TERRITORIES,
+            'stewards' => $id ? $this->communityStewards((int) $id) : collect(),
         ]);
     }
 
@@ -1355,6 +1464,9 @@ class IcipController extends Controller
                 $communityId = $request->input('community_id') ?: null;
                 $appliedBy = $request->input('applied_by', 'institution');
 
+                // #1406 P2c - community-authored labels are steward-governed
+                $this->requireStewardship($appliedBy, $communityId ? (int) $communityId : null);
+
                 DB::table('icip_tk_label')->insertOrIgnore([
                     'information_object_id' => $object->id,
                     'label_type_id' => $labelTypeId,
@@ -1379,6 +1491,14 @@ class IcipController extends Controller
                     ->where('id', $request->input('label_id'))
                     ->where('information_object_id', $object->id)
                     ->first();
+
+                // #1406 P2c - withdrawing a community-authored label is steward-governed too
+                if ($removed) {
+                    $this->requireStewardship(
+                        $removed->applied_by ?? 'institution',
+                        $removed->community_id ? (int) $removed->community_id : null
+                    );
+                }
 
                 DB::table('icip_tk_label')
                     ->where('id', $request->input('label_id'))
