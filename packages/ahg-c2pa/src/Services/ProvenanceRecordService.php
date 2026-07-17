@@ -307,6 +307,21 @@ final class ProvenanceRecordService
                     Log::info('c2pa: master embed skipped', ['err' => $e->getMessage()]);
                 }
             }
+
+            // #1387 - PDFs aren't a c2patool-embeddable container, so embed the
+            // credential inside the PDF ourselves (associated file). Best-effort.
+            if (preg_match('/\.pdf$/i', $assetPath)) {
+                try {
+                    $embeddedPdf = $this->c2pa->embedInPdf($assetPath, $signed);
+                    if ($embeddedPdf !== null) {
+                        Log::info('c2pa: embedded provenance manifest into PDF', [
+                            'provenance_id' => $provenanceId, 'src' => $assetPath, 'dest' => $embeddedPdf,
+                        ]);
+                    }
+                } catch (Throwable $e) {
+                    Log::info('c2pa: PDF embed skipped', ['err' => $e->getMessage()]);
+                }
+            }
         }
 
         return $this->c2pa->persist(

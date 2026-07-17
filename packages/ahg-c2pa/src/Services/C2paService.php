@@ -318,8 +318,9 @@ final class C2paService
     }
 
     /**
-     * c2patool can write a C2PA manifest into these container formats. Other
-     * extensions (PDF, raw text, glTF, ...) are sidecar-only.
+     * c2patool can write a C2PA manifest into these container formats. PDFs are
+     * embedded separately via {@see embedInPdf()} (associated file, not c2patool);
+     * other extensions (raw text, glTF, ...) remain sidecar-only.
      */
     private const EMBEDDABLE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'tif', 'tiff', 'mp4'];
 
@@ -435,6 +436,149 @@ final class C2paService
         }
 
         return $this->sidecar($signedManifest, $imagePath);
+    }
+
+    /**
+     * #1387 - embed the signed manifest INSIDE a PDF (not just a sidecar), as a
+     * C2PA-associated embedded file (/AFRelationship /C2PA_Manifest) via an
+     * append-only incremental update. The original bytes are untouched and the
+     * manifest is a standard PDF attachment (never a page-content object), so
+     * the document renders identically in every viewer; the credential simply
+     * rides inside the file and Heratio can read it back with no sidecar.
+     *
+     * Deliberately conservative - returns null (caller falls back to sidecar)
+     * for anything it cannot modify without risk: non-PDF, compressed xref
+     * stream (PDF 1.5+), encrypted, already-signed, or a non-trivial catalog.
+     * Every output is re-parsed (round-tripped) before it is accepted.
+     *
+     * @param array<string,mixed> $signedManifest signManifest() output
+     * @return string|null absolute path of the embedded PDF, or null to degrade
+     */
+    public function embedInPdf(string $srcPath, array $signedManifest, ?string $destPath = null): ?string
+    {
+        if (!is_readable($srcPath)) {
+            return null;
+        }
+        $pdf = @file_get_contents($srcPath);
+        if ($pdf === false || strncmp($pdf, '%PDF-', 5) !== 0) {
+            return null;
+        }
+
+        // --- guards: only classic-xref, unsigned, unencrypted, simple catalog ---
+        if (!preg_match_all('/startxref\s+(\d+)\s+%%EOF/s', $pdf, $sx) || empty($sx[1])) {
+            return null;
+        }
+        $prevStart = (int) end($sx[1]);
+        if (substr($pdf, $prevStart, 4) !== 'xref') {
+            return null; // cross-reference stream -> would need object-stream surgery
+        }
+        if (!preg_match('/trailer\s*<<(.*?)>>\s*startxref/s', $pdf, $tm)) {
+            return null;
+        }
+        $trailer = $tm[1];
+        if (stripos($trailer, '/Encrypt') !== false) {
+            return null;
+        }
+        if (stripos($pdf, '/Type /Sig') !== false || stripos($pdf, '/Type/Sig') !== false
+            || stripos($pdf, '/SigFlags') !== false) {
+            return null; // already digitally signed - don't disturb the signature
+        }
+        if (!preg_match('/\/Root\s+(\d+)\s+\d+\s+R/', $trailer, $rm)
+            || !preg_match('/\/Size\s+(\d+)/', $trailer, $szm)) {
+            return null;
+        }
+        $rootNum = (int) $rm[1];
+        $size = (int) $szm[1];
+
+        // Catalog object dict (must be a simple dict we can safely re-emit).
+        if (!preg_match('/(?<!\d)' . $rootNum . '\s+0\s+obj\s*<<(.*?)>>\s*endobj/s', $pdf, $cm)) {
+            return null;
+        }
+        $catInner = trim($cm[1]);
+        if ($catInner === '' || preg_match('/\/(Names|AF|Encrypt)\b/', $catInner)
+            || stripos($catInner, '/Pages') === false || strpos($catInner, '<<') !== false) {
+            return null; // nested dict / already has embedded files / truncated match -> bail
+        }
+
+        $bytes = ManifestBuilder::toCanonicalJson($signedManifest);
+        $len = strlen($bytes);
+        $efNum = $size;      // EmbeddedFile stream
+        $fsNum = $size + 1;  // Filespec
+        $newSize = $size + 2;
+
+        $dest = $destPath ?? (preg_replace('/\.pdf$/i', '.c2pa.pdf', $srcPath) ?: $srcPath . '.c2pa.pdf');
+        if ($dest === $srcPath) {
+            $dest = $srcPath . '.c2pa.pdf';
+        }
+
+        // --- append-only incremental update ---
+        $out = rtrim($pdf, "\r\n") . "\n";
+        $off = [];
+
+        $off[$efNum] = strlen($out);
+        $out .= "{$efNum} 0 obj\n<< /Type /EmbeddedFile /Subtype /application#2Fjson /Length {$len} >>\nstream\n"
+              . $bytes . "\nendstream\nendobj\n";
+
+        $off[$fsNum] = strlen($out);
+        $out .= "{$fsNum} 0 obj\n<< /Type /Filespec /F (c2pa.json) /UF (c2pa.json) /AFRelationship /C2PA_Manifest"
+              . " /Desc (C2PA Content Credential) /EF << /F {$efNum} 0 R /UF {$efNum} 0 R >> >>\nendobj\n";
+
+        $off[$rootNum] = strlen($out);
+        $out .= "{$rootNum} 0 obj\n<< {$catInner} /AF [ {$fsNum} 0 R ]"
+              . " /Names << /EmbeddedFiles << /Names [ (c2pa.json) {$fsNum} 0 R ] >> >> >>\nendobj\n";
+
+        // xref for the changed/new objects (grouped into contiguous subsections).
+        ksort($off);
+        $xrefStart = strlen($out);
+        $xref = "xref\n";
+        $nums = array_keys($off);
+        for ($i = 0; $i < count($nums); ) {
+            $start = $nums[$i];
+            $group = [$start];
+            while ($i + 1 < count($nums) && $nums[$i + 1] === $nums[$i] + 1) {
+                $group[] = $nums[++$i];
+            }
+            $i++;
+            $xref .= $start . ' ' . count($group) . "\n";
+            foreach ($group as $n) {
+                $xref .= sprintf("%010d %05d n \n", $off[$n], 0);
+            }
+        }
+        $out .= $xref
+              . "trailer\n<< /Size {$newSize} /Root {$rootNum} 0 R /Prev {$prevStart} >>\nstartxref\n{$xrefStart}\n%%EOF\n";
+
+        if (@file_put_contents($dest, $out) === false) {
+            return null;
+        }
+
+        // Round-trip: re-extract the manifest and confirm it matches, else discard.
+        $check = $this->extractC2paFromPdf($dest);
+        if ($check !== $bytes) {
+            @unlink($dest);
+            Log::warning('c2pa: PDF embed self-check failed, falling back to sidecar', ['src' => $srcPath]);
+            return null;
+        }
+
+        return $dest;
+    }
+
+    /**
+     * #1387 - read the C2PA manifest back out of a PDF's associated embedded
+     * file (the counterpart to embedInPdf). Returns the raw manifest bytes, or
+     * null if the PDF carries no embedded credential.
+     */
+    public function extractC2paFromPdf(string $pdfPath): ?string
+    {
+        $pdf = @file_get_contents($pdfPath);
+        if ($pdf === false) {
+            return null;
+        }
+        // Find the last EmbeddedFile stream (embedInPdf appends exactly one).
+        if (!preg_match_all('/\/Type\s*\/EmbeddedFile.*?stream\r?\n(.*?)\r?\nendstream/s', $pdf, $m) || empty($m[1])) {
+            return null;
+        }
+
+        return end($m[1]);
     }
 
     /**

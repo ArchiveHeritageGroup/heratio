@@ -161,7 +161,10 @@ final class VerifyObjectDownloadController extends Controller
     private function tryEmbed(int $digitalObjectId, string $srcPath): ?string
     {
         try {
-            if (!$this->c2pa->canEmbed() || !C2paService::isEmbeddableFormat($srcPath)) {
+            // #1387 - PDFs embed via the associated-file path (embedInPdf), not
+            // c2patool; other formats keep the native JUMBF embed gate.
+            $isPdf = (bool) preg_match('/\.pdf$/i', $srcPath);
+            if (!$isPdf && (!$this->c2pa->canEmbed() || !C2paService::isEmbeddableFormat($srcPath))) {
                 return null;
             }
 
@@ -173,7 +176,9 @@ final class VerifyObjectDownloadController extends Controller
             $ext  = strtolower(pathinfo($srcPath, PATHINFO_EXTENSION)) ?: 'bin';
             $dest = $this->tempPath($ext);
 
-            $out = $this->c2pa->embed($srcPath, $signed, $dest);
+            $out = $isPdf
+                ? $this->c2pa->embedInPdf($srcPath, $signed, $dest)
+                : $this->c2pa->embed($srcPath, $signed, $dest);
             if ($out === null || !is_readable($out)) {
                 // embed() logs its own reason; clean up a stale temp if any.
                 if (is_file($dest)) {

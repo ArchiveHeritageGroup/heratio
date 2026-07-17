@@ -43,6 +43,11 @@ final class WriteC2paSidecar
             if ($event->artefactPath !== null && is_readable($event->artefactPath)) {
                 if (preg_match('/\.jpe?g$/i', $event->artefactPath)) {
                     $sidecarPath = $this->c2pa->embedInJpeg($event->artefactPath, $signed);
+                } elseif (preg_match('/\.pdf$/i', $event->artefactPath)) {
+                    // #1387 - embed the credential INSIDE the PDF (associated file);
+                    // fall back to a sidecar when the PDF can't be safely modified.
+                    $embedded = $this->c2pa->embedInPdf($event->artefactPath, $signed);
+                    $sidecarPath = $embedded ?? $this->c2pa->sidecar($signed, $event->artefactPath);
                 } else {
                     $sidecarPath = $this->c2pa->sidecar($signed, $event->artefactPath);
                 }
