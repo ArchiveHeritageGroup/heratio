@@ -21140,6 +21140,35 @@ CREATE TABLE IF NOT EXISTS `portable_export` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `term_protocol` (#1388 - community access protocol on a term).
+-- Mirrors packages/ahg-term-taxonomy migration 2026_07_16_000001 so a fresh
+-- schema install / CI test DB carries it without running migrations.
+--
+
+DROP TABLE IF EXISTS `term_protocol`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `term_protocol` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `term_id` bigint unsigned NOT NULL,
+  `label_family` varchar(8) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `label_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `access_condition` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'open',
+  `owner_actor_id` bigint unsigned DEFAULT NULL,
+  `region_module` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pid` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_equivalent` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` bigint unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `term_protocol_term_id_index` (`term_id`),
+  KEY `term_protocol_owner_actor_id_index` (`owner_actor_id`),
+  KEY `term_protocol_access_condition_index` (`access_condition`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `portable_export_share_token`
 --
 

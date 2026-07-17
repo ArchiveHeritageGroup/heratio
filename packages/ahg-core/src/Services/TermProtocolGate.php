@@ -4,6 +4,7 @@ namespace AhgCore\Services;
 
 use AhgCore\Models\AclGroup;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * #1388 Phase 1.3 - the jurisdiction-neutral protocol-enforcement engine
@@ -43,7 +44,7 @@ class TermProtocolGate
      */
     public static function addTermVisibilityCriteria($query, string $idColumn = 'term.id'): mixed
     {
-        if (self::staffBypass()) {
+        if (self::staffBypass() || ! self::protocolTableExists()) {
             return $query;
         }
         $query->whereNotExists(function ($sub) use ($idColumn) {
@@ -62,7 +63,7 @@ class TermProtocolGate
      */
     public static function excludeRestrictedRecords($query, string $idColumn = 'io.id'): mixed
     {
-        if (self::staffBypass()) {
+        if (self::staffBypass() || ! self::protocolTableExists()) {
             return $query;
         }
         $query->whereNotExists(function ($sub) use ($idColumn) {
@@ -74,6 +75,27 @@ class TermProtocolGate
         });
 
         return $query;
+    }
+
+    /**
+     * Whether the term_protocol table is present. Cached per request. When it's
+     * absent (fresh install, CI schema dump that predates the migration) the
+     * query scopes no-op - no table means no protocols to enforce, and a
+     * whereNotExists against a missing table would 500 the whole page.
+     */
+    private static ?bool $protocolTable = null;
+
+    private static function protocolTableExists(): bool
+    {
+        if (self::$protocolTable === null) {
+            try {
+                self::$protocolTable = Schema::hasTable('term_protocol');
+            } catch (\Throwable $e) {
+                self::$protocolTable = false;
+            }
+        }
+
+        return self::$protocolTable;
     }
 
     private static function staffBypass(): bool
