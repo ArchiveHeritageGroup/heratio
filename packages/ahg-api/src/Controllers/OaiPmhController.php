@@ -439,7 +439,14 @@ class OaiPmhController extends Controller
         $record['dates'] = $this->dates((int) $row->id);
         $record['publisher'] = $this->publisher($row->repository_id);
         $record['subjects'] = $this->subjects((int) $row->id);
-        $record['rights'] = $this->rights((int) $row->id);
+        // #1406 P4 - surface community-protocol (TK/BC Local Contexts) obligations
+        // as dc:rights. Restricted records are already excluded from the published
+        // query, so this only annotates harvestable records with their attribution /
+        // non-commercial / notice obligations and the community's self-identified term.
+        $record['rights'] = array_values(array_filter(array_merge(
+            (array) $this->rights((int) $row->id),
+            \AhgCore\Services\CommunityProtocolSerializer::dublinCoreRights((int) $row->id)
+        )));
         $record['languages'] = null;
 
         return $record;
