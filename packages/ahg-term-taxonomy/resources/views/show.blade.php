@@ -184,19 +184,27 @@
           ];
           $cond = $tp->access_condition ?? 'open';
           $restricted = in_array($cond, ['sacred_secret', 'restricted', 'gendered', 'seasonal', 'community_voice'], true);
-          // Build the badge caption in PHP - avoids inline @if directives glued to text.
-          $badgeText = $condLabels[$cond] ?? ucfirst(str_replace('_', ' ', $cond));
-          if ($famLabel) {
-              $prefix = $famLabel.' Label'.($tp->label_code ? ' - '.$tp->label_code : '');
-              $badgeText = $prefix.' · '.$badgeText;
-          }
+          // #1388 P1.5 - prefer the canonical Local Contexts label name over the raw
+          // code when ahg-icip resolves it; fall back to "TK Label - <code>".
+          $meta = $termProtocolLabel ?? null;
+          $labelName = $meta->name ?? ($famLabel ? trim($famLabel.' Label'.($tp->label_code ? ' - '.$tp->label_code : '')) : '');
+          $condText = $condLabels[$cond] ?? ucfirst(str_replace('_', ' ', $cond));
+          $badgeText = $labelName ? $labelName.' · '.$condText : $condText;
+          $tooltip = $meta->description ?? ('Community access protocol (#1388) - Traditional Knowledge / Biocultural labelling');
+          $lcUrl = $meta->local_contexts_url ?? null;
         @endphp
         <div class="mb-3">
-          <span class="badge {{ $restricted ? 'bg-danger' : 'bg-info text-dark' }}" title="Community access protocol (#1388) - Traditional Knowledge / Biocultural labelling">
+          <span class="badge {{ $restricted ? 'bg-danger' : 'bg-info text-dark' }}" title="{{ $tooltip }}">
             <i class="fas fa-hands-helping me-1"></i>{{ $badgeText }}
           </span>
+          @if($lcUrl)
+            <a href="{{ $lcUrl }}" target="_blank" rel="noopener" class="small ms-1" title="{{ __('Local Contexts label definition') }}"><i class="fas fa-external-link-alt"></i></a>
+          @endif
           @if($tp->region_module)
             <span class="badge bg-secondary">{{ ucwords(str_replace('_', ' ', $tp->region_module)) }}</span>
+          @endif
+          @if($termProtocolOwner ?? null)
+            <span class="badge bg-light text-dark border" title="{{ __('Owning community') }}"><i class="fas fa-users me-1"></i>{{ $termProtocolOwner }}</span>
           @endif
         </div>
       @endif

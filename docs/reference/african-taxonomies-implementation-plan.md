@@ -100,8 +100,10 @@ Built and deployed to dev + prod + sasa + atom.
 - **1.6 Admin UI + badge** - term add/edit form Community-protocol fieldset; `store()` + `update()` both persist; provenance badge on the public term show page (TK/BC label + condition + region, colour-coded). *(v1.154.343-344)*
 - **1.7 Tests** - `tests/Feature/TermProtocolGateTest.php` 6/6 (restricted term/record hidden, open stays visible, editor bypass, `set()` round-trip, badge data). Made deterministic via `AclService::forgetUser()`.
 
+- **1.5 (partial)** - bound to `ahg-icip`'s canonical Local Contexts catalog (`icip_tk_label_type`): the term edit form offers a TK/BC label **dropdown** (`TermProtocolService::labelCatalog()`), the family auto-derives from the chosen code, and the term-page badge resolves the official **name + description tooltip + Local Contexts link** (`labelMeta()`) plus the **owning-community name**. *(v1.154.346)*
+
 **Remaining (Phase 1 tail / later):**
-- **1.5** full bind to `ahg-icip` `LocalContextsHubService` label metadata (banner/tooltip from `label_code`) and `OcapService` governance events - only the lightweight term-level protocol is wired so far.
+- **1.5 (rest)** - the external `LocalContextsHubService` Hub API is still a stub (live project/notice sync), and `OcapService` governance events aren't emitted on protocol change.
 - **EAD / portable / metadata *CLI* serializers** - the public OAI/RiC surfaces and the portable *bundle* fail closed; the operator-run CLI export commands need an explicit operator-vs-public gating decision (they run with an operator identity, not a guest).
 - Badge **owner-actor name** resolution (currently shows label + condition + region, not the owning community's authority-record name).
 

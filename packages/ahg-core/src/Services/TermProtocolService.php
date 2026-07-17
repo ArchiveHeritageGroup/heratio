@@ -103,6 +103,53 @@ class TermProtocolService
         ]);
     }
 
+    /**
+     * Canonical Local Contexts TK/BC label catalog (ahg-icip's icip_tk_label_type),
+     * optionally filtered to a family ('tk'|'bc'). Empty collection if ahg-icip
+     * isn't installed - the free-text code path still works without it.
+     */
+    public static function labelCatalog(?string $family = null): \Illuminate\Support\Collection
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('icip_tk_label_type')) {
+                return collect();
+            }
+            $q = DB::table('icip_tk_label_type')->where('is_active', 1);
+            if ($family) {
+                $q->where('category', strtoupper($family));
+            }
+
+            return $q->orderBy('display_order')->orderBy('name')->get();
+        } catch (\Throwable $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Resolve one label's Local Contexts metadata (name, description,
+     * local_contexts_url, icon_path) for the badge/tooltip, from ahg-icip's
+     * catalog. Case-insensitive on the stored code. Null if unknown or ahg-icip
+     * is absent - callers fall back to the raw code.
+     */
+    public static function labelMeta(?string $code): ?object
+    {
+        $code = trim((string) $code);
+        if ($code === '') {
+            return null;
+        }
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('icip_tk_label_type')) {
+                return null;
+            }
+
+            return DB::table('icip_tk_label_type')
+                ->whereRaw('LOWER(code) = ?', [strtolower($code)])
+                ->first() ?: null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
     /** The protocol row(s) on a term (label family/code, owner, pid) - for display. */
     public static function protocolsForTerm(int $termId): \Illuminate\Support\Collection
     {

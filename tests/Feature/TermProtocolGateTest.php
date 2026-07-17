@@ -164,4 +164,22 @@ class TermProtocolGateTest extends TestCase
         $this->protocol('sacred_secret');
         $this->assertContains($this->objId, S::restrictedRecordIds());
     }
+
+    public function test_label_meta_resolves_local_contexts_catalog(): void
+    {
+        if (! Schema::hasTable('icip_tk_label_type')) {
+            $this->markTestSkipped('ahg-icip catalog not present.');
+        }
+        DB::table('icip_tk_label_type')->insert([
+            'code' => 'tk_zz_test', 'category' => 'TK', 'name' => 'TK Test Label',
+            'description' => 'A test label.', 'local_contexts_url' => 'https://localcontexts.org/label/tk-test/',
+            'display_order' => 999, 'is_active' => 1,
+        ]);
+
+        $meta = S::labelMeta('TK_ZZ_TEST'); // case-insensitive
+        $this->assertNotNull($meta);
+        $this->assertSame('TK Test Label', $meta->name);
+        $this->assertTrue(S::labelCatalog('tk')->contains('code', 'tk_zz_test'));
+        $this->assertNull(S::labelMeta('nope_not_a_code'));
+    }
 }

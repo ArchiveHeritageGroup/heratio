@@ -537,7 +537,14 @@ class TermController extends Controller
             'sort' => $sort,
             'icon' => $icon,
             // #1388 P1.5 - community-protocol provenance badge (TK/BC label + owner).
-            'termProtocol' => \AhgCore\Services\TermProtocolService::protocolsForTerm((int) $term->id)->first(),
+            'termProtocol' => ($tp1388 = \AhgCore\Services\TermProtocolService::protocolsForTerm((int) $term->id)->first()),
+            // #1388 P1.5 - canonical Local Contexts label metadata (name/description/url) for the badge.
+            'termProtocolLabel' => $tp1388 ? \AhgCore\Services\TermProtocolService::labelMeta($tp1388->label_code ?? null) : null,
+            // #1388 P1.5 - owning community (authority record) name for the badge.
+            'termProtocolOwner' => ($tp1388 && ! empty($tp1388->owner_actor_id))
+                ? DB::table('actor_i18n')->where('id', (int) $tp1388->owner_actor_id)->where('culture', $culture)
+                    ->value('authorized_form_of_name')
+                : null,
         ]);
     }
 
@@ -1362,6 +1369,7 @@ class TermController extends Controller
             'converseTerm' => null,
             'relatedTerms' => '',
             'narrowerTerms' => '',
+            'labelCatalog' => \AhgCore\Services\TermProtocolService::labelCatalog(),
         ]);
     }
 
@@ -1395,10 +1403,12 @@ class TermController extends Controller
         // #1388 - persist the community protocol on create too (mirror update()).
         $newTerm = $this->termService->getBySlug($slug, $culture);
         if ($newTerm) {
+            $p1388Code = $request->input('protocol_label_code');
+            $p1388Meta = $p1388Code ? \AhgCore\Services\TermProtocolService::labelMeta($p1388Code) : null;
             \AhgCore\Services\TermProtocolService::set(
                 (int) $newTerm->id,
-                $request->input('protocol_label_family'),
-                $request->input('protocol_label_code'),
+                $p1388Meta ? strtolower($p1388Meta->category) : $request->input('protocol_label_family'),
+                $p1388Code,
                 (string) $request->input('protocol_access_condition', 'open'),
                 $request->filled('protocol_owner_actor_id') ? (int) $request->input('protocol_owner_actor_id') : null,
                 $request->input('protocol_region_module'),
@@ -1500,6 +1510,7 @@ class TermController extends Controller
         return view('ahg-term-taxonomy::edit', [
             'term' => $term,
             'termProtocol' => \AhgCore\Services\TermProtocolService::protocolsForTerm((int) $term->id)->first(),
+            'labelCatalog' => \AhgCore\Services\TermProtocolService::labelCatalog(),
             'taxonomies' => $taxonomies,
             'taxonomyName' => $taxonomyName,
             'selectedTaxonomyId' => $term->taxonomy_id,
@@ -1551,10 +1562,13 @@ class TermController extends Controller
         ], $culture);
 
         // #1388 - community protocol (TK/BC label + access condition + owner).
+        // A canonical Local Contexts code implies its family (tk/bc), so derive it.
+        $p1388Code = $request->input('protocol_label_code');
+        $p1388Meta = $p1388Code ? \AhgCore\Services\TermProtocolService::labelMeta($p1388Code) : null;
         \AhgCore\Services\TermProtocolService::set(
             (int) $term->id,
-            $request->input('protocol_label_family'),
-            $request->input('protocol_label_code'),
+            $p1388Meta ? strtolower($p1388Meta->category) : $request->input('protocol_label_family'),
+            $p1388Code,
             (string) $request->input('protocol_access_condition', 'open'),
             $request->filled('protocol_owner_actor_id') ? (int) $request->input('protocol_owner_actor_id') : null,
             $request->input('protocol_region_module'),

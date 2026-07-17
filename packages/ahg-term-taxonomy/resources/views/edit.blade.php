@@ -100,7 +100,25 @@
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small mb-1">{{ __('Label code') }}</label>
-                  <input type="text" name="protocol_label_code" class="form-control form-control-sm" value="{{ old('protocol_label_code', $tp->label_code ?? '') }}" placeholder="tk_secret">
+                  @php $plc = old('protocol_label_code', $tp->label_code ?? ''); $cat = collect($labelCatalog ?? []); @endphp
+                  @if($cat->isNotEmpty())
+                    {{-- #1388 P1.5 - canonical Local Contexts labels from ahg-icip; groups keep TK/BC apart. --}}
+                    <select name="protocol_label_code" class="form-select form-select-sm">
+                      <option value="">-</option>
+                      @foreach($cat->groupBy('category') as $group => $items)
+                        <optgroup label="{{ $group === 'TK' ? 'Traditional Knowledge (TK)' : ($group === 'BC' ? 'Biocultural (BC)' : $group) }}">
+                          @foreach($items as $lab)
+                            <option value="{{ $lab->code }}" @selected($plc === $lab->code)>{{ $lab->name }}</option>
+                          @endforeach
+                        </optgroup>
+                      @endforeach
+                      @if($plc && ! $cat->firstWhere('code', $plc))
+                        <option value="{{ $plc }}" selected>{{ $plc }} (custom)</option>
+                      @endif
+                    </select>
+                  @else
+                    <input type="text" name="protocol_label_code" class="form-control form-control-sm" value="{{ $plc }}" placeholder="tk_secret">
+                  @endif
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small mb-1">{{ __('Region module') }}</label>

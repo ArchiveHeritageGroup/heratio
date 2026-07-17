@@ -161,12 +161,12 @@ On the **term add / edit form** (`/term/<slug>/edit`) a **Community protocol** f
 | Field | Meaning |
 | --- | --- |
 | **Access condition** | How the term is disclosed - see the table below. |
-| **Label family** | `TK` (Traditional Knowledge) or `BC` (Biocultural). |
-| **Label code** | The specific label, e.g. `tk_attribution`, `tk_secret`. |
+| **Label family** | `TK` (Traditional Knowledge) or `BC` (Biocultural). Auto-derived from the label code when you pick a canonical one. |
+| **Label code** | The specific label. When the **ICIP** plugin is installed, this is a dropdown of the canonical [Local Contexts](https://localcontexts.org/labels/) TK & BC labels (TK Attribution, TK Secret/Sacred, BC Provenance, …); otherwise a free-text field. |
 | **Region module** | The community-governance region, e.g. `southern_africa`. |
-| **Owner** | The authority record (community) that owns the protocol. |
+| **Owner** | The authority record (community) that owns the protocol - shown by name on the term-page badge. |
 
-A blank family + code with an **Open** condition clears the protocol.
+A blank family + code with an **Open** condition clears the protocol. When a canonical label is chosen, the term-page badge shows the official label **name**, its **description** as a tooltip, a link to the **Local Contexts** definition, and the **owning community**.
 
 ### Access conditions
 
