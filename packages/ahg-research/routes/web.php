@@ -404,6 +404,10 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::post('/researchers/{id}/suspend', [ResearchAdminController::class, 'suspendResearcher'])->name('researchers.suspend')->where('id', '[0-9]+');
     Route::post('/researchers/{id}/verify', [ResearchAdminController::class, 'verifyResearcher'])->name('researchers.verify')->where('id', '[0-9]+');
     Route::post('/researchers/{id}/reset-password', [ResearchAdminController::class, 'resetPassword'])->name('resetPassword')->where('id', '[0-9]+');
+    // #1390 #4a - moderation review queue for offline-synced metadata suggestions
+    Route::get('/admin/metadata-suggestions', [ResearchAdminController::class, 'metadataSuggestions'])->name('admin.metadataSuggestions');
+    Route::post('/admin/metadata-suggestions/{id}/approve', [ResearchAdminController::class, 'approveMetadataSuggestion'])->name('admin.metadataSuggestions.approve')->where('id', '[0-9]+');
+    Route::post('/admin/metadata-suggestions/{id}/reject', [ResearchAdminController::class, 'rejectMetadataSuggestion'])->name('admin.metadataSuggestions.reject')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/bookings', [ResearchBookingsController::class, 'bookings'])->name('bookings');
     Route::get('/rooms', [ResearchRoomsController::class, 'rooms'])->name('rooms');
     Route::match(['get', 'post'], '/editRoom', [ResearchRoomsController::class, 'editRoom'])->name('editRoom');

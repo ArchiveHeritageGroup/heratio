@@ -89,6 +89,107 @@ class ResearchAdminController extends Controller
         ));
     }
 
+    // ---------------------------------------------------------------------
+    // #1390 #4a - moderation review queue for metadata suggestions synced
+    // back from offline / portable packages (OfflineSyncService queues them
+    // into research_metadata_suggestion with status='open').
+    // ---------------------------------------------------------------------
+
+    /** User-entered field label -> information_object_i18n column, for auto-apply on approve. */
+    private function suggestionFieldMap(): array
+    {
+        return [
+            'title' => 'title', 'alternatetitle' => 'alternate_title', 'alternativetitle' => 'alternate_title',
+            'scopeandcontent' => 'scope_and_content', 'scope' => 'scope_and_content', 'description' => 'scope_and_content',
+            'arrangement' => 'arrangement', 'archivalhistory' => 'archival_history', 'custodialhistory' => 'archival_history',
+            'extentandmedium' => 'extent_and_medium', 'extent' => 'extent_and_medium',
+            'accessconditions' => 'access_conditions', 'conditionsgoverningaccess' => 'access_conditions',
+            'physicalcharacteristics' => 'physical_characteristics', 'findingaids' => 'finding_aids',
+            'acquisition' => 'acquisition', 'appraisal' => 'appraisal', 'accruals' => 'accruals',
+        ];
+    }
+
+    /** Curator review queue for offline-synced metadata suggestions. */
+    public function metadataSuggestions(Request $request)
+    {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+        $filter = (string) $request->query('filter', 'open');
+
+        $counts = [
+            'open'     => DB::table('research_metadata_suggestion')->where('status', 'open')->count(),
+            'approved' => DB::table('research_metadata_suggestion')->where('status', 'approved')->count(),
+            'rejected' => DB::table('research_metadata_suggestion')->where('status', 'rejected')->count(),
+        ];
+
+        $q = DB::table('research_metadata_suggestion as s')
+            ->leftJoin('research_researcher as rr', 'rr.id', '=', 's.researcher_id')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 's.object_id')->where('ioi.culture', '=', 'en');
+            })
+            ->leftJoin('slug', 'slug.object_id', '=', 's.object_id')
+            ->select('s.*', 'ioi.title as record_title', 'slug.slug as record_slug',
+                'rr.first_name', 'rr.last_name');
+        if (in_array($filter, ['open', 'approved', 'rejected'], true)) {
+            $q->where('s.status', $filter);
+        }
+        $suggestions = $q->orderByDesc('s.created_at')->limit(500)->get();
+
+        return view('research::research.metadata-suggestions', array_merge(
+            $this->getSidebarData('metadataSuggestions'),
+            compact('suggestions', 'filter', 'counts')
+        ));
+    }
+
+    /** Approve: apply to the record's field when auto-mappable, then mark approved. */
+    public function approveMetadataSuggestion(Request $request, int $id)
+    {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+        $s = DB::table('research_metadata_suggestion')->where('id', $id)->first();
+        if (! $s || $s->status !== 'open') {
+            return redirect()->route('research.admin.metadataSuggestions')
+                ->with('error', 'Suggestion not found or already reviewed.');
+        }
+
+        $key = preg_replace('/[^a-z]/', '', strtolower((string) $s->field));
+        $col = $this->suggestionFieldMap()[$key] ?? null;
+        $applied = false;
+        if ($col && (int) $s->object_id > 0) {
+            DB::table('information_object_i18n')->updateOrInsert(
+                ['id' => (int) $s->object_id, 'culture' => 'en'],
+                [$col => (string) $s->suggestion]
+            );
+            $applied = true;
+        }
+
+        DB::table('research_metadata_suggestion')->where('id', $id)->update([
+            'status' => 'approved', 'reviewed_by' => Auth::id(), 'reviewed_at' => now(),
+        ]);
+
+        return redirect()->route('research.admin.metadataSuggestions')->with('success',
+            $applied
+                ? "Approved and applied to the record's \"{$s->field}\" field."
+                : "Approved. The field \"{$s->field}\" has no auto-mapping - apply it to the record manually.");
+    }
+
+    /** Reject a suggestion (no change to the record). */
+    public function rejectMetadataSuggestion(Request $request, int $id)
+    {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+        $updated = DB::table('research_metadata_suggestion')->where('id', $id)->where('status', 'open')->update([
+            'status' => 'rejected', 'reviewed_by' => Auth::id(), 'reviewed_at' => now(),
+        ]);
+
+        return redirect()->route('research.admin.metadataSuggestions')->with(
+            $updated ? 'success' : 'error',
+            $updated ? 'Suggestion rejected.' : 'Suggestion not found or already reviewed.');
+    }
+
     public function viewResearcher(Request $request, int $id)
     {
         if (!Auth::check()) return redirect()->route('login');

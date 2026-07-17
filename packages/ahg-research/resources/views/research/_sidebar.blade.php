@@ -230,6 +230,10 @@
        class="list-group-item list-group-item-action {{ $active === 'retrievalQueue' ? 'active' : '' }}">
         <i class="fas fa-dolly me-2"></i>{{ __('Retrieval Queue') }}
     </a>
+    <a href="{{ route('research.admin.metadataSuggestions') }}"
+       class="list-group-item list-group-item-action {{ $active === 'metadataSuggestions' ? 'active' : '' }}">
+        <i class="fas fa-comment-dots me-2"></i>{{ __('Metadata Suggestions') }}
+    </a>
     <a href="{{ route('research.walkIn') }}"
        class="list-group-item list-group-item-action {{ $active === 'walkIn' ? 'active' : '' }}">
         <i class="fas fa-walking me-2"></i>{{ __('Walk-In Visitors') }}
