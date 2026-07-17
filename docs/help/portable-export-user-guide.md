@@ -64,6 +64,20 @@ Why it matters:
 
 > Rule of thumb: **OCFL/BagIt is what you preserve; the portable package is what you hand someone so the collection can never be locked away behind a dead server.**
 
+### Rebuilding with no Heratio present (standalone generator)
+
+The in-app export builds the package while Heratio is running. For the ultimate rescue case - the whole Heratio stack is gone and only the preserved AIP survives - a **standalone generator** can rebuild an equivalent offline viewer from an **OCFL object** or a **flat CSV**, using nothing but **Python 3** (standard library only; no Heratio, no server, no network):
+
+```sh
+# from an OCFL object root (reads inventory.json, extracts the latest version):
+python3 packages/ahg-portable-export/standalone/heratio-portable-gen.py --ocfl ./object --out ./bundle
+
+# from a CSV export (+ optional folder of digital-object files):
+python3 packages/ahg-portable-export/standalone/heratio-portable-gen.py --csv descriptions.csv --assets ./files --out ./bundle
+```
+
+It emits the same self-contained `index.html` (data inlined, opens by double-click) plus `SHA256SUMS` + `verify.sh`. This closes the reconstructability loop: a collection preserved as OCFL can be turned back into a browsable, searchable archive by anyone, indefinitely, with zero Heratio dependency. See `packages/ahg-portable-export/standalone/README.md`.
+
 ---
 
 ## Key Features
