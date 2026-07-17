@@ -606,6 +606,16 @@ TXT;
             )
             ->orderBy('io.lft')
             ->get();
+        // #1406 P4 - embed each record's Local Contexts community-protocol block
+        // (TK/BC labels, self-identified community, no_equivalent) into the offline
+        // bundle. Restricted records are already excluded from $ioIds upstream, so
+        // this annotates only the exported (non-restricting-label) records.
+        $ios->each(function ($io) {
+            $lc = \AhgCore\Services\CommunityProtocolSerializer::toJsonLd((int) $io->id);
+            if ($lc !== null) {
+                $io->community_protocols = $lc;
+            }
+        });
         file_put_contents($workDir.'/data/ios.json', json_encode($ios, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['descriptions'] = $ios->count();
 

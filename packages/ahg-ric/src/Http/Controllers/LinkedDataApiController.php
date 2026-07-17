@@ -248,6 +248,15 @@ class LinkedDataApiController extends Controller
         $ric = $this->serializer->serializeRecord($io->id);
         $ric = $this->serializer->addIscapCompliance($ric, $io->id, 'information_object');
 
+        // #1406 P4 - embed the Local Contexts community-protocol block (TK/BC
+        // labels, self-identified community, no_equivalent) into the RiC JSON-LD.
+        // Guests were already 404'd on restricted records above; staff who can see
+        // a restricted record get its protocol metadata here.
+        $lc = \AhgCore\Services\CommunityProtocolSerializer::toJsonLd((int) $io->id);
+        if ($lc !== null) {
+            $ric['lc:communityProtocols'] = $lc;
+        }
+
         return response()->json($ric, 200, [
             'Content-Type' => 'application/ld+json',
         ]);
