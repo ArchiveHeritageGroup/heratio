@@ -34,10 +34,17 @@ Heratio is one of the few actively developed GLAM platforms built on Laravel, an
 - Universities managing special collections, institutional archives, and research data together
 - Organisations migrating from legacy archival software that want a modern, RiC-native, self-hostable platform
 
+## Deployment editions
+
+Heratio ships in two editions, so adopting it does not require leaving AtoM:
+- Heratio (standalone): the pure Laravel 12 platform on its own stack, for new deployments or after migrating off AtoM.
+- AtoM / Heratio (overlay): Heratio's Laravel modules run alongside an existing AtoM (Symfony) installation, over the same AtoM database. The original AtoM stays intact and fully functional, and the overlay is fully reversible (uninstall returns you to stock AtoM). This lets an existing AtoM site add Records in Contexts, digital asset management, museum and Spectrum-capable workflows, AI-assisted description, and digital preservation with no data migration and no lock-in.
+
 ## Deployment
 
 - Open source under AGPL-3.0-or-later; source at https://github.com/ArchiveHeritageGroup/heratio
 - Self-hostable (PHP 8.3, Laravel 12, MySQL 8, Elasticsearch 8) or available as a hosted service from The AHG
+- AtoM / Heratio overlay runs on your existing AtoM's Symfony stack plus Heratio's Laravel modules
 - Docker stack available for evaluation
 
 ## Links

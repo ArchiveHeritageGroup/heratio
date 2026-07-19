@@ -39,6 +39,7 @@
         "Research portal: bookings, reproductions, ODRL rights, API keys",
         "AI-assisted HTR, NER, condition assessment and metadata suggestion",
         "Spectrum-capable museum collections management (supports the Spectrum 5.1 procedures)",
+        "Runs standalone (Laravel) or as a fully reversible overlay alongside an existing AtoM installation",
         "REST API v1 and v2",
         "Elasticsearch-powered search and discovery"
       ],
@@ -128,11 +129,19 @@
 
     <p class="lede">AtoM (Access to Memory) is one of the most widely used open-source archival description systems in the world. Heratio is a newer, Laravel-based platform that covers the same archival ground and extends it to museum collections, digital asset management, digital preservation, and Records in Contexts. This page compares the two honestly, including where AtoM remains the better choice.</p>
 
-    <p>Both are open source under AGPL-3.0 and both are self-hostable, so licensing cost is not a point of difference. The real differences are the technology stack, the breadth of functionality, and how actively each is evolving.</p>
+    <p>Both are open source under AGPL-3.0 and both are self-hostable, so licensing cost is not a point of difference. The real differences are the technology stack, the breadth of functionality, and how actively each is evolving. And, importantly, adopting Heratio need not mean leaving AtoM at all - see the two deployment editions below.</p>
 
     <blockquote class="callout">
         <p><strong>Considering a move from AtoM?</strong> <a href="/migration/assessment">Book a free AtoM migration assessment</a> - we will review your AtoM instance, map the migration, and show you the result in Heratio, with no obligation.</p>
     </blockquote>
+
+    <h2>You do not have to choose: two ways to adopt Heratio</h2>
+    <p>Heratio ships in two deployment editions, so moving to Heratio is not necessarily a migration decision at all:</p>
+    <ul>
+        <li><strong>Heratio (standalone)</strong> - the pure <strong>Laravel 12</strong> platform on its own stack. Best for new deployments, or once you have migrated off AtoM. This is the edition compared in the table below.</li>
+        <li><strong>AtoM / Heratio (overlay)</strong> - Heratio's <strong>Laravel</strong> modules run <strong>alongside your existing AtoM</strong> (Symfony) installation, over the same AtoM database. Your original AtoM stays intact and fully functional, and the overlay is <strong>fully reversible</strong>: remove it and you are back to stock AtoM. So an existing AtoM site can add Heratio's modern capabilities - Records in Contexts, digital asset management, museum and Spectrum-capable workflows, AI-assisted description, and digital preservation - with <strong>no data migration and no lock-in</strong>.</li>
+    </ul>
+    <p>The practical upshot: keep AtoM and augment it reversibly with the AtoM / Heratio overlay, or adopt the standalone Laravel platform outright. Many sites start with the overlay to evaluate Heratio on their live collection, then move to standalone later if and when it suits them.</p>
 
     <h2>At a glance</h2>
     <div class="table-scroll">
@@ -149,6 +158,7 @@
                 <tr><td>Database / search</td><td>MySQL 8, Elasticsearch 8</td><td>MySQL, Elasticsearch</td></tr>
                 <tr><td>Licence</td><td>AGPL-3.0</td><td>AGPL-3.0</td></tr>
                 <tr><td>Self-hostable</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td>Deployment</td><td>Standalone (Laravel), or reversible overlay alongside AtoM (Symfony + Laravel)</td><td>Standalone</td></tr>
                 <tr><td>Archival description</td><td>ISAD(G), ISAAR(CPF), ISDIAH</td><td>ISAD(G), RAD, DACS, ISAAR(CPF), ISDIAH, Dublin Core</td></tr>
                 <tr><td>EAD / EAC export</td><td>EAD 2002, EAD3, and EAC-CPF serialization</td><td>EAD 2002 and EAC-CPF export</td></tr>
                 <tr><td>EAD / EAC import</td><td>Native EAD 2002 and EAD3 XML import, round-trip safe (preview + commit)</td><td>Mature EAD 2002 and EAC-CPF import</td></tr>
@@ -191,7 +201,7 @@
     </ul>
 
     <h2>Migrating from AtoM to Heratio</h2>
-    <p>Heratio imports native EAD 2002 and EAD3 finding aids directly (with a preview step before commit), alongside CSV and authority-record import. A typical migration preserves your ISAD(G) hierarchy, authority (ISAAR) and repository (ISDIAH) records, and digital object links, and can layer a RiC contextual view over the migrated data. Round-trip is safe across the core ISAD(G) fields (title, identifier, scope and content, extent and medium, archival history, acquisition, access and reproduction conditions, arrangement, appraisal).</p>
+    <p>Migration is only one path - the AtoM / Heratio overlay above lets you adopt Heratio with no migration at all. If you do choose to migrate to the standalone platform, Heratio imports native EAD 2002 and EAD3 finding aids directly (with a preview step before commit), alongside CSV and authority-record import. A typical migration preserves your ISAD(G) hierarchy, authority (ISAAR) and repository (ISDIAH) records, and digital object links, and can layer a RiC contextual view over the migrated data. Round-trip is safe across the core ISAD(G) fields (title, identifier, scope and content, extent and medium, archival history, acquisition, access and reproduction conditions, arrangement, appraisal).</p>
 
     <h2>Frequently asked questions</h2>
 
@@ -207,8 +217,11 @@
     <h3>Does Heratio support Records in Contexts (RiC)?</h3>
     <p>Yes, natively. RiC and RiC-O are first-class in Heratio, backed by the OpenRiC ecosystem. AtoM does not provide native RiC today.</p>
 
+    <h3>Can I add Heratio without leaving AtoM?</h3>
+    <p>Yes. The AtoM / Heratio overlay edition runs Heratio's Laravel modules alongside your existing AtoM (Symfony) installation, over the same database. The original AtoM stays fully functional and the overlay is fully reversible, so you can add Records in Contexts, DAM, museum and AI capabilities with no migration and no lock-in, and remove it cleanly if you choose. It is the lowest-risk way to evaluate Heratio on your live collection.</p>
+
     <h3>Should I stay on AtoM?</h3>
-    <p>If you need AtoM's multilingual depth, native Archivematica integration, or its very large community, and your remit is archival description only, AtoM remains a strong choice. If you want a current stack, native RiC, and museum/DAM/preservation in one platform, Heratio is the stronger fit.</p>
+    <p>You can have both. Keep AtoM and add the AtoM / Heratio overlay reversibly, or move to the standalone Laravel platform. AtoM remains a strong standalone choice if you need its multilingual depth, native Archivematica integration, or very large community and your remit is archival description only. If you want a current stack, native RiC, and museum/DAM/preservation in one platform, Heratio is the stronger fit - and the overlay lets you get there without a leap.</p>
 
     <div class="cta-block">
         <h2>Ready to compare on your own data?</h2>
