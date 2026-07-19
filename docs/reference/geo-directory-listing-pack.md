@@ -8,7 +8,7 @@
 
 - Product name: **Heratio**
 - Vendor / publisher: **The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)**
-- Developer / IP owner: **Plain Sailing iSystems**
+- Developer / IP owner: **Plain Sailing Information Systems**
 - Website: **https://heratio.org**
 - Source code: **https://github.com/ArchiveHeritageGroup/heratio**
 - Docs / help: **https://heratio.org/help**

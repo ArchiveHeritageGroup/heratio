@@ -14,7 +14,7 @@ Three domains, three distinct roles (kept separate to avoid keyword cannibalizat
 
 - **heratio.org** - the product. Canonical home for all product SEO + GEO. International `.org` (matches OSS peers accesstomemory.org, archivesspace.org, collectiveaccess.org, omeka.org). Owns category/competitor terms.
 - **theahg.co.za** - The Archive and Heritage Digital Commons Group (The AHG): the publisher/vendor Organization and the archive/heritage services brand (digitisation, management, consulting, hosting). `.co.za` geo-signal is correct for its SA/SADC services market.
-- **plainsailingisystems.co.za** - Plain Sailing iSystems: the software house and copyright/IP holder (the creator entity).
+- **plainsailingisystems.co.za** - Plain Sailing Information Systems: the software house and copyright/IP holder (the creator entity).
 
 SEO vs GEO in this context: SEO wins a ranking when someone searches Google/Bing; GEO wins a mention when someone asks an LLM (ChatGPT/Claude/Perplexity/Google AI Overviews). GEO is the higher-leverage half because buyers increasingly start at the AI.
 
@@ -56,7 +56,7 @@ The comparison page and llms.txt lead with two ways to adopt Heratio, which refr
 
 ## Brand entity graph (SEO/GEO)
 
-JSON-LD on heratio.org links the three domains: Heratio (product) has `publisher`/`author` = The AHG and `creator`/`copyrightHolder` = Plain Sailing iSystems, each as its own Organization node keyed by its own domain URL. Marketing pages carry visible footer cross-links to theahg.co.za, plainsailingisystems.co.za, and openric.org. Reciprocal Organization JSON-LD + links (reusing the same `@id` URIs) are to be added on theahg.co.za and plainsailingisystems.co.za to complete the bidirectional graph.
+JSON-LD on heratio.org links the three domains: Heratio (product) has `publisher`/`author` = The AHG and `creator`/`copyrightHolder` = Plain Sailing Information Systems, each as its own Organization node keyed by its own domain URL. Marketing pages carry visible footer cross-links to theahg.co.za, plainsailingisystems.co.za, and openric.org. Reciprocal Organization JSON-LD + links (reusing the same `@id` URIs) are to be added on theahg.co.za and plainsailingisystems.co.za to complete the bidirectional graph.
 
 ## Positioning notes
 

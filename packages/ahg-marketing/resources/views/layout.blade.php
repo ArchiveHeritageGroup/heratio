@@ -194,10 +194,10 @@
     <footer class="site">
         <div class="wrap">
             <p>Heratio is published by <a href="https://theahg.co.za">The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)</a>,
-            with software by <a href="https://plainsailingisystems.co.za">Plain Sailing iSystems</a>.
+            with software by <a href="https://plainsailingisystems.co.za">Plain Sailing Information Systems</a>.
             Records in Contexts ecosystem: <a href="https://openric.org">OpenRiC</a>.</p>
             <p>Open source under AGPL-3.0. <a href="https://github.com/ArchiveHeritageGroup/heratio">Source on GitHub</a>.
-            &copy; {{ date('Y') }} Plain Sailing iSystems.</p>
+            &copy; {{ date('Y') }} Plain Sailing Information Systems.</p>
         </div>
     </footer>
 </body>

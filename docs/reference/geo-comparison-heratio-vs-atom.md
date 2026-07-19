@@ -60,7 +60,7 @@ owner action). Decision rationale:
   parked for sale at ~USD 4,888. Decision: do NOT buy it. heratio.org registers for ~USD 12/yr
   and is a better brand fit for an open-source archival product. Revisit .com only if the
   product gains traction and the price becomes trivial.
-- Brand split: Plain Sailing iSystems = software/IP owner; The AHG = publisher/services/hosting;
+- Brand split: Plain Sailing Information Systems = software/IP owner; The AHG = publisher/services/hosting;
   Heratio = the product on heratio.org.
 
 ## Conversion CTA (decided 2026-07-19)

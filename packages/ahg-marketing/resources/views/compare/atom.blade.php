@@ -69,7 +69,7 @@
     {
       "@type": "Organization",
       "@id": "https://plainsailingisystems.co.za/#organization",
-      "name": "Plain Sailing iSystems",
+      "name": "Plain Sailing Information Systems",
       "url": "https://plainsailingisystems.co.za",
       "description": "Software house and copyright holder behind Heratio."
     },
