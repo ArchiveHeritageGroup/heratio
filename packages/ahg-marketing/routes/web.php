@@ -20,4 +20,24 @@ Route::middleware(['web'])->group(function () {
 
     Route::post('/migration/assessment', [MigrationLeadController::class, 'submit'])
         ->name('marketing.migration.assessment.submit');
+
+    // Self-contained sitemap for the marketing pages (submit alongside /sitemap.xml
+    // in Search Console). The ".xml" suffix keeps it clear of the /{slug} catch-all
+    // (which only matches [a-z0-9-]+, no dot). URLs are built with url() so they are
+    // correct on any host (canonical heratio.org in production).
+    Route::get('/sitemap-marketing.xml', function () {
+        $urls = [
+            ['loc' => url('/compare/atom'),         'priority' => '0.9', 'changefreq' => 'monthly'],
+            ['loc' => url('/migration/assessment'), 'priority' => '0.7', 'changefreq' => 'monthly'],
+        ];
+        $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        foreach ($urls as $u) {
+            $xml .= '  <url><loc>' . htmlspecialchars($u['loc'], ENT_XML1)
+                 . '</loc><changefreq>' . $u['changefreq']
+                 . '</changefreq><priority>' . $u['priority'] . '</priority></url>' . "\n";
+        }
+        $xml .= '</urlset>';
+        return response($xml, 200)->header('Content-Type', 'application/xml');
+    })->name('marketing.sitemap');
 });
