@@ -67,7 +67,7 @@
       {{-- Right: Copyright & utility --}}
       <div class="col-md-4 text-md-end">
         <div class="small">
-          &copy; {{ $ftCopyrightStart }}{!! $ftCopyrightStart != date('Y') ? '&ndash;' . date('Y') : '' !!} {{ $ftOrgName }}. All rights reserved.
+          &copy; {{ $ftCopyrightStart }}{!! $ftCopyrightStart != date('Y') ? '-' . date('Y') : '' !!} {{ $ftOrgName }}. All rights reserved.
         </div>
 
         @if($ftUtilityLinks)
