@@ -193,8 +193,11 @@
 
     <footer class="site">
         <div class="wrap">
-            <p>Heratio is developed by The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG).
-            Open source under AGPL-3.0. <a href="https://github.com/ArchiveHeritageGroup/heratio">Source on GitHub</a>.</p>
+            <p>Heratio is published by <a href="https://theahg.co.za">The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)</a>,
+            with software by <a href="https://plainsailingisystems.co.za">Plain Sailing iSystems</a>.
+            Records in Contexts ecosystem: <a href="https://openric.org">OpenRiC</a>.</p>
+            <p>Open source under AGPL-3.0. <a href="https://github.com/ArchiveHeritageGroup/heratio">Source on GitHub</a>.
+            &copy; {{ date('Y') }} Plain Sailing iSystems.</p>
         </div>
     </footer>
 </body>

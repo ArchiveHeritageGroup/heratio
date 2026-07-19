@@ -50,7 +50,9 @@
         "description": "Open source under AGPL-3.0; self-hostable at no licence cost. Hosted and support plans available from The AHG."
       },
       "author": { "@id": "https://theahg.co.za/#organization" },
-      "publisher": { "@id": "https://theahg.co.za/#organization" }
+      "publisher": { "@id": "https://theahg.co.za/#organization" },
+      "creator": { "@id": "https://plainsailingisystems.co.za/#organization" },
+      "copyrightHolder": { "@id": "https://plainsailingisystems.co.za/#organization" }
     },
     {
       "@type": "Organization",
@@ -62,7 +64,14 @@
         "https://github.com/ArchiveHeritageGroup",
         "https://openric.org"
       ],
-      "description": "Developer of Heratio, an open-source GLAM and archival management platform, and steward of the OpenRiC ecosystem."
+      "description": "Publisher of Heratio, an open-source GLAM and archival management platform, and steward of the OpenRiC ecosystem. Provides archive and heritage digitisation, management, and consulting services."
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://plainsailingisystems.co.za/#organization",
+      "name": "Plain Sailing iSystems",
+      "url": "https://plainsailingisystems.co.za",
+      "description": "Software house and copyright holder behind Heratio."
     },
     {
       "@type": "FAQPage",
