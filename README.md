@@ -1,6 +1,8 @@
 # Heratio
 
-**The operational GLAM, archival, DAM, and records management platform with RiC as a first-class capability.**
+**Open-source GLAM platform on Laravel 12 - archival description, museum collections, digital asset management, and records management in one system, with Records in Contexts (RiC) as a first-class capability.**
+
+A modern, self-hostable alternative to legacy archival and museum software such as AtoM and ArchivesSpace, built for the international GLAM market.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![PHP](https://img.shields.io/badge/PHP-8.3-purple)](https://php.net)
@@ -10,9 +12,11 @@
 
 ## Overview
 
-Heratio is a pure Laravel 12 application designed and developed by **[The Archive and Heritage Group (Pty) Ltd](https://www.theahg.co.za)**. It is the operational platform for AI-assisted archival records management, digital asset management, and GLAM workflows.
+Heratio is a pure Laravel 12 application designed and developed by **[The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)](https://www.theahg.co.za)**. It unifies archival description, museum collections management, digital asset management, digital preservation, and records management on a single standards-based stack (PHP 8.3, MySQL 8, Elasticsearch 8).
 
-Heratio connects directly to an archival MySQL database using Laravel's Eloquent ORM and operates as an independent application stack. It addresses a critical challenge in public sector archives: transforming large volumes of unmanaged, unstructured content into governed, accessible, and legislatively-compliant archival holdings.
+Heratio supports galleries, libraries, archives, and museums of any size, and universities managing special collections, institutional archives, and research data together. It is built for the international GLAM market: the core is jurisdiction-neutral, and country-specific compliance (for example GRAP 103, POPIA, GDPR, IPSAS) ships as pluggable per-market modules rather than baked into the core.
+
+Supported standards include ISAD(G), ISAAR(CPF), ISDIAH, Records in Contexts (RiC and RiC-O), and Dublin Core, with the OAIS / PREMIS / OCFL / BagIt preservation stack and IIIF deep-zoom image delivery. Museum collections management is Spectrum-capable, supporting the Spectrum 5.1 procedures.
 
 **RiC (Records in Contexts)** is a first-class capability within Heratio - not a hidden add-on. Every major entity page supports both a traditional archival view and a RiC contextual view over the same data, permissions, and identifiers.
 
