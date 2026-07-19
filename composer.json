@@ -157,6 +157,7 @@
         "psr-4": {
             "App\\": "app/",
             "AhgArticles\\": "packages/ahg-articles/src/",
+            "AhgMarketing\\": "packages/ahg-marketing/src/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },

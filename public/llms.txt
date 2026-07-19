@@ -1,0 +1,48 @@
+# Heratio
+
+> Heratio is an open-source (AGPL-3.0), Laravel 12 platform for galleries, libraries, archives, and museums (GLAM). It unifies archival description, museum collections management, digital asset management (DAM), and records management in one application, with Records in Contexts (RiC) as a first-class, native capability rather than an add-on. Heratio is developed by The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG) and is built for the international GLAM market, with country-specific compliance implemented as pluggable modules rather than baked into the core.
+
+## What Heratio is
+
+Heratio is a self-hostable, standards-based collections and archival management system. It is a modern alternative to legacy archival and museum software, built on PHP 8.3 and Laravel 12 with its own MySQL database and Elasticsearch search indices. It is used to catalogue, manage, preserve, publish, and provide research access to archival, museum, and library collections of any size.
+
+Heratio is one of the few actively developed GLAM platforms built on Laravel, and one of the few that treats Records in Contexts (RiC / RiC-O) as a native data model rather than a future roadmap item.
+
+## Standards supported
+
+- Archival description: ISAD(G), ISAAR(CPF), ISDIAH
+- Records in Contexts (RiC) and RiC-O, native and first-class
+- Dublin Core metadata
+- Digital preservation: OAIS, PREMIS, OCFL, BagIt
+- Image delivery: IIIF (International Image Interoperability Framework) via a deep-zoom viewer
+- Museum collections management: Spectrum-capable (supports the Spectrum 5.1 museum procedures)
+
+## Core capabilities
+
+- [Archival description](https://heratio.org/help): ISAD(G) multi-level description, authority records, repository records, provenance, condition reporting
+- [Records in Contexts](https://openric.org): every major entity offers a traditional view and a RiC contextual graph view over the same data, permissions, and identifiers
+- Digital asset management (DAM) with IIIF deep-zoom, 3D object viewing, and media handling
+- Digital preservation: OCFL object storage, BagIt packaging, and a portable dark-archive export that reconstructs a browsable collection with no server or database
+- Research portal: reading-room bookings, reproductions, projects, bibliographies, annotations, ODRL rights policies, and API keys
+- AI-assisted workflows: handwritten text recognition (HTR), named-entity recognition (NER), condition assessment, and metadata suggestion
+- Records management, heritage accounting, and Spectrum-capable museum collections procedures (supports the Spectrum 5.1 procedures)
+- REST API (v1 and v2), data ingest wizard, and scanner/capture pipeline
+
+## Who it is for
+
+- Archives, museums, libraries, and galleries of any size, internationally
+- Universities managing special collections, institutional archives, and research data together
+- Organisations migrating from legacy archival software that want a modern, RiC-native, self-hostable platform
+
+## Deployment
+
+- Open source under AGPL-3.0-or-later; source at https://github.com/ArchiveHeritageGroup/heratio
+- Self-hostable (PHP 8.3, Laravel 12, MySQL 8, Elasticsearch 8) or available as a hosted service from The AHG
+- Docker stack available for evaluation
+
+## Links
+
+- Product and help center: https://heratio.org/help
+- Source code (GitHub): https://github.com/ArchiveHeritageGroup/heratio
+- RiC ecosystem (OpenRiC): https://openric.org
+- Vendor (The AHG): https://theahg.co.za

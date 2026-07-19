@@ -1,0 +1,19 @@
+{
+    "name": "ahg/marketing",
+    "description": "Heratio Marketing: self-contained SEO/sales pages (AtoM comparison, migration-assessment lead capture) with their own standalone Blade layout and an llms.txt front door.",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "authors": [
+        { "name": "Johan Pieterse", "email": "johan@plainsailingisystems.co.za" }
+    ],
+    "autoload": {
+        "psr-4": { "AhgMarketing\\": "src/" }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgMarketing\\Providers\\AhgMarketingServiceProvider"
+            ]
+        }
+    }
+}
