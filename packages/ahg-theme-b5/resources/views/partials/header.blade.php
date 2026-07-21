@@ -73,7 +73,7 @@
           {{-- Articles / Blog (demo site only) --}}
           @php
             $blogEnabled = (config('heratio.homepage_mode')
-                ?: (request()->getHost() === 'heratio.theahg.co.za' ? 'marketing' : 'institutional')) === 'marketing';
+                ?: (in_array(request()->getHost(), ['heratio.org', 'www.heratio.org', 'heratio.theahg.co.za'], true) ? 'marketing' : 'institutional')) === 'marketing';
           @endphp
           @if($blogEnabled)
             <li class="nav-item d-flex flex-column">

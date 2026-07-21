@@ -51,7 +51,7 @@
     {{-- Articles / Blog (demo site only) --}}
     @php
       $blogEnabled = (config('heratio.homepage_mode')
-          ?: (request()->getHost() === 'heratio.theahg.co.za' ? 'marketing' : 'institutional')) === 'marketing';
+          ?: (in_array(request()->getHost(), ['heratio.org', 'www.heratio.org', 'heratio.theahg.co.za'], true) ? 'marketing' : 'institutional')) === 'marketing';
     @endphp
     @if($blogEnabled)
       <li><a class="dropdown-item" href="{{ route('admin.articles.index') }}"><i class="fas fa-newspaper me-2"></i>{{ __('Articles / Blog') }}</a></li>
