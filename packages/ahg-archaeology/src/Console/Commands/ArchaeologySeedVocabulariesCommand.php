@@ -41,7 +41,8 @@ use Illuminate\Support\Facades\Schema;
 class ArchaeologySeedVocabulariesCommand extends Command
 {
     protected $signature = 'ahg:archaeology-seed-vocabularies
-                            {--dry-run : Report what would be created without writing}';
+                            {--dry-run : Report what would be created without writing}
+                            {--repair-tree : Only rebuild nested-set and closure entries for existing terms}';
 
     protected $description = 'Seed archaeology vocabularies (period, material, method, object type) as taxonomy terms';
 
@@ -148,6 +149,15 @@ class ArchaeologySeedVocabulariesCommand extends Command
             }
         }
 
+        if ($this->option('repair-tree')) {
+            $fixed = $this->repairTree();
+            $this->info($fixed > 0
+                ? "Placed {$fixed} terms in the nested set and closure tree."
+                : 'Nothing to repair - every term already has lft/rgt and a closure entry.');
+
+            return self::SUCCESS;
+        }
+
         $culture = 'en';
         $newTaxonomies = 0;
         $newTerms = 0;
@@ -207,16 +217,92 @@ class ArchaeologySeedVocabulariesCommand extends Command
             return self::SUCCESS;
         }
 
+        // Terms are inserted without lft/rgt above and placed in one batch here,
+        // rather than shifting the whole tree once per term.
+        $placed = $this->repairTree();
+        if ($placed > 0) {
+            $this->line("  placed {$placed} terms in the nested set and closure tree");
+        }
+
         $this->newLine();
         $this->warn('Review these terms for a community protocol (term_protocol / TK Labels):');
         foreach (self::PROTOCOL_REVIEW as $term) {
             $this->line('  - '.$term);
         }
         $this->comment('Assigning a label is a community decision, so none was applied automatically.');
-        $this->newLine();
-        $this->comment('New terms have no lft/rgt; run the nested-set rebuild before relying on term browse ordering.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Place this module's terms in the nested set and the closure tree.
+     *
+     * A term needs both: `term.lft` still drives ordering in places
+     * (DamService, genre access points), and #1333 added `term_closure`
+     * alongside it as a dual-write. A term with neither sorts unpredictably and
+     * is invisible to closure-based ancestor queries.
+     *
+     * Terms are appended as children of the term root in one contiguous block,
+     * so the tree is shifted once rather than once per term.
+     *
+     * @return int number of terms placed
+     */
+    private function repairTree(): int
+    {
+        $culture = 'en';
+
+        $ids = DB::table('term')
+            ->join('taxonomy_i18n', function ($j) use ($culture) {
+                $j->on('taxonomy_i18n.id', '=', 'term.taxonomy_id')
+                  ->where('taxonomy_i18n.culture', '=', $culture);
+            })
+            ->whereIn('taxonomy_i18n.name', array_keys(self::VOCABULARIES))
+            ->whereNull('term.lft')
+            ->orderBy('term.id')
+            ->pluck('term.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $count = count($ids);
+
+        DB::transaction(function () use ($ids, $count) {
+            $root = DB::table('term')->where('id', self::TERM_ROOT_ID)->first(['lft', 'rgt']);
+            if (! $root || $root->rgt === null) {
+                // No usable root nested set; leave lft/rgt alone rather than
+                // invent values that would corrupt the tree.
+                return;
+            }
+
+            $insertAt = (int) $root->rgt;
+            $width = 2 * $count;
+
+            // Open a gap at the root's right edge for the whole block.
+            DB::table('term')->where('rgt', '>=', $insertAt)->increment('rgt', $width);
+            DB::table('term')->where('lft', '>', $insertAt)->increment('lft', $width);
+
+            foreach ($ids as $i => $id) {
+                $lft = $insertAt + (2 * $i);
+                DB::table('term')->where('id', $id)->update([
+                    'lft' => $lft,
+                    'rgt' => $lft + 1,
+                ]);
+            }
+        });
+
+        // Closure is maintained by the shared service so this module does not
+        // encode the table's shape. addNode() is idempotent.
+        if (class_exists(\AhgCore\Services\ClosureMaintenanceService::class)) {
+            $closure = app(\AhgCore\Services\ClosureMaintenanceService::class);
+            foreach ($ids as $id) {
+                $closure->addNode('term', $id, self::TERM_ROOT_ID);
+            }
+        }
+
+        return $count;
     }
 
     private function findTaxonomy(string $name, string $culture): ?int
