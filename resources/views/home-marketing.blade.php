@@ -50,6 +50,25 @@
           </div>
         </a>
       </div>
+
+      {{-- Museum collection browse. The marketing landing had no route into the
+           sector screens at all, so a prospect could read that Heratio does
+           museums without ever seeing a museum record. --}}
+      <div class="col-12 col-md-6">
+        <a href="{{ route('glam.browse', ['type' => 'museum']) }}"
+           class="d-block text-decoration-none" aria-label="{{ __('Browse the museum collection') }}">
+          <div class="d-flex align-items-center gap-2 py-2 px-3 rounded-3 border h-100"
+               style="background:linear-gradient(135deg,#3a1c71 0%,#b06ab3 100%);color:#fff;transition:transform .15s ease;"
+               onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+            <i class="fas fa-monument" style="font-size:1.6rem;opacity:.95;" aria-hidden="true"></i>
+            <div class="flex-grow-1">
+              <h3 class="h6 fw-bold mb-0 text-white">{{ __('Museum collection') }} <span class="badge bg-light text-dark align-middle">{{ __('Live data') }}</span></h3>
+              <p class="mb-0 small text-white-50">{{ __('Real catalogued objects with CCO cataloguing, condition reporting and CIDOC CRM export.') }}</p>
+            </div>
+            <span class="btn btn-light btn-sm flex-shrink-0">{{ __('Browse') }} <i class="fas fa-arrow-right ms-1"></i></span>
+          </div>
+        </a>
+      </div>
     </div>
   </section>
 
