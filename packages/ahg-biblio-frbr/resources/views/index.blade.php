@@ -106,10 +106,11 @@
   <div class="row mt-4">
     <div class="col-lg-8">
       <div class="alert alert-info small mb-0">
-        <strong>IFLA FRBR model</strong> &mdash; Work (intellectual creation) &rarr; Expression (text, translation, edition)
+        <strong>IFLA FRBR model</strong> - Work (intellectual creation) &rarr; Expression (text, translation, edition)
         &rarr; Manifestation (carrier, format) &rarr; Item (concrete copy).
-        Conversion uses <code>library_biblio_work</code>, <code>library_biblio_instance</code>,
-        <code>library_biblio_item</code>, and <code>library_biblio_agent</code>.
+        Conversion reads the live catalogue: a Work is a <code>library_item</code> work-key cluster,
+        each <code>library_item</code> is an Expression/Manifestation, each <code>library_copy</code> an Item,
+        and <code>library_item_creator</code> supplies the Agents.
         All XML round-trips are proxied through the OpenRiC RiC-O service.
       </div>
     </div>

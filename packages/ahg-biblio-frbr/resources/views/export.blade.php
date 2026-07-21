@@ -88,7 +88,7 @@
           </dl>
           <hr>
           <p class="mb-0 text-muted">
-            Heratio maps Expression/Manifestation to <code>library_biblio_instance</code> and Item to <code>library_biblio_item</code>.
+            Heratio maps Expression/Manifestation to <code>library_item</code> and Item to <code>library_copy</code>.
           </p>
         </div>
       </div>

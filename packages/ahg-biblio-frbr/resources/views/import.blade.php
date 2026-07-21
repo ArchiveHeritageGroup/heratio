@@ -74,9 +74,9 @@
 ns/fr/frbr/frbrer/"</pre>
           <p class="mb-2">The importer handles these elements:</p>
           <ul class="mb-0 text-muted">
-            <li><code>frbr:Work</code> &rarr; <code>library_biblio_work</code></li>
-            <li><code>frbr:Expression</code> &rarr; <code>library_biblio_instance</code></li>
-            <li><code>frbr:Item</code> &rarr; <code>library_biblio_item</code></li>
+            <li><code>frbr:Work</code> &rarr; a catalogue record (<code>library_item</code>), matched on title so a re-import does not duplicate</li>
+            <li><code>frbr:Expression</code> &rarr; publication fields applied to that record</li>
+            <li><code>frbr:Item</code> &rarr; a physical copy (<code>library_copy</code>)</li>
           </ul>
         </div>
       </div>

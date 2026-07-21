@@ -7,11 +7,14 @@
  *   Work → Expression → Manifestation → Item
  *   (Person | Corporate Body) — responsible Agent entities
  *
- * Heratio tables:
- *   library_biblio_work     → FRBR Work
- *   library_biblio_instance → FRBR Expression / Manifestation
- *   library_biblio_item     → FRBR Item
- *   library_biblio_agent    → FRBR Agent (Person/Corporate Body)
+ * Heratio catalogue mapping (see AhgBiblioBf\Services\BiblioWorkRepository):
+ *   library_item work_key cluster → FRBR Work
+ *   library_item                  → FRBR Expression / Manifestation
+ *   library_copy                  → FRBR Item
+ *   library_item_creator          → FRBR Agent (Person/Corporate Body)
+ *
+ * The work_key clustering that defines a Work is computed by this package's own
+ * WorkKeyService, so FRBR is the native consumer of that column.
  *
  * All round-tripping proxies through OpenRiC for canonical RiC-O handling.
  *
@@ -37,10 +40,8 @@
 
 namespace AhgBiblioFrbr\Services;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class FrbrService
 {
@@ -54,39 +55,56 @@ class FrbrService
     }
 
     /**
+     * Catalogue reader shared with the BIBFRAME package.
+     *
+     * FRBR and BIBFRAME need the same Work / Expression / Item / Agent view of
+     * `library_item`, so this reuses `BiblioWorkRepository` rather than carrying
+     * a second projection (#1417). Resolved at call time with a guard so this
+     * package declares no composer dependency on ahg-biblio-bf; if that package
+     * is absent the FRBR surfaces degrade to empty rather than fatal, matching
+     * the hasTable() guards this package already used.
+     *
+     * A later refactor could move the repository into ahg-library, which both
+     * consumers already depend on implicitly, and drop the guard.
+     */
+    protected function works(): ?object
+    {
+        if (! class_exists(\AhgBiblioBf\Services\BiblioWorkRepository::class)) {
+            Log::warning('[FRBR] ahg-biblio-bf is not installed; catalogue reads unavailable.');
+
+            return null;
+        }
+
+        return app(\AhgBiblioBf\Services\BiblioWorkRepository::class);
+    }
+
+    /**
      * Convert a Heratio bibliographic work to FRBR JSON.
      *
-     * @param int $workId  library_biblio_work.id
+     * @param int $workId  library_item.id of the work's representative item
      * @return array FRBR entity graph
      */
     public function catalogToFrbr(int $workId): array
     {
-        $work = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->where('id', $workId)
-            ->first();
+        ['work' => $work, 'instances' => $instances, 'agents' => $agents] = $this->fetchWork($workId);
 
-        if (! $work) {
+        return $this->buildFrbrGraph($work, $instances, $agents);
+    }
+
+    /**
+     * Load a work from the catalogue, or fail loudly.
+     *
+     * @return array{work:object, instances:\Illuminate\Support\Collection, agents:\Illuminate\Support\Collection}
+     */
+    protected function fetchWork(int $workId): array
+    {
+        $data = $this->works()?->find($workId);
+
+        if (! $data || ! $data['work']) {
             throw new \InvalidArgumentException("Bibliographic work {$workId} not found.");
         }
 
-        $instances = DB::connection('heratio')
-            ->table('library_biblio_instance')
-            ->where('work_id', $workId)
-            ->get();
-
-        $agentIds = DB::connection('heratio')
-            ->table('library_biblio_work_agent')
-            ->where('work_id', $workId)
-            ->pluck('agent_id')
-            ->unique();
-
-        $agents = DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->whereIn('id', $agentIds)
-            ->get();
-
-        return $this->buildFrbrGraph($work, $instances, $agents);
+        return $data;
     }
 
     /**
@@ -98,30 +116,7 @@ class FrbrService
      */
     public function catalogToXml(int $workId, string $format = 'xml'): string
     {
-        $work = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->where('id', $workId)
-            ->first();
-
-        if (! $work) {
-            throw new \InvalidArgumentException("Bibliographic work {$workId} not found.");
-        }
-
-        $instances = DB::connection('heratio')
-            ->table('library_biblio_instance')
-            ->where('work_id', $workId)
-            ->get();
-
-        $agentIds = DB::connection('heratio')
-            ->table('library_biblio_work_agent')
-            ->where('work_id', $workId)
-            ->pluck('agent_id')
-            ->unique();
-
-        $agents = DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->whereIn('id', $agentIds)
-            ->get();
+        ['work' => $work, 'instances' => $instances, 'agents' => $agents] = $this->fetchWork($workId);
 
         return $this->buildFrbrXml($work, $instances, $agents, $format);
     }
@@ -151,39 +146,52 @@ class FrbrService
         $xml->registerXPathNamespace('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
         $xml->registerXPathNamespace('rdfs', 'http://www.w3.org/2000/01/rdf-schema#');
 
-        // Parse Work nodes (standard FRBRer namespace)
-        $workNodes = $xml->xpath('//frbr:Work') ?: [];
-        foreach ($workNodes as $workNode) {
+        if (! $this->works()?->canWrite()) {
+            Log::error('[FRBR] Import unavailable: the catalogue writer is not installed on this instance.');
+            $stats['errors'] = 1;
+
+            return $stats;
+        }
+
+        // Walk the hierarchy rather than three flat xpath sweeps. catalogToXml()
+        // emits Work > frbr:realization > Expression > frbr:exemplar > Item, so
+        // descending mirrors the export exactly and an Item keeps its Expression
+        // and Work. The old flat version created every entity unlinked.
+        foreach ($xml->xpath('//frbr:Work') ?: [] as $workNode) {
             try {
-                $this->upsertWork($workNode);
+                $libraryItemId = $this->importWorkNode($workNode);
+                if ($libraryItemId === null) {
+                    $stats['warnings']++;
+                    continue;
+                }
                 $stats['works']++;
             } catch (\Throwable $e) {
                 $stats['errors']++;
                 Log::warning("[FRBR] Work import error: {$e->getMessage()}");
+                continue;
             }
-        }
 
-        // Parse Expression nodes
-        $exprNodes = $xml->xpath('//frbr:Expression') ?: [];
-        foreach ($exprNodes as $exprNode) {
-            try {
-                $this->upsertExpression($exprNode);
-                $stats['instances']++;
-            } catch (\Throwable $e) {
-                $stats['warnings']++;
-                Log::warning("[FRBR] Expression import error: {$e->getMessage()}");
-            }
-        }
+            foreach ($workNode->xpath('.//frbr:Expression') ?: [] as $exprNode) {
+                try {
+                    $this->importExpressionNode($exprNode, $libraryItemId);
+                    $stats['instances']++;
+                } catch (\Throwable $e) {
+                    $stats['warnings']++;
+                    Log::warning("[FRBR] Expression import error: {$e->getMessage()}");
+                }
 
-        // Parse Item nodes
-        $itemNodes = $xml->xpath('//frbr:Item') ?: [];
-        foreach ($itemNodes as $itemNode) {
-            try {
-                $this->upsertItem($itemNode);
-                $stats['items']++;
-            } catch (\Throwable $e) {
-                $stats['warnings']++;
-                Log::warning("[FRBR] Item import error: {$e->getMessage()}");
+                foreach ($exprNode->xpath('.//frbr:Item') ?: [] as $itemNode) {
+                    try {
+                        if ($this->importItemNode($itemNode, $libraryItemId) === null) {
+                            $stats['warnings']++;
+                            continue;
+                        }
+                        $stats['items']++;
+                    } catch (\Throwable $e) {
+                        $stats['warnings']++;
+                        Log::warning("[FRBR] Item import error: {$e->getMessage()}");
+                    }
+                }
             }
         }
 
@@ -255,36 +263,9 @@ class FrbrService
      */
     public function workToArray(int $workId): ?array
     {
-        $work = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->where('id', $workId)
-            ->first();
+        $data = $this->works()?->find($workId);
 
-        if (! $work) {
-            return null;
-        }
-
-        $instances = DB::connection('heratio')
-            ->table('library_biblio_instance')
-            ->where('work_id', $workId)
-            ->get();
-
-        $agentIds = DB::connection('heratio')
-            ->table('library_biblio_work_agent')
-            ->where('work_id', $workId)
-            ->pluck('agent_id')
-            ->unique();
-
-        $agents = DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->whereIn('id', $agentIds)
-            ->get();
-
-        return [
-            'work'      => $work,
-            'instances' => $instances,
-            'agents'    => $agents,
-        ];
+        return ($data && $data['work']) ? $data : null;
     }
 
     // ─── Private helpers ───────────────────────────────────────────────────────
@@ -304,10 +285,7 @@ class FrbrService
 
         foreach ($instances as $instance) {
             $expr = $this->frbrExpression($instance, $work);
-            $items = DB::connection('heratio')
-                ->table('library_biblio_item')
-                ->where('instance_id', $instance->id)
-                ->get();
+            $items = $this->works()?->itemsForInstance((int) $instance->id) ?? collect();
 
             foreach ($items as $item) {
                 $graph['items'][] = $this->frbrItem($item, $instance);
@@ -361,10 +339,7 @@ XML;
             $exprTitle = $this->xmlEscape($instance->title ?? $title);
 
             $carrier = $instance->carrier ?? 'nc';
-            $items = DB::connection('heratio')
-                ->table('library_biblio_item')
-                ->where('instance_id', $instance->id)
-                ->get();
+            $items = $this->works()?->itemsForInstance((int) $instance->id) ?? collect();
 
             foreach ($items as $item) {
                 $itemId = "urn:uuid:{$item->id}-item";
@@ -423,11 +398,15 @@ XML;
             'language' => $work->language ?? 'en',
             'subject'  => $work->subject ?? null,
             'created_at' => $work->created_at,
-            'agents'   => array_map(fn($a) => [
+            // collect() rather than (array): casting a Collection to array
+            // yields its protected properties (items, escapeWhenCastingToString),
+            // not its elements, so the old array_map ran over the wrong data and
+            // reported two nonsense agents for every work.
+            'agents'   => collect($agents)->map(fn($a) => [
                 'id'   => $a->id,
                 'name' => $a->name ?? 'Unknown',
                 'type' => $a->type ?? 'per',
-            ], (array) $agents),
+            ])->values()->all(),
         ];
     }
 
@@ -440,7 +419,9 @@ XML;
             'pub_date' => $instance->pub_date ?? null,
             'isbn'     => $instance->isbn ?? null,
             'carrier'  => $instance->carrier ?? null,
-            'workId'   => $instance->work_id,
+            // The catalogue projection has no work_id column - an Expression's
+            // Work is the cluster it was fetched under, which is in scope here.
+            'workId'   => $work->id,
         ];
     }
 
@@ -449,7 +430,7 @@ XML;
         return [
             'id'         => $item->id,
             'barcode'    => $item->barcode ?? null,
-            'instanceId' => $item->instance_id,
+            'instanceId' => $instance->id,
             'instance'   => [
                 'title'    => $instance->title ?? null,
                 'publisher' => $instance->publisher ?? null,
@@ -467,94 +448,60 @@ XML;
     }
 
     /**
-     * Upsert a FRBR Work into library_biblio_work.
+     * Create or match a catalogue record from a FRBR Work node.
      *
-     * @param \SimpleXMLElement $workNode
-     * @return int work id
+     * Matching on title keeps a re-import from duplicating the catalogue.
+     *
+     * @return int|null library_item.id, or null when the node carries no label
      */
-    protected function upsertWork(\SimpleXMLElement $workNode): int
+    protected function importWorkNode(\SimpleXMLElement $workNode): ?int
     {
-        $title = (string) ($workNode->xpath('rdfs:label')[0] ?? '');
-        $creatorLabel = (string) ($workNode->xpath('frbr:creator//rdfs:label')[0] ?? '');
+        $title = trim((string) ($workNode->xpath('rdfs:label')[0] ?? ''));
+        if ($title === '') {
+            Log::warning('[FRBR] Skipped a frbr:Work with no rdfs:label.');
 
-        if (! Schema::connection('heratio')->hasTable('library_biblio_work')) {
-            throw new \RuntimeException('Table library_biblio_work does not exist.');
+            return null;
         }
 
-        $existing = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->where('title', $title)
-            ->first();
+        $creator = trim((string) ($workNode->xpath('frbr:creator//rdfs:label')[0] ?? ''));
 
-        if ($existing) {
-            DB::connection('heratio')
-                ->table('library_biblio_work')
-                ->where('id', $existing->id)
-                ->update([
-                    'author'     => $creatorLabel,
-                    'updated_at' => now(),
-                ]);
-
-            return (int) $existing->id;
+        $works = $this->works();
+        $existing = $works?->findIdByTitle($title);
+        if ($existing !== null) {
+            return $existing;
         }
 
-        return DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->insertGetId([
-                'title'      => $title,
-                'author'     => $creatorLabel,
-                'language'   => 'en',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        return $works?->createFromImport([
+            'title'   => $title,
+            'creator' => $creator,
+        ]);
     }
 
     /**
-     * Upsert a FRBR Expression into library_biblio_instance.
+     * Apply a FRBR Expression's fields to its Work's catalogue record.
      *
-     * @param \SimpleXMLElement $exprNode
-     * @return int instance id
+     * In the library_item projection an Expression is not a separate row - the
+     * Work cluster and its manifestations are the same records - so this fills
+     * blank publication fields rather than inserting a duplicate.
      */
-    protected function upsertExpression(\SimpleXMLElement $exprNode): int
+    protected function importExpressionNode(\SimpleXMLElement $exprNode, int $libraryItemId): void
     {
-        if (! Schema::connection('heratio')->hasTable('library_biblio_instance')) {
-            throw new \RuntimeException('Table library_biblio_instance does not exist.');
-        }
-
-        $title = (string) ($exprNode->xpath('rdfs:label')[0] ?? '');
-        $pubDate = (string) ($exprNode->xpath('frbr:date')[0] ?? '');
-
-        return DB::connection('heratio')
-            ->table('library_biblio_instance')
-            ->insertGetId([
-                'title'     => $title,
-                'pub_date' => $pubDate,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        $this->works()?->applyInstanceFields($libraryItemId, [
+            'pub_date'  => trim((string) ($exprNode->xpath('frbr:date')[0] ?? '')),
+            'publisher' => trim((string) ($exprNode->xpath('frbr:publisher')[0] ?? '')),
+        ]);
     }
 
     /**
-     * Upsert a FRBR Item into library_biblio_item.
+     * Attach a FRBR Item to its Work's catalogue record as a physical copy.
      *
-     * @param \SimpleXMLElement $exprNode
-     * @return int item id
+     * @return int|null library_copy.id
      */
-    protected function upsertItem(\SimpleXMLElement $exprNode): int
+    protected function importItemNode(\SimpleXMLElement $itemNode, int $libraryItemId): ?int
     {
-        if (! Schema::connection('heratio')->hasTable('library_biblio_item')) {
-            throw new \RuntimeException('Table library_biblio_item does not exist.');
-        }
+        $barcode = trim((string) ($itemNode->xpath('frbr:shelfMark')[0] ?? ''));
 
-        $barcode = (string) ($exprNode->xpath('frbr:shelfMark')[0] ?? '');
-
-        return DB::connection('heratio')
-            ->table('library_biblio_item')
-            ->insertGetId([
-                'barcode'    => $barcode ?: 'FRBR-' . substr(md5((string) mt_rand()), 0, 8),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        return $this->works()?->addCopy($libraryItemId, $barcode ?: null);
     }
 
     /**

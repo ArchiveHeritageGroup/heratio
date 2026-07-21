@@ -32,7 +32,6 @@ namespace AhgBiblioFrbr\Controllers;
 use AhgBiblioFrbr\Services\FrbrService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -46,18 +45,32 @@ class FrbrController extends Controller
     }
 
     /**
+     * Catalogue reader, shared with the BIBFRAME package (#1417).
+     *
+     * Resolved at call time behind a guard so this package carries no composer
+     * dependency on ahg-biblio-bf; the surfaces degrade to empty rather than
+     * fatal if it is absent.
+     */
+    protected function works(): ?object
+    {
+        return class_exists(\AhgBiblioBf\Services\BiblioWorkRepository::class)
+            ? app(\AhgBiblioBf\Services\BiblioWorkRepository::class)
+            : null;
+    }
+
+    /**
      * FRBR integration dashboard — overview + quick links.
      */
     public function index(): Response
     {
-        // The library_biblio_* scaffold is optional; the live FRBR surface is
-        // the work-key clustering over library_item. Degrade to zeros when the
-        // scaffold tables are absent rather than 500 the dashboard.
-        $schema = \Illuminate\Support\Facades\Schema::connection('heratio');
+        // Counts come from the live catalogue, mapped onto the FRBR hierarchy:
+        // a Work is a library_item work_key cluster, an Expression is each
+        // library_item, an Item is each library_copy (#1417).
+        $works = $this->works();
         $stats = [
-            'frbr_works'       => $schema->hasTable('library_biblio_work')     ? DB::connection('heratio')->table('library_biblio_work')->count()     : 0,
-            'frbr_expressions' => $schema->hasTable('library_biblio_instance')  ? DB::connection('heratio')->table('library_biblio_instance')->count()  : 0,
-            'frbr_items'       => $schema->hasTable('library_biblio_item')      ? DB::connection('heratio')->table('library_biblio_item')->count()      : 0,
+            'frbr_works'       => $works?->countWorks() ?? 0,
+            'frbr_expressions' => $works?->countInstances() ?? 0,
+            'frbr_items'       => $works?->countItems() ?? 0,
         ];
 
         return response()->view('ahg-biblio-frbr::index', [
@@ -84,19 +97,8 @@ class FrbrController extends Controller
      */
     public function export(): Response
     {
-        // The library_biblio_work scaffold is optional - render an empty
-        // export list gracefully when it has not been provisioned.
-        $works = \Illuminate\Support\Facades\Schema::connection('heratio')->hasTable('library_biblio_work')
-            ? DB::connection('heratio')
-                ->table('library_biblio_work')
-                ->select(['id', 'title', 'author', 'created_at'])
-                ->orderBy('created_at', 'desc')
-                ->limit(200)
-                ->get()
-            : collect();
-
         return response()->view('ahg-biblio-frbr::export', [
-            'works' => $works,
+            'works' => $this->works()?->listWorks(200) ?? collect(),
         ]);
     }
 
@@ -208,24 +210,22 @@ class FrbrController extends Controller
      */
     public function agent(): Response
     {
-        // The library_biblio_agent scaffold is optional; when the bibliographic
-        // schema has not been installed the page must still render (empty list)
-        // rather than 500. Mirrors the hasTable() guard used elsewhere here.
-        // The blade expects a paginator ($agents->total()/->links()); return one
-        // even when the optional scaffold table is absent, so the page renders.
-        $hasTable = \Illuminate\Support\Facades\Schema::connection('heratio')->hasTable('library_biblio_agent');
-        $agents = $hasTable
-            ? DB::connection('heratio')
-                ->table('library_biblio_agent')
-                ->select(['id', 'name', 'type', 'created_at'])
-                ->orderBy('name')
-                ->paginate(50)
-            : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 50);
+        // Agents are the catalogue's contributors (library_item_creator),
+        // de-duplicated by name (#1417). The repository returns a collection and
+        // this blade expects a paginator ($agents->total()/->links()), so page
+        // it here rather than pushing pagination into the shared repository.
+        $all = $this->works()?->listAgents() ?? collect();
 
-        if (! $hasTable) {
-            // Flag the unavailable feature in-app rather than a silent empty list.
-            session()->now('info', __('The FRBR agent index is not installed on this instance, so no agents can be listed here.'));
-        }
+        $perPage = 50;
+        $page = \Illuminate\Pagination\Paginator::resolveCurrentPage();
+
+        $agents = new \Illuminate\Pagination\LengthAwarePaginator(
+            $all->forPage($page, $perPage)->values(),
+            $all->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+        );
 
         return response()->view('ahg-biblio-frbr::agent', [
             'agents' => $agents,

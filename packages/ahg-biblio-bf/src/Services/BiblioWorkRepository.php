@@ -269,6 +269,20 @@ class BiblioWorkRepository
      */
     public function createFromBibframe(array $data): ?int
     {
+        return $this->createFromImport($data);
+    }
+
+    /**
+     * Create a catalogue record from serialisation-derived fields.
+     *
+     * Shared by the BIBFRAME and FRBR importers (#1414, #1417), which both
+     * reduce to the same handful of bibliographic fields.
+     *
+     * @param  array $data title, creator, language, publisher, pub_place, pub_date, isbn
+     * @return int|null    library_item.id
+     */
+    public function createFromImport(array $data): ?int
+    {
         if (! $this->canWrite()) {
             return null;
         }
