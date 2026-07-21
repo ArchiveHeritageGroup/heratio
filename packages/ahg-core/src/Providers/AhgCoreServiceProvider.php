@@ -179,6 +179,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\TranslationCoverageCommand::class,
                 \AhgCore\Commands\TranslationLintCommand::class,
                 \AhgCore\Commands\TranslationMtBatchCommand::class,
+                \AhgCore\Commands\TranslationExtractCommand::class,
                 \AhgCore\Commands\VocabularyImportCommand::class,
                 \AhgCore\Commands\VocabularyMirrorCommand::class,
                 \AhgCore\Commands\NestedSetRebuildCommand::class,
