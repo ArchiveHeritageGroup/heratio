@@ -1080,9 +1080,19 @@ class RicController extends Controller
 
         if ($recordId === 'overview') {
             $graphData = $this->buildOverviewGraph($fusekiEndpoint, $fusekiUsername, $fusekiPassword);
-            // DB fallback if SPARQL returned nothing
-            if (empty($graphData['nodes'])) {
-                $graphData = $this->buildOverviewGraphFromDatabase($baseUri, $instanceId);
+
+            // DB fallback when SPARQL produced nothing a user would recognise
+            // as the catalogue. Testing empty($nodes) was not enough (#1418):
+            // the triplestore can hold orphan Mandate/Rule/Mechanism entities
+            // with no records at all, and those alone satisfied the check, so
+            // the fallback never ran and the explorer rendered three unlabelled
+            // Rule nodes instead of the collections. Context entities are kept
+            // alongside the database graph rather than discarded.
+            if (! $this->hasRecordBearingNodes($graphData)) {
+                $graphData = $this->mergeGraphData(
+                    $this->buildOverviewGraphFromDatabase($baseUri, $instanceId),
+                    $graphData
+                );
             }
         } else {
             $graphData = $this->buildGraphData(
@@ -1379,6 +1389,60 @@ SPARQL;
         }
 
         $nodes = $this->enrichNodesWithSlugs($nodes);
+
+        return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    /**
+     * Does this graph contain anything a user would recognise as the catalogue?
+     *
+     * Mandate, Rule, Mechanism, FindingAid and the like are context entities.
+     * A graph made only of those describes no holdings, so it should not stop
+     * the database fallback from running (#1418).
+     */
+    protected function hasRecordBearingNodes(array $graphData): bool
+    {
+        $recordTypes = [
+            'RecordSet', 'Record', 'RecordPart', 'Instantiation',
+            'Person', 'CorporateBody', 'Family', 'Agent', 'Group',
+        ];
+
+        foreach ($graphData['nodes'] ?? [] as $node) {
+            if (in_array($node['type'] ?? '', $recordTypes, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Merge two graphs, de-duplicating nodes by URI. Values from $primary win.
+     */
+    protected function mergeGraphData(array $primary, array $secondary): array
+    {
+        $nodes = $primary['nodes'] ?? [];
+        $edges = $primary['edges'] ?? [];
+
+        $seen = [];
+        foreach ($nodes as $node) {
+            if (isset($node['id'])) {
+                $seen[$node['id']] = true;
+            }
+        }
+
+        foreach ($secondary['nodes'] ?? [] as $node) {
+            $id = $node['id'] ?? null;
+            if ($id === null || isset($seen[$id])) {
+                continue;
+            }
+            $seen[$id] = true;
+            $nodes[] = $node;
+        }
+
+        foreach ($secondary['edges'] ?? [] as $edge) {
+            $edges[] = $edge;
+        }
 
         return ['nodes' => $nodes, 'edges' => $edges];
     }
@@ -2185,6 +2249,20 @@ SPARQL;
         // Generic numeric URI
         if (preg_match('/\/(\w+)\/(\d+)$/', $uri, $m)) {
             return ucfirst($m[1]) . ' ' . $m[2];
+        }
+
+        // URN-style identifiers (urn:ahg:ric:rule:912155). Every pattern above
+        // expects slash separators, so colon-delimited URNs used to fall all
+        // the way through to "Unknown" (#1418). Falling back to type + local id
+        // at least tells the operator which entity they are looking at.
+        if (preg_match('/:(\w+):([\w.-]+)$/', $uri, $m)) {
+            return $this->camelToReadable(ucfirst($m[1])) . ' ' . $m[2];
+        }
+
+        // Slash-separated URI with a non-numeric local id, e.g.
+        // .../rule/text_900328. The generic rule above only accepts digits.
+        if (preg_match('#/(\w+)/([\w.-]+)$#', $uri, $m)) {
+            return $this->camelToReadable(ucfirst($m[1])) . ' ' . $m[2];
         }
 
         return 'Unknown';
