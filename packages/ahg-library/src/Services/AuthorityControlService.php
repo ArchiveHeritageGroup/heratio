@@ -162,24 +162,31 @@ class AuthorityControlService
      */
     public function linkToItem(int $authorityId, int $libraryItemId, string $tag = '650'): void
     {
+        // #1411 - the (library_item_id, authority_id) pair is UNIQUE (index
+        // `item_authority`): one link per pair, the tag is metadata on that row.
+        // The old guard transposed the two ids so it almost never matched - the
+        // duplicate INSERT then hit the unique index and threw on every re-link.
+        // Guard on the pair (matching the index) so a re-link cleanly no-ops.
         $exists = DB::table('library_item_authority_link')
-            ->where('library_item_id', $authorityId)
-            ->where('authority_id', $libraryItemId)
+            ->where('library_item_id', $libraryItemId)
+            ->where('authority_id', $authorityId)
             ->exists();
 
-        if (! $exists) {
-            DB::table('library_item_authority_link')->insert([
-                'library_item_id' => $libraryItemId,
-                'authority_id'   => $authorityId,
-                'source_tag'     => $tag,
-                'created_at'     => now(),
-                'updated_at'     => now(),
-            ]);
-
-            DB::table('library_subject_authority')
-                ->where('id', $authorityId)
-                ->increment('linked_count');
+        if ($exists) {
+            return;
         }
+
+        DB::table('library_item_authority_link')->insert([
+            'library_item_id' => $libraryItemId,
+            'authority_id'   => $authorityId,
+            'source_tag'     => $tag,
+            'created_at'     => now(),
+            'updated_at'     => now(),
+        ]);
+
+        DB::table('library_subject_authority')
+            ->where('id', $authorityId)
+            ->increment('linked_count');
     }
 
     /**
