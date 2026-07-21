@@ -52,7 +52,7 @@ New Laravel package `packages/ahg-marketing` (namespace `AhgMarketing`), registe
 The comparison page and llms.txt lead with two ways to adopt Heratio, which reframes the AtoM story from rip-and-replace to no-lock-in:
 
 1. **Heratio (standalone)** - the pure Laravel 12 platform on its own stack.
-2. **AtoM / Heratio (overlay)** - Heratio's Laravel modules run alongside an existing AtoM (Symfony) installation, over the same AtoM database. The original AtoM is retained and fully functional, and the overlay is **fully reversible** (uninstall returns you to stock AtoM). An AtoM site can add RiC, DAM, museum/Spectrum-capable workflows, AI-assisted description, and digital preservation with no data migration and no lock-in.
+2. **AtoM / Heratio (overlay)** - Heratio's Laravel modules run alongside an existing AtoM (Symfony) installation, over the same AtoM database. The original AtoM is retained and fully functional, and the overlay is **fully reversible** (uninstall returns you to stock AtoM). An AtoM site can add RiC, DAM, museum collections workflows, AI-assisted description, and digital preservation with no data migration and no lock-in.
 
 ## Brand entity graph (SEO/GEO)
 
@@ -60,7 +60,7 @@ JSON-LD on heratio.org links the three domains: Heratio (product) has `publisher
 
 ## Positioning notes
 
-- Spectrum wording is "Spectrum-capable" (factual capability), never "Spectrum compliant/Partner", until the Collections Trust commercial licence is signed (see spectrum-partner-licensing.md).
+- **Do NOT use the "Spectrum" name in any public or product text** (the Collections Trust trademark is not licensed and the licensing route is not being pursued). Describe the functionality neutrally: museum collections management, CCO cataloguing, and a structured object-lifecycle workflow (object entry, acquisition, location/movement, cataloguing, loans, exit).
 - Uncontested white space the cold test revealed and that the copy now owns: Heratio is Laravel-native and RiC-native, and is a modern open-source AtoM/ArchivesSpace alternative.
 
 ## Operational learnings / gotchas

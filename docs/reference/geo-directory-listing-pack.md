@@ -2,7 +2,7 @@
 
 **Purpose:** ready-to-paste copy for listing Heratio in the software directories and comparison sites that both Google's category results and AI answer engines pull from. Submitting these is the highest-leverage off-site move after the on-site launch (see heratio-org-launch.md). Use the canonical facts and pick the description length each site wants.
 
-**House rule:** use "Spectrum-capable", never "Spectrum compliant / Partner", until the Collections Trust commercial licence is signed (see spectrum-partner-licensing.md).
+**House rule:** do **not** use the "Spectrum" name in any public listing or copy (the Collections Trust trademark is not licensed and the licensing route is not being pursued). Describe the capability neutrally - museum collections management (CCO + a structured object-lifecycle workflow).
 
 ## Canonical facts (keep identical across every listing - consistency builds the entity graph)
 
@@ -29,13 +29,13 @@ Open-source (AGPL-3.0) Laravel platform for archives, museums and libraries: arc
 
 ## Medium description (≈50 words)
 
-Heratio is an open-source GLAM platform that unifies archival description (ISAD(G), ISAAR, ISDIAH), museum collections management (Spectrum-capable), digital asset management, digital preservation (OCFL, BagIt, OAIS) and records management in one self-hostable Laravel application - with Records in Contexts (RiC) as a first-class capability. A modern alternative to AtoM and ArchivesSpace.
+Heratio is an open-source GLAM platform that unifies archival description (ISAD(G), ISAAR, ISDIAH), museum collections management (CCO + structured object-lifecycle procedures), digital asset management, digital preservation (OCFL, BagIt, OAIS) and records management in one self-hostable Laravel application - with Records in Contexts (RiC) as a first-class capability. A modern alternative to AtoM and ArchivesSpace.
 
 ## Long description (≈150 words)
 
 Heratio is an open-source (AGPL-3.0), Laravel 12 platform for galleries, libraries, archives and museums. It brings archival description, museum collections management, digital asset management, digital preservation and records management onto one standards-based stack, and treats Records in Contexts (RiC and RiC-O) as a native, first-class capability rather than a roadmap item.
 
-Standards: ISAD(G), ISAAR(CPF), ISDIAH, RiC/RiC-O, Dublin Core, EAD 2002/EAD3, EAC-CPF, OAI-PMH, OAIS, PREMIS, OCFL, BagIt and IIIF. Museum collections management is Spectrum-capable.
+Standards: ISAD(G), ISAAR(CPF), ISDIAH, RiC/RiC-O, Dublin Core, EAD 2002/EAD3, EAC-CPF, OAI-PMH, OAIS, PREMIS, OCFL, BagIt and IIIF. Museum collections management uses CCO cataloguing with a structured object-lifecycle workflow.
 
 Heratio runs standalone, or as a fully reversible overlay alongside an existing AtoM installation - so AtoM sites can add RiC, DAM, museum and AI capabilities with no migration and no lock-in. It is built for the international GLAM market, with country-specific compliance as pluggable modules. Self-host it free, or use hosted/support plans from The AHG.
 
@@ -43,7 +43,7 @@ Heratio runs standalone, or as a fully reversible overlay alongside an existing 
 
 - Archival description: ISAD(G), ISAAR(CPF), ISDIAH, multi-level hierarchy, authority and repository records
 - Records in Contexts (RiC/RiC-O), native - traditional and contextual-graph views over the same data
-- Museum collections management (Spectrum-capable, Spectrum 5.1 procedures)
+- Museum collections management (CCO + object-lifecycle procedures)
 - Digital asset management: IIIF deep-zoom, 3D object viewing, media at scale
 - Digital preservation: OAIS, PREMIS, OCFL object storage, BagIt, portable dark-archive export
 - Standards interchange: EAD 2002/EAD3 and EAC-CPF import and export, OAI-PMH serve and harvest, PDF finding aids
@@ -59,14 +59,14 @@ Heratio runs standalone, or as a fully reversible overlay alongside an existing 
 3. **G2** (g2.com) - category: Collections Management / DAM. Claim/create the product profile; seed with a couple of real reviews.
 4. **SourceForge / Slashdot Software** - open-source directory; links repo + description. Good for "open source" queries.
 5. **StackShare** (stackshare.io) - developer-facing; list the stack (Laravel, PHP, MySQL, Elasticsearch). Good for the OSS/dev segment.
-6. **Collections Trust software directory** (collectionstrust.org.uk/software) - after the Spectrum Partner licence lands; high-authority GLAM backlink.
+6. ~~**Collections Trust software directory** (collectionstrust.org.uk/software)~~ - **not pursued**: listing there requires a Spectrum Partner licence, and the Spectrum route is off the table. Seek high-authority GLAM backlinks from standard-neutral directories instead.
 7. **Wikidata** - create an item for Heratio (instance of: software; developer: The AHG; source-code repository: the GitHub URL; licence: AGPL-3.0). Seeds a later Wikipedia article and is heavily used by LLMs.
 8. **awesome-lists / LibHunt** - submit to relevant "awesome archives / digital preservation / GLAM" GitHub lists for dev-audience backlinks.
 
 ## Assets to prepare (most directories require these)
 
 - Logo (square + horizontal), transparent PNG
-- 3-6 screenshots: browse/search, an archival record with the RiC view, the DAM/IIIF viewer, a museum/Spectrum record, the dashboard
+- 3-6 screenshots: browse/search, an archival record with the RiC view, the DAM/IIIF viewer, a museum object record, the dashboard
 - A 60-90s overview video (optional but boosts Capterra/G2 ranking)
 
 ## Consistency checklist (do this on every listing)

@@ -41,7 +41,7 @@ Heratio is a comprehensive modernization of Access to Memory (AtoM) 2.10 - the l
 │  VIEWERS & MEDIA      INTEGRATION          ACCOUNTING         │
 │  ├─ IIIF/OSD/Mirador  ├─ REST API          ├─ GRAP 103        │
 │  ├─ 3D Model Viewer   ├─ GraphQL           ├─ IPSAS 45        │
-│  ├─ Media player       ├─ DOI/DataCite     └─ Spectrum 5.1    │
+│  ├─ Media player       ├─ DOI/DataCite     └─ Museum procedures    │
 │  ├─ PDF viewer         ├─ Federation                          │
 │  └─ Voice/TTS          └─ RiC/SPARQL                         │
 └─────────────────────────────────────────────────────────────┘
@@ -66,7 +66,7 @@ Heratio is a comprehensive modernization of Access to Memory (AtoM) 2.10 - the l
 
 - **Archivists** - managing archival collections with full ISAD(G)/DACS/RAD support
 - **Librarians** - cataloguing with MARC-inspired fields, ISBN lookup, circulation management
-- **Museum curators** - CCO cataloguing, Spectrum 5.1 procedures, Getty AAT integration
+- **Museum curators** - CCO cataloguing, museum procedures, Getty AAT integration
 - **Gallery managers** - exhibition management, artist tracking, loan management
 - **Digital asset managers** - IPTC metadata, watermarks, batch processing
 - **Compliance officers** - POPIA/GDPR compliance, audit trails, security classification
@@ -232,7 +232,7 @@ Cataloguing Culturual Objects standard with:
 - **Object identification** - object name, classification, materials, techniques
 - **Getty AAT** - linked vocabulary for materials, techniques, styles
 - **Condition assessment** - with photo documentation
-- **Spectrum 5.1** - UK Collections Trust procedures
+- **Museum procedures** - UK Collections Trust procedures
 
 ### 3.4 Gallery
 
@@ -538,7 +538,7 @@ South African public sector heritage asset valuation and reporting.
 
 International Public Sector Accounting Standards for heritage assets.
 
-### 10.3 Spectrum 5.1
+### 10.3 Museum procedures
 
 UK Collections Trust museum procedures - acquisition, loans, location/movement, condition checking.
 
@@ -576,7 +576,7 @@ Bookmark records for later reference.
 
 ### 12.1 Condition Assessment
 
-Spectrum-compliant condition recording with photo documentation and scoring.
+Structured condition recording with photo documentation and scoring.
 
 ### 12.2 Provenance
 
@@ -668,11 +668,11 @@ Centralized settings management with 21 sections and 200+ configurable options.
 | Show Branding | Toggle | On | Display AHG branding |
 | Custom CSS | Textarea | (empty) | Custom CSS styles |
 
-#### Spectrum - Collections Management
+#### Museum - Collections Management
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| Enable Spectrum | Toggle | On | Enable Spectrum procedures |
+| Enable Museum procedures | Toggle | On | Enable the museum object-lifecycle procedures |
 | Default Currency | Select | ZAR | ZAR, USD, EUR, GBP |
 | Valuation Reminder | Days | 365 | Re-valuation reminder period |
 | Default Loan Period | Days | 90 | Default loan duration |

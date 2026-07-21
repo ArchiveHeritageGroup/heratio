@@ -251,7 +251,7 @@ Each sector has specialized validation:
 - Parent hierarchy must follow ISAD-G rules
 - Required: identifier, title, levelOfDescription
 
-**Museum (Spectrum):**
+**Museum:**
 - Object number format validation
 - Acquisition date must be valid date
 - Required: objectNumber, objectName
@@ -304,7 +304,7 @@ Or from the Data Migration page, click the **"Batch Export"** button in the head
 | Format | Standard | Best For |
 |--------|----------|----------|
 | **Archives** | ISAD(G) | Archival fonds, series, files, items |
-| **Museum** | Spectrum 5.1 | Museum objects with acquisition, location data |
+| **Museum** | Museum procedures | Museum objects with acquisition, location data |
 | **Library** | MARC/RDA | Bibliographic records with ISBN, call numbers |
 | **Gallery** | CCO/VRA | Artworks and visual resources |
 | **Digital Assets** | Dublin Core/IPTC | Digital files with technical metadata |
@@ -343,7 +343,7 @@ You can narrow down which records to export:
 4. Export
 
 **Export museum objects for reporting:**
-1. Select "Museum (Spectrum 5.1)" format
+1. Select "Museum" format
 2. Select your repository
 3. Select "Item" level of description
 4. Export
@@ -368,7 +368,7 @@ php artisan sector:archives-csv-import /path/to/archives.csv \
     --validate-only  # Remove to perform actual import
 ```
 
-### Museum Import (Spectrum)
+### Museum Import
 
 ```bash
 php artisan sector:museum-csv-import /path/to/museum.csv \
@@ -422,7 +422,7 @@ Downloadable from the Data Migration page (**Admin > Data Migration > Download t
 | File | Sector | Records | Description |
 |------|--------|---------|-------------|
 | `archives_sample.csv` | Archives | 5 | Hierarchical ISAD-G records with parent-child relationships |
-| `museum_sample.csv` | Museum | 5 | Spectrum objects with materials, techniques, locations |
+| `museum_sample.csv` | Museum | 5 | Museum objects with materials, techniques, locations |
 | `library_sample.csv` | Library | 5 | MARC/RDA records with ISBN, call numbers, subjects |
 | `gallery_sample.csv` | Gallery | 5 | CCO artworks with provenance, credit lines |
 | `dam_sample.csv` | DAM | 5 | Dublin Core assets with technical metadata |
@@ -450,7 +450,7 @@ OBJ-001,Painting,Landscape with River,Canvas|Oil paint,Oil painting,60 x 80 cm,1
 
 Key features:
 - Multi-value fields use pipe `|` separator
-- Spectrum-compliant field names
+- Standard museum field names
 - Acquisition and location tracking
 
 ### Using Samples for Testing
@@ -557,7 +557,7 @@ CSV imports run through the sector-specific commands. Each takes a positional CS
 php artisan sector:archives-csv-import /path/to/file.csv \
     --repository=SLUG --mapping=ID --update=identifier --validate-only
 
-# Museum (Spectrum)
+# Museum
 php artisan sector:museum-csv-import /path/to/file.csv \
     --repository=SLUG --mapping=ID --update=identifier --validate-only
 
@@ -694,7 +694,7 @@ php artisan queue:work
 
 | Version | Changes |
 |---------|---------|
-| 1.4.0 | Universal validation framework, sector-specific validators (ISAD-G, Spectrum, MARC/RDA, CCO, Dublin Core), sector CLI import tasks, validation-only mode, sample CSV files, mapping profile export/import |
+| 1.4.0 | Universal validation framework, sector-specific validators (ISAD-G, Museum, MARC/RDA, CCO, Dublin Core), sector CLI import tasks, validation-only mode, sample CSV files, mapping profile export/import |
 | 1.3.0 | Added Batch Export UI, Library/Gallery/DAM default mappings |
 | 1.2.0 | Added Preservica OPEX/PAX support, rights import, provenance import, background jobs |
 | 1.1.0 | Added sector-specific CSV exporters |

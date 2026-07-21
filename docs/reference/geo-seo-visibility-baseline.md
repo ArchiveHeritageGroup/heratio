@@ -5,7 +5,7 @@
 ## Method
 
 Two legs:
-1. **Cold-model leg** - five fresh LLM agents, each with no Heratio context, were asked the buyer questions real customers ask (best museum/archive CMS; AtoM alternatives; Spectrum-compliant CMS; university archives + research-data platform; open-source self-hostable GLAM). Each answered purely from training knowledge, no web access, and named the specific products it would recommend.
+1. **Cold-model leg** - five fresh LLM agents, each with no Heratio context, were asked the buyer questions real customers ask (best museum/archive CMS; AtoM alternatives; museum collections management CMS; university archives + research-data platform; open-source self-hostable GLAM). Each answered purely from training knowledge, no web access, and named the specific products it would recommend.
 2. **Retrieval leg** - the same category queries plus the branded query "Heratio ... AHG" were run against web search to approximate what Perplexity, Google AI Overviews, and Bing Copilot retrieve.
 
 ## Findings
@@ -15,7 +15,7 @@ Every agent, in every segment, volunteered "never heard of it" for both **Herati
 
 - Best museum/archive CMS: Axiell, TMS / Gallery Systems, CollectiveAccess, AtoM, PastPerfect
 - AtoM alternatives: ArchivesSpace (now the default), CollectiveAccess, Preservica, Axiell / CALM
-- Spectrum-compliant CMS: Axiell, TMS, MuseumPlus (zetcom), Vernon, Modes, System Simulation, CollectionSpace
+- museum collections management CMS: Axiell, TMS, MuseumPlus (zetcom), Vernon, Modes, System Simulation, CollectionSpace
 - University archives + RDM: ArchivesSpace + Archivematica + Dataverse / Figshare + DSpace
 - Open-source self-hostable: AtoM, CollectiveAccess, Omeka S, ArchivesSpace, Islandora
 
