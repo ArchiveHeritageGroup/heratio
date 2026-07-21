@@ -1,10 +1,10 @@
 {{-- Spectrum Reports Dashboard — cloned from AtoM spectrumReports/indexSuccess.blade.php. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
 @extends('theme::layouts.2col')
-@section('title', 'Spectrum Reports Dashboard')
+@section('title', 'Museum Procedures Reports Dashboard')
 @section('body-class', 'admin spectrum-reports')
 @section('sidebar')
 <div class="sidebar-content">
-  <h4>{{ __('Spectrum Reports') }}</h4>
+  <h4>{{ __('Museum Procedures Reports') }}</h4>
   <ul class="list-unstyled">
     <li><a href="{{ route('ahgspectrum.report-object-entry') }}"><i class="fas fa-sign-in-alt me-2"></i>{{ __('Object Entry') }}</a></li>
     <li><a href="{{ route('ahgspectrum.report-loans') }}"><i class="fas fa-exchange-alt me-2"></i>{{ __('Loans') }}</a></li>
@@ -18,7 +18,7 @@
   <a href="{{ route('reports.dashboard') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
-@section('title-block')<h1><i class="fas fa-clipboard-list me-2"></i>{{ __('Spectrum Reports Dashboard') }}</h1>@endsection
+@section('title-block')<h1><i class="fas fa-clipboard-list me-2"></i>{{ __('Museum Procedures Reports Dashboard') }}</h1>@endsection
 @section('content')
 <div class="spectrum-dashboard">
   <div class="row mb-4">

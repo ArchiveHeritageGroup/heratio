@@ -232,7 +232,7 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'describe.spectrum', 'label' => 'Spectrum', 'sub' => 'Museum procedures 5.1', 'help' => 'spectrum-user-guide',
+                    'id' => 'describe.spectrum', 'label' => 'Museum procedures', 'sub' => 'Museum object procedures', 'help' => 'spectrum-user-guide',
                     'children' => [
                         ['id' => 'describe.spectrum.object', 'label' => 'Object entry', 'sub' => 'Object identification', 'help' => 'spectrum-user-guide'],
                         ['id' => 'describe.spectrum.loc',    'label' => 'Location',     'sub' => 'Movement control'],
@@ -399,7 +399,7 @@ return [
                 [
                     'id' => 'display.museum', 'label' => 'Museum', 'sub' => 'Museum sector show', 'help' => 'museum-user-guide',
                     'children' => [
-                        ['id' => 'display.museum.object', 'label' => 'Object',   'sub' => 'Spectrum object view', 'help' => 'museum-user-guide'],
+                        ['id' => 'display.museum.object', 'label' => 'Object',   'sub' => 'Museum object view', 'help' => 'museum-user-guide'],
                         ['id' => 'display.museum.loc',    'label' => 'Location', 'sub' => 'Current location'],
                     ],
                 ],

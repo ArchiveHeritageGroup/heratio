@@ -84,16 +84,16 @@
           <div class="col-md-6">
             <div class="mb-3">
               <label for="spectrum_procedure" class="form-label">
-                <i class="fas fa-university me-1"></i>{{ __('Spectrum procedure') }}
+                <i class="fas fa-university me-1"></i>{{ __('Museum procedure') }}
                 <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
               </label>
               <select class="form-select" id="spectrum_procedure" name="spectrum_procedure">
-                <option value="">{{ __('— Not a Spectrum procedure —') }}</option>
+                <option value="">{{ __('- Not a museum procedure -') }}</option>
                 @foreach($spectrumProcedures ?? [] as $code => $label)
                   <option value="{{ $code }}" {{ old('spectrum_procedure', $workflow->spectrum_procedure ?? '') === $code ? 'selected' : '' }}>{{ __($label) }}</option>
                 @endforeach
               </select>
-              <small class="text-muted">{{ __('Tag this workflow if it implements one of the 21 Spectrum 5.1 procedures.') }}</small>
+              <small class="text-muted">{{ __('Tag this workflow if it implements one of the 21 museum procedures.') }}</small>
             </div>
           </div>
         </div>

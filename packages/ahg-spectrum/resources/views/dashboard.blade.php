@@ -1,10 +1,10 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Spectrum Workflow Dashboard'))
+@section('title', __('Museum Procedures Dashboard'))
 
 @section('content')
 
-<h1><i class="fas fa-tasks me-2"></i>{{ __('Spectrum Workflow Dashboard') }}</h1>
+<h1><i class="fas fa-tasks me-2"></i>{{ __('Museum Procedures Dashboard') }}</h1>
 
 <div class="row">
     <!-- Sidebar -->

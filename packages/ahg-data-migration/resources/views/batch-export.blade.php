@@ -129,8 +129,8 @@
             <dt class="col-sm-3">Archives (ISAD-G)</dt>
             <dd class="col-sm-9">Standard archival description fields following ISAD(G) standard. Best for archives and manuscript collections.</dd>
 
-            <dt class="col-sm-3">Museum (Spectrum)</dt>
-            <dd class="col-sm-9">Spectrum 5.1 standard fields for museum objects including production, acquisition, and location data.</dd>
+            <dt class="col-sm-3">Museum</dt>
+            <dd class="col-sm-9">Museum object standard fields (CCO) including production, acquisition, and location data.</dd>
 
             <dt class="col-sm-3">Library (MARC/RDA)</dt>
             <dd class="col-sm-9">MARC and RDA cataloguing fields for bibliographic records including ISBN, call numbers, and publishing data.</dd>

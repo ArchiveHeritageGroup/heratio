@@ -153,7 +153,7 @@
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
-              <i class="fas fa-layer-group me-2 text-muted"></i>Spectrum Email Notifications
+              <i class="fas fa-layer-group me-2 text-muted"></i>Museum Procedures Email Notifications
               <br><small class="text-muted">{{ __('Task assignments and state transitions') }}</small>
             </div>
             <a href="{{ route('settings.ahg.spectrum') }}" class="btn btn-sm btn-outline-primary">Configure</a>

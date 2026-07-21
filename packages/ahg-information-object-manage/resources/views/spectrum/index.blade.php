@@ -1,5 +1,5 @@
 @extends('theme::layouts.2col')
-@section('title', __('Spectrum Data') . ' — ' . ($io->title ?? $io->slug))
+@section('title', __('Museum Data') . ' — ' . ($io->title ?? $io->slug))
 
 @section('sidebar')
   {{-- Quick Info Card --}}
@@ -53,7 +53,7 @@
   <div class="d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-layer-group me-3 text-primary"></i>
     <div>
-      <h1 class="mb-0">{{ __('Spectrum Data') }}</h1>
+      <h1 class="mb-0">{{ __('Museum Data') }}</h1>
       <span class="text-muted">{{ $io->title ?? $io->slug }}</span>
     </div>
   </div>
@@ -62,17 +62,17 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ url('/' . $io->slug) }}">{{ $io->title ?? $io->slug }}</a></li>
-      <li class="breadcrumb-item active">{{ __('Spectrum Data') }}</li>
+      <li class="breadcrumb-item active">{{ __('Museum Data') }}</li>
     </ol>
   </nav>
 
-  {{-- Spectrum 5.1 Procedures Grid --}}
+  {{-- Museum Procedures Grid --}}
   <div class="card mb-4">
     <div class="card-header bg-success text-white">
-      <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>{{ __('Spectrum 5.1 Procedures') }}</h5>
+      <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>{{ __('Museum Procedures') }}</h5>
     </div>
     <div class="card-body">
-      <p class="text-muted mb-4">{{ __('Manage collections management procedures according to Spectrum 5.1 standard.') }}</p>
+      <p class="text-muted mb-4">{{ __('Manage museum collections-management procedures.') }}</p>
 
       @php
       $procedures = [

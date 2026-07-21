@@ -74,7 +74,7 @@
                 <th>{{ __('Source Table') }}</th>
                 <th>{{ __('Source Column') }}</th>
                 <th>ISAD</th>
-                <th>{{ __('Spectrum') }}</th>
+                <th>{{ __('Museum') }}</th>
                 <th>{{ __('DC') }}</th>
               </tr>
             </thead>
@@ -112,7 +112,7 @@
               <th>{{ __('Source Table') }}</th>
               <th>{{ __('Source Column') }}</th>
               <th class="text-center">ISAD</th>
-              <th class="text-center">{{ __('Spectrum') }}</th>
+              <th class="text-center">{{ __('Museum') }}</th>
               <th class="text-center">{{ __('DC') }}</th>
             </tr>
           </thead>

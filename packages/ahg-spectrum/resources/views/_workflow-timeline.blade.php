@@ -45,7 +45,7 @@ foreach ($statuses as $procId => $procStatus) {
     <!-- Progress Summary -->
     <div class="workflow-progress">
         <div class="progress-header">
-            <h4><i class="fa fa-tasks"></i> {{ __('Spectrum Workflow') }}</h4>
+            <h4><i class="fa fa-tasks"></i> {{ __('Museum Procedures Workflow') }}</h4>
             <span class="progress-percent">{{ $progress['percentComplete'] }}%</span>
         </div>
 

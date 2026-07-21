@@ -175,7 +175,7 @@ function levelsGetSectorIcon(string $sector): string {
 
           @if (in_array('museum', $availableSectors))
           <dt><i class="fas fa-landmark me-1"></i> Museum</dt>
-          <dd class="text-muted">Object-based descriptions (CCO/CDWA, Spectrum)</dd>
+          <dd class="text-muted">Object-based descriptions (CCO/CDWA)</dd>
           @endif
 
           @if (in_array('library', $availableSectors))

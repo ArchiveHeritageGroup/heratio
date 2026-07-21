@@ -115,7 +115,7 @@
               <tr>
                 <th style="width:20%">{{ __('Metadata Source') }}</th>
                 <th style="width:26%">{{ __('Archives (ISAD)') }}</th>
-                <th style="width:27%">{{ __('Museum (Spectrum)') }}</th>
+                <th style="width:27%">{{ __('Museum') }}</th>
                 <th style="width:27%">{{ __('DAM') }}</th>
               </tr>
             </thead>

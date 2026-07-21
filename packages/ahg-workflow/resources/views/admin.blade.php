@@ -12,13 +12,13 @@
       </a>
       {{-- Spectrum#B: install the 21 procedure starter pack --}}
       <form method="POST" action="{{ route('workflow.admin.install-spectrum') }}" class="d-inline"
-            onsubmit="return confirm('{{ __('Install the Spectrum 5.1 procedure starter pack? This will add any missing Spectrum-tagged workflows. Tick the Overwrite box first if you want to RESET existing seeded steps (this will lose hand-customised steps for those procedures).') }}');">
+            onsubmit="return confirm('{{ __('Install the museum-procedure starter pack? This will add any missing museum-procedure workflows. Tick the Overwrite box first if you want to RESET existing seeded steps (this will lose hand-customised steps for those procedures).') }}');">
         @csrf
-        <label class="me-1 small text-muted" title="{{ __('When ticked, existing Spectrum workflows have their steps replaced with the seed defaults. Without it, only missing procedures are added.') }}">
+        <label class="me-1 small text-muted" title="{{ __('When ticked, existing museum-procedure workflows have their steps replaced with the seed defaults. Without it, only missing procedures are added.') }}">
           <input type="checkbox" name="overwrite" value="1"> {{ __('Overwrite') }}
         </label>
         <button type="submit" class="btn btn-outline-info">
-          <i class="fas fa-university me-1"></i>{{ __('Install Spectrum pack') }}
+          <i class="fas fa-university me-1"></i>{{ __('Install museum-procedure pack') }}
         </button>
       </form>
       <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary">
@@ -85,7 +85,7 @@
   @if(count($workflows) === 0)
     <div class="alert alert-info">
       @if(!empty($spectrumFilter))
-        {{ __('No workflows are tagged with that Spectrum procedure yet.') }}
+        {{ __('No workflows are tagged with that museum procedure yet.') }}
       @else
         No workflows configured yet. Create your first workflow to get started.
       @endif
@@ -102,7 +102,7 @@
                 <th>{{ __('Scope') }}</th>
                 <th>{{ __('Trigger') }}</th>
                 <th>{{ __('Applies To') }}</th>
-                <th>{{ __('Spectrum') }}</th>
+                <th>{{ __('Museum') }}</th>
                 <th>{{ __('Steps') }}</th>
                 <th>{{ __('Active Tasks') }}</th>
                 <th>{{ __('Status') }}</th>

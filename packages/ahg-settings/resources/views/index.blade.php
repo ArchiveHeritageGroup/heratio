@@ -40,7 +40,7 @@
         'Voice & AI'               => 'ahgAIPlugin',
         'E-Commerce'               => 'ahgCartPlugin',
         'Order Management'         => 'ahgCartPlugin',
-        'Spectrum / Collections'   => 'ahgSpectrumPlugin',
+        'Museum / Collections'   => 'ahgSpectrumPlugin',
         'Library Settings'         => 'ahgLibraryPlugin',
         'Multi-Tenancy'            => 'ahgMultiTenantPlugin',
         'Heritage Accounting'      => 'ahgHeritageAccountingPlugin',
@@ -78,7 +78,7 @@
     // ── 2. AHG setting groups ($ahgGroups) ──
     $ahgLabels = [
         'general' => 'Theme Configuration', 'email' => 'Email Settings', 'metadata' => 'Metadata Extraction',
-        'media' => 'Media Player', 'jobs' => 'Background Jobs', 'spectrum' => 'Spectrum / Collections',
+        'media' => 'Media Player', 'jobs' => 'Background Jobs', 'spectrum' => 'Museum / Collections',
         'photos' => 'Condition Photos', 'data_protection' => 'Data Protection', 'iiif' => 'IIIF Viewer',
         'faces' => 'Face Detection', 'fuseki' => 'Fuseki / RIC Triplestore', 'ingest' => 'Data Ingest',
         'accession' => 'Accession Management', 'encryption' => 'Encryption', 'voice_ai' => 'Voice & AI',
@@ -92,7 +92,7 @@
         'metadata' => 'Automatic metadata extraction from uploaded files',
         'media' => 'Media player behaviour and display options',
         'jobs' => 'Background job processing and notifications',
-        'spectrum' => 'Spectrum collections management procedures',
+        'spectrum' => 'Museum collections-management procedures',
         'photos' => 'Condition photo thumbnails and EXIF settings',
         'data_protection' => 'POPIA / GDPR compliance and data handling',
         'iiif' => 'IIIF image viewer and annotation settings',
@@ -200,7 +200,7 @@
     $addTile('Multi-Tenancy',         'fa-building',           'Multi-tenancy isolation and branding', 'settings.ahg.multi_tenant');
     $addTile('Portable Export',       'fa-compact-disc',       'Portable offline export configuration', 'settings.ahg.portable_export');
     $addTile('Security',              'fa-shield-alt',         'Security lockout and password policies', 'settings.ahg.security', 'danger');
-    $addTile('Spectrum / Collections','fa-archive',            'Spectrum collections management procedures', 'settings.ahg.spectrum');
+    $addTile('Museum / Collections','fa-archive',            'Museum collections-management procedures', 'settings.ahg.spectrum');
     $addTile('Voice & AI',            'fa-microphone',         'Voice interface and AI assistant settings', 'settings.ahg.voice_ai');
 
     // Strip tiles whose plugin is disabled (atom_plugin.is_enabled = 0).

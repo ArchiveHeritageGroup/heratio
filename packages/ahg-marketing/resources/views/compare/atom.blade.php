@@ -38,7 +38,7 @@
         "Portable dark-archive export with no server or database",
         "Research portal: bookings, reproductions, ODRL rights, API keys",
         "AI-assisted HTR, NER, condition assessment and metadata suggestion",
-        "Spectrum-capable museum collections management (supports the Spectrum 5.1 procedures)",
+        "Museum collections management with a structured object-lifecycle workflow (object entry, acquisition, location and movement, cataloguing, loans, and object exit)",
         "Runs standalone (Laravel) or as a fully reversible overlay alongside an existing AtoM installation",
         "REST API v1 and v2",
         "Elasticsearch-powered search and discovery"
@@ -111,10 +111,10 @@
         },
         {
           "@type": "Question",
-          "name": "Does Heratio support the Spectrum standard for museums?",
+          "name": "Does Heratio support museum collections management?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Heratio is Spectrum-capable: it supports the Collections Trust Spectrum 5.1 museum procedures for object entry, acquisition, location and movement, cataloguing, loans, and object exit, alongside its archival description features."
+            "text": "Heratio provides museum collections management: a structured object-lifecycle workflow covering object entry, acquisition, location and movement, cataloguing, loans, and object exit, alongside its archival description features."
           }
         },
         {
@@ -148,7 +148,7 @@
     <p>Heratio ships in two deployment editions, so moving to Heratio is not necessarily a migration decision at all:</p>
     <ul>
         <li><strong>Heratio (standalone)</strong> - the pure <strong>Laravel 12</strong> platform on its own stack. Best for new deployments, or once you have migrated off AtoM. This is the edition compared in the table below.</li>
-        <li><strong>AtoM / Heratio (overlay)</strong> - Heratio's <strong>Laravel</strong> modules run <strong>alongside your existing AtoM</strong> (Symfony) installation, over the same AtoM database. Your original AtoM stays intact and fully functional, and the overlay is <strong>fully reversible</strong>: remove it and you are back to stock AtoM. So an existing AtoM site can add Heratio's modern capabilities - Records in Contexts, digital asset management, museum and Spectrum-capable workflows, AI-assisted description, and digital preservation - with <strong>no data migration and no lock-in</strong>.</li>
+        <li><strong>AtoM / Heratio (overlay)</strong> - Heratio's <strong>Laravel</strong> modules run <strong>alongside your existing AtoM</strong> (Symfony) installation, over the same AtoM database. Your original AtoM stays intact and fully functional, and the overlay is <strong>fully reversible</strong>: remove it and you are back to stock AtoM. So an existing AtoM site can add Heratio's modern capabilities - Records in Contexts, digital asset management, museum collections workflows, AI-assisted description, and digital preservation - with <strong>no data migration and no lock-in</strong>.</li>
     </ul>
     <p>The practical upshot: keep AtoM and augment it reversibly with the AtoM / Heratio overlay, or adopt the standalone Laravel platform outright. Many sites start with the overlay to evaluate Heratio on their live collection, then move to standalone later if and when it suits them.</p>
 
@@ -174,7 +174,7 @@
                 <tr><td>OAI-PMH</td><td>Serve and harvest (OAI-PMH provider and harvester)</td><td>OAI-PMH provider</td></tr>
                 <tr><td>Finding aids</td><td>Generated PDF finding aids</td><td>PDF / RTF finding aid generation</td></tr>
                 <tr><td>Records in Contexts (RiC)</td><td>Native, first-class (traditional + RiC view per entity)</td><td>Not native (community and roadmap interest)</td></tr>
-                <tr><td>Museum collections</td><td>Spectrum-capable (Spectrum 5.1 procedures)</td><td>Not a museum collections system</td></tr>
+                <tr><td>Museum collections</td><td>Museum collections (object-lifecycle procedures)</td><td>Not a museum collections system</td></tr>
                 <tr><td>Digital asset management</td><td>Built-in: IIIF deep-zoom, 3D viewing, media at scale</td><td>Basic digital object handling</td></tr>
                 <tr><td>Digital preservation</td><td>OCFL, BagIt, OAIS/PREMIS, portable dark-archive export</td><td>Via integration with Archivematica</td></tr>
                 <tr><td>Archivematica integration</td><td>Connector (pulls DIPs)</td><td>Native (same steward, Artefactual)</td></tr>
@@ -203,7 +203,7 @@
     <ul>
         <li>You want a <strong>current technology stack</strong>. AtoM runs on Symfony 1.4, a framework that reached end-of-life in 2012; Heratio is built on Laravel 12 and PHP 8.3, which keeps security patching, hiring, and extension realistic for the next decade.</li>
         <li>You need <strong>Records in Contexts (RiC)</strong> as a working capability now, not a roadmap item. Heratio gives every major entity both a traditional archival view and a RiC contextual graph view over the same data, permissions, and identifiers.</li>
-        <li>You manage <strong>more than archives</strong>: museum collections (Spectrum-capable), digital assets with IIIF deep-zoom and 3D, and records management, on one platform and data model instead of several integrated products.</li>
+        <li>You manage <strong>more than archives</strong>: museum collections (with structured object-lifecycle procedures), digital assets with IIIF deep-zoom and 3D, and records management, on one platform and data model instead of several integrated products.</li>
         <li>You want <strong>digital preservation built in</strong> (OCFL, BagIt, OAIS/PREMIS) plus a portable dark-archive export that reconstructs a browsable collection with no server or database.</li>
         <li>You want a <strong>research and reading-room portal</strong>, <strong>AI-assisted description</strong> (HTR, NER), and a modern <strong>REST API</strong> without bolting on separate tools.</li>
         <li>You are a <strong>university</strong> needing special collections, institutional archives, and research data managed together.</li>

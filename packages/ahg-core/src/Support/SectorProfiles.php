@@ -39,7 +39,7 @@ final class SectorProfiles
             'theme' => self::PALETTE_ARCHIVE,
         ],
         'museum' => [
-            'label' => 'Museum (CCO/Spectrum)',
+            'label' => 'Museum (CCO)',
             'mask'  => 'MUS/%Y%/%04i%',
             'theme' => self::PALETTE_MUSEUM,
         ],

@@ -1,15 +1,15 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Spectrum Notifications'))
+@section('title', __('Museum Procedures Notifications'))
 
 @section('content')
 
-<h1>{{ __('Spectrum Notifications') }}</h1>
+<h1>{{ __('Museum Procedures Notifications') }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">{{ __('Spectrum') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">{{ __('Museum') }}</a></li>
         <li class="breadcrumb-item active">{{ __('Notifications') }}</li>
     </ol>
 </nav>

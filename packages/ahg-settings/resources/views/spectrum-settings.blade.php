@@ -6,7 +6,7 @@
   @license    AGPL-3.0-or-later
 --}}
 @extends('theme::layouts.2col')
-@section('title', 'Spectrum / Collections')
+@section('title', 'Museum / Collections')
 @section('body-class', 'admin settings')
 
 @section('sidebar')
@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-archive me-2"></i>{{ __('Spectrum / Collections') }}</h1>
+<h1><i class="fas fa-archive me-2"></i>{{ __('Museum / Collections') }}</h1>
 <p class="text-muted">Spectrum collections management procedures</p>
 @endsection
 

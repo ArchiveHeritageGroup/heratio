@@ -5,7 +5,7 @@
     ['key' => 'metadata',        'label' => 'Metadata Extraction',    'icon' => 'fa-tags'],
     ['key' => 'media',           'label' => 'Media Player',           'icon' => 'fa-play-circle'],
     ['key' => 'jobs',            'label' => 'Background Jobs',        'icon' => 'fa-tasks'],
-    ['key' => 'spectrum',        'label' => 'Spectrum / Collections', 'icon' => 'fa-archive'],
+    ['key' => 'spectrum',        'label' => 'Museum / Collections', 'icon' => 'fa-archive'],
     ['key' => 'photos',          'label' => 'Condition Photos',       'icon' => 'fa-camera'],
     ['key' => 'data_protection', 'label' => 'Data Protection',        'icon' => 'fa-user-shield'],
     ['key' => 'iiif',            'label' => 'IIIF Viewer',            'icon' => 'fa-images'],

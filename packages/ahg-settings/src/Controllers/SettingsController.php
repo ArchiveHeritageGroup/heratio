@@ -1089,7 +1089,7 @@ class SettingsController extends Controller
             'metadata' => 'Metadata Extraction',
             'media' => 'Media Player',
             'jobs' => 'Background Jobs',
-            'spectrum' => 'Spectrum / Collections',
+            'spectrum' => 'Museum / Collections',
             'photos' => 'Condition Photos',
             'data_protection' => 'Data Protection',
             'iiif' => 'IIIF Viewer',
@@ -3953,7 +3953,7 @@ class SettingsController extends Controller
 
     public function spectrumSettings(Request $request)
     {
-        return $this->buildGroupSettings($request, 'spectrum', 'spectrum-settings', 'Spectrum / Collections', [
+        return $this->buildGroupSettings($request, 'spectrum', 'spectrum-settings', 'Museum / Collections', [
             'spectrum_enabled', 'spectrum_auto_create_movement', 'spectrum_require_photos',
             'spectrum_email_notifications', 'spectrum_enable_barcodes', 'spectrum_auto_numbering',
             'spectrum_require_insurance', 'spectrum_require_valuation',

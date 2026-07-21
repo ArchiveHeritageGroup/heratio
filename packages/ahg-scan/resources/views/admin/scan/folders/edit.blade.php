@@ -128,7 +128,7 @@
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="spectrum_auto_enter" value="0">
                 <input type="checkbox" name="spectrum_auto_enter" value="1" class="form-check-input" id="sae" {{ old('spectrum_auto_enter', $folder->spectrum_auto_enter ?? 0) ? 'checked' : '' }}>
-                <label class="form-check-label" for="sae"><strong>{{ __('Spectrum auto-entry') }}</strong> — for museum-sector scans, automatically create a Spectrum object-entry + acquisition record and enter the configured workflow (default off).</label>
+                <label class="form-check-label" for="sae"><strong>{{ __('Museum auto-entry') }}</strong> — for museum-sector scans, automatically create a Museum object-entry + acquisition record and enter the configured workflow (default off).</label>
             </div>
 
             @if($folder->id && !empty($folder->ingest_session_id ?? null))

@@ -77,7 +77,7 @@
         @endif
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgSpectrumPlugin'))
         <a href="{{ route('io.spectrum', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-chart-bar me-1"></i> {{ __('Spectrum data') }}
+          <i class="fas fa-chart-bar me-1"></i> {{ __('Museum data') }}
         </a>
         @endif
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgHeritageAccountingPlugin'))

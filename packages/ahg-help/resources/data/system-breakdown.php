@@ -365,7 +365,7 @@ return [
         [
             'id'    => 'museum',
             'label' => 'Museum objects',
-            'sub'   => 'Spectrum 5.1 procedures',
+            'sub'   => 'Museum procedures',
             'color' => '#9e2a2b',
             'help'  => 'museum-user-guide',
             'children' => [
@@ -380,7 +380,7 @@ return [
                 [
                     'id' => 'museum.condition', 'label' => 'Condition', 'sub' => 'Condition checking', 'help' => 'condition-reports',
                     'children' => [
-                        ['id' => 'museum.condition.reports', 'label' => 'Condition reports', 'sub' => 'Spectrum assessment', 'help' => 'condition-reports'],
+                        ['id' => 'museum.condition.reports', 'label' => 'Condition reports', 'sub' => 'Museum assessment', 'help' => 'condition-reports'],
                         ['id' => 'museum.condition.photos',  'label' => 'Condition photos',  'sub' => 'Visual record'],
                         ['id' => 'museum.condition.aiscan',  'label' => 'AI condition scan', 'sub' => 'Vision model', 'help' => 'ai-condition-user-guide'],
                     ],
@@ -395,7 +395,7 @@ return [
                 [
                     'id' => 'museum.privacy', 'label' => 'PII / Privacy', 'sub' => 'Sensitive objects', 'help' => 'odrl-rights-policies',
                     'children' => [
-                        ['id' => 'museum.privacy.compliance','label' => 'Privacy compliance', 'sub' => 'Spectrum privacy hooks'],
+                        ['id' => 'museum.privacy.compliance','label' => 'Privacy compliance', 'sub' => 'Museum privacy hooks'],
                         ['id' => 'museum.privacy.icip',      'label' => 'ICIP',               'sub' => 'Indigenous cultural rights'],
                     ],
                 ],

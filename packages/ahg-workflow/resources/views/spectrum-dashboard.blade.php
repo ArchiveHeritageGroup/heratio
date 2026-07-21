@@ -48,7 +48,7 @@
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th>{{ __('Spectrum procedure') }}</th>
+              <th>{{ __('Museum procedure') }}</th>
               <th class="status-cell">{{ __('Not started') }}</th>
               <th class="status-cell">{{ __('In progress') }}</th>
               <th class="status-cell">{{ __('Completed') }}</th>

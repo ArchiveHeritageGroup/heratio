@@ -142,7 +142,7 @@
           <p>Object types determine how records are displayed:</p>
           <ul class="small">
             <li><strong>{{ __('Archive:') }}</strong> ISAD(G) hierarchical view</li>
-            <li><strong>{{ __('Museum:') }}</strong> Spectrum object records</li>
+            <li><strong>{{ __('Museum:') }}</strong> Museum object records</li>
             <li><strong>{{ __('Gallery:') }}</strong> Artwork/artist focus</li>
             <li><strong>{{ __('Book Collection:') }}</strong> Bibliographic view</li>
             <li><strong>{{ __('Photo Archive:') }}</strong> Visual grid/lightbox</li>

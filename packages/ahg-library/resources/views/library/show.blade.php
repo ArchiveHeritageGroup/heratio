@@ -189,7 +189,7 @@
         @endif
         @if(\Illuminate\Support\Facades\Route::has('io.spectrum'))
           <a href="{{ route('io.spectrum', $item->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-layer-group me-2"></i>{{ __('Spectrum data') }}
+            <i class="fas fa-layer-group me-2"></i>{{ __('Museum data') }}
           </a>
         @endif
         @if(\Illuminate\Support\Facades\Route::has('ahgspectrum.workflow'))
@@ -1754,7 +1754,7 @@
           @endif
           @if(\Illuminate\Support\Facades\Route::has('io.spectrum'))
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ route('io.spectrum', $item->slug) }}"><i class="fas fa-layer-group me-2"></i>{{ __('Spectrum data') }}</a></li>
+            <li><a class="dropdown-item" href="{{ route('io.spectrum', $item->slug) }}"><i class="fas fa-layer-group me-2"></i>{{ __('Museum data') }}</a></li>
             @if(\Illuminate\Support\Facades\Route::has('ahgspectrum.workflow'))
               <li><a class="dropdown-item" href="{{ route('ahgspectrum.workflow') }}"><i class="fas fa-tasks me-2"></i>{{ __('Workflow Status') }}</a></li>
             @endif

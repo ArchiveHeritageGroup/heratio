@@ -223,7 +223,7 @@
                 <option value="">-- Select target type --</option>
                 <option value="archives" {{ old('target_type') === 'archives' ? 'selected' : '' }}>{{ __('Archives (ISAD-G)') }}</option>
                 <option value="library" {{ old('target_type') === 'library' ? 'selected' : '' }}>{{ __('Library') }}</option>
-                <option value="museum" {{ old('target_type') === 'museum' ? 'selected' : '' }}>{{ __('Museum (Spectrum)') }}</option>
+                <option value="museum" {{ old('target_type') === 'museum' ? 'selected' : '' }}>{{ __('Museum') }}</option>
                 <option value="gallery" {{ old('target_type') === 'gallery' ? 'selected' : '' }}>{{ __('Gallery (CCO)') }}</option>
                 <option value="dam" {{ old('target_type') === 'dam' ? 'selected' : '' }}>{{ __('Digital Assets (DAM)') }}</option>
                 <option value="accession" {{ old('target_type') === 'accession' ? 'selected' : '' }}>{{ __('Accession Records') }}</option>

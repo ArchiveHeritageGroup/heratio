@@ -148,7 +148,7 @@
         <li><a href="{{ Route::has('acl.clearances') ? route('acl.clearances') : url('/admin/security/compliance') }}"><i class="fas fa-lock me-2"></i>{{ __('Security & Compliance') }}</a></li>
         @endif
         @if($hasSpectrum)
-        <li><a href="{{ url('/admin/spectrum/dashboard') }}"><i class="fas fa-layer-group me-2"></i>{{ __('Spectrum Workflow') }}</a></li>
+        <li><a href="{{ url('/admin/spectrum/dashboard') }}"><i class="fas fa-layer-group me-2"></i>{{ __('Museum Procedures Workflow') }}</a></li>
         @endif
         @if($hasVendor)
         <li><a href="{{ route('ahgvendor.index') }}"><i class="fas fa-building me-2"></i>{{ __('Vendor Management') }}</a></li>
@@ -204,7 +204,7 @@
             @if($hasDam)<li class="list-group-item"><a href="{{ route('dam.reports') }}"><i class="fas fa-images me-2 text-muted"></i>{{ __('DAM Reports') }}</a></li>@endif
             @if($hasMuseum)<li class="list-group-item"><a href="{{ route('museum.reports') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Museum Reports') }}</a></li>@endif
             @if($has3D)<li class="list-group-item"><a href="{{ route('iiif.three-d-reports.index') }}"><i class="fas fa-cube me-2 text-muted"></i>{{ __('3D Object Reports') }}</a></li>@endif
-            @if($hasSpectrum)<li class="list-group-item"><a href="{{ route('ahgspectrum.reports') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('Spectrum Reports') }}</a></li>@endif
+            @if($hasSpectrum)<li class="list-group-item"><a href="{{ route('ahgspectrum.reports') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('Museum Procedures Reports') }}</a></li>@endif
           @endif
         </ul>
       </div>
@@ -251,7 +251,7 @@
     </div>
   </div>
 
-  {{-- Row 2: Approval Workflow / Spectrum Workflow (cards 4-5) --}}
+  {{-- Row 2: Approval Workflow / Museum Procedures Workflow (cards 4-5) --}}
   @if($hasWorkflow)
   <div class="row mb-4">
     {{-- 4. Approval Workflow --}}
@@ -269,11 +269,11 @@
         </ul>
       </div>
     </div>
-    {{-- 5. Spectrum Workflow --}}
+    {{-- 5. Museum Procedures Workflow --}}
     @if($hasSpectrum)
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Spectrum Workflow') }}</h5></div>
+        <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Museum Procedures Workflow') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><a href="{{ url('/admin/spectrum/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Spectrum Dashboard') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/admin/spectrum/my-tasks') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('My Spectrum Tasks') }}</a></li>
@@ -425,11 +425,11 @@
     </div>
     @endif
 
-    {{-- 12. Condition (Spectrum 5.1) --}}
+    {{-- 12. Condition --}}
     @if($hasCondition)
     <div class="col-md-4">
       <div class="card h-100">
-        <div class="card-header bg-secondary text-white"><h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>{{ __('Condition (Spectrum 5.1)') }}</h5></div>
+        <div class="card-header bg-secondary text-white"><h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>{{ __('Condition') }}</h5></div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><a href="{{ url('/admin/condition') }}"><i class="fas fa-clipboard-check me-2 text-muted"></i>{{ __('Condition Dashboard') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/admin/condition/risk') }}"><i class="fas fa-exclamation-triangle me-2 text-muted"></i>{{ __('Risk Assessment') }}</a></li>

@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Spectrum Workflow'))
+@section('title', __('Museum Procedures Workflow'))
 
 @section('content')
 
@@ -67,13 +67,13 @@ if ($users->isEmpty()) {
 $canEdit = auth()->check() && auth()->user()->is_admin;
 @endphp
 
-<h1>{{ __('Spectrum Workflow') }}: {{ $resource->title ?? $resource->slug ?? '' }}</h1>
+<h1>{{ __('Museum Procedures Workflow') }}: {{ $resource->title ?? $resource->slug ?? '' }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ url('/' . ($resource->slug ?? '')) }}">{{ $resource->title ?? $resource->slug ?? '' }}</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.index') }}?slug={{ $resource->slug ?? '' }}">{{ __('Spectrum') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.index') }}?slug={{ $resource->slug ?? '' }}">{{ __('Museum') }}</a></li>
         <li class="breadcrumb-item active">{{ __('Workflow') }}</li>
     </ol>
 </nav>
