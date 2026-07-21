@@ -7,6 +7,18 @@ use Illuminate\Support\Facades\DB;
 class HomeController extends Controller
 {
     /**
+     * Hosts that render the marketing landing page rather than the operational
+     * one. Keep in step with the identical list in header.blade.php and
+     * ahg-admin-menu.blade.php - when these disagree, the navbar and the page
+     * body render for different modes.
+     */
+    private const MARKETING_HOSTS = [
+        'heratio.org',
+        'www.heratio.org',
+        'heratio.theahg.co.za',
+    ];
+
+    /**
      * Homepage — migrated from ahgThemeB5Plugin homeSuccess.php.
      * 2-column layout: sidebar (static pages menu, browse-by, popular this week)
      * + main content (featured collection carousel, static page HTML content).
@@ -28,19 +40,26 @@ class HomeController extends Controller
             ->select('static_page.id', 'static_page_i18n.title', 'static_page_i18n.content')
             ->first();
 
-        // Marketing-mode short-circuit. Used on the vendor's own site
-        // (heratio.theahg.co.za) to render the product pitch - vision, pillars,
-        // sectors, standards, CTAs - without the body-level operational chrome
-        // (sidebar Browse-by, sidebar Popular, marketplace hero block, featured
-        // carousel, the big feature wall). The navbar login dropdown is kept
-        // because heratio.theahg.co.za is itself the demo - it's seeded with
-        // real data and the same demo account (louise@theahg.co.za) works here
-        // as everywhere else, so prospects can log in and explore.
+        // Marketing-mode short-circuit. Used on the vendor's own sites to render
+        // the product pitch - vision, pillars, sectors, standards, CTAs - and the
+        // two 3D digital-twin walkthrough links, without the body-level
+        // operational chrome (sidebar Browse-by, sidebar Popular, marketplace
+        // hero block, featured carousel, the big feature wall). The navbar login
+        // dropdown is kept because these sites are themselves the demo - seeded
+        // with real data, and the demo account works here as everywhere else, so
+        // prospects can log in and explore.
+        //
+        // The host list must match header.blade.php and ahg-admin-menu.blade.php,
+        // which v1.154.382 updated for the move to heratio.org but which left
+        // this check behind. The split meant heratio.org rendered the
+        // institutional homepage while its navbar behaved as marketing, so the
+        // digital-twin walkthrough links disappeared from the landing page.
+        //
         // Default is institutional mode (the existing behaviour), so any
         // institution that installs Heratio gets a working operational homepage
         // out of the box.
         $mode = config('heratio.homepage_mode')
-            ?? (request()->getHost() === 'heratio.theahg.co.za' ? 'marketing' : 'institutional');
+            ?? (in_array(request()->getHost(), self::MARKETING_HOSTS, true) ? 'marketing' : 'institutional');
         if ($mode === 'marketing') {
             // Latest published demo-site articles for the landing Articles strip.
             $latestArticles = [];
