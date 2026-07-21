@@ -317,6 +317,115 @@ class SpectrumWorkflowService
     }
 
     // ------------------------------------------------------------------
+    // Open-task accounting
+    // ------------------------------------------------------------------
+
+    /**
+     * Final states for every active procedure, keyed by procedure type.
+     *
+     * Each procedure ends on its OWN differently-named state (disposal ends
+     * on 'documented', valuation on 'approved', loans_in on 'returned' ...),
+     * so any hardcoded 'completed/resolved/closed' list mis-counts open work.
+     * This is the single source of truth for "is this task still open".
+     *
+     * @return array<string, string[]>  procedure_type => final state names
+     */
+    public static function finalStatesByProcedure(): array
+    {
+        if (!Schema::hasTable('spectrum_workflow_config')) {
+            return [];
+        }
+
+        $byProcedure = [];
+
+        foreach (DB::table('spectrum_workflow_config')->where('is_active', 1)->get() as $config) {
+            $configData = json_decode($config->config_json, true) ?: [];
+            $finals = !empty($configData['final_states'])
+                ? $configData['final_states']
+                : self::deriveFinalStates($configData);
+
+            if (!empty($finals)) {
+                $byProcedure[$config->procedure_type] = $finals;
+            }
+        }
+
+        return $byProcedure;
+    }
+
+    /**
+     * Procedure types with an active workflow config.
+     *
+     * @return string[]
+     */
+    public static function activeProcedureTypes(): array
+    {
+        if (!Schema::hasTable('spectrum_workflow_config')) {
+            return [];
+        }
+
+        return DB::table('spectrum_workflow_config')
+            ->where('is_active', 1)
+            ->pluck('procedure_type')
+            ->all();
+    }
+
+    /**
+     * Restrict a spectrum_workflow_state query to tasks that are still open.
+     *
+     * Excludes each row only when it sits in a final state OF ITS OWN
+     * procedure. A flat whereNotIn() over the union of every procedure's
+     * final states would wrongly hide live work, because the same state name
+     * is final in one procedure and intermediate in another - 'documented'
+     * ends disposal but is a mid-point of object_entry.
+     *
+     * Tasks belonging to a deactivated procedure are dropped too, so a count
+     * taken with this filter matches what the My Tasks page actually lists.
+     *
+     * @param  \Illuminate\Database\Query\Builder $query
+     * @param  string $alias  Table or alias holding procedure_type/current_state
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public static function applyOpenTaskFilter($query, string $alias = 'spectrum_workflow_state')
+    {
+        $activeProcedureTypes = self::activeProcedureTypes();
+        if (!empty($activeProcedureTypes)) {
+            $query->whereIn("{$alias}.procedure_type", $activeProcedureTypes);
+        }
+
+        $finalStatesByProcedure = self::finalStatesByProcedure();
+
+        if (empty($finalStatesByProcedure)) {
+            return $query;
+        }
+
+        return $query->where(function ($outer) use ($finalStatesByProcedure, $alias) {
+            foreach ($finalStatesByProcedure as $procedure => $finals) {
+                $outer->where(function ($inner) use ($procedure, $finals, $alias) {
+                    $inner->where("{$alias}.procedure_type", '!=', $procedure)
+                          ->orWhereNotIn("{$alias}.current_state", $finals);
+                });
+            }
+        });
+    }
+
+    /**
+     * Count the open tasks assigned to a user.
+     *
+     * Used by the My Tasks page, the Spectrum dashboard tile and the header
+     * user-menu badge so all three report the same number.
+     */
+    public static function countOpenTasks(?int $userId): int
+    {
+        if (!$userId || !Schema::hasTable('spectrum_workflow_state')) {
+            return 0;
+        }
+
+        $query = DB::table('spectrum_workflow_state')->where('assigned_to', $userId);
+
+        return (int) self::applyOpenTaskFilter($query)->count();
+    }
+
+    // ------------------------------------------------------------------
     // Internal helpers
     // ------------------------------------------------------------------
 

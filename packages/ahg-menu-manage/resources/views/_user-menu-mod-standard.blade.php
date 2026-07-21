@@ -44,16 +44,14 @@ if ($isAuthenticated && $hasResearch && $isAdmin) {
     }
 }
 
-// Get Spectrum task count for current user (exclude terminal states)
+// Get Spectrum task count for current user. Uses the shared per-procedure
+// helper (each procedure ends on its own state name, so a hardcoded terminal
+// list over-counts) so this badge matches the My Tasks page exactly.
 if ($isAuthenticated && $hasSpectrum) {
     try {
-        $terminalStates = ['completed', 'resolved', 'disposed', 'reported'];
-        $spectrumTaskCount = \Illuminate\Support\Facades\DB::table('spectrum_workflow_state')
-            ->where('assigned_to', $userId)
-            ->whereNotIn('current_state', $terminalStates)
-            ->count();
-    } catch (Exception $e) {
-        // Table may not exist
+        $spectrumTaskCount = \AhgSpectrum\Services\SpectrumWorkflowService::countOpenTasks($userId);
+    } catch (Throwable $e) {
+        // Table or package may not be present
     }
 } @endphp
 

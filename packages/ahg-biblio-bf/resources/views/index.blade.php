@@ -19,24 +19,24 @@
     <div class="col-md-4">
       <div class="card border-primary">
         <div class="card-body text-center py-3">
-          <div class="display-6 text-primary">{{ number_format($stats['bibframe_export_total'] ?? 0) }}</div>
-          <div class="small text-muted text-uppercase">Total Works</div>
+          <div class="display-6 text-primary">{{ number_format($stats['works'] ?? 0) }}</div>
+          <div class="small text-muted text-uppercase">Works</div>
         </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card border-success">
         <div class="card-body text-center py-3">
-          <div class="display-6 text-success">{{ number_format($stats['bibframe_export_rdf'] ?? 0) }}</div>
-          <div class="small text-muted text-uppercase">With RDF</div>
+          <div class="display-6 text-success">{{ number_format($stats['instances'] ?? 0) }}</div>
+          <div class="small text-muted text-uppercase">Instances</div>
         </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card border-secondary">
         <div class="card-body text-center py-3">
-          <div class="display-6 text-secondary">{{ number_format($stats['bibframe_export_total'] - ($stats['bibframe_export_rdf'] ?? 0)) }}</div>
-          <div class="small text-muted text-uppercase">Pending RDF</div>
+          <div class="display-6 text-secondary">{{ number_format($stats['items'] ?? 0) }}</div>
+          <div class="small text-muted text-uppercase">Items</div>
         </div>
       </div>
     </div>
@@ -105,9 +105,10 @@
   <div class="row mt-4">
     <div class="col-lg-8">
       <div class="alert alert-info small mb-0">
-        <strong>BIBFRAME 2.0 model</strong> — Work (intellectual creation) &rarr; Instance (edition/format) &rarr; Item (copy).
-        Conversion uses <code>library_biblio_work</code>, <code>library_biblio_instance</code>, and
-        <code>library_biblio_agent</code>. All RDF round-trips are proxied through the OpenRiC RiC-O service.
+        <strong>BIBFRAME 2.0 model</strong> - Work (intellectual creation) &rarr; Instance (edition/format) &rarr; Item (copy).
+        Conversion reads the live catalogue: a Work is a <code>library_item</code> work-key cluster,
+        each <code>library_item</code> is an Instance, each <code>library_copy</code> an Item, and
+        <code>library_item_creator</code> supplies the Agents. All RDF round-trips are proxied through the OpenRiC RiC-O service.
         See <a href="https://www.loc.gov/standards/bibframe/docs/" target="_blank" rel="noopener">LoC BIBFRAME docs</a>.
       </div>
     </div>

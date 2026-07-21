@@ -7,7 +7,7 @@
  * library_item row and lets cataloguers edit the most common predicates
  * inline. Backs onto library_item, library_item_creator, and the
  * object_term_relation -> term tables - i.e. the actual Heratio catalogue,
- * not the (currently empty) library_biblio_work scaffold.
+ * which is also what the BIBFRAME export reads (see BiblioWorkRepository).
  *
  * Routes (registered in routes/web.php):
  *   GET  /bibframe/editor/{libraryItemId}

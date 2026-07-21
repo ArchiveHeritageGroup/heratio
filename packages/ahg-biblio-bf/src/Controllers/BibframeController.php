@@ -30,9 +30,9 @@
 namespace AhgBiblioBf\Controllers;
 
 use AhgBiblioBf\Services\BibframeService;
+use AhgBiblioBf\Services\BiblioWorkRepository;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -40,9 +40,12 @@ class BibframeController extends Controller
 {
     protected BibframeService $service;
 
-    public function __construct(BibframeService $service)
+    protected BiblioWorkRepository $works;
+
+    public function __construct(BibframeService $service, BiblioWorkRepository $works)
     {
         $this->service = $service;
+        $this->works = $works;
     }
 
     /**
@@ -50,13 +53,12 @@ class BibframeController extends Controller
      */
     public function index(): Response
     {
-        // The library_biblio_work scaffold is optional - the live BIBFRAME
-        // surface is the graph editor over library_item. Degrade to zeros
-        // when the scaffold table is absent rather than 500 the dashboard.
-        $hasScaffold = \Illuminate\Support\Facades\Schema::connection('heratio')->hasTable('library_biblio_work');
+        // Counts come from the live catalogue (library_item / library_copy),
+        // mapped onto the BIBFRAME Work -> Instance -> Item hierarchy.
         $stats = [
-            'bibframe_export_total' => $hasScaffold ? DB::connection('heratio')->table('library_biblio_work')->count() : 0,
-            'bibframe_export_rdf'   => $hasScaffold ? DB::connection('heratio')->table('library_biblio_work')->whereNotNull('bibframe_rdf')->count() : 0,
+            'works'     => $this->works->countWorks(),
+            'instances' => $this->works->countInstances(),
+            'items'     => $this->works->countItems(),
         ];
 
         return response()->view('ahg-biblio-bf::index', [
@@ -69,16 +71,11 @@ class BibframeController extends Controller
      */
     public function show(int $workId): Response
     {
-        $work = DB::connection('heratio')->table('library_biblio_work')->find($workId);
-        if (! $work) {
+        if (! $this->works->find($workId)['work']) {
             abort(404);
         }
 
-        // Lazy-generate RDF if not already stored in the bibframe_rdf column
-        $rdf = $work->bibframe_rdf
-            ?? $this->service->catalogToRdf($workId);
-
-        return response($rdf, 200, [
+        return response($this->service->catalogToRdf($workId), 200, [
             'Content-Type' => 'application/rdf+xml; charset=utf-8',
         ]);
     }
@@ -88,19 +85,8 @@ class BibframeController extends Controller
      */
     public function export(): Response
     {
-        // The library_biblio_work scaffold is optional - render an empty
-        // export list gracefully when it has not been provisioned.
-        $works = \Illuminate\Support\Facades\Schema::connection('heratio')->hasTable('library_biblio_work')
-            ? DB::connection('heratio')
-                ->table('library_biblio_work')
-                ->select(['id', 'title', 'author', 'created_at'])
-                ->orderBy('created_at', 'desc')
-                ->limit(200)
-                ->get()
-            : collect();
-
         return response()->view('ahg-biblio-bf::export', [
-            'works' => $works,
+            'works' => $this->works->listWorks(200),
         ]);
     }
 
@@ -127,15 +113,10 @@ class BibframeController extends Controller
         }
 
         if (! empty($validated['batch'])) {
-            $works = DB::connection('heratio')
-                ->table('library_biblio_work')
-                ->select(['id', 'title'])
-                ->get();
-
-            $data = $works->map(fn($w) => [
+            $data = $this->works->listWorks(200)->map(fn($w) => [
                 'id'    => $w->id,
                 'title' => $w->title,
-                'rdf'   => $this->service->catalogToRdf($w->id, $format),
+                'rdf'   => $this->service->catalogToRdf((int) $w->id, $format),
             ]);
 
             return response()->json([
@@ -228,25 +209,10 @@ class BibframeController extends Controller
      */
     public function agent(): Response
     {
-        // The library_biblio_agent scaffold is optional; when the bibliographic
-        // schema has not been installed the page must still render (empty list)
-        // rather than 500. Mirrors the hasTable() guard used elsewhere here.
-        $hasTable = \Illuminate\Support\Facades\Schema::connection('heratio')->hasTable('library_biblio_agent');
-        $agents = $hasTable
-            ? DB::connection('heratio')
-                ->table('library_biblio_agent')
-                ->select(['id', 'name', 'type', 'created_at'])
-                ->orderBy('name')
-                ->get()
-            : collect();
-
-        if (! $hasTable) {
-            // Flag the unavailable feature in-app rather than a silent empty list.
-            session()->now('info', __('The BIBFRAME agent index is not installed on this instance, so no agents can be listed here.'));
-        }
-
+        // Agents are the catalogue's contributors (library_item_creator),
+        // de-duplicated by name.
         return response()->view('ahg-biblio-bf::agent', [
-            'agents' => $agents,
+            'agents' => $this->works->listAgents(),
         ]);
     }
 }

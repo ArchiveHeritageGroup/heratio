@@ -13,7 +13,7 @@
   </div>
 
   @if($agents->isEmpty())
-    <div class="alert alert-info">No agent records found. Import a BIBFRAME document to populate agents.</div>
+    <div class="alert alert-info">No agents found. Agents are the contributors recorded on catalogue records - add creators to a library record, or import a BIBFRAME document.</div>
   @else
     <div class="table-responsive">
       <table class="table table-sm table-striped">
@@ -33,7 +33,7 @@
               <td>
                 <span class="badge bg-secondary">{{ $agent->type ?? 'aut' }}</span>
               </td>
-              <td>{{ $agent->created_at ? $agent->created_at->toDateString() : '—' }}</td>
+              <td>{{ $agent->created_at ? $agent->created_at->toDateString() : '-' }}</td>
             </tr>
           @endforeach
         </tbody>

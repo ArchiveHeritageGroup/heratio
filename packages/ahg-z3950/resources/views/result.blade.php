@@ -13,7 +13,7 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">{{ __('Search Results') }}</h1>
-                <p class="text-sm text-gray-500 mt-1">{{ count($records) }} records retrieved &mdash; {{ $syntax }} / {{ $elementSet }}</p>
+                <p class="text-sm text-gray-500 mt-1">{{ count($records) }} records retrieved - {{ $syntax }} / {{ $elementSet }}</p>
             </div>
             <form method="POST" action="{{ route('z3950.import-batch') }}">
                 @csrf
@@ -43,17 +43,19 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach($records as $i => $record)
-                            @php($parsed = $service->parseMarcRecord($record) ?? [])
+                            {{-- Records are pre-parsed by the controller; the
+                                 service is not exposed to this view. --}}
+                            @php($fields = $parsed[$i] ?? [])
                             <tr class="hover:bg-gray-50">
                                 <td class="px-5 py-3 text-gray-400">{{ $i + 1 }}</td>
                                 <td class="px-5 py-3 font-medium text-gray-900">
-                                    {{ $parsed['245']['a'] ?? 'Unknown title' }}
+                                    {{ $fields['245']['a'] ?? 'Unknown title' }}
                                 </td>
                                 <td class="px-5 py-3 text-gray-500">
-                                    {{ $parsed['100']['a'] ?? $parsed['110']['a'] ?? '—' }}
+                                    {{ $fields['100']['a'] ?? $fields['110']['a'] ?? '-' }}
                                 </td>
                                 <td class="px-5 py-3 text-gray-500 font-mono text-xs">
-                                    {{ $parsed['020']['a'] ?? '' }}
+                                    {{ $fields['020']['a'] ?? '' }}
                                 </td>
                                 <td class="px-5 py-3 text-right">
                                     <a href="{{ route('z3950.import', [$resultSet, $i]) }}"
@@ -72,9 +74,10 @@
                 <h2 class="font-semibold text-gray-900 mb-4">{{ __('Record details') }}</h2>
                 <div class="space-y-4">
                     @foreach($records as $i => $record)
+                        @php($fields = $parsed[$i] ?? [])
                         <details class="bg-white border border-gray-200 rounded-xl">
                             <summary class="px-5 py-3.5 cursor-pointer font-medium text-gray-800 list-none flex items-center justify-between">
-                                <span>#{{ $i + 1 }} — {{ $parsed['245']['a'] ?? 'Unknown title' }}</span>
+                                <span>#{{ $i + 1 }} - {{ $fields['245']['a'] ?? 'Unknown title' }}</span>
                                 <svg class="w-4 h-4 text-gray-400 details-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>

@@ -49,10 +49,10 @@ Route::middleware('web')->group(function () {
     Route::middleware('web')->group(function () {
         Route::get('/lodsparql/bibframe/{workId}.ttl', function (int $workId) {
             $service = app(BibframeSerialisationService::class);
-            $turtle = $service->toTurtle($workId);
-            if (str_starts_with($turtle, '<!--')) {
-                abort(400, 'Turtle format requires EasyRdf. Install: composer require easyrdf/easyrdf');
+            if (! $service->supports('turtle')) {
+                abort(501, $service->unsupportedReason('turtle'));
             }
+            $turtle = $service->toTurtle($workId);
             return response($turtle, 200, [
                 'Content-Type' => 'text/turtle; charset=utf-8',
                 'Content-Disposition' => "attachment; filename=bibframe-{$workId}.ttl",
@@ -61,10 +61,10 @@ Route::middleware('web')->group(function () {
 
         Route::get('/lodsparql/bibframe/{workId}.jsonld', function (int $workId) {
             $service = app(BibframeSerialisationService::class);
-            $jsonld = $service->toJsonLd($workId);
-            if (str_starts_with($jsonld, '<!--')) {
-                abort(400, 'JSON-LD format requires EasyRdf. Install: composer require easyrdf/easyrdf');
+            if (! $service->supports('jsonld')) {
+                abort(501, $service->unsupportedReason('jsonld'));
             }
+            $jsonld = $service->toJsonLd($workId);
             return response($jsonld, 200, [
                 'Content-Type' => 'application/ld+json; charset=utf-8',
                 'Content-Disposition' => "attachment; filename=bibframe-{$workId}.jsonld",

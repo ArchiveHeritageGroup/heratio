@@ -4,7 +4,7 @@ Z39.50 client (search) and server (expose Heratio catalogue over Z39.50) for the
 
 ## Protocol
 
-Implements the Z39.50 information retrieval protocol using the `yaz` PHP extension (pecl install yaz). The client searches remote Z39.50 targets (SRU, OCLC, national libraries). The server exposes the Heratio `library_biblio_*` tables via the bib-1 attribute set.
+Implements the Z39.50 information retrieval protocol using the `yaz` PHP extension (pecl install yaz). The client searches remote Z39.50 targets (SRU, OCLC, national libraries) and imports retrieved records into the `library_item` catalogue via ahg-library. The server exposes that same catalogue via the bib-1 attribute set.
 
 ## Features
 

@@ -41,17 +41,12 @@
                 <a href="{{ route('ahgspectrum.my-tasks') }}" class="btn btn-outline-primary w-100 mb-2">
                     <i class="fas fa-clipboard-list me-1"></i>{{ __('My Tasks') }}
                     @php
+                    // Counted via the shared per-procedure helper so this tile,
+                    // the header badge and the My Tasks page always agree.
                     if (auth()->check()) {
-                        $userId = auth()->id();
-                        if ($userId) {
-                            $finalStates = ['completed', 'resolved', 'closed', 'cancelled', 'rejected'];
-                            $taskCount = \Illuminate\Support\Facades\DB::table('spectrum_workflow_state')
-                                ->where('assigned_to', $userId)
-                                ->whereNotIn('current_state', $finalStates)
-                                ->count();
-                            if ($taskCount > 0) {
-                                echo '<span class="badge bg-danger ms-1">' . $taskCount . '</span>';
-                            }
+                        $taskCount = \AhgSpectrum\Services\SpectrumWorkflowService::countOpenTasks(auth()->id());
+                        if ($taskCount > 0) {
+                            echo '<span class="badge bg-danger ms-1">' . $taskCount . '</span>';
                         }
                     }
                     @endphp

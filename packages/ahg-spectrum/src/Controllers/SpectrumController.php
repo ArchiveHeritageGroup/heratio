@@ -1177,29 +1177,14 @@ class SpectrumController extends Controller
         $culture = $this->getCulture();
         $procedureTypeFilter = $request->query('procedure_type');
 
+        // State labels for the view. The active-procedure and final-state
+        // filtering itself lives in SpectrumWorkflowService (see below).
         $workflowConfigs = [];
-        $finalStatesByProcedure = [];
-
-        $activeProcedureTypes = [];
         if (Schema::hasTable('spectrum_workflow_config')) {
-            $configs = DB::table('spectrum_workflow_config')->where('is_active', 1)->get();
-            foreach ($configs as $config) {
-                $configData = json_decode($config->config_json, true);
-                $workflowConfigs[$config->procedure_type] = $configData;
-                $activeProcedureTypes[] = $config->procedure_type;
-                $finals = $this->getFinalStates($config->procedure_type);
-                if (!empty($finals)) {
-                    $finalStatesByProcedure[$config->procedure_type] = $finals;
-                }
+            foreach (DB::table('spectrum_workflow_config')->where('is_active', 1)->get() as $config) {
+                $workflowConfigs[$config->procedure_type] = json_decode($config->config_json, true);
             }
         }
-
-        // Collect all final states across all procedures
-        $allFinalStates = [];
-        foreach ($finalStatesByProcedure as $finals) {
-            $allFinalStates = array_merge($allFinalStates, $finals);
-        }
-        $allFinalStates = array_unique($allFinalStates);
 
         $query = DB::table('spectrum_workflow_state as sws')
             ->select([
@@ -1219,15 +1204,10 @@ class SpectrumController extends Controller
             ->leftJoin('user as assigner', 'sws.assigned_by', '=', 'assigner.id')
             ->where('sws.assigned_to', $userId);
 
-        // Only show active procedure types
-        if (!empty($activeProcedureTypes)) {
-            $query->whereIn('sws.procedure_type', $activeProcedureTypes);
-        }
-
-        // Exclude final/closed states
-        if (!empty($allFinalStates)) {
-            $query->whereNotIn('sws.current_state', $allFinalStates);
-        }
+        // Restrict to active procedures and drop tasks that have reached the
+        // final state of their OWN procedure. Shared with the dashboard tile
+        // and the header badge so all three surfaces agree on what is open.
+        SpectrumWorkflowService::applyOpenTaskFilter($query, 'sws');
 
         if ($procedureTypeFilter) {
             $query->where('sws.procedure_type', $procedureTypeFilter);

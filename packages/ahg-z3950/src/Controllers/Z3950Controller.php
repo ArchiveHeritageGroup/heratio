@@ -217,10 +217,13 @@ class Z3950Controller extends Controller
             'created_at'       => now(),
         ]);
 
+        if (($stats['errors'] ?? 0) > 0) {
+            return redirect()->back()->with('error', 'Import failed - the record could not be catalogued. See the log for detail.');
+        }
+
         return redirect()->back()->with('success', sprintf(
-            'Imported: %d work(s), %d instance(s).',
-            $stats['works'] ?? 0,
-            $stats['instances'] ?? 0
+            'Imported %d catalogue record(s) into the library.',
+            $stats['works'] ?? 0
         ));
     }
 
@@ -257,7 +260,15 @@ class Z3950Controller extends Controller
                 $stats = $this->service->importMarc($data['records'][$n], $data['syntax']);
                 $totalWorks     += $stats['works'] ?? 0;
                 $totalInstances += $stats['instances'] ?? 0;
-                $imported++;
+
+                // importMarc reports failure in its stats rather than throwing,
+                // so a record that could not be catalogued must not be counted
+                // as imported.
+                if (($stats['errors'] ?? 0) > 0) {
+                    $errors[] = "Record {$n}: could not be catalogued.";
+                } else {
+                    $imported++;
+                }
 
                 DB::connection('heratio')->table('z3950_import_log')->insert([
                     'target_id'        => $data['target_id'],

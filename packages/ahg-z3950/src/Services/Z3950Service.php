@@ -7,7 +7,7 @@
  * - Connect to remote Z39.50 targets (yaz_connect)
  * - Execute CQL/PQF queries (yaz_search / yaz_present)
  * - Retrieve records in MARC21/USMARC or other syntaxes (yaz_record)
- * - Import retrieved records into the library_biblio_* tables
+ * - Import retrieved records into the library_item catalogue (via ahg-library)
  *
  * Requires: `yaz` PECL extension (pecl install yaz or apt-get install php-yaz)
  *
@@ -130,70 +130,56 @@ class Z3950Service
     }
 
     /**
-     * Import a MARC record (USmarc/MARC21) into the Heratio catalogue.
+     * Import a MARC record (USmarc/MARC21 binary or MARCXML) into the catalogue.
      *
-     * Parses the raw MARC record and upserts into:
-     *   library_biblio_work     (title, author, language, year)
-     *   library_biblio_instance (carrier, pub_place, publisher, pub_date, isbn)
-     *   library_biblio_agent    (authors associated via library_biblio_work_agent)
+     * Records are created as library_item rows through ahg-library's copy
+     * cataloguing path - the same route the Library module uses - so Z39.50
+     * imports land in the one bibliographic model Heratio actually reads
+     * (#1413). There is no separate library_biblio_* store.
      *
-     * @param string $marcContent Raw MARC record bytes
-     * @param string $syntax      Syntax hint: USmarc | MARC21 | XML
-     * @return array{works:int, instances:int, items:int, warnings:int, errors:int}
+     * The counts stay keyed works/instances/items because one MARC record maps
+     * to one Work + one Instance + one Item, and z3950_import_log records them.
+     *
+     * @param string $marcContent Raw MARC record bytes or MARCXML
+     * @param string $syntax      Syntax hint: USmarc | MARC21 | XML (advisory;
+     *                            the decoder sniffs the payload itself)
+     * @return array{works:int, instances:int, items:int, warnings:int, errors:int, information_object_id:int|null}
      */
     public function importMarc(string $marcContent, string $syntax = 'USmarc'): array
     {
-        $stats = ['works' => 0, 'instances' => 0, 'items' => 0, 'warnings' => 0, 'errors' => 0];
+        $stats = [
+            'works'                 => 0,
+            'instances'             => 0,
+            'items'                 => 0,
+            'warnings'              => 0,
+            'errors'                => 0,
+            'information_object_id' => null,
+        ];
 
-        $fields = $this->parseMarcRecord($marcContent);
+        if (trim($marcContent) === '') {
+            $stats['errors']++;
+            return $stats;
+        }
 
-        if (empty($fields)) {
+        // ahg-library owns the catalogue. Resolved at call time so ahg-z3950
+        // carries no composer dependency on it (ahg-library already depends on
+        // this package for its Z39.50 client, so a hard require would cycle).
+        if (! class_exists(\AhgLibrary\Services\CopyCataloguingService::class)) {
+            Log::error('[Z39.50] Import unavailable: ahg-library is not installed on this instance.');
             $stats['errors']++;
             return $stats;
         }
 
         try {
-            // Extract Work fields
-            $title = trim(preg_replace('/[\/|:]$/', '', $fields['245']['a'] ?? $fields['245']['b'] ?? 'Untitled'));
-            $author = $fields['100']['a'] ?? $fields['110']['a'] ?? $fields['700']['a'] ?? '';
+            $objectId = app(\AhgLibrary\Services\CopyCataloguingService::class)->import($marcContent);
 
-            $yearField = $fields['260']['c'] ?? $fields['008'] ?? '';
-            $yearRaw = preg_replace('/[^0-9]/', '', substr($yearField, 0, 4));
-            $year = (is_numeric($yearRaw) && strlen($yearRaw) === 4) ? (int) $yearRaw : null;
-
-            $language = $this->parseLanguageCode($fields['008'] ?? '');
-
-            $workId = $this->upsertWork($title, $author, $language, $year);
-
-            // Extract Instance fields
-            $publisher = $fields['260']['b'] ?? '';
-            $pubPlace  = $fields['260']['a'] ?? '';
-            $pubDate   = $fields['260']['c'] ?? '';
-            $isbn      = $fields['020']['a'] ?? '';
-            $carrier   = $this->marcLeaderToCarrier($marcContent);
-
-            $this->upsertInstance($workId, $title, $publisher, $pubPlace, $pubDate, $isbn, $carrier);
-
-            $stats['works']     = 1;
-            $stats['instances'] = 1;
-
-            // Upsert Agent (personal author)
-            $agentName = $fields['100']['a'] ?? '';
-            if ($agentName) {
-                $agentId = $this->upsertAgent($agentName, $fields['100'] ?? []);
-                $this->linkWorkAgent($workId, $agentId, 'aut');
-            }
-
-            // Corporate author (110 field)
-            $corpAuthor = $fields['110']['a'] ?? '';
-            if ($corpAuthor && $corpAuthor !== $author) {
-                $agentId = $this->upsertAgent($corpAuthor, $fields['110'] ?? []);
-                $this->linkWorkAgent($workId, $agentId, 'ctb');
-            }
+            $stats['works']                 = 1;
+            $stats['instances']             = 1;
+            $stats['items']                 = 1;
+            $stats['information_object_id'] = (int) $objectId;
 
             // Proxy to OpenRiC for RiC-O canonical record management
             $this->proxyToOpenric($marcContent, 'import');
-
         } catch (\Throwable $e) {
             $stats['errors']++;
             Log::error("[Z39.50] MARC import error: {$e->getMessage()}");
@@ -203,259 +189,57 @@ class Z3950Service
     }
 
     /**
-     * Parse a raw MARC record into an associative array keyed by field tag.
+     * Parse a retrieved MARC record into an associative array keyed by field tag.
      *
-     * MARC record structure (ISO 2709):
-     *   Directory: 3-char tag + 4-char length + 5-char start = 12 bytes per entry
-     *   After directory: field terminator (0x1D) then variable fields
+     * Both syntaxes a target can return are handled, because search() asks yaz
+     * for 'xml' when the target syntax is USmarc/MARC21 - so result sets are
+     * usually MARCXML rather than ISO 2709.
      *
-     * @param string $raw Raw MARC record bytes
+     * Reading is delegated to ahg-library, which owns the MARC readers the
+     * Library module already uses. The hand-rolled ISO 2709 reader that used to
+     * live here mistook leader position 10 (the indicator length, always '2')
+     * for the directory length, so its directory loop never ran and it returned
+     * an empty array for every valid binary record.
+     *
+     * Only the first occurrence of a repeated tag is kept, which is what the
+     * result-set browser displays.
+     *
+     * @param string $raw Raw MARC record bytes or MARCXML
      * @return array Field tag => subfield array (e.g. ['245' => ['a' => 'Title', 'b' => 'subtitle']])
      */
     public function parseMarcRecord(string $raw): array
     {
-        if (strlen($raw) < 24) {
+        if (trim($raw) === '') {
             return [];
         }
 
-        $leader = substr($raw, 0, 24);
-        $dirLen = (int) substr($leader, 10, 1) + 1; // incl. RTF byte
+        if (! class_exists(\AhgLibrary\Services\Marc21DecoderService::class)) {
+            Log::warning('[Z39.50] Cannot read MARC: ahg-library is not installed on this instance.');
+            return [];
+        }
 
-        $dirStart = 24;
-        $dirEnd   = $dirStart + $dirLen - 1;
+        $decoder = new \AhgLibrary\Services\Marc21DecoderService();
+
+        try {
+            $parsed = $decoder->detectSyntax($raw) === 'marcxml'
+                ? (new \AhgLibrary\Services\MarcEditService())->parseMarcxml($raw)
+                : $decoder->decode($raw);
+        } catch (\Throwable $e) {
+            Log::warning("[Z39.50] MARC parse failed: {$e->getMessage()}");
+            return [];
+        }
 
         $fields = [];
-        $pos    = $dirStart;
 
-        while ($pos + 12 <= $dirEnd) {
-            $tag   = substr($raw, $pos, 3);
-            $len   = (int) substr($raw, $pos + 3, 4);
-            $start = (int) substr($raw, $pos + 7, 5);
-            $pos  += 12;
-
-            if (! ctype_digit($tag)) {
+        foreach ($parsed['data'] ?? [] as $field) {
+            $tag = $field['tag'] ?? '';
+            if ($tag === '' || isset($fields[$tag])) {
                 continue;
             }
-
-            $dataStart = $dirStart + $dirLen + $start;
-            $dataEnd   = $dataStart + $len - 1;
-
-            if ($dataEnd > strlen($raw)) {
-                break;
-            }
-
-            $data = substr($raw, $dataStart, $len - 1);
-
-            // Indicators for bibliographic fields (001-999 except 000)
-            if ($tag !== '000' && $tag !== '00l') {
-                $subfieldData = substr($data, 2);
-            } else {
-                $subfieldData = $data;
-            }
-
-            // Split on subfield delimiter 0x1F
-            $subfields = [];
-            foreach (explode("\x1F", $subfieldData) as $part) {
-                if (strlen($part) < 1) {
-                    continue;
-                }
-                $subfields[$part[0]] = substr($part, 1);
-            }
-
-            $fields[$tag] = $subfields;
+            $fields[$tag] = $field['subfields'] ?? [];
         }
 
         return $fields;
-    }
-
-    /**
-     * Map a MARC leader record type / Bib level to a BF carrier code.
-     *
-     * @param string $marcContent Raw MARC record
-     * @return string carrier code (nc, cr, nbc, sd, cf, etc.)
-     */
-    protected function marcLeaderToCarrier(string $marcContent): string
-    {
-        if (strlen($marcContent) < 24) {
-            return 'nc';
-        }
-
-        $recType  = $marcContent[6] ?? ' ';
-        $bibLevel = $marcContent[7] ?? ' ';
-
-        return match ($recType) {
-            'a', 't' => match ($bibLevel) {
-                'm' => 'cr',   // monograph component
-                's' => 'nc',   // serial
-                default => 'nc',
-            },
-            'c', 'd' => 'nnc', // notated music score
-            'e', 'f' => 'nnc', // cartographic
-            'i', 'j' => 'sd',  // moving image
-            'k'      => 'nnc', // 2D graphic
-            'm'      => 'cf',  // computer file
-            'p'      => 'nc',  // mixed material
-            'r'      => 'nnc', // 3D artifact
-            default  => 'nc',
-        };
-    }
-
-    /**
-     * Parse language code from MARC 008 positions 35-37.
-     *
-     * @param string $field008 MARC 008 field content
-     * @return string ISO 639-1 language code
-     */
-    protected function parseLanguageCode(string $field008): string
-    {
-        if (strlen($field008) < 38) {
-            return 'en';
-        }
-        $code = strtolower(substr($field008, 35, 3));
-
-        return $this->langCodeMap[$code] ?? $code;
-    }
-
-    /**
-     * Upsert a bibliographic work.
-     *
-     * @return int work id
-     */
-    protected function upsertWork(string $title, string $author, string $language, ?int $year): int
-    {
-        $existing = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->where('title', $title)
-            ->where('author', $author)
-            ->first();
-
-        if ($existing) {
-            DB::connection('heratio')
-                ->table('library_biblio_work')
-                ->where('id', $existing->id)
-                ->update([
-                    'language'   => $language,
-                    'updated_at' => now(),
-                ]);
-            return (int) $existing->id;
-        }
-
-        return DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->insertGetId([
-                'title'     => $title,
-                'author'   => $author,
-                'language' => $language,
-                'year'     => $year,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-    }
-
-    /**
-     * Upsert a bibliographic instance.
-     *
-     * @return int instance id
-     */
-    protected function upsertInstance(
-        int $workId,
-        string $title,
-        string $publisher,
-        string $pubPlace,
-        string $pubDate,
-        string $isbn,
-        string $carrier
-    ): int {
-        if ($isbn) {
-            $existing = DB::connection('heratio')
-                ->table('library_biblio_instance')
-                ->where('work_id', $workId)
-                ->where('isbn', $isbn)
-                ->first();
-        } else {
-            $existing = null;
-        }
-
-        if ($existing) {
-            DB::connection('heratio')
-                ->table('library_biblio_instance')
-                ->where('id', $existing->id)
-                ->update([
-                    'publisher'  => $publisher,
-                    'pub_place' => $pubPlace,
-                    'pub_date'  => $pubDate,
-                    'updated_at' => now(),
-                ]);
-            return (int) $existing->id;
-        }
-
-        return DB::connection('heratio')
-            ->table('library_biblio_instance')
-            ->insertGetId([
-                'work_id'   => $workId,
-                'title'     => $title,
-                'publisher' => $publisher,
-                'pub_place' => $pubPlace,
-                'pub_date'  => $pubDate,
-                'isbn'      => $isbn,
-                'carrier'   => $carrier,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-    }
-
-    /**
-     * Upsert a bibliographic agent (person or corporate body).
-     *
-     * @return int agent id
-     */
-    protected function upsertAgent(string $name, array $fields): int
-    {
-        $type = match ($fields['t'] ?? null) {
-            'p' => 'per',
-            'c' => 'org',
-            default => 'per',
-        };
-
-        $existing = DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->where('name', $name)
-            ->where('type', $type)
-            ->first();
-
-        if ($existing) {
-            return (int) $existing->id;
-        }
-
-        return DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->insertGetId([
-                'name'       => $name,
-                'type'       => $type,
-                'created_at' => now(),
-            ]);
-    }
-
-    /**
-     * Link a work to an agent via the work_agent pivot table.
-     */
-    protected function linkWorkAgent(int $workId, int $agentId, string $role): void
-    {
-        $exists = DB::connection('heratio')
-            ->table('library_biblio_work_agent')
-            ->where('work_id', $workId)
-            ->where('agent_id', $agentId)
-            ->exists();
-
-        if (! $exists) {
-            DB::connection('heratio')
-                ->table('library_biblio_work_agent')
-                ->insert([
-                    'work_id'  => $workId,
-                    'agent_id' => $agentId,
-                    'role'     => $role,
-                ]);
-        }
     }
 
     /**
@@ -523,28 +307,4 @@ class Z3950Service
 
         return ['proxied' => false, 'via' => 'openric', 'url' => $openricUrl];
     }
-
-    /** Language code normaliser for MARC 008 positions 35-37 */
-    protected array $langCodeMap = [
-        'eng' => 'en',
-        'afr' => 'af',
-        'dut' => 'nl',
-        'fre' => 'fr',
-        'ger' => 'de',
-        'ita' => 'it',
-        'spa' => 'es',
-        'por' => 'pt',
-        'rus' => 'ru',
-        'chi' => 'zh',
-        'jpn' => 'ja',
-        'kor' => 'ko',
-        'ara' => 'ar',
-        'heb' => 'he',
-        'pol' => 'pl',
-        'swe' => 'sv',
-        'nor' => 'no',
-        'dan' => 'da',
-        'fin' => 'fi',
-        'ces' => 'cs',
-    ];
 }

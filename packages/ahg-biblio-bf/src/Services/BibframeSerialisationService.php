@@ -3,7 +3,7 @@
 /**
  * BibframeSerialisationService — BIBFRAME Turtle / JSON-LD / RDF/XML export.
  *
- * Converts fully-populated library_item records to BIBFRAME 2.0 RDF in three
+ * Converts catalogue records (library_item) to BIBFRAME 2.0 RDF in three
  * serialisation formats:
  *   - Turtle   (text/turtle)
  *   - JSON-LD  (application/ld+json, BIBFRAME @context)
@@ -21,9 +21,7 @@
 
 namespace AhgBiblioBf\Services;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class BibframeSerialisationService
 {
@@ -39,11 +37,11 @@ class BibframeSerialisationService
     /**
      * Serialise a BIBFRAME work to Turtle (text/turtle).
      *
-     * Fetches the fully-populated library_biblio_work record including agents,
+     * Fetches the fully-populated catalogue record (library_item) including agents,
      * instances, and items; builds BIBFRAME RDF graphs using EasyRdf; and
      * outputs the Turtle serialisation.
      *
-     * @param int $workId  library_biblio_work.id
+     * @param int $workId  library_item.id of the work's representative item
      * @return string       Turtle string, or RDF/XML with a comment fallback.
      */
     public function toTurtle(int $workId): string
@@ -110,12 +108,15 @@ class BibframeSerialisationService
     /**
      * Serialise a BIBFRAME work to JSON-LD with BIBFRAME @context.
      *
-     * @param int $workId  library_biblio_work.id
+     * @param int $workId  library_item.id of the work's representative item
      * @return string       JSON-LD string.
      */
     public function toJsonLd(int $workId): string
     {
-        if (! $this->easyrdfAvailable) {
+        // EasyRdf delegates JSON-LD to ml/json-ld and throws a LogicException
+        // when it is absent, which would surface as a 500. Degrade to the same
+        // RDF/XML fallback used when EasyRdf itself is missing.
+        if (! $this->easyrdfAvailable || ! class_exists(\ML\JsonLD\JsonLD::class)) {
             return $this->easyrdfFallback($workId, 'jsonld');
         }
 
@@ -172,13 +173,44 @@ class BibframeSerialisationService
      * Serialise to RDF/XML — delegates to existing BibframeService for canonical
      * RDF/XML output (this method is an alias for that path).
      *
-     * @param int $workId  library_biblio_work.id
+     * @param int $workId  library_item.id of the work's representative item
      * @return string       RDF/XML string.
      */
     public function toRdfXml(int $workId): string
     {
         $service = new BibframeService();
         return $service->catalogToRdf($workId, 'xml');
+    }
+
+    /**
+     * Whether a serialisation can actually be produced on this instance.
+     *
+     * Turtle needs easyrdf/easyrdf; JSON-LD additionally needs ml/json-ld,
+     * which EasyRdf delegates to. Callers should use this to return a clear
+     * error rather than handing back RDF/XML under a Turtle or JSON-LD
+     * content type.
+     *
+     * @param string $format turtle | jsonld
+     */
+    public function supports(string $format): bool
+    {
+        if (! $this->easyrdfAvailable) {
+            return false;
+        }
+
+        return $format === 'jsonld' ? class_exists(\ML\JsonLD\JsonLD::class) : true;
+    }
+
+    /**
+     * Human-readable reason a serialisation is unavailable.
+     */
+    public function unsupportedReason(string $format): string
+    {
+        if (! $this->easyrdfAvailable) {
+            return 'BIBFRAME RDF serialisation requires easyrdf/easyrdf. Install: composer require easyrdf/easyrdf';
+        }
+
+        return 'BIBFRAME JSON-LD requires ml/json-ld. Install: composer require ml/json-ld';
     }
 
     // ─── Private helpers ────────────────────────────────────────────────────
@@ -190,36 +222,7 @@ class BibframeSerialisationService
      */
     protected function fetchWorkData(int $workId): array
     {
-        $work = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->where('id', $workId)
-            ->first();
-
-        if (! $work) {
-            return ['work' => null, 'instances' => collect(), 'agents' => collect()];
-        }
-
-        $instances = DB::connection('heratio')
-            ->table('library_biblio_instance')
-            ->where('work_id', $workId)
-            ->get();
-
-        $agentIds = DB::connection('heratio')
-            ->table('library_biblio_work_agent')
-            ->where('work_id', $workId)
-            ->pluck('agent_id')
-            ->unique();
-
-        $agents = DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->whereIn('id', $agentIds)
-            ->get();
-
-        return [
-            'work'      => $work,
-            'instances' => $instances,
-            'agents'    => $agents,
-        ];
+        return (new BiblioWorkRepository())->find($workId);
     }
 
     /**
@@ -237,9 +240,13 @@ class BibframeSerialisationService
             Log::warning("BibframeSerialisation fallback for work {$workId}: {$e->getMessage()}");
         }
 
+        $required = $format === 'jsonld'
+            ? 'easyrdf/easyrdf and ml/json-ld'
+            : 'easyrdf/easyrdf';
+
         $note = <<<COMMENT
-# BIBFRAME Turtle / JSON-LD export requires "easyrdf/easyrdf" in vendor/.
-# Run: composer require easyrdf/easyrdf
+# BIBFRAME {$format} export requires "{$required}" in vendor/.
+# Run: composer require {$required}
 # Format requested: {$format}
 # Falling back to RDF/XML below.
 

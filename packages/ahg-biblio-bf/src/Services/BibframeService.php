@@ -13,11 +13,11 @@
  *   Item — a concrete copy of an Instance
  *   Agent — a person or corporate body associated with a Work
  *
- * Conversion path:
- *   Heratio library_biblio_work → BIBFRAME Work
- *   Heratio library_biblio_instance → BIBFRAME Instance
- *   Heratio library_biblio_item → BIBFRAME Item
- *   Heratio library_biblio_agent → BIBFRAME Agent
+ * Conversion path (see BiblioWorkRepository for the projection):
+ *   Heratio library_item work_key cluster → BIBFRAME Work
+ *   Heratio library_item                  → BIBFRAME Instance
+ *   Heratio library_copy                  → BIBFRAME Item
+ *   Heratio library_item_creator          → BIBFRAME Agent
  *
  * All round-tripping goes through OpenRiC for canonical RiC-O handling.
  *
@@ -43,57 +43,39 @@
 
 namespace AhgBiblioBf\Services;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class BibframeService
 {
     protected string $openricUrl;
 
-    public function __construct()
+    protected BiblioWorkRepository $works;
+
+    public function __construct(?BiblioWorkRepository $works = null)
     {
         // OpenRiC is the authoritative RiC-O service; BF conversion is a passthrough.
         // Gracefully degrade if OpenRiC is not configured.
         $this->openricUrl = rtrim(config('services.openric.url', 'http://localhost:3030'), '/');
+        $this->works = $works ?? new BiblioWorkRepository();
     }
 
     /**
      * Convert a Heratio bibliographic work to BIBFRAME 2.0 RDF/XML.
      *
-     * @param int    $workId  library_biblio_work.id
+     * @param int    $workId  library_item.id of the work's representative item
      * @param string $format  Output serialization: xml | rdfxml | turtle | ntriples | json-ld
      * @return string RDF serialisation
      */
     public function catalogToRdf(int $workId, string $format = 'xml'): string
     {
-        $work = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->where('id', $workId)
-            ->first();
+        ['work' => $work, 'instances' => $instances, 'agents' => $agents] = $this->works->find($workId);
 
         if (! $work) {
-            throw new \InvalidArgumentException(" bibliographic work {$workId} not found.");
+            throw new \InvalidArgumentException("Bibliographic work {$workId} not found.");
         }
 
-        $instances = DB::connection('heratio')
-            ->table('library_biblio_instance')
-            ->where('work_id', $workId)
-            ->get();
-
-        $agentIds = DB::connection('heratio')
-            ->table('library_biblio_work_agent')
-            ->where('work_id', $workId)
-            ->pluck('agent_id')
-            ->unique();
-
-        $agents = DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->whereIn('id', $agentIds)
-            ->get();
-
-        $workUri     = "urn:uuid:{$work->id}-work";
+        $workUri = "urn:uuid:{$work->id}-work";
         $rdf = $this->rdfHeader();
 
         // BIBFRAME Work
@@ -102,10 +84,7 @@ class BibframeService
         // BIBFRAME Instances
         foreach ($instances as $instance) {
             $instanceUri = "urn:uuid:{$instance->id}-instance";
-            $items = DB::connection('heratio')
-                ->table('library_biblio_item')
-                ->where('instance_id', $instance->id)
-                ->get();
+            $items = $this->works->itemsForInstance((int) $instance->id);
 
             $rdf .= $this->bfInstanceBlock($instance, $instanceUri, $workUri, $items);
         }
@@ -123,7 +102,10 @@ class BibframeService
 
     /**
      * Import a BIBFRAME RDF document into the Heratio catalogue.
-     * Parses BF XML and upserts into the bibframe-related tables.
+     *
+     * Works and Instances both land in library_item (a Work that carries no
+     * separate Instance is catalogued on its own); Items become library_copy
+     * rows. Nothing is written to a library_biblio_* store - it never existed.
      *
      * @param string $rdfContent Raw RDF/XML
      * @return array{works:int, instances:int, items:int, warnings:int, errors:int}
@@ -132,20 +114,15 @@ class BibframeService
     {
         $stats = ['works' => 0, 'instances' => 0, 'items' => 0, 'warnings' => 0, 'errors' => 0];
 
-        // Basic structural check before attempting XML parse
-        if (! str_contains($rdfContent, 'bf:Bibframe')) {
-            // Try loading as generic RDF
-            try {
-                $xml = @simplexml_load_string($rdfContent);
-            } catch (\Throwable $e) {
-                return array_merge($stats, ['errors' => 1]);
-            }
-        } else {
-            $xml = @simplexml_load_string($rdfContent);
-        }
+        $xml = @simplexml_load_string($rdfContent);
 
         if ($xml === false) {
             Log::warning('[Bibframe] Import failed: invalid XML');
+            return array_merge($stats, ['errors' => 1]);
+        }
+
+        if (! $this->works->canWrite()) {
+            Log::error('[Bibframe] Import unavailable: ahg-library is not installed on this instance.');
             return array_merge($stats, ['errors' => 1]);
         }
 
@@ -153,11 +130,22 @@ class BibframeService
         $xml->registerXPathNamespace('rdfs', 'http://www.w3.org/2000/01/rdf-schema#');
         $xml->registerXPathNamespace('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
 
-        // Parse Works
-        $workNodes = $xml->xpath('//bf:Work') ?: [];
-        foreach ($workNodes as $workNode) {
+        // Work URI => library_item.id, so an Instance can be attached to the
+        // Work it declares with bf:instanceOf rather than guessing by title.
+        $workIds = [];
+
+        foreach ($xml->xpath('//bf:Work') ?: [] as $workNode) {
             try {
-                $id = $this->upsertWork($workNode);
+                $id = $this->importWorkNode($workNode);
+                if ($id === null) {
+                    $stats['warnings']++;
+                    continue;
+                }
+
+                $uri = $this->nodeAbout($workNode);
+                if ($uri !== '') {
+                    $workIds[$uri] = $id;
+                }
                 $stats['works']++;
             } catch (\Throwable $e) {
                 $stats['errors']++;
@@ -165,11 +153,21 @@ class BibframeService
             }
         }
 
-        // Parse Instances
-        $instanceNodes = $xml->xpath('//bf:Instance') ?: [];
-        foreach ($instanceNodes as $instanceNode) {
+        // Instance URI => library_item.id, for bf:itemOf on Items.
+        $instanceIds = [];
+
+        foreach ($xml->xpath('//bf:Instance') ?: [] as $instanceNode) {
             try {
-                $id = $this->upsertInstance($instanceNode);
+                $id = $this->importInstanceNode($instanceNode, $workIds);
+                if ($id === null) {
+                    $stats['warnings']++;
+                    continue;
+                }
+
+                $uri = $this->nodeAbout($instanceNode);
+                if ($uri !== '') {
+                    $instanceIds[$uri] = $id;
+                }
                 $stats['instances']++;
             } catch (\Throwable $e) {
                 $stats['errors']++;
@@ -178,11 +176,12 @@ class BibframeService
             }
         }
 
-        // Parse Items
-        $itemNodes = $xml->xpath('//bf:Item') ?: [];
-        foreach ($itemNodes as $itemNode) {
+        foreach ($xml->xpath('//bf:Item') ?: [] as $itemNode) {
             try {
-                $id = $this->upsertItem($itemNode);
+                if ($this->importItemNode($itemNode, $instanceIds) === null) {
+                    $stats['warnings']++;
+                    continue;
+                }
                 $stats['items']++;
             } catch (\Throwable $e) {
                 $stats['errors']++;
@@ -191,7 +190,11 @@ class BibframeService
             }
         }
 
-        return $this->proxyToOpenric($rdfContent, 'import');
+        // OpenRiC keeps the canonical RiC-O copy; its response does not replace
+        // the import counts the caller reports.
+        $this->proxyToOpenric($rdfContent, 'import');
+
+        return $stats;
     }
 
     /**
@@ -261,36 +264,9 @@ class BibframeService
      */
     public function workToArray(int $workId): ?array
     {
-        $work = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->where('id', $workId)
-            ->first();
+        $data = $this->works->find($workId);
 
-        if (! $work) {
-            return null;
-        }
-
-        $instances = DB::connection('heratio')
-            ->table('library_biblio_instance')
-            ->where('work_id', $workId)
-            ->get();
-
-        $agentIds = DB::connection('heratio')
-            ->table('library_biblio_work_agent')
-            ->where('work_id', $workId)
-            ->pluck('agent_id')
-            ->unique();
-
-        $agents = DB::connection('heratio')
-            ->table('library_biblio_agent')
-            ->whereIn('id', $agentIds)
-            ->get();
-
-        return [
-            'work'      => $work,
-            'instances' => $instances,
-            'agents'    => $agents,
-        ];
+        return $data['work'] ? $data : null;
     }
 
     // ─── Private helpers ───────────────────────────────────────────────────────
@@ -454,102 +430,136 @@ XML;
     }
 
     /**
-     * Persist a BIBFRAME Work node into library_biblio_work.
-     *
-     * @param \SimpleXMLElement $workNode
-     * @return int work id
+     * The rdf:about URI of a node, used to resolve bf:instanceOf / bf:itemOf.
      */
-    protected function upsertWork(\SimpleXMLElement $workNode): int
+    protected function nodeAbout(\SimpleXMLElement $node): string
     {
-        $mainTitle = (string) ($workNode->xpath('bf:mainTitle')[0] ?? '');
-        $creatorLabel = (string) ($workNode->xpath('bf:creator/bf:Contribution/bf:agent//rdfs:label')[0] ?? '');
+        $attrs = $node->attributes('rdf', true);
 
-        if (! Schema::connection('heratio')->hasTable('library_biblio_work')) {
-            throw new \RuntimeException('Table library_biblio_work does not exist.');
-        }
-
-        $existing = DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->where('title', $mainTitle)
-            ->first();
-
-        if ($existing) {
-            // Update the stored RDF alongside the existing record
-            DB::connection('heratio')
-                ->table('library_biblio_work')
-                ->where('id', $existing->id)
-                ->update([
-                    'author' => $creatorLabel,
-                    'updated_at' => now(),
-                    // Store serialized RDF in the bibframe_rdf column if present
-                ]);
-
-            return (int) $existing->id;
-        }
-
-        return DB::connection('heratio')
-            ->table('library_biblio_work')
-            ->insertGetId([
-                'title'      => $mainTitle,
-                'author'     => $creatorLabel,
-                'language'   => 'en',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        return trim((string) ($attrs['about'] ?? ''));
     }
 
     /**
-     * Persist a BIBFRAME Instance node into library_biblio_instance.
-     *
-     * @param \SimpleXMLElement $instanceNode
-     * @return int instance id
+     * The rdf:resource URI referenced by a child element (e.g. bf:instanceOf).
      */
-    protected function upsertInstance(\SimpleXMLElement $instanceNode): int
+    protected function referencedUri(\SimpleXMLElement $node, string $childPath): string
     {
-        if (! Schema::connection('heratio')->hasTable('library_biblio_instance')) {
-            throw new \RuntimeException('Table library_biblio_instance does not exist.');
+        $child = $node->xpath($childPath)[0] ?? null;
+        if (! $child) {
+            return '';
         }
 
-        $title = (string) ($instanceNode->xpath('bf:title/bf:Title/bf:mainTitle')[0] ?? '');
-        $pubPlace = (string) ($instanceNode->xpath('bf:provisionActivity//rdfs:label')[0] ?? '');
-        $publisher = (string) ($instanceNode->xpath('bf:provisionActivity//bf:agent//rdfs:label')[0] ?? '');
-        $pubDate = (string) ($instanceNode->xpath('bf:provisionActivity/bf:ProvisionActivity/bf:date')[0] ?? '');
-        $isbn = (string) ($instanceNode->xpath('bf:identifiedBy[1]/bf:LCCN/rdf:value')[0] ?? '');
+        $attrs = $child->attributes('rdf', true);
 
-        return DB::connection('heratio')
-            ->table('library_biblio_instance')
-            ->insertGetId([
-                'title'      => $title,
-                'pub_place'  => $pubPlace,
-                'publisher'  => $publisher,
-                'pub_date'   => $pubDate,
-                'isbn'       => $isbn,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        return trim((string) ($attrs['resource'] ?? ''));
     }
 
     /**
-     * Persist a BIBFRAME Item node into library_biblio_item.
+     * Create a catalogue record from a BIBFRAME Work node.
      *
-     * @param \SimpleXMLElement $itemNode
-     * @return int item id
+     * Matching an existing record by title keeps a re-import from duplicating
+     * the catalogue.
+     *
+     * @return int|null library_item.id, or null when the node carries no title
      */
-    protected function upsertItem(\SimpleXMLElement $itemNode): int
+    protected function importWorkNode(\SimpleXMLElement $workNode): ?int
     {
-        if (! Schema::connection('heratio')->hasTable('library_biblio_item')) {
-            throw new \RuntimeException('Table library_biblio_item does not exist.');
+        $title = trim((string) ($workNode->xpath('bf:mainTitle')[0] ?? ''));
+        if ($title === '') {
+            Log::warning('[Bibframe] Skipped a bf:Work with no bf:mainTitle.');
+            return null;
         }
 
-        $barcode = (string) ($itemNode->xpath('bf:identifiedBy/bf:Barcode/rdf:value')[0] ?? '');
+        $creator = trim((string) ($workNode->xpath('bf:creator/bf:Contribution/bf:agent//rdfs:label')[0] ?? ''));
+        $lang    = trim((string) ($workNode->xpath('bf:mainTitle/@xml:lang')[0] ?? ''));
 
-        return DB::connection('heratio')
-            ->table('library_biblio_item')
-            ->insertGetId([
-                'barcode'    => $barcode ?: 'BF-' . substr(md5((string) mt_rand()), 0, 8),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        $existing = $this->works->findIdByTitle($title);
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        return $this->works->createFromBibframe([
+            'title'    => $title,
+            'creator'  => $creator,
+            'language' => $lang ?: null,
+        ]);
+    }
+
+    /**
+     * Apply a BIBFRAME Instance node to the catalogue.
+     *
+     * Attaches to the Work named by bf:instanceOf when that Work was part of
+     * the same document; otherwise matches on title, and failing that creates
+     * a record so a standalone Instance still imports.
+     *
+     * @param  array<string, int> $workIds Work rdf:about => library_item.id
+     * @return int|null                    library_item.id
+     */
+    protected function importInstanceNode(\SimpleXMLElement $instanceNode, array $workIds): ?int
+    {
+        $title     = trim((string) ($instanceNode->xpath('bf:title/bf:Title/bf:mainTitle')[0] ?? ''));
+        $pubPlace  = trim((string) ($instanceNode->xpath('bf:provisionActivity//bf:Place/rdfs:label')[0] ?? ''));
+        $publisher = trim((string) ($instanceNode->xpath('bf:provisionActivity//bf:agent//rdfs:label')[0] ?? ''));
+        $pubDate   = trim((string) ($instanceNode->xpath('bf:provisionActivity/bf:ProvisionActivity/bf:date')[0] ?? ''));
+
+        // Accept either an ISBN or the LCCN slot the exporter writes into.
+        $isbn = trim((string) ($instanceNode->xpath('bf:identifiedBy/bf:Isbn/rdf:value')[0] ?? ''));
+        if ($isbn === '') {
+            $isbn = trim((string) ($instanceNode->xpath('bf:identifiedBy/bf:LCCN/rdf:value')[0] ?? ''));
+        }
+
+        $fields = [
+            'publisher' => $publisher,
+            'pub_place' => $pubPlace,
+            'pub_date'  => $pubDate,
+            'isbn'      => $isbn,
+        ];
+
+        $workUri = $this->referencedUri($instanceNode, 'bf:instanceOf');
+        if ($workUri !== '' && isset($workIds[$workUri])) {
+            $this->works->applyInstanceFields($workIds[$workUri], $fields);
+            return $workIds[$workUri];
+        }
+
+        if ($title !== '') {
+            $existing = $this->works->findIdByTitle($title);
+            if ($existing !== null) {
+                $this->works->applyInstanceFields($existing, $fields);
+                return $existing;
+            }
+
+            return $this->works->createFromBibframe($fields + ['title' => $title]);
+        }
+
+        Log::warning('[Bibframe] Skipped a bf:Instance with no title and no resolvable bf:instanceOf.');
+
+        return null;
+    }
+
+    /**
+     * Attach a BIBFRAME Item node to its Instance as a physical copy.
+     *
+     * @param  array<string, int> $instanceIds Instance rdf:about => library_item.id
+     * @return int|null                        library_copy.id
+     */
+    protected function importItemNode(\SimpleXMLElement $itemNode, array $instanceIds): ?int
+    {
+        $instanceUri = $this->referencedUri($itemNode, 'bf:itemOf');
+        $libraryItemId = $instanceIds[$instanceUri] ?? null;
+
+        // A single-Instance document can attach unambiguously without bf:itemOf.
+        if ($libraryItemId === null && count($instanceIds) === 1) {
+            $libraryItemId = reset($instanceIds);
+        }
+
+        if ($libraryItemId === null) {
+            Log::warning('[Bibframe] Skipped a bf:Item that names no bf:itemOf Instance.');
+            return null;
+        }
+
+        $barcode = trim((string) ($itemNode->xpath('bf:identifiedBy/bf:Barcode/rdf:value')[0] ?? ''));
+
+        return $this->works->addCopy((int) $libraryItemId, $barcode ?: null);
     }
 
     /**
