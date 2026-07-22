@@ -83,8 +83,19 @@
                 </a>
               @endforeach
               @if($siblingsTotal > $siblings->count())
-                @php $siblingsMore = number_format($siblingsTotal - $siblings->count()); @endphp
-                <span class="list-group-item text-muted small" style="padding-left:{{ ($depth * 16) + 8 }}px;">{{ __('... and :count more at this level', ['count' => $siblingsMore]) }}</span>
+                @php
+                  // When the level is too wide to draw at all, the tree shows the
+                  // size of the level rather than an arbitrary alphabetical slice.
+                  $siblingsShown = $siblings->count();
+                  $siblingsMore  = number_format($siblingsTotal - $siblingsShown);
+                @endphp
+                <span class="list-group-item text-muted small" style="padding-left:{{ ($depth * 16) + 8 }}px;">
+                  @if($siblingsShown === 0)
+                    {{ __('This level has :count terms - too many to list here. Use the List tab.', ['count' => $siblingsMore]) }}
+                  @else
+                    {{ __('... and :count more at this level', ['count' => $siblingsMore]) }}
+                  @endif
+                </span>
               @endif
 
               {{-- Current term (active) --}}

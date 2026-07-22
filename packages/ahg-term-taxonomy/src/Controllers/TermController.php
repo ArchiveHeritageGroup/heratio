@@ -46,6 +46,18 @@ class TermController extends Controller
      */
     public const TREE_MAX = 50;
 
+    /**
+     * Above this many siblings, skip the sibling query altogether.
+     *
+     * Ordering siblings alphabetically means MySQL must sort the whole group to
+     * return the first 50 - on a 558,715-wide parent that is ~4s, and the 50
+     * names it yields are an arbitrary slice of half a million, which is noise
+     * rather than navigation. Past this width the view shows the total and
+     * points at the List tab instead. (ORDER BY term.id would run in 2ms but
+     * gives a meaningless ordering, so the answer is to not draw it at all.)
+     */
+    public const TREE_WIDE = 1000;
+
     protected TermService $termService;
 
     protected CrossMatchService $crossMatchService;
@@ -401,6 +413,8 @@ class TermController extends Controller
         if ($parentId) {
             $siblingsTotal = DB::table('term')
                 ->where('parent_id', $parentId)->where('id', '!=', $term->id)->count();
+        }
+        if ($parentId && $siblingsTotal <= self::TREE_WIDE) {
             $siblings = DB::table('term')
                 ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
                 ->join('slug', 'term.id', '=', 'slug.object_id')
@@ -429,7 +443,17 @@ class TermController extends Controller
             $listQuery->where('term.taxonomy_id', $term->taxonomy_id);
         }
 
-        $listTotal = $listQuery->count();
+        // Count off `term` alone. The joins above exist to fetch the name and
+        // slug for the 25 rows actually displayed; dragging them through the
+        // COUNT made it walk 362,095 joined rows for a single number - 2,000ms
+        // versus 112ms unjoined, on every term page in the taxonomy.
+        $listCount = DB::table('term');
+        if ($narrowerTotal > 0 && $term->taxonomy_id == 30) {
+            $listCount->where('parent_id', $term->id);
+        } else {
+            $listCount->where('taxonomy_id', $term->taxonomy_id);
+        }
+        $listTotal = $listCount->count();
         $listTerms = $listQuery
             ->select('term.id', 'term_i18n.name', 'slug.slug')
             ->orderBy('term_i18n.name')
