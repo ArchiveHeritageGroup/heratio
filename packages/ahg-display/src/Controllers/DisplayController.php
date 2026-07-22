@@ -451,6 +451,14 @@ class DisplayController extends Controller
 
         // Sort
         $safeSortDir = $sortDir === 'desc' ? 'desc' : 'asc';
+
+        // Resolved before the switch: when the sidecar answers, the page order
+        // is already decided and applying an ORDER BY to $query as well would
+        // leave FIELD() as a secondary key and silently reorder the page.
+        $orderedIds = $this->isAlphabeticSort($sort)
+            ? $this->alphabeticIdPage($culture, $safeSortDir, $page, $limit)
+            : null;
+
         switch ($sort) {
             case 'identifier':
             case 'refcode':
@@ -481,15 +489,36 @@ class DisplayController extends Controller
                 break;
             case 'alphabetic':           // settings vocabulary: "Alphabetic"
             default:
-                $this->applyAlphabeticSort($query, $safeSortDir, $culture);
+                if ($orderedIds === null) {
+                    $this->applyAlphabeticSort($query, $safeSortDir, $culture);
+                }
         }
 
-        // Paginate
-        $objects = $query
-            ->offset(($page - 1) * $limit)
-            ->limit($limit)
-            ->get()
-            ->toArray();
+        // Paginate.
+        //
+        // Alphabetical browse picks its page of ids off the sort sidecar first
+        // (an index-ordered scan) and then fetches only those rows, because
+        // ORDER BY on the joined query cannot use the sidecar index at all -
+        // see alphabeticIdPage(). Every other sort paginates normally.
+        if ($orderedIds !== null) {
+            if (empty($orderedIds)) {
+                $objects = [];
+            } else {
+                // Re-impose the sidecar's order: whereIn does not preserve it.
+                $ordered = implode(',', $orderedIds);
+                $objects = $query
+                    ->whereIn('io.id', $orderedIds)
+                    ->orderByRaw("FIELD(io.id, $ordered)")
+                    ->get()
+                    ->toArray();
+            }
+        } else {
+            $objects = $query
+                ->offset(($page - 1) * $limit)
+                ->limit($limit)
+                ->get()
+                ->toArray();
+        }
 
         // #763 FRBR cluster collapse: when two rows on this page share a work_key,
         // keep the first as the representative + record the sibling count. The
@@ -1854,29 +1883,92 @@ class DisplayController extends Controller
      */
     protected function applyAlphabeticSort($query, string $safeSortDir, string $culture): void
     {
-        if (! TitleSortService::available()) {
-            // io.id breaks ties so paging stays stable - see below.
-            $query->orderBy('i18n.title', $safeSortDir)->orderBy('io.id', 'asc');
+        // io.id breaks ties so paging stays stable. Duplicate titles are common
+        // in real catalogues - atom.theahg.co.za has long runs of identically
+        // named scans such as "1006_49.pdf" - and without a tiebreaker their
+        // relative order is whatever the plan happens to emit, so a LIMIT/OFFSET
+        // boundary landing inside a tied run can show a record on two
+        // consecutive pages or skip it entirely.
+        $query->orderBy('i18n.title', $safeSortDir)->orderBy('io.id', $safeSortDir);
+    }
 
-            return;
+    /**
+     * Does this sort token fall through to the alphabetical branch?
+     * Mirrors the switch in browse()/browseAjax(), whose `default:` is
+     * alphabetical - so anything not named here sorts by title.
+     */
+    protected function isAlphabeticSort(string $sort): bool
+    {
+        return ! in_array(
+            $sort,
+            ['identifier', 'refcode', 'date', 'lastUpdated', 'relevance', 'startdate', 'enddate'],
+            true
+        );
+    }
+
+    /**
+     * Fetch one page of ids in title order, driving off the sort sidecar.
+     *
+     * WHY IT IS SHAPED LIKE THIS. The sidecar's index is only usable for
+     * ordering when the sidecar is the ONLY table in the FROM clause. Join
+     * information_object to it - even INNER, even with JOIN_PREFIX /
+     * NO_SEMIJOIN hints or semijoin=off - and MySQL converts the published
+     * EXISTS into a semi-join, drives from `status`, and falls back to
+     * "Using temporary; Using filesort", which is exactly the ~9.2s cost the
+     * sidecar was meant to remove. Measured on atom.theahg.co.za: joined
+     * 9,751ms vs base column 9,234ms, i.e. no gain at all.
+     *
+     * Keeping information_object inside a correlated EXISTS instead leaves the
+     * outer query single-table, so the plan becomes "Backward index scan; Using
+     * index" and stops as soon as it has $limit matches: 2ms for page 1 and
+     * 60ms at offset 5000. applyFilters() only ever adds where-clauses against
+     * io.*, never joins, so the whole filter set travels into the subquery
+     * unchanged and the page is identical to the one the old ORDER BY produced.
+     *
+     * Returns null to mean "fall back to the ordinary path" - never an empty
+     * array, which is a legitimate no-results answer.
+     *
+     * @return array<int,int>|null
+     */
+    protected function alphabeticIdPage(string $culture, string $safeSortDir, int $page, int $limit): ?array
+    {
+        if (! TitleSortService::available()) {
+            return null;
         }
 
-        // (object_id, culture) is the sidecar's primary key, so this LEFT JOIN
-        // can never fan out and the result count is unchanged.
-        $query->leftJoin('information_object_title_sort as ts_sort', function ($j) use ($culture) {
-            $j->on('ts_sort.object_id', '=', 'io.id')
-                ->where('ts_sort.culture', '=', $culture);
-        });
-
-        // Tie-break on id. Duplicate titles are common in real catalogues -
-        // atom.theahg.co.za has long runs of identically-named scans such as
-        // "1006_49.pdf" - and with no tiebreaker their relative order is
-        // whatever the plan happens to emit, so a LIMIT/OFFSET boundary landing
-        // inside a tied run could show a record twice or skip it entirely
-        // across pages. object_id is the third column of idx_iots_culture_title,
-        // so ordering by it after title_sort is satisfied by the same index
-        // scan and costs nothing.
-        $query->orderBy('ts_sort.title_sort', $safeSortDir)->orderBy('io.id', 'asc');
+        try {
+            return DB::table('information_object_title_sort as ts')
+                ->where('ts.culture', $culture)
+                ->whereExists(function ($sub) {
+                    $sub->select(DB::raw(1))
+                        ->from('information_object as io')
+                        // applyFilters() filters on doc.object_type for the
+                        // sector/type filter, so the subquery has to carry the
+                        // same join the main and count queries do. Without it
+                        // the filter throws, the catch below swallows it, and
+                        // the page silently reverts to the slow path - which is
+                        // exactly the sort of invisible regression this join
+                        // prevents. Any future alias applyFilters() reaches for
+                        // must be added here too.
+                        ->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id')
+                        ->whereColumn('io.id', 'ts.object_id')
+                        ->where('io.id', '>', 1);
+                    // Same filters as the main query - including the published
+                    // gate and the #1388 cultural-protocol exclusions.
+                    $this->applyFilters($sub);
+                })
+                // Both keys in the same direction: a mixed DESC/ASC pair cannot
+                // be served by a single-direction index and reintroduces the sort.
+                ->orderBy('ts.title_sort', $safeSortDir)
+                ->orderBy('ts.object_id', $safeSortDir)
+                ->offset(($page - 1) * $limit)
+                ->limit($limit)
+                ->pluck('ts.object_id')
+                ->map(fn ($v) => (int) $v)
+                ->all();
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /**
