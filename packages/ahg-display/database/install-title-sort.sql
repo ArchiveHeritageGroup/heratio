@@ -32,9 +32,16 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS `information_object_title_sort` (
-  `object_id`  INT NOT NULL,
-  `culture`    VARCHAR(16) NOT NULL,
-  `title_sort` VARCHAR(191) DEFAULT NULL COMMENT 'Resolved title (current culture, falling back to source_culture), truncated to an indexable 191 chars',
+  `object_id`       INT NOT NULL,
+  `culture`         VARCHAR(16) NOT NULL,
+  `title_sort`      VARCHAR(191) DEFAULT NULL COMMENT 'Resolved title (current culture, falling back to source_culture), truncated to an indexable 191 chars',
+  `identifier_sort` VARCHAR(191) DEFAULT NULL COMMENT 'information_object.identifier, truncated to an indexable 191 chars; same for every culture of a record',
   PRIMARY KEY (`object_id`, `culture`),
-  KEY `idx_iots_culture_title` (`culture`, `title_sort`, `object_id`)
+  KEY `idx_iots_culture_title` (`culture`, `title_sort`, `object_id`),
+  KEY `idx_iots_culture_identifier_sort` (`culture`, `identifier_sort`, `object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- identifier is varchar(1024) on information_object with NO index of any kind,
+-- so ORDER BY io.identifier filesorted all 454,393 rows - ~18s a page on
+-- atom.theahg.co.za, worse than the title sort because there was not even a
+-- prefix index to reject. Same sidecar, second column.

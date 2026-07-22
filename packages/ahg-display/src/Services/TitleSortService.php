@@ -21,43 +21,92 @@ class TitleSortService
 {
     public const TABLE = 'information_object_title_sort';
 
-    /** Indexable prefix width; must match the column definition. */
+    /** Indexable prefix width; must match the column definitions. */
     public const WIDTH = 191;
 
+    /**
+     * Sidecar sort columns, mapped to the base column each one stands in for.
+     *
+     * Both base columns are varchar(1024) and neither can be ordered by index:
+     * information_object_i18n.title has only a 191-char PREFIX index (unusable
+     * for ORDER BY), and information_object.identifier has NO index at all.
+     */
+    public const COLUMNS = [
+        'title_sort' => ['information_object_i18n', 'title'],
+        'identifier_sort' => ['information_object', 'identifier'],
+    ];
+
     /** Per-request memo for available(), so browse doesn't re-probe per query. */
-    protected static ?bool $available = null;
+    protected static array $available = [];
 
     /**
-     * Is the sidecar usable as a sort source?
+     * Is the sidecar usable as a sort source for this column?
      *
-     * Requires both that the table exists AND that it holds rows - an existing
-     * but empty table would silently sort every record as NULL, which is worse
-     * than the slow-but-correct path. Callers fall back when this is false.
+     * Requires the table to exist, the column to exist, AND at least one
+     * non-null value - an existing but unpopulated column would silently sort
+     * every record as NULL, which is worse than the slow-but-correct path.
+     * Callers fall back when this is false. The column check matters on
+     * upgrade: instances created before identifier_sort existed have the table
+     * but not the column until ensureColumns() has run.
      *
      * The table-exists half also keeps CI green: the test database is loaded
      * from database/core/*.sql rather than by running migrations, so a query
-     * naming a table that only a migration creates would 500 there.
+     * naming a table that only the provider creates would 500 there.
      */
-    public static function available(): bool
+    public static function available(string $column = 'title_sort'): bool
     {
-        if (self::$available !== null) {
-            return self::$available;
+        if (array_key_exists($column, self::$available)) {
+            return self::$available[$column];
         }
 
         try {
-            self::$available = Schema::hasTable(self::TABLE)
-                && DB::table(self::TABLE)->limit(1)->exists();
+            self::$available[$column] = isset(self::COLUMNS[$column])
+                && Schema::hasTable(self::TABLE)
+                && Schema::hasColumn(self::TABLE, $column)
+                && DB::table(self::TABLE)->whereNotNull($column)->limit(1)->exists();
         } catch (Throwable $e) {
-            self::$available = false;
+            self::$available[$column] = false;
         }
 
-        return self::$available;
+        return self::$available[$column];
     }
 
     /** Drop the memo - for tests and for the rebuild command's own re-check. */
     public static function forget(): void
     {
-        self::$available = null;
+        self::$available = [];
+    }
+
+    /**
+     * Add any sidecar sort column missing on an already-created table.
+     *
+     * The table ships in install-title-sort.sql, so a fresh install has every
+     * column; an instance created before a column was added has the table and
+     * would otherwise never gain it. Guarded by hasColumn so this is a cheap
+     * no-op on every boot after the first.
+     */
+    public function ensureColumns(): void
+    {
+        try {
+            if (! Schema::hasTable(self::TABLE)) {
+                return;
+            }
+
+            foreach (array_keys(self::COLUMNS) as $column) {
+                if (Schema::hasColumn(self::TABLE, $column)) {
+                    continue;
+                }
+                DB::statement(
+                    'ALTER TABLE `'.self::TABLE.'`
+                     ADD COLUMN `'.$column.'` VARCHAR('.self::WIDTH.') NULL,
+                     ADD KEY `idx_iots_culture_'.$column.'` (`culture`, `'.$column.'`, `object_id`)'
+                );
+            }
+
+            self::forget();
+        } catch (Throwable $e) {
+            // Leave the sidecar as-is; affected sorts fall back to the base column.
+        }
     }
 
     /**
@@ -82,25 +131,31 @@ class TitleSortService
                 return;
             }
 
-            $source = $this->columnCollation('information_object_i18n', 'title');
-            $current = $this->columnCollation(self::TABLE, 'title_sort');
+            foreach (self::COLUMNS as $column => [$sourceTable, $sourceColumn]) {
+                if (! Schema::hasColumn(self::TABLE, $column)) {
+                    continue;
+                }
 
-            if ($source === null || $current === null || $source === $current) {
-                return;
+                $source = $this->columnCollation($sourceTable, $sourceColumn);
+                $current = $this->columnCollation(self::TABLE, $column);
+
+                if ($source === null || $current === null || $source === $current) {
+                    continue;
+                }
+
+                // Collation names come from information_schema, never user input,
+                // but constrain the shape anyway before interpolating.
+                if (! preg_match('/^[A-Za-z0-9_]+$/', $source)) {
+                    continue;
+                }
+
+                $charset = strtok($source, '_');
+                DB::statement(
+                    'ALTER TABLE `'.self::TABLE.'`
+                     MODIFY `'.$column.'` VARCHAR('.self::WIDTH.')
+                     CHARACTER SET '.$charset.' COLLATE '.$source.' NULL'
+                );
             }
-
-            // Collation names come from information_schema, never user input,
-            // but constrain the shape anyway before interpolating.
-            if (! preg_match('/^[A-Za-z0-9_]+$/', $source)) {
-                return;
-            }
-
-            $charset = strtok($source, '_');
-            DB::statement(
-                'ALTER TABLE `'.self::TABLE.'`
-                 MODIFY `title_sort` VARCHAR('.self::WIDTH.')
-                 CHARACTER SET '.$charset.' COLLATE '.$source.' NULL'
-            );
         } catch (Throwable $e) {
             // Leave the sidecar as-is; ordering may differ but nothing breaks.
         }
@@ -134,16 +189,23 @@ class TitleSortService
             return 0;
         }
 
-        // Self-healing: an install whose base collation changes (or a table
-        // created before this check existed) is corrected on the next rebuild.
+        // Self-healing: an install upgraded from a version without a given
+        // column gains it here, and a base collation change is corrected on the
+        // next rebuild.
+        $this->ensureColumns();
         $this->alignCollation();
 
         // REPLACE rather than INSERT..ON DUPLICATE KEY: the projection is the
         // whole truth for a (object_id, culture) pair, so overwriting is right.
+        //
+        // identifier lives on information_object, not the i18n table, so the
+        // same value is written for every culture of a record - correct, since
+        // a reference code does not vary by language.
         DB::statement(
-            'REPLACE INTO `'.self::TABLE.'` (`object_id`, `culture`, `title_sort`)
+            'REPLACE INTO `'.self::TABLE.'` (`object_id`, `culture`, `title_sort`, `identifier_sort`)
              SELECT i.id, i.culture,
-                    LEFT(COALESCE(NULLIF(i.title, ""), fb.title), '.self::WIDTH.')
+                    LEFT(COALESCE(NULLIF(i.title, ""), fb.title), '.self::WIDTH.'),
+                    LEFT(io.identifier, '.self::WIDTH.')
                FROM `information_object_i18n` i
                JOIN `information_object` io ON io.id = i.id
                LEFT JOIN `information_object_i18n` fb
@@ -177,9 +239,10 @@ class TitleSortService
 
         try {
             DB::statement(
-                'REPLACE INTO `'.self::TABLE.'` (`object_id`, `culture`, `title_sort`)
+                'REPLACE INTO `'.self::TABLE.'` (`object_id`, `culture`, `title_sort`, `identifier_sort`)
                  SELECT i.id, i.culture,
-                        LEFT(COALESCE(NULLIF(i.title, ""), fb.title), '.self::WIDTH.')
+                        LEFT(COALESCE(NULLIF(i.title, ""), fb.title), '.self::WIDTH.'),
+                        LEFT(io.identifier, '.self::WIDTH.')
                    FROM `information_object_i18n` i
                    JOIN `information_object` io ON io.id = i.id
                    LEFT JOIN `information_object_i18n` fb

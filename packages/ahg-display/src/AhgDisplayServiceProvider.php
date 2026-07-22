@@ -92,6 +92,10 @@ class AhgDisplayServiceProvider extends ServiceProvider
     {
         try {
             if (Schema::hasTable(TitleSortService::TABLE)) {
+                // Already present - but an instance created before a sort column
+                // was added still needs it. Cheap hasColumn no-op thereafter.
+                (new TitleSortService())->ensureColumns();
+
                 return;
             }
             $sql = file_get_contents(__DIR__ . '/../database/install-title-sort.sql');

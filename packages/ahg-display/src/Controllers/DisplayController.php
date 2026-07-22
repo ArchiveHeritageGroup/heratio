@@ -463,14 +463,19 @@ class DisplayController extends Controller
         // Resolved before the switch: when the sidecar answers, the page order
         // is already decided and applying an ORDER BY to $query as well would
         // leave FIELD() as a secondary key and silently reorder the page.
-        $orderedIds = $this->isAlphabeticSort($sort)
-            ? $this->alphabeticIdPage($culture, $safeSortDir, $page, $limit)
+        $sortColumn = $this->sidecarSortColumn($sort);
+        $orderedIds = $sortColumn
+            ? $this->alphabeticIdPage($culture, $safeSortDir, $page, $limit, $sortColumn)
             : null;
 
         switch ($sort) {
             case 'identifier':
             case 'refcode':
-                $query->orderBy('io.identifier', $safeSortDir);
+                if ($orderedIds === null) {
+                    // identifier is varchar(1024) and entirely unindexed, so this
+                    // filesorts the table; the sidecar path above avoids it.
+                    $query->orderBy('io.identifier', $safeSortDir)->orderBy('io.id', $safeSortDir);
+                }
                 break;
             case 'date':
             case 'lastUpdated':          // settings vocabulary: "Most recent"
@@ -1901,17 +1906,22 @@ class DisplayController extends Controller
     }
 
     /**
-     * Does this sort token fall through to the alphabetical branch?
-     * Mirrors the switch in browse()/browseAjax(), whose `default:` is
-     * alphabetical - so anything not named here sorts by title.
+     * Which sidecar column, if any, can serve this sort token?
+     *
+     * Only the two text sorts need it - both order by a varchar(1024) that
+     * cannot be ordered by index (title has a prefix-only index, identifier has
+     * none at all). date/lastUpdated/relevance already sort on io.id, and
+     * startdate/enddate aggregate over `event`, so all of those stay on the
+     * ordinary path. Anything unrecognised falls through the switch's
+     * `default:` to the title sort, so it maps to title_sort here too.
      */
-    protected function isAlphabeticSort(string $sort): bool
+    protected function sidecarSortColumn(string $sort): ?string
     {
-        return ! in_array(
-            $sort,
-            ['identifier', 'refcode', 'date', 'lastUpdated', 'relevance', 'startdate', 'enddate'],
-            true
-        );
+        return match ($sort) {
+            'identifier', 'refcode' => 'identifier_sort',
+            'date', 'lastUpdated', 'relevance', 'startdate', 'enddate' => null,
+            default => 'title_sort',
+        };
     }
 
     /**
@@ -1938,9 +1948,9 @@ class DisplayController extends Controller
      *
      * @return array<int,int>|null
      */
-    protected function alphabeticIdPage(string $culture, string $safeSortDir, int $page, int $limit): ?array
+    protected function alphabeticIdPage(string $culture, string $safeSortDir, int $page, int $limit, string $column = 'title_sort'): ?array
     {
-        if (! TitleSortService::available()) {
+        if (! TitleSortService::available($column)) {
             return null;
         }
 
@@ -1967,7 +1977,7 @@ class DisplayController extends Controller
                 })
                 // Both keys in the same direction: a mixed DESC/ASC pair cannot
                 // be served by a single-direction index and reintroduces the sort.
-                ->orderBy('ts.title_sort', $safeSortDir)
+                ->orderBy('ts.'.$column, $safeSortDir)
                 ->orderBy('ts.object_id', $safeSortDir)
                 ->offset(($page - 1) * $limit)
                 ->limit($limit)
