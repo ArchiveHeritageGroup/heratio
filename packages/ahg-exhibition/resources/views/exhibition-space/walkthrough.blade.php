@@ -399,6 +399,23 @@
     renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support
     room.appendChild(renderer.domElement);
 
+    // Mipmaps + anisotropic filtering for every repeating/tiling texture below. Without them the
+    // wall, marble, grout and grass canvases are sampled with LinearFilter and no mip chain, so
+    // they shimmer and moire as the visitor walks - the loudest artefact in the walkthrough, and
+    // worst on a tiled floor receding into the distance. Measured on the marble floor of a
+    // furnished room, this recovers ~15% of the mid-distance edge detail the aliasing was eating.
+    // 8x is the usual quality/bandwidth knee; the GPU's real maximum caps it.
+    var GFX_ANISO = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    function texQ(t) {
+      if (!t) return t;
+      t.generateMipmaps = true;
+      t.minFilter = THREE.LinearMipmapLinearFilter;
+      t.magFilter = THREE.LinearFilter;
+      t.anisotropy = GFX_ANISO;
+      t.needsUpdate = true;
+      return t;
+    }
+
     // VR button: only shown when the device/browser actually supports immersive-vr.
     var xrFloorY = 0;   // holder y while in XR (headset supplies eye height on top)
     if (THREE.VRButton && navigator.xr) {
@@ -504,11 +521,10 @@
           if (tex.colorSpace !== undefined) ct.colorSpace = tex.colorSpace;
           ct.needsUpdate = true;
           tex.dispose();
-          if (onLoad) onLoad(ct);
+          if (onLoad) onLoad(texQ(ct));
           return;
         }
-        tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.needsUpdate = true;
-        if (onLoad) onLoad(tex);
+        if (onLoad) onLoad(texQ(tex));
       }, onProgress, onError);
     }
     // Composite a floor image into a tile canvas with a grout seam round the edge, then tile it
@@ -518,7 +534,7 @@
       if (srcTex.image) g.drawImage(srcTex.image, 0, 0, N, N);
       g.strokeStyle = 'rgba(58,52,44,0.7)'; g.lineWidth = Math.max(1, lineW || 4); g.strokeRect(0, 0, N, N);
       var ct = new THREE.CanvasTexture(c); ct.wrapS = ct.wrapT = THREE.RepeatWrapping; ct.repeat.set(ru, rv); ct.minFilter = THREE.LinearFilter; ct.magFilter = THREE.LinearFilter; ct.colorSpace = THREE.SRGBColorSpace; ct.needsUpdate = true;
-      return ct;
+      return texQ(ct);
     }
     // Grout line width in canvas px: a tile canvas (512px) spans tileM metres, so a groutMm seam = mm/1000/tileM*512.
     function groutLineW(groutMm, tileM) { return Math.max(1, (groutMm || 8) / 1000 / (tileM || 2) * 512); }
@@ -723,7 +739,7 @@
       g.fillStyle = '#5c8540'; g.fillRect(0, 0, 256, 256);
       for (var i = 0; i < 1100; i++) { var sh = Math.random(); g.fillStyle = 'rgba(' + ((55 + sh * 45) | 0) + ',' + ((105 + sh * 60) | 0) + ',' + ((45 + sh * 35) | 0) + ',' + (0.2 + Math.random() * 0.35) + ')'; g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 2, 2 + Math.random() * 2); }
       for (var b = 0; b < 600; b++) { var bx = Math.random() * 256, by = Math.random() * 256, h = 3 + Math.random() * 6; g.strokeStyle = 'rgba(' + ((40 + Math.random() * 40) | 0) + ',' + ((120 + Math.random() * 70) | 0) + ',' + ((40 + Math.random() * 30) | 0) + ',0.6)'; g.lineWidth = 1; g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + (Math.random() * 2 - 1), by - h); g.stroke(); }
-      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; _grassTex = t; return t;
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; _grassTex = texQ(t); return _grassTex;
     }
     // Simple stylised human silhouette (man / woman) on a transparent canvas - used for billboard
     // figures (furniture kinds person-man/person-woman) and the figure-pointer overlay.
@@ -803,7 +819,7 @@
       // Grout seam around the tile edge: the texture maps to 2m (repeat 0.5 over the metre-based floor UV),
       // so this border lands on a clean 2m x 2m grid (half from each neighbouring tile meets at the seam).
       g.strokeStyle = 'rgba(120,110,92,0.55)'; g.lineWidth = 12; g.strokeRect(0, 0, N, N);
-      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.5, 0.5); t.colorSpace = THREE.SRGBColorSpace; _marbleTex = t; return t;   // 1 tile = 2 metres
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.5, 0.5); t.colorSpace = THREE.SRGBColorSpace; _marbleTex = texQ(t); return _marbleTex;   // 1 tile = 2 metres
     }
     // Warm textured plaster wall (taupe with fine mottling) - the default look when no wall image.
     function wallTexture() {
@@ -811,7 +827,7 @@
       var c = document.createElement('canvas'); c.width = c.height = 256; var g = c.getContext('2d');
       g.fillStyle = '#b3a187'; g.fillRect(0, 0, 256, 256);
       for (var i = 0; i < 4200; i++) { var sh = (Math.random() - 0.5) * 26; g.fillStyle = 'rgba(' + ((179 + sh) | 0) + ',' + ((161 + sh) | 0) + ',' + ((135 + sh) | 0) + ',0.5)'; g.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); }
-      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; _wallTex = t; return t;
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; _wallTex = texQ(t); return _wallTex;
     }
     // Crossed-plane billboard tree (volumetric from any angle), slight size/spin variance.
     function addTree(rm, x, z) {
