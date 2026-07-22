@@ -378,10 +378,18 @@ class DisplayController extends Controller
         $discoveryMeta = [];
         $esIds = null;
 
-        // Classic path: SQL count
-        $countQuery = DB::table('information_object as io')
-            ->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id')
-            ->where('io.id', '>', 1);
+        // Classic path: SQL count.
+        //
+        // display_object_config is joined ONLY when something actually filters
+        // on it. applyFilters() touches doc.object_type for the sector/type
+        // filter and nothing else, so with no type filter the join contributes
+        // no rows and no predicate - it just makes the count walk a second
+        // table: 3,063ms with it versus 1,894ms without on atom.theahg.co.za,
+        // for the identical answer (454,392).
+        $countQuery = DB::table('information_object as io')->where('io.id', '>', 1);
+        if ($this->typeFilter) {
+            $countQuery->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id');
+        }
 
         $this->applyFilters($countQuery);
         $total = $countQuery->count();
