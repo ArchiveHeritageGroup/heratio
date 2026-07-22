@@ -51,24 +51,41 @@
         </a>
       </div>
 
-      {{-- Museum collection browse. The marketing landing had no route into the
-           sector screens at all, so a prospect could read that Heratio does
-           museums without ever seeing a museum record. --}}
-      <div class="col-12 col-md-6">
-        <a href="{{ route('glam.browse', ['type' => 'museum']) }}"
-           class="d-block text-decoration-none" aria-label="{{ __('Browse the museum collection') }}">
-          <div class="d-flex align-items-center gap-2 py-2 px-3 rounded-3 border h-100"
-               style="background:linear-gradient(135deg,#3a1c71 0%,#b06ab3 100%);color:#fff;transition:transform .15s ease;"
-               onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-            <i class="fas fa-monument" style="font-size:1.6rem;opacity:.95;" aria-hidden="true"></i>
-            <div class="flex-grow-1">
-              <h3 class="h6 fw-bold mb-0 text-white">{{ __('Museum collection') }} <span class="badge bg-light text-dark align-middle">{{ __('Live data') }}</span></h3>
-              <p class="mb-0 small text-white-50">{{ __('Real catalogued objects with CCO cataloguing, condition reporting and CIDOC CRM export.') }}</p>
+    </div>
+  </section>
+
+  {{-- Live collection browse, one card per GLAM sector.
+       The marketing landing had no route into any sector screen, so a prospect
+       could read that Heratio does museums, galleries and libraries without
+       ever reaching a single record. These are real seeded collections, not
+       screenshots - which is the point of the demo site. --}}
+  <section class="container pt-2">
+    <div class="row g-2">
+      @foreach([
+        ['type' => 'museum',  'label' => __('Museum collection'),  'icon' => 'fa-monument', 'grad' => '#3a1c71 0%,#b06ab3 100%',
+         'desc' => __('Catalogued objects with CCO cataloguing, condition reporting and CIDOC CRM export.')],
+        ['type' => 'gallery', 'label' => __('Gallery collection'), 'icon' => 'fa-palette',  'grad' => '#874da2 0%,#c43c5c 100%',
+         'desc' => __('Artworks with CCO/CDWA descriptive fields, Getty AAT terms and IIIF deep zoom.')],
+        ['type' => 'library', 'label' => __('Library collection'), 'icon' => 'fa-book',     'grad' => '#134e5e 0%,#71b280 100%',
+         'desc' => __('Bibliographic records with MARC21 ingest, Z39.50 copy cataloguing and BIBFRAME export.')],
+      ] as $sector)
+        <div class="col-12 col-md-4">
+          <a href="{{ route('glam.browse', ['type' => $sector['type']]) }}"
+             class="d-block text-decoration-none"
+             aria-label="{{ __('Browse the :sector', ['sector' => $sector['label']]) }}">
+            <div class="d-flex align-items-center gap-2 py-2 px-3 rounded-3 border h-100"
+                 style="background:linear-gradient(135deg,{{ $sector['grad'] }});color:#fff;transition:transform .15s ease;"
+                 onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+              <i class="fas {{ $sector['icon'] }}" style="font-size:1.6rem;opacity:.95;" aria-hidden="true"></i>
+              <div class="flex-grow-1">
+                <h3 class="h6 fw-bold mb-0 text-white">{{ $sector['label'] }} <span class="badge bg-light text-dark align-middle">{{ __('Live data') }}</span></h3>
+                <p class="mb-0 small text-white-50">{{ $sector['desc'] }}</p>
+              </div>
+              <span class="btn btn-light btn-sm flex-shrink-0">{{ __('Browse') }} <i class="fas fa-arrow-right ms-1"></i></span>
             </div>
-            <span class="btn btn-light btn-sm flex-shrink-0">{{ __('Browse') }} <i class="fas fa-arrow-right ms-1"></i></span>
-          </div>
-        </a>
-      </div>
+          </a>
+        </div>
+      @endforeach
     </div>
   </section>
 
