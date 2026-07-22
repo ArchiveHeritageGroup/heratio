@@ -60,10 +60,19 @@ class TitleSortService
         }
 
         try {
-            self::$available[$column] = isset(self::COLUMNS[$column])
-                && Schema::hasTable(self::TABLE)
-                && Schema::hasColumn(self::TABLE, $column)
-                && DB::table(self::TABLE)->whereNotNull($column)->limit(1)->exists();
+            if ($column === 'object_id') {
+                // Not a projected value - it is the sidecar's own key, and
+                // ordering by it is identical to ordering by io.id. Needs only
+                // that the sidecar is present and populated, since every row
+                // has one by definition.
+                self::$available[$column] = Schema::hasTable(self::TABLE)
+                    && DB::table(self::TABLE)->limit(1)->exists();
+            } else {
+                self::$available[$column] = isset(self::COLUMNS[$column])
+                    && Schema::hasTable(self::TABLE)
+                    && Schema::hasColumn(self::TABLE, $column)
+                    && DB::table(self::TABLE)->whereNotNull($column)->limit(1)->exists();
+            }
         } catch (Throwable $e) {
             self::$available[$column] = false;
         }

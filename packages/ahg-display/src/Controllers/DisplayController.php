@@ -479,7 +479,9 @@ class DisplayController extends Controller
                 break;
             case 'date':
             case 'lastUpdated':          // settings vocabulary: "Most recent"
-                $query->orderBy('io.id', $safeSortDir);
+                if ($orderedIds === null) {
+                    $query->orderBy('io.id', $safeSortDir);
+                }
                 break;
             case 'relevance':
                 if ($this->queryFilter) {
@@ -1919,7 +1921,17 @@ class DisplayController extends Controller
     {
         return match ($sort) {
             'identifier', 'refcode' => 'identifier_sort',
-            'date', 'lastUpdated', 'relevance', 'startdate', 'enddate' => null,
+            // date/lastUpdated order by io.id, which is indexed - but the
+            // JOINed query still cannot use it, because the published EXISTS
+            // becomes a semi-join that drives from `status` and forces a sort
+            // anyway (~8.5s on atom.theahg.co.za). Routing it through the same
+            // single-table id-first query answers it off the sidecar's primary
+            // key instead: 2ms. ts.object_id IS io.id, so the order is the same.
+            'date', 'lastUpdated' => 'object_id',
+            // relevance layers a CASE expression over the text match, and
+            // startdate/enddate aggregate over `event` with a GROUP BY - neither
+            // reduces to a single sidecar column, so both keep the ordinary path.
+            'relevance', 'startdate', 'enddate' => null,
             default => 'title_sort',
         };
     }
@@ -1977,8 +1989,10 @@ class DisplayController extends Controller
                 })
                 // Both keys in the same direction: a mixed DESC/ASC pair cannot
                 // be served by a single-direction index and reintroduces the sort.
+                // When object_id IS the sort key there is nothing left to tie
+                // on, so it is not repeated.
                 ->orderBy('ts.'.$column, $safeSortDir)
-                ->orderBy('ts.object_id', $safeSortDir)
+                ->when($column !== 'object_id', fn ($q) => $q->orderBy('ts.object_id', $safeSortDir))
                 ->offset(($page - 1) * $limit)
                 ->limit($limit)
                 ->pluck('ts.object_id')
