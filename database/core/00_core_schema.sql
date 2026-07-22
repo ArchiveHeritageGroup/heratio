@@ -21140,6 +21140,26 @@ CREATE TABLE IF NOT EXISTS `portable_export` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `information_object_title_sort` (browse alphabetical-sort sidecar).
+-- Mirrors packages/ahg-display/database/install-title-sort.sql so a fresh
+-- schema install / CI test DB carries it without booting the provider.
+-- Created empty; DisplayController falls back to ORDER BY i18n.title until
+-- ahg:display-rebuild-title-sort populates it, so an empty table is safe.
+--
+
+DROP TABLE IF EXISTS `information_object_title_sort`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `information_object_title_sort` (
+  `object_id` int NOT NULL,
+  `culture` varchar(16) COLLATE utf8mb4_general_ci NOT NULL,
+  `title_sort` varchar(191) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`object_id`,`culture`),
+  KEY `idx_iots_culture_title` (`culture`,`title_sort`,`object_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `term_protocol` (#1388 - community access protocol on a term).
 -- Mirrors packages/ahg-term-taxonomy migration 2026_07_16_000001 so a fresh
 -- schema install / CI test DB carries it without running migrations.

@@ -35,6 +35,7 @@ use AhgCore\Services\SettingHelper;
 use AhgCore\Support\TenantScope;
 use AhgDisplay\Services\DisplayService;
 use AhgDisplay\Services\DisplayTypeDetector;
+use AhgDisplay\Services\TitleSortService;
 use AhgDisplay\Repositories\UserBrowseSettingsRepository;
 
 class DisplayController extends Controller
@@ -480,7 +481,7 @@ class DisplayController extends Controller
                 break;
             case 'alphabetic':           // settings vocabulary: "Alphabetic"
             default:
-                $query->orderBy('i18n.title', $safeSortDir);
+                $this->applyAlphabeticSort($query, $safeSortDir, $culture);
         }
 
         // Paginate
@@ -791,7 +792,7 @@ class DisplayController extends Controller
                 break;
             case 'alphabetic':           // settings vocabulary: "Alphabetic"
             default:
-                $query->orderBy('i18n.title', $safeSortDir);
+                $this->applyAlphabeticSort($query, $safeSortDir, $culture);
         }
 
         $printCap = 500;
@@ -1833,6 +1834,39 @@ class DisplayController extends Controller
         }
 
         return self::$fulltextAvailable;
+    }
+
+    /**
+     * Order a browse query alphabetically by title.
+     *
+     * information_object_i18n.title is varchar(1024) and its only covering
+     * index stores a 191-char PREFIX; MySQL cannot use a prefix index to
+     * satisfy an ORDER BY, so sorting off the base column filesorts the whole
+     * 454,393-row table on every page - about 5-10s, essentially the entire
+     * cost of browse. The sidecar holds the same value already resolved for
+     * culture and truncated to a width that IS fully indexable, so ordering by
+     * it is an index scan.
+     *
+     * Falls back to the base column whenever the sidecar is missing or not yet
+     * populated, so behaviour is always correct - only the speed differs.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     */
+    protected function applyAlphabeticSort($query, string $safeSortDir, string $culture): void
+    {
+        if (! TitleSortService::available()) {
+            $query->orderBy('i18n.title', $safeSortDir);
+
+            return;
+        }
+
+        // (object_id, culture) is the sidecar's primary key, so this LEFT JOIN
+        // can never fan out and the result count is unchanged.
+        $query->leftJoin('information_object_title_sort as ts_sort', function ($j) use ($culture) {
+            $j->on('ts_sort.object_id', '=', 'io.id')
+                ->where('ts_sort.culture', '=', $culture);
+        });
+        $query->orderBy('ts_sort.title_sort', $safeSortDir);
     }
 
     /**

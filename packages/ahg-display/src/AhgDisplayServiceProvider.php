@@ -10,6 +10,9 @@
 namespace AhgDisplay;
 
 use AhgDisplay\Commands\PopulateIoFacetDenormCommand;
+use AhgDisplay\Commands\RebuildTitleSortCommand;
+use AhgDisplay\Services\TitleSortService;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -26,10 +29,30 @@ class AhgDisplayServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 PopulateIoFacetDenormCommand::class,
+                RebuildTitleSortCommand::class,
             ]);
+
+            // Hourly refresh keeps the sort sidecar self-healing. ~27 code
+            // paths write information_object_i18n titles; rather than making
+            // every one of them know about this table, the projection is
+            // recomputed in bulk (~3s for 454k rows on atom.theahg.co.za).
+            // Edits made through a path that calls TitleSortService::refreshFor()
+            // are ordered correctly immediately; everything else lands here.
+            $this->app->booted(function () {
+                try {
+                    $this->app->make(Schedule::class)
+                        ->command('ahg:display-rebuild-title-sort')
+                        ->hourly()
+                        ->withoutOverlapping()
+                        ->runInBackground();
+                } catch (Throwable $e) {
+                    // Never block boot on scheduler wiring.
+                }
+            });
         }
 
         $this->ensureFacetDenormTable();
+        $this->ensureTitleSortTable();
         $this->seedDefaultSettings();
     }
 
@@ -51,6 +74,32 @@ class AhgDisplayServiceProvider extends ServiceProvider
             $sql = file_get_contents(__DIR__ . '/../database/install.sql');
             if ($sql !== false && trim($sql) !== '') {
                 DB::unprepared($sql);
+            }
+        } catch (Throwable $e) {
+            // Never block boot.
+        }
+    }
+
+    /**
+     * Idempotent first-boot creation of the browse title-sort sidecar.
+     * See database/install-title-sort.sql for why browse cannot sort off the
+     * base column directly. Creating the table does NOT populate it -
+     * TitleSortService::available() stays false until the rebuild command (or
+     * the hourly schedule) has run, and browse keeps using the old ORDER BY
+     * until then, so a fresh install is slow-but-correct rather than wrong.
+     */
+    protected function ensureTitleSortTable(): void
+    {
+        try {
+            if (Schema::hasTable(TitleSortService::TABLE)) {
+                return;
+            }
+            $sql = file_get_contents(__DIR__ . '/../database/install-title-sort.sql');
+            if ($sql !== false && trim($sql) !== '') {
+                DB::unprepared($sql);
+                // The DDL cannot know this install's collation; match it now so
+                // the sidecar orders identically to the column it stands in for.
+                (new TitleSortService())->alignCollation();
             }
         } catch (Throwable $e) {
             // Never block boot.
