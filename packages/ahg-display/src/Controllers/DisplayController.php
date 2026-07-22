@@ -1855,7 +1855,8 @@ class DisplayController extends Controller
     protected function applyAlphabeticSort($query, string $safeSortDir, string $culture): void
     {
         if (! TitleSortService::available()) {
-            $query->orderBy('i18n.title', $safeSortDir);
+            // io.id breaks ties so paging stays stable - see below.
+            $query->orderBy('i18n.title', $safeSortDir)->orderBy('io.id', 'asc');
 
             return;
         }
@@ -1866,7 +1867,16 @@ class DisplayController extends Controller
             $j->on('ts_sort.object_id', '=', 'io.id')
                 ->where('ts_sort.culture', '=', $culture);
         });
-        $query->orderBy('ts_sort.title_sort', $safeSortDir);
+
+        // Tie-break on id. Duplicate titles are common in real catalogues -
+        // atom.theahg.co.za has long runs of identically-named scans such as
+        // "1006_49.pdf" - and with no tiebreaker their relative order is
+        // whatever the plan happens to emit, so a LIMIT/OFFSET boundary landing
+        // inside a tied run could show a record twice or skip it entirely
+        // across pages. object_id is the third column of idx_iots_culture_title,
+        // so ordering by it after title_sort is satisfied by the same index
+        // scan and costs nothing.
+        $query->orderBy('ts_sort.title_sort', $safeSortDir)->orderBy('io.id', 'asc');
     }
 
     /**
