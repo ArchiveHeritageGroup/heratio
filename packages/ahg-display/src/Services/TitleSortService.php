@@ -25,15 +25,26 @@ class TitleSortService
     public const WIDTH = 191;
 
     /**
-     * Sidecar sort columns, mapped to the base column each one stands in for.
+     * Sidecar sort columns: [source table, source column, DDL type].
      *
-     * Both base columns are varchar(1024) and neither can be ordered by index:
-     * information_object_i18n.title has only a 191-char PREFIX index (unusable
-     * for ORDER BY), and information_object.identifier has NO index at all.
+     * The two text columns stand in for varchar(1024) base columns that cannot
+     * be ordered by index - information_object_i18n.title has only a 191-char
+     * PREFIX index (unusable for ORDER BY at any length) and
+     * information_object.identifier has no index at all.
+     *
+     * The two date columns stand in for an AGGREGATE rather than a column:
+     * browse orders by MIN(event.start_date) / MAX(event.end_date), which needs
+     * a join to `event` plus a GROUP BY across every selected column, and costs
+     * ~10.3s a page on atom.theahg.co.za. Precomputing the aggregate per object
+     * turns that into an ordinary indexed column. Only 52,249 of 454,393
+     * records have a dated event; the rest are legitimately NULL and sort
+     * exactly where MIN()/MAX() put them.
      */
     public const COLUMNS = [
-        'title_sort' => ['information_object_i18n', 'title'],
-        'identifier_sort' => ['information_object', 'identifier'],
+        'title_sort' => ['information_object_i18n', 'title', 'VARCHAR(191)'],
+        'identifier_sort' => ['information_object', 'identifier', 'VARCHAR(191)'],
+        'start_date_sort' => ['event', 'start_date', 'DATE'],
+        'end_date_sort' => ['event', 'end_date', 'DATE'],
     ];
 
     /** Per-request memo for available(), so browse doesn't re-probe per query. */
@@ -101,13 +112,13 @@ class TitleSortService
                 return;
             }
 
-            foreach (array_keys(self::COLUMNS) as $column) {
+            foreach (self::COLUMNS as $column => [, , $type]) {
                 if (Schema::hasColumn(self::TABLE, $column)) {
                     continue;
                 }
                 DB::statement(
                     'ALTER TABLE `'.self::TABLE.'`
-                     ADD COLUMN `'.$column.'` VARCHAR('.self::WIDTH.') NULL,
+                     ADD COLUMN `'.$column.'` '.$type.' NULL,
                      ADD KEY `idx_iots_culture_'.$column.'` (`culture`, `'.$column.'`, `object_id`)'
                 );
             }
@@ -140,7 +151,7 @@ class TitleSortService
                 return;
             }
 
-            foreach (self::COLUMNS as $column => [$sourceTable, $sourceColumn]) {
+            foreach (self::COLUMNS as $column => [$sourceTable, $sourceColumn, $type]) {
                 if (! Schema::hasColumn(self::TABLE, $column)) {
                     continue;
                 }
@@ -148,6 +159,9 @@ class TitleSortService
                 $source = $this->columnCollation($sourceTable, $sourceColumn);
                 $current = $this->columnCollation(self::TABLE, $column);
 
+                // Non-text columns (DATE) have no collation on either side and
+                // fall out here, which is correct - date ordering is not
+                // collation-dependent.
                 if ($source === null || $current === null || $source === $current) {
                     continue;
                 }
@@ -161,7 +175,7 @@ class TitleSortService
                 $charset = strtok($source, '_');
                 DB::statement(
                     'ALTER TABLE `'.self::TABLE.'`
-                     MODIFY `'.$column.'` VARCHAR('.self::WIDTH.')
+                     MODIFY `'.$column.'` '.$type.'
                      CHARACTER SET '.$charset.' COLLATE '.$source.' NULL'
                 );
             }
@@ -211,14 +225,19 @@ class TitleSortService
         // same value is written for every culture of a record - correct, since
         // a reference code does not vary by language.
         DB::statement(
-            'REPLACE INTO `'.self::TABLE.'` (`object_id`, `culture`, `title_sort`, `identifier_sort`)
+            'REPLACE INTO `'.self::TABLE.'`
+                    (`object_id`, `culture`, `title_sort`, `identifier_sort`, `start_date_sort`, `end_date_sort`)
              SELECT i.id, i.culture,
                     LEFT(COALESCE(NULLIF(i.title, ""), fb.title), '.self::WIDTH.'),
-                    LEFT(io.identifier, '.self::WIDTH.')
+                    LEFT(io.identifier, '.self::WIDTH.'),
+                    ev.sd, ev.ed
                FROM `information_object_i18n` i
                JOIN `information_object` io ON io.id = i.id
                LEFT JOIN `information_object_i18n` fb
-                      ON fb.id = i.id AND fb.culture = io.source_culture'
+                      ON fb.id = i.id AND fb.culture = io.source_culture
+               LEFT JOIN (SELECT `object_id`, MIN(`start_date`) sd, MAX(`end_date`) ed
+                            FROM `event` WHERE `object_id` IS NOT NULL
+                           GROUP BY `object_id`) ev ON ev.object_id = i.id'
         );
 
         // Rows whose information_object has since been deleted would otherwise
@@ -248,10 +267,13 @@ class TitleSortService
 
         try {
             DB::statement(
-                'REPLACE INTO `'.self::TABLE.'` (`object_id`, `culture`, `title_sort`, `identifier_sort`)
+                'REPLACE INTO `'.self::TABLE.'`
+                        (`object_id`, `culture`, `title_sort`, `identifier_sort`, `start_date_sort`, `end_date_sort`)
                  SELECT i.id, i.culture,
                         LEFT(COALESCE(NULLIF(i.title, ""), fb.title), '.self::WIDTH.'),
-                        LEFT(io.identifier, '.self::WIDTH.')
+                        LEFT(io.identifier, '.self::WIDTH.'),
+                        (SELECT MIN(`start_date`) FROM `event` WHERE `object_id` = i.id),
+                        (SELECT MAX(`end_date`)   FROM `event` WHERE `object_id` = i.id)
                    FROM `information_object_i18n` i
                    JOIN `information_object` io ON io.id = i.id
                    LEFT JOIN `information_object_i18n` fb

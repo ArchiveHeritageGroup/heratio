@@ -493,14 +493,22 @@ class DisplayController extends Controller
                 $query->orderBy('io.id', 'desc');
                 break;
             case 'startdate':
-                $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
-                $query->orderByRaw("MIN(evt_sort.start_date) $safeSortDir");
-                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug', 'li_wk.work_key');
+                // The join and GROUP BY exist ONLY to compute the aggregate to
+                // order by. When the sidecar supplies the order they are pure
+                // cost - and the GROUP BY would also collapse the FIELD()
+                // ordering the id-first page depends on - so both are skipped.
+                if ($orderedIds === null) {
+                    $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
+                    $query->orderByRaw("MIN(evt_sort.start_date) $safeSortDir");
+                    $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug', 'li_wk.work_key');
+                }
                 break;
             case 'enddate':
-                $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
-                $query->orderByRaw("MAX(evt_sort.end_date) $safeSortDir");
-                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug', 'li_wk.work_key');
+                if ($orderedIds === null) {
+                    $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
+                    $query->orderByRaw("MAX(evt_sort.end_date) $safeSortDir");
+                    $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug', 'li_wk.work_key');
+                }
                 break;
             case 'alphabetic':           // settings vocabulary: "Alphabetic"
             default:
@@ -1928,10 +1936,14 @@ class DisplayController extends Controller
             // single-table id-first query answers it off the sidecar's primary
             // key instead: 2ms. ts.object_id IS io.id, so the order is the same.
             'date', 'lastUpdated' => 'object_id',
-            // relevance layers a CASE expression over the text match, and
-            // startdate/enddate aggregate over `event` with a GROUP BY - neither
-            // reduces to a single sidecar column, so both keep the ordinary path.
-            'relevance', 'startdate', 'enddate' => null,
+            // The date sorts order by MIN(event.start_date) / MAX(event.end_date).
+            // The sidecar stores those aggregates precomputed, so the join to
+            // `event` and the GROUP BY over every selected column both go away.
+            'startdate' => 'start_date_sort',
+            'enddate' => 'end_date_sort',
+            // relevance layers a CASE expression over the text match, so it does
+            // not reduce to a single sidecar column and keeps the ordinary path.
+            'relevance' => null,
             default => 'title_sort',
         };
     }

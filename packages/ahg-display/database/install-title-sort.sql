@@ -36,9 +36,13 @@ CREATE TABLE IF NOT EXISTS `information_object_title_sort` (
   `culture`         VARCHAR(16) NOT NULL,
   `title_sort`      VARCHAR(191) DEFAULT NULL COMMENT 'Resolved title (current culture, falling back to source_culture), truncated to an indexable 191 chars',
   `identifier_sort` VARCHAR(191) DEFAULT NULL COMMENT 'information_object.identifier, truncated to an indexable 191 chars; same for every culture of a record',
+  `start_date_sort` DATE DEFAULT NULL COMMENT 'MIN(event.start_date) for the record - precomputed so browse need not GROUP BY over event',
+  `end_date_sort`   DATE DEFAULT NULL COMMENT 'MAX(event.end_date) for the record',
   PRIMARY KEY (`object_id`, `culture`),
   KEY `idx_iots_culture_title` (`culture`, `title_sort`, `object_id`),
-  KEY `idx_iots_culture_identifier_sort` (`culture`, `identifier_sort`, `object_id`)
+  KEY `idx_iots_culture_identifier_sort` (`culture`, `identifier_sort`, `object_id`),
+  KEY `idx_iots_culture_start_date_sort` (`culture`, `start_date_sort`, `object_id`),
+  KEY `idx_iots_culture_end_date_sort` (`culture`, `end_date_sort`, `object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- identifier is varchar(1024) on information_object with NO index of any kind,
