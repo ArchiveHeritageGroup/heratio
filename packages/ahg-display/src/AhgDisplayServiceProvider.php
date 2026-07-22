@@ -123,6 +123,9 @@ class AhgDisplayServiceProvider extends ServiceProvider
 
             $defaults = [
                 'ahg_display_use_facet_denorm' => '0',
+                // Seconds to memoise the two browse counts. 0 disables the
+                // cache and computes both on every request.
+                'ahg_display_count_cache_ttl' => '300',
             ];
 
             $existingKeys = DB::table('ahg_settings')

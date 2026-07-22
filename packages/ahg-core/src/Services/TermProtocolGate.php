@@ -102,7 +102,7 @@ class TermProtocolGate
             return $query;
         }
         // (a) records tagged with a protocol-restricted TERM (inherited)
-        if (self::protocolTableExists()) {
+        if (self::protocolTableExists() && self::hasRestrictingRows('term_protocol', 'access_condition')) {
             $query->whereNotExists(function ($sub) use ($idColumn) {
                 $sub->select(DB::raw(1))
                     ->from('object_term_relation as otrx')
@@ -112,7 +112,7 @@ class TermProtocolGate
             });
         }
         // (b) records with a restricted protocol attached DIRECTLY (#1406 P1)
-        if (TermProtocolService::objectProtocolTableExists()) {
+        if (TermProtocolService::objectProtocolTableExists() && self::hasRestrictingRows('object_protocol', 'access_condition')) {
             $query->whereNotExists(function ($sub) use ($idColumn) {
                 $sub->select(DB::raw(1))
                     ->from('object_protocol as opx')
@@ -122,7 +122,13 @@ class TermProtocolGate
             });
         }
         // (c) records with a restricted ICIP TK/BC label applied via ahg-icip (#1406 P2)
-        if (TermProtocolService::icipLabelTablesExist()) {
+        //
+        // Checked against APPLIED labels, not the label vocabulary: the type
+        // table ships ~22 Local Contexts labels of which several are restricting,
+        // so testing it alone would keep this gate on for every install even
+        // when not one record has ever been labelled (atom.theahg.co.za has 22
+        // types and 0 applied labels).
+        if (TermProtocolService::icipLabelTablesExist() && self::hasAppliedRestrictingLabel()) {
             $query->whereNotExists(function ($sub) use ($idColumn) {
                 $sub->select(DB::raw(1))
                     ->from('icip_tk_label as ilx')
@@ -142,6 +148,73 @@ class TermProtocolGate
      * whereNotExists against a missing table would 500 the whole page.
      */
     private static ?bool $protocolTable = null;
+
+    /**
+     * Does this protocol table hold ANY row that actually restricts?
+     *
+     * A whereNotExists against a table with no restricting row is always true -
+     * it filters nothing, and only makes the planner walk a correlated subquery
+     * per candidate row. On a browse count over 454,393 records the three gates
+     * together cost ~1,792ms (3,719ms with them, 1,927ms without) while all
+     * three tables were EMPTY, so every one of those milliseconds enforced
+     * nothing. Skipping a gate that cannot exclude anything is exactly
+     * equivalent, not an approximation.
+     *
+     * Memoised per REQUEST only, never across requests: a protocol applied by
+     * an editor must take effect on the very next page load. PHP-FPM discards
+     * statics between requests, which is the property being relied on here -
+     * do not move this into the cache layer.
+     *
+     * @var array<string, bool>
+     */
+    private static array $restricting = [];
+
+    private static function hasRestrictingRows(string $table, string $column): bool
+    {
+        $key = $table.'.'.$column;
+        if (array_key_exists($key, self::$restricting)) {
+            return self::$restricting[$key];
+        }
+
+        try {
+            self::$restricting[$key] = DB::table($table)
+                ->whereIn($column, TermProtocolService::RESTRICTED)
+                ->limit(1)
+                ->exists();
+        } catch (\Throwable $e) {
+            // Unreadable for any reason -> assume it restricts, so the gate
+            // stays on. This is a disclosure control: fail closed.
+            self::$restricting[$key] = true;
+        }
+
+        return self::$restricting[$key];
+    }
+
+    /** Is there at least one APPLIED ICIP label whose type restricts? */
+    private static function hasAppliedRestrictingLabel(): bool
+    {
+        if (array_key_exists('icip.applied', self::$restricting)) {
+            return self::$restricting['icip.applied'];
+        }
+
+        try {
+            self::$restricting['icip.applied'] = DB::table('icip_tk_label as ilx')
+                ->join('icip_tk_label_type as iltx', 'iltx.id', '=', 'ilx.label_type_id')
+                ->whereIn('iltx.default_access_condition', TermProtocolService::RESTRICTED)
+                ->limit(1)
+                ->exists();
+        } catch (\Throwable $e) {
+            self::$restricting['icip.applied'] = true;   // fail closed
+        }
+
+        return self::$restricting['icip.applied'];
+    }
+
+    /** Drop the per-request memo (tests, and after writing a protocol). */
+    public static function forgetRestricting(): void
+    {
+        self::$restricting = [];
+    }
 
     private static function protocolTableExists(): bool
     {

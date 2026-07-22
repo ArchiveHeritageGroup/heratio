@@ -30,6 +30,7 @@ namespace AhgDisplay\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use AhgCore\Services\SettingHelper;
 use AhgCore\Support\TenantScope;
@@ -392,7 +393,7 @@ class DisplayController extends Controller
         }
 
         $this->applyFilters($countQuery);
-        $total = $countQuery->count();
+        $total = $this->cachedCount($countQuery);
 
         // ES fuzzy fallback - skipped (Elasticsearch not yet migrated)
         // Placeholder for future: if $total === 0 && $this->queryFilter, try ES fuzzy
@@ -450,12 +451,15 @@ class DisplayController extends Controller
             $breadcrumb = [];
         }
 
-        $digitalObjectCount = DB::table('information_object as io')
-            ->join('digital_object as dobj', function ($j) {
-                $j->on('io.id', '=', 'dobj.object_id')->whereNull('dobj.parent_id');
-            })
-            ->where('io.id', '>', 1)
-            ->count();
+        // Global and filter-independent - the same number on every browse page
+        // load, recomputed from scratch each time at ~2,089ms.
+        $digitalObjectCount = $this->cachedCount(
+            DB::table('information_object as io')
+                ->join('digital_object as dobj', function ($j) {
+                    $j->on('io.id', '=', 'dobj.object_id')->whereNull('dobj.parent_id');
+                })
+                ->where('io.id', '>', 1)
+        );
 
         // Sort
         $safeSortDir = $sortDir === 'desc' ? 'desc' : 'asc';
@@ -1918,6 +1922,46 @@ class DisplayController extends Controller
         // boundary landing inside a tied run can show a record on two
         // consecutive pages or skip it entirely.
         $query->orderBy('i18n.title', $safeSortDir)->orderBy('io.id', $safeSortDir);
+    }
+
+    /**
+     * Run a browse count, memoised for a short window.
+     *
+     * The two counts on a browse page were the entire remaining cost once the
+     * sorts were fixed: 3,951ms for the result total and 2,089ms for the
+     * digital-object total, against ~3ms for everything else on the page. Both
+     * scan the full 454,393-row table, and neither can stop early the way a
+     * LIMITed result query can.
+     *
+     * The key is derived from the query's own SQL and bindings rather than from
+     * a hand-listed set of filter properties. There are 30-odd filter fields and
+     * applyFilters() also branches on authentication, so an enumerated key would
+     * be one forgotten field away from serving a guest a count computed for an
+     * editor. SQL + bindings cannot drift out of step with the query they came
+     * from, and a new filter is covered the day it is added.
+     *
+     * TTL is deliberately short and operator-tunable. A count that lags a newly
+     * published record by a few minutes is a cosmetic total on a page whose
+     * result list is always live; set ahg_display_count_cache_ttl to 0 to
+     * compute every time.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     */
+    protected function cachedCount($query): int
+    {
+        $ttl = (int) SettingHelper::get('ahg_display_count_cache_ttl', 300);
+        if ($ttl <= 0) {
+            return (int) $query->count();
+        }
+
+        $key = 'ahg_display:count:'.md5($query->toSql().'|'.serialize($query->getBindings()));
+
+        try {
+            return (int) Cache::remember($key, $ttl, fn () => (int) $query->count());
+        } catch (\Throwable $e) {
+            // Cache store unavailable / unwritable - correctness before speed.
+            return (int) $query->count();
+        }
     }
 
     /**
