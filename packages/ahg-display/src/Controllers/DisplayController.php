@@ -464,8 +464,11 @@ class DisplayController extends Controller
         // is already decided and applying an ORDER BY to $query as well would
         // leave FIELD() as a secondary key and silently reorder the page.
         $sortColumn = $this->sidecarSortColumn($sort);
+        // relevance pins io.id to DESC whatever ?dir= says - mirror that here,
+        // or the fast path would silently reverse a page the old path did not.
+        $sidecarDir = $sort === 'relevance' ? 'desc' : $safeSortDir;
         $orderedIds = $sortColumn
-            ? $this->alphabeticIdPage($culture, $safeSortDir, $page, $limit, $sortColumn)
+            ? $this->alphabeticIdPage($culture, $sidecarDir, $page, $limit, $sortColumn)
             : null;
 
         switch ($sort) {
@@ -484,13 +487,15 @@ class DisplayController extends Controller
                 }
                 break;
             case 'relevance':
-                if ($this->queryFilter) {
-                    $query->orderByRaw("CASE WHEN i18n.title LIKE ? THEN 0 WHEN i18n.title LIKE ? THEN 1 ELSE 2 END ASC", [
-                        $this->queryFilter,
-                        '%' . $this->queryFilter . '%',
-                    ]);
+                if ($orderedIds === null) {
+                    if ($this->queryFilter) {
+                        $query->orderByRaw("CASE WHEN i18n.title LIKE ? THEN 0 WHEN i18n.title LIKE ? THEN 1 ELSE 2 END ASC", [
+                            $this->queryFilter,
+                            '%' . $this->queryFilter . '%',
+                        ]);
+                    }
+                    $query->orderBy('io.id', 'desc');
                 }
-                $query->orderBy('io.id', 'desc');
                 break;
             case 'startdate':
                 // The join and GROUP BY exist ONLY to compute the aggregate to
@@ -1941,9 +1946,12 @@ class DisplayController extends Controller
             // `event` and the GROUP BY over every selected column both go away.
             'startdate' => 'start_date_sort',
             'enddate' => 'end_date_sort',
-            // relevance layers a CASE expression over the text match, so it does
-            // not reduce to a single sidecar column and keeps the ordinary path.
-            'relevance' => null,
+            // relevance layers a CASE expression over the matched text, which
+            // does not reduce to a sidecar column - but that CASE only exists
+            // when there IS a query. With no query relevance is nothing more
+            // than io.id desc, identical to lastUpdated, so it can take the
+            // fast path (17.5s -> ~7s) whenever no text filter is set.
+            'relevance' => $this->queryFilter ? null : 'object_id',
             default => 'title_sort',
         };
     }
