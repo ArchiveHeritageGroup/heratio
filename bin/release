@@ -14,6 +14,7 @@ set -e
 TYPE=${1:-patch}
 MSG=${2:-"Bug fixes and improvements"}
 ISSUE_ARG=""
+INCLUDE_DRIFT=0
 
 # Parse --issue argument
 for arg in "$@"; do
@@ -21,6 +22,8 @@ for arg in "$@"; do
         ISSUE_ARG="next"
     elif [[ "$ISSUE_ARG" == "next" ]]; then
         ISSUE_ARG="$arg"
+    elif [[ "$arg" == "--include-drift" ]]; then
+        INCLUDE_DRIFT=1
     fi
 done
 
@@ -119,12 +122,63 @@ if [[ -n "$ISSUE_ARG" ]]; then
 ${FIXES}"
 fi
 
+#===============================================================================
+# Stage the release
+#===============================================================================
+# Staging happens BEFORE the session log is written, so the log reports what is
+# actually committed. Previously the log ran `git diff --cached` ahead of
+# `git add -A`, so it described only what the caller had pre-staged: v1.154.400
+# logged 1 file while committing 5. An accurate list is the cheapest guard
+# against this whole class of mistake.
+#
+# RELEASE_EXCLUDE holds paths that are permanently divergent in a working tree
+# and must never ride along in an unrelated release. Pass --include-drift (or
+# set RELEASE_EXCLUDE="") when a dependency change genuinely belongs here.
+RELEASE_EXCLUDE=${RELEASE_EXCLUDE-"composer.json composer.lock"}
+[[ "$INCLUDE_DRIFT" == "1" ]] && RELEASE_EXCLUDE=""
+
+git add -A
+
+EXCLUDED=""
+for _p in $RELEASE_EXCLUDE; do
+    if ! git diff --cached --quiet -- "$_p" 2>/dev/null; then
+        git reset -q HEAD -- "$_p" 2>/dev/null || true
+        EXCLUDED="${EXCLUDED} ${_p}"
+    fi
+done
+if [[ -n "$EXCLUDED" ]]; then
+    echo -e "${YELLOW}Held back from this release (drift):${NC}${EXCLUDED}"
+    echo -e "${YELLOW}  left as uncommitted working-tree changes${NC}"
+    echo -e "${YELLOW}  re-run with --include-drift if they belong in this commit${NC}"
+    echo ""
+fi
+
+# version.json is rewritten above, so something is ALWAYS staged; the guard has
+# to ask whether anything MEANINGFUL is staged. Without this, holding back drift
+# turns a drift-only release into a content-free version bump. The bump is
+# rolled back on abort so it cannot leak into the next release.
+if [[ -z "$(git diff --cached --name-only | grep -vE '^version\.json$' || true)" ]]; then
+    echo -e "${RED}Nothing to release: only version.json would change.${NC}"
+    if [[ -n "$EXCLUDED" ]]; then
+        echo -e "${YELLOW}  held back:${EXCLUDED}${NC}"
+        echo -e "${YELLOW}  if that drift IS the release, re-run with --include-drift${NC}"
+    fi
+    git reset -q HEAD -- version.json 2>/dev/null || true
+    git checkout -- version.json 2>/dev/null || true
+    echo -e "${YELLOW}  version.json bump rolled back${NC}"
+    exit 1
+fi
+
+echo -e "${BLUE}Staged for ${TAG}:${NC}"
+git diff --cached --stat | tail -25
+echo ""
+
 # Auto-generate the per-release session log so docs/sessions/ is a complete
 # audit timeline of every release. The KM indexer crawls this tree; until the
 # central `/var/spool/km-ingest/` watched folder ships, this in-repo file is
 # the canonical KM publish surface. See /root/.claude/CLAUDE.md "KM
-# auto-publish rule". The file is written BEFORE `git add -A` so it lands in
-# the same commit that this release creates.
+# auto-publish rule". Written after staging so its file list is truthful, and
+# staged itself below so it still lands in this release's commit.
 SESSION_LOG_DIR="docs/sessions"
 SESSION_LOG_FILE="${SESSION_LOG_DIR}/${DATE}-${TAG}.md"
 mkdir -p "${SESSION_LOG_DIR}"
@@ -145,8 +199,11 @@ mkdir -p "${SESSION_LOG_DIR}"
     echo "## Files in this release"
     echo
     echo '```'
-    git diff --cached --stat 2>/dev/null | head -100
-    git ls-files --others --exclude-standard 2>/dev/null | head -100 | sed 's/^/A  /'
+    git diff --cached --stat | head -100
+    if [[ -n "$EXCLUDED" ]]; then
+        echo
+        echo "Held back (drift, left uncommitted):${EXCLUDED}"
+    fi
     echo '```'
     echo
     echo "## Release link"
@@ -161,7 +218,7 @@ if [[ -d /var/spool/km-ingest ]]; then
         || echo -e "${YELLOW}(KM spool drop skipped — permission)${NC}"
 fi
 
-git add -A
+git add -- "${SESSION_LOG_FILE}"
 git commit -m "$COMMIT_MSG"
 
 echo -e "${BLUE}[2/3] Creating tag ${TAG}...${NC}"
