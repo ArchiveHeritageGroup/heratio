@@ -27,7 +27,7 @@
      data-multifileupload-i18n-max-post-size-message="Maximum total upload size: "
      data-multifileupload-i18n-max-size-note="%{maxFileSizeMessage}; %{maxPostSizeMessage}"
      data-multifileupload-i18n-retry="Retry"
-     data-multifileupload-i18n-info-object-title="Title"
+     data-multifileupload-i18n-info-object-title="{{ __('Title') }}"
      data-multifileupload-i18n-save="Save"
      data-multifileupload-i18n-add-more-files="Add more files"
      data-multifileupload-i18n-add-more="Add more"

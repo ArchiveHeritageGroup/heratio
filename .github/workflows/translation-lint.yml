@@ -22,9 +22,16 @@ on:
 
 env:
   # Absolute cap on hardcoded UI string candidates across the codebase.
-  # Currently ~6 in ~5 files after the C1 sweep. Set to 50 to allow some
-  # headroom for legitimate new code while still catching mass regressions.
-  TOTAL_THRESHOLD: 50
+  # Stood at 61 against a cap of 50 - i.e. permanently red - until the
+  # 2026-07-22 sweep wrapped 40 genuine strings and brought it to 22.
+  #
+  # The remaining 22 are deliberate and should NOT be wrapped: TK/BC Local
+  # Contexts codes, MIME types and PRONOM ids (fmt/43), URL and path examples,
+  # the literal word RESTORE that a user must type to confirm a restore
+  # (translating it would break the comparison), and two linter false positives
+  # (a @yield directive, and a string already inside __()). So 22 is the real
+  # floor, not a backlog. 30 leaves headroom for new code.
+  TOTAL_THRESHOLD: 30
 
   # Absolute cap on __() keys present in code but missing from lang/en.json.
   # #1420 harvested 13,955 keys and took this to 0; it has since drifted to

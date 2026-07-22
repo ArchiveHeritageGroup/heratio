@@ -58,11 +58,11 @@
           aria-valuemax="100">
         </div>
       </div>
-      <p class="card-text">{!! __(':du of :limit <abbr title="1 GB = 1 000 000 000 bytes">GB</abbr> (:percent%)', ['du' => $diskUsage, 'limit' => $uploadLimit, 'percent' => $diskUsagePercent]) !!}</p>
+      <p class="card-text">{!! __(':du of :limit <abbr title="{{ __('1 GB = 1 000 000 000 bytes') }}">GB</abbr> (:percent%)', ['du' => $diskUsage, 'limit' => $uploadLimit, 'percent' => $diskUsagePercent]) !!}</p>
     @elseif('disabled' === $quotaType)
       <p class="card-text">{{ __('Upload is disabled') }}</p>
     @elseif('unlimited' === $quotaType)
-      <p class="card-text">{!! __(':du <abbr title="1 GB = 1 000 000 000 bytes">GB</abbr> of <em>Unlimited</em>', ['du' => $diskUsage]) !!}</p>
+      <p class="card-text">{!! __(':du <abbr title="{{ __('1 GB = 1 000 000 000 bytes') }}">GB</abbr> of <em>Unlimited</em>', ['du' => $diskUsage]) !!}</p>
     @endif
   </div>
 

@@ -42,11 +42,11 @@
       <div class="col-md-2"><label class="form-label small fw-bold">{{ __('PPQ ID') }}</label><input type="text" id="fs-ppq" class="form-control form-control-sm"></div>
       <div class="col-md-2"><label class="form-label small fw-bold">{{ __('Event type') }}</label>
         <select id="fs-event" class="form-select form-select-sm">
-          <option value="Marriage">Marriage (type_c)</option>
-          <option value="Birth">Birth (type_a)</option>
-          <option value="Baptism">Baptism (type_a)</option>
-          <option value="Death">Death (type_b)</option>
-          <option value="Burial">Burial (type_b)</option>
+          <option value="Marriage">{{ __('Marriage (type_c)') }}</option>
+          <option value="Birth">{{ __('Birth (type_a)') }}</option>
+          <option value="Baptism">{{ __('Baptism (type_a)') }}</option>
+          <option value="Death">{{ __('Death (type_b)') }}</option>
+          <option value="Burial">{{ __('Burial (type_b)') }}</option>
         </select>
       </div>
     </div>

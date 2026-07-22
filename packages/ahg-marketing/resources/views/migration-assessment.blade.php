@@ -10,7 +10,7 @@
 @section('canonical', 'https://heratio.org/migration/assessment')
 
 @section('content')
-    <h1>Book a free AtoM migration assessment</h1>
+    <h1>{{ __('Book a free AtoM migration assessment') }}</h1>
 
     <p class="lede">Tell us about your current AtoM instance and we will review it, map the migration (EAD/CSV import, authority and repository records, digital objects), and show you your collection running in Heratio - with no obligation.</p>
 
@@ -33,7 +33,7 @@
 
         {{-- Honeypot: hidden from humans, tempting to bots. Leave blank. --}}
         <div class="hp" aria-hidden="true">
-            <label for="website">Website (leave this field empty)</label>
+            <label for="website">{{ __('Website (leave this field empty)') }}</label>
             <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" value="">
         </div>
 
@@ -56,7 +56,7 @@
         <textarea id="message" name="message" maxlength="2000">{{ old('message') }}</textarea>
 
         <div class="form-actions">
-            <button type="submit" class="btn">Request my free assessment</button>
+            <button type="submit" class="btn">{{ __('Request my free assessment') }}</button>
         </div>
     </form>
 @endsection

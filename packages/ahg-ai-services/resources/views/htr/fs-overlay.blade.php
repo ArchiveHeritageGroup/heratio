@@ -97,11 +97,11 @@
         <label class="form-label small fw-bold mb-0">{{ __('Image Type (this image — no record)') }}</label>
         <select id="ba-fs-imagetype" class="form-select form-select-sm" onchange="fsSetImageType(this.value)">
           <option value="">{{ __('(has a record — key fields)') }}</option>
-          <option value="No Extractable Data Image">No Extractable Data Image</option>
-          <option value="Blank Image">Blank Image</option>
-          <option value="Duplicate Image">Duplicate Image</option>
-          <option value="Unreadable Image">Unreadable Image</option>
-          <option value="Other Image">Other Image</option>
+          <option value="No Extractable Data Image">{{ __('No Extractable Data Image') }}</option>
+          <option value="Blank Image">{{ __('Blank Image') }}</option>
+          <option value="Duplicate Image">{{ __('Duplicate Image') }}</option>
+          <option value="Unreadable Image">{{ __('Unreadable Image') }}</option>
+          <option value="Other Image">{{ __('Other Image') }}</option>
         </select>
       </div>
       <div class="col-auto">

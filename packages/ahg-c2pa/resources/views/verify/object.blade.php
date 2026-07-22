@@ -207,7 +207,7 @@
 
 {{-- Embed this verify badge. --}}
 @php
-  $imgTag = '<a href="' . e($verifyUrl) . '"><img src="' . e($badgeSvg) . '" alt="Content Credentials" /></a>';
+  $imgTag = '<a href="' . e($verifyUrl) . '"><img src="' . e($badgeSvg) . '" alt="{{ __('Content Credentials') }}" /></a>';
 @endphp
 <div class="card mb-3">
   <div class="card-header"><i class="fas fa-code me-2"></i>{{ __('Embed this badge') }}</div>

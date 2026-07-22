@@ -2,7 +2,7 @@
   Reusable dummy-sale demo modal. Triggered by any element with
     data-bs-toggle="modal" data-bs-target="#dummySaleModal"
   Optional data-* attributes on the trigger override the default sample data:
-    data-dummy-title="Listing title"
+    data-dummy-title="{{ __('Listing title') }}"
     data-dummy-price="6500.00"
     data-dummy-currency="ZAR"
 --}}

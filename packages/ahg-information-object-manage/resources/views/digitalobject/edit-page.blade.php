@@ -250,7 +250,7 @@
             <form method="POST" action="{{ route('io.digitalobject.delete', $do->id) }}" class="d-inline" onsubmit="return confirm('Delete this digital object?')">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
+                <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
             </form>
         </li>
         @if($ioSlug)

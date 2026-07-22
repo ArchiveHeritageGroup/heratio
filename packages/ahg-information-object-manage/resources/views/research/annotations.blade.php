@@ -93,7 +93,7 @@
             <div class="row g-2">
               <div class="col-md-6">
                 <label class="form-label">{{ __('Tags') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                <input type="text" name="tags" class="form-control" placeholder="comma, separated, tags">
+                <input type="text" name="tags" class="form-control" placeholder="{{ __('comma, separated, tags') }}">
               </div>
               <div class="col-md-6">
                 <label class="form-label">{{ __('Visibility') }}</label>

@@ -7,7 +7,7 @@
 <div class="container py-3">
 
   {{-- Breadcrumb --}}
-  <nav aria-label="breadcrumb" class="mb-2">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-2">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? $io->slug }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ __('Provenance') }}</li>

@@ -18,7 +18,7 @@
   @endif
 
   <div class="mb-3">
-    <label class="form-label" for="target-language">Target language</label>
+    <label class="form-label" for="target-language">{{ __('Target language') }}</label>
     <select class="form-select" id="target-language" style="max-width: 300px;">
       <option value="af">{{ __('Afrikaans') }}</option>
       <option value="en" selected>{{ __('English') }}</option>

@@ -244,7 +244,7 @@
         <img src="{{ $report['badge_url'] }}" alt="{{ __('Authenticity badge') }}" height="20">
       </p>
       <p class="small text-muted mb-1">{{ __('Embed this live badge on another page; it links readers back here:') }}</p>
-      <pre class="small bg-light border rounded p-2 mb-0"><code>&lt;a href="{{ url()->current() }}"&gt;&lt;img src="{{ $report['badge_url'] }}" alt="Authenticity"&gt;&lt;/a&gt;</code></pre>
+      <pre class="small bg-light border rounded p-2 mb-0"><code>&lt;a href="{{ url()->current() }}"&gt;&lt;img src="{{ $report['badge_url'] }}" alt="{{ __('Authenticity') }}"&gt;&lt;/a&gt;</code></pre>
     </div>
   </div>
 @endif

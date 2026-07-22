@@ -252,7 +252,7 @@
               </div>
 
               <div class="mb-3">
-                {{-- Was a plain <input type="text" placeholder="Actor ID">
+                {{-- Was a plain <input type="text" placeholder="{{ __('Actor ID') }}">
                      so users had to know the numeric record id. Swapped to
                      the shared autocomplete component (already used for
                      Creators + Repository on the IO edit form) so users
