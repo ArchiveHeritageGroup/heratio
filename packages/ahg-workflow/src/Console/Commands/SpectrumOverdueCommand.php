@@ -31,7 +31,7 @@ class SpectrumOverdueCommand extends Command
         {--inbox= : Override the Workbench notification inbox path (default /var/spool/workbench/notifications)}
         {--dry-run : Log overdue items but do not write notifications}';
 
-    protected $description = 'Scan for Spectrum-tagged workflow tasks past the overdue threshold; drop Workbench notifications for the configured user.';
+    protected $description = 'Scan for museum-procedure-tagged workflow tasks past the overdue threshold; drop Workbench notifications for the configured user.';
 
     public function handle(): int
     {

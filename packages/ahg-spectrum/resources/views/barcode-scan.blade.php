@@ -41,7 +41,7 @@
       <div class="card-header"><h5 class="mb-0">{{ __('About') }}</h5></div>
       <div class="card-body">
         <p class="text-muted small">{{ __('Operators scan a barcode (or type one) to jump straight to the matching archival record. Barcodes are managed centrally in the spectrum_object_barcode table; assign them via the API or seed scripts.') }}</p>
-        <p class="small mb-0"><a href="{{ route('settings.ahg.spectrum') }}">{{ __('Spectrum settings') }}</a></p>
+        <p class="small mb-0"><a href="{{ route('settings.ahg.spectrum') }}">{{ __('Museum procedure settings') }}</a></p>
       </div>
     </div>
   </div>

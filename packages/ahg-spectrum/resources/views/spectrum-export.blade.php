@@ -1,9 +1,9 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Spectrum History Export'))
+@section('title', __('Museum Procedure History Export'))
 
 @section('content')
-<h1 class="h3 mb-4"><i class="fas fa-download me-2"></i>{{ __('Spectrum History Export') }}</h1>
+<h1 class="h3 mb-4"><i class="fas fa-download me-2"></i>{{ __('Museum Procedure History Export') }}</h1>
 
 <p class="text-muted mb-4">Export Spectrum procedure histories for audit and compliance purposes.</p>
 

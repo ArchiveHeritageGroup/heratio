@@ -10,7 +10,7 @@
   <div class="row mb-4">
     <div class="col-12">
       <h1><i class="fas fa-landmark me-2"></i>{{ __('Museum Management') }}</h1>
-      <p class="lead text-muted">{{ __('Manage museum objects using CCO/Spectrum cataloguing standards') }}</p>
+      <p class="lead text-muted">{{ __('Manage museum objects using CCO cataloguing standards') }}</p>
     </div>
   </div>
 

@@ -35,13 +35,13 @@
       </div>
       <div class="card-body">
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">{{ __('Enable Spectrum') }}</label>
+          <label class="col-sm-3 col-form-label">{{ __('Enable Museum Procedures') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="spectrum_enabled"
                      name="settings[spectrum_enabled]" value="true"
                      {{ ($settings['spectrum_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="spectrum_enabled">{{ __('Enable Spectrum collections management') }}</label>
+              <label class="form-check-label" for="spectrum_enabled">{{ __('Enable museum collections management') }}</label>
             </div>
           </div>
         </div>

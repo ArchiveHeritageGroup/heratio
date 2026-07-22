@@ -115,7 +115,11 @@
 </div>
 
 <!-- D3.js Timeline -->
-<script src="https://d3js.org/d3.v7.min.js"></script>
+{{-- d3 from jsdelivr: d3js.org is not in the CSP script-src allowlist
+     and jsdelivr is - see App\Csp\HeratioCspPreset. Loaded here rather
+     than relying on the layout because this view's d3 code runs inside
+     @section('content'), which renders before the layout's own d3 tag. --}}
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const timelineData = {!! $timelineData ?? '[]' !!};

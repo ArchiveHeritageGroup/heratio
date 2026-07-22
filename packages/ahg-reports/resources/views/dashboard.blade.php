@@ -234,7 +234,7 @@
         <div class="card-header bg-success text-white"><h5 class="mb-0"><i class="fas fa-download me-2"></i>{{ __('Export') }}</h5></div>
         <ul class="list-group list-group-flush">
           @if($hasGrap)<li class="list-group-item"><a href="{{ url('/grap/national-treasury-report') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>{{ __('GRAP 103 National Treasury Report') }}</a></li>@endif
-          @if($hasSpectrum)<li class="list-group-item"><a href="{{ url('/admin/spectrum/export') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('Spectrum History Export') }}</a></li>@endif
+          @if($hasSpectrum)<li class="list-group-item"><a href="{{ url('/admin/spectrum/export') }}"><i class="fas fa-history me-2 text-muted"></i>{{ __('Museum Procedure History Export') }}</a></li>@endif
           <li class="list-group-item"><a href="{{ route('reports.descriptions', ['export' => 'csv']) }}"><i class="fas fa-file-csv me-2 text-muted"></i>{{ __('CSV Export') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/export/ead') }}"><i class="fas fa-file-code me-2 text-muted"></i>{{ __('EAD 2002 Export') }}</a></li>
           @if(Route::has('ahgmetadataexport.index'))
@@ -275,8 +275,8 @@
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Museum Procedures Workflow') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{{ url('/admin/spectrum/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Spectrum Dashboard') }}</a></li>
-          <li class="list-group-item"><a href="{{ url('/admin/spectrum/my-tasks') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('My Spectrum Tasks') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/spectrum/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>{{ __('Museum Procedures Dashboard') }}</a></li>
+          <li class="list-group-item"><a href="{{ url('/admin/spectrum/my-tasks') }}"><i class="fas fa-clipboard-list me-2 text-muted"></i>{{ __('My Museum Procedure Tasks') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/admin/spectrum/workflow') }}"><i class="fas fa-sitemap me-2 text-muted"></i>{{ __('Workflow Configurations') }}</a></li>
           <li class="list-group-item"><a href="{{ url('/admin/spectrum/notifications') }}"><i class="fas fa-bell me-2 text-muted"></i>{{ __('Notifications') }}</a></li>
         </ul>

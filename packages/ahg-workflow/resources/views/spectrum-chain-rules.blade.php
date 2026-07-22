@@ -1,13 +1,13 @@
 {{-- Spectrum Phase C2 — cross-procedure chain rules admin --}}
 @extends('theme::layouts.1col')
 
-@section('title', __('Spectrum chain rules'))
+@section('title', __('Museum procedure chain rules'))
 @section('body-class', 'spectrum chain-rules')
 
 @section('content')
   <div class="d-flex flex-wrap align-items-baseline mb-3 gap-2">
     <h1 class="mb-0 flex-grow-1">
-      <i class="fas fa-link me-2"></i>{{ __('Spectrum chain rules') }}
+      <i class="fas fa-link me-2"></i>{{ __('Museum procedure chain rules') }}
     </h1>
     <a href="{{ route('workflow.spectrum.dashboard') }}" class="btn btn-outline-secondary">
       <i class="fas fa-arrow-left me-1"></i>{{ __('Compliance dashboard') }}

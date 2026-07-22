@@ -68,7 +68,7 @@
   @if(!empty($spectrumProcedures ?? []))
     <form method="GET" action="{{ route('workflow.admin') }}" class="d-flex flex-wrap gap-2 align-items-end mb-3">
       <div class="flex-grow-1" style="max-width: 28rem;">
-        <label for="spectrum" class="form-label small mb-1">{{ __('Filter by Spectrum 5.1 procedure') }}</label>
+        <label for="spectrum" class="form-label small mb-1">{{ __('Filter by museum procedure') }}</label>
         <select name="spectrum" id="spectrum" class="form-select form-select-sm" onchange="this.form.submit()">
           <option value="">{{ __('All workflows') }}</option>
           @foreach($spectrumProcedures as $code => $label)

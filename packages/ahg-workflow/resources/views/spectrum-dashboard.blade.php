@@ -1,7 +1,7 @@
 {{-- Spectrum Phase C1 — collection-wide compliance dashboard --}}
 @extends('theme::layouts.1col')
 
-@section('title', __('Spectrum compliance dashboard'))
+@section('title', __('Museum procedure compliance dashboard'))
 @section('body-class', 'spectrum compliance-dashboard')
 
 @section('content')
@@ -21,7 +21,7 @@
 
   <div class="d-flex flex-wrap align-items-baseline mb-3 gap-2">
     <h1 class="mb-0 flex-grow-1">
-      <i class="fas fa-university me-2"></i>{{ __('Spectrum compliance dashboard') }}
+      <i class="fas fa-university me-2"></i>{{ __('Museum procedure compliance dashboard') }}
     </h1>
     <a href="{{ route('workflow.spectrum.export', ['overdue_days' => $overdueDays]) }}" class="btn btn-outline-success">
       <i class="fas fa-file-csv me-1"></i>{{ __('Export CSV') }}

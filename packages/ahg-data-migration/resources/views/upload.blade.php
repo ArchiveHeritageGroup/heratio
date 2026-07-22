@@ -191,7 +191,7 @@
                   <option value="mods">{{ __('MODS (Library)') }}</option>
                   <option value="marc">{{ __('MARC XML (Library)') }}</option>
                   <option value="lido">{{ __('LIDO (Museum)') }}</option>
-                  <option value="spectrum">{{ __('Spectrum CSV') }}</option>
+                  <option value="spectrum">{{ __('Museum CSV') }}</option>
                 </optgroup>
                 <optgroup label="Generic">
                   <option value="generic_csv">{{ __('Generic CSV') }}</option>

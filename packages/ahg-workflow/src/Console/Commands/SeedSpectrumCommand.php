@@ -26,7 +26,7 @@ class SeedSpectrumCommand extends Command
         {--only=* : Install only specific procedure codes (e.g. --only=object_entry --only=cataloguing)}
         {--dry-run : Show what would change without writing anything}';
 
-    protected $description = 'Install the Spectrum 5.1 procedure starter pack — 21 workflows with paraphrased canonical steps.';
+    protected $description = 'Install the museum procedure starter pack — 21 workflows with paraphrased canonical steps.';
 
     public function handle(): int
     {

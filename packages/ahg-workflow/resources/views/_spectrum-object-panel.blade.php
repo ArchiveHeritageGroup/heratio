@@ -35,7 +35,7 @@
 
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <span><i class="fas fa-university me-2"></i><strong>{{ __('Spectrum compliance') }}</strong></span>
+      <span><i class="fas fa-university me-2"></i><strong>{{ __('Museum procedure compliance') }}</strong></span>
       <a href="{{ route('workflow.spectrum.dashboard') }}" class="text-decoration-none small">{{ __('Collection dashboard') }} <i class="fas fa-external-link-alt"></i></a>
     </div>
     <div class="card-body">

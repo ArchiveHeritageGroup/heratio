@@ -564,6 +564,29 @@ class TermController extends Controller
      *
      * Migrated from AtoM sfSkosPlugin export action.
      */
+    /**
+     * Run a whereIn lookup in id chunks and concatenate the results.
+     *
+     * MySQL caps a prepared statement at 65,535 placeholders. A whole-taxonomy
+     * id list can exceed that on its own - atom.theahg.co.za's Places taxonomy
+     * holds 196,322 terms - and the statement then fails outright with
+     * "Prepared statement contains too many placeholders" rather than merely
+     * running slowly, so the SKOS export was permanently broken for any large
+     * vocabulary (#1424).
+     *
+     * @param  int[] $ids
+     * @param  callable(int[]): \Illuminate\Support\Collection $query
+     */
+    private function inIdChunks(array $ids, callable $query): \Illuminate\Support\Collection
+    {
+        $out = collect();
+        foreach (array_chunk($ids, CrossMatchService::ID_CHUNK) as $chunk) {
+            $out = $out->concat($query($chunk));
+        }
+
+        return $out;
+    }
+
     public function exportSkos(Request $request)
     {
         $taxonomyId = (int) $request->input('taxonomy');
@@ -609,12 +632,12 @@ class TermController extends Controller
             // prefLabel above so we don't emit one altLabel per supported
             // locale when only the requested culture is wanted. Phase 2
             // can drop the filter when SKOS-XL labels per locale are added.
-            $otherNames = DB::table('other_name')
+            $otherNames = $this->inIdChunks($termIds, fn (array $ids) => DB::table('other_name')
                 ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
-                ->whereIn('other_name.object_id', $termIds)
+                ->whereIn('other_name.object_id', $ids)
                 ->where('other_name_i18n.culture', $culture)
                 ->select('other_name.object_id', 'other_name_i18n.name')
-                ->get();
+                ->get());
             foreach ($otherNames as $on) {
                 $name = trim((string) $on->name);
                 if ($name === '') {
@@ -627,12 +650,12 @@ class TermController extends Controller
             // avoid N-cultures × N-notes output explosion. Phase 2 can
             // distinguish scopeNote / historyNote / changeNote based on
             // note.type_id once that mapping is documented.
-            $notes = DB::table('note')
+            $notes = $this->inIdChunks($termIds, fn (array $ids) => DB::table('note')
                 ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
-                ->whereIn('note.object_id', $termIds)
+                ->whereIn('note.object_id', $ids)
                 ->where('note_i18n.culture', $culture)
                 ->select('note.object_id', 'note_i18n.content')
-                ->get();
+                ->get());
             foreach ($notes as $n) {
                 $content = trim((string) $n->content);
                 if ($content === '') {

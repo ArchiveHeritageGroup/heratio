@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 class SpectrumSeedWorkflowConfigs extends Command
 {
     protected $signature = 'spectrum:seed-configs {--force : Overwrite existing configs}';
-    protected $description = 'Seed or update all 21 Spectrum 5.1 workflow procedure configs';
+    protected $description = 'Seed or update all 21 museum workflow procedure configs';
 
     public function handle(): int
     {

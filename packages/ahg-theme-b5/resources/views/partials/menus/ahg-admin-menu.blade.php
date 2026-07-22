@@ -245,8 +245,8 @@
     <li><a class="dropdown-item" href="{{ route('workflow.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>{{ __('Dashboard') }}</a></li>
     <li><a class="dropdown-item" href="{{ route('workflow.admin') }}"><i class="fas fa-cogs me-2"></i>{{ __('Workflows & diagrams') }}</a></li>
     @if($hasSpectrumCompliance && ($spectrumEnabled ?? false))
-    <li><a class="dropdown-item" href="{{ route('workflow.spectrum.dashboard') }}"><i class="fas fa-university me-2"></i>{{ __('Spectrum compliance') }}</a></li>
-    <li><a class="dropdown-item" href="{{ route('workflow.spectrum.chain') }}"><i class="fas fa-link me-2"></i>{{ __('Spectrum chain rules') }}</a></li>
+    <li><a class="dropdown-item" href="{{ route('workflow.spectrum.dashboard') }}"><i class="fas fa-university me-2"></i>{{ __('Museum procedure compliance') }}</a></li>
+    <li><a class="dropdown-item" href="{{ route('workflow.spectrum.chain') }}"><i class="fas fa-link me-2"></i>{{ __('Museum procedure chain rules') }}</a></li>
     @endif
     @endif
 

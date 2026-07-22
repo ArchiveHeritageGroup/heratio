@@ -26,7 +26,7 @@ foreach ($transitions as $transKey => $transDef) {
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">{{ __('Spectrum Dashboard') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">{{ __('Museum Procedures Dashboard') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.general') }}">{{ __('General Procedures') }}</a></li>
     <li class="breadcrumb-item active">{{ __('Workflow') }}</li>
   </ol>

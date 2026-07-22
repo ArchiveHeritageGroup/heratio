@@ -32,7 +32,7 @@ class ImportMuseumCsvCommand extends Command
         {--limit= : Maximum rows to process}
         {--skip=0 : Number of rows to skip}';
 
-    protected $description = 'Import museum CSV data with Spectrum 5.0 validation';
+    protected $description = 'Import museum CSV data with museum procedure validation';
 
     public function handle(): int
     {

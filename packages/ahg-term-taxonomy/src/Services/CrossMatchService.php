@@ -21,6 +21,13 @@ use Illuminate\Support\Facades\DB;
 
 class CrossMatchService
 {
+    /**
+     * Maximum ids per whereIn. MySQL's prepared-statement limit is 65,535
+     * placeholders; staying well under it leaves room for the other bindings
+     * in a query and keeps each statement cheap to plan.
+     */
+    public const ID_CHUNK = 5000;
+
     public const MATCH_TYPES = [
         'exactMatch',
         'closeMatch',
@@ -65,12 +72,22 @@ class CrossMatchService
         if (empty($termIds)) {
             return [];
         }
-        $rows = DB::table('ahg_term_cross_match')
-            ->whereIn('term_id', $termIds)
-            ->orderBy('match_type')
-            ->orderBy('target_label')
-            ->orderBy('id')
-            ->get();
+
+        // Chunked because MySQL caps a prepared statement at 65,535
+        // placeholders. A whole-taxonomy id list can exceed that outright -
+        // atom.theahg.co.za's Places taxonomy holds 196,322 terms - and the
+        // statement then fails before it runs, rather than being slow (#1424).
+        $rows = collect();
+        foreach (array_chunk($termIds, self::ID_CHUNK) as $chunk) {
+            $rows = $rows->concat(
+                DB::table('ahg_term_cross_match')
+                    ->whereIn('term_id', $chunk)
+                    ->orderBy('match_type')
+                    ->orderBy('target_label')
+                    ->orderBy('id')
+                    ->get()
+            );
+        }
 
         $out = [];
         foreach ($rows as $r) {
