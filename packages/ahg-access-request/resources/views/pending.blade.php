@@ -42,6 +42,7 @@
                                         <th>{{ __('User') }}</th>
                                         <th>{{ __('Subject') }}</th>
                                         <th>{{ __('Type') }}</th>
+                                        <th>{{ __('Scope') }}</th>
                                         <th>{{ __('Created') }}</th>
                                         <th>{{ __('Actions') }}</th>
                                     </tr>
@@ -53,6 +54,7 @@
                                             <td>{{ $req->user_name ?? 'Unknown' }}</td>
                                             <td>{{ $req->subject ?? 'N/A' }}</td>
                                             <td>{{ $req->request_type ?? 'N/A' }}</td>
+                                            <td>@include('ahg-access-request::partials.scope-badge', ['request' => $req])</td>
                                             <td>{{ $req->created_at ?? '' }}</td>
                                             <td>
                                                 <a href="{{ route('accessRequest.view', $req->id) }}" class="btn btn-outline-secondary btn-sm">Review</a>

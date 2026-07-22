@@ -42,6 +42,7 @@
                                         <th>{{ __('ID') }}</th>
                                         <th>{{ __('Subject') }}</th>
                                         <th>{{ __('Type') }}</th>
+                                        <th>{{ __('Scope') }}</th>
                                         <th>{{ __('Status') }}</th>
                                         <th>{{ __('Created') }}</th>
                                         <th>{{ __('Actions') }}</th>
@@ -53,6 +54,7 @@
                                             <td>{{ $req->id }}</td>
                                             <td>{{ $req->subject ?? 'N/A' }}</td>
                                             <td>{{ $req->request_type ?? 'N/A' }}</td>
+                                            <td>@include('ahg-access-request::partials.scope-badge', ['request' => $req])</td>
                                             <td>
                                                 @if($req->status === 'approved')
                                                     <span class="badge bg-success">{{ __('Approved') }}</span>

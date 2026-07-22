@@ -32,6 +32,12 @@ use Illuminate\Routing\Controller;
 
 class AccessRequestController extends Controller
 {
+    /** Levels of description that count as a "collection" for request scoping. */
+    public const COLLECTION_LEVELS = ['Collection', 'Fonds', 'Subfonds', 'Series', 'Subseries'];
+
+    /** Valid request scopes: the whole holdings, one collection, or one item. */
+    public const SCOPES = ['all', 'collection', 'item'];
+
     public function __construct(
         protected AccessRequestService $service
     ) {}
@@ -58,7 +64,73 @@ class AccessRequestController extends Controller
                 ->get()
             : collect();
 
-        return view('ahg-access-request::new', compact('classifications'));
+        return view('ahg-access-request::new', [
+            'classifications' => $classifications,
+            'collections' => $this->collectionOptions(),
+        ]);
+    }
+
+    /**
+     * Resolved title for a scope target, stored on the scope row so reviewers
+     * still see what was asked for if the record is later renamed or removed.
+     */
+    protected function objectTitle(int $objectId): ?string
+    {
+        $culture = app()->getLocale();
+
+        $title = \Illuminate\Support\Facades\DB::table('information_object_i18n')
+            ->where('id', $objectId)->where('culture', $culture)->value('title');
+
+        if ($title === null || trim((string) $title) === '') {
+            // Fall back to the record's source culture before giving up.
+            $title = \Illuminate\Support\Facades\DB::table('information_object_i18n as i18n')
+                ->join('information_object as io', 'io.id', '=', 'i18n.id')
+                ->whereColumn('i18n.culture', 'io.source_culture')
+                ->where('i18n.id', $objectId)
+                ->value('i18n.title');
+        }
+
+        return $title !== null && trim((string) $title) !== '' ? mb_substr((string) $title, 0, 500) : null;
+    }
+
+    /**
+     * Selectable "collections" for a collection-scoped request.
+     *
+     * Deliberately keyed off level of description rather than top-level-ness.
+     * On atom.theahg.co.za 418,541 records sit directly under the root, so a
+     * "top-level records" list is unusable - but by level there are only 65
+     * genuine collections (Collection 36, Series 15, Fonds 13, Subfonds 1),
+     * which is both a sensible dropdown and the archivally correct meaning of
+     * "collection".
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    protected function collectionOptions()
+    {
+        $culture = app()->getLocale();
+
+        try {
+            return \Illuminate\Support\Facades\DB::table('information_object as io')
+                ->join('term_i18n as lvl', function ($j) use ($culture) {
+                    $j->on('lvl.id', '=', 'io.level_of_description_id')
+                        ->where('lvl.culture', '=', $culture);
+                })
+                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
+                    $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', '=', $culture);
+                })
+                ->whereIn('lvl.name', self::COLLECTION_LEVELS)
+                ->where('io.id', '>', 1)
+                ->select('io.id', 'i18n.title', 'lvl.name as level_name')
+                ->orderBy('i18n.title')
+                ->limit(500)
+                ->get()
+                ->filter(fn ($r) => trim((string) $r->title) !== '')
+                ->values();
+        } catch (\Throwable $e) {
+            // A missing level taxonomy must not take the whole form down; the
+            // requester can still choose "everything" or a single item.
+            return collect();
+        }
     }
 
     /**
@@ -132,9 +204,24 @@ class AccessRequestController extends Controller
             'justification' => 'nullable|string|max:2000',
             'urgency' => 'nullable|in:low,normal,high,urgent',
             'requested_classification_id' => 'nullable|integer|exists:security_classification,id',
+            // Scope: everything, one collection, or one item. The target is
+            // required for the two scoped forms and ignored for 'all'.
+            'scope_type' => 'required|in:'.implode(',', self::SCOPES),
+            'scope_collection_id' => 'required_if:scope_type,collection|nullable|integer|exists:information_object,id',
+            'scope_item_id' => 'required_if:scope_type,item|nullable|integer|exists:information_object,id',
+        ], [
+            'scope_collection_id.required_if' => __('Choose which collection you need access to.'),
+            'scope_item_id.required_if' => __('Choose which item you need access to.'),
         ]);
 
-        $this->service->createRequest(auth()->id(), [
+        $scopeType = $validated['scope_type'];
+        $targetId = match ($scopeType) {
+            'collection' => (int) $validated['scope_collection_id'],
+            'item' => (int) $validated['scope_item_id'],
+            default => null,
+        };
+
+        $payload = [
             'subject' => $validated['subject'],
             'request_type' => $validated['request_type'],
             // #1366 — explicit classification key (null → baseline Public default).
@@ -142,7 +229,18 @@ class AccessRequestController extends Controller
             'reason' => 'Subject: '.$validated['subject']."\n\n".$validated['description'],
             'justification' => $validated['justification'] ?? null,
             'urgency' => $validated['urgency'] ?? 'normal',
-        ]);
+            'scope_type' => $scopeType,
+        ];
+
+        if ($targetId) {
+            $payload['target_object_id'] = $targetId;
+            $payload['target_object_type'] = 'information_object';
+            $payload['target_object_title'] = $this->objectTitle($targetId);
+            // A collection request covers its children; an item request does not.
+            $payload['include_descendants'] = $scopeType === 'collection';
+        }
+
+        $this->service->createRequest(auth()->id(), $payload);
 
         return redirect()->route('accessRequest.myRequests')->with('notice', 'Access request submitted.');
     }

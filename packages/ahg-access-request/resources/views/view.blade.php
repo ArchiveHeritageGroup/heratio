@@ -42,6 +42,23 @@
                                     <td>{{ $accessRequest->request_type ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
+                                    <th>{{ __('Scope') }}</th>
+                                    <td>
+                                        @include('ahg-access-request::partials.scope-badge', ['request' => $accessRequest])
+                                        @if(!empty($accessRequest->scope_object_id))
+                                            @php
+                                                $scopeSlug = \Illuminate\Support\Facades\DB::table('slug')
+                                                    ->where('object_id', $accessRequest->scope_object_id)->value('slug');
+                                            @endphp
+                                            @if($scopeSlug)
+                                                <a href="{{ url('/'.$scopeSlug) }}" class="small d-block mt-1">
+                                                    <i class="fas fa-arrow-up-right-from-square me-1" aria-hidden="true"></i>{{ __('Open the requested record') }}
+                                                </a>
+                                            @endif
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
                                     <th>{{ __('Status') }}</th>
                                     <td>
                                         @if($accessRequest->status === 'approved')

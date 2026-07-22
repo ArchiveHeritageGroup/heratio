@@ -125,10 +125,17 @@ class AccessRequestService
                 $join->on('user.id', '=', 'actor_i18n.id')
                     ->where('actor_i18n.culture', '=', 'en');
             })
+            ->leftJoin('access_request_scope as scope', 'scope.request_id', '=', 'access_request.id')
             ->where('access_request.status', '=', 'pending')
             ->select(
                 'access_request.*',
-                'actor_i18n.authorized_form_of_name as user_name'
+                'actor_i18n.authorized_form_of_name as user_name',
+                // Scope target, so a reviewer can see WHAT is being asked for
+                // without opening each request. createRequest() writes at most
+                // one scope row per request, so this join cannot fan out.
+                'scope.object_id as scope_object_id',
+                'scope.object_title as scope_object_title',
+                'scope.include_descendants as scope_include_descendants'
             )
             ->orderByDesc('access_request.created_at')
             ->paginate($perPage);
@@ -140,7 +147,14 @@ class AccessRequestService
     public function getMyRequests(int $userId, int $perPage = 25): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return DB::table('access_request')
+            ->leftJoin('access_request_scope as scope', 'scope.request_id', '=', 'access_request.id')
             ->where('access_request.user_id', '=', $userId)
+            ->select(
+                'access_request.*',
+                'scope.object_id as scope_object_id',
+                'scope.object_title as scope_object_title',
+                'scope.include_descendants as scope_include_descendants'
+            )
             ->orderByDesc('access_request.created_at')
             ->paginate($perPage);
     }
@@ -156,8 +170,15 @@ class AccessRequestService
                 $join->on('user.id', '=', 'actor_i18n.id')
                     ->where('actor_i18n.culture', '=', 'en');
             })
+            ->leftJoin('access_request_scope as scope', 'scope.request_id', '=', 'access_request.id')
             ->where('access_request.id', $id)
-            ->select('access_request.*', 'actor_i18n.authorized_form_of_name as user_name')
+            ->select(
+                'access_request.*',
+                'actor_i18n.authorized_form_of_name as user_name',
+                'scope.object_id as scope_object_id',
+                'scope.object_title as scope_object_title',
+                'scope.include_descendants as scope_include_descendants'
+            )
             ->first();
     }
 
