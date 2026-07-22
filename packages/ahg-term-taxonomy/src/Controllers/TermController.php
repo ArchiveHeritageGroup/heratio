@@ -58,6 +58,23 @@ class TermController extends Controller
      */
     public const TREE_WIDE = 1000;
 
+    /**
+     * Above this many terms in a taxonomy, skip the prev/next navigation.
+     *
+     * Any ORDER BY term_i18n.name is a filesort and cannot be indexed away:
+     * `name` is varchar(1024) but idx_term_i18n_culture_name_id stores only a
+     * 191-char prefix (sub_part=191), and MySQL will not use a prefix index to
+     * satisfy an ORDER BY. Confirmed empirically - FORCE INDEX and
+     * STRAIGHT_JOIN both leave it at ~3.5s on taxonomy 35 (362,095 terms), and
+     * even the bare term_i18n LIMIT 1 with no joins costs 1.5s. Widening the
+     * index is not an option: it is a base AtoM table, and utf8mb4 caps an
+     * index key at 3072 bytes / 768 chars anyway, short of the column's 1024.
+     *
+     * So the fix is to not issue the query. Prev/next is a nicety, and its
+     * meaning is thin in an alphabetical list of a third of a million terms.
+     */
+    public const NAV_MAX = 20000;
+
     protected TermService $termService;
 
     protected CrossMatchService $crossMatchService;
@@ -510,7 +527,7 @@ class TermController extends Controller
         // Prev/next terms in same taxonomy (for navigation)
         $prevTerm = null;
         $nextTerm = null;
-        if ($term->name) {
+        if ($term->name && $listTotal <= self::NAV_MAX) {
             $prevTerm = DB::table('term')
                 ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
                 ->join('slug', 'term.id', '=', 'slug.object_id')
