@@ -39,6 +39,13 @@ use Illuminate\Support\Str;
 
 class TermController extends Controller
 {
+    /**
+     * Maximum sibling / child rows hydrated for the term-show sidebar tree.
+     * The tree is a navigation aid, not a listing - the List tab paginates the
+     * full set - so this is a hard cap, matching what the view already drew.
+     */
+    public const TREE_MAX = 50;
+
     protected TermService $termService;
 
     protected CrossMatchService $crossMatchService;
@@ -365,7 +372,20 @@ class TermController extends Controller
             ->where('note.object_id', $term->id)->where('note.type_id', 123)
             ->where('note_i18n.culture', $culture)->pluck('note_i18n.content')->toArray();
 
-        // Narrower terms (children) with names, slugs, and child count for expand indicator
+        // Narrower terms (children) with names, slugs, and child count for expand indicator.
+        //
+        // Both this and the sibling query below are HARD-CAPPED at self::TREE_MAX.
+        // They feed a sidebar tree, and an uncapped ->get() on a wide taxonomy is
+        // fatal: on atom.theahg.co.za term 110 (the root of taxonomy 30) has
+        // 558,715 direct children, so every term page beneath it tried to
+        // hydrate half a million rows - each carrying a correlated child_count
+        // subquery - and died on "Allowed memory size of 536870912 bytes
+        // exhausted (tried to allocate 148914176 bytes)". The view already only
+        // ever drew the first 50, so the rest were loaded purely to be thrown
+        // away. The true totals go to the view separately so the "... and N
+        // more" affordance stays honest, and the List tab (paginated, 25/page)
+        // remains the way to see everything.
+        $narrowerTotal = $narrowerCount;   // already counted above; don't re-run it
         $narrowerTerms = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->join('slug', 'term.id', '=', 'slug.object_id')
@@ -373,11 +393,14 @@ class TermController extends Controller
             ->where('term_i18n.culture', $culture)
             ->select('term.id', 'term_i18n.name', 'slug.slug',
                 DB::raw('(SELECT COUNT(*) FROM term WHERE parent_id = term.id) as child_count'))
-            ->orderBy('term_i18n.name')->get();
+            ->orderBy('term_i18n.name')->limit(self::TREE_MAX)->get();
 
         // Sibling terms (other children of the same parent) for treeview navigation
         $siblings = collect();
+        $siblingsTotal = 0;
         if ($parentId) {
+            $siblingsTotal = DB::table('term')
+                ->where('parent_id', $parentId)->where('id', '!=', $term->id)->count();
             $siblings = DB::table('term')
                 ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
                 ->join('slug', 'term.id', '=', 'slug.object_id')
@@ -386,7 +409,7 @@ class TermController extends Controller
                 ->where('term_i18n.culture', $culture)
                 ->select('term.id', 'term_i18n.name', 'slug.slug',
                     DB::raw('(SELECT COUNT(*) FROM term WHERE parent_id = term.id) as child_count'))
-                ->orderBy('term_i18n.name')->get();
+                ->orderBy('term_i18n.name')->limit(self::TREE_MAX)->get();
         }
 
         // List tab: paginated alphabetical list of terms
@@ -399,7 +422,7 @@ class TermController extends Controller
             ->join('slug', 'term.id', '=', 'slug.object_id')
             ->where('term_i18n.culture', $culture);
 
-        if ($narrowerTerms->count() > 0 && $term->taxonomy_id == 30) {
+        if ($narrowerTotal > 0 && $term->taxonomy_id == 30) {
             // Root term — show children
             $listQuery->where('term.parent_id', $term->id);
         } else {
@@ -516,7 +539,10 @@ class TermController extends Controller
             'broaderTerm' => $broaderTerm,
             'narrowerCount' => $narrowerCount,
             'narrowerTerms' => $narrowerTerms,
+            'narrowerTotal' => $narrowerTotal,
             'siblings' => $siblings ?? collect(),
+            'siblingsTotal' => $siblingsTotal ?? 0,
+            'treeMax' => self::TREE_MAX,
             'listTerms' => $listTerms,
             'listTotal' => $listTotal,
             'listPage' => $listPage,

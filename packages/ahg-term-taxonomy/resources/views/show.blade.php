@@ -68,7 +68,10 @@
 
               @php $depth = $breadcrumb->count(); @endphp
 
-              {{-- Siblings (other children of the same parent) --}}
+              {{-- Siblings (other children of the same parent). Capped in the
+                   controller at $treeMax - some taxonomies are extremely wide
+                   (one real root has 558,715 direct children) and drawing them
+                   all exhausted the memory limit. --}}
               @foreach($siblings as $sib)
                 <a href="{{ route('term.show', $sib->slug) }}" class="list-group-item list-group-item-action py-2" style="white-space:normal;padding-left:{{ ($depth * 16) + 8 }}px;">
                   @if($sib->child_count > 0)
@@ -79,10 +82,14 @@
                   {{ $sib->name }}
                 </a>
               @endforeach
+              @if($siblingsTotal > $siblings->count())
+                @php $siblingsMore = number_format($siblingsTotal - $siblings->count()); @endphp
+                <span class="list-group-item text-muted small" style="padding-left:{{ ($depth * 16) + 8 }}px;">{{ __('... and :count more at this level', ['count' => $siblingsMore]) }}</span>
+              @endif
 
               {{-- Current term (active) --}}
               <div class="list-group-item active py-2" style="padding-left:{{ ($depth * 16) + 8 }}px;">
-                @if($narrowerTerms->count() > 0)
+                @if($narrowerTotal > 0)
                   <i class="fas fa-caret-down me-1"></i>
                 @else
                   <i class="fas fa-circle me-1" style="font-size:.4em;vertical-align:middle;"></i>
@@ -91,7 +98,7 @@
               </div>
 
               {{-- Children of current --}}
-              @foreach($narrowerTerms->take(50) as $nt)
+              @foreach($narrowerTerms as $nt)
                 <a href="{{ route('term.show', $nt->slug) }}" class="list-group-item list-group-item-action py-2" style="white-space:normal;padding-left:{{ (($depth + 1) * 16) + 8 }}px;">
                   @if($nt->child_count > 0)
                     <i class="fas fa-caret-right text-muted me-1"></i>
@@ -101,8 +108,9 @@
                   {{ $nt->name }}
                 </a>
               @endforeach
-              @if($narrowerTerms->count() > 50)
-                <a href="#" class="list-group-item list-group-item-action text-muted small" style="padding-left:{{ (($depth + 1) * 16) + 8 }}px;" onclick="event.preventDefault();document.getElementById('list-tab').click();">... and {{ $narrowerTerms->count() - 50 }} more in List tab</a>
+              @if($narrowerTotal > $narrowerTerms->count())
+                @php $narrowerMore = number_format($narrowerTotal - $narrowerTerms->count()); @endphp
+                <a href="#" class="list-group-item list-group-item-action text-muted small" style="padding-left:{{ (($depth + 1) * 16) + 8 }}px;" onclick="event.preventDefault();document.getElementById('list-tab').click();">{{ __('... and :count more in List tab', ['count' => $narrowerMore]) }}</a>
               @endif
             </ul>
           </div>
@@ -290,6 +298,10 @@
               @foreach($narrowerTerms as $nt)
                 <div class="mb-1">{{ $term->name }}: <strong>{{ __('NT') }}</strong> <a href="{{ route('term.show', $nt->slug) }}">{{ $nt->name }}</a></div>
               @endforeach
+              @if($narrowerTotal > $narrowerTerms->count())
+                @php $ntMore = number_format($narrowerTotal - $narrowerTerms->count()); @endphp
+                <div class="mb-1 text-muted small">{{ __('... and :count more narrower terms', ['count' => $ntMore]) }}</div>
+              @endif
             </div>
           </div>
           @if(!empty($useFor))
