@@ -270,6 +270,103 @@ RiC enables smarter searching:
 
 ---
 
+## Cataloguing in RiC-O
+
+RiC is not only a way to *view* archives - you can *describe* them in RiC-O
+directly. On the Add form and the edit form, open the **Administration area** at
+the top and set **Description standard** to **Records in Contexts (RiC-O)**. The
+fields below reshape into the RiC-O element set, each labelled with the property
+it maps to (`rico:title`, `rico:identifier`, `rico:hasRecordSetType`,
+`rico:description`, and so on).
+
+You can also arrive straight on the RiC-O form:
+
+- Link to `/informationobject/add?standard=ric` (add `&parent=1234` to make it a
+  child of record 1234).
+- On any archival record, open the caret beside **Add new** and choose **Add
+  child description in -> RiC-O (Records in Contexts)**. The new description
+  opens in RiC-O, already parented to that record.
+
+Save writes a proper RiC-O record (`source_standard = RiC-O 1.0`), and the RiC
+serialisers pick it up everywhere RiC-O leaves Heratio (below). The holder of a
+record - `rico:hasOrHadHolder` - is the Repository you set in the Identity area,
+so you do not enter it twice.
+
+---
+
+## Instantiations - the copies and carriers
+
+A single archival record can exist as more than one physical or digital thing:
+the original held in a strongroom, a microfilm surrogate, a digital scan. In
+RiC-O each of these is an **Instantiation** (`rico:Instantiation`).
+
+Open the **Instantiations** section on the RiC-O form and use **Add
+instantiation** to add a row for each manifestation. A row captures:
+
+- **Label / title** - e.g. "Original held at the National Archives"
+- **Carrier type** - paper, digital, microfilm, photograph, and so on
+- **MIME / medium**
+- **Extent** - a value and a unit (5 boxes, 3 reels, 120 megabytes)
+- **Location / note**
+
+Remove a row with its **Remove** button. What you enter is stored as a real RiC
+entity and flows out through every RiC-O export.
+
+Heratio also generates an instantiation automatically for each digital object
+you upload (its file, MIME type and byte size). Those automatic ones are managed
+for you and are not shown in this editor - your manual instantiations sit
+alongside them and never overwrite them.
+
+---
+
+## Events - the record's timeline
+
+Records have datable moments beyond their creation: a transfer of custody, a
+publication, an accumulation, a reproduction. The **Events** section
+(`rico:Event`) lets you record them.
+
+**Add event** gives you a row with an **event type** (Custody, Publication,
+Accumulation, Reproduction, Distribution and the rest of the RiC event
+vocabulary), a **display date** ("circa 1994"), an **agent**, ISO **start** and
+**end** dates, and a **note**. Add as many as the record needs; remove any with
+its button.
+
+Creation itself - who made the record and when - stays in the creators and date
+fields of the Identity area, so the Events editor is for everything *else* that
+happened to the record. Every event you add surfaces in the record's RiC-O date
+range set.
+
+---
+
+## Choosing the RiC view per record
+
+The **View** toggle on a record's page - **Record** (the flat, standard view)
+versus **RiC** (the relationship view) - is remembered **per record**. Set one
+record to RiC and only that record opens in RiC next time; other records keep
+their own setting. Earlier, the toggle was a single session-wide switch that
+flipped every record at once. Now the choice is durable and record-scoped, and
+it works the same way on descriptions, agents, repositories, functions,
+accessions and the rest.
+
+---
+
+## RiC-O out of Heratio
+
+Anything you catalogue in RiC-O - including the instantiations and events above -
+leaves Heratio as standards-compliant RiC-O through three doors:
+
+| Door | Where |
+| --- | --- |
+| **OAI-PMH** | The `rico` metadata prefix on the main `/oai` endpoint, alongside oai_dc / EAD / MODS / MARC. |
+| **Download** | `/admin/metadata-export/ric?io=NNN` (Turtle) or `/ric.rdf` (RDF/XML). |
+| **GraphQL** | The `ricO(id: Int!)` query on the admin GraphQL endpoint returns a record's RiC-O JSON-LD. |
+
+All three share one serialiser, so they agree with each other, and all three
+respect the same access rules - a draft or culturally restricted record is not
+disclosed.
+
+---
+
 ## For Researchers
 
 ### Why RiC Helps Your Research

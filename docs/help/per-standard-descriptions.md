@@ -1,94 +1,157 @@
-# Per-standard archival descriptions
+> Heratio Help Center article. Category: User Guide.
 
-Heratio keeps the international archival description (ISAD(G) and RiC)
-in core and layers national or jurisdiction-specific standards on top
-through sidecar tables. This guide explains how to export and import
-each standard.
+# Choosing a description standard
 
-## Supported standards
+An archival description in Heratio does not have to be ISAD(G). The same
+record can be catalogued - and re-catalogued - in the standard that suits the
+material: **ISAD(G)**, **Records in Contexts (RiC-O)**, **DACS**, **RAD**,
+**MODS**, or **Dublin Core**. You pick the standard on the form itself, the
+fields reshape to match, and the record keeps everything it already had.
 
-| Standard | Origin | Sidecar table | Edit page |
-|---|---|---|---|
-| Dublin Core (Simple) | DCMI / international | none (core fields) | Description -> Dublin Core |
-| Dublin Core Qualified | DCMI / international | none (uses `property` table) | Description -> Dublin Core |
-| MODS 3.7 | Library of Congress (US) | none (core fields + properties) | not yet edit-only; exported only |
-| RAD | Canada | `ahg_io_rad` | (Phase 4) |
-| DACS | United States | `ahg_io_dacs` | (Phase 4) |
+Older releases only let you export a record as RAD or DACS, or flip a database
+column by hand. That is gone. Selecting a standard is now a normal part of
+cataloguing, on both the Add form and the edit form.
 
-The sidecar approach means an ISAD(G) description always remains the
-canonical record; switching to RAD or DACS does not delete or replace
-any core data.
+---
 
-## Exporting a single record
+## Picking the standard while you catalogue
 
-Visit the metadata export dashboard at
-`/admin/metadata-export/index`. Pick the standard, then the record. The
-download URL pattern is:
+Open **Add** (`/informationobject/add`) or edit any description. At the top of
+the form is an **Administration area**, and its first field is **Description
+standard**. Choose one of the six standards there.
+
+The moment you change it, the field set below reshapes - no page reload. RiC-O
+frames the whole record as `rico:` elements; MODS shows MODS elements; DACS and
+RAD show their national fields; Dublin Core narrows to the fifteen DC terms. A
+line under the selector says exactly this, so nobody has to guess what the
+dropdown does.
+
+ISAD(G) is the default. Whatever you pick, **Save** writes through that
+standard's own handler, and the record remembers the choice (its
+`source_standard` and display standard). Come back to edit it later and you land
+on the same standard, with the fields you filled in.
+
+Nothing is thrown away when you switch. A value that has a home in both
+standards carries across; anything specific to the standard you left simply
+stops showing. The description underneath is still the one canonical record.
+
+---
+
+## The Administration area
+
+Three things live here and stay put while the description fields swap around
+them:
+
+| Field | What it does |
+| --- | --- |
+| **Description standard** | The selector described above - the single source of the record's standard. |
+| **Publication status** | Draft or Published. Drafts stay hidden from anonymous visitors. |
+| **Source language** | The record's language of description. |
+
+Because this block sits outside the part that swaps, your publication status and
+the standard selector never disappear when you change standards.
+
+---
+
+## Level of description is scoped to the sector
+
+The **Level of description** dropdown only offers the levels that make sense for
+the record's sector. An archival description gives you Fonds, Subfonds,
+Collection, Series, Subseries, File, Item, Part and Record group. A museum
+object, a library item, a gallery artwork or a DAM asset each get their own
+list instead. You will not see "Fonds" offered on a museum object or "Specimen"
+on an archival series.
+
+This holds whichever standard you switch to - RiC-O, DACS and RAD all inherit
+the same sector filter as plain ISAD(G).
+
+---
+
+## Opening the form already set to a standard
+
+You can link straight to a pre-set form:
+
+```
+/informationobject/add?standard=ric
+/informationobject/add?standard=dacs&parent=1234
+```
+
+- `standard=` takes a **code** - `isad`, `ric`, `dacs`, `rad`, `mods`, `dc`.
+  Codes are portable: the same link works on every Heratio server.
+- `parent=` (or `parent_id=`) makes the new description a child of that record.
+
+A numeric `standardId=` is also accepted, for links arriving from another
+system. Prefer the code form for anything you build yourself - internal term ids
+differ from one database to the next, so a numeric link is not portable.
+
+When the form opens from one of these links, the correct field set is already
+loaded. The same is true after a failed save: if validation sends you back, the
+standard you chose is still selected and its fields are still shown.
+
+---
+
+## Creating a child in a chosen standard
+
+On any archival record page, the **Add new** button carries a caret (the small
+arrow beside it). Open it and you get **Add child description in** followed by
+the six standards, with **RiC-O** first. Pick one and the new description opens
+in that standard, already parented to the record you were looking at.
+
+The plain **Add new** button still makes an ordinary ISAD(G) child, so the quick
+path is unchanged.
+
+---
+
+## The six standards at a glance
+
+| Standard | Origin | Good for |
+| --- | --- | --- |
+| **ISAD(G)** | International Council on Archives | General multilevel archival description; the default. |
+| **RiC-O 1.0** | International Council on Archives | Relationship-rich description - agents, activities, instantiations and events as first-class things. See the RiC user guide. |
+| **DACS** | United States | US archival practice. |
+| **RAD** | Canada | Canadian archival practice. |
+| **MODS 3.x** | Library of Congress | Bibliographic / library-leaning material. |
+| **Dublin Core** | DCMI | Simple, fifteen-element records and lightweight interchange. |
+
+Each standard is delivered as its own package, so a client install can ship
+with only the ones it needs. If a package is absent, its option simply does not
+appear and the form falls back to ISAD(G) - nothing breaks.
+
+---
+
+## Exporting and importing a single standard
+
+Cataloguing in a standard and exchanging that standard as a file are separate
+jobs. Exports live on the metadata-export dashboard at
+`/admin/metadata-export/index`: pick the standard, pick the record, download.
 
 ```
 GET /admin/metadata-export/download/{format}?io={information_object_id}
 ```
 
-`{format}` is one of `dcterms`, `mods`, `rad`, or `dacs`. The endpoint
-streams an XML file. Existing dc / EAD / EAC / MARC exports are
+`{format}` is `dcterms`, `mods`, `rad`, `dacs`, or `ric` (RiC-O as Turtle;
+`ric.rdf` for RDF/XML). The existing Dublin Core, EAD, EAC and MARC exports are
 unchanged.
 
-## Importing RAD or DACS XML
+RAD and DACS XML can be brought back in:
 
 ```
 POST /admin/metadata-export/import/{format}
 ```
 
-with either an uploaded `xml_file` or a `xml` body field. By default
-the call returns a JSON preview that shows every parsed record, the
-matched information_object id (or null), and warnings. Pass
-`dryRun=0` (or `commit=1`) to persist the parsed values into the
-sidecar table.
+with an uploaded `xml_file` or an `xml` body field. By default you get a JSON
+preview - every parsed record, the information_object it matched (or null), and
+any warnings. Add `dryRun=0` (or `commit=1`) to write the parsed values into the
+standard's sidecar. Matching is by identifier: RAD reads `<identifier>`, DACS
+tries `<recordIdentifier>` then `<referenceCode>`. Records that match nothing
+are reported and left uncommitted on purpose - RAD/DACS import enriches records
+that already exist, it does not bulk-load new ones. Use MARC or EAD for that.
 
-The importer matches records by:
+---
 
-- RAD: the `<identifier>` element looked up against
-  `information_object.identifier`. Falls back to the synthetic
-  `heratio-io-{id}` form Heratio uses when an IO has no manual
-  identifier.
-- DACS: tries `<recordIdentifier>` first, then `<referenceCode>`.
+## See also
 
-Records that do not match an existing IO are returned in the preview
-with a warning and are not committed - this is intentional. RAD / DACS
-imports are designed to enrich existing descriptions, not to bulk-load
-new ones (use MARC or EAD for that).
-
-## Dublin Core qualified terms
-
-The qualified DC export emits both legacy `dc:*` elements and `dcterms:*`
-refinements so downstream consumers that already speak simple DC keep
-working. Free-text qualified terms (e.g. `dcterms:license`,
-`dcterms:bibliographicCitation`) are stored in the existing `property`
-table keyed by the full predicate name (`dcterms:license`,
-`dcterms:audience`, etc).
-
-## MODS 3.7 coverage
-
-Phase 3 closes most of the open MODS 3.7 outline:
-
-- `<typeOfResource>` maps the IO level + first digital object MIME to
-  the LoC controlled vocabulary (still image / moving image / sound
-  recording / text / mixed material).
-- `<genre>` carries the LCGFT authority attribute.
-- `<language>` emits both the human-readable name and the ISO 639-2b
-  code for languages Heratio ships with (en, af, fr, de, pt, es, nl,
-  it, zu, xh, st, tn, sn, sw).
-- `<physicalDescription>` adds `<form>` (from a `mods:form` property
-  list) and `<digitalOrigin>` when a digital object exists.
-- `<subject>` now emits topic, geographic, temporal and cartographics
-  children. Temporal / cartographics come from `mods:temporal` and
-  `mods:cartographics` properties respectively.
-- `<recordInfo>` adds `<descriptionStandard>`, `<recordIdentifier>`,
-  and uses the IO's actual `created_at` / `updated_at` instead of the
-  current timestamp.
-
-## Where show-page integration lives
-
-A toggle to pick "this collection uses RAD" on the visibility form is
-tracked under #98 Phase 4. Until then, switch the standard externally
-via the `information_object.source_standard` column.
+- **Records in Contexts (RiC)** - cataloguing in RiC-O, the Instantiation and
+  Event editors, and the per-record RiC view.
+- **Terms, Taxonomies & SKOS** - where the Level-of-description and other
+  controlled vocabularies come from.
