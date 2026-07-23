@@ -1306,9 +1306,7 @@ if (!window.__ahgRepeatBound) {
   var isadCache = container.innerHTML;
   var slug = @json($io->slug ?? null);
   var base = '{{ url('informationobject/standard-fields') }}';
-  driver.addEventListener('change', function () {
-    var opt = driver.options[driver.selectedIndex];
-    var code = (opt && opt.getAttribute('data-code')) || 'isad';
+  function swap(code) {
     if (code === 'isad' || code === '') { container.innerHTML = isadCache; return; }
     var url = base + '?code=' + encodeURIComponent(code) + (slug ? '&slug=' + encodeURIComponent(slug) : '');
     container.style.opacity = '0.5';
@@ -1316,7 +1314,16 @@ if (!window.__ahgRepeatBound) {
       .then(function (r) { return r.ok ? r.text() : Promise.reject(); })
       .then(function (html) { container.innerHTML = html; container.style.opacity = ''; })
       .catch(function () { container.style.opacity = ''; });
+  }
+  driver.addEventListener('change', function () {
+    var opt = driver.options[driver.selectedIndex];
+    swap((opt && opt.getAttribute('data-code')) || 'isad');
   });
+  // #1425: fire on load when the record's standard (or a validation-error
+  // restore) is non-ISAD, so its field set shows without a manual re-pick.
+  var initial = driver.options[driver.selectedIndex];
+  var initialCode = (initial && initial.getAttribute('data-code')) || '';
+  if (initialCode && initialCode !== 'isad') { swap(initialCode); }
 })();
 </script>
 @endpush

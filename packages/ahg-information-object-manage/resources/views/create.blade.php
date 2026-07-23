@@ -71,7 +71,7 @@
               <select class="form-select" id="display_standard_id" name="display_standard_id" data-standard-driver>
                 <option value="" data-code="isad">- {{ __('ISAD(G) / global default') }} -</option>
                 @foreach($displayStandards as $std)
-                  <option value="{{ $std->id }}" data-code="{{ $std->code ?? '' }}" @selected(old('display_standard_id') == $std->id)>{{ $std->name }}</option>
+                  <option value="{{ $std->id }}" data-code="{{ $std->code ?? '' }}" @selected(old('display_standard_id', $preselectStandardId ?? '') == $std->id)>{{ $std->name }}</option>
                 @endforeach
               </select>
               <small class="form-text text-muted">{{ __('Switching the standard reshapes the fields below to that standard\'s element set (ISAD(G), RiC-O, DACS, RAD, MODS or Dublin Core).') }}</small>
@@ -940,9 +940,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var slug = @json($__driverSlug);                  // null on create
   var base = '{{ url('informationobject/standard-fields') }}';
 
-  driver.addEventListener('change', function () {
-    var opt = driver.options[driver.selectedIndex];
-    var code = (opt && opt.getAttribute('data-code')) || 'isad';
+  function swap(code) {
     if (code === 'isad' || code === '') {           // back to ISAD: restore cached
       container.innerHTML = isadCache;
       return;
@@ -953,7 +951,20 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(function (r) { return r.ok ? r.text() : Promise.reject(); })
       .then(function (html) { container.innerHTML = html; container.style.opacity = ''; })
       .catch(function () { container.style.opacity = ''; });  // leave ISAD on failure
+  }
+
+  driver.addEventListener('change', function () {
+    var opt = driver.options[driver.selectedIndex];
+    swap((opt && opt.getAttribute('data-code')) || 'isad');
   });
+
+  // #1425: fire the swap on load when a standard is already selected - a
+  // deep-link (?standard=ric / ?standardId=NNN) OR a non-ISAD choice restored
+  // after a validation error - so the correct field set shows without a manual
+  // re-pick (fixes the "reverts to ISAD after a failed save" gap).
+  var initial = driver.options[driver.selectedIndex];
+  var initialCode = (initial && initial.getAttribute('data-code')) || '';
+  if (initialCode && initialCode !== 'isad') { swap(initialCode); }
 })();
 </script>
 @endpush

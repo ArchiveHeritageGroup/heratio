@@ -2083,7 +2083,23 @@ class InformationObjectController extends Controller
     public function create(Request $request)
     {
         $culture = app()->getLocale();
-        $parentId = $request->get('parent_id');
+        // Accept ?parent= as an alias for ?parent_id= (deep-link / PSIS-twin parity).
+        $parentId = $request->get('parent_id') ?: $request->get('parent');
+
+        // #1425: optional deep-link preselection of the description standard, so
+        // a "Create RiC description" link / context action / PSIS-twin URL opens
+        // the form already on that standard (the swap then fires on load). Prefer
+        // a PORTABLE natural-key code (?standard=ric) over a per-DB term id
+        // (?standardId=NNN or ?display_standard_id=NNN, kept for cross-system
+        // link compatibility - term ids differ per database).
+        $preselectStandardId = null;
+        $stdCode = $request->get('standard');
+        $stdId = $request->get('standardId') ?: $request->get('display_standard_id');
+        if ($stdCode || $stdId) {
+            $q = DB::table('term')->where('taxonomy_id', 70);
+            $stdCode ? $q->where('code', $stdCode) : $q->where('id', (int) $stdId);
+            $preselectStandardId = $q->value('id');
+        }
 
         // Clear any leftover _old_input from a previous duplicate attempt so
         // the regular Add New form opens blank. Earlier code put source-record
@@ -2236,6 +2252,7 @@ class InformationObjectController extends Controller
                 'parentId' => $parentId,
                 'parentTitle' => $parentTitle,
                 'customWatermarks' => $customWatermarks,
+                'preselectStandardId' => $preselectStandardId,
             ],
             $dropdowns
         ));
