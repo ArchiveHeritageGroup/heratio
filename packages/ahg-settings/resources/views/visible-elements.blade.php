@@ -57,6 +57,17 @@
                 'isad_control_archivists_notes' => "Archivist's notes",
               ],
             ],
+            'ric_headings' => [
+              'label' => 'RiC-O template - area headings (#1425)',
+              'fields' => [
+                'ric_identity_area' => 'Record identity',
+                'ric_content_area' => 'Content and structure',
+                'ric_conditions_area' => 'Conditions of access and use',
+                'ric_related_area' => 'Related materials',
+                'ric_access_points_area' => 'Access points',
+                'ric_linked_data_area' => 'RiC-O linked data (JSON-LD / entities)',
+              ],
+            ],
             'rad_headings' => [
               'label' => 'RAD template - area headings',
               'fields' => [

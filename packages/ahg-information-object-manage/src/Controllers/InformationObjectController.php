@@ -1116,14 +1116,30 @@ class InformationObjectController extends Controller
             ? \Illuminate\Support\Facades\DB::table('ahg_io_mods')->where('information_object_id', $io->id)->first()
             : null;
 
-        // #98 Phase 1: pick the view per setting.scope='default_template' name='informationobject'
-        // (isad / dacs / rad / mods). Falls back to the base 'show' view when the chosen
-        // template's blade hasn't been authored yet — Phase 2 will add show-dacs / show-rad / show-mods.
-        return view(\AhgCore\Services\SettingHelper::resolveTemplateView('informationobject', 'ahg-io-manage::show', 'isad'), [
+        // #1425: RiC-O JSON-LD for the show-ric template, engine-guarded so a
+        // minimal install without ahg/ric simply renders no RiC panel.
+        $ricEnt = null;
+        if (\Illuminate\Support\Facades\View::exists('ahg-io-manage::show-ric')
+            && class_exists(\AhgRic\Services\RicSerializationService::class)) {
+            try {
+                $ric = app(\AhgRic\Services\RicSerializationService::class)->serializeRecord($io->id);
+                $ricEnt = is_array($ric) && ! isset($ric['error']) ? $ric : null;
+            } catch (\Throwable $e) {
+                $ricEnt = null;
+            }
+        }
+
+        // #98 Phase 1 + #1425: pick the view PER RECORD from this IO's own
+        // display_standard_id (its taxonomy-70 code -> show-{code}), falling
+        // back to the instance-wide setting.scope='default_template' when the
+        // record sets none. This is what makes one record render show-ric /
+        // show-dacs / show-rad / show-mods while its neighbours stay on isad.
+        return view(\AhgCore\Services\SettingHelper::resolveObjectTemplateView('informationobject', 'ahg-io-manage::show', 'isad', $io->display_standard_id ?? null), [
             'io' => $io,
             'dacsExt' => $dacsExt,
             'radExt'  => $radExt,
             'modsExt' => $modsExt,
+            'ricEnt'  => $ricEnt,
             'levelName' => $levelName,
             'repository' => $repository,
             'events' => $events,
@@ -1796,6 +1812,16 @@ class InformationObjectController extends Controller
 
         if (!$io) {
             abort(404);
+        }
+
+        // #1425: hand a record off to its own description-standard editor when
+        // it has one (RiC/DACS/RAD/MODS/DC). standardEditRoute() returns the
+        // generic 'informationobject.edit' when the record sets no standard OR
+        // the matching *-manage package is absent (Route::has guard), so this
+        // is a no-op on a minimal install and never loops back here.
+        $standardRoute = \AhgCore\Services\SettingHelper::standardEditRoute($io->display_standard_id ?? null);
+        if ($standardRoute !== 'informationobject.edit') {
+            return redirect()->route($standardRoute, ['slug' => $slug]);
         }
 
         // Scope the level-of-description options to THIS record's sector.

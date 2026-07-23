@@ -218,6 +218,98 @@ class SettingHelper
     }
 
     /**
+     * Per-RECORD template resolution (#1425).
+     *
+     * resolveTemplateView() above chooses one template for the whole instance
+     * from a global setting. This variant lets an INDIVIDUAL record pick its
+     * own standard: it reads the taxonomy-70 `code` of the record's
+     * $displayStandardId (isad/dc/mods/rad/dacs/ric/…) and renders
+     * "$viewBase-$code" when that blade exists. When the record has no display
+     * standard, or its code has no dedicated blade, it falls back to the
+     * instance-wide resolveTemplateView() - so nothing regresses for records
+     * that never set one. Incidentally fixes DACS/RAD/MODS, whose blades
+     * existed but were only ever reachable via the global setting.
+     */
+    public static function resolveObjectTemplateView(string $entityType, string $viewBase, string $defaultTemplate, ?int $displayStandardId): string
+    {
+        $code = self::standardCode($displayStandardId);
+        if ($code !== null) {
+            $candidate = $viewBase.'-'.$code;
+            if (\Illuminate\Support\Facades\View::exists($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return self::resolveTemplateView($entityType, $viewBase, $defaultTemplate);
+    }
+
+    /**
+     * The taxonomy-70 natural-key `code` for a display-standard term id, or
+     * null. Cached per request. Never throws (a missing term table on a bare
+     * install just yields null).
+     *
+     * @var array<int,?string>
+     */
+    private static array $standardCodeCache = [];
+
+    public static function standardCode(?int $displayStandardId): ?string
+    {
+        if (! $displayStandardId) {
+            return null;
+        }
+        if (array_key_exists($displayStandardId, self::$standardCodeCache)) {
+            return self::$standardCodeCache[$displayStandardId];
+        }
+
+        try {
+            $code = DB::table('term')
+                ->where('id', $displayStandardId)
+                ->where('taxonomy_id', 70)
+                ->value('code');
+            $code = is_string($code) && trim($code) !== '' ? trim($code) : null;
+        } catch (\Throwable $e) {
+            $code = null;
+        }
+
+        return self::$standardCodeCache[$displayStandardId] = $code;
+    }
+
+    /**
+     * The edit-route name for a record's description standard (#1425).
+     *
+     * Maps the taxonomy-70 code to its per-standard editor
+     * (ric->ahgricmanage.edit, dacs->ahgdacsmanage.edit, …). Returns $fallback
+     * whenever the record has no standard, the code is unknown, OR the target
+     * route is not registered - the last case is what keeps a standalone /
+     * minimal install (where a given *-manage package is absent) working: it
+     * simply drops back to the generic editor. Route names are matched with
+     * Route::has() rather than assumed.
+     */
+    public static function standardEditRoute(?int $displayStandardId, string $fallback = 'informationobject.edit'): string
+    {
+        $map = [
+            'ric' => 'ahgricmanage.edit',
+            'dacs' => 'ahgdacsmanage.edit',
+            'dc' => 'ahgdcmanage.edit',
+            'mods' => 'ahgmodsmanage.edit',
+            'rad' => 'ahgradmanage.edit',
+        ];
+
+        $code = self::standardCode($displayStandardId);
+        if ($code !== null && isset($map[$code])) {
+            try {
+                if (\Illuminate\Support\Facades\Route::has($map[$code])) {
+                    return $map[$code];
+                }
+            } catch (\Throwable $e) {
+                // fall through to fallback
+            }
+        }
+
+        return $fallback;
+    }
+
+    /**
      * Check if the audit log feature is enabled.
      */
     public static function isAuditLogEnabled(): bool

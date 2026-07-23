@@ -1,0 +1,19 @@
+{
+    "name": "ahg/ric-manage",
+    "description": "Heratio RiC-O (Records in Contexts) description-standard editor. Self-contained: depends only on the ahg/ric engine, degrades gracefully on a minimal install.",
+    "require": {
+        "ahg/ric": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgRicManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgRicManage\\Providers\\AhgRicManageServiceProvider"
+            ]
+        }
+    }
+}
