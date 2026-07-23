@@ -16,6 +16,11 @@
   $genres = $genres ?? collect();
   $nameAccessPoints = $nameAccessPoints ?? collect();
   $publicationStatusId = $publicationStatusId ?? null;
+  // #1425 tail: manual rico:Instantiation rows for this record (edit only;
+  // empty on create). Auto-derived (source='auto') rows are NOT edited here.
+  $existingInstantiations = $existingInstantiations ?? collect();
+  $carrierOptions = ['', 'paper', 'digital', 'microfilm', 'photograph', 'audio', 'video', 'born-digital', 'parchment', 'glass-plate'];
+  $extentUnits = ['', 'items', 'boxes', 'folders', 'pages', 'linear metres', 'megabytes', 'gigabytes', 'reels', 'files'];
 @endphp
 
 <input type="hidden" name="_display_standard_code" value="ric">
@@ -115,6 +120,100 @@
             <textarea name="{{ $field }}" class="form-control" rows="2">{{ old($field, $io->$field ?? '') }}</textarea>
           </div>
         @endforeach
+      </div>
+    </div>
+  </div>
+
+  {{-- Instantiations (#1425 tail): repeatable rico:Instantiation editor. Each
+       row is a manifestation of the record - the original holding, a microfilm
+       or digital copy, etc. Persisted as first-class RiC entities (source =
+       'manual') by RicManageController::persist, alongside any auto-derived
+       digital-object instantiations. The <template> + [data-repeat-*] hooks are
+       driven by document-level delegation in the host form (survives the
+       standard-swap, which re-inserts this markup via innerHTML). --}}
+  <div class="accordion-item">
+    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-instantiations">{{ __('Instantiations') }} <span class="text-muted small ms-1">(rico:hasInstantiation)</span></button></h2>
+    <div id="ric-instantiations" class="accordion-collapse collapse">
+      <div class="accordion-body">
+        <p class="text-muted small">{{ __('Physical or digital manifestations of this record (the original holding, copies, surrogates). Auto-generated instantiations from uploaded digital objects are managed separately and not shown here.') }}</p>
+
+        <div id="ric-instantiations-list">
+          @foreach($existingInstantiations as $idx => $inst)
+            <div class="ric-instantiation-row border rounded p-2 mb-2" data-repeat-row>
+              <input type="hidden" name="instantiations[{{ $idx }}][id]" value="{{ $inst->id }}">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label small mb-0">{{ __('Label / title') }}</label>
+                  <input type="text" name="instantiations[{{ $idx }}][title]" class="form-control form-control-sm" value="{{ $inst->title ?? '' }}" placeholder="{{ __('e.g. Original held at the National Archives') }}">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small mb-0">{{ __('Carrier type') }}</label>
+                  <select name="instantiations[{{ $idx }}][carrier_type]" class="form-select form-select-sm">
+                    @foreach($carrierOptions as $c)<option value="{{ $c }}" @selected(($inst->carrier_type ?? '') === $c)>{{ $c === '' ? '-' : $c }}</option>@endforeach
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small mb-0">{{ __('MIME / medium') }}</label>
+                  <input type="text" name="instantiations[{{ $idx }}][mime_type]" class="form-control form-control-sm" value="{{ $inst->mime_type ?? '' }}">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small mb-0">{{ __('Extent value') }}</label>
+                  <input type="text" name="instantiations[{{ $idx }}][extent_value]" class="form-control form-control-sm" value="{{ $inst->extent_value ?? '' }}">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small mb-0">{{ __('Extent unit') }}</label>
+                  <select name="instantiations[{{ $idx }}][extent_unit]" class="form-select form-select-sm">
+                    @foreach($extentUnits as $u)<option value="{{ $u }}" @selected(($inst->extent_unit ?? '') === $u)>{{ $u === '' ? '-' : $u }}</option>@endforeach
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small mb-0">{{ __('Location / note') }}</label>
+                  <input type="text" name="instantiations[{{ $idx }}][description]" class="form-control form-control-sm" value="{{ $inst->description ?? '' }}">
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-danger mt-2" data-repeat-remove>{{ __('Remove') }}</button>
+            </div>
+          @endforeach
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-repeat-add="ric-instantiation-template" data-repeat-target="ric-instantiations-list" data-repeat-index="{{ $existingInstantiations->count() }}">{{ __('Add instantiation') }}</button>
+
+        <template id="ric-instantiation-template">
+          <div class="ric-instantiation-row border rounded p-2 mb-2" data-repeat-row>
+            <input type="hidden" name="instantiations[__IDX__][id]" value="">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label small mb-0">{{ __('Label / title') }}</label>
+                <input type="text" name="instantiations[__IDX__][title]" class="form-control form-control-sm" placeholder="{{ __('e.g. Original held at the National Archives') }}">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-0">{{ __('Carrier type') }}</label>
+                <select name="instantiations[__IDX__][carrier_type]" class="form-select form-select-sm">
+                  @foreach($carrierOptions as $c)<option value="{{ $c }}">{{ $c === '' ? '-' : $c }}</option>@endforeach
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-0">{{ __('MIME / medium') }}</label>
+                <input type="text" name="instantiations[__IDX__][mime_type]" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-0">{{ __('Extent value') }}</label>
+                <input type="text" name="instantiations[__IDX__][extent_value]" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-0">{{ __('Extent unit') }}</label>
+                <select name="instantiations[__IDX__][extent_unit]" class="form-select form-select-sm">
+                  @foreach($extentUnits as $u)<option value="{{ $u }}">{{ $u === '' ? '-' : $u }}</option>@endforeach
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small mb-0">{{ __('Location / note') }}</label>
+                <input type="text" name="instantiations[__IDX__][description]" class="form-control form-control-sm">
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger mt-2" data-repeat-remove>{{ __('Remove') }}</button>
+          </div>
+        </template>
       </div>
     </div>
   </div>

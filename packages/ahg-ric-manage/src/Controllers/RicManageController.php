@@ -195,6 +195,7 @@ class RicManageController extends Controller
                 'parentSlug' => $parentSlug,
                 'ricJsonLd' => $ricJsonLd,
                 'ricValidation' => $ricValidation,
+                'existingInstantiations' => $this->manualInstantiations((int) $io->id, app()->getLocale()),
             ],
             $dropdowns
         ));
@@ -335,12 +336,103 @@ class RicManageController extends Controller
 
             DB::table('object')->where('id', $ioId)->update(['updated_at' => now()]);
 
+            // #1425 tail: manual rico:Instantiation rows from the repeatable
+            // editor (create / update / delete, diffed against the record's
+            // existing manual instantiations; auto-derived ones are untouched).
+            $this->syncManualInstantiations($ioId, $request);
+
             // Keep the RiC triplestore in step if the engine is present. Guarded
             // and best-effort - a sync hiccup must never fail the save.
             $this->syncRic($ioId);
 
 
         $this->syncRic($ioId);
+    }
+
+    /**
+     * #1425 tail: reconcile the record's manual rico:Instantiation rows with the
+     * repeatable editor's submission. Rows carry an optional [id]; existing
+     * manual instantiations not present in the submission are deleted. Auto-
+     * derived instantiations (source='auto', e.g. the digital-object backfill)
+     * are never touched. No-op unless the ahg/ric engine is present.
+     */
+    /**
+     * The record's manual rico:Instantiation rows (with i18n label/note) for the
+     * edit form. Empty collection when the engine/table is absent.
+     */
+    private function manualInstantiations(int $ioId, string $culture)
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('ric_instantiation')) {
+            return collect();
+        }
+        $hasSource = \Illuminate\Support\Facades\Schema::hasColumn('ric_instantiation', 'source');
+
+        return DB::table('ric_instantiation as ri')
+            ->leftJoin('ric_instantiation_i18n as rii', function ($j) use ($culture) {
+                $j->on('ri.id', '=', 'rii.id')->where('rii.culture', '=', $culture);
+            })
+            ->where('ri.record_id', $ioId)
+            ->when($hasSource, fn ($q) => $q->where('ri.source', 'manual'))
+            ->orderBy('ri.id')
+            ->select('ri.id', 'ri.carrier_type', 'ri.mime_type', 'ri.extent_value', 'ri.extent_unit',
+                     'rii.title', 'rii.description')
+            ->get();
+    }
+
+    private function syncManualInstantiations(int $ioId, Request $request): void
+    {
+        if (! class_exists(\AhgRic\Services\RicEntityService::class)
+            || ! \Illuminate\Support\Facades\Schema::hasTable('ric_instantiation')) {
+            return;
+        }
+
+        $service = app(\AhgRic\Services\RicEntityService::class);
+        $rows = (array) $request->input('instantiations', []);
+
+        $hasSource = \Illuminate\Support\Facades\Schema::hasColumn('ric_instantiation', 'source');
+        $existing = DB::table('ric_instantiation')->where('record_id', $ioId)
+            ->when($hasSource, fn ($q) => $q->where('source', 'manual'))
+            ->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $kept = [];
+
+        foreach ($rows as $row) {
+            $row = (array) $row;
+            $title = trim((string) ($row['title'] ?? ''));
+            $note = trim((string) ($row['description'] ?? ''));
+            $carrier = trim((string) ($row['carrier_type'] ?? ''));
+            // Skip wholly-empty rows (a stray "Add" the operator never filled in).
+            if ($title === '' && $note === '' && $carrier === '' && trim((string) ($row['extent_value'] ?? '')) === '') {
+                continue;
+            }
+
+            $data = [
+                'record_id' => $ioId,
+                'title' => $title !== '' ? $title : 'Instantiation',
+                'description' => $note !== '' ? $note : null,
+                'carrier_type' => $carrier !== '' ? $carrier : null,
+                'mime_type' => trim((string) ($row['mime_type'] ?? '')) ?: null,
+                'extent_value' => trim((string) ($row['extent_value'] ?? '')) !== '' ? $row['extent_value'] : null,
+                'extent_unit' => trim((string) ($row['extent_unit'] ?? '')) ?: null,
+                'source' => 'manual',
+            ];
+
+            $id = (int) ($row['id'] ?? 0);
+            if ($id > 0 && in_array($id, $existing, true)) {
+                $service->updateInstantiation($id, $data);
+                $kept[] = $id;
+            } else {
+                $service->createInstantiation($data);
+            }
+        }
+
+        // Delete manual instantiations the operator removed.
+        foreach (array_diff($existing, $kept) as $goneId) {
+            try {
+                $service->deleteInstantiation((int) $goneId);
+            } catch (\Throwable $e) {
+                // best-effort; a delete hiccup must not fail the whole save
+            }
+        }
     }
 
     /**
@@ -353,7 +445,8 @@ class RicManageController extends Controller
         $culture = app()->getLocale();
         $dropdowns = $this->getFormDropdowns($culture);
         $data = ['io' => null, 'subjects' => collect(), 'places' => collect(),
-                 'genres' => collect(), 'nameAccessPoints' => collect(), 'publicationStatusId' => null];
+                 'genres' => collect(), 'nameAccessPoints' => collect(), 'publicationStatusId' => null,
+                 'existingInstantiations' => collect()];
 
         if ($slug) {
             $io = DB::table('information_object')
@@ -363,6 +456,7 @@ class RicManageController extends Controller
                 ->select('information_object.*', 'information_object_i18n.*', 'slug.slug')->first();
             if ($io) {
                 $data['io'] = $io;
+                $data['existingInstantiations'] = $this->manualInstantiations((int) $io->id, $culture);
                 foreach ([['subjects', 35], ['places', 42], ['genres', 78]] as [$key, $tax]) {
                     $data[$key] = DB::table('object_term_relation')
                         ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')

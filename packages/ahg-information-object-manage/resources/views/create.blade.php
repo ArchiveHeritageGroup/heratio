@@ -876,6 +876,29 @@ document.addEventListener('DOMContentLoaded', function() {
       target.appendChild(div);
     });
   });
+
+  {{-- #1425 tail: generic repeatable-group delegation. Delegated on document so
+       it keeps working for rows inside a field set swapped in by the dynamic
+       standard picker (e.g. the RiC instantiation editor). --}}
+  if (!window.__ahgRepeatBound) {
+    window.__ahgRepeatBound = true;
+    document.addEventListener('click', function(e) {
+      var add = e.target.closest('[data-repeat-add]');
+      if (add) {
+        var tpl = document.getElementById(add.getAttribute('data-repeat-add'));
+        var target = document.getElementById(add.getAttribute('data-repeat-target'));
+        if (!tpl || !target) return;
+        var idx = parseInt(add.getAttribute('data-repeat-index') || '0', 10);
+        var wrap = document.createElement('div');
+        wrap.innerHTML = tpl.innerHTML.replace(/__IDX__/g, idx).trim();
+        while (wrap.firstChild) target.appendChild(wrap.firstChild);
+        add.setAttribute('data-repeat-index', idx + 1);
+        return;
+      }
+      var rm = e.target.closest('[data-repeat-remove]');
+      if (rm) { var row = rm.closest('[data-repeat-row]'); if (row) row.remove(); }
+    });
+  }
 });
 
 document.addEventListener('DOMContentLoaded', function() {

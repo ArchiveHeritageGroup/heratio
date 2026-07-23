@@ -1061,7 +1061,8 @@ class RicSerializationService
      */
     private function getInstantiationsForRecord(int $ioId): array
     {
-        return DB::table('digital_object as do')
+        // Digital-object instantiations (the automatic manifestations).
+        $out = DB::table('digital_object as do')
             ->where('do.object_id', $ioId)
             ->get()
             ->map(fn($do) => [
@@ -1071,6 +1072,37 @@ class RicSerializationService
                 'rico:size' => $do->byte_size ?? null,
             ])
             ->toArray();
+
+        // #1425 tail: manual rico:Instantiation rows entered via the RiC form
+        // (the operator's originals / copies / surrogates). Auto-derived rows
+        // (source='auto') mirror the digital objects already emitted above, so
+        // only 'manual' rows are added here to avoid duplicates.
+        if (Schema::hasTable('ric_instantiation')) {
+            $culture = app()->getLocale();
+            $hasSource = Schema::hasColumn('ric_instantiation', 'source');
+            $manual = DB::table('ric_instantiation as ri')
+                ->leftJoin('ric_instantiation_i18n as rii', function ($j) use ($culture) {
+                    $j->on('ri.id', '=', 'rii.id')->where('rii.culture', '=', $culture);
+                })
+                ->where('ri.record_id', $ioId)
+                ->when($hasSource, fn ($q) => $q->where('ri.source', 'manual'))
+                ->get()
+                ->map(fn ($ri) => array_filter([
+                    '@id' => $this->baseUri . '/instantiation/' . $ri->id,
+                    '@type' => self::RICO_NS . 'Instantiation',
+                    'rico:identifier' => $ri->title ?? null,
+                    'rico:mimeType' => $ri->mime_type ?? null,
+                    'rico:hasCarrierType' => $ri->carrier_type ?? null,
+                    'rico:hasExtent' => ($ri->extent_value !== null && $ri->extent_value !== '')
+                        ? trim(((string) $ri->extent_value) . ' ' . ($ri->extent_unit ?? ''))
+                        : null,
+                    'rico:descriptiveNote' => $ri->description ?? null,
+                ], fn ($v) => $v !== null && $v !== ''))
+                ->toArray();
+            $out = array_merge($out, $manual);
+        }
+
+        return $out;
     }
 
     /**

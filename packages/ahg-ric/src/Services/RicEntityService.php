@@ -469,6 +469,7 @@ class RicEntityService
                 'extent_value' => $data['extent_value'] ?? null,
                 'extent_unit' => $data['extent_unit'] ?? null,
                 'digital_object_id' => $data['digital_object_id'] ?? null,
+                'source' => $data['source'] ?? 'auto',
                 'source_culture' => $this->culture,
             ]);
 

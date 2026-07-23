@@ -157,6 +157,18 @@ class AhgRicServiceProvider extends ServiceProvider
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
                 );
             }
+
+            // #1425 tail: mark instantiation provenance. Existing rows (the
+            // one-time seed_ric_from_existing backfill from digital objects)
+            // default to 'auto'; the RiC-form instantiation editor writes
+            // 'manual'. Lets the two coexist and keeps a future re-derivation
+            // scoped to its own 'auto' rows. Idempotent (guard on the column).
+            if (\Illuminate\Support\Facades\Schema::hasTable('ric_instantiation')
+                && ! \Illuminate\Support\Facades\Schema::hasColumn('ric_instantiation', 'source')) {
+                \Illuminate\Support\Facades\DB::statement(
+                    "ALTER TABLE `ric_instantiation` ADD COLUMN `source` VARCHAR(16) NOT NULL DEFAULT 'auto'"
+                );
+            }
         } catch (\Throwable $e) {
             // Non-fatal: deprecation / provenance emission stays inert until the tables exist.
         }
