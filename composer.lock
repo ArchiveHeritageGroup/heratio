@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "72554edab2370338d7b7abe57f37adf5",
+    "content-hash": "d4b263432586aabfd27704ca25080731",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -2879,6 +2879,36 @@
                 }
             },
             "description": "RiC (Records in Contexts) Dashboard for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/ric-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-ric-manage",
+                "reference": "99110fb3a6d0b0088dfeccf3cd9309d075d918ce"
+            },
+            "require": {
+                "ahg/ric": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgRicManage\\Providers\\AhgRicManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgRicManage\\": "src/"
+                }
+            },
+            "description": "Heratio RiC-O (Records in Contexts) description-standard editor. Self-contained: depends only on the ahg/ric engine, degrades gracefully on a minimal install.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -15279,7 +15309,8 @@
         "ahg/vendor": 20,
         "ahg/version-control": 20,
         "ahg/workflow": 20,
-        "ahg/z3950": 20
+        "ahg/z3950": 20,
+        "ahg/ric-manage": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

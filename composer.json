@@ -142,7 +142,8 @@
         "phpoffice/phpspreadsheet": "^5.5",
         "pragmarx/google2fa": "^8.0",
         "spatie/laravel-csp": "^3.23",
-        "web-auth/webauthn-lib": "^5.3"
+        "web-auth/webauthn-lib": "^5.3",
+        "ahg/ric-manage": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
