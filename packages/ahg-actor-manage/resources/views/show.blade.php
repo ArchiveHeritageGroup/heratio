@@ -178,7 +178,7 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'ISAAR(CPF)'])
+  @include('ahg-ric::_view-switch', ['standard' => 'ISAAR(CPF)', 'objectId' => $actor->id])
 
   {{-- Translation-provenance bulk-load for AI-disclosure badges (issue #36 Phase 4) --}}
   @php
@@ -188,7 +188,7 @@
     );
   @endphp
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic($actor->id))
     @include('ahg-ric::_ric-view-actor', ['actor' => $actor])
   @else
 
@@ -695,7 +695,7 @@
   @include('ahg-ric::_context-sidebar', ['resourceId' => $actor->id])
 
   {{-- RiC Explorer Panel + RiC Context — only visible in RiC view mode --}}
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic($actor->id))
     @include('ahg-ric::_ric-panel', ['resourceId' => $actor->id])
 
     @if(class_exists(\AhgRic\Controllers\RicEntityController::class))

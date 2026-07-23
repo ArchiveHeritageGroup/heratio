@@ -116,19 +116,34 @@ class RicController extends Controller
     }
 
     /**
-     * Set view mode (heratio/ric) in session.
-     * Handles both AJAX (JSON response) and regular form POST (redirect back).
+     * Set the RiC view mode (heratio/ric).
+     *
+     * #1425 tail: when an object_id is supplied the choice is PERSISTED
+     * per-record (RicViewModeService) so it survives the session and does not
+     * bleed onto other records. Without an object_id it falls back to the old
+     * session-global key so any un-migrated caller still works.
+     * Handles both AJAX (JSON) and regular form POST (redirect back).
      */
     public function setViewMode(Request $request)
     {
         $mode = $request->input('mode', 'heratio');
-        if (in_array($mode, ['heratio', 'ric'])) {
-            session(['ric_view_mode' => $mode]);
+        $objectId = (int) $request->input('object_id', 0);
+
+        if (in_array($mode, ['heratio', 'ric'], true)) {
+            if ($objectId > 0) {
+                \AhgRic\Services\RicViewModeService::set($objectId, $mode);
+            } else {
+                session(['ric_view_mode' => $mode]);
+            }
         }
 
         // If it's an AJAX request, return JSON
         if ($request->wantsJson() || $request->hasHeader('X-Requested-With')) {
-            return response()->json(['success' => true, 'mode' => session('ric_view_mode', 'heratio')]);
+            $effective = $objectId > 0
+                ? \AhgRic\Services\RicViewModeService::mode($objectId)
+                : session('ric_view_mode', 'heratio');
+
+            return response()->json(['success' => true, 'mode' => $effective]);
         }
 
         // For regular form POST, redirect back to previous page

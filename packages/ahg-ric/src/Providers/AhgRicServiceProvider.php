@@ -129,6 +129,22 @@ class AhgRicServiceProvider extends ServiceProvider
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
                 );
             }
+
+            // #1425 tail: persistent PER-RECORD RiC view preference. One row per
+            // object.id (uniform across every entity type - actor/repository/
+            // function/accession/IO/...) records whether that record displays in
+            // the RiC relational lens or its flat description standard. Replaces
+            // the old session-global `ric_view_mode` toggle with a durable,
+            // record-scoped choice. Idempotent self-install (same pattern above).
+            if (! \Illuminate\Support\Facades\Schema::hasTable('ric_entity_view')) {
+                \Illuminate\Support\Facades\DB::statement(
+                    'CREATE TABLE IF NOT EXISTS `ric_entity_view` (
+                        `object_id` BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+                        `view_mode` VARCHAR(16) NOT NULL DEFAULT \'heratio\',
+                        `updated_at` DATETIME NOT NULL
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+                );
+            }
         } catch (\Throwable $e) {
             // Non-fatal: deprecation / provenance emission stays inert until the tables exist.
         }
