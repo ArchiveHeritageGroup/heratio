@@ -79,132 +79,7 @@ class RicManageController extends Controller
             $request->validate([
                 'title' => 'required|string|max:65535',
             ]);
-
-            DB::table('information_object')
-                ->where('id', $io->id)
-                ->update([
-                    'identifier' => $request->input('identifier'),
-                    'level_of_description_id' => $request->input('level_of_description_id') ?: null,
-                    'repository_id' => $request->input('repository_id') ?: null,
-                    'description_status_id' => $request->input('description_status_id') ?: null,
-                    'description_detail_id' => $request->input('description_detail_id') ?: null,
-                    'description_identifier' => $request->input('description_identifier'),
-                    'source_standard' => config('ric-manage.source_standard', 'RiC-O 1.0'),
-                ]);
-
-            if ($request->has('display_standard_id')) {
-                DB::table('information_object')
-                    ->where('id', $io->id)
-                    ->update(['display_standard_id' => $request->input('display_standard_id') ?: null]);
-            }
-
-            DB::table('information_object_i18n')
-                ->where('id', $io->id)
-                ->where('culture', $culture)
-                ->update([
-                    'title' => $request->input('title'),
-                    'alternate_title' => $request->input('alternate_title'),
-                    'edition' => $request->input('edition'),
-                    'extent_and_medium' => $request->input('extent_and_medium'),
-                    'archival_history' => $request->input('archival_history'),
-                    'acquisition' => $request->input('acquisition'),
-                    'scope_and_content' => $request->input('scope_and_content'),
-                    'appraisal' => $request->input('appraisal'),
-                    'accruals' => $request->input('accruals'),
-                    'arrangement' => $request->input('arrangement'),
-                    'access_conditions' => $request->input('access_conditions'),
-                    'reproduction_conditions' => $request->input('reproduction_conditions'),
-                    'physical_characteristics' => $request->input('physical_characteristics'),
-                    'finding_aids' => $request->input('finding_aids'),
-                    'location_of_originals' => $request->input('location_of_originals'),
-                    'location_of_copies' => $request->input('location_of_copies'),
-                    'related_units_of_description' => $request->input('related_units_of_description'),
-                    'institution_responsible_identifier' => $request->input('institution_responsible_identifier'),
-                    'rules' => $request->input('rules'),
-                    'sources' => $request->input('sources'),
-                    'revision_history' => $request->input('revision_history'),
-                ]);
-
-            $this->saveProperty($io->id, 'languageNotes', $request->input('languageNotes'), $culture);
-            $this->saveProperty($io->id, 'languageOfDescription', $request->input('languageOfDescription'), $culture);
-            $this->saveSerializedProperty($io->id, 'language', $request->input('materialLanguages', []), $culture);
-            $this->saveSerializedProperty($io->id, 'script', $request->input('materialScripts', []), $culture);
-
-            // Creators (event type 111)
-            if ($request->has('_creatorsIncluded')) {
-                $creatorIds = array_filter((array) $request->input('creatorIds', []));
-                DB::table('event')->where('object_id', $io->id)->where('type_id', 111)->delete();
-                foreach ($creatorIds as $actorId) {
-                    $actorId = (int) $actorId;
-                    if ($actorId <= 0) {
-                        continue;
-                    }
-                    $eventObjectId = DB::table('object')->insertGetId([
-                        'class_name' => 'QubitEvent',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                    DB::table('event')->insert([
-                        'id' => $eventObjectId,
-                        'object_id' => $io->id,
-                        'actor_id' => $actorId,
-                        'type_id' => 111,
-                        'source_culture' => $culture,
-                    ]);
-                    DB::table('event_i18n')->insert([
-                        'id' => $eventObjectId,
-                        'culture' => $culture,
-                    ]);
-                }
-            }
-
-            // Access points (subject 35 / place 42 / genre 78)
-            foreach ([['subjectAccessPointIds', 35], ['placeAccessPointIds', 42], ['genreAccessPointIds', 78]] as [$field, $taxonomyId]) {
-                if ($request->has($field)) {
-                    DB::table('object_term_relation')
-                        ->where('object_id', $io->id)
-                        ->whereIn('term_id', function ($q) use ($taxonomyId) {
-                            $q->select('id')->from('term')->where('taxonomy_id', $taxonomyId);
-                        })
-                        ->delete();
-                    foreach (array_filter((array) $request->input($field, [])) as $termId) {
-                        DB::table('object_term_relation')->insert(['object_id' => $io->id, 'term_id' => (int) $termId]);
-                    }
-                }
-            }
-
-            // Name access points (relation type 161)
-            if ($request->has('nameAccessPointIds')) {
-                DB::table('relation')->where('subject_id', $io->id)->where('type_id', 161)->delete();
-                foreach (array_filter((array) $request->input('nameAccessPointIds', [])) as $actorId) {
-                    $relObjectId = DB::table('object')->insertGetId([
-                        'class_name' => 'QubitRelation',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                    DB::table('relation')->insert([
-                        'id' => $relObjectId,
-                        'subject_id' => $io->id,
-                        'object_id' => (int) $actorId,
-                        'type_id' => 161,
-                        'source_culture' => $culture,
-                    ]);
-                }
-            }
-
-            // Publication status
-            if ($request->has('publication_status_id')) {
-                DB::table('status')->updateOrInsert(
-                    ['object_id' => $io->id, 'type_id' => 158],
-                    ['status_id' => $request->input('publication_status_id'), 'source_culture' => $culture]
-                );
-            }
-
-            DB::table('object')->where('id', $io->id)->update(['updated_at' => now()]);
-
-            // Keep the RiC triplestore in step if the engine is present. Guarded
-            // and best-effort - a sync hiccup must never fail the save.
-            $this->syncRic($io->id);
+            $this->persist($io->id, $request);
 
             return redirect()->route('ahgricmanage.edit', ['slug' => $slug])
                 ->with('success', 'Description saved (RiC-O).');
@@ -323,6 +198,188 @@ class RicManageController extends Controller
             ],
             $dropdowns
         ));
+    }
+
+    /**
+     * Persist a RiC-O description onto an EXISTING information object (#1425 /
+     * dynamic-standard form). Extracted from edit()'s POST branch so the same
+     * save runs whether the operator used the standalone RiC editor OR picked
+     * "RiC" on the archival-description create/edit form (dispatched from
+     * InformationObjectController::store()/update()). Common IO/i18n columns +
+     * RiC-specific properties + access points + status, then a best-effort
+     * triplestore sync. Does not redirect - the caller owns the response.
+     */
+    public function persist(int $ioId, Request $request): void
+    {
+        $culture = app()->getLocale();
+
+            DB::table('information_object')
+                ->where('id', $ioId)
+                ->update([
+                    'identifier' => $request->input('identifier'),
+                    'level_of_description_id' => $request->input('level_of_description_id') ?: null,
+                    'repository_id' => $request->input('repository_id') ?: null,
+                    'description_status_id' => $request->input('description_status_id') ?: null,
+                    'description_detail_id' => $request->input('description_detail_id') ?: null,
+                    'description_identifier' => $request->input('description_identifier'),
+                    'source_standard' => config('ric-manage.source_standard', 'RiC-O 1.0'),
+                ]);
+
+            if ($request->has('display_standard_id')) {
+                DB::table('information_object')
+                    ->where('id', $ioId)
+                    ->update(['display_standard_id' => $request->input('display_standard_id') ?: null]);
+            }
+
+            DB::table('information_object_i18n')
+                ->where('id', $ioId)
+                ->where('culture', $culture)
+                ->update([
+                    'title' => $request->input('title'),
+                    'alternate_title' => $request->input('alternate_title'),
+                    'edition' => $request->input('edition'),
+                    'extent_and_medium' => $request->input('extent_and_medium'),
+                    'archival_history' => $request->input('archival_history'),
+                    'acquisition' => $request->input('acquisition'),
+                    'scope_and_content' => $request->input('scope_and_content'),
+                    'appraisal' => $request->input('appraisal'),
+                    'accruals' => $request->input('accruals'),
+                    'arrangement' => $request->input('arrangement'),
+                    'access_conditions' => $request->input('access_conditions'),
+                    'reproduction_conditions' => $request->input('reproduction_conditions'),
+                    'physical_characteristics' => $request->input('physical_characteristics'),
+                    'finding_aids' => $request->input('finding_aids'),
+                    'location_of_originals' => $request->input('location_of_originals'),
+                    'location_of_copies' => $request->input('location_of_copies'),
+                    'related_units_of_description' => $request->input('related_units_of_description'),
+                    'institution_responsible_identifier' => $request->input('institution_responsible_identifier'),
+                    'rules' => $request->input('rules'),
+                    'sources' => $request->input('sources'),
+                    'revision_history' => $request->input('revision_history'),
+                ]);
+
+            $this->saveProperty($ioId, 'languageNotes', $request->input('languageNotes'), $culture);
+            $this->saveProperty($ioId, 'languageOfDescription', $request->input('languageOfDescription'), $culture);
+            $this->saveSerializedProperty($ioId, 'language', $request->input('materialLanguages', []), $culture);
+            $this->saveSerializedProperty($ioId, 'script', $request->input('materialScripts', []), $culture);
+
+            // Creators (event type 111)
+            if ($request->has('_creatorsIncluded')) {
+                $creatorIds = array_filter((array) $request->input('creatorIds', []));
+                DB::table('event')->where('object_id', $ioId)->where('type_id', 111)->delete();
+                foreach ($creatorIds as $actorId) {
+                    $actorId = (int) $actorId;
+                    if ($actorId <= 0) {
+                        continue;
+                    }
+                    $eventObjectId = DB::table('object')->insertGetId([
+                        'class_name' => 'QubitEvent',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    DB::table('event')->insert([
+                        'id' => $eventObjectId,
+                        'object_id' => $ioId,
+                        'actor_id' => $actorId,
+                        'type_id' => 111,
+                        'source_culture' => $culture,
+                    ]);
+                    DB::table('event_i18n')->insert([
+                        'id' => $eventObjectId,
+                        'culture' => $culture,
+                    ]);
+                }
+            }
+
+            // Access points (subject 35 / place 42 / genre 78)
+            foreach ([['subjectAccessPointIds', 35], ['placeAccessPointIds', 42], ['genreAccessPointIds', 78]] as [$field, $taxonomyId]) {
+                if ($request->has($field)) {
+                    DB::table('object_term_relation')
+                        ->where('object_id', $ioId)
+                        ->whereIn('term_id', function ($q) use ($taxonomyId) {
+                            $q->select('id')->from('term')->where('taxonomy_id', $taxonomyId);
+                        })
+                        ->delete();
+                    foreach (array_filter((array) $request->input($field, [])) as $termId) {
+                        DB::table('object_term_relation')->insert(['object_id' => $ioId, 'term_id' => (int) $termId]);
+                    }
+                }
+            }
+
+            // Name access points (relation type 161)
+            if ($request->has('nameAccessPointIds')) {
+                DB::table('relation')->where('subject_id', $ioId)->where('type_id', 161)->delete();
+                foreach (array_filter((array) $request->input('nameAccessPointIds', [])) as $actorId) {
+                    $relObjectId = DB::table('object')->insertGetId([
+                        'class_name' => 'QubitRelation',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    DB::table('relation')->insert([
+                        'id' => $relObjectId,
+                        'subject_id' => $ioId,
+                        'object_id' => (int) $actorId,
+                        'type_id' => 161,
+                        'source_culture' => $culture,
+                    ]);
+                }
+            }
+
+            // Publication status
+            if ($request->has('publication_status_id')) {
+                DB::table('status')->updateOrInsert(
+                    ['object_id' => $ioId, 'type_id' => 158],
+                    ['status_id' => $request->input('publication_status_id'), 'source_culture' => $culture]
+                );
+            }
+
+            DB::table('object')->where('id', $ioId)->update(['updated_at' => now()]);
+
+            // Keep the RiC triplestore in step if the engine is present. Guarded
+            // and best-effort - a sync hiccup must never fail the save.
+            $this->syncRic($ioId);
+
+
+        $this->syncRic($ioId);
+    }
+
+    /**
+     * Render the RiC-O field partial for the dynamic-standard swap (#1425).
+     * Empty for create (no slug), populated for edit. Returns the view so the
+     * dispatcher can echo it as the AJAX response.
+     */
+    public function fieldsPartial(Request $request, ?string $slug = null)
+    {
+        $culture = app()->getLocale();
+        $dropdowns = $this->getFormDropdowns($culture);
+        $data = ['io' => null, 'subjects' => collect(), 'places' => collect(),
+                 'genres' => collect(), 'nameAccessPoints' => collect(), 'publicationStatusId' => null];
+
+        if ($slug) {
+            $io = DB::table('information_object')
+                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('slug.slug', $slug)->where('information_object_i18n.culture', $culture)
+                ->select('information_object.*', 'information_object_i18n.*', 'slug.slug')->first();
+            if ($io) {
+                $data['io'] = $io;
+                foreach ([['subjects', 35], ['places', 42], ['genres', 78]] as [$key, $tax]) {
+                    $data[$key] = DB::table('object_term_relation')
+                        ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+                        ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+                        ->where('object_term_relation.object_id', $io->id)->where('term.taxonomy_id', $tax)
+                        ->where('term_i18n.culture', $culture)->select('term.id as term_id', 'term_i18n.name')->get();
+                }
+                $data['nameAccessPoints'] = DB::table('relation')
+                    ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
+                    ->where('relation.subject_id', $io->id)->where('relation.type_id', 161)
+                    ->where('actor_i18n.culture', $culture)->select('actor_i18n.authorized_form_of_name as name')->get();
+                $st = DB::table('status')->where('object_id', $io->id)->where('type_id', 158)->value('status_id');
+                $data['publicationStatusId'] = $st ? (int) $st : null;
+            }
+        }
+
+        return view('ric-manage::_fields', array_merge($data, $dropdowns));
     }
 
     /**

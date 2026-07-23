@@ -42,6 +42,8 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
 Route::get('/informationobject/autocomplete', [InformationObjectController::class, 'autocomplete'])->name('informationobject.autocomplete');
+// #1425 dynamic-standard form: field accordion for a chosen standard (AJAX swap).
+Route::get('/informationobject/standard-fields', [InformationObjectController::class, 'standardFields'])->name('informationobject.standard-fields');
 Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print')->middleware('odrl:reproduce');
 
 // #742 sitemap / hierarchy + slug helpers + audit-trail drill-down.

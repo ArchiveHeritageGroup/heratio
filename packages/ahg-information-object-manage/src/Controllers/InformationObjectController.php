@@ -1669,7 +1669,8 @@ class InformationObjectController extends Controller
             ->where('term.taxonomy_id', 70)
             ->where('term_i18n.culture', $culture)
             ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            // #1425: `code` drives the dynamic field-set swap (data-code on the option).
+            ->select('term.id', 'term_i18n.name', 'term.code')
             ->get();
 
         // Event type options (taxonomy_id = 40)
@@ -2011,7 +2012,10 @@ class InformationObjectController extends Controller
         // Form choices for security and other dropdowns
         $formChoices = [
             'securityLevels' => $dropdowns['securityClassifications'] ?? collect(),
-            'displayStandards' => ($dropdowns['displayStandards'] ?? collect())->pluck('name', 'id'),
+            // #1425: pass the full term collection (id, name, code) - the edit
+            // dropdown iterates $std->id/$std->name, and the dynamic-standard
+            // driver needs $std->code. (Was plucked to {id:name}.)
+            'displayStandards' => ($dropdowns['displayStandards'] ?? collect()),
         ];
 
         // ahg_io_security sidecar: pre-populate the security panel. Missing row =
@@ -3000,9 +3004,104 @@ class InformationObjectController extends Controller
         $auditAfter = \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $ioId, $culture);
         \AhgCore\Support\AuditLog::captureEdit((int) $ioId, 'information_object', $auditBefore, $auditAfter);
 
+        // #1425: overlay the chosen standard's specific fields (no-op for ISAD).
+        $this->dispatchStandardPersist((int) $ioId, $request);
+
         return redirect()
             ->route('informationobject.show', $slug)
             ->with('success', 'Archival description updated successfully.');
+    }
+
+    /**
+     * Description-standard code -> its *-manage controller. A controller only
+     * participates in the dynamic-field swap once it has both fieldsPartial()
+     * and persist() (the #1425 dynamic-standard-form pattern); until then that
+     * standard falls back to the built-in ISAD field set. Guarded everywhere by
+     * class_exists + method_exists so a minimal install without a given package
+     * simply degrades to ISAD.
+     */
+    private const STANDARD_CONTROLLERS = [
+        'ric'  => \AhgRicManage\Controllers\RicManageController::class,
+        'dacs' => \AhgDacsManage\Controllers\DacsManageController::class,
+        'rad'  => \AhgRadManage\Controllers\RadManageController::class,
+        'mods' => \AhgModsManage\Controllers\ModsManageController::class,
+        'dc'   => \AhgDcManage\Controllers\DcManageController::class,
+    ];
+
+    private function standardController(?string $code, string $method): ?string
+    {
+        $code = strtolower(trim((string) $code));
+        $class = self::STANDARD_CONTROLLERS[$code] ?? null;
+        if ($class && class_exists($class) && method_exists($class, $method)) {
+            return $class;
+        }
+
+        return null;
+    }
+
+    /**
+     * AJAX endpoint (#1425 dynamic-standard form): return the field accordion
+     * for the chosen description standard so the create / generic-edit form can
+     * swap it in on dropdown change. ?code=<taxonomy-70 code>&slug=<slug?>.
+     * Falls back to the built-in ISAD partial for isad / unknown / not-yet-
+     * wired standards.
+     */
+    public function standardFields(Request $request)
+    {
+        $code = strtolower(trim((string) $request->query('code', 'isad')));
+        $slug = $request->query('slug') ?: null;
+
+        $class = $this->standardController($code, 'fieldsPartial');
+        if ($class) {
+            try {
+                return app($class)->fieldsPartial($request, $slug);
+            } catch (\Throwable $e) {
+                // fall through to ISAD
+            }
+        }
+
+        return view('ahg-io-manage::partials._isad-fields', [
+            'io' => $slug ? $this->loadIoForFields($slug) : null,
+        ]);
+    }
+
+    /**
+     * Minimal record load for the ISAD field partial (edit context). Kept
+     * light - the partial only reads scalar i18n/IO columns via null-safe access.
+     */
+    private function loadIoForFields(string $slug): ?object
+    {
+        $culture = app()->getLocale();
+
+        return DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('information_object.*', 'information_object_i18n.*', 'slug.slug')
+            ->first();
+    }
+
+    /**
+     * Dispatch the standard-specific save to the owning *-manage controller's
+     * persist() when the submitted _display_standard_code maps to a wired
+     * controller. Returns true when it handled the save, false when the caller
+     * (store()/update()) should run the ordinary ISAD path.
+     */
+    private function dispatchStandardPersist(int $ioId, Request $request): bool
+    {
+        $code = $request->input('_display_standard_code');
+        $class = $this->standardController($code, 'persist');
+        if (! $class) {
+            return false;
+        }
+        try {
+            app($class)->persist($ioId, $request);
+
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -3167,6 +3266,11 @@ class InformationObjectController extends Controller
         }
 
         \AhgCore\Support\AuditLog::captureCreate((int) $objectId, 'information_object', \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $objectId, $culture));
+
+        // #1425: if the operator picked a non-ISAD standard on the dynamic form,
+        // overlay its standard-specific fields via that standard's persist().
+        // No-op (returns false) for ISAD or an unwired standard.
+        $this->dispatchStandardPersist((int) $objectId, $request);
 
         return redirect()
             ->route('informationobject.show', $slug)

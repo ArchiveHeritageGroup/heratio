@@ -52,7 +52,20 @@
       <input type="hidden" name="parent_id" value="{{ $parentId }}">
     @endif
 
-    <div class="accordion mb-3">
+    {{-- #1425 dynamic-standard driver. Picking a standard swaps the field
+         accordion below (#standard-fields) via AJAX. Lives OUTSIDE the swap so
+         it persists; it is the single source of display_standard_id. --}}
+    <div class="mb-3">
+      <label for="display_standard_id" class="form-label">{{ __('Description standard') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+      <select class="form-select" id="display_standard_id" name="display_standard_id" data-standard-driver>
+        <option value="" data-code="isad">- {{ __('ISAD(G) / global default') }} -</option>
+        @foreach($displayStandards as $std)
+          <option value="{{ $std->id }}" data-code="{{ $std->code ?? '' }}" @selected(old('display_standard_id') == $std->id)>{{ $std->name }}</option>
+        @endforeach
+      </select>
+    </div>
+
+    <div class="accordion mb-3" id="standard-fields">
 
       {{-- ===== 1. Identity area ===== --}}
       <div class="accordion-item">
@@ -498,15 +511,8 @@
               </select>
             </div>
 
-            <div class="mb-3">
-              <label for="display_standard_id" class="form-label">Display standard <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <select class="form-select" id="display_standard_id" name="display_standard_id">
-                <option value="">- Use global default -</option>
-                @foreach($displayStandards as $std)
-                  <option value="{{ $std->id }}" @selected(old('display_standard_id') == $std->id)>{{ $std->name }}</option>
-                @endforeach
-              </select>
-            </div>
+            {{-- #1425: the display-standard selector moved above the accordion
+                 (the dynamic-standard driver), so it is not duplicated here. --}}
           </div>
         </div>
       </div>
@@ -893,6 +899,36 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.parentElement.appendChild(popup);
   });
 });
+</script>
+@endpush
+
+{{-- #1425 dynamic-standard field-set swap --}}
+@php $__driverSlug = (isset($io) && is_object($io)) ? ($io->slug ?? null) : null; @endphp
+@push('js')
+<script nonce="{{ csp_nonce() }}">
+(function () {
+  var driver = document.querySelector('[data-standard-driver]');
+  var container = document.getElementById('standard-fields');
+  if (!driver || !container) { return; }
+  var isadCache = container.innerHTML;              // the default ISAD field set
+  var slug = @json($__driverSlug);                  // null on create
+  var base = '{{ url('informationobject/standard-fields') }}';
+
+  driver.addEventListener('change', function () {
+    var opt = driver.options[driver.selectedIndex];
+    var code = (opt && opt.getAttribute('data-code')) || 'isad';
+    if (code === 'isad' || code === '') {           // back to ISAD: restore cached
+      container.innerHTML = isadCache;
+      return;
+    }
+    var url = base + '?code=' + encodeURIComponent(code) + (slug ? '&slug=' + encodeURIComponent(slug) : '');
+    container.style.opacity = '0.5';
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.text() : Promise.reject(); })
+      .then(function (html) { container.innerHTML = html; container.style.opacity = ''; })
+      .catch(function () { container.style.opacity = ''; });  // leave ISAD on failure
+  });
+})();
 </script>
 @endpush
 @endsection

@@ -79,7 +79,18 @@
     @csrf
     @method('PUT')
 
-    <div class="accordion mb-3">
+    {{-- #1425 dynamic-standard driver (outside the swap so it persists). --}}
+    <div class="mb-3">
+      <label for="display_standard_id" class="form-label">{{ __('Description standard') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+      <select class="form-select" id="display_standard_id" name="display_standard_id" data-standard-driver>
+        <option value="" data-code="isad">- {{ __('ISAD(G) / global default') }} -</option>
+        @foreach($displayStandards as $std)
+          <option value="{{ $std->id }}" data-code="{{ $std->code ?? '' }}" @selected(old('display_standard_id', $io->display_standard_id) == $std->id)>{{ $std->name }}</option>
+        @endforeach
+      </select>
+    </div>
+
+    <div class="accordion mb-3" id="standard-fields">
 
       {{-- ===== 1. Identity area ===== --}}
       <div class="accordion-item">
@@ -1029,17 +1040,8 @@
             </select>
           </div>
 
-          <div class="mb-3">
-            <label for="display_standard_id" class="form-label">Display standard <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <select name="display_standard_id" id="display_standard_id" class="form-select">
-              <option value="">- Use global default -</option>
-              @foreach($displayStandards as $std)
-                <option value="{{ $std->id }}" @selected(old('display_standard_id', $io->display_standard_id) == $std->id)>
-                  {{ $std->name }}
-                </option>
-              @endforeach
-            </select>
-          </div>
+          {{-- #1425: display-standard selector moved above the accordion (the
+               dynamic-standard driver); not duplicated here. --}}
 
           <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="updateDescendants" name="updateDescendants" value="1"
@@ -1264,6 +1266,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+</script>
+@endpush
+{{-- #1425 dynamic-standard field-set swap --}}
+@push('js')
+<script nonce="{{ csp_nonce() }}">
+(function () {
+  var driver = document.querySelector('[data-standard-driver]');
+  var container = document.getElementById('standard-fields');
+  if (!driver || !container) { return; }
+  var isadCache = container.innerHTML;
+  var slug = @json($io->slug ?? null);
+  var base = '{{ url('informationobject/standard-fields') }}';
+  driver.addEventListener('change', function () {
+    var opt = driver.options[driver.selectedIndex];
+    var code = (opt && opt.getAttribute('data-code')) || 'isad';
+    if (code === 'isad' || code === '') { container.innerHTML = isadCache; return; }
+    var url = base + '?code=' + encodeURIComponent(code) + (slug ? '&slug=' + encodeURIComponent(slug) : '');
+    container.style.opacity = '0.5';
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.text() : Promise.reject(); })
+      .then(function (html) { container.innerHTML = html; container.style.opacity = ''; })
+      .catch(function () { container.style.opacity = ''; });
+  });
+})();
 </script>
 @endpush
 @endsection
