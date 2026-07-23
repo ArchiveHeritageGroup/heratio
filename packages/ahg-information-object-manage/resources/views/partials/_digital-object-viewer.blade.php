@@ -57,6 +57,20 @@
           // Thumbnails stay on the original — they're typically too small to
           // contain redactable content, and re-rendering thumbs is expensive.
       }
+
+      // Public-viewer gate: a NOT-logged-in visitor must never be handed the
+      // master original by the open-in-new-window / full-size / fullscreen /
+      // download controls — only a derivative (reference, else thumbnail).
+      // When no derivative exists those controls are HIDDEN rather than falling
+      // back to the master. $__derivUrl is the best public-facing derivative;
+      // $__openUrl is what the "open/download original" controls point at
+      // (master for authenticated viewers, derivative for the public);
+      // $__showOriginalCtl gates whether those controls render at all.
+      $__canSeeOriginal = auth()->check();
+      $__derivUrl = $refUrl ?: $thumbUrl;
+      $__openUrl = $__canSeeOriginal ? $masterUrl : $__derivUrl;
+      $__showOriginalCtl = $__canSeeOriginal ? (bool) $masterUrl : ($__derivUrl !== '');
+
       $masterMediaType = $masterObj ? \AhgCore\Services\DigitalObjectService::getMediaType($masterObj) : null;
       $isPdf = $masterObj && $masterObj->mime_type === 'application/pdf';
 
@@ -128,10 +142,18 @@
           // Skipped when redactions reroute the master for non-admins - they must keep
           // streaming the redacted file, never an un-redacted web copy.
           $pdfDisplayUrl = $masterUrl;
+          $__pdfIsMaster = true;   // display URL is still the raw master
           if (!($__hasRedactions && !$__isAdminViewer)) {
               $__webPdf = \AhgCore\Services\DigitalObjectService::getWebPdfUrl((int) $io->id);
-              if ($__webPdf) { $pdfDisplayUrl = $__webPdf; }
+              if ($__webPdf) { $pdfDisplayUrl = $__webPdf; $__pdfIsMaster = false; }
           }
+          // Public gate: a not-logged-in viewer must not get the master PDF
+          // inline either. A web-optimized reference PDF is a derivative and is
+          // fine; a redacted stream is fine; but the genuine unredacted master
+          // is blocked - the thumbnail preview is shown instead. (Redaction is
+          // already handled above, so exclude that case from blocking.)
+          $__pdfShowsRealMaster = $__pdfIsMaster && !($__hasRedactions && !$__isAdminViewer);
+          $__pdfPublicBlocked = !$__canSeeOriginal && $__pdfShowsRealMaster;
         @endphp
         {{-- PDF: embedded iframe viewer with toolbar --}}
         <div class="pdf-viewer-container" style="overflow:hidden;">
@@ -141,17 +163,32 @@
                 <i class="fas fa-file-pdf me-1"></i>{{ __('PDF Document') }}
               </span>
               <div class="btn-group btn-group-sm">
-                <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open in new tab') }}">
-                  <i class="fas fa-external-link-alt"></i>
-                </a>
-                <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="{{ __('Download PDF') }}">
-                  <i class="fas fa-download"></i>
-                </a>
+                @if($__showOriginalCtl)
+                  <a href="{{ $__openUrl }}" target="_blank" class="btn atom-btn-white" title="{{ $__canSeeOriginal ? __('Open in new tab') : __('Open reference copy in new tab') }}">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                  <a href="{{ $__openUrl }}" download class="btn atom-btn-white" title="{{ $__canSeeOriginal ? __('Download PDF') : __('Download reference copy') }}">
+                    <i class="fas fa-download"></i>
+                  </a>
+                @endif
               </div>
             </div>
-            <div class="ratio" style="--bs-aspect-ratio: 85%;">
-              <iframe src="{{ $pdfDisplayUrl }}" style="border:none;border-radius:8px;background:#525659;" title="{{ __('PDF Viewer') }}"></iframe>
-            </div>
+            @if($__pdfPublicBlocked)
+              {{-- Not logged in and no derivative PDF: show the thumbnail
+                   preview, never the master document. --}}
+              <div class="text-center p-4 border rounded" style="background:#f8f8f8;">
+                @if($__derivUrl)
+                  <img src="{{ $__derivUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail mb-2" style="max-height:{{ $vHeight ?? '480px' }};max-width:100%;">
+                @else
+                  <i class="fas fa-file-pdf fa-3x text-muted mb-2"></i>
+                @endif
+                <p class="text-muted small mb-0">{{ __('Log in to view or download the full document.') }}</p>
+              </div>
+            @else
+              <div class="ratio" style="--bs-aspect-ratio: 85%;">
+                <iframe src="{{ $pdfDisplayUrl }}" style="border:none;border-radius:8px;background:#525659;" title="{{ __('PDF Viewer') }}"></iframe>
+              </div>
+            @endif
           </div>
         </div>
 
@@ -424,7 +461,10 @@
         {{-- Image: OpenSeadragon + Mirador + Carousel viewer (matching AtoM) --}}
         @php
           $viewerId = 'iiif-viewer-' . $io->id;
-          $imgSrc = $masterUrl ?: $refUrl;
+          // Public viewers get the derivative; authenticated viewers get the
+          // master. Feeds the inline image, "Open full size" and fullscreen -
+          // so none of them exposes the original to a not-logged-in visitor.
+          $imgSrc = $__canSeeOriginal ? ($masterUrl ?: $refUrl) : $__derivUrl;
           // Load viewer settings from iiif_viewer_settings
           static $__vSettings = null;
           if ($__vSettings === null) {
@@ -531,12 +571,16 @@
             @endif
           </div>
           <div class="btn-group btn-group-sm">
-            <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open full size') }}">
-              <i class="fas fa-external-link-alt"></i>
-            </a>
-            <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Fullscreen') }}">
-              <i class="fas fa-expand"></i>
-            </button>
+            {{-- Hidden for a not-logged-in visitor when no derivative exists, so
+                 Open-full-size / Fullscreen never fall back to the master. --}}
+            @if($__canSeeOriginal || $imgSrc !== '')
+              <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="{{ $__canSeeOriginal ? __('Open full size') : __('Open reference copy') }}">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+              <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Fullscreen') }}">
+                <i class="fas fa-expand"></i>
+              </button>
+            @endif
           </div>
         </div>
 
@@ -549,9 +593,15 @@
         {{-- Simple image (vertically centred within the viewer box, #1193) --}}
         <div id="img-{{ $viewerId }}" style="{{ $vType !== 'single' ? 'display:none;' : '' }}" class="text-center">
           <div style="display:flex;align-items:center;justify-content:center;height:{{ $vHeight }};">
-            <a href="{{ $imgSrc }}" target="_blank">
+            @if($imgSrc !== '')
+              <a href="{{ $imgSrc }}" target="_blank">
+                <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:{{ $vHeight }};max-width:100%;">
+              </a>
+            @else
+              {{-- Public viewer, no derivative available: show the derivative
+                   image (if any) but do not link through to the master. --}}
               <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:{{ $vHeight }};max-width:100%;">
-            </a>
+            @endif
           </div>
         </div>
 
