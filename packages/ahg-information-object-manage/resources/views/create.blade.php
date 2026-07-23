@@ -74,6 +74,7 @@
                   <option value="{{ $std->id }}" data-code="{{ $std->code ?? '' }}" @selected(old('display_standard_id') == $std->id)>{{ $std->name }}</option>
                 @endforeach
               </select>
+              <small class="form-text text-muted">{{ __('Switching the standard reshapes the fields below to that standard\'s element set (ISAD(G), RiC-O, DACS, RAD, MODS or Dublin Core).') }}</small>
             </div>
             <div class="mb-3">
               <label for="publication_status_id" class="form-label">{{ __('Publication status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

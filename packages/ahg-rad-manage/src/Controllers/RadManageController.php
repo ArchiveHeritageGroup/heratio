@@ -555,13 +555,29 @@ class RadManageController extends Controller
 
     private function getFormDropdowns(string $culture): array
     {
-        $levels = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->where('term.taxonomy_id', 34)
-            ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
-            ->get();
+        // #1425: Level of description filtered to the archival sector via
+        // level_of_description_sector (mirrors the base archival form), so
+        // switching to RAD offers the nine archival levels, not all 27. Falls
+        // back to the full taxonomy-34 list where the mapping table is absent.
+        $levels = \Illuminate\Support\Facades\Schema::hasTable('level_of_description_sector')
+            ? DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->join('level_of_description_sector as lds', function ($j) {
+                    $j->on('term.id', '=', 'lds.term_id')->where('lds.sector', '=', 'archive');
+                })
+                ->where('term.taxonomy_id', 34)
+                ->where('term_i18n.culture', $culture)
+                ->orderBy('lds.display_order')
+                ->distinct()
+                ->select('term.id', 'term_i18n.name', 'lds.display_order')
+                ->get()
+            : DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->where('term.taxonomy_id', 34)
+                ->where('term_i18n.culture', $culture)
+                ->orderBy('term_i18n.name')
+                ->select('term.id', 'term_i18n.name')
+                ->get();
 
         $repositories = DB::table('repository')
             ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')

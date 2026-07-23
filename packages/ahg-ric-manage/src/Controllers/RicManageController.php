@@ -453,7 +453,24 @@ class RicManageController extends Controller
                 ->get();
         };
 
-        $levels = $termList(34);
+        // #1425: Level of description filtered to the archival sector via
+        // level_of_description_sector, so switching to RiC on the archival form
+        // offers the nine archival levels - not every sector's 27. Mirrors
+        // InformationObjectController::getFormDropdowns. Falls back to the full
+        // taxonomy-34 list on a minimal install without the mapping table.
+        $levels = \Illuminate\Support\Facades\Schema::hasTable('level_of_description_sector')
+            ? DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->join('level_of_description_sector as lds', function ($j) {
+                    $j->on('term.id', '=', 'lds.term_id')->where('lds.sector', '=', 'archive');
+                })
+                ->where('term.taxonomy_id', 34)
+                ->where('term_i18n.culture', $culture)
+                ->orderBy('lds.display_order')
+                ->distinct()
+                ->select('term.id', 'term_i18n.name', 'lds.display_order')
+                ->get()
+            : $termList(34);
         $descriptionStatuses = $termList(44);
         $descriptionDetails = $termList(43);
         // Taxonomy 70 - the real description-standard taxonomy. NOT 52 (the
