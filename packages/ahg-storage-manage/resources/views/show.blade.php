@@ -4,9 +4,9 @@
 @section('body-class', 'view physicalobject')
 
 @section('content')
-  @include('ahg-ric::_view-switch', ['standard' => 'Spectrum'])
+  @include('ahg-ric::_view-switch', ['standard' => 'Spectrum', 'entityType' => 'storage', 'objectId' => $storage->id])
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('storage', $storage->id))
     @include('ahg-ric::_ric-view-storage', ['storage' => $storage])
   @else
 

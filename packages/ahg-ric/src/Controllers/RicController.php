@@ -127,11 +127,13 @@ class RicController extends Controller
     public function setViewMode(Request $request)
     {
         $mode = $request->input('mode', 'heratio');
-        $objectId = (int) $request->input('object_id', 0);
+        $entityType = (string) $request->input('entity_type', '');
+        $entityId = (int) $request->input('object_id', 0);
+        $perRecord = $entityType !== '' && $entityId > 0;
 
         if (in_array($mode, ['heratio', 'ric'], true)) {
-            if ($objectId > 0) {
-                \AhgRic\Services\RicViewModeService::set($objectId, $mode);
+            if ($perRecord) {
+                \AhgRic\Services\RicViewModeService::set($entityType, $entityId, $mode);
             } else {
                 session(['ric_view_mode' => $mode]);
             }
@@ -139,8 +141,8 @@ class RicController extends Controller
 
         // If it's an AJAX request, return JSON
         if ($request->wantsJson() || $request->hasHeader('X-Requested-With')) {
-            $effective = $objectId > 0
-                ? \AhgRic\Services\RicViewModeService::mode($objectId)
+            $effective = $perRecord
+                ? \AhgRic\Services\RicViewModeService::mode($entityType, $entityId)
                 : session('ric_view_mode', 'heratio');
 
             return response()->json(['success' => true, 'mode' => $effective]);

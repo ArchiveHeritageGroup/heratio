@@ -4,9 +4,9 @@
 @section('body-class', 'view term')
 
 @section('content')
-  @include('ahg-ric::_view-switch', ['standard' => 'SKOS'])
+  @include('ahg-ric::_view-switch', ['standard' => 'SKOS', 'entityType' => 'term', 'objectId' => $term->id])
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('term', $term->id))
     @include('ahg-ric::_ric-view-term', ['term' => $term])
 
     {{-- Action buttons for RiC view --}}

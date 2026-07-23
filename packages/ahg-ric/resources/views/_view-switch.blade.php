@@ -2,19 +2,21 @@
      The flat-view button label reflects the description standard used for the
      current entity type (ISAD(G) for archival descriptions, ISAAR(CPF) for
      actors, ISDIAH for repositories, etc.). Pass via:
-       @include('ahg-ric::_view-switch', ['standard' => 'ISAD(G)', 'objectId' => $entity->id])
+       @include('ahg-ric::_view-switch', ['standard' => 'ISAD(G)', 'entityType' => 'actor', 'objectId' => $entity->id])
 
-     #1425 tail: when an `objectId` (the record's object.id) is supplied the
-     toggle reads AND writes a PERSISTENT per-record preference
-     (RicViewModeService) - the choice survives the session and does not bleed
-     onto other records. Without an objectId it falls back to the old
-     session-global `ric_view_mode` key so any un-migrated include still works.
-     Falls back to a generic 'Record' label if no standard is supplied. --}}
+     #1425 tail: when an `entityType` + `objectId` pair is supplied the toggle
+     reads AND writes a PERSISTENT per-record preference (RicViewModeService,
+     keyed on (entity_type, entity_id)) - the choice survives the session and
+     does not bleed onto other records. Without the pair it falls back to the
+     old session-global `ric_view_mode` key so any un-migrated include still
+     works. Falls back to a generic 'Record' label if no standard is supplied. --}}
 @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
   @php
     $objectId = $objectId ?? null;
-    $viewMode = $objectId
-        ? \AhgRic\Services\RicViewModeService::mode((int) $objectId)
+    $entityType = $entityType ?? null;
+    $perRecord = $entityType && $objectId;
+    $viewMode = $perRecord
+        ? \AhgRic\Services\RicViewModeService::mode((string) $entityType, (int) $objectId)
         : session('ric_view_mode', config('ric.default_view', 'heratio'));
     $flatLabel = $standard ?? 'Record';
   @endphp
@@ -25,7 +27,7 @@
       <form method="POST" action="{{ route('ric.set-view-mode') }}" style="display:inline;">
         @csrf
         <input type="hidden" name="mode" value="heratio">
-        @if($objectId)<input type="hidden" name="object_id" value="{{ (int) $objectId }}">@endif
+        @if($perRecord)<input type="hidden" name="entity_type" value="{{ $entityType }}"><input type="hidden" name="object_id" value="{{ (int) $objectId }}">@endif
         <button type="submit" class="btn {{ $viewMode === 'heratio' ? 'btn-primary' : 'btn-outline-secondary' }}">
           <i class="fas fa-list-alt me-1"></i>{{ __($flatLabel) }}
         </button>
@@ -33,7 +35,7 @@
       <form method="POST" action="{{ route('ric.set-view-mode') }}" style="display:inline;">
         @csrf
         <input type="hidden" name="mode" value="ric">
-        @if($objectId)<input type="hidden" name="object_id" value="{{ (int) $objectId }}">@endif
+        @if($perRecord)<input type="hidden" name="entity_type" value="{{ $entityType }}"><input type="hidden" name="object_id" value="{{ (int) $objectId }}">@endif
         <button type="submit" class="btn {{ $viewMode === 'ric' ? 'btn-success' : 'btn-outline-secondary' }}">
           <i class="fas fa-project-diagram me-1"></i>{{ __('RiC') }}
         </button>

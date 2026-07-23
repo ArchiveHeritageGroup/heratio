@@ -76,9 +76,9 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'Spectrum'])
+  @include('ahg-ric::_view-switch', ['standard' => 'Spectrum', 'entityType' => 'accession', 'objectId' => $accession->id])
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('accession', $accession->id))
     @include('ahg-ric::_ric-view-accession', ['accession' => $accession])
   @else
 
@@ -537,7 +537,7 @@
   @include('ahg-ric::_context-sidebar', ['resourceId' => $accession->id])
 
   {{-- RiC Explorer Panel + entities panel - only in the RiC view (not the standard Spectrum view) --}}
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('accession', $accession->id))
     @include('ahg-ric::_ric-panel', ['resourceId' => $accession->id])
     @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
       @include('ahg-ric::_ric-entities-panel', ['record' => $accession, 'recordType' => 'accession'])

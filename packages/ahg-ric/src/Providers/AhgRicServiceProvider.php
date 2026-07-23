@@ -131,17 +131,29 @@ class AhgRicServiceProvider extends ServiceProvider
             }
 
             // #1425 tail: persistent PER-RECORD RiC view preference. One row per
-            // object.id (uniform across every entity type - actor/repository/
-            // function/accession/IO/...) records whether that record displays in
+            // (entity_type, entity_id) records whether that record displays in
             // the RiC relational lens or its flat description standard. Replaces
             // the old session-global `ric_view_mode` toggle with a durable,
-            // record-scoped choice. Idempotent self-install (same pattern above).
-            if (! \Illuminate\Support\Facades\Schema::hasTable('ric_entity_view')) {
+            // record-scoped choice. Keyed on (entity_type, entity_id) - NOT a
+            // bare object.id - because not every wired entity is an AtoM
+            // object-subtype (e.g. `loan` is a standalone custom table whose
+            // small auto-increment ids would otherwise collide with object ids).
+            // Idempotent self-install (same pattern above); the pre-composite
+            // single-column shape (v1.154.422) is an empty preference cache, so
+            // it is dropped and recreated rather than migrated.
+            $ricViewExists = \Illuminate\Support\Facades\Schema::hasTable('ric_entity_view');
+            if ($ricViewExists && ! \Illuminate\Support\Facades\Schema::hasColumn('ric_entity_view', 'entity_type')) {
+                \Illuminate\Support\Facades\DB::statement('DROP TABLE `ric_entity_view`');
+                $ricViewExists = false;
+            }
+            if (! $ricViewExists) {
                 \Illuminate\Support\Facades\DB::statement(
                     'CREATE TABLE IF NOT EXISTS `ric_entity_view` (
-                        `object_id` BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+                        `entity_type` VARCHAR(32) NOT NULL,
+                        `entity_id` BIGINT UNSIGNED NOT NULL,
                         `view_mode` VARCHAR(16) NOT NULL DEFAULT \'heratio\',
-                        `updated_at` DATETIME NOT NULL
+                        `updated_at` DATETIME NOT NULL,
+                        PRIMARY KEY (`entity_type`, `entity_id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
                 );
             }

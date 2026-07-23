@@ -28,9 +28,9 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'ISAAR(CPF)'])
+  @include('ahg-ric::_view-switch', ['standard' => 'ISAAR(CPF)', 'entityType' => 'donor', 'objectId' => $donor->id])
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('donor', $donor->id))
     @include('ahg-ric::_ric-view-donor', ['donor' => $donor])
   @else
 
@@ -306,7 +306,7 @@
   @include('ahg-ric::_context-sidebar', ['resourceId' => $donor->id])
 
   {{-- RiC Explorer Panel + entities panel - only in the RiC view (not the standard view) --}}
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('donor', $donor->id))
     @include('ahg-ric::_ric-panel', ['resourceId' => $donor->id])
     @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
       @include('ahg-ric::_ric-entities-panel', ['record' => $donor, 'recordType' => 'agent'])

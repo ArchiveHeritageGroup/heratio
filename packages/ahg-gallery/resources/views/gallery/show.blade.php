@@ -205,8 +205,8 @@
 {{-- ============================================================ --}}
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'CDWA'])
-  @if(session('ric_view_mode') === 'ric')
+  @include('ahg-ric::_view-switch', ['standard' => 'CDWA', 'entityType' => 'gallery', 'objectId' => $artwork->id])
+  @if(\AhgRic\Services\RicViewModeService::isRic('gallery', $artwork->id))
     @include('ahg-ric::_ric-view-gallery', ['artwork' => $artwork])
   @else
 
@@ -577,7 +577,7 @@
   {{-- RiC Context / OpenRiC / Validate — only in RiC view mode, mirroring the
        IO show page. Previously this sat inside the @else (standard/CDWA) branch,
        so it wrongly showed on the standard view and was hidden in RiC view. --}}
-  @if(session('ric_view_mode') === 'ric' && class_exists(\AhgRic\Controllers\RicEntityController::class))
+  @if(\AhgRic\Services\RicViewModeService::isRic('gallery', $artwork->id) && class_exists(\AhgRic\Controllers\RicEntityController::class))
     @include('ahg-ric::_ric-entities-panel', ['record' => $artwork, 'recordType' => 'record'])
   @endif
 @endsection

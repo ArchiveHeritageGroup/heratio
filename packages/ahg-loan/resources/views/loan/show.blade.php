@@ -5,8 +5,8 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'Spectrum'])
-  @if(session('ric_view_mode') === 'ric')
+  @include('ahg-ric::_view-switch', ['standard' => 'Spectrum', 'entityType' => 'loan', 'objectId' => $loan->id])
+  @if(\AhgRic\Services\RicViewModeService::isRic('loan', $loan->id))
     @include('ahg-ric::_ric-view-loan', ['loan' => $loan])
   @else
 

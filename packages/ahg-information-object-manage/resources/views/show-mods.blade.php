@@ -102,7 +102,7 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'MODS'])
+  @include('ahg-ric::_view-switch', ['standard' => 'MODS', 'entityType' => 'information_object', 'objectId' => $io->id])
 
   @php
     $translationSources = \AhgTranslation\Helpers\TranslationProvenance::forRecord((int) $io->id, app()->getLocale());

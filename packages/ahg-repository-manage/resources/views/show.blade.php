@@ -66,7 +66,7 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'ISDIAH'])
+  @include('ahg-ric::_view-switch', ['standard' => 'ISDIAH', 'entityType' => 'repository', 'objectId' => $repository->id])
 
   {{-- Translation-provenance bulk-load for AI-disclosure badges (issue #36 Phase 4).
        Repository has two i18n tables (actor_i18n + repository_i18n); the helper
@@ -78,7 +78,7 @@
     );
   @endphp
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('repository', $repository->id))
     @include('ahg-ric::_ric-view-repository', ['repository' => $repository])
   @else
 

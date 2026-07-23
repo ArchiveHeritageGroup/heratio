@@ -415,7 +415,7 @@
 {{-- ============================================================ --}}
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'ISAD(G)'])
+  @include('ahg-ric::_view-switch', ['standard' => 'ISAD(G)', 'entityType' => 'information_object', 'objectId' => $io->id])
 
   {{-- Bulk-load translation provenance for this record + current culture so
        per-field AI-disclosure badges render without N+1 lookups. See issue
@@ -478,7 +478,7 @@
     </div>
   @endif
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('information_object', $io->id))
     @include('ahg-ric::_ric-view-io', ['io' => $io])
   @else
 
@@ -902,7 +902,7 @@
   @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Explorer Panel + RiC Context — only visible in RiC view mode --}}
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('information_object', $io->id))
     @include('ahg-ric::_ric-panel', ['resourceId' => $io->id])
 
     @if(class_exists(\AhgRic\Controllers\RicEntityController::class))

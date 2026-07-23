@@ -28,9 +28,9 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'ISAAR(CPF)'])
+  @include('ahg-ric::_view-switch', ['standard' => 'ISAAR(CPF)', 'entityType' => 'rights_holder', 'objectId' => $rightsHolder->id])
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('rights_holder', $rightsHolder->id))
     @include('ahg-ric::_ric-view-rights-holder', ['rightsHolder' => $rightsHolder])
   @else
 

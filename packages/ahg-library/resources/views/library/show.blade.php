@@ -280,8 +280,8 @@
 {{-- ============================================================ --}}
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core'])
-  @if(session('ric_view_mode') === 'ric')
+  @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core', 'entityType' => 'library', 'objectId' => $item->id])
+  @if(\AhgRic\Services\RicViewModeService::isRic('library', $item->id))
     @include('ahg-ric::_ric-view-library', ['item' => $item])
     @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
       @include('ahg-ric::_ric-entities-panel', ['record' => $item, 'recordType' => 'record'])

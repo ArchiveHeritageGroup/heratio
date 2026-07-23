@@ -17,9 +17,9 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'ISDF'])
+  @include('ahg-ric::_view-switch', ['standard' => 'ISDF', 'entityType' => 'function', 'objectId' => $function->id])
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('function', $function->id))
     @include('ahg-ric::_ric-view-function', ['function' => $function])
   @else
 

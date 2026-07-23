@@ -329,7 +329,7 @@
     body.museum .field.row.g-0 > :not(h3) { flex: 1 1 0%; min-width: 0; padding: 0.5rem; }
   </style>
 
-  @include('ahg-ric::_view-switch', ['standard' => 'Spectrum'])
+  @include('ahg-ric::_view-switch', ['standard' => 'Spectrum', 'entityType' => 'museum', 'objectId' => $museum->id])
 
   {{-- Translation-provenance bulk-load for AI-disclosure badges (issue #36 Phase 4) --}}
   @php
@@ -457,7 +457,7 @@
   {{-- TTS content area: everything below this is read aloud when TTS toggles on --}}
   <div id="tts-content-area" data-tts-content>
 
-  @if(session('ric_view_mode') === 'ric')
+  @if(\AhgRic\Services\RicViewModeService::isRic('museum', $museum->id))
     @include('ahg-ric::_ric-view-museum', ['museum' => $museum])
   @else
 

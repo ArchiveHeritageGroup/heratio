@@ -37,7 +37,7 @@
 
 @section('content')
 
-  @include('ahg-ric::_view-switch', ['standard' => 'RiC'])
+  @include('ahg-ric::_view-switch', ['standard' => 'RiC', 'entityType' => 'information_object', 'objectId' => $io->id])
 
   @auth
     <div class="text-end mb-2">

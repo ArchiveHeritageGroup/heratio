@@ -320,8 +320,8 @@
        shape underneath. --}}
   @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $asset, 'digitalObjects' => $digitalObjects])
 
-  @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core'])
-  @if(session('ric_view_mode') === 'ric')
+  @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core', 'entityType' => 'dam', 'objectId' => $asset->id])
+  @if(\AhgRic\Services\RicViewModeService::isRic('dam', $asset->id))
     @include('ahg-ric::_ric-view-dam', ['asset' => $asset])
     {{-- RiC Entities Panel — only renders when RiC view-mode toggle is on,
          matching the Archive (IO) show-page behaviour. --}}
