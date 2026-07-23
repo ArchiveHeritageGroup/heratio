@@ -21,6 +21,11 @@
   $existingInstantiations = $existingInstantiations ?? collect();
   $carrierOptions = ['', 'paper', 'digital', 'microfilm', 'photograph', 'audio', 'video', 'born-digital', 'parchment', 'glass-plate'];
   $extentUnits = ['', 'items', 'boxes', 'folders', 'pages', 'linear metres', 'megabytes', 'gigabytes', 'reels', 'files'];
+  // #1425 tail: rico:Event editor. Creation (type 111) is owned by the
+  // creators/date widgets, so it is excluded from the general event editor.
+  $eventTypes = $eventTypes ?? collect();
+  $eventTypeOptions = collect($eventTypes)->reject(fn ($t) => (int) $t->id === 111)->values();
+  $existingEvents = $existingEvents ?? collect();
 @endphp
 
 <input type="hidden" name="_display_standard_code" value="ric">
@@ -209,6 +214,95 @@
               <div class="col-md-6">
                 <label class="form-label small mb-0">{{ __('Location / note') }}</label>
                 <input type="text" name="instantiations[__IDX__][description]" class="form-control form-control-sm">
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger mt-2" data-repeat-remove>{{ __('Remove') }}</button>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  {{-- Events (#1425 tail): repeatable rico:Event editor - custody, publication,
+       accumulation, reproduction, etc. (Creation is captured by the creators /
+       date widgets and is excluded here). Persisted as AtoM event rows by
+       RicManageController::persist; the RiC serializer already emits them. --}}
+  <div class="accordion-item">
+    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-events">{{ __('Events') }} <span class="text-muted small ms-1">(rico:Event)</span></button></h2>
+    <div id="ric-events" class="accordion-collapse collapse">
+      <div class="accordion-body">
+        <p class="text-muted small">{{ __('Datable happenings in the record\'s life - custody transfer, publication, accumulation, reproduction. Creation dates and creators are captured in the Identity / creators area.') }}</p>
+
+        <div id="ric-events-list">
+          @foreach($existingEvents as $eidx => $ev)
+            <div class="ric-event-row border rounded p-2 mb-2" data-repeat-row>
+              <input type="hidden" name="events[{{ $eidx }}][id]" value="{{ $ev->id }}">
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <label class="form-label small mb-0">{{ __('Event type') }}</label>
+                  <select name="events[{{ $eidx }}][type_id]" class="form-select form-select-sm">
+                    <option value="">-</option>
+                    @foreach($eventTypeOptions as $et)<option value="{{ $et->id }}" @selected((int)($ev->type_id ?? 0) === (int)$et->id)>{{ $et->name }}</option>@endforeach
+                  </select>
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label small mb-0">{{ __('Date (display)') }}</label>
+                  <input type="text" name="events[{{ $eidx }}][date_display]" class="form-control form-control-sm" value="{{ $ev->date_display ?? '' }}" placeholder="{{ __('e.g. circa 1994') }}">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small mb-0">{{ __('Agent / actor') }}</label>
+                  <input type="text" name="events[{{ $eidx }}][agent]" class="form-control form-control-sm" value="{{ $ev->agent ?? '' }}">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small mb-0">{{ __('Start (ISO)') }}</label>
+                  <input type="text" name="events[{{ $eidx }}][start_date]" class="form-control form-control-sm" value="{{ $ev->start_date ?? '' }}" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small mb-0">{{ __('End (ISO)') }}</label>
+                  <input type="text" name="events[{{ $eidx }}][end_date]" class="form-control form-control-sm" value="{{ $ev->end_date ?? '' }}" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small mb-0">{{ __('Note') }}</label>
+                  <input type="text" name="events[{{ $eidx }}][description]" class="form-control form-control-sm" value="{{ $ev->description ?? '' }}">
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-danger mt-2" data-repeat-remove>{{ __('Remove') }}</button>
+            </div>
+          @endforeach
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-repeat-add="ric-event-template" data-repeat-target="ric-events-list" data-repeat-index="{{ $existingEvents->count() }}">{{ __('Add event') }}</button>
+
+        <template id="ric-event-template">
+          <div class="ric-event-row border rounded p-2 mb-2" data-repeat-row>
+            <input type="hidden" name="events[__IDX__][id]" value="">
+            <div class="row g-2">
+              <div class="col-md-4">
+                <label class="form-label small mb-0">{{ __('Event type') }}</label>
+                <select name="events[__IDX__][type_id]" class="form-select form-select-sm">
+                  <option value="">-</option>
+                  @foreach($eventTypeOptions as $et)<option value="{{ $et->id }}">{{ $et->name }}</option>@endforeach
+                </select>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small mb-0">{{ __('Date (display)') }}</label>
+                <input type="text" name="events[__IDX__][date_display]" class="form-control form-control-sm" placeholder="{{ __('e.g. circa 1994') }}">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-0">{{ __('Agent / actor') }}</label>
+                <input type="text" name="events[__IDX__][agent]" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-0">{{ __('Start (ISO)') }}</label>
+                <input type="text" name="events[__IDX__][start_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-0">{{ __('End (ISO)') }}</label>
+                <input type="text" name="events[__IDX__][end_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small mb-0">{{ __('Note') }}</label>
+                <input type="text" name="events[__IDX__][description]" class="form-control form-control-sm">
               </div>
             </div>
             <button type="button" class="btn btn-sm btn-outline-danger mt-2" data-repeat-remove>{{ __('Remove') }}</button>

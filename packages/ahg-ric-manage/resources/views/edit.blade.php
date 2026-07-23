@@ -75,7 +75,7 @@
 <form method="post" action="{{ route('ahgricmanage.edit', ['slug' => $io->slug ?? '']) }}" autocomplete="off">
   @csrf
 
-  @include('ric-manage::_fields', ['io' => $io, 'levels' => $levels ?? collect(), 'repositories' => $repositories ?? collect(), 'subjects' => $subjects ?? collect(), 'places' => $places ?? collect(), 'genres' => $genres ?? collect(), 'nameAccessPoints' => $nameAccessPoints ?? collect(), 'publicationStatusId' => $publicationStatusId ?? null, 'existingInstantiations' => $existingInstantiations ?? collect()])
+  @include('ric-manage::_fields', ['io' => $io, 'levels' => $levels ?? collect(), 'repositories' => $repositories ?? collect(), 'subjects' => $subjects ?? collect(), 'places' => $places ?? collect(), 'genres' => $genres ?? collect(), 'nameAccessPoints' => $nameAccessPoints ?? collect(), 'publicationStatusId' => $publicationStatusId ?? null, 'existingInstantiations' => $existingInstantiations ?? collect(), 'existingEvents' => $existingEvents ?? collect(), 'eventTypes' => $eventTypes ?? collect()])
 
   {{-- Display standard (standalone editor keeps its own selector; on the
        dynamic create/edit form the host owns this and the partial omits it) --}}

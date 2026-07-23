@@ -196,6 +196,7 @@ class RicManageController extends Controller
                 'ricJsonLd' => $ricJsonLd,
                 'ricValidation' => $ricValidation,
                 'existingInstantiations' => $this->manualInstantiations((int) $io->id, app()->getLocale()),
+                'existingEvents' => $this->nonCreatorEvents((int) $io->id, app()->getLocale()),
             ],
             $dropdowns
         ));
@@ -341,6 +342,11 @@ class RicManageController extends Controller
             // existing manual instantiations; auto-derived ones are untouched).
             $this->syncManualInstantiations($ioId, $request);
 
+            // #1425 tail: rico:Event rows from the repeatable editor. Diffed
+            // against the record's existing NON-creator events (type != 111);
+            // Creation (type 111) is owned by the creators block above.
+            $this->syncEvents($ioId, $request, $culture);
+
             // Keep the RiC triplestore in step if the engine is present. Guarded
             // and best-effort - a sync hiccup must never fail the save.
             $this->syncRic($ioId);
@@ -377,6 +383,94 @@ class RicManageController extends Controller
             ->select('ri.id', 'ri.carrier_type', 'ri.mime_type', 'ri.extent_value', 'ri.extent_unit',
                      'rii.title', 'rii.description')
             ->get();
+    }
+
+    /**
+     * The record's NON-creator events (type != 111) for the edit form, with
+     * their i18n display date / agent label / note.
+     */
+    private function nonCreatorEvents(int $ioId, string $culture)
+    {
+        return DB::table('event as e')
+            ->leftJoin('event_i18n as ei', function ($j) use ($culture) {
+                $j->on('e.id', '=', 'ei.id')->where('ei.culture', '=', $culture);
+            })
+            ->where('e.object_id', $ioId)
+            ->where('e.type_id', '!=', 111)
+            ->orderBy('e.id')
+            ->select('e.id', 'e.type_id', 'e.start_date', 'e.end_date',
+                     'ei.date as date_display', 'ei.name as agent', 'ei.description')
+            ->get();
+    }
+
+    /**
+     * #1425 tail: reconcile the record's rico:Event rows (excluding Creation,
+     * type 111) with the repeatable editor's submission. Each row carries an
+     * optional [id]; existing non-creator events absent from the submission are
+     * deleted. Events are AtoM object+event+event_i18n rows (agent label + note
+     * in i18n); the RiC serializer already emits them.
+     */
+    private function syncEvents(int $ioId, Request $request, string $culture): void
+    {
+        $rows = (array) $request->input('events', []);
+        $existing = DB::table('event')->where('object_id', $ioId)
+            ->where('type_id', '!=', 111)->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $kept = [];
+
+        foreach ($rows as $row) {
+            $row = (array) $row;
+            $typeId = (int) ($row['type_id'] ?? 0);
+            $display = trim((string) ($row['date_display'] ?? ''));
+            $agent = trim((string) ($row['agent'] ?? ''));
+            $note = trim((string) ($row['description'] ?? ''));
+            $start = trim((string) ($row['start_date'] ?? ''));
+            $end = trim((string) ($row['end_date'] ?? ''));
+            // Skip empty rows.
+            if ($typeId <= 0 && $display === '' && $agent === '' && $note === '' && $start === '') {
+                continue;
+            }
+
+            $id = (int) ($row['id'] ?? 0);
+            if ($id > 0 && in_array($id, $existing, true)) {
+                DB::table('event')->where('id', $id)->update([
+                    'type_id' => $typeId ?: null,
+                    'start_date' => $start ?: null,
+                    'end_date' => $end ?: null,
+                ]);
+                DB::table('event_i18n')->updateOrInsert(
+                    ['id' => $id, 'culture' => $culture],
+                    ['date' => $display ?: null, 'name' => $agent ?: null, 'description' => $note ?: null]
+                );
+                $kept[] = $id;
+            } else {
+                $eventId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitEvent',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('event')->insert([
+                    'id' => $eventId,
+                    'object_id' => $ioId,
+                    'type_id' => $typeId ?: null,
+                    'start_date' => $start ?: null,
+                    'end_date' => $end ?: null,
+                    'source_culture' => $culture,
+                ]);
+                DB::table('event_i18n')->insert([
+                    'id' => $eventId,
+                    'culture' => $culture,
+                    'date' => $display ?: null,
+                    'name' => $agent ?: null,
+                    'description' => $note ?: null,
+                ]);
+            }
+        }
+
+        foreach (array_diff($existing, $kept) as $goneId) {
+            DB::table('event_i18n')->where('id', $goneId)->delete();
+            DB::table('event')->where('id', $goneId)->delete();
+            DB::table('object')->where('id', $goneId)->delete();
+        }
     }
 
     private function syncManualInstantiations(int $ioId, Request $request): void
@@ -446,7 +540,7 @@ class RicManageController extends Controller
         $dropdowns = $this->getFormDropdowns($culture);
         $data = ['io' => null, 'subjects' => collect(), 'places' => collect(),
                  'genres' => collect(), 'nameAccessPoints' => collect(), 'publicationStatusId' => null,
-                 'existingInstantiations' => collect()];
+                 'existingInstantiations' => collect(), 'existingEvents' => collect()];
 
         if ($slug) {
             $io = DB::table('information_object')
@@ -457,6 +551,7 @@ class RicManageController extends Controller
             if ($io) {
                 $data['io'] = $io;
                 $data['existingInstantiations'] = $this->manualInstantiations((int) $io->id, $culture);
+                $data['existingEvents'] = $this->nonCreatorEvents((int) $io->id, $culture);
                 foreach ([['subjects', 35], ['places', 42], ['genres', 78]] as [$key, $tax]) {
                     $data[$key] = DB::table('object_term_relation')
                         ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
