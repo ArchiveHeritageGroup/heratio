@@ -295,6 +295,12 @@ class RicManageController extends Controller
         // null, and the view simply omits the panel.
         $ricJsonLd = $this->serializeRic($io->id);
 
+        // In-editor SHACL / RiC-O conformance (#1425 A3). Runs on every GET,
+        // which is also the page a save redirects to - so it doubles as the
+        // post-save conformance report. Non-blocking: violations are shown, the
+        // record still saves. Null when the engine/validator is unavailable.
+        $ricValidation = $this->validateRic($ricJsonLd);
+
         return view('ric-manage::edit', array_merge(
             [
                 'io' => $io,
@@ -313,9 +319,34 @@ class RicManageController extends Controller
                 'parentTitle' => $parentTitle,
                 'parentSlug' => $parentSlug,
                 'ricJsonLd' => $ricJsonLd,
+                'ricValidation' => $ricValidation,
             ],
             $dropdowns
         ));
+    }
+
+    /**
+     * RiC-O conformance for the serialized entity (#1425 A3): SHACL shapes +
+     * mandatory-field + referential-integrity checks via the engine's
+     * ShaclValidationService. Returns ['valid'=>bool,'errors'=>[],'warnings'=>[]]
+     * or null when there is nothing to validate / the validator is absent. The
+     * RiC record type maps to the RiC-O 'Record' shape.
+     */
+    private function validateRic(?array $jsonLd): ?array
+    {
+        if (! is_array($jsonLd) || empty($jsonLd)) {
+            return null;
+        }
+        if (! class_exists(\AhgRic\Services\ShaclValidationService::class)) {
+            return null;
+        }
+        try {
+            $type = $jsonLd['rico:type'] ?? 'Record';
+
+            return app(\AhgRic\Services\ShaclValidationService::class)->validateBeforeSave($jsonLd, $type);
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /**

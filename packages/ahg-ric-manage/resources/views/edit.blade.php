@@ -23,7 +23,37 @@
   $parentTitle = $parentTitle ?? null;
   $parentSlug = $parentSlug ?? null;
   $ricJsonLd = $ricJsonLd ?? null;
+  $ricValidation = $ricValidation ?? null;
 @endphp
+
+{{-- RiC-O conformance (SHACL + mandatory-field + referential checks, #1425 A3).
+     Non-blocking: shown for guidance; the record still saves with violations. --}}
+@if($ricValidation)
+  @php
+    $ricErrors = $ricValidation['errors'] ?? [];
+    $ricWarnings = $ricValidation['warnings'] ?? [];
+    $ricConforms = ($ricValidation['valid'] ?? false) && empty($ricErrors);
+  @endphp
+  <div class="alert {{ $ricConforms ? 'alert-success' : (count($ricErrors) ? 'alert-danger' : 'alert-warning') }} d-flex flex-column gap-1" role="status">
+    <div>
+      @if($ricConforms)
+        <i class="fas fa-check-circle me-1"></i><strong>{{ __('Conforms to RiC-O') }}</strong>
+        <span class="small">{{ __('SHACL shapes and mandatory RiC-O elements satisfied.') }}</span>
+      @else
+        <i class="fas fa-triangle-exclamation me-1"></i><strong>{{ __('RiC-O conformance') }}:</strong>
+        <span class="small">{{ trans_choice('{1}:count issue|[2,*]:count issues', count($ricErrors) + count($ricWarnings), ['count' => count($ricErrors) + count($ricWarnings)]) }}</span>
+      @endif
+    </div>
+    @if(count($ricErrors))
+      <ul class="mb-0 ps-3 small">@foreach($ricErrors as $e)<li>{{ is_array($e) ? ($e['message'] ?? json_encode($e)) : $e }}</li>@endforeach</ul>
+    @endif
+    @if(count($ricWarnings))
+      <details class="small"><summary>{{ trans_choice('{1}:count advisory warning|[2,*]:count advisory warnings', count($ricWarnings), ['count' => count($ricWarnings)]) }}</summary>
+        <ul class="mb-0 ps-3">@foreach($ricWarnings as $w)<li>{{ is_array($w) ? ($w['message'] ?? json_encode($w)) : $w }}</li>@endforeach</ul>
+      </details>
+    @endif
+  </div>
+@endif
 
 <h1>{{ __('Edit description') }}
   <small class="text-muted">(RiC-O 1.0 — Records in Contexts)</small>
