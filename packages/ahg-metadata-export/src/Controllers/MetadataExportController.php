@@ -192,6 +192,60 @@ class MetadataExportController extends Controller
      * Part of issue #1197 (unified G/L/A/M knowledge graph). Read-only:
      * delegates to CidocCrmSerializer which never writes the database.
      */
+    /**
+     * Download a single record as RiC-O (Records in Contexts) RDF (#1425 A2).
+     * Mirrors downloadCidocCrm's format negotiation: Turtle by default, RDF/XML
+     * via ?rdf=rdf or the .rdf/.xml path extension; ?io=NNN required.
+     *
+     * Reuses the ahg/ric engine (RicSerializationService) - the JSON-LD from
+     * serializeRecord() is rendered to Turtle or RDF/XML by the same static
+     * serialisers the OAI `rico` prefix uses. Guarded: 404 when the engine is
+     * absent, so this endpoint degrades cleanly on a minimal install.
+     */
+    public function downloadRic(Request $request, ?string $ext = null)
+    {
+        if (! class_exists(\AhgRic\Services\RicSerializationService::class)) {
+            abort(404, 'RiC-O export requires the ahg/ric engine.');
+        }
+
+        $ioId = (int) $request->query('io', 0);
+        if ($ioId < 1) {
+            abort(400, 'Missing io parameter');
+        }
+
+        $hint = strtolower((string) ($ext ?: $request->query('rdf', 'ttl')));
+        $isRdfXml = in_array($hint, ['rdf', 'rdfxml', 'rdf+xml', 'xml'], true);
+
+        try {
+            $jsonLd = app(\AhgRic\Services\RicSerializationService::class)->serializeRecord($ioId);
+        } catch (\Throwable $e) {
+            $jsonLd = null;
+        }
+        if (! is_array($jsonLd) || isset($jsonLd['error']) || empty($jsonLd['@id'])) {
+            abort(404, 'No record produced for RiC-O export');
+        }
+
+        if ($isRdfXml) {
+            $body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                .\AhgRic\Services\RicSerializationService::toRdfXml($jsonLd);
+            $contentType = 'application/rdf+xml; charset=UTF-8';
+            $filename = sprintf('heratio-ric-%d.rdf', $ioId);
+        } else {
+            $body = \AhgRic\Services\RicSerializationService::toTurtle($jsonLd);
+            $contentType = 'text/turtle; charset=UTF-8';
+            $filename = sprintf('heratio-ric-%d.ttl', $ioId);
+        }
+
+        if (trim((string) $body) === '') {
+            abort(404, 'No record produced for RiC-O export');
+        }
+
+        return new Response($body, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
     public function downloadCidocCrm(Request $request, ?string $ext = null)
     {
         $ioId = (int) $request->query('io', 0);

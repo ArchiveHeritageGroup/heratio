@@ -23,6 +23,14 @@ Route::prefix('admin/metadata-export')->middleware(['web', 'auth', 'admin'])->gr
         ->whereIn('ext', ['ttl', 'rdf'])
         ->name('ahgmetadataexport.cidoc.ext');
 
+    // #1425 A2 RiC-O (Records in Contexts) RDF download, same shape as CIDOC-CRM.
+    // ?io=NNN required; Turtle by default, RDF/XML via ?rdf=rdf or the .rdf ext.
+    Route::get('/ric', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadRic'])
+        ->name('ahgmetadataexport.ric');
+    Route::get('/ric.{ext}', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadRic'])
+        ->whereIn('ext', ['ttl', 'rdf'])
+        ->name('ahgmetadataexport.ric.ext');
+
     // #1197 CIDOC-CRM RDF download for an ACTOR. ?actor=NNN required. Same
     // format negotiation as the record export (Turtle default, RDF/XML via
     // ?rdf=rdf or a .rdf extension). Under /admin/metadata-export so the IO
