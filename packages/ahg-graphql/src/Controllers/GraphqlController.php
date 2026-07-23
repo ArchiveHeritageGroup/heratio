@@ -138,6 +138,13 @@ class GraphqlController extends Controller
     {
         $query = trim($query);
 
+        // #1425: RiC-O (Records in Contexts) JSON-LD for a record. Checked
+        // before informationObject since both take (id:) - patterns are
+        // distinct but this keeps the RiC surface first.
+        if (preg_match('/\bricO\s*\(\s*id\s*:\s*(\d+)\s*\)/i', $query, $m)) {
+            return $this->resolveRicO((int) $m[1]);
+        }
+
         if (preg_match('/\binformationObject\s*\(\s*id\s*:\s*(\d+)\s*\)/i', $query, $m)) {
             return $this->resolveInformationObject((int) $m[1]);
         }
@@ -426,6 +433,52 @@ class GraphqlController extends Controller
         ]]];
     }
 
+    /**
+     * RiC-O (Records in Contexts) JSON-LD for one record (#1425). Reuses the
+     * ahg/ric engine - the same serializer behind the OAI `rico` prefix and the
+     * metadata-export RiC-O download - so this GraphQL field is the third
+     * interchange surface, not a new serialisation.
+     *
+     * Applies the SAME access control the archive resolvers do: the record must
+     * be Published (scopePublished, no-op for admins) AND not culturally
+     * restricted (TermProtocolGate, guarded). A draft or restricted record is
+     * "not found", never disclosed. Returns null-safe errors when the engine
+     * is absent (minimal install) so GraphQL still answers.
+     */
+    private function resolveRicO(int $id): array
+    {
+        if (! class_exists(\AhgRic\Services\RicSerializationService::class)) {
+            return ['errors' => [['message' => 'RiC-O serialisation requires the ahg/ric engine.']]];
+        }
+
+        // Gate: is this record visible to the caller?
+        $visible = DB::table('information_object as io')
+            ->where('io.id', $id)
+            ->where('io.id', '!=', 1);
+        $this->scopePublished($visible, 'io');
+        if (class_exists(\AhgCore\Services\TermProtocolGate::class)) {
+            try {
+                \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($visible, 'io.id');
+            } catch (\Throwable $e) {
+                // gate table absent on a minimal install -> published scope stands
+            }
+        }
+        if (! $visible->exists()) {
+            return ['errors' => [['message' => "Information object {$id} not found"]]];
+        }
+
+        try {
+            $jsonLd = app(\AhgRic\Services\RicSerializationService::class)->serializeRecord($id);
+        } catch (\Throwable $e) {
+            $jsonLd = null;
+        }
+        if (! is_array($jsonLd) || isset($jsonLd['error']) || empty($jsonLd['@id'])) {
+            return ['errors' => [['message' => "No RiC-O record produced for {$id}"]]];
+        }
+
+        return ['data' => ['ricO' => $jsonLd]];
+    }
+
     private function resolveInformationObject(int $id): array
     {
         $q = DB::table('information_object as io')
@@ -526,6 +579,7 @@ class GraphqlController extends Controller
                 ['name' => 'ResearcherView', 'fields' => ['researcher', 'projects', 'annotations', 'orcid']],
             ],
             'queries' => [
+                'ricO(id: Int!)' => 'RicO (Records in Contexts JSON-LD)',
                 'informationObject(id: Int!)' => 'InformationObject',
                 'informationObjects(limit: Int, offset: Int)' => '[InformationObject]',
                 'actor(id: Int!)' => 'Actor',

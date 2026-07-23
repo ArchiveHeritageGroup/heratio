@@ -350,6 +350,8 @@
               @endforeach
             </select>
           </div>
+          {{-- Publication status is owned by the host Administration area during a standard swap (#1425); hide it here so it is not duplicated. --}}
+          @unless(request()->routeIs('informationobject.standard-fields'))
           <div class="mb-3">
             <label class="form-label">{{ __('Publication status') }}</label>
             <select name="publication_status_id" class="form-select">
@@ -358,6 +360,7 @@
               <option value="160" @if($publicationStatusId == 160) selected @endif>{{ __('Published') }}</option>
             </select>
           </div>
+          @endunless
         </div>
       </div>
     </div>

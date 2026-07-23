@@ -52,17 +52,43 @@
       <input type="hidden" name="parent_id" value="{{ $parentId }}">
     @endif
 
-    {{-- #1425 dynamic-standard driver. Picking a standard swaps the field
-         accordion below (#standard-fields) via AJAX. Lives OUTSIDE the swap so
-         it persists; it is the single source of display_standard_id. --}}
-    <div class="mb-3">
-      <label for="display_standard_id" class="form-label">{{ __('Description standard') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-      <select class="form-select" id="display_standard_id" name="display_standard_id" data-standard-driver>
-        <option value="" data-code="isad">- {{ __('ISAD(G) / global default') }} -</option>
-        @foreach($displayStandards as $std)
-          <option value="{{ $std->id }}" data-code="{{ $std->code ?? '' }}" @selected(old('display_standard_id') == $std->id)>{{ $std->name }}</option>
-        @endforeach
-      </select>
+    {{-- #1425 Administration area. Standard-agnostic controls that stay put
+         while the description field set below (#standard-fields) swaps: the
+         description-standard DRIVER (picking a standard AJAX-swaps the field
+         accordion), publication status and source language. Lives OUTSIDE the
+         swap so it persists and is the single source of these fields. --}}
+    <div class="accordion mb-3" id="admin-area">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="admin-area-heading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#admin-area-collapse" aria-expanded="true" aria-controls="admin-area-collapse">
+            {{ __('Administration area') }}
+          </button>
+        </h2>
+        <div id="admin-area-collapse" class="accordion-collapse collapse show" aria-labelledby="admin-area-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="display_standard_id" class="form-label">{{ __('Description standard') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <select class="form-select" id="display_standard_id" name="display_standard_id" data-standard-driver>
+                <option value="" data-code="isad">- {{ __('ISAD(G) / global default') }} -</option>
+                @foreach($displayStandards as $std)
+                  <option value="{{ $std->id }}" data-code="{{ $std->code ?? '' }}" @selected(old('display_standard_id') == $std->id)>{{ $std->name }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="publication_status_id" class="form-label">{{ __('Publication status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <select class="form-select" id="publication_status_id" name="publication_status_id">
+                <option value="159" selected>{{ __('Draft') }}</option>
+                <option value="160">{{ __('Published') }}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">{{ __('Source language') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <p class="form-control-plaintext mb-0">{{ app()->getLocale() }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="accordion mb-3" id="standard-fields">
@@ -503,16 +529,9 @@
               <button type="button" class="btn btn-sm btn-outline-secondary" id="add-archnote-row">{{ __("Add archivist's note") }}</button>
             </div>
 
-            <div class="mb-3">
-              <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <select class="form-select" id="publication_status_id" name="publication_status_id">
-                <option value="159" selected>{{ __('Draft') }}</option>
-                <option value="160">{{ __('Published') }}</option>
-              </select>
-            </div>
-
-            {{-- #1425: the display-standard selector moved above the accordion
-                 (the dynamic-standard driver), so it is not duplicated here. --}}
+            {{-- #1425: Publication status and the display-standard selector
+                 moved to the persistent Administration area above the
+                 accordion, so they are not duplicated (and survive a swap). --}}
           </div>
         </div>
       </div>
@@ -686,25 +705,8 @@
         </div>
       </div>
 
-      {{-- Administration area (shown on copy) --}}
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="admin-heading">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false">
-            {{ __('Administration area') }}
-          </button>
-        </h2>
-        <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
-          <div class="accordion-body">
-            <div class="mb-3">
-              <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <select name="publication_status_id" id="publication_status_id" class="form-select">
-                <option value="159" selected>{{ __('Draft') }}</option>
-                <option value="160">{{ __('Published') }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
+      {{-- #1425: publication status now lives in the persistent Administration
+           area at the top of the form (shown for every create, not just copy). --}}
     @endif
 
     <ul class="actions mb-3 nav gap-2">

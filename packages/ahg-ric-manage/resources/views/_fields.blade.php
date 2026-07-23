@@ -155,6 +155,8 @@
           <label class="form-label">{{ __('Sources') }}</label>
           <textarea name="sources" class="form-control" rows="2">{{ old('sources', $io->sources ?? '') }}</textarea>
         </div>
+        {{-- Publication status is owned by the host Administration area during a standard swap (#1425); hide it here so it is not duplicated. --}}
+        @unless(request()->routeIs('informationobject.standard-fields'))
         <div class="mb-3">
           <label class="form-label">{{ __('Publication status') }}</label>
           <select name="publication_status_id" class="form-select">
@@ -162,6 +164,7 @@
             <option value="160" @selected($publicationStatusId == 160)>{{ __('Published') }}</option>
           </select>
         </div>
+        @endunless
       </div>
     </div>
   </div>

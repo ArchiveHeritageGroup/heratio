@@ -79,15 +79,79 @@
     @csrf
     @method('PUT')
 
-    {{-- #1425 dynamic-standard driver (outside the swap so it persists). --}}
-    <div class="mb-3">
-      <label for="display_standard_id" class="form-label">{{ __('Description standard') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-      <select class="form-select" id="display_standard_id" name="display_standard_id" data-standard-driver>
-        <option value="" data-code="isad">- {{ __('ISAD(G) / global default') }} -</option>
-        @foreach($displayStandards as $std)
-          <option value="{{ $std->id }}" data-code="{{ $std->code ?? '' }}" @selected(old('display_standard_id', $io->display_standard_id) == $std->id)>{{ $std->name }}</option>
-        @endforeach
-      </select>
+    {{-- #1425 Administration area. Standard-agnostic controls that stay put
+         while the description field set (#standard-fields) swaps: the
+         description-standard DRIVER (AJAX-swaps the field accordion),
+         publication status, source language and record admin. Lives OUTSIDE
+         the swap so it persists and is the single source of these fields. --}}
+    <div class="accordion mb-3" id="admin-area">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="admin-area-heading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#admin-area-collapse" aria-expanded="true" aria-controls="admin-area-collapse">
+            {{ __('Administration area') }}
+          </button>
+        </h2>
+        <div id="admin-area-collapse" class="accordion-collapse collapse show" aria-labelledby="admin-area-heading">
+          <div class="accordion-body">
+
+            <div class="mb-3">
+              <label for="display_standard_id" class="form-label">{{ __('Description standard') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <select class="form-select" id="display_standard_id" name="display_standard_id" data-standard-driver>
+                <option value="" data-code="isad">- {{ __('ISAD(G) / global default') }} -</option>
+                @foreach($displayStandards as $std)
+                  <option value="{{ $std->id }}" data-code="{{ $std->code ?? '' }}" @selected(old('display_standard_id', $io->display_standard_id) == $std->id)>{{ $std->name }}</option>
+                @endforeach
+              </select>
+            </div>
+
+            @if($parentTitle)
+              <div class="mb-3">
+                <label class="form-label">Part of <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <p class="form-control-plaintext">
+                  <a href="{{ url('/' . $parentSlug) }}">{{ $parentTitle }}</a>
+                </p>
+              </div>
+            @endif
+
+            <div class="mb-3">
+              <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <select name="publication_status_id" id="publication_status_id" class="form-select">
+                <option value="159" @selected(($publicationStatusId ?? 159) == 159)>{{ __('Draft') }}</option>
+                <option value="160" @selected(($publicationStatusId ?? 159) == 160)>{{ __('Published') }}</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="collection_type_id" class="form-label">Collection type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <select name="collection_type_id" id="collection_type_id" class="form-select">
+                <option value="">-- None --</option>
+                @foreach($collectionTypes ?? [] as $ct)
+                  <option value="{{ $ct->id }}" @selected(old('collection_type_id', $io->collection_type_id) == $ct->id)>{{ $ct->name }}</option>
+                @endforeach
+              </select>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="updateDescendants" name="updateDescendants" value="1"
+                     @checked(old('updateDescendants', $io->update_descendants_default ?? 0))>
+              <label class="form-check-label" for="updateDescendants">Make this the default for existing children <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Source language <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <p class="form-control-plaintext mb-0">{{ $io->source_culture ?? '' }}</p>
+            </div>
+
+            @if($io->updated_at)
+              <div class="mb-3">
+                <label class="form-label">Last updated <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <p class="form-control-plaintext mb-0">{{ $io->updated_at }}</p>
+              </div>
+            @endif
+
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="accordion mb-3" id="standard-fields">
@@ -1003,67 +1067,9 @@
       </div>
     </div>
 
-    {{-- ===== Administration area ===== --}}
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="admin-heading">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false">
-          {{ __('Administration area') }}
-        </button>
-      </h2>
-      <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
-        <div class="accordion-body">
-
-          @if($parentTitle)
-            <div class="mb-3">
-              <label class="form-label">Part of <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <p class="form-control-plaintext">
-                <a href="{{ url('/' . $parentSlug) }}">{{ $parentTitle }}</a>
-              </p>
-            </div>
-          @endif
-
-          <div class="mb-3">
-            <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <select name="publication_status_id" id="publication_status_id" class="form-select">
-              <option value="159" @selected(($publicationStatusId ?? 159) == 159)>{{ __('Draft') }}</option>
-              <option value="160" @selected(($publicationStatusId ?? 159) == 160)>{{ __('Published') }}</option>
-            </select>
-          </div>
-
-          <div class="mb-3">
-            <label for="collection_type_id" class="form-label">Collection type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <select name="collection_type_id" id="collection_type_id" class="form-select">
-              <option value="">-- None --</option>
-              @foreach($collectionTypes ?? [] as $ct)
-                <option value="{{ $ct->id }}" @selected(old('collection_type_id', $io->collection_type_id) == $ct->id)>{{ $ct->name }}</option>
-              @endforeach
-            </select>
-          </div>
-
-          {{-- #1425: display-standard selector moved above the accordion (the
-               dynamic-standard driver); not duplicated here. --}}
-
-          <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="updateDescendants" name="updateDescendants" value="1"
-                   @checked(old('updateDescendants', $io->update_descendants_default ?? 0))>
-            <label class="form-check-label" for="updateDescendants">Make this the default for existing children <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Source language <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <p class="form-control-plaintext">{{ $io->source_culture ?? '' }}</p>
-          </div>
-
-          @if($io->updated_at)
-            <div class="mb-3">
-              <label class="form-label">Last updated <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <p class="form-control-plaintext">{{ $io->updated_at }}</p>
-            </div>
-          @endif
-
-        </div>
-      </div>
-    </div>
+    {{-- #1425: the Administration area moved OUT of this swappable accordion to
+         a persistent block at the top of the form, so it survives a standard
+         swap and owns publication status / source language / the driver. --}}
 
     </div>{{-- end main accordion --}}
 
