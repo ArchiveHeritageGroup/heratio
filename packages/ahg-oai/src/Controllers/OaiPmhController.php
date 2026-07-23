@@ -111,6 +111,14 @@ class OaiPmhController extends Controller
             'schema' => 'http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd',
             'namespace' => 'http://www.loc.gov/MARC21/slim',
         ],
+        // RiC-O (Records in Contexts) as RDF/XML (#1425 A2). Only usable when
+        // the ahg/ric engine is installed; listMetadataFormats() drops it from
+        // the advertised set otherwise, so a minimal install never offers a
+        // prefix it cannot serve.
+        'rico' => [
+            'schema' => 'https://www.ica.org/standards/RiC/RiC-O_1-0.rdf',
+            'namespace' => 'https://www.ica.org/standards/RiC/ontology#',
+        ],
     ];
 
     /**
@@ -295,9 +303,12 @@ class OaiPmhController extends Controller
             }
         }
 
-        // Check metadataPrefix is one of the registered formats.
+        // Check metadataPrefix is one of the registered AND available formats.
+        // formatAvailable() also gates 'rico' behind the ahg/ric engine, so a
+        // minimal install rejects it with cannotDisseminateFormat rather than
+        // advertising a prefix it cannot render.
         $metadataPrefix = $params['metadataPrefix'] ?? null;
-        if ($metadataPrefix !== null && $metadataPrefix !== '' && ! isset(self::METADATA_FORMATS[$metadataPrefix])) {
+        if ($metadataPrefix !== null && $metadataPrefix !== '' && ! $this->formatAvailable($metadataPrefix)) {
             return $this->errorResponse($request, 'cannotDisseminateFormat');
         }
 
@@ -458,6 +469,9 @@ class OaiPmhController extends Controller
         $xml = $this->xmlHeader($request);
         $xml .= '  <ListMetadataFormats>'."\n";
         foreach (self::METADATA_FORMATS as $prefix => $spec) {
+            if (! $this->formatAvailable($prefix)) {
+                continue;
+            }
             $xml .= '    <metadataFormat>'."\n";
             $xml .= '      <metadataPrefix>'.$prefix.'</metadataPrefix>'."\n";
             $xml .= '      <schema>'.$this->esc($spec['schema']).'</schema>'."\n";
@@ -477,6 +491,45 @@ class OaiPmhController extends Controller
      * ahg-metadata-export serializers which return self-contained XML.
      * Output is indented 8 spaces to align with the surrounding <metadata>.
      */
+    /**
+     * RiC-O RDF/XML for one record via the ahg/ric engine (#1425 A2). Guarded:
+     * returns '' when the engine is absent (a minimal OAI install) so the
+     * record is simply skipped for this prefix rather than erroring.
+     */
+    /**
+     * Is this metadataPrefix both registered and serviceable on this install?
+     * All built-in formats are always available; 'rico' additionally requires
+     * the ahg/ric engine (#1425 A2), so the standalone/minimal OAI install
+     * neither advertises nor accepts it.
+     */
+    private function formatAvailable(string $prefix): bool
+    {
+        if (! isset(self::METADATA_FORMATS[$prefix])) {
+            return false;
+        }
+        if ($prefix === 'rico') {
+            return class_exists(\AhgRic\Services\RicSerializationService::class);
+        }
+
+        return true;
+    }
+
+    private function renderRico(object $record): string
+    {
+        if (! class_exists(\AhgRic\Services\RicSerializationService::class)) {
+            return '';
+        }
+        try {
+            $jsonLd = app(\AhgRic\Services\RicSerializationService::class)->serializeRecord((int) $record->id);
+
+            return is_array($jsonLd)
+                ? \AhgRic\Services\RicSerializationService::toRdfXml($jsonLd)
+                : '';
+        } catch (\Throwable $e) {
+            return '';
+        }
+    }
+
     private function renderMetadata(object $record, string $metadataPrefix): string
     {
         if ($metadataPrefix === 'oai_dc') {
@@ -497,6 +550,9 @@ class OaiPmhController extends Controller
                 break;
             case 'marcxml':
                 $body = (new MarcxmlSerializer)->serializeRecord((int) $record->id, $culture);
+                break;
+            case 'rico':
+                $body = $this->renderRico($record);
                 break;
         }
 

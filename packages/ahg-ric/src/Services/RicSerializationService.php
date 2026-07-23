@@ -1629,6 +1629,97 @@ class RicSerializationService
     }
 
     /**
+     * RDF/XML for a serialized entity (#1425 A2). Turtle is not valid inside an
+     * OAI-PMH <metadata> element or an XML export envelope, which both require
+     * XML; RDF/XML is. The JSON-LD from serializeRecord()/serializeAgent()/etc.
+     * maps mechanically: scalars become literals, `{'@id':...}` become
+     * rdf:resource references, `{'@value':...}` become typed literals, and
+     * nested maps become rdf:parseType="Resource" blank nodes. Returns '' for
+     * an error/empty entity so callers can fall through cleanly.
+     *
+     * NOT wrapped in <?xml?>: OAI embeds this inside a larger document, so the
+     * caller owns the prolog. Namespaces are declared on the root rdf:RDF.
+     */
+    public static function toRdfXml(array $jsonLd): string
+    {
+        if (isset($jsonLd['error']) || empty($jsonLd['@id'])) {
+            return '';
+        }
+
+        $esc = static fn ($s) => htmlspecialchars((string) $s, ENT_QUOTES | ENT_XML1, 'UTF-8');
+
+        $body = '';
+        foreach ($jsonLd as $key => $value) {
+            if (str_starts_with($key, '@')) {
+                continue;
+            }
+            $body .= self::rdfXmlProperty($key, $value, $esc, 2);
+        }
+
+        $type = $jsonLd['@type'] ?? null;
+        $typeLine = $type ? '  <rdf:type rdf:resource="'.$esc($type).'"/>'."\n" : '';
+
+        return '<rdf:RDF xmlns:rdf="'.self::RDF_NS.'" xmlns:rdfs="'.self::RDFS_NS.'" xmlns:rico="'.self::RICO_NS.'">'."\n"
+            .'  <rdf:Description rdf:about="'.$esc($jsonLd['@id']).'">'."\n"
+            .$typeLine
+            .$body
+            .'  </rdf:Description>'."\n"
+            .'</rdf:RDF>';
+    }
+
+    /**
+     * One RDF/XML property line (or block) for toRdfXml(). Recurses for nested
+     * maps and iterates lists. $depth drives indentation only.
+     */
+    private static function rdfXmlProperty(string $key, $value, callable $esc, int $depth): string
+    {
+        if ($value === null || $value === '' || $value === []) {
+            return '';
+        }
+
+        // A property IRI/CURIE like "rico:title" is emitted verbatim as the
+        // element name; a bare key is namespaced into rico:.
+        $el = str_contains($key, ':') ? $key : 'rico:'.$key;
+        $pad = str_repeat('  ', $depth);
+
+        // List -> repeat the property per member.
+        if (is_array($value) && array_is_list($value)) {
+            $out = '';
+            foreach ($value as $member) {
+                $out .= self::rdfXmlProperty($key, $member, $esc, $depth);
+            }
+
+            return $out;
+        }
+
+        if (is_array($value)) {
+            // Reference to another entity by IRI.
+            if (isset($value['@id'])) {
+                return $pad.'<'.$el.' rdf:resource="'.$esc($value['@id']).'"/>'."\n";
+            }
+            // Typed/plain literal value object.
+            if (array_key_exists('@value', $value)) {
+                return $pad.'<'.$el.'>'.$esc($value['@value']).'</'.$el.'>'."\n";
+            }
+            // Anonymous nested resource (blank node).
+            $inner = '';
+            foreach ($value as $k => $v) {
+                if (str_starts_with((string) $k, '@')) {
+                    continue;
+                }
+                $inner .= self::rdfXmlProperty((string) $k, $v, $esc, $depth + 1);
+            }
+            if ($inner === '') {
+                return '';
+            }
+
+            return $pad.'<'.$el.' rdf:parseType="Resource">'."\n".$inner.$pad.'</'.$el.'>'."\n";
+        }
+
+        return $pad.'<'.$el.'>'.$esc($value).'</'.$el.'>'."\n";
+    }
+
+    /**
      * Emit a single property (predicate + object pair) for the toTurtle
      * body. Returns null when the value is null/empty so the caller can
      * skip it without leaving a dangling semicolon.
