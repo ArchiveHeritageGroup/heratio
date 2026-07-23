@@ -96,89 +96,8 @@ class DcManageController extends Controller
 
         // ── POST: validate and save ──
         if ($request->isMethod('post')) {
-            $request->validate([
-                'title' => 'required|string|max:65535',
-            ]);
-
-            // Update information_object table
-            DB::table('information_object')
-                ->where('id', $io->id)
-                ->update([
-                    'identifier' => $request->input('identifier'),
-                    'repository_id' => $request->input('repository_id') ?: null,
-                    'source_standard' => 'Dublin Core Simple version 1.1',
-                ]);
-
-            if ($request->has('display_standard_id')) {
-                DB::table('information_object')
-                    ->where('id', $io->id)
-                    ->update(['display_standard_id' => $request->input('display_standard_id') ?: null]);
-            }
-
-            // Update information_object_i18n table
-            DB::table('information_object_i18n')
-                ->where('id', $io->id)
-                ->where('culture', $culture)
-                ->update([
-                    'title' => $request->input('title'),
-                    'extent_and_medium' => $request->input('extent_and_medium'),
-                    'scope_and_content' => $request->input('scope_and_content'),
-                    'access_conditions' => $request->input('access_conditions'),
-                    'location_of_originals' => $request->input('location_of_originals'),
-                ]);
-
-            // Languages of material
-            $this->saveSerializedProperty($io->id, 'language', $request->input('materialLanguages', []), $culture);
-
-            // DC Type (taxonomy 62)
-            if ($request->has('dcTypeIds')) {
-                DB::table('object_term_relation')
-                    ->where('object_id', $io->id)
-                    ->whereIn('term_id', function ($q) {
-                        $q->select('id')->from('term')->where('taxonomy_id', 62);
-                    })
-                    ->delete();
-                foreach (array_filter((array) $request->input('dcTypeIds', [])) as $termId) {
-                    DB::table('object_term_relation')->insert(['object_id' => $io->id, 'term_id' => (int) $termId]);
-                }
-            }
-
-            // Subject access points (taxonomy 35)
-            if ($request->has('subjectAccessPointIds')) {
-                DB::table('object_term_relation')
-                    ->where('object_id', $io->id)
-                    ->whereIn('term_id', function ($q) {
-                        $q->select('id')->from('term')->where('taxonomy_id', 35);
-                    })
-                    ->delete();
-                foreach (array_filter((array) $request->input('subjectAccessPointIds', [])) as $termId) {
-                    DB::table('object_term_relation')->insert(['object_id' => $io->id, 'term_id' => (int) $termId]);
-                }
-            }
-
-            // Place access points (taxonomy 42)
-            if ($request->has('placeAccessPointIds')) {
-                DB::table('object_term_relation')
-                    ->where('object_id', $io->id)
-                    ->whereIn('term_id', function ($q) {
-                        $q->select('id')->from('term')->where('taxonomy_id', 42);
-                    })
-                    ->delete();
-                foreach (array_filter((array) $request->input('placeAccessPointIds', [])) as $termId) {
-                    DB::table('object_term_relation')->insert(['object_id' => $io->id, 'term_id' => (int) $termId]);
-                }
-            }
-
-            // Publication status
-            if ($request->has('publication_status_id')) {
-                DB::table('status')->updateOrInsert(
-                    ['object_id' => $io->id, 'type_id' => 158],
-                    ['status_id' => $request->input('publication_status_id'), 'source_culture' => $culture]
-                );
-            }
-
-            // Update object.updated_at
-            DB::table('object')->where('id', $io->id)->update(['updated_at' => now()]);
+            $request->validate(['title' => 'required|string|max:65535']);
+            $this->persist($io->id, $request);
 
             return redirect()->route('ahgdcmanage.edit', ['slug' => $slug])
                 ->with('success', 'Description saved (Dublin Core).');
@@ -288,6 +207,126 @@ class DcManageController extends Controller
     }
 
     // ── Helper: form dropdown queries ──
+
+    /** Persist a Dublin Core description onto an existing IO (#1425 dynamic form). */
+    public function persist(int $ioId, Request $request): void
+    {
+        $culture = app()->getLocale();
+
+
+            // Update information_object table
+            DB::table('information_object')
+                ->where('id', $ioId)
+                ->update([
+                    'identifier' => $request->input('identifier'),
+                    'repository_id' => $request->input('repository_id') ?: null,
+                    'source_standard' => 'Dublin Core Simple version 1.1',
+                ]);
+
+            if ($request->has('display_standard_id')) {
+                DB::table('information_object')
+                    ->where('id', $ioId)
+                    ->update(['display_standard_id' => $request->input('display_standard_id') ?: null]);
+            }
+
+            // Update information_object_i18n table
+            DB::table('information_object_i18n')
+                ->where('id', $ioId)
+                ->where('culture', $culture)
+                ->update([
+                    'title' => $request->input('title'),
+                    'extent_and_medium' => $request->input('extent_and_medium'),
+                    'scope_and_content' => $request->input('scope_and_content'),
+                    'access_conditions' => $request->input('access_conditions'),
+                    'location_of_originals' => $request->input('location_of_originals'),
+                ]);
+
+            // Languages of material
+            $this->saveSerializedProperty($ioId, 'language', $request->input('materialLanguages', []), $culture);
+
+            // DC Type (taxonomy 62)
+            if ($request->has('dcTypeIds')) {
+                DB::table('object_term_relation')
+                    ->where('object_id', $ioId)
+                    ->whereIn('term_id', function ($q) {
+                        $q->select('id')->from('term')->where('taxonomy_id', 62);
+                    })
+                    ->delete();
+                foreach (array_filter((array) $request->input('dcTypeIds', [])) as $termId) {
+                    DB::table('object_term_relation')->insert(['object_id' => $ioId, 'term_id' => (int) $termId]);
+                }
+            }
+
+            // Subject access points (taxonomy 35)
+            if ($request->has('subjectAccessPointIds')) {
+                DB::table('object_term_relation')
+                    ->where('object_id', $ioId)
+                    ->whereIn('term_id', function ($q) {
+                        $q->select('id')->from('term')->where('taxonomy_id', 35);
+                    })
+                    ->delete();
+                foreach (array_filter((array) $request->input('subjectAccessPointIds', [])) as $termId) {
+                    DB::table('object_term_relation')->insert(['object_id' => $ioId, 'term_id' => (int) $termId]);
+                }
+            }
+
+            // Place access points (taxonomy 42)
+            if ($request->has('placeAccessPointIds')) {
+                DB::table('object_term_relation')
+                    ->where('object_id', $ioId)
+                    ->whereIn('term_id', function ($q) {
+                        $q->select('id')->from('term')->where('taxonomy_id', 42);
+                    })
+                    ->delete();
+                foreach (array_filter((array) $request->input('placeAccessPointIds', [])) as $termId) {
+                    DB::table('object_term_relation')->insert(['object_id' => $ioId, 'term_id' => (int) $termId]);
+                }
+            }
+
+            // Publication status
+            if ($request->has('publication_status_id')) {
+                DB::table('status')->updateOrInsert(
+                    ['object_id' => $ioId, 'type_id' => 158],
+                    ['status_id' => $request->input('publication_status_id'), 'source_culture' => $culture]
+                );
+            }
+
+            // Update object.updated_at
+            DB::table('object')->where('id', $ioId)->update(['updated_at' => now()]);
+
+    }
+
+    /** Render the DC field partial for the dynamic-standard swap (#1425). */
+    public function fieldsPartial(Request $request, ?string $slug = null)
+    {
+        $culture = app()->getLocale();
+        $dropdowns = $this->getFormDropdowns($culture);
+        $data = ['io' => null, 'subjects' => collect(), 'places' => collect(), 'dcTypes' => collect(),
+                 'creators' => collect(), 'events' => collect(), 'publicationStatusId' => null,
+                 'materialLanguages' => collect()];
+        if ($slug) {
+            $io = DB::table('information_object')
+                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('slug.slug', $slug)->where('information_object_i18n.culture', $culture)
+                ->select('information_object.*', 'information_object_i18n.*', 'slug.slug')->first();
+            if ($io) {
+                $data['io'] = $io;
+                foreach ([['subjects', 35], ['places', 42], ['dcTypes', 78]] as [$key, $tax]) {
+                    $data[$key] = DB::table('object_term_relation')
+                        ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+                        ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+                        ->where('object_term_relation.object_id', $io->id)->where('term.taxonomy_id', $tax)
+                        ->where('term_i18n.culture', $culture)->select('term.id as term_id', 'term_i18n.name')->get();
+                }
+                $st = DB::table('status')->where('object_id', $io->id)->where('type_id', 158)->value('status_id');
+                $data['publicationStatusId'] = $st ? (int) $st : null;
+                $data['materialLanguages'] = $this->loadSerializedProperty($io->id, 'language', $culture);
+            }
+        }
+
+        return view('dc-manage::_fields', array_merge($data, $dropdowns));
+    }
 
     private function getFormDropdowns(string $culture): array
     {
