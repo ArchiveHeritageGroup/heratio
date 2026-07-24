@@ -345,9 +345,11 @@ class RicManageController extends Controller
 
             // Publication status
             if ($request->has('publication_status_id')) {
+                // The `status` table has no source_culture column (object_id,
+                // type_id, status_id, id, serial_number) - do not write one.
                 DB::table('status')->updateOrInsert(
                     ['object_id' => $ioId, 'type_id' => 158],
-                    ['status_id' => $request->input('publication_status_id'), 'source_culture' => $culture]
+                    ['status_id' => $request->input('publication_status_id')]
                 );
             }
 
