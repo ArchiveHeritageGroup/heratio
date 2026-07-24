@@ -39,44 +39,6 @@
 
   @include('ahg-ric::_view-switch', ['standard' => 'RiC', 'entityType' => 'information_object', 'objectId' => $io->id])
 
-  @auth
-    <div class="text-end mb-2 d-flex justify-content-end gap-2">
-      {{-- #1425: add a child under this RiC record. The main button defaults to
-           a RiC child (the parent is RiC); the caret offers any standard. Uses
-           the ?standard=<code>&parent=<id> deep-link. --}}
-      @if(\AhgCore\Services\AclService::check($io, 'create'))
-        <div class="btn-group btn-group-sm">
-          <a href="{{ route('informationobject.create', ['parent' => $io->id, 'standard' => 'ric']) }}" class="btn btn-outline-success">
-            <i class="fas fa-sitemap me-1"></i>{{ __('Add RiC child') }}
-          </a>
-          <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="visually-hidden">{{ __('Add child in a standard') }}</span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><h6 class="dropdown-header">{{ __('Add child description in') }}</h6></li>
-            @foreach([
-              ['ric',  'RiC-O (Records in Contexts)'],
-              ['isad', 'ISAD(G)'],
-              ['dacs', 'DACS'],
-              ['rad',  'RAD'],
-              ['mods', 'MODS'],
-              ['dc',   'Dublin Core'],
-            ] as [$code, $label])
-              <li>
-                <a class="dropdown-item" href="{{ route('informationobject.create', ['parent' => $io->id] + ($code === 'isad' ? [] : ['standard' => $code])) }}">
-                  <i class="fas fa-sitemap me-2 text-muted"></i>{{ __($label) }}
-                </a>
-              </li>
-            @endforeach
-          </ul>
-        </div>
-      @endif
-      <a href="{{ route('ahgricmanage.edit', ['slug' => $io->slug ?? '']) }}" class="btn btn-sm btn-outline-primary">
-        <i class="fas fa-pencil-alt me-1"></i>{{ __('Edit (RiC-O)') }}
-      </a>
-    </div>
-  @endauth
-
   @php
     $ricRow = function ($label, $ric, $value) {
         if (!$value) { return; }
@@ -213,5 +175,13 @@
       </div>
     </section>
   @endif
+
+  {{-- #1425: same action bar as the ISAD show page (Edit, Add new + per-standard
+       child split-button, Duplicate, Move, More, Print), at the bottom. Edit
+       routes RiC records back to the RiC-O editor via the standard-edit
+       redirect. --}}
+  <div class="mt-4">
+    @include('ahg-information-object-manage::_actions-bar')
+  </div>
 
 @endsection
