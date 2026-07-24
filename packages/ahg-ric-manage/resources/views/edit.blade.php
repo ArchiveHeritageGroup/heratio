@@ -90,8 +90,8 @@
   </div>
 
   <div class="d-flex gap-2 mb-4">
-    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save (RiC-O)') }}</button>
     <a href="{{ url('/'.($io->slug ?? '')) }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save (RiC-O)') }}</button>
   </div>
 </form>
 
