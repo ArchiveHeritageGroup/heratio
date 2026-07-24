@@ -368,15 +368,15 @@
     <div id="ric-control" class="accordion-collapse collapse">
       <div class="accordion-body">
         <div class="mb-3">
-          <label class="form-label">{{ __('Description identifier') }}</label>
+          <label class="form-label">{{ __('Description identifier') }} <span class="text-muted small">(rico:identifier)</span></label>
           <input type="text" name="description_identifier" class="form-control" value="{{ old('description_identifier', $io->description_identifier ?? '') }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Rules or conventions') }}</label>
+          <label class="form-label">{{ __('Rules or conventions') }} <span class="text-muted small">(rico:descriptiveNote)</span></label>
           <textarea name="rules" class="form-control" rows="2">{{ old('rules', $io->rules ?? '') }}</textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Sources') }}</label>
+          <label class="form-label">{{ __('Sources') }} <span class="text-muted small">(rico:hasSource)</span></label>
           <textarea name="sources" class="form-control" rows="2">{{ old('sources', $io->sources ?? '') }}</textarea>
         </div>
         {{-- Publication status is owned by the host Administration area during a standard swap (#1425); hide it here so it is not duplicated. --}}

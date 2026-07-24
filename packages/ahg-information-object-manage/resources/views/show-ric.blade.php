@@ -129,7 +129,7 @@
   </section>
 
   {{-- ===== Content and structure ===== --}}
-  @if($io->scope_and_content || $io->arrangement || $io->extent_and_medium || $io->archival_history)
+  @if($io->scope_and_content || $io->arrangement || $io->extent_and_medium || $io->archival_history || $io->acquisition || ($io->appraisal ?? null) || ($io->accruals ?? null))
     <section class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">{{ __('Content and structure') }}</h2>
       @php
@@ -138,6 +138,8 @@
         $ricRow('Arrangement', 'rico:structure', $io->arrangement ?? null);
         $ricRow('Archival / custodial history', 'rico:history', $io->archival_history ?? null);
         $ricRow('Immediate source of acquisition', 'rico:hasSourceOfAcquisition', $io->acquisition ?? null);
+        $ricRow('Appraisal, destruction and scheduling', 'rico:descriptiveNote', $io->appraisal ?? null);
+        $ricRow('Accruals', 'rico:descriptiveNote', $io->accruals ?? null);
       @endphp
     </section>
   @endif
@@ -181,6 +183,18 @@
           <div class="mb-1"><strong class="small text-muted">{{ __('Names') }}:</strong> @foreach($nameAccessPoints as $n)<span class="badge bg-info text-dark">{{ $n->authorized_form_of_name ?? $n->name ?? '' }}</span> @endforeach</div>
         @endif
       </div>
+    </section>
+  @endif
+
+  {{-- ===== Description control ===== --}}
+  @if(($io->description_identifier ?? null) || ($io->rules ?? null) || ($io->sources ?? null))
+    <section class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">{{ __('Description control') }}</h2>
+      @php
+        $ricRow('Description identifier', 'rico:identifier', $io->description_identifier ?? null);
+        $ricRow('Rules or conventions', 'rico:descriptiveNote', $io->rules ?? null);
+        $ricRow('Sources', 'rico:hasSource', $io->sources ?? null);
+      @endphp
     </section>
   @endif
 
