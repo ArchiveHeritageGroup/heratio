@@ -1,5 +1,17 @@
-{{-- Partial: RiC Explorer panel — only visible when RiC view mode is active --}}
-@if(!empty($resourceId) && session('ric_view_mode', config('ric.default_view', 'heratio')) === 'ric')
+{{-- Partial: RiC Explorer panel — visible when RiC view mode is active for this
+     record, or when the host passes alwaysShow (e.g. the RiC-O record page,
+     which IS the RiC view). #1425: the old guard read the session-global
+     `ric_view_mode`, which the per-record RicViewModeService (v1.154.423)
+     replaced - so it stopped rendering. Now it honours the per-record mode. --}}
+@php
+  $__ricPanelShow = !empty($resourceId) && (
+      ($alwaysShow ?? false)
+      || (class_exists(\AhgRic\Services\RicViewModeService::class)
+          && \AhgRic\Services\RicViewModeService::isRic((int) $resourceId))
+      || session('ric_view_mode', config('ric.default_view', 'heratio')) === 'ric'
+  );
+@endphp
+@if($__ricPanelShow)
 <section id="ric-explorer-panel" class="card mb-3">
   <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-2">
     <h6 class="mb-0">

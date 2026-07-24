@@ -8,8 +8,18 @@
 @endphp
 
 {{-- Only render inside the RiC view (matches _ric-panel); never in the standard
-     cataloguing view - the RiC Context / OpenRiC / Validate panel is RiC-only. --}}
-@if($recordId && session('ric_view_mode', config('ric.default_view', 'heratio')) === 'ric')
+     cataloguing view. #1425: honour the per-record RicViewModeService (v1.154.423
+     replaced the session-global key) + an `alwaysShow` flag (the RiC-O record
+     page passes it, since that page IS the RiC view). --}}
+@php
+  $__ricEntShow = $recordId && (
+      ($alwaysShow ?? false)
+      || (class_exists(\AhgRic\Services\RicViewModeService::class)
+          && \AhgRic\Services\RicViewModeService::isRic((int) $recordId))
+      || session('ric_view_mode', config('ric.default_view', 'heratio')) === 'ric'
+  );
+@endphp
+@if($__ricEntShow)
 @php
     $recordType = $recordType ?? 'record';
     $ricIsAdmin = \AhgCore\Services\AclService::check($record ?? null, 'update');

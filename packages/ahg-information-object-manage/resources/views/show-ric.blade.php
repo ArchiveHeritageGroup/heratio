@@ -163,14 +163,24 @@
   {{-- ===== RiC-O linked-data (engine) ===== --}}
   @if($ricEnt)
     <section class="mt-3">
-      @includeWhen(view()->exists('ahg-ric::_ric-entities-panel'), 'ahg-ric::_ric-entities-panel', ['record' => $io])
+      {{-- #1425: the RiC Explorer graph (2D/3D) for this record - the RiC-O page
+           IS the RiC view, so force it on. Plus the tabular entity viewer. --}}
+      @includeWhen(view()->exists('ahg-ric::_ric-panel'), 'ahg-ric::_ric-panel', ['resourceId' => $io->id, 'alwaysShow' => true])
+      @includeWhen(view()->exists('ahg-ric::_ric-entities-panel'), 'ahg-ric::_ric-entities-panel', ['record' => $io, 'alwaysShow' => true])
+      {{-- #1425: RiC-O linked-data download (was an inline JSON-LD text dump).
+           Streams from the same serializer via the metadata-export ric route. --}}
       <div class="card mt-3">
         <div class="card-header d-flex align-items-center justify-content-between" style="background:var(--ahg-primary,#10373E);color:#fff;">
-          <span><i class="fas fa-project-diagram me-2"></i>{{ __('RiC-O JSON-LD') }}</span>
+          <span><i class="fas fa-project-diagram me-2"></i>{{ __('RiC-O linked data') }}</span>
           <span class="badge bg-light text-dark">{{ $ricEnt['rico:type'] ?? 'Record' }}</span>
         </div>
-        <div class="card-body p-0">
-          <pre class="mb-0 p-3" style="max-height:460px;overflow:auto;font-size:.78rem;">{{ json_encode($ricEnt, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</pre>
+        <div class="card-body">
+          <p class="text-muted small mb-2">{{ __('Download this record as RiC-O (Records in Contexts) linked data.') }}</p>
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('ahgmetadataexport.ric.ext', ['ext' => 'jsonld', 'io' => $io->id]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-download me-1"></i>{{ __('JSON-LD') }}</a>
+            <a href="{{ route('ahgmetadataexport.ric.ext', ['ext' => 'ttl', 'io' => $io->id]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i>{{ __('Turtle') }}</a>
+            <a href="{{ route('ahgmetadataexport.ric.ext', ['ext' => 'rdf', 'io' => $io->id]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i>{{ __('RDF/XML') }}</a>
+          </div>
         </div>
       </div>
     </section>

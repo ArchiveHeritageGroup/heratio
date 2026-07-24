@@ -28,7 +28,7 @@ Route::prefix('admin/metadata-export')->middleware(['web', 'auth', 'admin'])->gr
     Route::get('/ric', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadRic'])
         ->name('ahgmetadataexport.ric');
     Route::get('/ric.{ext}', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadRic'])
-        ->whereIn('ext', ['ttl', 'rdf'])
+        ->whereIn('ext', ['ttl', 'rdf', 'jsonld'])
         ->name('ahgmetadataexport.ric.ext');
 
     // #1197 CIDOC-CRM RDF download for an ACTOR. ?actor=NNN required. Same

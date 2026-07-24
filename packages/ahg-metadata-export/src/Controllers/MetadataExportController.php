@@ -215,6 +215,7 @@ class MetadataExportController extends Controller
 
         $hint = strtolower((string) ($ext ?: $request->query('rdf', 'ttl')));
         $isRdfXml = in_array($hint, ['rdf', 'rdfxml', 'rdf+xml', 'xml'], true);
+        $isJsonLd = in_array($hint, ['jsonld', 'json', 'ld+json'], true);
 
         try {
             $jsonLd = app(\AhgRic\Services\RicSerializationService::class)->serializeRecord($ioId);
@@ -225,7 +226,11 @@ class MetadataExportController extends Controller
             abort(404, 'No record produced for RiC-O export');
         }
 
-        if ($isRdfXml) {
+        if ($isJsonLd) {
+            $body = json_encode($jsonLd, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $contentType = 'application/ld+json; charset=UTF-8';
+            $filename = sprintf('heratio-ric-%d.jsonld', $ioId);
+        } elseif ($isRdfXml) {
             $body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 .\AhgRic\Services\RicSerializationService::toRdfXml($jsonLd);
             $contentType = 'application/rdf+xml; charset=UTF-8';
