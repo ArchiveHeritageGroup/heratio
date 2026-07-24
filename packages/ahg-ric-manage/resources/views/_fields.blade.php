@@ -26,6 +26,13 @@
   $eventTypes = $eventTypes ?? collect();
   $eventTypeOptions = collect($eventTypes)->reject(fn ($t) => (int) $t->id === 111)->values();
   $existingEvents = $existingEvents ?? collect();
+  // #1425 tail: access points are editable on the RiC form (rico relations), not
+  // just read-only. Map the loaded collections into the shape the reusable
+  // autocomplete component expects (id + name).
+  $existingSubjects = collect($subjects)->map(fn ($t) => ['id' => $t->term_id ?? $t->id ?? null, 'name' => $t->name])->all();
+  $existingPlaces   = collect($places)->map(fn ($t) => ['id' => $t->term_id ?? $t->id ?? null, 'name' => $t->name])->all();
+  $existingGenres   = collect($genres)->map(fn ($t) => ['id' => $t->term_id ?? $t->id ?? null, 'name' => $t->name])->all();
+  $existingNames    = collect($nameAccessPoints)->map(fn ($n) => ['id' => $n->actor_id ?? null, 'name' => $n->name])->all();
 @endphp
 
 <input type="hidden" name="_display_standard_code" value="ric">
@@ -312,20 +319,44 @@
     </div>
   </div>
 
-  {{-- Access points (read-only summary; edit via the dedicated widgets) --}}
+  {{-- Access points (#1425 tail): editable rico relations - subjects, places,
+       genres and names. Type to add; each maps to the RiC property shown. Saved
+       by RicManageController::persist (subject/place/genre AccessPointIds ->
+       object_term_relation; nameAccessPointIds -> relation type 161). --}}
   <div class="accordion-item">
     <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-access">{{ __('Access points') }}</button></h2>
     <div id="ric-access" class="accordion-collapse collapse">
       <div class="accordion-body">
-        @foreach([['Subjects', $subjects], ['Places', $places], ['Genres', $genres]] as [$label, $coll])
-          <div class="mb-2">
-            <strong>{{ __($label) }}:</strong>
-            @forelse($coll as $t)<span class="badge bg-secondary">{{ $t->name }}</span>@empty<span class="text-muted small">{{ __('none') }}</span>@endforelse
-          </div>
-        @endforeach
-        <div class="mb-2">
-          <strong>{{ __('Name access points') }}:</strong>
-          @forelse($nameAccessPoints as $n)<span class="badge bg-info text-dark">{{ $n->name }}</span>@empty<span class="text-muted small">{{ __('none') }}</span>@endforelse
+        <div class="mb-3">
+          @include('ahg-core::components.autocomplete', [
+            'name' => 'subjectAccessPoints', 'multi' => true, 'multiName' => 'subjectAccessPointIds[]',
+            'label' => __('Subjects') . ' (rico:hasOrHadSubject)', 'route' => 'term.autocomplete',
+            'placeholder' => __('Type to add subject...'), 'existingItems' => $existingSubjects,
+            'extraParams' => ['taxonomy_id' => 35],
+          ])
+        </div>
+        <div class="mb-3">
+          @include('ahg-core::components.autocomplete', [
+            'name' => 'placeAccessPoints', 'multi' => true, 'multiName' => 'placeAccessPointIds[]',
+            'label' => __('Places') . ' (rico:hasOrHadSpatialCoverage)', 'route' => 'term.autocomplete',
+            'placeholder' => __('Type to add place...'), 'existingItems' => $existingPlaces,
+            'extraParams' => ['taxonomy_id' => 42],
+          ])
+        </div>
+        <div class="mb-3">
+          @include('ahg-core::components.autocomplete', [
+            'name' => 'genreAccessPoints', 'multi' => true, 'multiName' => 'genreAccessPointIds[]',
+            'label' => __('Genres') . ' (rico:hasDocumentaryFormType)', 'route' => 'term.autocomplete',
+            'placeholder' => __('Type to add genre...'), 'existingItems' => $existingGenres,
+            'extraParams' => ['taxonomy_id' => 78],
+          ])
+        </div>
+        <div class="mb-3">
+          @include('ahg-core::components.autocomplete', [
+            'name' => 'nameAccessPoints', 'multi' => true, 'multiName' => 'nameAccessPointIds[]',
+            'label' => __('Name access points') . ' (rico:Agent relation)', 'route' => 'actor.autocomplete',
+            'placeholder' => __('Type to add name...'), 'existingItems' => $existingNames,
+          ])
         </div>
       </div>
     </div>

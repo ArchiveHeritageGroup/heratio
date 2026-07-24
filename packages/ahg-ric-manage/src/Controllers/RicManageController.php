@@ -293,17 +293,33 @@ class RicManageController extends Controller
                 }
             }
 
-            // Access points (subject 35 / place 42 / genre 78)
+            // Access points (subject 35 / place 42 / genre 78). object_term_relation
+            // is an AtoM object-subtype: each row needs its own `object` row (id).
             foreach ([['subjectAccessPointIds', 35], ['placeAccessPointIds', 42], ['genreAccessPointIds', 78]] as [$field, $taxonomyId]) {
                 if ($request->has($field)) {
-                    DB::table('object_term_relation')
+                    // Drop the record's existing relations for this taxonomy, and
+                    // their backing object rows, before re-inserting the submission.
+                    $oldIds = DB::table('object_term_relation')
                         ->where('object_id', $ioId)
                         ->whereIn('term_id', function ($q) use ($taxonomyId) {
                             $q->select('id')->from('term')->where('taxonomy_id', $taxonomyId);
                         })
-                        ->delete();
+                        ->pluck('id');
+                    if ($oldIds->isNotEmpty()) {
+                        DB::table('object_term_relation')->whereIn('id', $oldIds)->delete();
+                        DB::table('object')->whereIn('id', $oldIds)->delete();
+                    }
                     foreach (array_filter((array) $request->input($field, [])) as $termId) {
-                        DB::table('object_term_relation')->insert(['object_id' => $ioId, 'term_id' => (int) $termId]);
+                        $relId = DB::table('object')->insertGetId([
+                            'class_name' => 'QubitObjectTermRelation',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                        DB::table('object_term_relation')->insert([
+                            'id'        => $relId,
+                            'object_id' => $ioId,
+                            'term_id'   => (int) $termId,
+                        ]);
                     }
                 }
             }
@@ -562,7 +578,8 @@ class RicManageController extends Controller
                 $data['nameAccessPoints'] = DB::table('relation')
                     ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
                     ->where('relation.subject_id', $io->id)->where('relation.type_id', 161)
-                    ->where('actor_i18n.culture', $culture)->select('actor_i18n.authorized_form_of_name as name')->get();
+                    ->where('actor_i18n.culture', $culture)
+                    ->select('relation.object_id as actor_id', 'actor_i18n.authorized_form_of_name as name')->get();
                 $st = DB::table('status')->where('object_id', $io->id)->where('type_id', 158)->value('status_id');
                 $data['publicationStatusId'] = $st ? (int) $st : null;
             }
