@@ -76,8 +76,8 @@
 
   {{-- Content and structure --}}
   <div class="accordion-item">
-    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-content">{{ __('Content and structure') }}</button></h2>
-    <div id="ric-content" class="accordion-collapse collapse">
+    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-content">{{ __('Content and structure') }}</button></h2>
+    <div id="ric-content" class="accordion-collapse collapse show">
       <div class="accordion-body">
         @foreach([
           ['scope_and_content', 'Scope and content', 'rico:description'],
@@ -99,8 +99,8 @@
 
   {{-- Conditions of access and use --}}
   <div class="accordion-item">
-    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-conditions">{{ __('Conditions of access and use') }}</button></h2>
-    <div id="ric-conditions" class="accordion-collapse collapse">
+    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-conditions">{{ __('Conditions of access and use') }}</button></h2>
+    <div id="ric-conditions" class="accordion-collapse collapse show">
       <div class="accordion-body">
         @foreach([
           ['access_conditions', 'Conditions governing access', 'rico:conditionsOfAccess'],
@@ -119,8 +119,8 @@
 
   {{-- Related materials --}}
   <div class="accordion-item">
-    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-related">{{ __('Related materials') }}</button></h2>
-    <div id="ric-related" class="accordion-collapse collapse">
+    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-related">{{ __('Related materials') }}</button></h2>
+    <div id="ric-related" class="accordion-collapse collapse show">
       <div class="accordion-body">
         @foreach([
           ['location_of_originals', 'Existence and location of originals', 'rico:hasInstantiation'],
@@ -144,8 +144,8 @@
        driven by document-level delegation in the host form (survives the
        standard-swap, which re-inserts this markup via innerHTML). --}}
   <div class="accordion-item">
-    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-instantiations">{{ __('Instantiations') }} <span class="text-muted small ms-1">(rico:hasInstantiation)</span></button></h2>
-    <div id="ric-instantiations" class="accordion-collapse collapse">
+    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-instantiations">{{ __('Instantiations') }} <span class="text-muted small ms-1">(rico:hasInstantiation)</span></button></h2>
+    <div id="ric-instantiations" class="accordion-collapse collapse show">
       <div class="accordion-body">
         <p class="text-muted small">{{ __('Physical or digital manifestations of this record (the original holding, copies, surrogates). Auto-generated instantiations from uploaded digital objects are managed separately and not shown here.') }}</p>
 
@@ -235,8 +235,8 @@
        date widgets and is excluded here). Persisted as AtoM event rows by
        RicManageController::persist; the RiC serializer already emits them. --}}
   <div class="accordion-item">
-    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-events">{{ __('Events') }} <span class="text-muted small ms-1">(rico:Event)</span></button></h2>
-    <div id="ric-events" class="accordion-collapse collapse">
+    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-events">{{ __('Events') }} <span class="text-muted small ms-1">(rico:Event)</span></button></h2>
+    <div id="ric-events" class="accordion-collapse collapse show">
       <div class="accordion-body">
         <p class="text-muted small">{{ __('Datable happenings in the record\'s life - custody transfer, publication, accumulation, reproduction. Creation dates and creators are captured in the Identity / creators area.') }}</p>
 
@@ -324,8 +324,8 @@
        by RicManageController::persist (subject/place/genre AccessPointIds ->
        object_term_relation; nameAccessPointIds -> relation type 161). --}}
   <div class="accordion-item">
-    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-access">{{ __('Access points') }}</button></h2>
-    <div id="ric-access" class="accordion-collapse collapse">
+    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-access">{{ __('Access points') }}</button></h2>
+    <div id="ric-access" class="accordion-collapse collapse show">
       <div class="accordion-body">
         <div class="mb-3">
           @include('ahg-core::components.autocomplete', [
@@ -364,8 +364,8 @@
 
   {{-- Description control (display-standard dropdown lives on the host form) --}}
   <div class="accordion-item">
-    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ric-control">{{ __('Description control') }}</button></h2>
-    <div id="ric-control" class="accordion-collapse collapse">
+    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-control">{{ __('Description control') }}</button></h2>
+    <div id="ric-control" class="accordion-collapse collapse show">
       <div class="accordion-body">
         <div class="mb-3">
           <label class="form-label">{{ __('Description identifier') }} <span class="text-muted small">(rico:identifier)</span></label>
