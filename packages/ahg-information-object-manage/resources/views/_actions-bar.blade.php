@@ -25,6 +25,14 @@
   $_digitalObjects = $digitalObjects ?? null;
   $_hasChildren = $hasChildren ?? false;
   $_auditLogEnabled = $auditLogEnabled ?? false;
+  // #1425: "Add new" creates a child in THIS record's own description standard
+  // (its taxonomy-70 code), so children inherit the parent's standard. Null /
+  // isad -> the plain ISAD create path.
+  $_parentStandard = ($io->display_standard_id ?? null)
+      ? \Illuminate\Support\Facades\DB::table('term')->where('id', $io->display_standard_id)->value('code')
+      : null;
+  $_addChildParams = ['parent_id' => $io->id]
+      + ($_parentStandard && $_parentStandard !== 'isad' ? ['standard' => $_parentStandard] : []);
 @endphp
 <ul class="actions mb-3 nav gap-2">
   @if($_canUpdate)
@@ -43,33 +51,10 @@
   </li>
   @endif
   @if($_canCreate)
-  {{-- #1425: split "Add new" - the main button creates an ISAD child under this
-       record; the caret opens a child pre-set to a specific description standard
-       via the ?standard=<code>&parent= deep-link (portable natural-key codes). --}}
+  {{-- #1425: "Add new" creates a child in this record's own standard (children
+       inherit the parent's description standard via ?standard=<code>&parent=). --}}
   <li>
-    <div class="btn-group">
-      <a href="{{ route('informationobject.create', ['parent_id' => $io->id]) }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a>
-      <button type="button" class="btn atom-btn-outline-light dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="visually-hidden">{{ __('Add child in a standard') }}</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><h6 class="dropdown-header">{{ __('Add child description in') }}</h6></li>
-        @foreach([
-          ['ric',  'RiC-O (Records in Contexts)'],
-          ['isad', 'ISAD(G)'],
-          ['dacs', 'DACS'],
-          ['rad',  'RAD'],
-          ['mods', 'MODS'],
-          ['dc',   'Dublin Core'],
-        ] as [$code, $label])
-          <li>
-            <a class="dropdown-item" href="{{ route('informationobject.create', ['parent' => $io->id] + ($code === 'isad' ? [] : ['standard' => $code])) }}">
-              <i class="fas fa-sitemap me-2 text-muted"></i>{{ __($label) }}
-            </a>
-          </li>
-        @endforeach
-      </ul>
-    </div>
+    <a href="{{ route('informationobject.create', $_addChildParams) }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a>
   </li>
   <li>
     <a href="{{ route('informationobject.create', ['parent_id' => $io->id, 'copy_from' => $io->id]) }}" class="btn atom-btn-outline-light">{{ __('Duplicate') }}</a>
