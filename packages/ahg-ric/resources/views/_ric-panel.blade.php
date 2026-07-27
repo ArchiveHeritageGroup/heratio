@@ -7,7 +7,7 @@
   $__ricPanelShow = !empty($resourceId) && (
       ($alwaysShow ?? false)
       || (class_exists(\AhgRic\Services\RicViewModeService::class)
-          && \AhgRic\Services\RicViewModeService::isRic((int) $resourceId))
+          && \AhgRic\Services\RicViewModeService::isRic('information_object', (int) $resourceId))
       || session('ric_view_mode', config('ric.default_view', 'heratio')) === 'ric'
   );
 @endphp

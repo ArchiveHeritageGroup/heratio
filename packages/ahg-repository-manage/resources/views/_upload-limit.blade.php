@@ -21,6 +21,10 @@
       : 0;
   $diskUsagePercent = round($diskUsageFloat);
   $showRepoLink = true;
+  // Pre-build the GB abbreviation. It must NOT be a nested {{ }} inside the
+  // {!! !!} lines below - Blade compiles a nested echo into the outer string
+  // arg, producing invalid PHP ("unexpected integer 1" from 1 000 000 000).
+  $gbAbbr = '<abbr title="' . e(__('1 GB = 1 000 000 000 bytes')) . '">' . e(__('GB')) . '</abbr>';
 @endphp
 
 <section class="card mb-3" id="upload-limit-card">
@@ -58,11 +62,11 @@
           aria-valuemax="100">
         </div>
       </div>
-      <p class="card-text">{!! __(':du of :limit <abbr title="{{ __('1 GB = 1 000 000 000 bytes') }}">GB</abbr> (:percent%)', ['du' => $diskUsage, 'limit' => $uploadLimit, 'percent' => $diskUsagePercent]) !!}</p>
+      <p class="card-text">{!! __(':du of :limit :gb (:percent%)', ['du' => $diskUsage, 'limit' => $uploadLimit, 'gb' => $gbAbbr, 'percent' => $diskUsagePercent]) !!}</p>
     @elseif('disabled' === $quotaType)
       <p class="card-text">{{ __('Upload is disabled') }}</p>
     @elseif('unlimited' === $quotaType)
-      <p class="card-text">{!! __(':du <abbr title="{{ __('1 GB = 1 000 000 000 bytes') }}">GB</abbr> of <em>Unlimited</em>', ['du' => $diskUsage]) !!}</p>
+      <p class="card-text">{!! __(':du :gb of <em>Unlimited</em>', ['du' => $diskUsage, 'gb' => $gbAbbr]) !!}</p>
     @endif
   </div>
 

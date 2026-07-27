@@ -15,7 +15,7 @@
   $__ricEntShow = $recordId && (
       ($alwaysShow ?? false)
       || (class_exists(\AhgRic\Services\RicViewModeService::class)
-          && \AhgRic\Services\RicViewModeService::isRic((int) $recordId))
+          && \AhgRic\Services\RicViewModeService::isRic('information_object', (int) $recordId))
       || session('ric_view_mode', config('ric.default_view', 'heratio')) === 'ric'
   );
 @endphp
