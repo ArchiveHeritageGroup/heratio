@@ -446,8 +446,15 @@ class IngestService
      */
     protected function createDigitalObjectFromPath(int $ioId, string $stagedPath, string $originalName): int
     {
-        $uploadsBase = config('heratio.uploads_path');
-        $targetDir = rtrim($uploadsBase, '/') . '/' . $ioId;
+        // Store under the /r/ subdir so the physical location matches the web
+        // path recorded below (/uploads/r/<ioId>/) and the layout every other
+        // digital object uses. heratio.uploads_path is the alias root (no /r);
+        // guard against a config that already includes it.
+        $uploadsBase = rtrim(config('heratio.uploads_path'), '/');
+        if (! preg_match('#/r$#', $uploadsBase)) {
+            $uploadsBase .= '/r';
+        }
+        $targetDir = $uploadsBase . '/' . $ioId;
         if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
             throw new \RuntimeException("Cannot create upload directory: {$targetDir}");
         }
