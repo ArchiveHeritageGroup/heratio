@@ -188,9 +188,13 @@ class MetsParser
     {
         $out = [];
 
+        // A DIP's disseminatable files live in fileGrp USE="access" (synthetic /
+        // normalized-access DIPs) OR USE="original" (a real Archivematica DIP,
+        // whose objects/ ARE the access-serving files). Exclude submission
+        // documentation + metadata groups. lower() via translate() (XPath 1.0).
+        $lc = 'translate(@USE,"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz")';
         $files = $xp->query(
-            '//mets:fileSec/mets:fileGrp[translate(@USE,'
-            . '"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz")="access"]/mets:file'
+            "//mets:fileSec/mets:fileGrp[{$lc}=\"access\" or {$lc}=\"original\"]/mets:file"
         );
 
         if ($files === false) {

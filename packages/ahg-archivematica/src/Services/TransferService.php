@@ -246,6 +246,46 @@ class TransferService
             );
         }
 
+        // Drop a processingMCP.xml at the transfer root so Archivematica runs
+        // the whole pipeline UNATTENDED (auto-approves normalization, stores the
+        // AIP, and STORES the DIP in the Storage Service) - otherwise the transfer
+        // stalls at the "Approve normalization" decision waiting for a human. The
+        // shipped config is the fully-automated one that stores (not only uploads)
+        // the DIP, which is what Heratio's pull ingest (am:ingest-dips) needs. An
+        // operator override at <staging>/processingMCP.xml wins if present.
+        $mcp = __DIR__ . '/../../resources/processingMCP.xml';
+        $override = $stagingBase . '/processingMCP.xml';
+        $mcpSrc = is_file($override) ? $override : $mcp;
+        if (is_file($mcpSrc)) {
+            @copy($mcpSrc, $destDir . '/processingMCP.xml');
+        }
+
+        // Carry the record's identifier (and title) into the transfer as
+        // metadata/metadata.csv, so Archivematica preserves it into the DIP
+        // METS - that is how the returning DIP is matched back to this
+        // information_object (DipMatcher's identifier strategy). Without it the
+        // DIP round-trips but cannot be linked to its source record.
+        $ioRow = DB::table('information_object')
+            ->leftJoin('information_object_i18n', function ($j) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                  ->where('information_object_i18n.culture', '=', app()->getLocale());
+            })
+            ->where('information_object.id', $objectId)
+            ->select('information_object.identifier', 'information_object_i18n.title')
+            ->first();
+        $ident = (string) ($ioRow->identifier ?? '');
+        if ($ident !== '') {
+            $csvEsc = fn ($v) => '"' . str_replace('"', '""', (string) $v) . '"';
+            $metaDir = $destDir . '/metadata';
+            if (is_dir($metaDir) || @mkdir($metaDir, 0775, true)) {
+                @file_put_contents(
+                    $metaDir . '/metadata.csv',
+                    "filename,dc.identifier,dc.title\n"
+                    . 'objects,' . $csvEsc($ident) . ',' . $csvEsc($ioRow->title ?? $ident) . "\n"
+                );
+            }
+        }
+
         return $staged;
     }
 

@@ -595,13 +595,24 @@ class DipIngestService
             return $direct;
         }
 
+        // Real Archivematica DIPs store objects as "<file-uuid>-<originalName>"
+        // on disk, while the METS FLocat href carries the clean name
+        // ("objects/<originalName>"). Match the exact basename first, then the
+        // AM "<uuid>-<basename>" convention.
         $base = basename($href);
-        $it = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($extractedDir, \FilesystemIterator::SKIP_DOTS)
-        );
-        foreach ($it as $f) {
-            if ($f->isFile() && $f->getFilename() === $base) {
-                return $f->getPathname();
+        $suffix = '-' . $base;
+        foreach ([true, false] as $exactPass) {
+            $it = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($extractedDir, \FilesystemIterator::SKIP_DOTS)
+            );
+            foreach ($it as $f) {
+                if (! $f->isFile()) {
+                    continue;
+                }
+                $name = $f->getFilename();
+                if ($exactPass ? ($name === $base) : str_ends_with($name, $suffix)) {
+                    return $f->getPathname();
+                }
             }
         }
 
