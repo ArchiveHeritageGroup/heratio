@@ -224,7 +224,12 @@ class TransferService
 
         $staged = 0;
         foreach ($dos as $do) {
-            $src = $uploadsBase . '/' . ltrim((string) $do->path, '/') . $do->name;
+            // digital_object.path is the WEB path (/uploads/r/<io>/...); the
+            // physical file is <uploads_path>/<path minus the /uploads/ prefix>,
+            // because /uploads/ is the nginx alias for <uploads_path>. Strip the
+            // prefix so we don't build <uploads_path>/uploads/... (doubled).
+            $rel = preg_replace('#^/?uploads/#', '', (string) $do->path);
+            $src = $uploadsBase . '/' . ltrim($rel, '/') . $do->name;
             if (! is_file($src)) {
                 continue;
             }
