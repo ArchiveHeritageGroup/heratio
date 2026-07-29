@@ -221,7 +221,10 @@ class IiifPresentationController extends Controller
         $canvases = $this->buildCanvases($rec, $manifestUrl);
         $manifest['items'] = $canvases;
 
-        $manifest['behavior'] = count($canvases) > 1 ? ['paged'] : ['individuals'];
+        // Show one image at a time (individuals) rather than a paged book-spread,
+        // even for multi-canvas manifests - matches how the Mirador gallery is
+        // used here (ported from the artorius production change, 2026-07-16).
+        $manifest['behavior'] = ['individuals'];
 
         // A first-canvas thumbnail for the whole manifest, when we have images.
         if (! empty($canvases)) {

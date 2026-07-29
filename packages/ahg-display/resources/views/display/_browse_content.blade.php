@@ -3,6 +3,25 @@
   Shared content partial for browse (used by both 2-col and full-width layouts)
 --}}
 @php
+  // Normalise a browse image src. A relative path like "uploads/images/f.jpg"
+  // or "uploads/r/123/thumb.jpg" would otherwise resolve against the current
+  // /glam/ route ("/glam/uploads/...") and 404. Force it to an application-root
+  // URL; pass absolute / protocol-relative / data: / blob: URLs through as-is.
+  // (ported from the artorius production fix, 2026-07-16)
+  $normalizeBrowseImageUrl = static function ($path) {
+      if (! is_string($path) || trim($path) === '') {
+          return null;
+      }
+      $path = trim($path);
+      if (preg_match('#^https?://#i', $path)
+          || str_starts_with($path, '//')
+          || str_starts_with($path, 'data:')
+          || str_starts_with($path, 'blob:')) {
+          return $path;
+      }
+      return url('/' . ltrim($path, '/'));
+  };
+
   // Re-establish helpers if not already set (when included from browse.blade.php they are available)
   $typeConfig = $typeConfig ?? [
       'archive' => ['icon' => 'fa-archive',  'color' => 'success', 'label' => 'Archive'],
@@ -417,7 +436,7 @@
               <td class="col-thumb text-center">
                 @if($objThumb)
                   <a href="{{ $objUrl }}">
-                    <img src="{{ $objThumb }}" alt="" class="browse-thumb-lg" loading="lazy">
+                    <img src="{{ $normalizeBrowseImageUrl($objThumb) }}" alt="" class="browse-thumb-lg" loading="lazy">
                   </a>
                 @else
                   <div class="browse-placeholder-lg mx-auto">
@@ -491,7 +510,7 @@
           <div class="card h-100 shadow-sm">
             <div class="card-img-top bg-light d-flex align-items-center justify-content-center grid-img-wrapper">
               @if($objThumb)
-                <a href="{{ $objUrl }}"><img src="{{ $objThumb }}" alt="{{ $objTitle }}" class="img-fluid grid-img" loading="lazy"></a>
+                <a href="{{ $objUrl }}"><img src="{{ $normalizeBrowseImageUrl($objThumb) }}" alt="{{ $objTitle }}" class="img-fluid grid-img" loading="lazy"></a>
               @else
                 <a href="{{ $objUrl }}" class="text-muted py-4"><i class="fas {{ $otc['icon'] }} fa-3x"></i></a>
               @endif
@@ -530,7 +549,7 @@
               <div class="full-img-bg flex-shrink-0">
                 @if($objThumb)
                   <a href="{{ $objUrl }}">
-                    <img src="{{ $objThumb }}" alt="{{ $objTitle }}" class="full-img" loading="lazy">
+                    <img src="{{ $normalizeBrowseImageUrl($objThumb) }}" alt="{{ $objTitle }}" class="full-img" loading="lazy">
                   </a>
                 @else
                   <div class="text-center text-muted">
@@ -625,7 +644,7 @@
           <div class="card h-100 shadow-sm">
             <a href="{{ $objUrl }}" class="text-decoration-none">
               @if($objCardImg)
-                <img src="{{ $objCardImg }}" class="card-img-top" alt="{{ $objTitle }}" style="height:200px;object-fit:cover;" loading="lazy">
+                <img src="{{ $normalizeBrowseImageUrl($objCardImg) }}" class="card-img-top" alt="{{ $objTitle }}" style="height:200px;object-fit:cover;" loading="lazy">
               @else
                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center text-{{ $otc['color'] }}" style="height:200px;">
                   <i class="fas {{ $otc['icon'] }} fa-3x"></i>
@@ -683,7 +702,7 @@
           <div class="row g-0">
             <div class="col-md-2 d-flex align-items-center justify-content-center p-2 bg-light">
               @if($objThumb)
-                <a href="{{ $objUrl }}"><img src="{{ $objThumb }}" alt="{{ $objTitle }}" class="img-fluid rounded card-img-browse"></a>
+                <a href="{{ $objUrl }}"><img src="{{ $normalizeBrowseImageUrl($objThumb) }}" alt="{{ $objTitle }}" class="img-fluid rounded card-img-browse"></a>
               @else
                 <a href="{{ $objUrl }}" aria-label="{{ $objTitle }}"><i class="fas {{ $otc['icon'] }} fa-4x text-{{ $otc['color'] }}"></i></a>
               @endif
