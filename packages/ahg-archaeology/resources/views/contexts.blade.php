@@ -21,6 +21,42 @@
     <div class="alert alert-success py-2">{{ session('status') }}</div>
   @endif
 
+  {{-- Harris Matrix (server-side tiering; latest at top, earliest at bottom) --}}
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between">
+      <span>{{ __('Harris Matrix') }}</span>
+      <span class="text-muted small">{{ $matrix['context_count'] }} {{ __('contexts') }}, {{ $matrix['relationship_count'] }} {{ __('relationships') }}</span>
+    </div>
+    <div class="card-body">
+      @if($matrix['has_cycle'])
+        <div class="alert alert-warning py-2 mb-0">{{ __('The stratigraphy contains a contradiction (a loop through same-as links) and cannot be laid out. Review the relationships.') }}</div>
+      @elseif(empty($matrix['tiers']) || $matrix['relationship_count'] === 0)
+        <p class="text-muted mb-0">{{ __('No stratigraphic relationships recorded yet. Add relationships on each context sheet to build the matrix.') }}</p>
+      @else
+        <div class="text-muted small mb-2">{{ __('Latest (top) to earliest (bottom).') }}</div>
+        <div class="harris-matrix">
+          @foreach($matrix['tiers'] as $level => $cells)
+            <div class="d-flex flex-wrap gap-3 justify-content-center mb-3">
+              @foreach($cells as $members)
+                <div class="border rounded px-3 py-2 bg-light text-center" style="min-width:5rem">
+                  <div>
+                    @foreach($members as $m)<a href="{{ route('archaeology.context', $m->id) }}" class="fw-semibold text-decoration-none">{{ $m->context_number }}</a>@if(!$loop->last) <span class="text-muted">=</span> @endif @endforeach
+                  </div>
+                  @if(($members[0]->type_name ?? null))<div class="text-muted" style="font-size:.72rem">{{ $members[0]->type_name }}</div>@endif
+                </div>
+              @endforeach
+            </div>
+            @if(!$loop->last)<div class="text-center text-muted mb-2" style="line-height:.5">&darr;</div>@endif
+          @endforeach
+        </div>
+        <details class="mt-3">
+          <summary class="small text-muted">{{ __('Mermaid source (for export to a diagram tool)') }}</summary>
+          <pre class="small bg-body-tertiary border rounded p-2 mt-2 mb-0" style="white-space:pre-wrap">{{ $matrix['mermaid'] }}</pre>
+        </details>
+      @endif
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-header d-flex justify-content-between">
       <span>{{ __('Contexts') }}</span>

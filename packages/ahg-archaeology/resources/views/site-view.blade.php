@@ -14,6 +14,8 @@
     </div>
     <div class="d-flex gap-2">
       <a href="{{ route('archaeology.contexts', $site->id) }}" class="btn btn-outline-primary btn-sm">{{ __('Stratigraphy') }}</a>
+      <a href="{{ route('archaeology.object.create', ['site_id' => $site->id]) }}" class="btn btn-outline-primary btn-sm">+ {{ __('Add find') }}</a>
+      <a href="{{ route('archaeology.site.edit', $site->id) }}" class="btn btn-primary btn-sm">{{ __('Edit') }}</a>
       <a href="{{ route('archaeology.sites') }}" class="btn btn-outline-secondary btn-sm">&larr; {{ __('All sites') }}</a>
     </div>
   </div>

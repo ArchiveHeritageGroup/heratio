@@ -9,7 +9,10 @@
       <h1 class="h4 mb-1">{{ $object->title ?: __('Untitled find') }}</h1>
       <div class="text-muted small">{{ $object->accession_number }}</div>
     </div>
-    <a href="{{ route('archaeology.objects') }}" class="btn btn-outline-secondary btn-sm">&larr; {{ __('All finds') }}</a>
+    <div class="d-flex gap-2">
+      <a href="{{ route('archaeology.object.edit', $object->id) }}" class="btn btn-primary btn-sm">{{ __('Edit') }}</a>
+      <a href="{{ route('archaeology.objects') }}" class="btn btn-outline-secondary btn-sm">&larr; {{ __('All finds') }}</a>
+    </div>
   </div>
 
   @if($object->item_count > 1)

@@ -480,25 +480,173 @@ class ArchaeologyService
         $now = now();
 
         $siteIo = DB::table('information_object')->where('id', $siteIoId)->first();
+        $objectId = $this->createDescription($title, $siteIoId, $siteIo->repository_id ?? null, 'context');
+        DB::table('archaeology_context')->where('id', $contextId)->update(['information_object_id' => $objectId]);
+    }
+
+    /**
+     * Create a published child information_object description (title + slug +
+     * publication status) under a parent, returning its id. Shared by contexts,
+     * sites and finds. The node's lft/rgt are 0 until the next tree rebuild;
+     * nothing here depends on tree position.
+     */
+    private function createDescription(string $title, int $parentId, $repositoryId, string $slugPrefix = 'item'): int
+    {
+        $now = now();
         $objectId = DB::table('object')->insertGetId([
             'class_name' => 'QubitInformationObject', 'created_at' => $now, 'updated_at' => $now, 'serial_number' => 0,
         ]);
         DB::table('information_object')->insert([
-            'id' => $objectId, 'parent_id' => $siteIoId,
-            'repository_id' => $siteIo->repository_id ?? null,
-            'lft' => 0, 'rgt' => 0, 'source_culture' => $culture,
+            'id' => $objectId, 'parent_id' => $parentId, 'repository_id' => $repositoryId,
+            'lft' => 0, 'rgt' => 0, 'source_culture' => 'en',
         ]);
         DB::table('information_object_i18n')->insert([
-            'id' => $objectId, 'culture' => $culture, 'title' => $title,
+            'id' => $objectId, 'culture' => 'en', 'title' => $title !== '' ? $title : ($slugPrefix.' '.$objectId),
         ]);
-        $slug = \Illuminate\Support\Str::slug($title) ?: ('context-'.$objectId);
+        $slug = \Illuminate\Support\Str::slug($title) ?: ($slugPrefix.'-'.$objectId);
         if (DB::table('slug')->where('slug', $slug)->exists()) {
             $slug .= '-'.$objectId;
         }
         DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
         DB::table('status')->updateOrInsert(['object_id' => $objectId, 'type_id' => 158], ['status_id' => 160]);
 
-        DB::table('archaeology_context')->where('id', $contextId)->update(['information_object_id' => $objectId]);
+        return $objectId;
+    }
+
+    // ─── Site + find data-entry (the module's missing CRUD) - #1428 Phase 4 ──────
+
+    /** Sites for a picker (find form's site select). */
+    public function sitePickList(): Collection
+    {
+        if (! Schema::hasTable('archaeology_site')) {
+            return collect();
+        }
+
+        return DB::table('archaeology_site as s')
+            ->leftJoin('information_object_i18n as i', fn ($j) => $j->on('i.id', '=', 's.information_object_id')->where('i.culture', '=', 'en'))
+            ->where('s.status', 'active')
+            ->orderBy('s.site_number')
+            ->get(['s.id', 's.site_number', 'i.title']);
+    }
+
+    /**
+     * Create or update a site. On create a top-level description is made from
+     * the title; on edit the title is kept in step. Returns the site id.
+     *
+     * @param array<string,mixed> $data
+     */
+    public function saveSite(array $data, ?int $id = null): int
+    {
+        $now = now();
+        $clean = fn ($v) => ($v === '' || $v === null) ? null : $v;
+        $title = trim((string) ($data['title'] ?? ''));
+        $fields = [
+            'site_number'            => trim((string) ($data['site_number'] ?? '')),
+            'national_site_number'   => $clean($data['national_site_number'] ?? null),
+            'site_type_id'           => $clean($data['site_type_id'] ?? null),
+            'period_id'              => $clean($data['period_id'] ?? null),
+            'region'                 => $clean($data['region'] ?? null),
+            'locality'               => $clean($data['locality'] ?? null),
+            'location_description'   => $clean($data['location_description'] ?? null),
+            'latitude'               => $clean($data['latitude'] ?? null),
+            'longitude'              => $clean($data['longitude'] ?? null),
+            'elevation_m'            => $clean($data['elevation_m'] ?? null),
+            'area_sqm'               => $clean($data['area_sqm'] ?? null),
+            'date_earliest'          => $clean($data['date_earliest'] ?? null),
+            'date_latest'            => $clean($data['date_latest'] ?? null),
+            'dating_note'            => $clean($data['dating_note'] ?? null),
+            'excavated'              => ! empty($data['excavated']) ? 1 : 0,
+            'excavation_years'       => $clean($data['excavation_years'] ?? null),
+            'excavator'              => $clean($data['excavator'] ?? null),
+            'excavation_institution' => $clean($data['excavation_institution'] ?? null),
+            'permit_number'          => $clean($data['permit_number'] ?? null),
+            'protection_status_id'   => $clean($data['protection_status_id'] ?? null),
+            'research_potential'     => $clean($data['research_potential'] ?? 'medium'),
+            'notes'                  => $clean($data['notes'] ?? null),
+            'status'                 => 'active',
+            'updated_at'             => $now,
+        ];
+
+        if ($id) {
+            $row = DB::table('archaeology_site')->where('id', $id)->first();
+            DB::table('archaeology_site')->where('id', $id)->update($fields);
+            if ($row && $row->information_object_id) {
+                DB::table('information_object_i18n')->where('id', $row->information_object_id)->where('culture', 'en')
+                    ->update(['title' => $title !== '' ? $title : $fields['site_number']]);
+            }
+
+            return $id;
+        }
+
+        $ioId = $this->createDescription($title !== '' ? $title : $fields['site_number'], 1, $clean($data['repository_id'] ?? null), 'site');
+        $fields['information_object_id'] = $ioId;
+        $fields['created_at'] = $now;
+
+        return (int) DB::table('archaeology_site')->insertGetId($fields);
+    }
+
+    /**
+     * Create or update a find. On create a description is made under the chosen
+     * context (or the site) so it sits in the hierarchy and can hold images.
+     * Returns the find id.
+     *
+     * @param array<string,mixed> $data
+     */
+    public function saveFind(array $data, ?int $id = null): int
+    {
+        $now = now();
+        $clean = fn ($v) => ($v === '' || $v === null) ? null : $v;
+        $siteId = (int) ($data['site_id'] ?? 0);
+        $contextId = $clean($data['context_id'] ?? null);
+        $title = trim((string) ($data['title'] ?? ''));
+
+        $fields = [
+            'accession_number'    => trim((string) ($data['accession_number'] ?? '')),
+            'site_id'             => $siteId ?: null,
+            'context_id'          => $contextId,
+            'object_type_id'      => $clean($data['object_type_id'] ?? null),
+            'material_id'         => $clean($data['material_id'] ?? null),
+            'technique_id'        => $clean($data['technique_id'] ?? null),
+            'period_id'           => $clean($data['period_id'] ?? null),
+            'recovery_method_id'  => $clean($data['recovery_method_id'] ?? null),
+            'context_reference'   => $clean($data['context_reference'] ?? null),
+            'excavation_reference' => $clean($data['excavation_reference'] ?? null),
+            'find_date'           => $clean($data['find_date'] ?? null),
+            'find_location'       => $clean($data['find_location'] ?? null),
+            'finder'              => $clean($data['finder'] ?? null),
+            'date_earliest'       => $clean($data['date_earliest'] ?? null),
+            'date_latest'         => $clean($data['date_latest'] ?? null),
+            'dating_method_id'    => $clean($data['dating_method_id'] ?? null),
+            'dating_note'         => $clean($data['dating_note'] ?? null),
+            'item_count'          => (int) ($data['item_count'] ?? 1),
+            'weight_g'            => $clean($data['weight_g'] ?? null),
+            'condition_id'        => $clean($data['condition_id'] ?? null),
+            'storage_location'    => $clean($data['storage_location'] ?? null),
+            'provenance'          => $clean($data['provenance'] ?? null),
+            'notes'               => $clean($data['notes'] ?? null),
+            'status'              => 'active',
+            'updated_at'          => $now,
+        ];
+
+        if ($id) {
+            $row = DB::table('archaeology_object')->where('id', $id)->first();
+            DB::table('archaeology_object')->where('id', $id)->update($fields);
+            if ($row && $row->information_object_id) {
+                DB::table('information_object_i18n')->where('id', $row->information_object_id)->where('culture', 'en')
+                    ->update(['title' => $title !== '' ? $title : $fields['accession_number']]);
+            }
+
+            return $id;
+        }
+
+        $parentIo = $contextId ? DB::table('archaeology_context')->where('id', $contextId)->value('information_object_id') : null;
+        $parentIo = $parentIo ?: (DB::table('archaeology_site')->where('id', $siteId)->value('information_object_id') ?: 1);
+        $repo = DB::table('information_object')->where('id', $parentIo)->value('repository_id');
+        $ioId = $this->createDescription($title !== '' ? $title : $fields['accession_number'], (int) $parentIo, $repo, 'find');
+        $fields['information_object_id'] = $ioId;
+        $fields['created_at'] = $now;
+
+        return (int) DB::table('archaeology_object')->insertGetId($fields);
     }
 
     /**
@@ -648,6 +796,128 @@ class ArchaeologyService
                 ->where('relationship_type', $recip)
                 ->delete();
         }
+    }
+
+    /**
+     * Build a Harris Matrix for a site: topologically tier the contexts from the
+     * later-than edges (above/cuts/fills), merging same_as contexts into one
+     * node. Computed server-side (no JS/CSP dependency); the view renders the
+     * tiers, and the Mermaid source is offered for export.
+     *
+     * @return array{tiers:array<int,array<int,array>>, edges:array, has_cycle:bool, mermaid:string, context_count:int, relationship_count:int}
+     */
+    public function harrisMatrix(int $siteId): array
+    {
+        $contexts = $this->contextsForSite($siteId);
+        $empty = ['tiers' => [], 'edges' => [], 'has_cycle' => false, 'mermaid' => '', 'context_count' => 0, 'relationship_count' => 0];
+        if ($contexts->isEmpty() || ! Schema::hasTable('archaeology_context_relationship')) {
+            return array_merge($empty, ['context_count' => $contexts->count()]);
+        }
+
+        $rels = DB::table('archaeology_context_relationship')
+            ->whereIn('context_id', $contexts->pluck('id'))
+            ->whereIn('related_context_id', $contexts->pluck('id'))
+            ->get(['context_id', 'related_context_id', 'relationship_type']);
+
+        // Union-find: merge same_as contexts into one node.
+        $parent = [];
+        foreach ($contexts as $c) {
+            $parent[$c->id] = $c->id;
+        }
+        $find = function ($x) use (&$parent, &$find) {
+            while ($parent[$x] !== $x) {
+                $parent[$x] = $parent[$parent[$x]];
+                $x = $parent[$x];
+            }
+
+            return $x;
+        };
+        foreach ($rels as $r) {
+            if ($r->relationship_type === 'same_as') {
+                $a = $find($r->context_id);
+                $b = $find($r->related_context_id);
+                if ($a !== $b) {
+                    $parent[$a] = $b;
+                }
+            }
+        }
+
+        $groups = [];
+        foreach ($contexts as $c) {
+            $groups[$find($c->id)][] = $c;
+        }
+
+        // Directed later-than edges between groups.
+        $edges = [];
+        foreach ($rels as $r) {
+            if (in_array($r->relationship_type, ['above', 'cuts', 'fills'], true)) {
+                $a = $find($r->context_id);
+                $b = $find($r->related_context_id);
+                if ($a !== $b) {
+                    $edges[$a.'|'.$b] = $r->relationship_type;
+                }
+            }
+        }
+
+        // Kahn longest-path layering (level 0 = latest, at the top).
+        $adj = $indeg = $level = [];
+        foreach (array_keys($groups) as $g) {
+            $adj[$g] = [];
+            $indeg[$g] = 0;
+        }
+        foreach ($edges as $k => $t) {
+            [$a, $b] = explode('|', $k);
+            $adj[$a][] = $b;
+            $indeg[$b]++;
+        }
+        $queue = [];
+        foreach (array_keys($groups) as $g) {
+            if ($indeg[$g] === 0) {
+                $queue[] = $g;
+                $level[$g] = 0;
+            }
+        }
+        $processed = 0;
+        $ind = $indeg;
+        while ($queue) {
+            $g = array_shift($queue);
+            $processed++;
+            foreach ($adj[$g] as $h) {
+                $level[$h] = max($level[$h] ?? 0, ($level[$g] ?? 0) + 1);
+                if (--$ind[$h] === 0) {
+                    $queue[] = $h;
+                }
+            }
+        }
+        $hasCycle = $processed < count($groups);
+
+        $tiers = [];
+        if (! $hasCycle) {
+            foreach ($groups as $g => $members) {
+                $tiers[$level[$g] ?? 0][] = $members;
+            }
+            ksort($tiers);
+        }
+
+        // Mermaid source (flowchart TD: later -> earlier).
+        $mm = "flowchart TD\n";
+        foreach ($groups as $g => $members) {
+            $label = collect($members)->map(fn ($m) => $m->context_number.($m->type_name ? ' · '.$m->type_name : ''))->implode(' = ');
+            $mm .= '  g'.$g.'["'.str_replace('"', "'", $label).'"]'."\n";
+        }
+        foreach ($edges as $k => $t) {
+            [$a, $b] = explode('|', $k);
+            $mm .= '  g'.$a.' -->'.($t === 'above' ? '' : '|'.$t.'|').' g'.$b."\n";
+        }
+
+        return [
+            'tiers'              => $tiers,
+            'edges'              => $edges,
+            'has_cycle'          => $hasCycle,
+            'mermaid'            => $mm,
+            'context_count'      => $contexts->count(),
+            'relationship_count' => intdiv($rels->count(), 2),
+        ];
     }
 
     /**

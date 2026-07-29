@@ -19,6 +19,7 @@ namespace AhgArchaeology\Controllers;
 use AhgArchaeology\Services\ArchaeologyService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class ArchaeologyController extends Controller
@@ -98,6 +99,7 @@ class ArchaeologyController extends Controller
         return response()->view('ahg-archaeology::contexts', [
             'site'     => $site,
             'contexts' => $this->service->contextsForSite($siteId),
+            'matrix'   => $this->service->harrisMatrix($siteId),
         ]);
     }
 
@@ -204,5 +206,141 @@ class ArchaeologyController extends Controller
         return redirect()
             ->to(url('/archaeology/context/'.$contextId))
             ->with('status', __('Context saved.'));
+    }
+
+    // ─── Site + find data-entry (the module's missing CRUD) - #1428 Phase 4 ──────
+
+    public function siteCreate(): Response
+    {
+        return response()->view('ahg-archaeology::site-form', [
+            'site'         => null,
+            'vocab'        => $this->service->vocabularies(),
+            'repositories' => $this->repositories(),
+        ]);
+    }
+
+    public function siteEdit(int $id): Response
+    {
+        $site = DB::table('archaeology_site')->where('id', $id)->first();
+        if (! $site) {
+            abort(404);
+        }
+        $site->title = $site->information_object_id
+            ? DB::table('information_object_i18n')->where('id', $site->information_object_id)->where('culture', 'en')->value('title')
+            : '';
+
+        return response()->view('ahg-archaeology::site-form', [
+            'site'         => $site,
+            'vocab'        => $this->service->vocabularies(),
+            'repositories' => $this->repositories(),
+        ]);
+    }
+
+    public function siteSave(Request $request, ?int $id = null)
+    {
+        $data = $request->validate([
+            'title'                  => 'nullable|string|max:255',
+            'site_number'            => 'required|string|max:100',
+            'national_site_number'   => 'nullable|string|max:100',
+            'site_type_id'           => 'nullable|integer',
+            'period_id'              => 'nullable|integer',
+            'protection_status_id'   => 'nullable|integer',
+            'region'                 => 'nullable|string|max:150',
+            'locality'               => 'nullable|string|max:255',
+            'location_description'   => 'nullable|string',
+            'latitude'               => 'nullable|numeric',
+            'longitude'              => 'nullable|numeric',
+            'elevation_m'            => 'nullable|integer',
+            'area_sqm'               => 'nullable|numeric',
+            'date_earliest'          => 'nullable|string|max:50',
+            'date_latest'            => 'nullable|string|max:50',
+            'dating_note'            => 'nullable|string',
+            'excavated'              => 'nullable',
+            'excavation_years'       => 'nullable|string|max:100',
+            'excavator'              => 'nullable|string|max:255',
+            'excavation_institution' => 'nullable|string|max:255',
+            'permit_number'          => 'nullable|string|max:100',
+            'research_potential'     => 'nullable|string|max:30',
+            'notes'                  => 'nullable|string',
+            'repository_id'          => 'nullable|integer',
+        ]);
+        $siteId = $this->service->saveSite($data, $id);
+
+        return redirect()->to(url('/archaeology/site/'.$siteId))->with('status', __('Site saved.'));
+    }
+
+    public function findCreate(Request $request): Response
+    {
+        $siteId = (int) $request->query('site_id');
+
+        return response()->view('ahg-archaeology::object-form', [
+            'find'     => null,
+            'siteId'   => $siteId,
+            'vocab'    => $this->service->vocabularies(),
+            'sites'    => $this->service->sitePickList(),
+            'contexts' => $siteId ? $this->service->contextPickList($siteId) : collect(),
+        ]);
+    }
+
+    public function findEdit(int $id): Response
+    {
+        $find = DB::table('archaeology_object')->where('id', $id)->first();
+        if (! $find) {
+            abort(404);
+        }
+        $find->title = $find->information_object_id
+            ? DB::table('information_object_i18n')->where('id', $find->information_object_id)->where('culture', 'en')->value('title')
+            : '';
+        $siteId = (int) ($find->site_id ?? 0);
+
+        return response()->view('ahg-archaeology::object-form', [
+            'find'     => $find,
+            'siteId'   => $siteId,
+            'vocab'    => $this->service->vocabularies(),
+            'sites'    => $this->service->sitePickList(),
+            'contexts' => $siteId ? $this->service->contextPickList($siteId) : collect(),
+        ]);
+    }
+
+    public function findSave(Request $request, ?int $id = null)
+    {
+        $data = $request->validate([
+            'title'                => 'nullable|string|max:255',
+            'accession_number'     => 'required|string|max:100',
+            'site_id'              => 'nullable|integer',
+            'context_id'           => 'nullable|integer',
+            'object_type_id'       => 'nullable|integer',
+            'material_id'          => 'nullable|integer',
+            'technique_id'         => 'nullable|integer',
+            'period_id'            => 'nullable|integer',
+            'recovery_method_id'   => 'nullable|integer',
+            'dating_method_id'     => 'nullable|integer',
+            'condition_id'         => 'nullable|integer',
+            'context_reference'    => 'nullable|string|max:100',
+            'excavation_reference' => 'nullable|string|max:100',
+            'find_date'            => 'nullable|date',
+            'find_location'        => 'nullable|string|max:255',
+            'finder'               => 'nullable|string|max:255',
+            'date_earliest'        => 'nullable|string|max:50',
+            'date_latest'          => 'nullable|string|max:50',
+            'dating_note'          => 'nullable|string',
+            'item_count'           => 'nullable|integer',
+            'weight_g'             => 'nullable|numeric',
+            'storage_location'     => 'nullable|string|max:255',
+            'provenance'           => 'nullable|string',
+            'notes'                => 'nullable|string',
+        ]);
+        $findId = $this->service->saveFind($data, $id);
+
+        return redirect()->to(url('/archaeology/object/'.$findId))->with('status', __('Find saved.'));
+    }
+
+    /** Repositories for the site-form dropdown. */
+    private function repositories()
+    {
+        return DB::table('repository')
+            ->leftJoin('actor_i18n', fn ($j) => $j->on('actor_i18n.id', '=', 'repository.id')->where('actor_i18n.culture', '=', 'en'))
+            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->get(['repository.id', 'actor_i18n.authorized_form_of_name as name']);
     }
 }

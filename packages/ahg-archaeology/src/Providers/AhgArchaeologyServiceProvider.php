@@ -43,6 +43,26 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
                 $router->get('/object/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'object'])
                     ->whereNumber('id')->name('archaeology.object');
 
+                // Site + find data-entry (the module's missing CRUD) - #1428 Phase 4.
+                // {id} is whereNumber, so 'create' is never captured as an id.
+                $router->get('/site/create', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'siteCreate'])
+                    ->name('archaeology.site.create');
+                $router->post('/site', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'siteSave'])
+                    ->name('archaeology.site.store');
+                $router->get('/site/{id}/edit', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'siteEdit'])
+                    ->whereNumber('id')->name('archaeology.site.edit');
+                $router->post('/site/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'siteSave'])
+                    ->whereNumber('id')->name('archaeology.site.update');
+
+                $router->get('/object/create', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'findCreate'])
+                    ->name('archaeology.object.create');
+                $router->post('/object', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'findSave'])
+                    ->name('archaeology.object.store');
+                $router->get('/object/{id}/edit', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'findEdit'])
+                    ->whereNumber('id')->name('archaeology.object.edit');
+                $router->post('/object/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'findSave'])
+                    ->whereNumber('id')->name('archaeology.object.update');
+
                 // Stratigraphic contexts (layers) - #1428 Phase 1. 'create' is
                 // declared before '{id}' so it is not captured as an id.
                 $router->get('/site/{siteId}/contexts', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contexts'])

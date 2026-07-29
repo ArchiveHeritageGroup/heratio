@@ -6,7 +6,10 @@
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4 mb-0"><i class="fas fa-box-archive"></i> {{ __('Archaeological finds') }}</h1>
-    <a href="{{ route('archaeology.index') }}" class="btn btn-outline-secondary btn-sm">&larr; {{ __('Back') }}</a>
+    <div class="d-flex gap-2">
+      <a href="{{ route('archaeology.object.create') }}" class="btn btn-primary btn-sm">+ {{ __('Add find') }}</a>
+      <a href="{{ route('archaeology.index') }}" class="btn btn-outline-secondary btn-sm">&larr; {{ __('Back') }}</a>
+    </div>
   </div>
 
   <form method="get" class="card card-body mb-3">
