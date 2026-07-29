@@ -42,6 +42,21 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
                     ->name('archaeology.objects');
                 $router->get('/object/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'object'])
                     ->whereNumber('id')->name('archaeology.object');
+
+                // Stratigraphic contexts (layers) - #1428 Phase 1. 'create' is
+                // declared before '{id}' so it is not captured as an id.
+                $router->get('/site/{siteId}/contexts', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contexts'])
+                    ->whereNumber('siteId')->name('archaeology.contexts');
+                $router->get('/context/create', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextCreate'])
+                    ->name('archaeology.context.create');
+                $router->post('/context', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextSave'])
+                    ->name('archaeology.context.store');
+                $router->get('/context/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'context'])
+                    ->whereNumber('id')->name('archaeology.context');
+                $router->get('/context/{id}/edit', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextEdit'])
+                    ->whereNumber('id')->name('archaeology.context.edit');
+                $router->post('/context/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextSave'])
+                    ->whereNumber('id')->name('archaeology.context.update');
             });
         });
     }

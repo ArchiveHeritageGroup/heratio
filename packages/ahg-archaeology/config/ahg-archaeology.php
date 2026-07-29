@@ -12,5 +12,7 @@ return [
         'object_type'       => 'Archaeological Object Type',
         'condition'         => 'Archaeological Condition',
         'protection_status' => 'Site Protection Status',
+        'context_type'      => 'Archaeological Context Type',
+        'context_phase'     => 'Archaeological Phase',
     ],
 ];

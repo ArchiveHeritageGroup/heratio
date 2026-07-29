@@ -126,6 +126,20 @@ class ArchaeologySeedVocabulariesCommand extends Command
             'Formally recorded', 'Proposed for protection', 'Unprotected',
             'Destroyed', 'Unassessed',
         ],
+
+        // Stratigraphic context (layer) recording - the single-context types.
+        'Archaeological Context Type' => [
+            'Deposit', 'Cut', 'Fill', 'Layer', 'Surface', 'Interface',
+            'Masonry', 'Timber', 'Skeleton', 'Structure', 'Feature',
+            'Natural', 'Undetermined',
+        ],
+
+        // Site phasing - a coarse grouping of contexts into periods of activity.
+        'Archaeological Phase' => [
+            'Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5',
+            'Modern', 'Post-medieval', 'Colonial', 'Pre-colonial',
+            'Natural', 'Unphased',
+        ],
     ];
 
     /**

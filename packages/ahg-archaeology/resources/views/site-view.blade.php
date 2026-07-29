@@ -12,7 +12,10 @@
         @if($site->national_site_number) &middot; {{ $site->national_site_number }} @endif
       </div>
     </div>
-    <a href="{{ route('archaeology.sites') }}" class="btn btn-outline-secondary btn-sm">&larr; {{ __('All sites') }}</a>
+    <div class="d-flex gap-2">
+      <a href="{{ route('archaeology.contexts', $site->id) }}" class="btn btn-outline-primary btn-sm">{{ __('Stratigraphy') }}</a>
+      <a href="{{ route('archaeology.sites') }}" class="btn btn-outline-secondary btn-sm">&larr; {{ __('All sites') }}</a>
+    </div>
   </div>
 
   <div class="row g-3">

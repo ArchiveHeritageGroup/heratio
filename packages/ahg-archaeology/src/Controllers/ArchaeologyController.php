@@ -84,4 +84,93 @@ class ArchaeologyController extends Controller
             'object' => $object,
         ]);
     }
+
+    // ─── Stratigraphic contexts (layers) - #1428 Phase 1 ────────────────────────
+
+    /** Contexts recorded for a site (the "Stratigraphy" list). */
+    public function contexts(int $siteId): Response
+    {
+        $site = $this->service->site($siteId);
+        if (! $site) {
+            abort(404);
+        }
+
+        return response()->view('ahg-archaeology::contexts', [
+            'site'     => $site,
+            'contexts' => $this->service->contextsForSite($siteId),
+        ]);
+    }
+
+    /** A single context sheet: its fields, drawings link and finds. */
+    public function context(int $id): Response
+    {
+        $context = $this->service->context($id);
+        if (! $context) {
+            abort(404);
+        }
+
+        return response()->view('ahg-archaeology::context-view', [
+            'context' => $context,
+        ]);
+    }
+
+    /** Create-context form (needs ?site_id=). */
+    public function contextCreate(Request $request): Response
+    {
+        $siteId = (int) $request->query('site_id');
+        $site = $this->service->site($siteId);
+        if (! $site) {
+            abort(404);
+        }
+
+        return response()->view('ahg-archaeology::context-form', [
+            'site'    => $site,
+            'context' => null,
+            'types'   => $this->service->vocabulary('context_type'),
+            'phases'  => $this->service->vocabulary('context_phase'),
+        ]);
+    }
+
+    /** Edit-context form. */
+    public function contextEdit(int $id): Response
+    {
+        $context = $this->service->context($id);
+        if (! $context) {
+            abort(404);
+        }
+
+        return response()->view('ahg-archaeology::context-form', [
+            'site'    => $context->site,
+            'context' => $context,
+            'types'   => $this->service->vocabulary('context_type'),
+            'phases'  => $this->service->vocabulary('context_phase'),
+        ]);
+    }
+
+    /** Persist a new or edited context. */
+    public function contextSave(Request $request, ?int $id = null)
+    {
+        $data = $request->validate([
+            'site_id'              => 'required|integer',
+            'context_number'       => 'required|string|max:50',
+            'context_type_id'      => 'nullable|integer',
+            'phase_id'             => 'nullable|integer',
+            'description'          => 'nullable|string',
+            'interpretation'       => 'nullable|string',
+            'top_elevation_m'      => 'nullable|numeric',
+            'bottom_elevation_m'   => 'nullable|numeric',
+            'excavation_reference' => 'nullable|string|max:100',
+            'excavator'            => 'nullable|string|max:255',
+            'excavation_date'      => 'nullable|date',
+            'date_earliest'        => 'nullable|string|max:50',
+            'date_latest'          => 'nullable|string|max:50',
+            'dating_note'          => 'nullable|string',
+        ]);
+
+        $contextId = $this->service->saveContext($data, $id);
+
+        return redirect()
+            ->to(url('/archaeology/context/'.$contextId))
+            ->with('status', __('Context saved.'));
+    }
 }

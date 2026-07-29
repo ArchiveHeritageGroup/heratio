@@ -325,4 +325,210 @@ class ArchaeologyService
                 DB::raw('COUNT(*) as total'),
             ]);
     }
+
+    // ─── Stratigraphic contexts (layers) - #1428 Phase 1 ────────────────────────
+
+    /**
+     * Every context recorded for a site, ordered by elevation then number, with
+     * its type label and find count. Empty until the table exists.
+     *
+     * @return Collection<int, object>
+     */
+    public function contextsForSite(int $siteId): Collection
+    {
+        if (! Schema::hasTable('archaeology_context')) {
+            return collect();
+        }
+        $culture = app()->getLocale();
+
+        return DB::table('archaeology_context as c')
+            ->leftJoin('term_i18n as ty', function ($j) use ($culture) {
+                $j->on('ty.id', '=', 'c.context_type_id')->where('ty.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as ph', function ($j) use ($culture) {
+                $j->on('ph.id', '=', 'c.phase_id')->where('ph.culture', '=', $culture);
+            })
+            ->where('c.site_id', $siteId)
+            ->where('c.status', 'active')
+            ->orderByRaw('c.top_elevation_m IS NULL, c.top_elevation_m DESC')
+            ->orderBy('c.context_number')
+            ->get([
+                'c.id', 'c.context_number', 'c.top_elevation_m', 'c.bottom_elevation_m',
+                'c.description', 'c.information_object_id',
+                'ty.name as type_name', 'ph.name as phase_name',
+                DB::raw('(select count(*) from archaeology_object o where o.context_id = c.id and o.status = "active") as find_count'),
+            ]);
+    }
+
+    /**
+     * One context with its labels, its site, its linked description slug (for
+     * drawings) and its finds.
+     */
+    public function context(int $id): ?object
+    {
+        if (! Schema::hasTable('archaeology_context')) {
+            return null;
+        }
+        $culture = app()->getLocale();
+
+        $c = DB::table('archaeology_context as c')
+            ->leftJoin('term_i18n as ty', function ($j) use ($culture) {
+                $j->on('ty.id', '=', 'c.context_type_id')->where('ty.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as ph', function ($j) use ($culture) {
+                $j->on('ph.id', '=', 'c.phase_id')->where('ph.culture', '=', $culture);
+            })
+            ->where('c.id', $id)
+            ->select('c.*', 'ty.name as type_name', 'ph.name as phase_name')
+            ->first();
+        if (! $c) {
+            return null;
+        }
+
+        $c->site = DB::table('archaeology_site as s')
+            ->leftJoin('information_object_i18n as i', function ($j) use ($culture) {
+                $j->on('i.id', '=', 's.information_object_id')->where('i.culture', '=', $culture);
+            })
+            ->where('s.id', $c->site_id)
+            ->select('s.id', 's.site_number', 'i.title')
+            ->first();
+
+        $c->description_slug = $c->information_object_id
+            ? DB::table('slug')->where('object_id', $c->information_object_id)->value('slug')
+            : null;
+
+        $c->finds = ! Schema::hasTable('archaeology_object') ? collect() : DB::table('archaeology_object as o')
+            ->leftJoin('information_object_i18n as i', function ($j) use ($culture) {
+                $j->on('i.id', '=', 'o.information_object_id')->where('i.culture', '=', $culture);
+            })
+            ->where('o.context_id', $id)
+            ->where('o.status', 'active')
+            ->orderBy('o.accession_number')
+            ->get(['o.id', 'o.accession_number', 'i.title']);
+
+        return $c;
+    }
+
+    /**
+     * Create or update a context. On create (and when a context has no linked
+     * description yet) a child description is made under the site so plan and
+     * section drawings can be uploaded to it. Returns the context id.
+     *
+     * @param array<string,mixed> $data
+     */
+    public function saveContext(array $data, ?int $id = null): int
+    {
+        $siteId = (int) ($data['site_id'] ?? 0);
+        $number = trim((string) ($data['context_number'] ?? ''));
+        $now = now();
+
+        $clean = fn ($v) => ($v === '' || $v === null) ? null : $v;
+        $fields = [
+            'site_id'              => $siteId,
+            'context_number'       => $number,
+            'context_type_id'      => $clean($data['context_type_id'] ?? null),
+            'phase_id'             => $clean($data['phase_id'] ?? null),
+            'description'          => $clean($data['description'] ?? null),
+            'interpretation'       => $clean($data['interpretation'] ?? null),
+            'top_elevation_m'      => $clean($data['top_elevation_m'] ?? null),
+            'bottom_elevation_m'   => $clean($data['bottom_elevation_m'] ?? null),
+            'excavation_reference' => $clean($data['excavation_reference'] ?? null),
+            'excavator'            => $clean($data['excavator'] ?? null),
+            'excavation_date'      => $clean($data['excavation_date'] ?? null),
+            'date_earliest'        => $clean($data['date_earliest'] ?? null),
+            'date_latest'          => $clean($data['date_latest'] ?? null),
+            'dating_note'          => $clean($data['dating_note'] ?? null),
+            'status'               => 'active',
+            'updated_at'           => $now,
+        ];
+
+        if ($id) {
+            DB::table('archaeology_context')->where('id', $id)->update($fields);
+        } else {
+            $fields['created_at'] = $now;
+            $id = (int) DB::table('archaeology_context')->insertGetId($fields);
+        }
+
+        $this->ensureContextDescription($id, $siteId, $number, $data['context_type_id'] ?? null);
+
+        return $id;
+    }
+
+    /**
+     * Give a context a descriptive record (child of the site's description) so
+     * its plan/section drawings have a home. No-op if it already has one, or if
+     * the site itself has no description. New node's tree position is filled by
+     * the next nested-set/closure rebuild; the context sheet and the digital
+     * object uploader do not depend on it.
+     */
+    private function ensureContextDescription(int $contextId, int $siteId, string $number, $typeTermId): void
+    {
+        $ctx = DB::table('archaeology_context')->where('id', $contextId)->first();
+        if (! $ctx || $ctx->information_object_id) {
+            return;
+        }
+        $siteIoId = (int) (DB::table('archaeology_site')->where('id', $siteId)->value('information_object_id') ?? 0);
+        if ($siteIoId <= 0) {
+            return;
+        }
+
+        $culture = 'en';
+        $typeName = $typeTermId
+            ? (string) DB::table('term_i18n')->where('id', $typeTermId)->where('culture', $culture)->value('name')
+            : '';
+        $title = trim('Context '.$number.($typeName !== '' ? ' - '.$typeName : ''));
+        $now = now();
+
+        $siteIo = DB::table('information_object')->where('id', $siteIoId)->first();
+        $objectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitInformationObject', 'created_at' => $now, 'updated_at' => $now, 'serial_number' => 0,
+        ]);
+        DB::table('information_object')->insert([
+            'id' => $objectId, 'parent_id' => $siteIoId,
+            'repository_id' => $siteIo->repository_id ?? null,
+            'lft' => 0, 'rgt' => 0, 'source_culture' => $culture,
+        ]);
+        DB::table('information_object_i18n')->insert([
+            'id' => $objectId, 'culture' => $culture, 'title' => $title,
+        ]);
+        $slug = \Illuminate\Support\Str::slug($title) ?: ('context-'.$objectId);
+        if (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug .= '-'.$objectId;
+        }
+        DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
+        DB::table('status')->updateOrInsert(['object_id' => $objectId, 'type_id' => 158], ['status_id' => 160]);
+
+        DB::table('archaeology_context')->where('id', $contextId)->update(['information_object_id' => $objectId]);
+    }
+
+    /**
+     * Backfill archaeology_object.context_id from the legacy free-text
+     * context_reference, matching context_number within the same site. Returns
+     * the number of finds linked. Idempotent.
+     */
+    public function backfillContextIds(): int
+    {
+        if (! Schema::hasTable('archaeology_context') || ! Schema::hasColumn('archaeology_object', 'context_id')) {
+            return 0;
+        }
+        $linked = 0;
+        $finds = DB::table('archaeology_object')
+            ->whereNull('context_id')
+            ->whereNotNull('context_reference')
+            ->where('context_reference', '!=', '')
+            ->whereNotNull('site_id')
+            ->get(['id', 'site_id', 'context_reference']);
+        foreach ($finds as $f) {
+            $ctxId = DB::table('archaeology_context')
+                ->where('site_id', $f->site_id)
+                ->where('context_number', trim((string) $f->context_reference))
+                ->value('id');
+            if ($ctxId) {
+                DB::table('archaeology_object')->where('id', $f->id)->update(['context_id' => $ctxId]);
+                $linked++;
+            }
+        }
+
+        return $linked;
+    }
 }
