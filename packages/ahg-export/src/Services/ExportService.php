@@ -157,47 +157,184 @@ class ExportService
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
-    /** Information-object CSV (AtoM-import-shaped), filtered by the form fields. */
+    /**
+     * Information-object CSV, filtered by the form fields. Standard-aware: the
+     * column set follows the records' description standard (taxonomy 70). A
+     * Dublin Core institution gets DC elements, not the generic ISAD columns.
+     * The standard is taken from an explicit `standard` filter when supplied,
+     * otherwise auto-detected as the dominant standard among the filtered set;
+     * anything other than a known code falls back to the ISAD shape (#1434).
+     */
     public function streamInformationObjectCsv(array $filters)
     {
-        $repositoryId = ! empty($filters['repository_id']) ? (int) $filters['repository_id'] : null;
-        $levelIds     = array_filter(array_map('intval', (array) ($filters['level_ids'] ?? [])));
-        $parentSlug   = trim((string) ($filters['parent_slug'] ?? ''));
-        $includeDesc  = ! empty($filters['include_descendants']);
-        $limit        = (int) ($filters['limit'] ?? 0);
+        if ($this->resolveExportStandard($filters) === 'dc') {
+            return $this->streamInformationObjectCsvDc($filters);
+        }
+
+        $limit = (int) ($filters['limit'] ?? 0);
 
         return $this->csvDownload(
             'information-objects-' . date('Ymd-His') . '.csv',
             ['legacyId', 'identifier', 'title', 'levelOfDescription', 'repository', 'scopeAndContent', 'culture'],
-            function ($out) use ($repositoryId, $levelIds, $parentSlug, $includeDesc, $limit) {
+            function ($out) use ($filters, $limit) {
                 $q = DB::table('information_object as io')
                     ->leftJoin('information_object_i18n as i18n', fn ($j) => $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en'))
                     ->leftJoin('term_i18n as lvl', fn ($j) => $j->on('io.level_of_description_id', '=', 'lvl.id')->where('lvl.culture', '=', 'en'))
                     ->leftJoin('actor_i18n as repo', fn ($j) => $j->on('io.repository_id', '=', 'repo.id')->where('repo.culture', '=', 'en'))
                     ->where('io.id', '>', 1)
                     ->select('io.id', 'io.identifier', 'i18n.title', 'lvl.name as level', 'repo.authorized_form_of_name as repository', 'i18n.scope_and_content');
-                if ($repositoryId) {
-                    $q->where('io.repository_id', $repositoryId);
-                }
-                if ($levelIds) {
-                    $q->whereIn('io.level_of_description_id', $levelIds);
-                }
-                if ($parentSlug !== '') {
-                    $pid = (int) DB::table('slug')->where('slug', $parentSlug)->value('object_id');
-                    if ($pid) {
-                        $p = DB::table('information_object')->where('id', $pid)->first();
-                        if ($p && $includeDesc) {
-                            $q->whereBetween('io.lft', [$p->lft, $p->rgt]);
-                        } else {
-                            $q->where('io.parent_id', $pid);
-                        }
-                    }
-                }
+                $this->applyIoCsvFilters($q, $filters);
                 if ($limit > 0) {
                     $q->limit($limit);
                 }
                 foreach ($q->orderBy('io.lft')->cursor() as $r) {
                     fputcsv($out, [$r->id, $r->identifier, $r->title, $r->level, $r->repository, $r->scope_and_content, 'en']);
+                }
+            }
+        );
+    }
+
+    /**
+     * Apply the shared IO-CSV filters (repository, level, parent + descendants)
+     * to a query aliased `io`. Used by every per-standard CSV variant and by
+     * standard auto-detection, so the filter semantics stay identical.
+     */
+    private function applyIoCsvFilters($q, array $filters): void
+    {
+        $repositoryId = ! empty($filters['repository_id']) ? (int) $filters['repository_id'] : null;
+        $levelIds     = array_filter(array_map('intval', (array) ($filters['level_ids'] ?? [])));
+        $parentSlug   = trim((string) ($filters['parent_slug'] ?? ''));
+        $includeDesc  = ! empty($filters['include_descendants']);
+
+        if ($repositoryId) {
+            $q->where('io.repository_id', $repositoryId);
+        }
+        if ($levelIds) {
+            $q->whereIn('io.level_of_description_id', $levelIds);
+        }
+        if ($parentSlug !== '') {
+            $pid = (int) DB::table('slug')->where('slug', $parentSlug)->value('object_id');
+            if ($pid) {
+                $p = DB::table('information_object')->where('id', $pid)->first();
+                if ($p && $includeDesc) {
+                    $q->whereBetween('io.lft', [$p->lft, $p->rgt]);
+                } else {
+                    $q->where('io.parent_id', $pid);
+                }
+            }
+        }
+    }
+
+    /**
+     * Resolve which description standard the CSV should follow: an explicit
+     * `standard` code when given, else the dominant standard (taxonomy 70 code)
+     * among the filtered records, else 'isad'.
+     */
+    private function resolveExportStandard(array $filters): string
+    {
+        $known = ['isad', 'dc', 'dacs', 'rad', 'mods', 'ric'];
+        $explicit = strtolower(trim((string) ($filters['standard'] ?? '')));
+        if (in_array($explicit, $known, true)) {
+            return $explicit;
+        }
+
+        $q = DB::table('information_object as io')
+            ->join('term as std', 'io.display_standard_id', '=', 'std.id')
+            ->where('io.id', '>', 1)
+            ->whereNotNull('io.display_standard_id');
+        $this->applyIoCsvFilters($q, $filters);
+        $code = (string) $q->groupBy('std.code')
+            ->orderByRaw('count(*) desc')
+            ->value('std.code');
+
+        return in_array($code, $known, true) ? $code : 'isad';
+    }
+
+    /**
+     * Dublin Core CSV. Emits the DC elements (sourced from the same fields the
+     * DC editor uses: creators via event type 111, subjects tax 35, coverage
+     * via place tax 42, type tax 62, plus core identifier/title/description and
+     * the parent as dc:relation). Processed in id-chunks with batch lookups so
+     * there is no per-row N+1. #1434.
+     */
+    public function streamInformationObjectCsvDc(array $filters)
+    {
+        $limit = (int) ($filters['limit'] ?? 0);
+
+        return $this->csvDownload(
+            'information-objects-dc-' . date('Ymd-His') . '.csv',
+            ['legacyId', 'identifier', 'title', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'type', 'coverage', 'relation', 'culture'],
+            function ($out) use ($filters, $limit) {
+                $idq = DB::table('information_object as io')->where('io.id', '>', 1)->select('io.id');
+                $this->applyIoCsvFilters($idq, $filters);
+                $idq->orderBy('io.lft');
+                if ($limit > 0) {
+                    $idq->limit($limit);
+                }
+                $ids = $idq->pluck('io.id')->all();
+
+                foreach (array_chunk($ids, 500) as $chunk) {
+                    $core = DB::table('information_object as io')
+                        ->leftJoin('information_object_i18n as i18n', fn ($j) => $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en'))
+                        ->leftJoin('actor_i18n as repo', fn ($j) => $j->on('io.repository_id', '=', 'repo.id')->where('repo.culture', '=', 'en'))
+                        ->whereIn('io.id', $chunk)
+                        ->select('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'repo.authorized_form_of_name as repository')
+                        ->get()->keyBy('id');
+
+                    // Events -> creators (type 111), contributors (other actor events), date.
+                    $events = DB::table('event')
+                        ->leftJoin('event_i18n as ei', fn ($j) => $j->on('event.id', '=', 'ei.id')->where('ei.culture', '=', 'en'))
+                        ->leftJoin('actor_i18n as ai', fn ($j) => $j->on('event.actor_id', '=', 'ai.id')->where('ai.culture', '=', 'en'))
+                        ->whereIn('event.object_id', $chunk)
+                        ->select('event.object_id', 'event.type_id', 'event.start_date', 'ei.date as date_display', 'ai.authorized_form_of_name as actor_name')
+                        ->get()->groupBy('object_id');
+
+                    // Access-point terms -> subject (35), coverage/place (42), type (62).
+                    $terms = DB::table('object_term_relation as otr')
+                        ->join('term', 'otr.term_id', '=', 'term.id')
+                        ->leftJoin('term_i18n as ti', fn ($j) => $j->on('otr.term_id', '=', 'ti.id')->where('ti.culture', '=', 'en'))
+                        ->whereIn('otr.object_id', $chunk)
+                        ->whereIn('term.taxonomy_id', [35, 42, 62])
+                        ->select('otr.object_id', 'term.taxonomy_id', 'ti.name')
+                        ->get()->groupBy('object_id');
+
+                    // Parent titles for dc:relation (isPartOf).
+                    $parentIds = array_filter(array_unique(array_map(fn ($r) => (int) $r->parent_id, $core->all())), fn ($p) => $p > 1);
+                    $parents = $parentIds
+                        ? DB::table('information_object_i18n')->whereIn('id', $parentIds)->where('culture', 'en')->pluck('title', 'id')->all()
+                        : [];
+
+                    foreach ($chunk as $id) {
+                        $r = $core[$id] ?? null;
+                        if (! $r) {
+                            continue;
+                        }
+                        $evs = $events[$id] ?? collect();
+                        $trm = $terms[$id] ?? collect();
+                        $pick = function ($col, $where) use ($trm) {
+                            return $trm->filter($where)->pluck($col)->filter()->unique()->implode(' | ');
+                        };
+                        $creators = $evs->where('type_id', 111)->pluck('actor_name')->filter()->unique()->implode(' | ');
+                        $contribs = $evs->where('type_id', '!=', 111)->pluck('actor_name')->filter()->unique()->implode(' | ');
+                        $date = $evs->pluck('date_display')->filter()->first()
+                            ?: $evs->pluck('start_date')->filter()->first() ?: '';
+
+                        fputcsv($out, [
+                            $r->id,
+                            $r->identifier,
+                            $r->title,
+                            $creators,
+                            $pick('name', fn ($t) => (int) $t->taxonomy_id === 35),  // subject
+                            $r->scope_and_content,
+                            $r->repository,                                            // publisher
+                            $contribs,
+                            $date,
+                            $pick('name', fn ($t) => (int) $t->taxonomy_id === 62),  // type
+                            $pick('name', fn ($t) => (int) $t->taxonomy_id === 42),  // coverage (place)
+                            $parents[(int) $r->parent_id] ?? '',                      // relation (isPartOf)
+                            'en',
+                        ]);
+                    }
                 }
             }
         );
