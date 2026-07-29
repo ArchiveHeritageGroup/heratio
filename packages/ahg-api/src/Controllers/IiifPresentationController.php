@@ -286,8 +286,21 @@ class IiifPresentationController extends Controller
 
             $serviceId = $this->iiifBase().'/iiif/3/'.$iiifId;
 
-            $width = (int) ($do->width ?? 0) ?: self::DEFAULT_WIDTH;
-            $height = (int) ($do->height ?? 0) ?: self::DEFAULT_HEIGHT;
+            // Dimensions: prefer stored width/height; fall back to probing the
+            // master file (uploads are not guaranteed to carry width/height, so
+            // without this the manifest emits DEFAULT_WIDTH/HEIGHT and Mirador
+            // mis-sizes the canvas). Adapted from the artorius production fix to
+            // Heratio's uploads/r/<id>/ layout, with a path-traversal guard.
+            $width = (int) ($do->width ?? 0);
+            $height = (int) ($do->height ?? 0);
+            if ($width <= 0 || $height <= 0) {
+                $probed = $this->localImageDimensions($do);
+                if ($probed !== null) {
+                    [$width, $height] = $probed;
+                }
+            }
+            $width = $width ?: self::DEFAULT_WIDTH;
+            $height = $height ?: self::DEFAULT_HEIGHT;
 
             $canvasId = $manifestUrl.'/canvas/'.$index;
             $pageId = $canvasId.'/page/1';
@@ -480,6 +493,49 @@ class IiifPresentationController extends Controller
         }
 
         return $images;
+    }
+
+    /**
+     * Native [width, height] of a digital object's master, read from the file on
+     * disk when the stored dimensions are absent. Resolves the physical path in
+     * Heratio's uploads/r/<id>/ layout (with legacy fallbacks) and guards against
+     * path traversal - the resolved file must live under the uploads root.
+     * Returns null when it cannot be probed.
+     *
+     * @return array{0:int,1:int}|null
+     */
+    protected function localImageDimensions(object $do): ?array
+    {
+        $uploads = rtrim((string) config('heratio.uploads_path', ''), '/');
+        $name = (string) ($do->name ?? '');
+        if ($uploads === '' || $name === '') {
+            return null;
+        }
+
+        $candidates = [];
+        if (! empty($do->object_id)) {
+            $candidates[] = $uploads.'/r/'.((int) $do->object_id).'/'.$name;
+        }
+        $rel = ltrim((string) ($do->path ?? ''), '/');
+        foreach (['uploads/', ''] as $prefix) {
+            if ($prefix === '' || str_starts_with($rel, $prefix)) {
+                $candidates[] = $uploads.'/'.substr($rel, strlen($prefix)).$name;
+            }
+        }
+
+        $rootReal = realpath($uploads);
+        foreach (array_unique($candidates) as $candidate) {
+            $real = realpath($candidate);
+            if (! $real || ! $rootReal || ! str_starts_with($real, $rootReal) || ! is_file($real)) {
+                continue;
+            }
+            $info = @getimagesize($real);
+            if (is_array($info) && (int) ($info[0] ?? 0) > 0 && (int) ($info[1] ?? 0) > 0) {
+                return [(int) $info[0], (int) $info[1]];
+            }
+        }
+
+        return null;
     }
 
     /**
