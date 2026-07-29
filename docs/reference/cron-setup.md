@@ -18,6 +18,7 @@ Output goes to `/var/log/heratio-schedule.log` (chowned to `www-data`).
 |---|---|---|---|
 | `/etc/cron.d/ahg-discovery-prune` | `www-data` | minute 17 of every hour | `ahg:discovery-prune` against heratio + atom + archive DBs |
 | `/etc/cron.d/ahg-facet-cache` | `www-data` | minute 0 of every hour | `ahg:refresh-facet-cache` against archive + atom + dam + heratio DBs |
+| `/etc/cron.d/heratio-am-dev` | `www-data` | every 5 / 15 min | `am:poll` (advance in-flight Heratio -> Archivematica transfers) + `am:ingest-dips` (pull finished DIPs back). Archivematica round-trip. Installed as a **dedicated** file because dev's general scheduler is disabled and only dev is wired to an AM server. On an instance that runs `schedule:run`, register these as managed tasks instead. Full reference: `docs/help/archivematica-setup-and-crons.md`. |
 | `/etc/cron.d/atom-backup` | `root` | daily 3am | shell script (mysqldump + filesystem rsync; no PHP) |
 | `/etc/cron.d/atom-bot-watch` | `root` | weekly Mon 8am | shell script (no PHP) |
 | `/etc/cron.d/mog-nas-backup` | `root` | per file | shell script (no PHP) |

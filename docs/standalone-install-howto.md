@@ -415,7 +415,28 @@ OpenRiC has its own database (`openric`), its own web service, and its own insta
 
 ---
 
-## 11. Updating
+## 11. Optional - Archivematica preservation
+
+Required only if you run an [Archivematica](https://www.archivematica.org/) pipeline and want the full round-trip: send a record's files to Archivematica for preservation processing (format identification, virus scan, fixity, AIP storage), then pull back an access copy (DIP) linked to the record.
+
+1. **Configure the connection** under **Admin - Archivematica** (`/admin/archivematica`): Storage Service URL, Dashboard URL, username + both API keys, the default pipeline UUID, the transfer **source path** and the transfer **staging path**. The staging path must be a directory Heratio can write to *and* that Archivematica reads as its transfer source (a shared mount).
+
+2. **Add the two crons** (the round-trip needs them on a timer). On an instance whose scheduler is disabled, install a dedicated file - example for `heratio-dev`:
+
+   ```cron
+   */5  * * * * www-data flock -n /var/run/heratio-am-poll.lock   -c '/usr/bin/php8.3 /usr/share/nginx/heratio-dev/artisan am:poll         >> /var/log/heratio-am.log 2>&1'
+   */15 * * * * www-data flock -n /var/run/heratio-am-ingest.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio-dev/artisan am:ingest-dips >> /var/log/heratio-am.log 2>&1'
+   ```
+
+   On an instance that uses the database scheduler (Section 4), add `am:poll` (every 5 min) and `am:ingest-dips` (every 15 min) under **Admin - System - Scheduled tasks** instead.
+
+3. **Verify**: `sudo -u www-data php artisan am:ping` (reachability), then send a record and watch `am:poll` / `am:ingest-dips` complete it.
+
+Full settings, cron, verification and troubleshooting reference: [`docs/help/archivematica-setup-and-crons.md`](help/archivematica-setup-and-crons.md). Cron placement details: [`docs/reference/cron-setup.md`](reference/cron-setup.md).
+
+---
+
+## 12. Updating
 
 ```bash
 cd /usr/share/nginx/heratio
@@ -436,7 +457,7 @@ sudo bin/install                    # idempotent - re-runs migrations + reload
 
 ---
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 
 ### Install aborts at preflight
 
@@ -494,7 +515,7 @@ sudo bin/install --domain=mysite.example --admin-email=...
 
 ---
 
-## 13. What's next
+## 14. What's next
 
 - Browse `/admin/dropdowns` to customise enumerated values per institution.
 - `/admin/repository/add` to create your first repository.

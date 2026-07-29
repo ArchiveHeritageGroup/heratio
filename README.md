@@ -33,6 +33,7 @@ A live demonstration instance is available at **[https://heratio.theahg.co.za](h
 - Plugin architecture with modular packages for every functional domain
 - Role-based access controls and institutional deployment support
 - Import/export flows and digital object management
+- Archivematica connector for digital preservation - two-way transfer/DIP round-trip ([setup + crons](docs/help/archivematica-setup-and-crons.md), [install](docs/standalone-install-howto.md))
 
 ### AI-Assisted Metadata Enrichment
 - NLP-based Named Entity Recognition (NER) pipeline extracts persons, organisations, dates, locations, and subjects
