@@ -57,6 +57,12 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
                     ->whereNumber('id')->name('archaeology.context.edit');
                 $router->post('/context/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextSave'])
                     ->whereNumber('id')->name('archaeology.context.update');
+
+                // Stratigraphic relationships (Harris Matrix) - #1428 Phase 2.
+                $router->post('/context/{id}/relationship', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'relationshipStore'])
+                    ->whereNumber('id')->name('archaeology.context.relationship.store');
+                $router->post('/context/{id}/relationship/{relId}/delete', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'relationshipDelete'])
+                    ->whereNumber('id')->whereNumber('relId')->name('archaeology.context.relationship.delete');
             });
         });
     }

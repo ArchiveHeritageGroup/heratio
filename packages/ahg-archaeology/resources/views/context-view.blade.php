@@ -24,6 +24,9 @@
   @if(session('status'))
     <div class="alert alert-success py-2">{{ session('status') }}</div>
   @endif
+  @if(session('error'))
+    <div class="alert alert-danger py-2">{{ session('error') }}</div>
+  @endif
 
   <div class="row g-3">
     <div class="col-lg-7">
@@ -50,6 +53,64 @@
           @endif
           @if($context->interpretation)
             <h6>{{ __('Interpretation') }}</h6><p class="small mb-0">{{ $context->interpretation }}</p>
+          @endif
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">{{ __('Stratigraphic relationships') }}</div>
+        <div class="card-body">
+          @if($relationships->isEmpty())
+            <p class="text-muted small mb-3">{{ __('No relationships recorded.') }}</p>
+          @else
+            <ul class="list-unstyled small mb-3">
+              @foreach($relationships as $r)
+                <li class="d-flex justify-content-between align-items-center border-bottom py-1">
+                  <span>
+                    {{ __('This context') }}
+                    <strong>{{ $relTypes[$r->relationship_type]['label'] ?? $r->relationship_type }}</strong>
+                    <a href="{{ route('archaeology.context', $r->related_id) }}">{{ __('Context') }} {{ $r->related_number }}</a>
+                    @if($r->note)<span class="text-muted">- {{ $r->note }}</span>@endif
+                  </span>
+                  <form method="post" action="{{ route('archaeology.context.relationship.delete', [$context->id, $r->id]) }}" class="ms-2"
+                        onsubmit="return confirm('{{ __('Remove this relationship?') }}')">
+                    @csrf
+                    <button class="btn btn-outline-danger btn-sm py-0" type="submit">&times;</button>
+                  </form>
+                </li>
+              @endforeach
+            </ul>
+          @endif
+
+          @if($otherContexts->isNotEmpty())
+            <form method="post" action="{{ route('archaeology.context.relationship.store', $context->id) }}" class="row g-2 align-items-end">
+              @csrf
+              <div class="col-md-4">
+                <label class="form-label small mb-0">{{ __('This context') }}</label>
+                <select name="relationship_type" class="form-select form-select-sm">
+                  @foreach($relTypes as $code => $meta)
+                    <option value="{{ $code }}">{{ $meta['label'] }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small mb-0">{{ __('Context') }}</label>
+                <select name="related_context_id" class="form-select form-select-sm">
+                  @foreach($otherContexts as $oc)
+                    <option value="{{ $oc->id }}">{{ $oc->context_number }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-0">{{ __('Note') }}</label>
+                <input type="text" name="note" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-1">
+                <button class="btn btn-primary btn-sm w-100" type="submit" title="{{ __('Add') }}">+</button>
+              </div>
+            </form>
+          @else
+            <p class="text-muted small mb-0">{{ __('Add another context to this site to record a relationship.') }}</p>
           @endif
         </div>
       </div>

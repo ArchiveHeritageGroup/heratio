@@ -531,4 +531,152 @@ class ArchaeologyService
 
         return $linked;
     }
+
+    // ─── Stratigraphic relationships (Harris Matrix) - #1428 Phase 2 ─────────────
+
+    /**
+     * relationship_type => [reciprocal, human label, temporal direction]. The
+     * three "later" types (above/cuts/fills) form the directed later-than graph
+     * used for cycle detection; their reciprocals are "earlier"; the last three
+     * are symmetric (no ordering).
+     */
+    public const REL_TYPES = [
+        'above'      => ['reciprocal' => 'below',      'label' => 'is above',       'dir' => 'later'],
+        'below'      => ['reciprocal' => 'above',      'label' => 'is below',       'dir' => 'earlier'],
+        'cuts'       => ['reciprocal' => 'cut_by',     'label' => 'cuts',           'dir' => 'later'],
+        'cut_by'     => ['reciprocal' => 'cuts',       'label' => 'is cut by',      'dir' => 'earlier'],
+        'fills'      => ['reciprocal' => 'filled_by',  'label' => 'fills',          'dir' => 'later'],
+        'filled_by'  => ['reciprocal' => 'fills',      'label' => 'is filled by',   'dir' => 'earlier'],
+        'same_as'    => ['reciprocal' => 'same_as',    'label' => 'is the same as', 'dir' => 'none'],
+        'bonds_with' => ['reciprocal' => 'bonds_with', 'label' => 'bonds with',     'dir' => 'none'],
+        'abuts'      => ['reciprocal' => 'abuts',      'label' => 'abuts',          'dir' => 'none'],
+    ];
+
+    /**
+     * A context's own relationships, each resolved to the related context's
+     * number, ordered by type then number.
+     *
+     * @return Collection<int, object>
+     */
+    public function relationshipsForContext(int $contextId): Collection
+    {
+        if (! Schema::hasTable('archaeology_context_relationship')) {
+            return collect();
+        }
+
+        return DB::table('archaeology_context_relationship as r')
+            ->join('archaeology_context as c', 'c.id', '=', 'r.related_context_id')
+            ->where('r.context_id', $contextId)
+            ->orderBy('r.relationship_type')
+            ->orderBy('c.context_number')
+            ->get(['r.id', 'r.relationship_type', 'r.note', 'c.id as related_id', 'c.context_number as related_number']);
+    }
+
+    /**
+     * Other contexts in the same site, for the relationship-target dropdown.
+     *
+     * @return Collection<int, object>
+     */
+    public function contextPickList(int $siteId, ?int $excludeId = null): Collection
+    {
+        if (! Schema::hasTable('archaeology_context')) {
+            return collect();
+        }
+
+        return DB::table('archaeology_context')
+            ->where('site_id', $siteId)
+            ->where('status', 'active')
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+            ->orderBy('context_number')
+            ->get(['id', 'context_number']);
+    }
+
+    /**
+     * Add a stratigraphic relationship and its mirror. Rejects self-relations,
+     * unknown types, and any directional edge that would create a loop in the
+     * later-than graph. Returns ['ok'=>bool, 'error'=>?string].
+     *
+     * @return array{ok:bool, error?:string}
+     */
+    public function addRelationship(int $contextId, int $relatedId, string $type, ?string $note = null): array
+    {
+        if (! isset(self::REL_TYPES[$type])) {
+            return ['ok' => false, 'error' => 'Unknown relationship type.'];
+        }
+        if ($contextId === $relatedId) {
+            return ['ok' => false, 'error' => 'A context cannot relate to itself.'];
+        }
+
+        $meta = self::REL_TYPES[$type];
+        if ($meta['dir'] !== 'none') {
+            [$later, $earlier] = $meta['dir'] === 'later' ? [$contextId, $relatedId] : [$relatedId, $contextId];
+            // Cycle if the "earlier" context is already later than the "later" one.
+            if ($this->laterThanReaches($earlier, $later)) {
+                return ['ok' => false, 'error' => 'That would create a stratigraphic loop (the other context is already earlier in the sequence).'];
+            }
+        }
+
+        $now = now();
+        DB::table('archaeology_context_relationship')->insertOrIgnore([
+            'context_id' => $contextId, 'related_context_id' => $relatedId,
+            'relationship_type' => $type, 'note' => $note, 'created_at' => $now, 'updated_at' => $now,
+        ]);
+        DB::table('archaeology_context_relationship')->insertOrIgnore([
+            'context_id' => $relatedId, 'related_context_id' => $contextId,
+            'relationship_type' => $meta['reciprocal'], 'note' => $note, 'created_at' => $now, 'updated_at' => $now,
+        ]);
+
+        return ['ok' => true];
+    }
+
+    /** Remove a relationship and its mirror. */
+    public function removeRelationship(int $id): void
+    {
+        if (! Schema::hasTable('archaeology_context_relationship')) {
+            return;
+        }
+        $row = DB::table('archaeology_context_relationship')->where('id', $id)->first();
+        if (! $row) {
+            return;
+        }
+        DB::table('archaeology_context_relationship')->where('id', $id)->delete();
+        $recip = self::REL_TYPES[$row->relationship_type]['reciprocal'] ?? null;
+        if ($recip) {
+            DB::table('archaeology_context_relationship')
+                ->where('context_id', $row->related_context_id)
+                ->where('related_context_id', $row->context_id)
+                ->where('relationship_type', $recip)
+                ->delete();
+        }
+    }
+
+    /**
+     * Can $from reach $target following later-than edges (above/cuts/fills:
+     * source is later than target)? Used to reject cycles before insertion.
+     */
+    private function laterThanReaches(int $from, int $target): bool
+    {
+        $edges = DB::table('archaeology_context_relationship')
+            ->whereIn('relationship_type', ['above', 'cuts', 'fills'])
+            ->get(['context_id', 'related_context_id'])
+            ->groupBy('context_id');
+
+        $seen = [];
+        $stack = [$from];
+        while ($stack) {
+            $n = (int) array_pop($stack);
+            if ($n === $target) {
+                return true;
+            }
+            if (isset($seen[$n])) {
+                continue;
+            }
+            $seen[$n] = true;
+            foreach ($edges[$n] ?? [] as $e) {
+                $stack[] = (int) $e->related_context_id;
+            }
+        }
+
+        return false;
+    }
 }

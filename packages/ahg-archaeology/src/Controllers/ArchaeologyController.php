@@ -101,7 +101,7 @@ class ArchaeologyController extends Controller
         ]);
     }
 
-    /** A single context sheet: its fields, drawings link and finds. */
+    /** A single context sheet: its fields, drawings link, finds and stratigraphy. */
     public function context(int $id): Response
     {
         $context = $this->service->context($id);
@@ -110,8 +110,40 @@ class ArchaeologyController extends Controller
         }
 
         return response()->view('ahg-archaeology::context-view', [
-            'context' => $context,
+            'context'       => $context,
+            'relationships' => $this->service->relationshipsForContext($id),
+            'otherContexts' => $this->service->contextPickList((int) $context->site_id, $id),
+            'relTypes'      => \AhgArchaeology\Services\ArchaeologyService::REL_TYPES,
         ]);
+    }
+
+    /** Add a stratigraphic relationship (mirror kept automatically). */
+    public function relationshipStore(Request $request, int $contextId)
+    {
+        $data = $request->validate([
+            'related_context_id' => 'required|integer',
+            'relationship_type'  => 'required|string|max:20',
+            'note'               => 'nullable|string|max:255',
+        ]);
+
+        $result = $this->service->addRelationship(
+            $contextId,
+            (int) $data['related_context_id'],
+            $data['relationship_type'],
+            $data['note'] ?? null
+        );
+
+        return redirect()->to(url('/archaeology/context/'.$contextId))
+            ->with($result['ok'] ? 'status' : 'error', $result['ok'] ? __('Relationship added.') : $result['error']);
+    }
+
+    /** Remove a stratigraphic relationship (and its mirror). */
+    public function relationshipDelete(int $contextId, int $relId)
+    {
+        $this->service->removeRelationship($relId);
+
+        return redirect()->to(url('/archaeology/context/'.$contextId))
+            ->with('status', __('Relationship removed.'));
     }
 
     /** Create-context form (needs ?site_id=). */
