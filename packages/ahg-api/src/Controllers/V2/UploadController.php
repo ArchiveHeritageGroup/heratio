@@ -2,6 +2,7 @@
 
 namespace AhgApi\Controllers\V2;
 
+use AhgCore\Services\DigitalObjectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -89,46 +90,47 @@ class UploadController extends BaseApiController
             'file' => 'required|file|max:512000',
         ]);
 
+        // Idempotency (#1435): if the description already has a master digital
+        // object, do not attach a second one. An Archivematica re-upload of the
+        // same DIP hits this endpoint again; without the guard it would create a
+        // duplicate Master. Return the existing one with 200.
+        $existing = DB::table('digital_object')
+            ->where('object_id', $objectId)
+            ->where('usage_id', DigitalObjectService::USAGE_MASTER)
+            ->first();
+        if ($existing) {
+            return $this->success([
+                'digital_object_id' => (int) $existing->id,
+                'description_slug' => $slug,
+                'filename' => $existing->name,
+                'mime_type' => $existing->mime_type,
+                'size' => $existing->byte_size,
+                'path' => $existing->path,
+                'skipped' => true,
+                'reason' => 'Description already has a master digital object.',
+            ], 200);
+        }
+
         $file = $request->file('file');
-        $mime = $file->getMimeType();
 
-        $type = $this->classifyMime($mime);
-        $path = sprintf('uploads/%s/%s/%s', $type, now()->format('Y'), now()->format('m'));
-        $filename = $file->hashName();
-
-        $file->storeAs($path, $filename, 'public');
-
-        // Create digital_object row linked to the description
-        $doObjectId = DB::table('object')->insertGetId([
-            'class_name' => 'QubitDigitalObject',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Determine media_type_id based on mime
-        $mediaTypeId = $this->resolveMediaTypeId($mime);
-
-        DB::table('digital_object')->insert([
-            'id' => $doObjectId,
-            'object_id' => $objectId,
-            'usage_id' => 166, // Master
-            'mime_type' => $mime,
-            'media_type_id' => $mediaTypeId,
-            'name' => $file->getClientOriginalName(),
-            'path' => "{$path}/{$filename}",
-            'byte_size' => $file->getSize(),
-            'sequence' => 0,
-        ]);
+        // Canonical upload path: stores under the {uploads}/r/{object_id}/ shard,
+        // writes the master with usage_id = 140 (Master), and generates the
+        // reference (141) + thumbnail (142) derivatives. This replaces the old
+        // inline insert that wrote a date-path master with usage_id 166 and no
+        // derivatives (which is why images did not render and an out-of-band
+        // regenerate step was needed).
+        $doId = DigitalObjectService::upload($objectId, $file);
+        $do = DB::table('digital_object')->where('id', $doId)->first();
 
         DB::table('object')->where('id', $objectId)->update(['updated_at' => now()]);
 
         return $this->success([
-            'digital_object_id' => $doObjectId,
+            'digital_object_id' => $doId,
             'description_slug' => $slug,
-            'filename' => $file->getClientOriginalName(),
-            'mime_type' => $mime,
-            'size' => $file->getSize(),
-            'path' => "{$path}/{$filename}",
+            'filename' => $do->name ?? $file->getClientOriginalName(),
+            'mime_type' => $do->mime_type ?? $file->getMimeType(),
+            'size' => $do->byte_size ?? $file->getSize(),
+            'path' => $do->path ?? null,
         ], 201);
     }
 

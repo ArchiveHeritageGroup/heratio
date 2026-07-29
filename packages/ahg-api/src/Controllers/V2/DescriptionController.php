@@ -204,6 +204,31 @@ class DescriptionController extends BaseApiController
             return $this->error('Bad Request', 'Parent not found.', 400);
         }
 
+        // Idempotency (#1435): the slug generator only guarantees unique *slugs*,
+        // not unique *records*, so a client that re-runs (e.g. an Archivematica
+        // re-upload of the same DIP) would otherwise create a duplicate child.
+        // If a child with this title (or identifier) already exists under this
+        // parent, return it instead of creating another.
+        $dupQuery = DB::table('information_object as io')
+            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->join('slug', 'slug.object_id', '=', 'io.id')
+            ->where('io.parent_id', $parentId)
+            ->where('ioi.culture', $this->culture);
+        if (! empty($input['identifier'])) {
+            $dupQuery->where('io.identifier', $input['identifier']);
+        } else {
+            $dupQuery->whereRaw('LOWER(ioi.title) = ?', [mb_strtolower($input['title'])]);
+        }
+        $existing = $dupQuery->select('io.id', 'slug.slug')->first();
+        if ($existing) {
+            return $this->success([
+                'id' => (int) $existing->id,
+                'slug' => $existing->slug,
+                'title' => $input['title'],
+                'existing' => true,
+            ], 200);
+        }
+
         return DB::transaction(function () use ($input, $parent, $parentId) {
             // Shift nested set to make room
             $rgt = $parent->rgt;
