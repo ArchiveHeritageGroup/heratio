@@ -354,9 +354,18 @@ class BagItService
         if ($path === null || $name === null) {
             return null;
         }
-        $rel = ltrim($path, '/') . $name;
+        $uploads = rtrim((string) config('heratio.uploads_path', config('heratio.storage_path') . '/uploads'), '/');
+        // digital_object.path is the WEB path (e.g. /uploads/r/<...>/); the physical
+        // file lives at <uploads_path>/<path minus the /uploads/ prefix>, because
+        // /uploads/ is the nginx alias for <uploads_path>. Strip the prefix first,
+        // else we build <uploads_path>/uploads/... (doubled) and miss the file.
+        $stripped = preg_replace('#^/?uploads/#', '', (string) $path);
+        $rel = ltrim($path, '/') . $name;              // legacy (unstripped)
+        $relStripped = ltrim((string) $stripped, '/') . $name;
         $candidates = [
-            rtrim((string) config('heratio.uploads_path', config('heratio.storage_path') . '/uploads'), '/') . '/' . $rel,
+            $uploads . '/' . $relStripped,             // canonical: uploads_path + stripped path
+            $uploads . '/' . $rel,                     // paths that were not /uploads/-prefixed
+            '/usr/share/nginx/heratio/uploads/' . $relStripped,
             '/usr/share/nginx/heratio/uploads/' . $rel,
         ];
         // path columns sometimes look like /uploads/r/<hash>/file — try public/uploads as well
