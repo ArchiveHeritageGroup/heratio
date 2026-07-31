@@ -230,10 +230,13 @@
                     </button>
                     @endif
 
-                    @if(in_array($package->status ?? '', ['complete', 'built', 'validated']))
-                    <button type="button" class="btn atom-btn-white w-100 mb-2" onclick="alert('Export initiated.')">
-                        <i class="fas fa-box-open me-1"></i>{{ __('Export Package') }}
-                    </button>
+                    @if(empty($package->export_path ?? null))
+                    <form method="post" action="{{ route('preservation.package-export', $package->id) }}" class="mb-2">
+                        @csrf
+                        <button type="submit" class="btn atom-btn-white w-100">
+                            <i class="fas fa-box-open me-1"></i>{{ __('Export Package') }}
+                        </button>
+                    </form>
                     @endif
 
                     @if($package->export_path ?? null)
@@ -242,26 +245,34 @@
                     </a>
                     @endif
 
-                    @if(strtolower($package->package_type ?? '') === 'sip' && in_array($package->status ?? '', ['validated', 'exported']))
+                    @if(strtolower($package->package_type ?? '') === 'sip' && in_array($package->status ?? '', ['validated', 'exported', 'built']))
                     <hr>
-                    <button type="button" class="btn atom-btn-white w-100" onclick="alert('AIP conversion initiated.')">
-                        <i class="fas fa-arrow-right me-1"></i>{{ __('Convert to AIP') }}
-                    </button>
+                    <form method="post" action="{{ route('preservation.package-convert-aip', $package->id) }}">
+                        @csrf
+                        <button type="submit" class="btn atom-btn-white w-100">
+                            <i class="fas fa-arrow-right me-1"></i>{{ __('Convert to AIP') }}
+                        </button>
+                    </form>
                     @endif
 
-                    @if(strtolower($package->package_type ?? '') === 'aip' && in_array($package->status ?? '', ['validated', 'exported']))
+                    @if(strtolower($package->package_type ?? '') === 'aip' && in_array($package->status ?? '', ['validated', 'exported', 'built']))
                     <hr>
-                    <button type="button" class="btn atom-btn-white w-100" onclick="alert('DIP creation initiated.')">
-                        <i class="fas fa-arrow-right me-1"></i>{{ __('Create DIP') }}
-                    </button>
+                    <form method="post" action="{{ route('preservation.package-create-dip', $package->id) }}">
+                        @csrf
+                        <button type="submit" class="btn atom-btn-white w-100">
+                            <i class="fas fa-arrow-right me-1"></i>{{ __('Create DIP') }}
+                        </button>
+                    </form>
                     @endif
 
-                    @if(($package->status ?? '') === 'draft')
                     <hr>
-                    <button type="button" class="btn btn-outline-danger w-100" onclick="if(confirm('Delete this package?')) alert('Delete initiated.')">
-                        <i class="fas fa-trash me-1"></i>{{ __('Delete Package') }}
-                    </button>
-                    @endif
+                    <form method="post" action="{{ route('preservation.package-delete', $package->id) }}"
+                          onsubmit="return confirm('Delete package #{{ $package->id }}? This removes its record and any exported bag.')">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-trash me-1"></i>{{ __('Delete Package') }}
+                        </button>
+                    </form>
                 </div>
             </div>
 

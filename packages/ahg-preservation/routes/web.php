@@ -16,6 +16,11 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/preservation/package/{id}', [PreservationController::class, 'packageView'])->name('preservation.package-view');
     Route::get('/admin/preservation/package/{id}/edit', [PreservationController::class, 'packageEdit'])->name('preservation.package-edit');
     Route::get('/admin/preservation/package/{id}/download', [PreservationController::class, 'download'])->name('preservation.package-download')->where('id', '[0-9]+');
+    // #1437 - real actions behind the previously-stub buttons.
+    Route::post('/admin/preservation/package/{id}/export', [PreservationController::class, 'exportPackageAction'])->name('preservation.package-export')->where('id', '[0-9]+');
+    Route::post('/admin/preservation/package/{id}/convert-aip', [PreservationController::class, 'convertToAip'])->name('preservation.package-convert-aip')->where('id', '[0-9]+');
+    Route::post('/admin/preservation/package/{id}/create-dip', [PreservationController::class, 'createDip'])->name('preservation.package-create-dip')->where('id', '[0-9]+');
+    Route::post('/admin/preservation/package/{id}/delete', [PreservationController::class, 'deletePackage'])->name('preservation.package-delete')->where('id', '[0-9]+');
     Route::get('/admin/preservation/scheduler', [PreservationController::class, 'scheduler'])->name('preservation.scheduler');
     Route::get('/admin/preservation/schedule/{id}/edit', [PreservationController::class, 'scheduleEdit'])->name('preservation.schedule-edit');
     Route::get('/admin/preservation/backup', [PreservationController::class, 'backup'])->name('preservation.backup');

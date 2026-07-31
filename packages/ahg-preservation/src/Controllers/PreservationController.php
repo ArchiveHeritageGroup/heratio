@@ -28,6 +28,7 @@
 namespace AhgPreservation\Controllers;
 
 use AhgPreservation\Services\BagItService;
+use AhgPreservation\Services\OaisLifecycleService;
 use AhgPreservation\Services\PreservationService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -37,8 +38,78 @@ class PreservationController extends Controller
 {
     public function __construct(
         protected PreservationService $service,
-        protected BagItService $bagit
+        protected BagItService $bagit,
+        protected OaisLifecycleService $oais
     ) {
+    }
+
+    /**
+     * Export Package: build/write the BagIt bag for an existing package (in
+     * place), so it gains an export_path and can be downloaded. Reuses the
+     * working in-place exporter. (#1437)
+     */
+    public function exportPackageAction(int $id)
+    {
+        $cls = \AhgInformationObjectManage\Services\PreservationService::class;
+        if (! class_exists($cls)) {
+            return redirect()->route('preservation.package-view', $id)
+                ->with('error', 'Export service unavailable.');
+        }
+        $result = app($cls)->exportPackage($id);
+
+        return redirect()->route('preservation.package-view', $id)
+            ->with($result['ok'] ? 'success' : 'error', $result['message'] ?? ($result['ok'] ? 'Package exported.' : 'Export failed.'));
+    }
+
+    /** Convert to AIP: promote a SIP to an AIP via the OAIS lifecycle. (#1437) */
+    public function convertToAip(int $id)
+    {
+        try {
+            $r = $this->oais->promoteSipToAip($id, [], 'admin-ui');
+            $newId = (int) ($r['aip_id'] ?? $r['package_id'] ?? $id);
+
+            return redirect()->route('preservation.package-view', $newId)
+                ->with('success', 'AIP #' . $newId . ' created from SIP #' . $id . '.');
+        } catch (\Throwable $e) {
+            return redirect()->route('preservation.package-view', $id)
+                ->with('error', 'Convert to AIP failed: ' . $e->getMessage());
+        }
+    }
+
+    /** Create DIP: derive a DIP from an AIP via the OAIS lifecycle. (#1437) */
+    public function createDip(int $id)
+    {
+        try {
+            $r = $this->oais->createDipFromAip($id, [], 'admin-ui');
+            $newId = (int) ($r['dip_id'] ?? $r['package_id'] ?? $id);
+
+            return redirect()->route('preservation.package-view', $newId)
+                ->with('success', 'DIP #' . $newId . ' created from AIP #' . $id . '.');
+        } catch (\Throwable $e) {
+            return redirect()->route('preservation.package-view', $id)
+                ->with('error', 'Create DIP failed: ' . $e->getMessage());
+        }
+    }
+
+    /** Delete a package: its exported file, child rows and the package row. (#1437) */
+    public function deletePackage(int $id)
+    {
+        $pkg = $this->service->getPackage($id);
+        if (! $pkg) {
+            abort(404, 'Package not found');
+        }
+        if (! empty($pkg->export_path) && is_file($pkg->export_path)) {
+            @unlink($pkg->export_path);
+        }
+        foreach (['preservation_package_object', 'preservation_package_event'] as $t) {
+            if (\Illuminate\Support\Facades\Schema::hasTable($t)) {
+                DB::table($t)->where('package_id', $id)->delete();
+            }
+        }
+        DB::table('preservation_package')->where('id', $id)->delete();
+
+        return redirect()->route('preservation.packages')
+            ->with('success', 'Package #' . $id . ' deleted.');
     }
 
     /**
