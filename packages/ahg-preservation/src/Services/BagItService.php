@@ -320,21 +320,33 @@ class BagItService
     /* -------------------------------------------------------------------- */
 
     /**
-     * Walk the IO subtree (using lft/rgt nested-set) and collect every digital_object row.
+     * Walk the IO subtree and collect every digital_object row. Descendants come
+     * from the closure-backed hierarchy (reliable), NOT raw lft/rgt: nested-set
+     * values are frequently stale - 0/0, or a leaf range on a collection whose
+     * set was never rebuilt - which silently dropped a whole collection's
+     * children from the package. HierarchyQueryService falls back to lft/rgt only
+     * when the closure isn't built.
      *
      * @return array<int, object>  digital_object rows (id, path, name, mime_type, byte_size, object_id)
      */
     protected function collectPayload(int $ioId, bool $includeDescendants): array
     {
         if ($includeDescendants) {
-            $root = DB::table('information_object')->where('id', $ioId)->select('lft', 'rgt')->first();
-            if (! $root) {
-                return [];
+            $ioIds = [];
+            if (class_exists(\AhgCore\Services\HierarchyQueryService::class)) {
+                $ioIds = app(\AhgCore\Services\HierarchyQueryService::class)
+                    ->descendantIds('information_object', $ioId, true);
             }
-            $ioIds = DB::table('information_object')
-                ->whereBetween('lft', [(int) $root->lft, (int) $root->rgt])
-                ->pluck('id')
-                ->all();
+            if (empty($ioIds)) {
+                // Fallback: closure/service unavailable - use the nested set.
+                $root = DB::table('information_object')->where('id', $ioId)->select('lft', 'rgt')->first();
+                $ioIds = $root
+                    ? DB::table('information_object')->whereBetween('lft', [(int) $root->lft, (int) $root->rgt])->pluck('id')->all()
+                    : [$ioId];
+            }
+            if (empty($ioIds)) {
+                $ioIds = [$ioId];
+            }
         } else {
             $ioIds = [$ioId];
         }

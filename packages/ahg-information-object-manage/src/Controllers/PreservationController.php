@@ -194,18 +194,33 @@ class PreservationController extends Controller
             'updated_at'        => $now,
         ]);
 
-        // Link every digital object on the IO to the new package.
+        // Link every digital object in the whole COLLECTION - the IO and all its
+        // descendants - to the new package, using the closure-backed hierarchy so
+        // a collection is captured in full (not just this record's own files).
+        // Nested-set lft/rgt is not used here because it is frequently stale.
+        $ioIds = [(int) $io->id];
+        if (class_exists(\AhgCore\Services\HierarchyQueryService::class)) {
+            $desc = app(\AhgCore\Services\HierarchyQueryService::class)
+                ->descendantIds('information_object', (int) $io->id, true);
+            if (! empty($desc)) {
+                $ioIds = $desc;
+            }
+        }
         $dos = DB::table('digital_object')
-            ->where('object_id', $io->id)
-            ->get(['id', 'name', 'byte_size', 'mime_type']);
+            ->whereIn('object_id', $ioIds)
+            ->orderBy('object_id')->orderBy('id')
+            ->get(['id', 'name', 'byte_size', 'mime_type', 'object_id']);
 
         $totalSize = 0; $count = 0;
         foreach ($dos as $do) {
+            $fname = (string) ($do->name ?? ('do_' . $do->id));
             DB::table('preservation_package_object')->insert([
                 'package_id'         => $packageId,
                 'digital_object_id'  => (int) $do->id,
-                'relative_path'      => 'data/' . ($do->name ?? ('do_' . $do->id)),
-                'file_name'          => (string) ($do->name ?? ('do_' . $do->id)),
+                // Namespace each file under its record so multiple children with
+                // same-named files don't collide in the bag.
+                'relative_path'      => 'data/io-' . (int) $do->object_id . '/' . $fname,
+                'file_name'          => $fname,
                 'file_size'          => $do->byte_size ?? null,
                 'mime_type'          => $do->mime_type ?? null,
                 'object_role'        => 'payload',
