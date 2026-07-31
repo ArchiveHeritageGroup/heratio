@@ -169,7 +169,7 @@
                                         </a>
                                         @endif
                                         @if($pkg->export_path ?? null)
-                                        <a href="#" class="btn btn-sm atom-btn-white" title="{{ __('Download export') }}">
+                                        <a href="{{ route('preservation.package-download', $pkg->id) }}" class="btn btn-sm atom-btn-white" title="{{ __('Download export') }}">
                                             <i class="fas fa-download"></i>
                                         </a>
                                         @endif

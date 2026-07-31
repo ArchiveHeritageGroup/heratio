@@ -262,6 +262,25 @@ class PreservationController extends Controller
     /**
      * Package detail with objects, events, timeline, related packages.
      */
+    /**
+     * Stream the exported BagIt file for a package (the "Download Export" button).
+     * Redirects back with a message when the package hasn't been exported yet.
+     */
+    public function download(int $id)
+    {
+        $package = $this->service->getPackage($id);
+        if (!$package) {
+            abort(404, 'Package not found');
+        }
+        $path = $package->export_path ?? null;
+        if (!$path || !is_file($path)) {
+            return redirect()->route('preservation.package-view', $id)
+                ->with('error', 'Package #' . $id . ' has no exported file yet. Run the BagIt export job first.');
+        }
+
+        return response()->download($path, basename($path));
+    }
+
     public function packageView(int $id)
     {
         $package = $this->service->getPackage($id);

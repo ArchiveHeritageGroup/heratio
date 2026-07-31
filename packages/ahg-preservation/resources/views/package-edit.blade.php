@@ -237,7 +237,7 @@
                     @endif
 
                     @if($package->export_path ?? null)
-                    <a href="#" class="btn atom-btn-white w-100 mb-2">
+                    <a href="{{ route('preservation.package-download', $package->id) }}" class="btn atom-btn-white w-100 mb-2">
                         <i class="fas fa-download me-1"></i>{{ __('Download Export') }}
                     </a>
                     @endif

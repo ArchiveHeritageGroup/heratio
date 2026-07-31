@@ -15,6 +15,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/preservation/packages', [PreservationController::class, 'packages'])->name('preservation.packages');
     Route::get('/admin/preservation/package/{id}', [PreservationController::class, 'packageView'])->name('preservation.package-view');
     Route::get('/admin/preservation/package/{id}/edit', [PreservationController::class, 'packageEdit'])->name('preservation.package-edit');
+    Route::get('/admin/preservation/package/{id}/download', [PreservationController::class, 'download'])->name('preservation.package-download')->where('id', '[0-9]+');
     Route::get('/admin/preservation/scheduler', [PreservationController::class, 'scheduler'])->name('preservation.scheduler');
     Route::get('/admin/preservation/schedule/{id}/edit', [PreservationController::class, 'scheduleEdit'])->name('preservation.schedule-edit');
     Route::get('/admin/preservation/backup', [PreservationController::class, 'backup'])->name('preservation.backup');
