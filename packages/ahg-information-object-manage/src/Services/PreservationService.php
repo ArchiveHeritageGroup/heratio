@@ -362,18 +362,46 @@ class PreservationService
      */
     private function resolveSourcePath(object $row): ?string
     {
-        if (!empty($row->do_path) && !empty($row->file_name)) {
-            $candidate = rtrim((string) $row->do_path, '/') . '/' . $row->file_name;
-            if (is_file($candidate)) return $candidate;
+        $name = (string) ($row->file_name ?? '');
+        if ($name === '') {
+            return null;
         }
-        // Fallback: search the configured uploads path for the file_name.
+        $uploads = rtrim((string) config('heratio.uploads_path', config('heratio.storage_path') . '/uploads'), '/');
+
+        if (!empty($row->do_path)) {
+            $web = (string) $row->do_path;
+            // do_path is the WEB path (e.g. /uploads/r/<...>/); the physical file
+            // lives at <uploads_path>/<path minus the /uploads/ prefix>/<name>,
+            // because /uploads/ is the nginx alias for <uploads_path>. Without
+            // stripping the prefix we build <uploads_path>/uploads/... (doubled)
+            // and miss the file - notably import layouts like
+            // /uploads/r/<repo>/<hash>/. Strip it, then try sensible fallbacks.
+            $stripped = ltrim((string) preg_replace('#^/?uploads/#', '', $web), '/');
+            $candidates = [
+                $uploads . '/' . $stripped . $name,          // uploads_path + stripped path
+                rtrim($web, '/') . '/' . $name,              // already-absolute (legacy)
+                $uploads . '/' . ltrim($web, '/') . $name,   // legacy unstripped
+            ];
+            foreach ($candidates as $c) {
+                if (is_file($c)) {
+                    return $c;
+                }
+            }
+        }
+
+        // Last resort: shallow glob for the filename under the uploads root
+        // (PHP glob '**' does not recurse, so widen a few explicit levels).
         try {
-            $uploads = config('heratio.uploads_path', config('heratio.storage_path'));
-            if (is_string($uploads) && $uploads !== '' && !empty($row->file_name)) {
-                $globbed = glob($uploads . '/**/' . $row->file_name);
-                if (!empty($globbed) && is_file($globbed[0])) return $globbed[0];
+            if ($uploads !== '') {
+                foreach (['/*/', '/*/*/', '/*/*/*/', '/**/'] as $depth) {
+                    $g = glob($uploads . $depth . $name);
+                    if (!empty($g) && is_file($g[0])) {
+                        return $g[0];
+                    }
+                }
             }
         } catch (\Throwable $e) {}
+
         return null;
     }
 
