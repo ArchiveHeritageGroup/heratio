@@ -15,7 +15,16 @@ class RequireAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (! Auth::check()) {
-            abort(403, 'Insufficient permissions');
+            // A logged-out visitor is sent to login (matching the 'auth'
+            // middleware) and returned to the page after signing in, rather than
+            // shown a bare 403. JSON/API callers still get a 401.
+            if ($request->expectsJson()) {
+                abort(401, 'Unauthenticated');
+            }
+
+            return redirect()->guest(
+                \Illuminate\Support\Facades\Route::has('login') ? route('login') : '/login'
+            );
         }
 
         if (! AclService::canAdmin(Auth::id())) {
