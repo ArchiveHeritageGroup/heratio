@@ -94,14 +94,22 @@
               <span class="visually-hidden">{{ __('Help') }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="help-center-menu">
-              @if(!empty($contextualHelp))
               <li>
-                <a class="dropdown-item" href="{{ $contextualHelp['url'] }}" id="contextual-help-link">
-                  <i class="fas fa-circle-info me-2 text-info"></i>{{ __('Help for this page') }}: {{ $contextualHelp['title'] }}
+                {{-- Opens the page's help in an in-page slide-out PANEL (data-help-panel,
+                     wired in the master layout). The href is the /help/context resolver,
+                     so ctrl/middle-click still opens it in a new tab; F1 also opens a new tab. --}}
+                <a class="dropdown-item" id="contextual-help-link" data-help-panel
+                   href="{{ !empty($contextualHelp) ? $contextualHelp['url'] : route('help.context', ['path' => request()->path(), 'route' => optional(request()->route())->getName()]) }}"
+                   title="{{ __('Open help in a panel (F1 opens a new tab)') }}">
+                  <i class="fas fa-circle-info me-2 text-info"></i>{{ __('Help for this page') }}@if(!empty($contextualHelp)): {{ $contextualHelp['title'] }}@endif
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item text-muted small" data-help-f1 href="#" target="_blank" rel="noopener">
+                  <i class="fas fa-up-right-from-square me-2"></i>{{ __('Open help in new tab') }} <span class="ms-1">(F1)</span>
                 </a>
               </li>
               <li><hr class="dropdown-divider"></li>
-              @endif
               <li>
                 <a class="dropdown-item" href="{{ url('/help') }}">
                   <i class="fas fa-book me-2"></i>{{ __('Help Center') }}

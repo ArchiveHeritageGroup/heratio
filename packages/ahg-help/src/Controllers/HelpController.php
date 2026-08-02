@@ -88,6 +88,97 @@ class HelpController extends Controller
         ]);
     }
 
+    /**
+     * Context-sensitive help resolver (F1 target). Given the calling page's
+     * path (and optional route name), find the most relevant article and
+     * redirect to it. Order: an explicit config mapping (help-context.routes /
+     * .paths) wins; otherwise a keyword search over the meaningful path
+     * segments; otherwise the help index. So every page lands somewhere useful,
+     * whether or not it has an explicit mapping.
+     */
+    public function context(Request $request)
+    {
+        $path = (string) $request->query('path', $request->path());
+        $routeName = trim((string) $request->query('route', '')) ?: null;
+        $slug = $this->resolveContextSlug($routeName, $path);
+
+        // JSON mode: the in-page help panel fetches the resolved article's body
+        // so it can render inline without leaving the page.
+        if ($request->query('format') === 'json' || $request->wantsJson()) {
+            $article = $slug !== null ? HelpArticleService::getBySlug($slug) : null;
+            if ($article) {
+                return response()->json([
+                    'ok'    => true,
+                    'slug'  => $slug,
+                    'title' => (string) ($article['title'] ?? 'Help'),
+                    'url'   => route('help.article', ['slug' => $slug]),
+                    'html'  => (string) ($article['body_html'] ?? $article['body_text'] ?? ''),
+                ]);
+            }
+
+            return response()->json([
+                'ok'    => false,
+                'title' => 'Help',
+                'url'   => route('help.index'),
+                'html'  => '<p class="text-muted">No specific help article for this page. Browse the Help Center.</p>',
+            ]);
+        }
+
+        // Redirect mode (F1 / direct link opens the full article, new tab).
+        return $slug !== null
+            ? redirect()->route('help.article', ['slug' => $slug])
+            : redirect()->route('help.index');
+    }
+
+    /**
+     * Best help-article slug for a page. Explicit config mapping wins; else a
+     * slug/title keyword match on the path's meaningful segments (not body
+     * full-text, which pulls in loosely related docs); else null. Shared by the
+     * redirect (F1/new-tab) and JSON (in-page panel) modes of context().
+     */
+    private function resolveContextSlug(?string $routeName, string $path): ?string
+    {
+        $help = HelpArticleService::contextualFor($routeName, $path);
+        if ($help && ! empty($help['slug'])) {
+            return (string) $help['slug'];
+        }
+
+        $skip = ['admin', 'api', 'app', 'index', 'edit', 'create', 'store', 'update',
+            'delete', 'view', 'show', 'list', 'new', 'add', 'manage', 'informationobject',
+            'packages', 'package', 'settings', 'object'];
+        $terms = [];
+        foreach (explode('/', trim($path, '/')) as $seg) {
+            $seg = strtolower(trim($seg));
+            if ($seg === '' || ctype_digit($seg) || in_array($seg, $skip, true) || strlen($seg) < 4) {
+                continue;
+            }
+            $terms[] = $seg;
+            if (str_contains($seg, '-') && strlen(strtok($seg, '-')) >= 4) {
+                $terms[] = strtok($seg, '-');
+            }
+        }
+        foreach (array_unique($terms) as $term) {
+            $like = '%' . $term . '%';
+            $slug = \Illuminate\Support\Facades\DB::table('help_article')
+                ->where('is_published', 1)
+                ->where(function ($q) use ($like) {
+                    $q->where('slug', 'like', $like)->orWhere('title', 'like', $like);
+                })
+                ->orderByRaw('CASE
+                    WHEN slug LIKE ? THEN 0
+                    WHEN slug LIKE ? THEN 1
+                    WHEN title LIKE ? THEN 2
+                    ELSE 3 END', ['%' . $term . '%user-guide%', $term . '%', $like])
+                ->orderByDesc('word_count')
+                ->value('slug');
+            if ($slug) {
+                return (string) $slug;
+            }
+        }
+
+        return null;
+    }
+
     public function category(string $category)
     {
         $category = urldecode($category);

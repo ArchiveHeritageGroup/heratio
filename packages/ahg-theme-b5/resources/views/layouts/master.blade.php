@@ -678,5 +678,62 @@
       } catch(e) {}
     });
     </script>
+
+    {{-- Context help: F1 opens the page's help article in a new tab; the header
+         "Help for this page" link (or any [data-help-panel]) opens it in an
+         in-page slide-out panel that also has a pop-out-to-new-tab button. --}}
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="ahgHelpPanel" aria-labelledby="ahgHelpPanelTitle" style="width:min(560px,92vw);">
+      <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title" id="ahgHelpPanelTitle"><i class="fas fa-circle-info text-info me-2"></i>{{ __('Help') }}</h5>
+        <div class="ms-auto d-flex gap-2 align-items-center">
+          <a id="ahgHelpPanelPopout" href="{{ url('/help') }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary" title="{{ __('Open in new tab') }}"><i class="fas fa-up-right-from-square"></i></a>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{{ __('Close') }}"></button>
+        </div>
+      </div>
+      <div class="offcanvas-body">
+        <div id="ahgHelpPanelBody" class="help-panel-body"></div>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var routeName = @json(optional(request()->route())->getName());
+      function helpUrl() {
+        var u = @json(url('/help/context')) + '?path=' + encodeURIComponent(location.pathname);
+        if (routeName) u += '&route=' + encodeURIComponent(routeName);
+        return u;
+      }
+      function openHelpNewTab() { window.open(helpUrl(), '_blank', 'noopener'); }
+      function openHelpPanel() {
+        var panelEl = document.getElementById('ahgHelpPanel');
+        if (!panelEl || typeof bootstrap === 'undefined' || !bootstrap.Offcanvas) { openHelpNewTab(); return; }
+        var body = document.getElementById('ahgHelpPanelBody');
+        var title = document.getElementById('ahgHelpPanelTitle');
+        var popout = document.getElementById('ahgHelpPanelPopout');
+        body.innerHTML = '<div class="text-center text-muted py-5"><span class="spinner-border spinner-border-sm me-2"></span>{{ __('Loading…') }}</div>';
+        bootstrap.Offcanvas.getOrCreateInstance(panelEl).show();
+        fetch(helpUrl() + '&format=json', { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            title.innerHTML = '<i class="fas fa-circle-info text-info me-2"></i>' + (d.title || 'Help');
+            body.innerHTML = d.html || '<p class="text-muted">{{ __('No help found for this page.') }}</p>';
+            if (popout && d.url) popout.setAttribute('href', d.url);
+          })
+          .catch(function () { body.innerHTML = '<p class="text-danger">{{ __('Could not load help.') }}</p>'; });
+      }
+      window.ahgHelp = { newTab: openHelpNewTab, panel: openHelpPanel, url: helpUrl };
+
+      // F1 -> new tab (per the platform shortcut).
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'F1' || e.keyCode === 112) { e.preventDefault(); openHelpNewTab(); }
+      });
+      // Opt-in triggers: [data-help-panel] opens the panel; [data-help-f1] opens a new tab.
+      document.querySelectorAll('[data-help-panel]').forEach(function (el) {
+        el.addEventListener('click', function (ev) { ev.preventDefault(); openHelpPanel(); });
+      });
+      document.querySelectorAll('[data-help-f1]').forEach(function (el) {
+        if (el.tagName === 'A') { el.setAttribute('href', helpUrl()); el.setAttribute('target', '_blank'); el.setAttribute('rel', 'noopener'); }
+      });
+    })();
+    </script>
   </body>
 </html>
