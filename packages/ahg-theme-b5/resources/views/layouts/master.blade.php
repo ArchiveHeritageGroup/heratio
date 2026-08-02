@@ -703,14 +703,42 @@
         return u;
       }
       function openHelpNewTab() { window.open(helpUrl(), '_blank', 'noopener'); }
+
+      // Self-contained slide-out: we drive the offcanvas classes + backdrop
+      // ourselves rather than depend on the Bootstrap JS bundle being loaded as
+      // a global (it is not on every page), so the in-page panel always opens
+      // in-page and never silently falls back to a new tab.
+      var panelBackdrop = null;
+      function escClosePanel(e) { if (e.key === 'Escape' || e.keyCode === 27) hideHelpPanel(); }
+      function showHelpPanel() {
+        var panelEl = document.getElementById('ahgHelpPanel');
+        if (!panelEl) return;
+        panelEl.classList.add('show');
+        panelEl.style.visibility = 'visible';
+        if (!panelBackdrop) {
+          panelBackdrop = document.createElement('div');
+          panelBackdrop.className = 'offcanvas-backdrop fade show';
+          panelBackdrop.addEventListener('click', hideHelpPanel);
+          document.body.appendChild(panelBackdrop);
+          document.body.classList.add('offcanvas-open');
+        }
+        document.addEventListener('keydown', escClosePanel);
+      }
+      function hideHelpPanel() {
+        var panelEl = document.getElementById('ahgHelpPanel');
+        if (panelEl) { panelEl.classList.remove('show'); panelEl.style.visibility = ''; }
+        if (panelBackdrop) { panelBackdrop.remove(); panelBackdrop = null; }
+        document.body.classList.remove('offcanvas-open');
+        document.removeEventListener('keydown', escClosePanel);
+      }
       function openHelpPanel() {
         var panelEl = document.getElementById('ahgHelpPanel');
-        if (!panelEl || typeof bootstrap === 'undefined' || !bootstrap.Offcanvas) { openHelpNewTab(); return; }
+        if (!panelEl) { openHelpNewTab(); return; }
         var body = document.getElementById('ahgHelpPanelBody');
         var title = document.getElementById('ahgHelpPanelTitle');
         var popout = document.getElementById('ahgHelpPanelPopout');
         body.innerHTML = '<div class="text-center text-muted py-5"><span class="spinner-border spinner-border-sm me-2"></span>{{ __('Loading…') }}</div>';
-        bootstrap.Offcanvas.getOrCreateInstance(panelEl).show();
+        showHelpPanel();
         fetch(helpUrl() + '&format=json', { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
           .then(function (r) { return r.json(); })
           .then(function (d) {
@@ -720,7 +748,15 @@
           })
           .catch(function () { body.innerHTML = '<p class="text-danger">{{ __('Could not load help.') }}</p>'; });
       }
-      window.ahgHelp = { newTab: openHelpNewTab, panel: openHelpPanel, url: helpUrl };
+      window.ahgHelp = { newTab: openHelpNewTab, panel: openHelpPanel, close: hideHelpPanel, url: helpUrl };
+
+      // Close button + backdrop dismiss (works without the Bootstrap JS API).
+      var panelForClose = document.getElementById('ahgHelpPanel');
+      if (panelForClose) {
+        panelForClose.querySelectorAll('[data-bs-dismiss="offcanvas"], .btn-close').forEach(function (b) {
+          b.addEventListener('click', function (ev) { ev.preventDefault(); hideHelpPanel(); });
+        });
+      }
 
       // F1 -> new tab (per the platform shortcut).
       document.addEventListener('keydown', function (e) {
@@ -728,7 +764,7 @@
       });
       // Opt-in triggers: [data-help-panel] opens the panel; [data-help-f1] opens a new tab.
       document.querySelectorAll('[data-help-panel]').forEach(function (el) {
-        el.addEventListener('click', function (ev) { ev.preventDefault(); openHelpPanel(); });
+        el.addEventListener('click', function (ev) { ev.preventDefault(); ev.stopPropagation(); openHelpPanel(); });
       });
       document.querySelectorAll('[data-help-f1]').forEach(function (el) {
         if (el.tagName === 'A') { el.setAttribute('href', helpUrl()); el.setAttribute('target', '_blank'); el.setAttribute('rel', 'noopener'); }
