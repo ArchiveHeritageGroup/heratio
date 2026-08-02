@@ -8,6 +8,35 @@ It lives here for version control; it **runs on the Archivematica server**, not 
 Heratio. Install it in the MCPClient client-scripts directory and wire it to the
 "Upload DIP" microservice in the same place `upload_qubit.py` is referenced.
 
+## Install on the Archivematica server (one-off)
+
+1. **Register Heratio as an access system.** In the AM dashboard: *Administration ->
+   General*, set the *AtoM/Binder* (access system) fields to the Heratio target -
+   **URL** = `https://<heratio-host>` (the Heratio base URL) and the **API key** =
+   a Heratio API key with upload rights. AM passes these to the upload script as the
+   `--url` / `--key` job arguments, exactly as it does for a real AtoM target.
+2. **Drop the script in place.** Copy `upload_heratio.py` into the MCPClient
+   client-scripts directory (alongside the stock `upload_qubit.py`, typically
+   `/src/MCPClient/lib/clientScripts/` in the `archivematica-mcp-client` container /
+   host), owned by the AM service user and executable.
+3. **Point the "Upload DIP" microservice at it.** In *Administration -> Processing
+   configuration* (or the workflow / FPR command that runs the
+   *"Upload DIP to access system"* chain), replace the `upload_qubit.py` reference
+   with `upload_heratio.py`. This is the only wiring change - the job arguments
+   (`--url`, `--key`, `--slug`, DIP path) are passed the same way.
+
+## Per-transfer: set the Access system ID = Heratio parent slug
+
+For **each** transfer/SIP whose DIP should land under a specific Heratio record, the
+archivist sets the AM **"Access system ID"** to that record's **Heratio slug**
+(the last path segment of its URL, e.g. `mobrey-family-archive` from
+`https://<heratio-host>/mobrey-family-archive`). AM forwards it to the script as the
+parent `--slug`, and every file in the DIP is created as a **child description under
+that parent**. Leave it blank and the files land at the top level.
+
+> The slug must already exist in Heratio. Create the parent description first (or
+> confirm its slug), then set it as the Access system ID on the transfer.
+
 ## What it does
 
 - One `POST /api/v2/descriptions/{slug}/upload` per file in the DIP (bytes-in
