@@ -181,18 +181,43 @@ class PreservationController extends Controller
         }
 
         $now = now();
-        $packageId = DB::table('preservation_package')->insertGetId([
-            'uuid'              => (string) Str::uuid(),
-            'name'              => $name,
-            'package_type'      => $type,
-            'status'            => 'draft',
-            'package_format'    => 'bagit',
-            'manifest_algorithm'=> 'sha256',
-            'object_count'      => 0,
-            'total_size'        => 0,
-            'created_at'        => $now,
-            'updated_at'        => $now,
-        ]);
+
+        // Reuse an existing un-exported package for this record + type instead of
+        // inserting a fresh draft on every "Create" click (#1436). Repeated clicks
+        // - especially while an export is failing - otherwise pile up orphan
+        // drafts. We reuse any draft/failed/building row with no export file and
+        // re-link its objects from scratch below.
+        $reuse = DB::table('preservation_package')
+            ->where('information_object_id', $io->id)
+            ->where('package_type', $type)
+            ->whereIn('status', ['draft', 'failed', 'building'])
+            ->whereNull('export_path')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($reuse) {
+            $packageId = (int) $reuse->id;
+            DB::table('preservation_package_object')->where('package_id', $packageId)->delete();
+            DB::table('preservation_package')->where('id', $packageId)->update([
+                'name'       => $name,
+                'status'     => 'draft',
+                'updated_at' => $now,
+            ]);
+        } else {
+            $packageId = DB::table('preservation_package')->insertGetId([
+                'uuid'                  => (string) Str::uuid(),
+                'name'                  => $name,
+                'package_type'          => $type,
+                'status'                => 'draft',
+                'package_format'        => 'bagit',
+                'manifest_algorithm'    => 'sha256',
+                'information_object_id' => $io->id,
+                'object_count'          => 0,
+                'total_size'            => 0,
+                'created_at'            => $now,
+                'updated_at'            => $now,
+            ]);
+        }
 
         // Link every digital object in the whole COLLECTION - the IO and all its
         // descendants - to the new package, using the closure-backed hierarchy so
@@ -255,7 +280,7 @@ class PreservationController extends Controller
 
         return redirect()
             ->route('io.preservation', ['slug' => $slug])
-            ->with('success', strtoupper($type) . ' package "' . $name . '" created with ' . $count . ' object' . ($count === 1 ? '' : 's') . '.');
+            ->with('success', strtoupper($type) . ' package "' . $name . '" ' . ($reuse ? 'updated' : 'created') . ' with ' . $count . ' object' . ($count === 1 ? '' : 's') . '.');
     }
 
     /**

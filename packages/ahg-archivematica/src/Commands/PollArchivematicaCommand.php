@@ -33,6 +33,14 @@ class PollArchivematicaCommand extends Command
 
     public function handle(PollArchivematicaJobs $poller, ArchivematicaDashboardClient $client): int
     {
+        // No-op cleanly on an instance not wired to an Archivematica dashboard
+        // (#1429) so a managed cron_schedule row on e.g. the demo does nothing
+        // rather than erroring against an unconfigured endpoint.
+        if (trim((string) config('archivematica.am_dashboard_url', '')) === '') {
+            $this->info('Archivematica dashboard is not configured (am_dashboard_url) - nothing to poll.');
+            return self::SUCCESS;
+        }
+
         if (! Schema::hasTable('am_job')) {
             $this->warn('am_job table not present - nothing to poll.');
             return self::SUCCESS;

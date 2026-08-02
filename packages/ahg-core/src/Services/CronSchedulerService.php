@@ -366,6 +366,8 @@ class CronSchedulerService
                 ['slug' => 'preservation-package', 'name' => 'AIP Packaging', 'description' => 'Generate Archival Information Packages (AIPs) in BagIt format.', 'artisan_command' => 'ahg:preservation-package --type=aip --output=/preservation/aips', 'cron_expression' => '0 0 * * 0', 'duration_hint' => 'long', 'log_file' => 'logs/packages.log'],
                 ['slug' => 'preservation-obsolescence', 'name' => 'Obsolescence Check', 'description' => 'Check file formats against obsolescence risk registries.', 'artisan_command' => 'ahg:preservation-obsolescence --risk-level=medium', 'cron_expression' => '0 6 1 * *', 'duration_hint' => 'medium', 'log_file' => 'logs/obsolescence.log'],
                 ['slug' => 'preservation-stats', 'name' => 'Preservation Stats', 'description' => 'Generate daily preservation statistics in JSON format.', 'artisan_command' => 'ahg:preservation-stats --format=json', 'cron_expression' => '0 7 * * *', 'duration_hint' => 'short', 'log_file' => 'logs/preservation-stats.log'],
+                // #1436: reap stale draft/failed BagIt packages that were never exported.
+                ['slug' => 'preservation-cleanup', 'name' => 'Preservation Package Cleanup', 'description' => 'Prune stale draft/failed preservation packages that were never exported (older than 24h, no export file), plus their linked object/event rows and half-written bag dirs.', 'artisan_command' => 'ahg:preservation-cleanup --hours=24', 'cron_expression' => '0 5 * * *', 'duration_hint' => 'short', 'log_file' => 'logs/preservation-cleanup.log'],
             ],
             'Integrity Assurance' => [
                 ['slug' => 'integrity-schedule', 'name' => 'Integrity Scheduler', 'description' => 'Execute due integrity verification schedules (fixity checks).', 'artisan_command' => 'ahg:integrity-schedule --run-due', 'cron_expression' => '*/15 * * * *', 'duration_hint' => 'medium', 'log_file' => 'logs/integrity-scheduler.log'],
@@ -460,6 +462,13 @@ class CronSchedulerService
             ],
             'Portable Packages' => [
                 ['slug' => 'portable-cleanup', 'name' => 'Portable Cleanup', 'description' => 'Remove expired portable export packages from the staging area.', 'artisan_command' => 'ahg:portable-cleanup', 'cron_expression' => '0 3 * * *', 'duration_hint' => 'short', 'log_file' => 'logs/portable-cleanup.log'],
+            ],
+            // #1429: Archivematica round-trip drivers. Disabled by default - only an
+            // instance wired to an AM Storage Service (Admin -> Archivematica) should
+            // enable these; on an unconfigured instance both commands no-op cleanly.
+            'Archivematica' => [
+                ['slug' => 'am-poll', 'name' => 'Archivematica Poll', 'description' => 'Advance in-flight Heratio -> Archivematica transfers to completion (am_job). Enable only on an instance wired to an AM dashboard.', 'artisan_command' => 'am:poll', 'cron_expression' => '*/5 * * * *', 'duration_hint' => 'short', 'log_file' => 'logs/archivematica.log', 'is_enabled' => false],
+                ['slug' => 'am-ingest-dips', 'name' => 'Archivematica Ingest DIPs', 'description' => 'Pull finished DIPs from the Archivematica Storage Service back into Heratio. Skips already-seen (linked or unmatched) DIPs. Enable only on an AM-wired instance.', 'artisan_command' => 'am:ingest-dips --limit=100', 'cron_expression' => '*/15 * * * *', 'duration_hint' => 'medium', 'log_file' => 'logs/archivematica.log', 'is_enabled' => false],
             ],
             'Compliance' => [
                 ['slug' => 'privacy-scan-pii', 'name' => 'Privacy PII Scan', 'description' => 'Scan records for personally identifiable information under POPIA jurisdiction rules.', 'artisan_command' => 'ahg:privacy-scan-pii --jurisdiction=popia --limit=500', 'cron_expression' => '0 2 * * 1', 'duration_hint' => 'long', 'log_file' => 'logs/privacy-scan.log'],

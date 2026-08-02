@@ -44,7 +44,33 @@ The round-trip needs two commands on a timer:
 | `am:poll` | every 5 min | advance in-flight Heratio -> AM transfers to completion |
 | `am:ingest-dips` | every 15 min | pull finished DIPs from the Storage Service back into Heratio |
 
-**On dev** these are installed as a dedicated cron (dev's general scheduler is disabled), at `/etc/cron.d/heratio-am-dev`:
+### Preferred: managed scheduler rows (#1429)
+
+Both commands are now registered as **managed `cron_schedule` rows**, seeded
+**disabled by default**, and visible/toggleable under **Admin -> System -> Scheduled
+tasks**:
+
+| Slug | Command | Timing |
+|------|---------|--------|
+| `am-poll` | `am:poll` | `*/5 * * * *` |
+| `am-ingest-dips` | `am:ingest-dips --limit=100` | `*/15 * * * *` |
+
+On any instance pointed at an AM server (section 1 values set), **enable** these two
+rows; on an unconfigured instance leave them off - and even if enabled they **no-op
+cleanly** (both commands now exit success with a "not configured" line rather than
+erroring). This is the durable, per-instance path: it replaces the bespoke
+`/etc/cron.d/heratio-am-dev` file below. They only fire where `schedule:run` runs, so
+confirm that instance's scheduler cron is active.
+
+`am:ingest-dips` skips DIPs it has already seen - **linked or unmatched** (#1430) - so
+accumulated unmatched test DIPs are no longer re-dispatched every sweep. After adding
+records that should match previously-unmatched DIPs, force a re-evaluation with
+`am:ingest-dips --retry-unmatched`.
+
+### Legacy: bespoke dev cron (being retired)
+
+**On dev** these were installed as a dedicated cron (dev's general scheduler was
+disabled), at `/etc/cron.d/heratio-am-dev`:
 
 ```cron
 SHELL=/bin/bash
@@ -54,9 +80,13 @@ MAILTO=""
 */15 * * * * www-data flock -n /var/run/heratio-am-ingest.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio-dev/artisan am:ingest-dips >> /var/log/heratio-am.log 2>&1'
 ```
 
-Log: `/var/log/heratio-am.log`. Runs as `www-data` (never root - artisan bootstrap as root creates root-owned logs that then block the web worker).
+Log: `/var/log/heratio-am.log`. Runs as `www-data` (never root - artisan bootstrap as root creates root-owned logs that then block the web worker). Once the managed `am-poll` / `am-ingest-dips` rows above are enabled on dev and confirmed running, remove this file (`sudo rm /etc/cron.d/heratio-am-dev`) so the round-trip isn't driven twice.
 
-**On an instance that uses the database scheduler** (e.g. the demo runs `schedule:run` every minute), add the same two under **Admin -> System -> Scheduled tasks** instead - but only once that instance is pointed at an AM server. An unconfigured instance should not run them.
+### VM-side: Prometheus multiproc dir (#1431)
+
+Unrelated to the Heratio crons but part of keeping the round-trip healthy: on the AM VM,
+move `PROMETHEUS_MULTIPROC_DIR` off `/tmp` so a `/tmp` wipe can't stall transfers. See
+`tools/archivematica/am-vm-prometheus-multiproc-fix.md`.
 
 ## 4. End-to-end check
 

@@ -46,17 +46,23 @@ class IngestDipsCommand extends Command
 {
     protected $signature = 'am:ingest-dips
         {--limit=100 : Max DIP packages to fetch from the Storage Service}
-        {--sync : Ingest inline instead of dispatching queued jobs}';
+        {--sync : Ingest inline instead of dispatching queued jobs}
+        {--retry-unmatched : Re-evaluate DIPs previously recorded as unmatched (use after adding matching records)}';
 
     protected $description = 'Poll the Archivematica Storage Service for new DIPs and ingest each into Heratio.';
 
     public function handle(ArchivematicaSsClient $ss, DipIngestService $service): int
     {
         if (! $ss->isConfigured()) {
-            $this->error('Archivematica Storage Service is not configured (am_ss_url/username/api_key).');
+            // No-op cleanly on an instance not wired to Archivematica (#1429) so a
+            // managed cron_schedule row on e.g. the demo does nothing instead of
+            // logging a failure every run.
+            $this->info('Archivematica Storage Service is not configured (am_ss_url/username/api_key) - nothing to do.');
 
-            return self::FAILURE;
+            return self::SUCCESS;
         }
+
+        $retryUnmatched = (bool) $this->option('retry-unmatched');
 
         $limit = (int) $this->option('limit');
         if ($limit <= 0) {
@@ -74,7 +80,8 @@ class IngestDipsCommand extends Command
         $this->info(sprintf('Found %d DIP package(s) on the Storage Service.', count($packages)));
 
         $dispatched = 0;
-        $skipped = 0;
+        $skippedLinked = 0;
+        $skippedUnmatched = 0;
 
         foreach ($packages as $pkg) {
             $uuid = (string) ($pkg['uuid'] ?? '');
@@ -82,8 +89,18 @@ class IngestDipsCommand extends Command
                 continue;
             }
 
-            if ($this->alreadyLinked($uuid)) {
-                $skipped++;
+            // Skip anything we've already resolved. A DIP that matched a record is
+            // always skipped; a DIP we saw and could not match is skipped too
+            // (#1430 - it used to be re-dispatched on every sweep, thrashing the
+            // 15-minute cron) unless --retry-unmatched asks us to re-evaluate it
+            // (e.g. after a matching record was added).
+            $seen = $this->linkStatus($uuid);
+            if ($seen === 'linked') {
+                $skippedLinked++;
+                continue;
+            }
+            if ($seen === 'unmatched' && ! $retryUnmatched) {
+                $skippedUnmatched++;
                 continue;
             }
 
@@ -101,24 +118,31 @@ class IngestDipsCommand extends Command
         }
 
         $this->info(sprintf(
-            '%s %d DIP(s); %d already linked (skipped).',
+            '%s %d DIP(s); %d already linked, %d unmatched (skipped)%s.',
             $this->option('sync') ? 'Ingested' : 'Dispatched',
             $dispatched,
-            $skipped
+            $skippedLinked,
+            $skippedUnmatched,
+            $retryUnmatched ? ' [--retry-unmatched: unmatched re-evaluated]' : ''
         ));
 
         return self::SUCCESS;
     }
 
-    private function alreadyLinked(string $uuid): bool
+    /**
+     * The recorded am_link outcome for a DIP UUID: 'linked', 'unmatched', or null
+     * if we have never seen it. DipIngestService records BOTH outcomes, so this
+     * is the durable "already seen" marker (#1430).
+     */
+    private function linkStatus(string $uuid): ?string
     {
         if (! Schema::hasTable('am_link')) {
-            return false;
+            return null;
         }
 
         return DB::table('am_link')
             ->where('dip_uuid', $uuid)
-            ->where('status', 'linked')
-            ->exists();
+            ->orderByDesc('id')
+            ->value('status');
     }
 }

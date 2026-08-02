@@ -50,6 +50,7 @@ class AhgPreservationServiceProvider extends ServiceProvider
                 PremisExportCommand::class,
                 PreservationScanCommand::class,
                 \AhgPreservation\Console\NormalizeExistingCommand::class,
+                \AhgPreservation\Console\PackageCleanupCommand::class,
             ]);
         }
 

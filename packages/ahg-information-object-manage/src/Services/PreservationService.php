@@ -214,9 +214,31 @@ class PreservationService
             return ['ok' => true, 'message' => 'Already exported.', 'export_path' => $pkg->export_path];
         }
 
+        // Stamp a genuine build failure onto the package so it doesn't linger as a
+        // silent "draft" that looks half-broken in the UI (#1436). The row is kept
+        // (export_path stays null) so the operator can retry - createPackage reuses
+        // a failed/draft row, and ahg:preservation-cleanup prunes stale ones.
+        $fail = function (string $message) use ($packageId): array {
+            try {
+                DB::table('preservation_package')->where('id', $packageId)
+                    ->update(['status' => 'failed', 'updated_at' => now()]);
+                DB::table('preservation_package_event')->insert([
+                    'package_id'     => $packageId,
+                    'event_type'     => 'export',
+                    'event_outcome'  => 'failure',
+                    'event_detail'   => mb_substr($message, 0, 1000),
+                    'event_datetime' => now(),
+                    'agent_type'     => 'system',
+                    'agent_value'    => 'PreservationService::exportPackage',
+                ]);
+            } catch (\Throwable $e) { /* event table optional */ }
+
+            return ['ok' => false, 'message' => $message];
+        };
+
         $files = $this->getPackageFiles($packageId);
         if ($files->isEmpty()) {
-            return ['ok' => false, 'message' => 'Package has no linked files to export.'];
+            return $fail('Package has no linked files to export.');
         }
 
         $exportRoot = storage_path('app/preservation');
@@ -234,12 +256,9 @@ class PreservationService
             $webUser = function_exists('posix_geteuid') && function_exists('posix_getpwuid')
                 ? (posix_getpwuid(posix_geteuid())['name'] ?? '?')
                 : '?';
-            return [
-                'ok' => false,
-                'message' => 'Export root is not writable by the web user: ' . $exportRoot
-                    . ' (owner=' . $owner . ', running as=' . $webUser
-                    . '). Fix: chown -R ' . $webUser . ':' . $webUser . ' ' . $exportRoot,
-            ];
+            return $fail('Export root is not writable by the web user: ' . $exportRoot
+                . ' (owner=' . $owner . ', running as=' . $webUser
+                . '). Fix: chown -R ' . $webUser . ':' . $webUser . ' ' . $exportRoot);
         }
 
         $workDir = $exportRoot . '/' . $pkg->uuid;
@@ -249,11 +268,8 @@ class PreservationService
         }
         if (!@mkdir($dataDir, 0775, true)) {
             $err = error_get_last();
-            return [
-                'ok' => false,
-                'message' => 'Cannot create work directory: ' . $workDir
-                    . ($err ? ' (' . ($err['message'] ?? '') . ')' : ''),
-            ];
+            return $fail('Cannot create work directory: ' . $workDir
+                . ($err ? ' (' . ($err['message'] ?? '') . ')' : ''));
         }
 
         $manifestLines = [];
@@ -284,7 +300,7 @@ class PreservationService
 
         if (empty($manifestLines)) {
             $this->rmTree($workDir);
-            return ['ok' => false, 'message' => 'No source files could be located on disk for this package.'];
+            return $fail('No source files could be located on disk for this package.');
         }
 
         // BagIt declaration + bag-info + payload manifest + tag manifest.
@@ -313,7 +329,7 @@ class PreservationService
         if (file_exists($exportPath)) @unlink($exportPath);
         $zip = new \ZipArchive();
         if ($zip->open($exportPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
-            return ['ok' => false, 'message' => 'Cannot open zip for writing: ' . $exportPath];
+            return $fail('Cannot open zip for writing: ' . $exportPath);
         }
         $rii = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($workDir, \RecursiveDirectoryIterator::SKIP_DOTS));
         foreach ($rii as $item) {
