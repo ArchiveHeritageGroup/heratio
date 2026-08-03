@@ -19,7 +19,7 @@
       <ul>
         <li>{{ __('Skip navigation link to bypass repetitive content') }}</li>
         <li>{{ __('ARIA landmarks for screen reader navigation (banner, main, navigation, complementary, contentinfo)') }}</li>
-        <li>{{ __('Keyboard navigable — all interactive elements reachable via Tab') }}</li>
+        <li>{{ __('Keyboard navigable - all interactive elements reachable via Tab') }}</li>
         <li>{{ __('Visible focus indicators on interactive elements') }}</li>
         <li>{{ __('ARIA live regions for dynamic content announcements') }}</li>
         <li>{{ __('Collapsible facets with aria-expanded state') }}</li>

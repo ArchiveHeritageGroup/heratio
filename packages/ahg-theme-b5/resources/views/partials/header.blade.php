@@ -49,7 +49,7 @@
 
       <div class="d-flex flex-nowrap flex-column flex-lg-row align-items-strech align-items-lg-center">
         <ul class="navbar-nav mx-lg-2">
-          {{-- RiC Tools Dropdown — gated by ahgRicExplorerPlugin --}}
+          {{-- RiC Tools Dropdown - gated by ahgRicExplorerPlugin --}}
           @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
             <li class="nav-item dropdown d-flex flex-column">
               <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="ric-tools-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -123,7 +123,7 @@
             @include('theme::partials.menus.main-menu')
           @endif
 
-          {{-- Spectrum Tasks Bell — hidden when Spectrum is disabled (the
+          {{-- Spectrum Tasks Bell - hidden when Spectrum is disabled (the
                /admin/spectrum/* routes 404 via EnsureSpectrumEnabled). --}}
           @if(($themeData['isAuthenticated'] ?? false) && ($spectrumEnabled ?? false))
             @php
@@ -161,7 +161,7 @@
           @endif
         </ul>
 
-        {{-- Culture switcher REMOVED — duplicates the globe-icon language-menu
+        {{-- Culture switcher REMOVED - duplicates the globe-icon language-menu
              included above (line 113). Keeping the original AtoM-style
              fa-globe-europe selector; this POST-based switcher was a parallel
              port that ended up in the same nav. --}}

@@ -195,7 +195,7 @@
     <li><a class="dropdown-item" href="{{ route('heritage.custodian') }}"><i class="fas fa-hands me-2"></i>{{ __('Custodian') }}</a></li>
     @endif
 
-    {{-- Storage (gated by ahg_strongroom table existence — ahg-storage-manage feature) --}}
+    {{-- Storage (gated by ahg_strongroom table existence - ahg-storage-manage feature) --}}
     @php
       $hasStrongrooms = false;
       try {
@@ -208,7 +208,7 @@
     <li><a class="dropdown-item" href="{{ route('strongroom.browse') }}"><i class="fas fa-warehouse me-2"></i>{{ __('Strongrooms') }}</a></li>
     @endif
 
-    {{-- heratio#146 — front-of-house exhibition spaces (gated by ahg_exhibition_space table) --}}
+    {{-- heratio#146 - front-of-house exhibition spaces (gated by ahg_exhibition_space table) --}}
     @php
       $hasExhibitionSpace = false;
       try {
@@ -230,7 +230,7 @@
     @endif
     @endif
 
-    {{-- Workflow (gated by ahg_workflow table existence — ahg-workflow feature, heratio#143) --}}
+    {{-- Workflow (gated by ahg_workflow table existence - ahg-workflow feature, heratio#143) --}}
     @php
       $hasWorkflow = false;
       $hasSpectrumCompliance = false;

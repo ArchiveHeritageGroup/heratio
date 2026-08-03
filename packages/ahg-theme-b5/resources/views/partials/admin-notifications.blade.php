@@ -1,4 +1,4 @@
-{{-- Notification bars — pending items requiring attention --}}
+{{-- Notification bars - pending items requiring attention --}}
 {{-- Shown to admins (all notifications) and any authenticated user with Spectrum tasks --}}
 @php
   $isAdmin = $themeData['isAdmin'] ?? false;
@@ -8,7 +8,7 @@
   $notifications = [];
   $spectrumTaskCount = 0;
 
-  // Spectrum workflow tasks — for ANY authenticated user (matching AtoM)
+  // Spectrum workflow tasks - for ANY authenticated user (matching AtoM)
   if ($isAuth && $userId) {
       try {
           $spectrumTaskCount = \AhgSpectrum\Services\SpectrumNotificationService::getActiveTaskCount($userId);
@@ -70,7 +70,7 @@
                     ->first();
                 $errorMsg = $unreadErrors . ' unread error' . ($unreadErrors > 1 ? 's' : '');
                 if ($recentError) {
-                    $errorMsg .= ' — latest: ' . \Illuminate\Support\Str::limit($recentError->message, 80);
+                    $errorMsg .= ' - latest: ' . \Illuminate\Support\Str::limit($recentError->message, 80);
                 }
                 $notifications[] = [
                     'type' => 'danger',
@@ -83,7 +83,7 @@
         } catch (\Exception $e) {}
     }
 
-    // Spectrum task notification — for ANY authenticated user
+    // Spectrum task notification - for ANY authenticated user
     if ($spectrumTaskCount > 0) {
         $notifications[] = [
             'type' => 'primary',

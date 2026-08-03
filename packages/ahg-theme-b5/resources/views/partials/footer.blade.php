@@ -82,7 +82,7 @@
           </div>
         @endif
 
-        {{-- "Powered by Heratio" credit — hidden when Show Branding is off in /admin/ahgSettings/themes --}}
+        {{-- "Powered by Heratio" credit - hidden when Show Branding is off in /admin/ahgSettings/themes --}}
         @if($themeData['showBranding'] ?? true)
           <div class="mt-1 text-white-50">
             @if($ftCustomText){{ $ftCustomText }} &middot; @endif
@@ -94,7 +94,7 @@
       </div>
     </div>
 
-    {{-- Translation attribution — see ACKNOWLEDGMENTS.md --}}
+    {{-- Translation attribution - see ACKNOWLEDGMENTS.md --}}
     <hr class="border-light my-2 opacity-25">
     <div class="text-center">
       <small class="text-white-50">

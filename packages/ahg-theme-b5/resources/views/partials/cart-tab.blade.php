@@ -1,4 +1,4 @@
-{{-- Floating Cart Tab — left edge. Always rendered so the AJAX handlers
+{{-- Floating Cart Tab - left edge. Always rendered so the AJAX handlers
      on /marketplace/browse can show/hide + update the badge live without
      a full page reload. CSS keeps the tab hidden when [data-count="0"]. --}}
 @php

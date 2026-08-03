@@ -63,7 +63,7 @@
     </li>
     @endif
 
-    {{-- Spectrum Tasks Section — hidden when Spectrum is disabled (its
+    {{-- Spectrum Tasks Section - hidden when Spectrum is disabled (its
          /admin/spectrum/* routes 404 via EnsureSpectrumEnabled). --}}
     @if($spectrumEnabled ?? false)
     <li><hr class="dropdown-divider"></li>
@@ -270,7 +270,7 @@
       })();
       </script>
 
-      {{-- Demo credentials — only on the AHG-branded heratio site, not on white-label client deployments.
+      {{-- Demo credentials - only on the AHG-branded heratio site, not on white-label client deployments.
            Gated by Show Branding (same toggle that controls "Powered by Heratio"). --}}
       @if($themeData['showBranding'] ?? true)
       <div class="alert alert-info py-2 px-2 mt-2 mb-2 small">

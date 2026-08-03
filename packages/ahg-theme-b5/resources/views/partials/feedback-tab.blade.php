@@ -1,4 +1,4 @@
-{{-- Floating Favorites Tab — left edge, above Feedback --}}
+{{-- Floating Favorites Tab - left edge, above Feedback --}}
 @auth
 <a href="{{ route('favorites.browse') }}" id="favorites-tab-btn" title="{{ __('My Favorites') }}">
   <i class="fas fa-heart me-1"></i>{{ __('Favorites') }}
@@ -36,7 +36,7 @@
 </style>
 @endauth
 
-{{-- Floating Feedback Tab — left edge, halfway down --}}
+{{-- Floating Feedback Tab - left edge, halfway down --}}
 <div id="feedback-tab-wrap">
   {{-- The tab button --}}
   <button id="feedback-tab-btn" type="button" aria-label="{{ __('Give feedback') }}" title="{{ __('Feedback') }}">
@@ -220,7 +220,7 @@
   const ratingInput = document.getElementById('feedback-rating');
   const subjectInput = document.getElementById('feedback-subject');
 
-  // Dismiss — just close the panel and show the tab button again
+  // Dismiss - just close the panel and show the tab button again
   dismissBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     panel.classList.add('d-none');
@@ -228,7 +228,7 @@
     btn.style.display = '';
   });
 
-  // Toggle panel — show dismiss button when panel is open
+  // Toggle panel - show dismiss button when panel is open
   btn.addEventListener('click', function() {
     panel.classList.toggle('d-none');
     const isOpen = !panel.classList.contains('d-none');
@@ -269,10 +269,10 @@
   // Submit via AJAX
   form.addEventListener('submit', function(e) {
     e.preventDefault();
-    // Build subject: "Quick Feedback [★★★☆☆] — /page/url"
+    // Build subject: "Quick Feedback [★★★☆☆] - /page/url"
     const rating = ratingInput.value ? '★'.repeat(parseInt(ratingInput.value)) + '☆'.repeat(5 - parseInt(ratingInput.value)) : 'No rating';
     const pagePath = window.location.pathname + window.location.search;
-    subjectInput.value = 'Quick Feedback [' + rating + '] — ' + pagePath;
+    subjectInput.value = 'Quick Feedback [' + rating + '] - ' + pagePath;
 
     const fd = new FormData(form);
     const submitBtn = form.querySelector('button[type="submit"]');

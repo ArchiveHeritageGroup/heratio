@@ -10,7 +10,7 @@
      data-load-alert-message="There was an error loading the clipboard content."
      data-export-alert-message="The clipboard is empty for this entity type."
      data-export-check-url="{{ url('/clipboard/exportCheck') }}"
-     data-delete-alert-message="Note: clipboard items unclipped in this page will be removed from the clipboard when the page is refreshed. You can re-select them now, or reload the page to remove them completely. Using the sort or print preview buttons will also cause a page reload — so anything currently deselected will be lost!"
+     data-delete-alert-message="Note: clipboard items unclipped in this page will be removed from the clipboard when the page is refreshed. You can re-select them now, or reload the page to remove them completely. Using the sort or print preview buttons will also cause a page reload - so anything currently deselected will be lost!"
      @if(auth()->check() && (auth()->user()->isEditor() || auth()->user()->isAdministrator()))
        data-show-accessions="1"
      @else

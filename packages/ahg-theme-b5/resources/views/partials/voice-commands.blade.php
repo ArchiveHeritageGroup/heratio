@@ -1,4 +1,4 @@
-{{-- Voice Commands UI partial — included in master layout.
+{{-- Voice Commands UI partial - included in master layout.
      Renders: listening indicator, floating mic button, toast container, and help modal.
      Skips rendering for bots/crawlers. --}}
 

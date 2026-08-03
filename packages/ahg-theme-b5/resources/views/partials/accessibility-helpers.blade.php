@@ -1,5 +1,5 @@
 {{--
-  Global Accessibility Helpers — WCAG 2.1 AA compliance
+  Global Accessibility Helpers - WCAG 2.1 AA compliance
 
   Provides:
    - ARIA live region + ahgAnnounce() / ahgFocusTo()
@@ -113,7 +113,7 @@
         headings.forEach(function(h) {
             var level = parseInt(h.tagName.charAt(1), 10);
             if (prev > 0 && level > prev + 1) {
-                console.warn('[A11y] Heading hierarchy skip: <' + h.tagName.toLowerCase() + '> follows <h' + prev + '> — "' + h.textContent.trim().substring(0, 40) + '"');
+                console.warn('[A11y] Heading hierarchy skip: <' + h.tagName.toLowerCase() + '> follows <h' + prev + '> - "' + h.textContent.trim().substring(0, 40) + '"');
             }
             prev = level;
         });

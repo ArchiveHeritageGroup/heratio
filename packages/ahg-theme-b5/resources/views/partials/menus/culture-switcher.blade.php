@@ -1,5 +1,5 @@
 {{--
-  Culture switcher — dropdown listing enabled UI languages.
+  Culture switcher - dropdown listing enabled UI languages.
   Reads enabled languages from ahg_settings (scope = 'i18n_languages', editable = 1)
   with a hard fallback to ['en'] if the setting table is unavailable.
 

@@ -186,7 +186,7 @@
 
     <div class="print-footer">
       <div style="float: right;">Page generated: {{ now()->format('Y-m-d H:i:s') }}</div>
-      <div>Printed from {{ $themeData['siteTitle'] ?? 'Heratio' }} &mdash; {{ url()->current() }}</div>
+      <div>Printed from {{ $themeData['siteTitle'] ?? 'Heratio' }} - {{ url()->current() }}</div>
     </div>
 
   </body>
