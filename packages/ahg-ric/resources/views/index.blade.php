@@ -290,15 +290,36 @@ function updateRecentOperations(ops) {
     document.getElementById('recent-ops-body').innerHTML = '<div class="alert alert-info mb-0">No recent operations.</div>';
     return;
   }
-  var html = '<table class="table table-sm table-hover mb-0"><thead><tr><th>Time</th><th>Operation</th><th>Entity</th><th>Status</th></tr></thead><tbody>';
+  var html = '<table class="table table-sm table-hover mb-0"><thead><tr><th>Time</th><th>Operation</th><th>Entity</th><th>Status</th><th>Reason</th></tr></thead><tbody>';
   ops.slice(0, 10).forEach(function(op) {
     var time = op.created_at ? new Date(op.created_at).toLocaleTimeString() : '';
     var statusClass = op.status === 'completed' ? 'success' : (op.status === 'failed' ? 'danger' : 'warning');
     var entityName = op.entity_name || ((op.entity_type || '') + '/' + (op.entity_id || ''));
+    // #1421 (bug 3): surface the failure reason. A "failure" row with no reason
+    // cannot be triaged; ric_sync_log.error_message / details carry it, so show
+    // it inline (truncated, full text on hover) for any non-completed row.
+    var reason = '';
+    if (op.status !== 'completed') {
+      var detail = op.error_message || '';
+      if (!detail && op.details) {
+        try { var d = (typeof op.details === 'string') ? JSON.parse(op.details) : op.details;
+              detail = (d && (d.error || d.message || d.reason)) || ''; } catch (e) { detail = op.details; }
+      }
+      detail = String(detail || '');
+      if (detail) {
+        var esc = detail.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        var shortTxt = (detail.length > 80 ? detail.slice(0, 80) + '…' : detail)
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        reason = '<span class="text-danger small" title="' + esc + '">' + shortTxt + '</span>';
+      } else if (op.status === 'failed') {
+        reason = '<span class="text-muted small fst-italic">no reason recorded</span>';
+      }
+    }
     html += '<tr><td class="text-muted small">' + time + '</td>' +
       '<td><span class="badge bg-secondary">' + (op.operation || '') + '</span></td>' +
       '<td><strong>' + entityName + '</strong><br><small class="text-muted">' + (op.entity_type || '') + ' #' + (op.entity_id || '') + '</small></td>' +
-      '<td><span class="badge bg-' + statusClass + '">' + (op.status || '') + '</span></td></tr>';
+      '<td><span class="badge bg-' + statusClass + '">' + (op.status || '') + '</span></td>' +
+      '<td>' + reason + '</td></tr>';
   });
   html += '</tbody></table>';
   document.getElementById('recent-ops-body').innerHTML = html;

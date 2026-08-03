@@ -63,14 +63,14 @@ class FusekiOrphanCleanupCommand extends Command
     {
         $sync = app(FusekiSyncService::class);
         $retentionDays = $sync->orphanRetentionDays();
-        if ($retentionDays === 0) {
-            $this->line('[fuseki-orphan-cleanup] retention=0 - auto-purge disabled.');
-            return self::SUCCESS;
-        }
 
         $this->ensureLogTable();
 
-        // Pass 1: detect + log new orphans
+        // Pass 1: detect + log new orphans. Detection runs REGARDLESS of the
+        // retention setting - retention only gates the PURGE (pass 2) below.
+        // Previously a retention of 0 returned early, so with auto-purge off the
+        // orphan detector never even looked, and the dashboard - which reads
+        // ric_orphan_tracking - had nothing to show (#1421 bug 2a).
         try {
             $fusekiGraphs = $this->listFusekiGraphsByPrefix(RicGraphManifest::URN_PREFIX);
         } catch (\Throwable $e) {
@@ -83,26 +83,78 @@ class FusekiOrphanCleanupCommand extends Command
             $ids = DB::table($cfg['table'])->pluck($cfg['id'])->all();
             $relationalIds[$entityType] = array_flip(array_map('intval', $ids));
         }
+        // Flat union of every relational id, for HTTP-scheme resolution below.
+        $allRelationalIds = [];
+        foreach ($relationalIds as $set) {
+            $allRelationalIds += $set;
+        }
 
         $newlyDetected = 0;
-        foreach ($fusekiGraphs as $graphUri) {
-            $parsed = $this->parseGraphUri($graphUri);
-            if ($parsed === null) continue;
-            [$entityType, $id] = $parsed;
-            if (isset($relationalIds[$entityType][$id])) continue; // not orphaned
 
-            // Already logged?
+        // Record one orphan graph URI (idempotent) into BOTH the retention log
+        // (ahg_fuseki_orphan_log, the pass-2 purge clock) AND ric_orphan_tracking
+        // (the table the /admin/ric dashboard actually reads - nothing populated
+        // it before, hence the perpetual "Orphaned Triples: 0").
+        $record = function (string $graphUri, ?string $ricType) use (&$newlyDetected) {
             $existing = DB::table('ahg_fuseki_orphan_log')->where('graph_uri', $graphUri)->first();
-            if (!$existing) {
+            if (! $existing) {
                 DB::table('ahg_fuseki_orphan_log')->insert([
                     'graph_uri' => $graphUri,
                     'first_seen_at' => now(),
                 ]);
                 $newlyDetected++;
             }
+            $this->trackOrphan($graphUri, $ricType);
+        };
+
+        // Pass 1a: URN-scheme entities (urn:ahg:ric:<type>:<id>).
+        foreach ($fusekiGraphs as $graphUri) {
+            $parsed = $this->parseGraphUri($graphUri);
+            if ($parsed === null) {
+                continue;
+            }
+            [$entityType, $id] = $parsed;
+            if (isset($relationalIds[$entityType][$id])) {
+                continue; // resolves to a relational entity - not orphaned
+            }
+            $record($graphUri, $entityType);
         }
 
-        // Pass 2: purge graphs whose first_seen_at is older than retention
+        // Pass 1b (#1421 bug 2a): HTTP base-URI-scheme entities
+        // (<base>/<instance>/<type>/<localid>) written by the shell/PSIS sync.
+        // The URN sweep above never saw these, so context entities (Rule,
+        // Mandate, Mechanism) written under the HTTP scheme went uncounted - the
+        // exact case reported (…/rule/text_900328). A subject is an orphan when
+        // its local id does not resolve to any relational entity (a non-numeric
+        // id like "text_900328" never matches a numeric relational id).
+        $httpPrefix = $this->httpSchemePrefix();
+        if ($httpPrefix !== null) {
+            try {
+                foreach ($this->listFusekiGraphsByPrefix($httpPrefix) as $subject) {
+                    $path = trim((string) parse_url($subject, PHP_URL_PATH), '/');
+                    if ($path === '') {
+                        continue;
+                    }
+                    $slash = strrpos($path, '/');
+                    $localId = $slash !== false ? substr($path, $slash + 1) : $path;
+                    $isKnown = ctype_digit($localId) && isset($allRelationalIds[(int) $localId]);
+                    if (! $isKnown) {
+                        $record($subject, $this->ricTypeFromHttp($subject));
+                    }
+                }
+            } catch (\Throwable $e) {
+                $this->warn('[fuseki-orphan-cleanup] HTTP-scheme sweep skipped: ' . $e->getMessage());
+            }
+        }
+
+        // Pass 2: purge graphs whose first_seen_at is older than retention.
+        // Skipped entirely when retention=0 (detection-only mode).
+        if ($retentionDays === 0) {
+            $this->line('[fuseki-orphan-cleanup] retention=0 - detection only (auto-purge disabled); newly_detected=' . $newlyDetected);
+            Log::info('[fuseki-orphan-cleanup] detection-only', ['newly_detected' => $newlyDetected]);
+            return self::SUCCESS;
+        }
+
         $cutoff = now()->subDays($retentionDays);
         $toPurge = DB::table('ahg_fuseki_orphan_log')
             ->whereNull('purged_at')
@@ -121,6 +173,7 @@ class FusekiOrphanCleanupCommand extends Command
                     // No longer orphan - clear the log row so a future deletion
                     // starts the retention clock from scratch.
                     DB::table('ahg_fuseki_orphan_log')->where('graph_uri', $row->graph_uri)->delete();
+                    $this->resolveOrphanTracking($row->graph_uri, 'resolved');
                     continue;
                 }
             }
@@ -141,6 +194,7 @@ class FusekiOrphanCleanupCommand extends Command
                 DB::table('ahg_fuseki_orphan_log')
                     ->where('graph_uri', $row->graph_uri)
                     ->update(['purged_at' => now()]);
+                $this->resolveOrphanTracking($row->graph_uri, 'cleaned');
                 $purged++;
             } catch (\Throwable $e) {
                 Log::warning('[fuseki-orphan-cleanup] DROP failed for ' . $row->graph_uri . ': ' . $e->getMessage());
@@ -159,6 +213,78 @@ class FusekiOrphanCleanupCommand extends Command
         ]);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The HTTP base-URI prefix this instance's RiC entities are published under
+     * (<base_uri>/<instance>/), or null if no base URI is configured. Used to
+     * sweep the alternate URI scheme the shell/PSIS sync writes (#1421 bug 2a).
+     */
+    private function httpSchemePrefix(): ?string
+    {
+        $base = rtrim((string) config('ric.base_uri', ''), '/');
+        if ($base === '') {
+            return null;
+        }
+        $instance = trim((string) config('ahg-ric.instance_id', ''), '/');
+
+        return $instance !== '' ? $base . '/' . $instance . '/' : $base . '/';
+    }
+
+    /**
+     * The type word from an HTTP-scheme RiC URI (<base>/<instance>/<type>/<id>).
+     */
+    private function ricTypeFromHttp(string $uri): ?string
+    {
+        $parts = explode('/', trim((string) parse_url($uri, PHP_URL_PATH), '/'));
+
+        return count($parts) >= 2 ? $parts[count($parts) - 2] : null;
+    }
+
+    /**
+     * Record a detected orphan into ric_orphan_tracking - the table the
+     * /admin/ric dashboard counts and lists. Idempotent per URI while status is
+     * 'detected'. Nothing populated this table before #1421, which is why the
+     * dashboard's orphan count was structurally always 0.
+     */
+    private function trackOrphan(string $uri, ?string $ricType): void
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('ric_orphan_tracking')) {
+            return;
+        }
+        $exists = DB::table('ric_orphan_tracking')
+            ->where('ric_uri', $uri)
+            ->where('status', 'detected')
+            ->exists();
+        if ($exists) {
+            return;
+        }
+        DB::table('ric_orphan_tracking')->insert([
+            'ric_uri' => mb_substr($uri, 0, 500),
+            'ric_type' => $ricType ? mb_substr($ricType, 0, 100) : null,
+            'detected_at' => now(),
+            'detection_method' => 'fuseki-sweep',
+            'status' => 'detected',
+        ]);
+    }
+
+    /**
+     * Mark a tracked orphan resolved ('cleaned' after a purge, or 'resolved'
+     * when its relational entity reappeared).
+     */
+    private function resolveOrphanTracking(string $uri, string $status): void
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('ric_orphan_tracking')) {
+            return;
+        }
+        DB::table('ric_orphan_tracking')
+            ->where('ric_uri', $uri)
+            ->where('status', 'detected')
+            ->update([
+                'status' => $status,
+                'resolved_at' => now(),
+                'cleaned_at' => $status === 'cleaned' ? now() : null,
+            ]);
     }
 
     private function ensureLogTable(): void
