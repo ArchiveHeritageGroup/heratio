@@ -507,17 +507,37 @@ class InformationObjectController extends Controller
                 ->toArray();
         }
 
-        // Child thumbnails for image carousel (matching AtoM imageflow component)
+        // Thumbnails for the image carousel (matching AtoM imageflow component).
+        // Walk the WHOLE descendant subtree (closure-backed), not just the direct
+        // children: a top-level collection's direct children are frequently
+        // intermediate series with no images of their own - the images live
+        // deeper - so a direct-children-only query left the carousel empty for
+        // collections like demonstration-collections (7 image-less children, 68
+        // thumbnails on descendants). Falls back to direct children if the
+        // closure isn't available. (nested-set lft/rgt is not used - it is
+        // frequently stale; see HierarchyQueryService.)
         $childThumbnails = collect();
-        $childIds = $children->pluck('id')->toArray();
-        if (!empty($childIds)) {
+        $carouselIds = [];
+        if (class_exists(\AhgCore\Services\HierarchyQueryService::class)) {
+            $carouselIds = app(\AhgCore\Services\HierarchyQueryService::class)
+                ->descendantIds('information_object', (int) $io->id, false);
+        }
+        if (empty($carouselIds)) {
+            $carouselIds = $children->pluck('id')->toArray();
+        }
+        // Guard the IN() against MySQL's placeholder ceiling on huge collections;
+        // a 10-item carousel never needs more than a few thousand candidates.
+        if (count($carouselIds) > 20000) {
+            $carouselIds = array_slice($carouselIds, 0, 20000);
+        }
+        if (!empty($carouselIds)) {
             $childThumbnails = DB::table('digital_object')
                 ->join('slug', 'digital_object.object_id', '=', 'slug.object_id')
                 ->join('information_object_i18n', function ($join) use ($culture) {
                     $join->on('digital_object.object_id', '=', 'information_object_i18n.id')
                          ->where('information_object_i18n.culture', '=', $culture);
                 })
-                ->whereIn('digital_object.object_id', $childIds)
+                ->whereIn('digital_object.object_id', $carouselIds)
                 ->where('digital_object.usage_id', 142) // Thumbnail usage
                 ->select(
                     'digital_object.id',
@@ -529,11 +549,12 @@ class InformationObjectController extends Controller
                     'slug.slug',
                     'information_object_i18n.title'
                 )
+                ->orderBy('digital_object.object_id')
                 ->limit(10) // Limit carousel items like AtoM
                 ->get();
         }
-        $childThumbnailTotal = !empty($childIds) ? DB::table('digital_object')
-            ->whereIn('digital_object.object_id', $childIds)
+        $childThumbnailTotal = !empty($carouselIds) ? DB::table('digital_object')
+            ->whereIn('digital_object.object_id', $carouselIds)
             ->where('digital_object.usage_id', 142)
             ->count() : 0;
 
