@@ -587,6 +587,28 @@
 {{-- ============================================================ --}}
 @section('right')
 
+  {{-- Child image carousel (imageflow): descendant thumbnails, so a gallery
+       collection shows a scrollable strip of its child artworks. Hidden for a
+       single leaf artwork. Matches the archival / DAM / museum show. --}}
+  @if(isset($childThumbnails) && $childThumbnails->isNotEmpty())
+    <div class="imageflow-strip border rounded mb-3 py-2 px-1" style="background:#f8f8f8;">
+      <div class="d-flex overflow-auto gap-2 px-2" style="scrollbar-width:thin;">
+        @foreach($childThumbnails as $ct)
+          @php $thumbUrl = \AhgCore\Services\DigitalObjectService::getUrl($ct); @endphp
+          <a href="{{ route('informationobject.show', $ct->slug) }}" class="flex-shrink-0 text-center text-decoration-none" style="width:100px;" title="{{ $ct->title ?: '[Untitled]' }}">
+            <img src="{{ $thumbUrl }}" alt="{{ $ct->title ?: '' }}" class="img-thumbnail" style="width:90px;height:68px;object-fit:cover;">
+            <small class="d-block text-truncate text-muted mt-1" style="font-size:.7rem;">{{ Str::limit($ct->title ?: '[Untitled]', 18) }}</small>
+          </a>
+        @endforeach
+      </div>
+      @if(isset($childThumbnailTotal) && $childThumbnailTotal > $childThumbnails->count())
+        <div class="text-center mt-1">
+          <small class="text-muted">{{ __('Showing') }} {{ $childThumbnails->count() }} {{ __('of') }} {{ $childThumbnailTotal }}</small>
+        </div>
+      @endif
+    </div>
+  @endif
+
   {{-- Digital object display --}}
   @if(!empty($digitalObjects['reference']))
     <div class="card mb-3">
