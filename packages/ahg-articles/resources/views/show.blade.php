@@ -28,6 +28,7 @@
             <img src="{{ $article->cover_image }}" alt="{{ $article->title }}" class="img-fluid rounded mb-4 d-block mx-auto">
         @endif
 
+        <style>.article-body p{text-align:justify;text-justify:inter-word}.article-body li{text-align:justify}</style>
         <div class="article-body">
             {!! $bodyHtml !!}
         </div>
