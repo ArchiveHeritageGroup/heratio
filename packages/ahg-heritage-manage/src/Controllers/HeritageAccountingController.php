@@ -53,12 +53,34 @@ class HeritageAccountingController extends Controller
 
     public function browse(Request $request)
     {
+        $culture = app()->getLocale();
         $items = collect();
-        $columns = ['ID', 'Name', 'Class', 'Status', 'Value', 'Date'];
+        $columns = ['Asset', 'Class', 'Status', 'Carrying value', 'Recognised'];
 
         try {
             if (Schema::hasTable('heritage_asset')) {
-                $items = DB::table('heritage_asset')->orderByDesc('created_at')->paginate(25);
+                // Resolve the item NAME from the linked information_object title
+                // (heritage_asset has no name column of its own) + its slug so the
+                // browse can link each row to the record, and the asset-class name.
+                $items = DB::table('heritage_asset as ha')
+                    ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
+                        $j->on('i18n.id', '=', 'ha.information_object_id')
+                            ->where('i18n.culture', '=', $culture);
+                    })
+                    ->leftJoin('slug as s', 's.object_id', '=', 'ha.information_object_id')
+                    ->leftJoin('heritage_asset_class as ac', 'ac.id', '=', 'ha.asset_class_id')
+                    ->orderByDesc('ha.created_at')
+                    ->select(
+                        'ha.id',
+                        'ha.information_object_id',
+                        's.slug',
+                        'i18n.title as item_name',
+                        'ac.name as class_name',
+                        'ha.recognition_status',
+                        'ha.current_carrying_amount',
+                        'ha.recognition_date'
+                    )
+                    ->paginate(25);
             }
         } catch (\Exception $e) {}
 

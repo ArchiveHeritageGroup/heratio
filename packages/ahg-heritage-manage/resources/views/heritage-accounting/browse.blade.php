@@ -39,9 +39,31 @@
             </tr></thead>
             <tbody>
               @forelse($items ?? [] as $item)
-              <tr>@foreach((array)$item as $val)<td>{{ Str::limit($val, 80) ?: '-' }}</td>@endforeach</tr>
+              @php
+                $itemName = $item->item_name ?: ('Asset #' . $item->id);
+                // Link the asset to its accounting record; the item name also
+                // deep-links to the archival record when a slug is available.
+                $recordUrl = Route::has('heritage.accounting.view') ? route('heritage.accounting.view', $item->id) : null;
+                $itemUrl = !empty($item->slug) ? url('/' . $item->slug) : $recordUrl;
+              @endphp
+              <tr>
+                <td>
+                  @if($itemUrl)
+                    <a href="{{ $itemUrl }}">{{ Str::limit($itemName, 80) }}</a>
+                  @else
+                    {{ Str::limit($itemName, 80) }}
+                  @endif
+                  @if($recordUrl && $itemUrl !== $recordUrl)
+                    <a href="{{ $recordUrl }}" class="ms-2 small text-muted" title="{{ __('Accounting record') }}"><i class="fas fa-calculator"></i></a>
+                  @endif
+                </td>
+                <td>{{ $item->class_name ?: '-' }}</td>
+                <td>{{ $item->recognition_status ? ucwords(str_replace('_', ' ', $item->recognition_status)) : '-' }}</td>
+                <td class="text-end">{{ $item->current_carrying_amount !== null ? number_format((float)$item->current_carrying_amount, 2) : '-' }}</td>
+                <td>{{ $item->recognition_date ? \Illuminate\Support\Carbon::parse($item->recognition_date)->format('Y-m-d') : '-' }}</td>
+              </tr>
               @empty
-              <tr><td colspan="{{ count($columns ?? ['ID','Name','Class','Status','Value','Date']) }}" class="text-center text-muted py-3">No records found</td></tr>
+              <tr><td colspan="{{ count($columns ?? ['Asset','Class','Status','Carrying value','Recognised']) }}" class="text-center text-muted py-3">No records found</td></tr>
               @endforelse
             </tbody>
           </table>
