@@ -35,10 +35,10 @@ use Illuminate\Support\Facades\Schema;
  * were previously scattered and partially applied across OAI, the REST/GraphQL
  * APIs, CIDOC/SPARQL, Europeana and the portable export (#1389 / #1384):
  *
- *   - Publication status   — status row type_id=158 / status_id=160.
- *   - ICIP / TK protocols  — icip_access_restriction (direct + applies_to_descendants subtree).
- *   - ODRL access policy   — research_rights_policy 'use' prohibition.
- *   - PII redaction (files)— privacy_visual_redaction present ⇒ raw derivative unsafe.
+ *   - Publication status   - status row type_id=158 / status_id=160.
+ *   - ICIP / TK protocols  - icip_access_restriction (direct + applies_to_descendants subtree).
+ *   - ODRL access policy   - research_rights_policy 'use' prohibition.
+ *   - PII redaction (files)- privacy_visual_redaction present ⇒ raw derivative unsafe.
  *
  * Everything routes through here so a surface can never silently ship
  * protocol-restricted, gated, unpublished or redacted content. Fail-closed:
@@ -67,7 +67,7 @@ class DisclosureGate
     private ?array $redacted = null;
 
     /**
-     * IO ids restricted by ICIP/TK cultural protocol — direct restrictions plus
+     * IO ids restricted by ICIP/TK cultural protocol - direct restrictions plus
      * the descendants of any restriction flagged applies_to_descendants. Memoised.
      *
      * @return int[]
@@ -79,17 +79,37 @@ class DisclosureGate
         }
         $ids = [];
         if (Schema::hasTable('icip_access_restriction')) {
-            foreach (DB::table('icip_access_restriction')->pluck('information_object_id') as $id) {
+            $today = now()->toDateString();
+
+            // #1426: only an ACTIVE restriction withholds. A restriction is
+            // active when today is within its [start_date, end_date] window
+            // (either bound NULL = open-ended). Without this the gate treated a
+            // mourning-period / seasonal restriction whose end_date has passed as
+            // permanent, and applied a future-dated one immediately. The
+            // interactive path (IcipController::getObjectRestrictions) already
+            // filters this way; the two enforcement paths now agree.
+            $inWindow = function ($q, string $col) use ($today) {
+                $q->where(function ($w) use ($col, $today) {
+                    $w->whereNull("{$col}start_date")->orWhereDate("{$col}start_date", '<=', $today);
+                })->where(function ($w) use ($col, $today) {
+                    $w->whereNull("{$col}end_date")->orWhereDate("{$col}end_date", '>=', $today);
+                });
+            };
+
+            $direct = DB::table('icip_access_restriction');
+            $inWindow($direct, '');
+            foreach ($direct->pluck('information_object_id') as $id) {
                 $ids[(int) $id] = true;
             }
+
             if (Schema::hasTable('information_object')) {
-                $subtree = DB::table('information_object as io')
+                $subtreeQ = DB::table('information_object as io')
                     ->join('icip_access_restriction as r', 'r.applies_to_descendants', '=', DB::raw('1'))
                     ->join('information_object as anc', 'anc.id', '=', 'r.information_object_id')
                     ->whereColumn('io.lft', '>=', 'anc.lft')
-                    ->whereColumn('io.lft', '<=', 'anc.rgt')
-                    ->pluck('io.id');
-                foreach ($subtree as $id) {
+                    ->whereColumn('io.lft', '<=', 'anc.rgt');
+                $inWindow($subtreeQ, 'r.');
+                foreach ($subtreeQ->pluck('io.id') as $id) {
                     $ids[(int) $id] = true;
                 }
             }
@@ -145,7 +165,7 @@ class DisclosureGate
 
     /**
      * Add the confidentiality exclusion to a query builder against the given
-     * information-object id column. Does NOT add the publication join — callers
+     * information-object id column. Does NOT add the publication join - callers
      * keep their existing published INNER join; this layers ICIP/ODRL on top.
      * Use wherePublished() as well if the query has no publication gate yet.
      */
@@ -234,7 +254,7 @@ class DisclosureGate
 
     /**
      * Does this record carry PII visual-redaction regions? If so its raw
-     * derivatives must not be served — callers should withhold the object or
+     * derivatives must not be served - callers should withhold the object or
      * serve the redacted rendition. Memoised.
      */
     public function hasRedactions(int $ioId): bool
@@ -245,7 +265,7 @@ class DisclosureGate
     }
 
     /**
-     * All IO ids carrying PII visual-redaction regions — for query surfaces that
+     * All IO ids carrying PII visual-redaction regions - for query surfaces that
      * withhold digital objects of redacted records. Memoised.
      *
      * @return int[]

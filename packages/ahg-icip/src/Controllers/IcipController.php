@@ -136,8 +136,8 @@ class IcipController extends Controller
      * These methods are reached via Route::match(['get','post'], ...) handlers
      * where the ACL is intentionally enforced in the controller (the matching
      * DELETE routes use the acl:delete route-middleware). This mirrors that
-     * middleware's predicate — App\Http\Middleware\CheckAcl calls
-     * AclService::hasPermission($userId, $action) — using the 'update' action,
+     * middleware's predicate - App\Http\Middleware\CheckAcl calls
+     * AclService::hasPermission($userId, $action) - using the 'update' action,
      * so only users with ICIP write permission can perform the mutation.
      */
     private function requireIcipWrite(): void
@@ -2060,11 +2060,29 @@ class IcipController extends Controller
         foreach ($restrictions as $restriction) {
             $result['restrictions'][] = $restriction;
             if ($restriction->override_security_clearance) {
+                // Hard-block types. #1427: the date-driven protocols (seasonal,
+                // mourning_period) are now enforced too - getObjectRestrictions()
+                // already filters to the active [start_date, end_date] window
+                // (#1426), so a restriction that reaches here IS currently in
+                // force and lifts automatically when the window passes.
+                //
+                // Still DEFERRED (need the user-attribute model + a per-type
+                // fail-direction product decision - see #1427 scope items 1 & 3):
+                //   gender_restricted_male / gender_restricted_female / custom
+                //     - require a community-supplied user attribute to evaluate;
+                //   elder_approval_required / under_consultation
+                //     - workflow states that should route to the consultation log,
+                //       not a hard binary block.
+                // These are left un-blocked here (DisclosureGate still withholds
+                // every restricted record from public/machine surfaces), rather
+                // than silently failing open OR blanket-denying staff.
                 if (in_array($restriction->restriction_type, [
                     'community_permission_required',
                     'initiated_only',
                     'repatriation_pending',
-                ])) {
+                    'seasonal',
+                    'mourning_period',
+                ], true)) {
                     $result['allowed'] = false;
                     $result['blocked_reason'] = 'ICIP restriction: '.(self::RESTRICTION_TYPES[$restriction->restriction_type] ?? ucwords(str_replace('_', ' ', $restriction->restriction_type)));
                 }
@@ -2170,7 +2188,7 @@ class IcipController extends Controller
     }
 
     // ========================================
-    // OCAP OVERLAY — Ownership, Control, Access, Possession
+    // OCAP OVERLAY - Ownership, Control, Access, Possession
     // Pluggable per-market (Canada, Australia, Aotearoa, etc.). No defaults are applied
     // to the platform unless icip_config.ocap_enabled = '1'.
     // ========================================
