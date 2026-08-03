@@ -186,6 +186,63 @@ class OfflineSyncService
         return true;
     }
 
+    /**
+     * heratio#1408 (option A): queue a COMMUNITY submission's metadata
+     * suggestions into the curator review queue. Unlike applyBundle() this
+     * touches nothing but research_metadata_suggestion - a community member has
+     * no researcher workspace, so notes/sources/files are not applied - and
+     * everything is status='open' (nothing takes effect until a curator
+     * approves). The submitter identity is recorded on each row.
+     *
+     * @param  array{name?:string,email?:string}  $submitter
+     * @return int  number of suggestions queued
+     */
+    public function queueCommunitySuggestions(array $payload, array $submitter): int
+    {
+        $changes = is_array($payload['changes'] ?? null) ? $payload['changes'] : [];
+        $suggestions = is_array($changes['metadata_suggestions'] ?? null) ? $changes['metadata_suggestions'] : [];
+        if (empty($suggestions) || ! \Illuminate\Support\Facades\Schema::hasTable('research_metadata_suggestion')) {
+            return 0;
+        }
+
+        $name = mb_substr(trim((string) ($submitter['name'] ?? '')), 0, 191) ?: null;
+        $email = mb_substr(trim((string) ($submitter['email'] ?? '')), 0, 191) ?: null;
+        $hasSubmitterCols = \Illuminate\Support\Facades\Schema::hasColumn('research_metadata_suggestion', 'submitter_type');
+
+        $queued = 0;
+        foreach ($suggestions as $s) {
+            $s = (array) $s;
+            $field = trim((string) ($s['field'] ?? ''));
+            $suggestion = trim((string) ($s['text'] ?? $s['suggestion'] ?? ''));
+            $objectId = (int) ($s['io_id'] ?? $s['object_id'] ?? 0);
+            if ($field === '' || $suggestion === '' || $objectId <= 0) {
+                continue;
+            }
+            $row = [
+                'researcher_id' => null,
+                'object_id'     => $objectId,
+                'field'         => mb_substr($field, 0, 191),
+                'suggestion'    => $suggestion,
+                'status'        => 'open',
+                'created_at'    => date('Y-m-d H:i:s'),
+            ];
+            if ($hasSubmitterCols) {
+                $row['submitter_type']  = 'community';
+                $row['submitter_name']  = $name;
+                $row['submitter_email'] = $email;
+            } else {
+                // Fallback if the migration hasn't run: keep NOT NULL researcher_id
+                // satisfied with the sentinel 0 and prefix the submitter inline.
+                $row['researcher_id'] = 0;
+                $row['suggestion'] = '[Community: '.($name ?: 'anonymous').'] '.$suggestion;
+            }
+            DB::table('research_metadata_suggestion')->insert($row);
+            $queued++;
+        }
+
+        return $queued;
+    }
+
     private function applySuggestion(int $researcherId, array $e): bool
     {
         $field = trim((string) ($e['field'] ?? ''));

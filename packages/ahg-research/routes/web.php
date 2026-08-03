@@ -67,6 +67,12 @@ Route::prefix('research')->name('research.')->group(function () {
     // in the controller). Public so both the staff register + public-register
     // forms can prefill from an entered ORCID iD without an account.
     Route::post('/orcid/fetch-public', [ResearchOrcidController::class, 'orcidFetchPublic'])->name('orcidFetchPublic');
+
+    // #1408 (option A): open community submission - anyone with a shared portable
+    // package can submit metadata corrections into the curator review queue (the
+    // package's sync_token is the anti-spam gate; nothing applies until approved).
+    Route::get('/community-sync', [ResearchMobileController::class, 'communitySyncForm'])->name('communitySyncForm');
+    Route::post('/community-sync', [ResearchMobileController::class, 'communitySync'])->middleware('throttle:10,1')->name('communitySync');
 });
 
 Route::prefix('research')->name('research.')->middleware('auth')->group(function () {

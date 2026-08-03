@@ -171,6 +171,69 @@ class ResearchMobileController extends Controller
     }
 
     /**
+     * heratio#1408 (option A): public community-submission form. Anyone holding a
+     * shared portable package's researcher-sync.json can submit metadata
+     * corrections into the curator review queue - no account or researcher
+     * profile required, and nothing applies until a curator approves it.
+     */
+    public function communitySyncForm(Request $request)
+    {
+        return view('research::research.community-sync');
+    }
+
+    /**
+     * heratio#1408 (option A): accept a community submission. Open, but the
+     * package must verify against a real portable_export id + sync_token (proves
+     * the submitter actually has a shared package - the anti-spam gate). Only
+     * the metadata suggestions are queued (status='open'); nothing is applied.
+     */
+    public function communitySync(Request $request)
+    {
+        $name = trim((string) $request->input('submitter_name', ''));
+        $email = trim((string) $request->input('submitter_email', ''));
+        if ($name === '' || $email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return back()->with('error', __('Please give your name and a valid email so a curator can follow up.'))->withInput();
+        }
+
+        $file = $request->file('sync_file');
+        if (! $file || ! $file->isValid()) {
+            return back()->with('error', __('Please choose the researcher-sync.json file from your shared package.'))->withInput();
+        }
+        if ($file->getSize() > 25 * 1024 * 1024) {
+            return back()->with('error', __('That sync file is too large (25 MB maximum).'))->withInput();
+        }
+
+        $payload = json_decode((string) file_get_contents($file->getRealPath()), true);
+        if (! is_array($payload) || (int) ($payload['heratio_sync'] ?? 0) !== 1) {
+            return back()->with('error', __('That does not look like a Heratio researcher-sync.json file.'))->withInput();
+        }
+
+        // Anti-spam gate: reference a REAL shared package by id + sync_token.
+        // Open to anyone holding one - no ownership check (option A).
+        $packageId = (int) ($payload['package_id'] ?? 0);
+        $token = (string) ($payload['sync_token'] ?? '');
+        $valid = false;
+        if ($packageId > 0 && $token !== '' && Schema::hasColumn('portable_export', 'sync_token')) {
+            $pkg = DB::table('portable_export')->where('id', $packageId)->first();
+            $valid = $pkg && hash_equals((string) ($pkg->sync_token ?? ''), $token);
+        }
+        if (! $valid) {
+            return back()->with('error', __('This package could not be verified. Community submissions require a valid shared package.'))->withInput();
+        }
+
+        $queued = $this->sync->queueCommunitySuggestions($payload, ['name' => $name, 'email' => $email]);
+        if ($queued === 0) {
+            return back()->with('info', __('No metadata suggestions were found in that package.'))->withInput();
+        }
+
+        return redirect()->route('research.communitySyncForm')->with('success', trans_choice(
+            '{1}Thank you - :count suggestion has been submitted for curator review.|[2,*]Thank you - :count suggestions have been submitted for curator review.',
+            $queued,
+            ['count' => $queued]
+        ));
+    }
+
+    /**
      * Bring offline work back: parse the uploaded researcher-sync.json and apply
      * it. Ownership is resolved server-side from the session; the package is
      * verified against its sync_token before anything is written.

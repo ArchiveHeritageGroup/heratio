@@ -61,7 +61,14 @@
               </td>
               <td><span class="badge bg-light text-dark border">{{ $s->field }}</span></td>
               <td style="max-width:28rem"><div class="text-break">{{ \Illuminate\Support\Str::limit($s->suggestion, 400) }}</div></td>
-              <td>{{ trim(($s->first_name ?? '') . ' ' . ($s->last_name ?? '')) ?: ('Researcher #' . $s->researcher_id) }}</td>
+              <td>
+                @if(($s->submitter_type ?? 'researcher') === 'community')
+                  <span class="badge bg-info text-dark me-1">{{ __('Community') }}</span>{{ $s->submitter_name ?: __('Anonymous') }}
+                  @if(!empty($s->submitter_email))<br><small class="text-muted">{{ $s->submitter_email }}</small>@endif
+                @else
+                  {{ trim(($s->first_name ?? '') . ' ' . ($s->last_name ?? '')) ?: ('Researcher #' . $s->researcher_id) }}
+                @endif
+              </td>
               <td class="text-nowrap"><small class="text-muted">{{ $s->created_at ? \Illuminate\Support\Carbon::parse($s->created_at)->format('Y-m-d H:i') : '' }}</small></td>
               @if($cs === 'open')
                 <td class="text-end text-nowrap">
