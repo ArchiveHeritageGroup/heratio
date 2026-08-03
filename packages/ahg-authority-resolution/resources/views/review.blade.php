@@ -13,9 +13,7 @@
 
 @push('css')
     @if($isPlace)
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-              crossorigin="">
+        <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/leaflet.min.css') }}">
     @endif
     <style nonce="{{ function_exists('csp_nonce') ? csp_nonce() : '' }}">
         /* "View full context" modal: paragraph shading + mention highlight. */
@@ -402,9 +400,7 @@
 
 @push('js')
     @if($isPlace)
-        <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-                crossorigin=""></script>
+        <script defer src="{{ asset('vendor/ahg-theme-b5/js/leaflet.min.js') }}"></script>
     @endif
     <script nonce="{{ function_exists('csp_nonce') ? csp_nonce() : '' }}">
     document.addEventListener('DOMContentLoaded', function () {

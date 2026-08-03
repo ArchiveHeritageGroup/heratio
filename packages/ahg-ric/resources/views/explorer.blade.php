@@ -170,8 +170,8 @@
 @push('js')
 <script src="/vendor/ahg-ric/js/cytoscape.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://unpkg.com/three-spritetext@1.8.2/dist/three-spritetext.min.js"></script>
-<script src="https://unpkg.com/3d-force-graph@1.73.3/dist/3d-force-graph.min.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/three-spritetext.min.js') }}"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/3d-force-graph.min.js') }}"></script>
 <script src="/vendor/ahg-ric/js/ric-explorer.js"></script>
 <script>
 (function() {

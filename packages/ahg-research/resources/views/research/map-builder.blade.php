@@ -28,7 +28,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/leaflet.min.css') }}">
 
 <div class="card mb-4">
     <div class="card-body p-0">
@@ -124,7 +124,7 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/leaflet.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var map = L.map('map').setView([0, 0], 2);

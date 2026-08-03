@@ -62,8 +62,8 @@
 {{-- RiC Explorer dependencies from CDN --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://unpkg.com/three-spritetext@1.8.2/dist/three-spritetext.min.js"></script>
-<script src="https://unpkg.com/3d-force-graph@1.73.3/dist/3d-force-graph.min.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/three-spritetext.min.js') }}"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/3d-force-graph.min.js') }}"></script>
 
 <script>
 (function() {
