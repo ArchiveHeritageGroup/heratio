@@ -21,6 +21,7 @@ namespace AhgSearch\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
 
 class EsReindexCommand extends Command
 {
@@ -472,6 +473,30 @@ class EsReindexCommand extends Command
                                     'lon' => (float) $c->longitude,
                                 ];
                             }
+                        }
+                    }
+
+                    // #1428 - archaeology sites record their excavation
+                    // coordinates on archaeology_site (not through a place access
+                    // point), so pin those IOs by their own lat/long when no
+                    // place-derived coordinate was found. Makes recorded sites
+                    // mappable via the standard geo search.
+                    if (Schema::hasTable('archaeology_site')) {
+                        $siteCoords = DB::table('archaeology_site')
+                            ->whereIn('information_object_id', $ids)
+                            ->whereNotNull('latitude')
+                            ->whereNotNull('longitude')
+                            ->select('information_object_id', 'latitude', 'longitude')
+                            ->get();
+                        foreach ($siteCoords as $sc) {
+                            $ioId = (int) $sc->information_object_id;
+                            if (! $ioId || isset($ioCoords[$ioId])) {
+                                continue;
+                            }
+                            $ioCoords[$ioId] = [
+                                'lat' => (float) $sc->latitude,
+                                'lon' => (float) $sc->longitude,
+                            ];
                         }
                     }
                 }
