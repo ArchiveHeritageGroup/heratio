@@ -228,10 +228,49 @@ class MuseumController extends Controller
             $parentId = $parent->parent_id;
         }
 
+        // Child image carousel (imageflow) - thumbnails from the WHOLE descendant
+        // subtree via the closure, so a museum collection whose images live below
+        // the first level still shows the carousel. Feeds the shared
+        // _digital-object-viewer partial (its strip is gated on $childThumbnails).
+        // Mirrors the archival + DAM show fix.
+        $childThumbnails = collect();
+        $carouselIds = [];
+        if (class_exists(\AhgCore\Services\HierarchyQueryService::class)) {
+            $carouselIds = app(\AhgCore\Services\HierarchyQueryService::class)
+                ->descendantIds('information_object', (int) $museum->id, false);
+        }
+        if (count($carouselIds) > 20000) {
+            $carouselIds = array_slice($carouselIds, 0, 20000);
+        }
+        if (!empty($carouselIds)) {
+            $childThumbnails = DB::table('digital_object')
+                ->join('slug', 'digital_object.object_id', '=', 'slug.object_id')
+                ->join('information_object_i18n', function ($join) use ($culture) {
+                    $join->on('digital_object.object_id', '=', 'information_object_i18n.id')
+                         ->where('information_object_i18n.culture', '=', $culture);
+                })
+                ->whereIn('digital_object.object_id', $carouselIds)
+                ->where('digital_object.usage_id', 142)
+                ->select(
+                    'digital_object.id', 'digital_object.object_id', 'digital_object.name',
+                    'digital_object.path', 'digital_object.mime_type', 'digital_object.byte_size',
+                    'slug.slug', 'information_object_i18n.title'
+                )
+                ->orderBy('digital_object.object_id')
+                ->limit(10)
+                ->get();
+        }
+        $childThumbnailTotal = !empty($carouselIds) ? DB::table('digital_object')
+            ->whereIn('digital_object.object_id', $carouselIds)
+            ->where('digital_object.usage_id', 142)
+            ->count() : 0;
+
         return view('ahg-museum::museum.show', [
             'museum' => $museum,
             'digitalObjects' => $digitalObjects,
             'repository' => $repository,
+            'childThumbnails' => $childThumbnails,
+            'childThumbnailTotal' => $childThumbnailTotal,
             'levelName' => $levelName,
             'subjects' => $subjects,
             'places' => $places,

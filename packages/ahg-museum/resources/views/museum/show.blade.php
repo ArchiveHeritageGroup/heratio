@@ -312,7 +312,7 @@
 {{-- BEFORE CONTENT: Digital object reference image (carousel/IIIF) --}}
 {{-- ============================================================ --}}
 @section('before-content')
-  @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $museum])
+  @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $museum, 'childThumbnails' => $childThumbnails ?? collect(), 'childThumbnailTotal' => $childThumbnailTotal ?? 0])
 @endsection
 
 {{-- ============================================================ --}}
