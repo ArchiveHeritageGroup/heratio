@@ -318,7 +318,7 @@
        (Mirador), audio/video, PDF, and plain raster. Partial expects $io —
        pass $asset under that name since DAM/Gallery/IO all share the IO row
        shape underneath. --}}
-  @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $asset, 'digitalObjects' => $digitalObjects])
+  @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $asset, 'digitalObjects' => $digitalObjects, 'childThumbnails' => $childThumbnails ?? collect(), 'childThumbnailTotal' => $childThumbnailTotal ?? 0])
 
   @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core', 'entityType' => 'dam', 'objectId' => $asset->id])
   @if(\AhgRic\Services\RicViewModeService::isRic('dam', $asset->id))
