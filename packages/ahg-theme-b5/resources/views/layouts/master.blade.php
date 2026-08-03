@@ -1,7 +1,7 @@
 @php
   // spatie/laravel-csp ships csp_nonce(); on forks where the package isn't
   // installed (e.g. legacy atom v1.0.5) we still want the layout to render
-  // — fall back to an empty string and skip nonce-tagging.
+  // - fall back to an empty string and skip nonce-tagging.
   $cspNonce = function_exists('csp_nonce') ? csp_nonce() : '';
 @endphp
 <!DOCTYPE html>
@@ -108,7 +108,7 @@
          autoplay/loop/volume/controls/download from /admin/ahgSettings/media.
          A small inline init applies media_default_volume to every
          <audio>/<video> element once it has loaded enough metadata to
-         know its initial volume — server-side blade attributes can't
+         know its initial volume - server-side blade attributes can't
          set volume since it's a JS property, not an HTML attribute.
 
          Issue #103: when media_player_type is 'plyr' or 'videojs', the
@@ -116,10 +116,10 @@
          and the inline init wraps every <audio>/<video> in a Plyr or
          Video.js instance. If the vendor script fails to load (404,
          CSP block), window.Plyr / window.videojs stays undefined and
-         the init falls back to native HTML5 — the existing controls /
+         the init falls back to native HTML5 - the existing controls /
          autoplay / loop / volume attributes still apply.
 
-         Issue #106: media_player_type now accepts five values —
+         Issue #106: media_player_type now accepts five values -
          'heratio' (default Heratio-branded UI), 'heratio-minimal'
          (small native UI), 'plyr', 'videojs', 'native'. The shared
          theme::components.media-player Blade component is the single
@@ -138,7 +138,7 @@
          div (#{audioId}-progress), and replaces the placeholder fill
          bar with a real WaveSurfer canvas. WaveSurfer is configured
          with media: <existingAudio> so the existing custom buttons
-         (play/back/fwd/speed/volume) keep driving the same <audio> —
+         (play/back/fwd/speed/volume) keep driving the same <audio> -
          the waveform is purely a visual upgrade. If the vendor script
          404s, window.WaveSurfer stays undefined and the init leaves
          the original placeholder in place. --}}
@@ -175,7 +175,7 @@
           if (cfg.autoplay) {
             // .play() must be called after the user gesture in some browsers;
             // muting first is the standard workaround for unmuted-autoplay
-            // policies. We don't force-mute though — let the browser refuse
+            // policies. We don't force-mute though - let the browser refuse
             // and the user click play instead.
             try { var p = el.play(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch (e) {}
           }
@@ -183,7 +183,7 @@
         var enhance = function () {
           // Some IO show pages (audio path in _digital-object-viewer.blade.php)
           // wrap a hidden <audio> in their own custom-controls UI inside a
-          // .ahg-media-player block. Skip those — wrapping with Plyr/Video.js
+          // .ahg-media-player block. Skip those - wrapping with Plyr/Video.js
           // would clobber the existing UI. data-no-ahg-media is the explicit
           // opt-out for any future markup that wants to skip the enhancement.
           var els = Array.prototype.filter.call(
@@ -208,7 +208,7 @@
                     : ['play-large']
                 });
               } catch (e) {
-                /* Plyr init failed — fall back to native attributes already on el. */
+                /* Plyr init failed - fall back to native attributes already on el. */
                 try { el.volume = vol; } catch (_) {}
               }
             });
@@ -228,7 +228,7 @@
                 });
                 p.ready(function () { try { p.volume(vol); } catch (_) {} });
               } catch (e) {
-                /* Video.js init failed — fall back to native attributes already on el. */
+                /* Video.js init failed - fall back to native attributes already on el. */
                 try { el.volume = vol; } catch (_) {}
               }
             });
@@ -243,10 +243,10 @@
           // Issue #85: also apply the basic settings to <audio> elements
           // inside .ahg-media-player wrappers (the AHG custom audio UI on
           // /sound etc.). enhance() filters those out because Plyr/Video.js
-          // would clobber the custom controls — but applyNative just sets
+          // would clobber the custom controls - but applyNative just sets
           // properties on the underlying element, which is what the custom
           // UI's existing JS reads. Sync the visible volume slider too.
-          // (#106: rich-mode video takes a different path — the component
+          // (#106: rich-mode video takes a different path - the component
           // applies window.AHG_MEDIA itself in its own IIFE so we don't
           // accidentally re-enable native browser controls on top of the
           // Heratio chrome.)
@@ -295,7 +295,7 @@
         var enhanceWaveform = function () {
           if (!cfg.show_waveform) return;
           if (typeof window.WaveSurfer === 'undefined' || !window.WaveSurfer || typeof window.WaveSurfer.create !== 'function') {
-            // Vendor script failed to load — leave the placeholder
+            // Vendor script failed to load - leave the placeholder
             // progress bar in place. The native custom-controls UX
             // continues to work (it doesn't depend on WaveSurfer).
             return;
@@ -374,7 +374,7 @@
             try {
               wsCreate(canvasDiv, audio, sourceEl);
             } catch (e) {
-              // WaveSurfer init failed — pull the empty sibling back out so
+              // WaveSurfer init failed - pull the empty sibling back out so
               // the page looks identical to the pre-#101 state.
               if (canvasDiv.parentNode) canvasDiv.parentNode.removeChild(canvasDiv);
               audio.dataset.ahgWaveformApplied = '0';
@@ -398,7 +398,7 @@
       <script defer src="{{ $themeData['themeJsBundle'] }}"></script>
     @endif
 
-    {{-- jQuery CSRF setup — must load after jQuery (vendor bundle) and before DOMContentLoaded
+    {{-- jQuery CSRF setup - must load after jQuery (vendor bundle) and before DOMContentLoaded
          so that the AtoM theme bundle's jQuery AJAX calls include the CSRF token --}}
     <script defer src="{{ asset('vendor/ahg-theme-b5/js/jquery-csrf-setup.js') }}"></script>
 
@@ -408,8 +408,8 @@
 
     {{-- Theme CSS --}}
     <link href="{{ asset('vendor/ahg-theme-b5/css/ahg-theme.css') }}" rel="stylesheet">
-    {{-- Dynamic theme CSS — only when "Theme Enabled" is checked at /admin/ahgSettings/themes.
-         When off, the bundled theme defaults take over — useful as an instant undo if the
+    {{-- Dynamic theme CSS - only when "Theme Enabled" is checked at /admin/ahgSettings/themes.
+         When off, the bundled theme defaults take over - useful as an instant undo if the
          admin breaks their colour palette. --}}
     {{-- Truthy test, not === 'true': the checkbox posts "true", but any other
          truthy value ("1", "on", "yes") silently disabled the whole dynamic
@@ -486,15 +486,15 @@
     @include('theme::partials.footer')
 
     {{-- D3.js for visualizations. Served from jsdelivr because d3js.org is not
-         in our CSP script-src allowlist (and jsdelivr is) — see HeratioCspPreset. --}}
+         in our CSP script-src allowlist (and jsdelivr is) - see HeratioCspPreset. --}}
     <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 
-    {{-- Base JS (display-mode + voiceCommands already in theme bundle — don't load standalone) --}}
+    {{-- Base JS (display-mode + voiceCommands already in theme bundle - don't load standalone) --}}
     <script src="{{ asset('vendor/ahg-theme-b5/js/base.js') }}"></script>
     {{-- Clipboard toggle handled by AtoM theme bundle; this adds server sync --}}
     <script src="{{ asset('vendor/ahg-core/js/clipboard-sync.js') }}?v={{ time() }}"></script>
 
-    {{-- Voice Commands (CSS + data partials only — JS class is in the theme bundle) --}}
+    {{-- Voice Commands (CSS + data partials only - JS class is in the theme bundle) --}}
     @include('theme::partials.voice-commands')
     <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/voiceCommands.css') }}">
 
@@ -612,7 +612,7 @@
     </script>
 
     {{-- CSP-safe rebind of inline onsubmit="return confirm(...)" / onclick="return confirm(...)".
-         Strict CSP (script-src nonce) blocks inline event-handler attributes — extract the
+         Strict CSP (script-src nonce) blocks inline event-handler attributes - extract the
          confirm() message from the attribute and re-attach as a proper event listener. --}}
     <script nonce="{{ $cspNonce }}">
     (function () {
@@ -650,13 +650,13 @@
     })();
     </script>
 
-    {{-- Floating Cart Tab — only visible when cart has items --}}
+    {{-- Floating Cart Tab - only visible when cart has items --}}
     @include('theme::partials.cart-tab')
 
     {{-- Floating Feedback Tab --}}
     @include('theme::partials.feedback-tab')
 
-    {{-- Global JS error logger — sends client errors to Laravel log --}}
+    {{-- Global JS error logger - sends client errors to Laravel log --}}
     <script nonce="{{ $cspNonce }}">
     window.onerror = function(msg, url, line, col, err) {
       try {

@@ -370,7 +370,7 @@
                 });
             }
         } catch (err) {
-            // #106 Phase 3: rich init failed — swap the wrapper to the
+            // #106 Phase 3: rich init failed - swap the wrapper to the
             // Heratio-minimal layout so the page still plays media.
             if (window.console && console.warn) {
                 console.warn('Heratio media player ({{ $playerId }}) init failed; falling back to minimal:', err);
