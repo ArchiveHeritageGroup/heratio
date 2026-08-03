@@ -413,7 +413,7 @@
 {{-- Create Package Modal --}}
 @auth
 <div class="modal fade" id="createPackageModal" tabindex="-1" aria-labelledby="createPackageModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form action="{{ route('io.preservation.create', ['slug' => $io->slug ?? $io->id]) }}" method="POST">
         @csrf
@@ -423,16 +423,71 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label for="package_type" class="form-label">Package Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <select name="package_type" id="package_type" class="form-select">
-              <option value="SIP">{{ __('SIP (Submission Information Package)') }}</option>
-              <option value="AIP" selected>{{ __('AIP (Archival Information Package)') }}</option>
-              <option value="DIP">{{ __('DIP (Dissemination Information Package)') }}</option>
-            </select>
+            <label for="package_name" class="form-label">{{ __('Package Name') }}</label>
+            <input type="text" name="package_name" id="package_name" class="form-control" placeholder="{{ __('e.g., Annual Reports 2024 SIP') }}">
+            <div class="form-text">{{ __('Leave blank to auto-generate from the record and type.') }}</div>
           </div>
           <div class="mb-3">
-            <label for="package_name" class="form-label">Package Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <input type="text" name="package_name" id="package_name" class="form-control" placeholder="{{ __('Enter a descriptive name') }}">
+            <label for="package_description" class="form-label">{{ __('Description') }}</label>
+            <textarea name="description" id="package_description" class="form-control" rows="2" placeholder="{{ __('Brief description of package contents') }}"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="package_type" class="form-label">{{ __('Package Type') }}</label>
+              <select name="package_type" id="package_type" class="form-select">
+                <option value="SIP">{{ __('SIP - Submission Information Package') }}</option>
+                <option value="AIP" selected>{{ __('AIP - Archival Information Package') }}</option>
+                <option value="DIP">{{ __('DIP - Dissemination Information Package') }}</option>
+              </select>
+              <div class="form-text">{{ __('SIP for ingest, AIP for storage, DIP for access') }}</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="package_format" class="form-label">{{ __('Package Format') }}</label>
+              <select name="package_format" id="package_format" class="form-select">
+                <option value="bagit" selected>{{ __('BagIt (Recommended)') }}</option>
+                <option value="zip">{{ __('ZIP Archive') }}</option>
+                <option value="tar">{{ __('TAR Archive') }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="manifest_algorithm" class="form-label">{{ __('Checksum Algorithm') }}</label>
+            <select name="manifest_algorithm" id="manifest_algorithm" class="form-select">
+              <option value="sha256" selected>{{ __('SHA-256 (Recommended)') }}</option>
+              <option value="sha512">SHA-512</option>
+              <option value="sha1">SHA-1</option>
+              <option value="md5">MD5</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="originator" class="form-label">{{ __('Originator') }}</label>
+              <input type="text" name="originator" id="originator" class="form-control" placeholder="{{ __('Organization creating this package') }}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="submission_agreement" class="form-label">{{ __('Submission Agreement') }}</label>
+              <input type="text" name="submission_agreement" id="submission_agreement" class="form-control" placeholder="{{ __('Reference to submission agreement') }}">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="retention_period" class="form-label">{{ __('Retention Period') }}</label>
+            <input type="text" name="retention_period" id="retention_period" class="form-control" placeholder="{{ __('e.g., Permanent, 10 years, etc.') }}">
+          </div>
+          <div class="mb-3">
+            <label for="parent_package_id" class="form-label">{{ __('Parent Package') }}</label>
+            <select name="parent_package_id" id="parent_package_id" class="form-select">
+              <option value="">{{ __('- None (top-level package) -') }}</option>
+              @foreach(($aips ?? []) as $ap)
+                @continue(empty($ap->id))
+                <option value="{{ $ap->id }}">{{ strtoupper($ap->package_type ?? 'AIP') }} #{{ $ap->id }}{{ !empty($ap->name) ? ' - '.\Illuminate\Support\Str::limit($ap->name, 40) : '' }}</option>
+              @endforeach
+            </select>
+            <div class="form-text">{{ __('Nest this package under a parent - e.g. a SIP or DIP under its AIP.') }}</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ __('Linked Collection / Description') }}</label>
+            <input type="text" class="form-control" value="{{ $io->title ?? ($io->slug ?? ('#'.$io->id)) }}" disabled>
+            <div class="form-text">{{ __('The archival collection this package represents (its child descriptions).') }}</div>
           </div>
         </div>
         <div class="modal-footer">

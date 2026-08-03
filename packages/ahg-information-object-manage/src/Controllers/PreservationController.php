@@ -182,6 +182,22 @@ class PreservationController extends Controller
 
         $now = now();
 
+        // Optional metadata from the full package form. Whitelist the enum-like
+        // fields; free-text is trimmed to null when blank.
+        $format = strtolower((string) $request->input('package_format', 'bagit'));
+        $format = in_array($format, ['bagit', 'zip', 'tar'], true) ? $format : 'bagit';
+        $algo = strtolower((string) $request->input('manifest_algorithm', 'sha256'));
+        $algo = in_array($algo, ['sha256', 'sha512', 'sha1', 'md5'], true) ? $algo : 'sha256';
+        $clean = fn ($k) => (($v = trim((string) $request->input($k, ''))) !== '' ? $v : null);
+
+        // Parent package must be another package of THIS record (guards
+        // cross-record nesting; self-parenting is dropped once we know our id).
+        $parentId = (int) $request->input('parent_package_id', 0);
+        if ($parentId > 0 && ! DB::table('preservation_package')
+                ->where('id', $parentId)->where('information_object_id', $io->id)->exists()) {
+            $parentId = 0;
+        }
+
         // Reuse an existing un-exported package for this record + type instead of
         // inserting a fresh draft on every "Create" click (#1436). Repeated clicks
         // - especially while an export is failing - otherwise pile up orphan
@@ -198,19 +214,12 @@ class PreservationController extends Controller
         if ($reuse) {
             $packageId = (int) $reuse->id;
             DB::table('preservation_package_object')->where('package_id', $packageId)->delete();
-            DB::table('preservation_package')->where('id', $packageId)->update([
-                'name'       => $name,
-                'status'     => 'draft',
-                'updated_at' => $now,
-            ]);
         } else {
             $packageId = DB::table('preservation_package')->insertGetId([
                 'uuid'                  => (string) Str::uuid(),
                 'name'                  => $name,
                 'package_type'          => $type,
                 'status'                => 'draft',
-                'package_format'        => 'bagit',
-                'manifest_algorithm'    => 'sha256',
                 'information_object_id' => $io->id,
                 'object_count'          => 0,
                 'total_size'            => 0,
@@ -218,6 +227,25 @@ class PreservationController extends Controller
                 'updated_at'            => $now,
             ]);
         }
+
+        if ($parentId === $packageId) {
+            $parentId = 0; // a package cannot be its own parent
+        }
+
+        // Persist the full field set (applies to both the reused and new row).
+        DB::table('preservation_package')->where('id', $packageId)->update([
+            'name'                 => $name,
+            'package_type'         => $type,
+            'package_format'       => $format,
+            'manifest_algorithm'   => $algo,
+            'description'          => $clean('description'),
+            'originator'           => $clean('originator'),
+            'submission_agreement' => $clean('submission_agreement'),
+            'retention_period'     => $clean('retention_period'),
+            'parent_package_id'    => $parentId ?: null,
+            'status'               => 'draft',
+            'updated_at'           => $now,
+        ]);
 
         // Link every digital object in the whole COLLECTION - the IO and all its
         // descendants - to the new package, using the closure-backed hierarchy so
