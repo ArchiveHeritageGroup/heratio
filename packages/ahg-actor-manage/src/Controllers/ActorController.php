@@ -560,6 +560,11 @@ class ActorController extends Controller
         // Calculate and store completeness score
         $this->service->saveActorCompleteness($id);
 
+        // #1433: reflect the new actor + its publication/embargo state in ES now,
+        // so draft/embargoed authority records drop from ES-backed search without
+        // waiting for a full reindex.
+        $this->reindexActorInEs($id);
+
         $slug = $this->service->getSlug($id);
 
         return redirect()
@@ -643,6 +648,11 @@ class ActorController extends Controller
         \AhgCore\Services\AclService::setActorPublicationStatus(
             $actor->id, (int) $request->input('publication_status_id', 160), $embargo
         );
+
+        // #1433: keep the ES doc's publicationStatusId / embargoUntil current so a
+        // status/embargo change immediately hides (or restores) the actor in
+        // ES-backed search + autocomplete.
+        $this->reindexActorInEs((int) $actor->id);
 
         // Save external identifiers if provided
         if ($request->has('external_identifiers')) {
@@ -1903,5 +1913,23 @@ class ActorController extends Controller
         };
 
         return max(1, (int) ($bytes / 1024));
+    }
+
+    /**
+     * #1433: best-effort single-actor Elasticsearch reindex after a save.
+     * Guarded by class_exists so ahg-actor-manage does not hard-depend on
+     * ahg-search (a minimal install without ES simply no-ops); the ES service
+     * itself never throws into the caller, so a save is never blocked by ES.
+     */
+    private function reindexActorInEs(int $actorId): void
+    {
+        if (! class_exists(\AhgSearch\Services\ElasticsearchService::class)) {
+            return;
+        }
+        try {
+            app(\AhgSearch\Services\ElasticsearchService::class)->indexActor($actorId);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[#1433] actor ES reindex hook failed: '.$e->getMessage(), ['actor' => $actorId]);
+        }
     }
 }

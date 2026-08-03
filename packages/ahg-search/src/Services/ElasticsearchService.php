@@ -158,6 +158,113 @@ class ElasticsearchService
     }
 
     /**
+     * #1433: reindex a SINGLE actor in ES immediately after its data or its
+     * publication status / embargo changes, so ES-backed surfaces (globalSearch
+     * / autocomplete) reflect the new visibility without waiting for a full
+     * `ahg:es-reindex --index=actor`. Keep-and-filter model: the doc stays in
+     * the index carrying publicationStatusId (159 draft / 160 published) +
+     * embargoUntil, and the query-time filters exclude the hidden ones.
+     *
+     * Best-effort: never throws into the caller - an ES hiccup (or ES being
+     * disabled) must not fail an actor save. The full reindex remains the
+     * authoritative recovery path.
+     *
+     * @return array{ok:bool,status?:int,error?:string}
+     */
+    public function indexActor(int $actorId): array
+    {
+        try {
+            $row = DB::table('actor')->where('id', $actorId)->first();
+            if (! $row || $actorId === 3) { // 3 = ROOT, never indexed
+                return ['ok' => false, 'error' => 'actor not found or ROOT'];
+            }
+
+            $i18nGroup = DB::table('actor_i18n')->where('id', $actorId)->get();
+            $slug = DB::table('slug')->where('object_id', $actorId)->value('slug');
+            $do = DB::table('digital_object')->where('object_id', $actorId)->first();
+
+            // Publication status (type 158): 160 published (default), 159 draft.
+            $statusId = (int) (DB::table('status')
+                ->where('object_id', $actorId)
+                ->where('type_id', 158)
+                ->value('status_id') ?? 160);
+
+            $doc = [
+                'slug' => $slug,
+                'entityTypeId' => $row->entity_type_id,
+                'corporateBodyIdentifiers' => $row->corporate_body_identifiers ?? null,
+                'publicationStatusId' => $statusId,
+                'embargoUntil' => ! empty($row->embargo_until ?? null)
+                    ? date('Y-m-d', strtotime((string) $row->embargo_until)) : null,
+                'hasDigitalObject' => $do !== null,
+                'createdAt' => ! empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
+                'updatedAt' => ! empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
+                'sourceCulture' => $row->source_culture ?? 'en',
+                'i18n' => $this->buildActorI18n($i18nGroup),
+            ];
+            if ($do) {
+                $doc['digitalObject'] = [
+                    'mediaTypeId' => $do->media_type_id,
+                    'usageId' => $do->usage_id,
+                    'filename' => $do->name,
+                    'thumbnailPath' => $do->path ?? null,
+                ];
+            }
+
+            $url = "{$this->host}/{$this->indexPrefix}qubitactor/_doc/{$actorId}";
+            $resp = Http::timeout(10)->put($url, $doc);
+
+            if (! $resp->successful()) {
+                Log::warning('[ES] single-actor reindex non-2xx: '.$resp->status().' '.substr($resp->body(), 0, 200), ['actor' => $actorId]);
+            }
+
+            return ['ok' => $resp->successful(), 'status' => $resp->status()];
+        } catch (\Throwable $e) {
+            Log::warning('[ES] single-actor reindex failed: '.$e->getMessage(), ['actor' => $actorId]);
+
+            return ['ok' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Build the actor i18n block for a single-doc index, matching the shape
+     * EsReindexCommand::buildI18n() emits for the actor index.
+     */
+    private function buildActorI18n($rows): array
+    {
+        $map = [
+            'authorizedFormOfName' => 'authorized_form_of_name',
+            'history' => 'history',
+            'places' => 'places',
+            'functions' => 'functions',
+            'mandates' => 'mandates',
+            'internalStructures' => 'internal_structures',
+            'generalContext' => 'general_context',
+        ];
+        // Same culture set EsReindexCommand indexes, so a single-doc update
+        // carries the identical i18n shape as the bulk reindex.
+        $cultures = ['en', 'af', 'es', 'fr', 'pt', 'nl', 'zu'];
+        $i18n = ['languages' => []];
+        foreach ($rows as $r) {
+            $culture = $r->culture ?? 'en';
+            if (! in_array($culture, $cultures)) {
+                continue;
+            }
+            $fields = [];
+            foreach ($map as $esField => $dbField) {
+                $fields[$esField] = $r->$dbField ?? null;
+            }
+            if (array_filter($fields, fn ($v) => $v !== null && $v !== '')) {
+                $i18n['languages'][] = $culture;
+                $i18n[$culture] = $fields;
+            }
+        }
+        $i18n['languages'] = array_values(array_unique($i18n['languages']));
+
+        return $i18n;
+    }
+
+    /**
      * Search across all main indices (IO, actor, repository, term).
      */
     public function globalSearch(string $query, string $culture = 'en', int $from = 0, int $size = 30): array
@@ -200,6 +307,23 @@ class ElasticsearchService
         if ($tenantClause = $this->tenantMultiIndexFilter()) {
             $bool['filter'] = [$tenantClause];
         }
+
+        // #1433: hide draft / embargoed authority records from global search,
+        // mirroring autocomplete(). IO docs carry publicationStatusId already;
+        // actors now do too (Part B). Repository / term docs have no such field
+        // and pass through the must_not-exists arm. Published (160) survives;
+        // draft (159) is excluded.
+        $bool['filter'][] = [
+            'bool' => [
+                'should' => [
+                    ['bool' => ['must_not' => ['exists' => ['field' => 'publicationStatusId']]]],
+                    ['term' => ['publicationStatusId' => 160]],
+                ],
+                'minimum_should_match' => 1,
+            ],
+        ];
+        // Exclude currently-embargoed authority records (embargoUntil in the future).
+        $bool['must_not'][] = ['range' => ['embargoUntil' => ['gt' => 'now/d']]];
 
         $body = [
             'from' => $from,
@@ -297,10 +421,11 @@ class ElasticsearchService
             $bool['filter'] = [$tenantClause];
         }
 
-        // Published-only for archival descriptions - mirrors search()'s
-        // publicationStatusId=160 filter so draft titles never surface in
-        // autocomplete. Non-IO docs (actor/repository/term) carry no
-        // publicationStatusId and pass through the should/must_not-exists arm.
+        // Published-only for archival descriptions AND authority records -
+        // mirrors search()'s publicationStatusId=160 filter so draft titles /
+        // draft actors never surface in autocomplete. IO + actor docs carry
+        // publicationStatusId (actors since Part B); repository / term docs do
+        // not and pass through the must_not-exists arm.
         $bool['filter'][] = [
             'bool' => [
                 'should' => [
