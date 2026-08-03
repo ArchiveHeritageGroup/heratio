@@ -118,6 +118,46 @@ class HeritageAccountingController extends Controller
         return view('ahg-heritage-manage::heritage-accounting.add', compact('io', 'standards', 'classes'));
     }
     public function store(Request $request) { return redirect()->route('heritage.accounting.browse')->with('success', 'Asset created.'); }
+
+    /**
+     * Inline status change from the browse grid (AJAX). Whitelisted to the same
+     * recognition_status values the add form offers.
+     */
+    public function updateStatus(Request $request, int $id)
+    {
+        $allowed = ['pending', 'recognised', 'not_recognised'];
+        $status = (string) $request->input('recognition_status');
+        if (! in_array($status, $allowed, true)) {
+            return response()->json(['ok' => false, 'error' => 'Invalid status.'], 422);
+        }
+        if (! Schema::hasTable('heritage_asset')
+            || ! DB::table('heritage_asset')->where('id', $id)->exists()) {
+            return response()->json(['ok' => false, 'error' => 'Asset not found.'], 404);
+        }
+
+        $update = ['recognition_status' => $status, 'updated_at' => now()];
+        // Recognising an asset stamps the recognition date if not already set;
+        // moving off "recognised" leaves history intact.
+        if ($status === 'recognised') {
+            $current = DB::table('heritage_asset')->where('id', $id)->value('recognition_date');
+            if (empty($current)) {
+                $update['recognition_date'] = now()->toDateString();
+            }
+        }
+        if (Schema::hasColumn('heritage_asset', 'updated_by') && auth()->id()) {
+            $update['updated_by'] = auth()->id();
+        }
+        DB::table('heritage_asset')->where('id', $id)->update($update);
+
+        $row = DB::table('heritage_asset')->where('id', $id)->first(['recognition_status', 'recognition_date']);
+
+        return response()->json([
+            'ok' => true,
+            'recognition_status' => $row->recognition_status,
+            'recognition_date' => $row->recognition_date,
+            'label' => ucwords(str_replace('_', ' ', (string) $row->recognition_status)),
+        ]);
+    }
     public function edit(int $id) { $asset = null; try { if (Schema::hasTable('heritage_asset')) $asset = DB::table('heritage_asset')->where('id', $id)->first(); } catch (\Exception $e) {} return view('ahg-heritage-manage::heritage-accounting.edit', ['asset' => $asset, 'fields' => [], 'formAction' => route('heritage.accounting.update', $id)]); }
     public function update(Request $request, int $id) { return redirect()->route('heritage.accounting.view', $id)->with('success', 'Asset updated.'); }
     public function view(int $id) { $items = collect(); $stats = []; return view('ahg-heritage-manage::heritage-accounting.view', compact('items', 'stats')); }

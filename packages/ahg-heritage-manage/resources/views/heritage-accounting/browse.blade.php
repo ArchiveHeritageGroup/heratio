@@ -58,9 +58,19 @@
                   @endif
                 </td>
                 <td>{{ $item->class_name ?: '-' }}</td>
-                <td>{{ $item->recognition_status ? ucwords(str_replace('_', ' ', $item->recognition_status)) : '-' }}</td>
+                <td>
+                  @auth
+                  <select class="form-select form-select-sm hasset-status" data-id="{{ $item->id }}" data-prev="{{ $item->recognition_status ?? 'pending' }}" style="min-width:9rem;" aria-label="{{ __('Recognition status') }}">
+                    @foreach(['pending' => __('Pending'), 'recognised' => __('Recognised'), 'not_recognised' => __('Not Recognised')] as $sv => $sl)
+                      <option value="{{ $sv }}" {{ ($item->recognition_status ?? 'pending') === $sv ? 'selected' : '' }}>{{ $sl }}</option>
+                    @endforeach
+                  </select>
+                  @else
+                    {{ $item->recognition_status ? ucwords(str_replace('_', ' ', $item->recognition_status)) : '-' }}
+                  @endauth
+                </td>
                 <td class="text-end">{{ $item->current_carrying_amount !== null ? number_format((float)$item->current_carrying_amount, 2) : '-' }}</td>
-                <td>{{ $item->recognition_date ? \Illuminate\Support\Carbon::parse($item->recognition_date)->format('Y-m-d') : '-' }}</td>
+                <td id="hasset-date-{{ $item->id }}">{{ $item->recognition_date ? \Illuminate\Support\Carbon::parse($item->recognition_date)->format('Y-m-d') : '-' }}</td>
               </tr>
               @empty
               <tr><td colspan="{{ count($columns ?? ['Asset','Class','Status','Carrying value','Recognised']) }}" class="text-center text-muted py-3">No records found</td></tr>
@@ -76,4 +86,43 @@
     @endif
   </div>
 </div>
+
+@auth
+<script nonce="{{ csp_nonce() }}">
+document.addEventListener('DOMContentLoaded', function () {
+  var csrf = document.querySelector('meta[name="csrf-token"]');
+  csrf = csrf ? csrf.getAttribute('content') : '';
+  document.querySelectorAll('select.hasset-status').forEach(function (sel) {
+    sel.addEventListener('change', function () {
+      var id = sel.getAttribute('data-id');
+      var prev = sel.getAttribute('data-prev');
+      var val = sel.value;
+      sel.disabled = true;
+      fetch('{{ url('/heritage/accounting') }}/' + id + '/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ recognition_status: val })
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          if (!res.ok || !res.d.ok) {
+            sel.value = prev;                                   // revert on failure
+            alert(res.d && res.d.error ? res.d.error : 'Could not update status.');
+            return;
+          }
+          sel.setAttribute('data-prev', res.d.recognition_status);
+          // Reflect a recognition date stamped server-side (recognising).
+          var dateCell = document.getElementById('hasset-date-' + id);
+          if (dateCell && res.d.recognition_date) { dateCell.textContent = String(res.d.recognition_date).substring(0, 10); }
+          sel.classList.add('border-success');
+          setTimeout(function () { sel.classList.remove('border-success'); }, 1200);
+        })
+        .catch(function () { sel.value = prev; alert('Could not update status.'); })
+        .finally(function () { sel.disabled = false; });
+    });
+  });
+});
+</script>
+@endauth
 @endsection

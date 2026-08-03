@@ -127,6 +127,7 @@ Route::middleware('admin')->group(function () {
         Route::get('/add-journal/{id?}', [HeritageAccountingController::class, 'addJournal'])->name('heritage.accounting.add-journal');
         Route::get('/add-movement/{id?}', [HeritageAccountingController::class, 'addMovement'])->name('heritage.accounting.add-movement');
         Route::get('/settings', [HeritageAccountingController::class, 'settings'])->name('heritage.accounting.settings');
+        Route::post('/{id}/status', [HeritageAccountingController::class, 'updateStatus'])->where('id', '[0-9]+')->name('heritage.accounting.update-status')->middleware('acl:update');
         Route::get('/{id}/edit', [HeritageAccountingController::class, 'edit'])->where('id', '[0-9]+')->name('heritage.accounting.edit');
         Route::put('/{id}', [HeritageAccountingController::class, 'update'])->where('id', '[0-9]+')->name('heritage.accounting.update')->middleware('acl:update');
         Route::get('/{id}', [HeritageAccountingController::class, 'view'])->where('id', '[0-9]+')->name('heritage.accounting.view');
