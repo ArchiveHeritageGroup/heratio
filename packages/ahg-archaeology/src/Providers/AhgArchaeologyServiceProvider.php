@@ -67,6 +67,15 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
                 // declared before '{id}' so it is not captured as an id.
                 $router->get('/site/{siteId}/contexts', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contexts'])
                     ->whereNumber('siteId')->name('archaeology.contexts');
+
+                // CSV import of contexts + relationships - #1428 Phase 4b.
+                $router->get('/site/{siteId}/contexts/import', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextImportForm'])
+                    ->whereNumber('siteId')->name('archaeology.contexts.import');
+                $router->get('/site/{siteId}/contexts/import/template', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextImportTemplate'])
+                    ->whereNumber('siteId')->name('archaeology.contexts.import.template');
+                $router->post('/site/{siteId}/contexts/import', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextImport'])
+                    ->whereNumber('siteId')->name('archaeology.contexts.import.run');
+
                 $router->get('/context/create', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextCreate'])
                     ->name('archaeology.context.create');
                 $router->post('/context', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextSave'])

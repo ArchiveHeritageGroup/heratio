@@ -799,6 +799,176 @@ class ArchaeologyService
     }
 
     /**
+     * The columns a context-import CSV may carry. The first is the only required
+     * one; relationship columns take one or more context numbers (comma/semicolon
+     * separated) that name OTHER rows in the same file (or contexts already in the
+     * site). #1428 Phase 4b.
+     */
+    public const CSV_CONTEXT_FIELDS = [
+        'context_number', 'context_type', 'phase', 'description', 'interpretation',
+        'top_elevation_m', 'bottom_elevation_m', 'excavation_reference', 'excavator',
+        'excavation_date', 'date_earliest', 'date_latest', 'dating_note',
+    ];
+
+    /** Relationship columns recognised in the import (values = context numbers). */
+    public const CSV_REL_FIELDS = ['above', 'below', 'cuts', 'cut_by', 'fills', 'filled_by', 'same_as', 'bonds_with', 'abuts'];
+
+    /**
+     * Import (upsert) contexts and their stratigraphic relationships for a site
+     * from parsed CSV rows (header-keyed, keys already lower-cased/trimmed).
+     * Two passes: upsert every context by (site, context_number) first, then
+     * resolve the relationship columns to context ids and add them (reciprocity
+     * + cycle guard reused from addRelationship). Runs inside a transaction that
+     * is rolled back when $commit is false, so a preview reports the exact
+     * created/updated/relationship counts and every warning without writing.
+     *
+     * @param  array<int,array<string,string>>  $rows
+     * @return array{rows:int,created:int,updated:int,relationships_added:int,warnings:array<int,string>,errors:array<int,string>,preview:bool}
+     */
+    public function importContextsCsv(int $siteId, array $rows, bool $commit): array
+    {
+        $summary = [
+            'rows' => count($rows), 'created' => 0, 'updated' => 0,
+            'relationships_added' => 0, 'warnings' => [], 'errors' => [], 'preview' => ! $commit,
+        ];
+        if (! Schema::hasTable('archaeology_context')) {
+            $summary['errors'][] = 'The context table is not present in this install.';
+
+            return $summary;
+        }
+
+        $norm = fn ($n) => mb_strtolower(trim((string) $n));
+        $typeMap = $this->termNameMap('context_type');
+        $phaseMap = $this->termNameMap('context_phase');
+
+        DB::beginTransaction();
+        try {
+            // Existing contexts in the site, so a re-import updates in place.
+            $numberToId = [];
+            foreach ($this->contextPickList($siteId) as $c) {
+                $numberToId[$norm($c->context_number)] = (int) $c->id;
+            }
+
+            // Pass 1 - upsert contexts.
+            $relRequests = [];
+            foreach ($rows as $i => $row) {
+                $line = $i + 2; // +1 for zero-index, +1 for the header row
+                $number = trim((string) ($row['context_number'] ?? ''));
+                if ($number === '') {
+                    $summary['warnings'][] = "Line {$line}: no context_number - row skipped.";
+
+                    continue;
+                }
+
+                $typeId = null;
+                if (! empty($row['context_type'])) {
+                    $typeId = $typeMap[$norm($row['context_type'])] ?? null;
+                    if ($typeId === null) {
+                        $summary['warnings'][] = "Line {$line}: unknown context type '".$row['context_type']."' - left blank.";
+                    }
+                }
+                $phaseId = null;
+                if (! empty($row['phase'])) {
+                    $phaseId = $phaseMap[$norm($row['phase'])] ?? null;
+                    if ($phaseId === null) {
+                        $summary['warnings'][] = "Line {$line}: unknown phase '".$row['phase']."' - left blank.";
+                    }
+                }
+
+                $existingId = $numberToId[$norm($number)] ?? null;
+                $cid = $this->saveContext([
+                    'site_id'              => $siteId,
+                    'context_number'       => $number,
+                    'context_type_id'      => $typeId,
+                    'phase_id'             => $phaseId,
+                    'description'          => $row['description'] ?? null,
+                    'interpretation'       => $row['interpretation'] ?? null,
+                    'top_elevation_m'      => $this->csvNumOrNull($row['top_elevation_m'] ?? null),
+                    'bottom_elevation_m'   => $this->csvNumOrNull($row['bottom_elevation_m'] ?? null),
+                    'excavation_reference' => $row['excavation_reference'] ?? null,
+                    'excavator'            => $row['excavator'] ?? null,
+                    'excavation_date'      => $this->csvDateOrNull($row['excavation_date'] ?? null),
+                    'date_earliest'        => $row['date_earliest'] ?? null,
+                    'date_latest'          => $row['date_latest'] ?? null,
+                    'dating_note'          => $row['dating_note'] ?? null,
+                ], $existingId);
+                $numberToId[$norm($number)] = $cid;
+                $existingId ? $summary['updated']++ : $summary['created']++;
+
+                foreach (self::CSV_REL_FIELDS as $relType) {
+                    if (empty($row[$relType])) {
+                        continue;
+                    }
+                    foreach (preg_split('/[;,]/', (string) $row[$relType]) as $tok) {
+                        $tok = trim($tok);
+                        if ($tok !== '') {
+                            $relRequests[] = [$number, $relType, $tok, $line];
+                        }
+                    }
+                }
+            }
+
+            // Pass 2 - relationships (every context now exists / is known).
+            foreach ($relRequests as [$fromNum, $relType, $toNum, $line]) {
+                $fromId = $numberToId[$norm($fromNum)] ?? null;
+                $toId = $numberToId[$norm($toNum)] ?? null;
+                if (! $fromId) {
+                    continue; // the source row was skipped above; already warned
+                }
+                if (! $toId) {
+                    $summary['warnings'][] = "Line {$line}: related context '{$toNum}' not found - '{$relType}' skipped.";
+
+                    continue;
+                }
+                $res = $this->addRelationship($fromId, $toId, $relType);
+                if ($res['ok']) {
+                    $summary['relationships_added']++;
+                } else {
+                    $summary['warnings'][] = "Line {$line}: {$fromNum} {$relType} {$toNum} - ".($res['error'] ?? 'refused').'.';
+                }
+            }
+
+            $commit ? DB::commit() : DB::rollBack();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            $summary['errors'][] = $e->getMessage();
+        }
+
+        return $summary;
+    }
+
+    /** Lower-cased term-name => term-id map for a vocabulary key (import lookup). */
+    private function termNameMap(string $vocabKey): array
+    {
+        $map = [];
+        foreach ($this->vocabulary($vocabKey) as $t) {
+            $map[mb_strtolower(trim($t->name))] = (int) $t->id;
+        }
+
+        return $map;
+    }
+
+    /** CSV cell -> float or null (blank / non-numeric becomes null). */
+    private function csvNumOrNull($v): ?float
+    {
+        $v = trim((string) $v);
+
+        return ($v === '' || ! is_numeric($v)) ? null : (float) $v;
+    }
+
+    /** CSV cell -> Y-m-d date or null (unparseable becomes null). */
+    private function csvDateOrNull($v): ?string
+    {
+        $v = trim((string) $v);
+        if ($v === '') {
+            return null;
+        }
+        $ts = strtotime($v);
+
+        return $ts ? date('Y-m-d', $ts) : null;
+    }
+
+    /**
      * Build a Harris Matrix for a site: topologically tier the contexts from the
      * later-than edges (above/cuts/fills), merging same_as contexts into one
      * node. Computed server-side (no JS/CSP dependency); the view renders the

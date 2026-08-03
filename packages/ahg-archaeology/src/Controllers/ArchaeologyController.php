@@ -335,6 +335,128 @@ class ArchaeologyController extends Controller
         return redirect()->to(url('/archaeology/object/'.$findId))->with('status', __('Find saved.'));
     }
 
+    // ─── CSV import of contexts + relationships - #1428 Phase 4b ─────────────────
+
+    /** Upload form for a context + relationship CSV. */
+    public function contextImportForm(int $siteId, ?array $summary = null): Response
+    {
+        $site = $this->service->site($siteId);
+        if (! $site) {
+            abort(404);
+        }
+
+        return response()->view('ahg-archaeology::context-import', [
+            'site'       => $site,
+            'summary'    => $summary,
+            'fields'     => ArchaeologyService::CSV_CONTEXT_FIELDS,
+            'relFields'  => ArchaeologyService::CSV_REL_FIELDS,
+        ]);
+    }
+
+    /** Download a ready-to-fill CSV template (header + one worked example row). */
+    public function contextImportTemplate(int $siteId): Response
+    {
+        $site = $this->service->site($siteId);
+        if (! $site) {
+            abort(404);
+        }
+        $cols = array_merge(ArchaeologyService::CSV_CONTEXT_FIELDS, ArchaeologyService::CSV_REL_FIELDS);
+        $example = [
+            'context_number' => '1002', 'context_type' => 'Deposit', 'phase' => '',
+            'description' => 'Dark humic silt', 'interpretation' => 'Occupation deposit',
+            'top_elevation_m' => '1.240', 'bottom_elevation_m' => '1.115',
+            'excavation_reference' => 'Trench A', 'excavator' => '', 'excavation_date' => '',
+            'date_earliest' => '', 'date_latest' => '', 'dating_note' => '',
+            'above' => '', 'below' => '1001', 'cuts' => '', 'cut_by' => '', 'fills' => '',
+            'filled_by' => '', 'same_as' => '', 'bonds_with' => '', 'abuts' => '',
+        ];
+        $out = fopen('php://temp', 'r+');
+        fputcsv($out, $cols);
+        fputcsv($out, array_map(fn ($c) => $example[$c] ?? '', $cols));
+        rewind($out);
+        $csv = stream_get_contents($out);
+        fclose($out);
+
+        return response($csv, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="context-import-template.csv"',
+        ]);
+    }
+
+    /** Parse the uploaded CSV and run the import (preview unless "commit" is set). */
+    public function contextImport(Request $request, int $siteId)
+    {
+        $site = $this->service->site($siteId);
+        if (! $site) {
+            abort(404);
+        }
+        $request->validate([
+            'csv' => 'required|file|mimetypes:text/plain,text/csv,application/csv,application/vnd.ms-excel|max:4096',
+        ]);
+
+        $rows = $this->parseCsv($request->file('csv')->getRealPath());
+        if ($rows === null) {
+            return redirect()->route('archaeology.contexts.import', $siteId)
+                ->with('error', __('Could not read the CSV, or it has no "context_number" column.'));
+        }
+
+        $commit = $request->boolean('commit');
+        $summary = $this->service->importContextsCsv($siteId, $rows, $commit);
+
+        if ($commit && empty($summary['errors'])) {
+            return redirect()->route('archaeology.contexts', $siteId)->with(
+                'status',
+                __(':created created, :updated updated, :rels relationships imported.', [
+                    'created' => $summary['created'], 'updated' => $summary['updated'], 'rels' => $summary['relationships_added'],
+                ])
+            );
+        }
+
+        // Preview (or an import that raised errors): re-render the form with the summary.
+        return $this->contextImportForm($siteId, $summary);
+    }
+
+    /**
+     * Read a CSV into header-keyed rows (lower-cased/trimmed header keys). Returns
+     * null when the file can't be opened or has no recognisable header. Tolerant
+     * of a UTF-8 BOM and blank trailing lines.
+     *
+     * @return array<int,array<string,string>>|null
+     */
+    private function parseCsv(string $path): ?array
+    {
+        $fh = @fopen($path, 'r');
+        if (! $fh) {
+            return null;
+        }
+        $header = null;
+        $rows = [];
+        while (($cells = fgetcsv($fh)) !== false) {
+            if ($cells === [null] || (count($cells) === 1 && trim((string) $cells[0]) === '')) {
+                continue; // blank line
+            }
+            if ($header === null) {
+                $header = array_map(fn ($h) => mb_strtolower(trim(preg_replace('/^\xEF\xBB\xBF/', '', (string) $h))), $cells);
+
+                continue;
+            }
+            $row = [];
+            foreach ($header as $i => $key) {
+                if ($key !== '') {
+                    $row[$key] = isset($cells[$i]) ? trim((string) $cells[$i]) : '';
+                }
+            }
+            $rows[] = $row;
+        }
+        fclose($fh);
+
+        if ($header === null || ! in_array('context_number', $header, true)) {
+            return null;
+        }
+
+        return $rows;
+    }
+
     /** Repositories for the site-form dropdown. */
     private function repositories()
     {

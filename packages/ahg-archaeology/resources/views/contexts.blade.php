@@ -11,6 +11,9 @@
     </div>
     <div class="d-flex gap-2">
       <a href="{{ route('archaeology.site', $site->id) }}" class="btn btn-outline-secondary btn-sm">&larr; {{ __('Site') }}</a>
+      <a href="{{ route('archaeology.contexts.import', $site->id) }}" class="btn btn-outline-primary btn-sm">
+        {{ __('Import CSV') }}
+      </a>
       <a href="{{ route('archaeology.context.create', ['site_id' => $site->id]) }}" class="btn btn-primary btn-sm">
         + {{ __('Add context') }}
       </a>
@@ -97,7 +100,7 @@
   </div>
 
   <p class="text-muted small mt-2">
-    {{ __('Each context is a stratigraphic unit (layer). Its plan and section drawings attach to its own descriptive record; finds are catalogued to their context. Stratigraphic relationships and the Harris Matrix arrive in a later phase.') }}
+    {{ __('Each context is a stratigraphic unit (layer). Its plan and section drawings attach to its own descriptive record; finds are catalogued to their context. Record stratigraphic relationships on each context sheet, or import a whole sequence with "Import CSV"; the Harris Matrix above is built from those relationships.') }}
   </p>
 
 </div>
