@@ -44,7 +44,7 @@
                 @default <span class="badge bg-secondary">{{ __('Pending') }}</span>
               @endswitch
             </td>
-            <td class="small text-muted">{{ $c->point_count ? number_format($c->point_count) : '—' }}</td>
+            <td class="small text-muted">{{ $c->point_count ? number_format($c->point_count) : '-' }}</td>
             <td class="small text-muted">{{ $c->source_filename }}</td>
             <td class="small text-muted">{{ $c->created_at }}</td>
             <td class="text-end">

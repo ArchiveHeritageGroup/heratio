@@ -7,11 +7,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
- * auth:gc-attempts — drop login_attempt rows older than the configured
+ * auth:gc-attempts - drop login_attempt rows older than the configured
  * retention. Reads
  * ahg_settings.security_login_attempt_cleanup_hours (default 24). Closes
  * the cleanup-hours half of audit issue #90. Scheduled hourly from
- * AppServiceProvider::boot — the command does its own no-op short-circuit
+ * AppServiceProvider::boot - the command does its own no-op short-circuit
  * if retention is set to 0 or the table is missing.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
@@ -33,7 +33,7 @@ class AuthGcAttemptsCommand extends Command
         }
 
         if (! \Illuminate\Support\Facades\Schema::hasTable('login_attempt')) {
-            $this->warn('login_attempt table missing — nothing to clean up.');
+            $this->warn('login_attempt table missing - nothing to clean up.');
 
             return self::SUCCESS;
         }

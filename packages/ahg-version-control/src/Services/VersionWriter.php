@@ -1,7 +1,7 @@
 <?php
 
 /**
- * VersionWriter — concurrency-safe persistence of a version snapshot.
+ * VersionWriter - concurrency-safe persistence of a version snapshot.
  *
  * Mirror of the AtoM-side service at
  *   atom-ahg-plugins/ahgVersionControlPlugin/lib/Services/VersionWriter.php
@@ -94,7 +94,7 @@ class VersionWriter
                         'restored_from_version' => $restoredFromVersion,
                     ]);
 
-                    // Phase I — audit dual-write (mirror of AtoM-side helper).
+                    // Phase I - audit dual-write (mirror of AtoM-side helper).
                     $this->writeAuditEntry(
                         $entityType, $entityId, $nextVersion, (int) $versionRowId,
                         $table, $isRestore, $restoredFromVersion, $changeSummary, $userId,
@@ -117,7 +117,7 @@ class VersionWriter
     }
 
     /**
-     * Audit dual-write — write a row to ahg_audit_log mirroring the version event.
+     * Audit dual-write - write a row to ahg_audit_log mirroring the version event.
      * Mirror of the AtoM-side helper.
      */
     private function writeAuditEntry(

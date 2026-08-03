@@ -1,19 +1,19 @@
 <?php
 
 /**
- * TranslationImportXliffCommand — bootstrap (and re-sync) Heratio's lang/*.json
+ * TranslationImportXliffCommand - bootstrap (and re-sync) Heratio's lang/*.json
  * files from AtoM's XLIFF translation work at apps/qubit/i18n/{lang}/messages.xml.
  *
  * Three modes (--mode=…) controlling collision handling:
  *
- *   merge          (default) — existing JSON value wins; only keys missing
+ *   merge          (default) - existing JSON value wins; only keys missing
  *                  from the JSON or where the JSON value === source identity
  *                  are written from the XLIFF. Use case: day-to-day, protect
  *                  manual translations.
- *   prefer-source  — XLIFF target wins UNLESS lang/_meta.json marks the entry
+ *   prefer-source  - XLIFF target wins UNLESS lang/_meta.json marks the entry
  *                  as `hand_edited: true`. Use case: AtoM upgrade run; pull in
  *                  upstream improvements while preserving local hand-edits.
- *   overwrite      — XLIFF target ALWAYS wins (full replace per key present
+ *   overwrite      - XLIFF target ALWAYS wins (full replace per key present
  *                  in source). Use case: initial install, recovery from
  *                  corrupted JSON.
  *
@@ -43,8 +43,8 @@ class TranslationImportXliffCommand extends Command
                             {--locale=* : Restrict to specific locale code(s); default = all found}
                             {--mode=merge : merge|prefer-source|overwrite}
                             {--prune : Remove keys absent from XLIFFs and absent from Heratio __() scan}
-                            {--diff : Dry run — print what would change without writing}
-                            {--overwrite : DEPRECATED — alias for --mode=overwrite}';
+                            {--diff : Dry run - print what would change without writing}
+                            {--overwrite : DEPRECATED - alias for --mode=overwrite}';
 
     protected $description = 'Import AtoM XLIFF translations into Heratio lang/*.json files';
 
@@ -100,7 +100,7 @@ class TranslationImportXliffCommand extends Command
         }
 
         $this->info(sprintf(
-            'Mode: %s%s%s — %d locales across %d source dir(s)',
+            'Mode: %s%s%s - %d locales across %d source dir(s)',
             $mode,
             $prune ? ' +prune' : '',
             $diff ? ' (DRY RUN)' : '',
@@ -198,7 +198,7 @@ class TranslationImportXliffCommand extends Command
         $this->table($headers, $rows);
         $this->newLine();
         if ($diff) {
-            $this->warn('DRY RUN — no files written. Re-run without --diff to apply.');
+            $this->warn('DRY RUN - no files written. Re-run without --diff to apply.');
         } else {
             $this->info('Done. Run `php artisan view:clear` if you have cached views.');
         }

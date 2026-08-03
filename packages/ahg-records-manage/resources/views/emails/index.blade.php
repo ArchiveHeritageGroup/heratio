@@ -1,5 +1,5 @@
 {{--
-  Records Management — Email capture queue (P2.6)
+  Records Management - Email capture queue (P2.6)
   @copyright Johan Pieterse / Plain Sailing Information Systems
   @license   AGPL-3.0-or-later
 --}}
@@ -72,7 +72,7 @@
             @if($r->attachment_count) <span class="badge bg-light text-dark"><i class="fas fa-paperclip"></i>{{ $r->attachment_count }}</span>@endif</td>
         <td><small>{{ $r->sent_at }}</small></td>
         <td><small>{{ $r->capture_source }}</small></td>
-        <td><small>{{ $r->fileplan_code ? $r->fileplan_code . ' — ' . $r->fileplan_title : '—' }}</small></td>
+        <td><small>{{ $r->fileplan_code ? $r->fileplan_code . ' - ' . $r->fileplan_title : '-' }}</small></td>
         <td><span class="badge bg-{{ $r->status === 'declared' ? 'success' : ($r->status === 'classified' ? 'info text-dark' : 'warning text-dark') }}">{{ $r->status }}</span></td>
         <td class="text-end"><a href="{{ route('records.emails.show', $r->id) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-right"></i></a></td>
       </tr>

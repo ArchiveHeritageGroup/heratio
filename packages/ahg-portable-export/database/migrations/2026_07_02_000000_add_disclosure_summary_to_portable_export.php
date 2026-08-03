@@ -1,7 +1,7 @@
 <?php
 
 /**
- * #1389 — record the disclosure gates a portable-export run applied, so the
+ * #1389 - record the disclosure gates a portable-export run applied, so the
  * operator can see what was withheld (and why) from the offline package.
  * JSON blob: {"unpublished":N,"icip":N,"odrl":N,"redacted_objects":N,"kept":N}.
  */

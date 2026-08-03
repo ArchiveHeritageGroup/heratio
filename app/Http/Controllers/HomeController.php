@@ -19,7 +19,7 @@ class HomeController extends Controller
     ];
 
     /**
-     * Homepage — migrated from ahgThemeB5Plugin homeSuccess.php.
+     * Homepage - migrated from ahgThemeB5Plugin homeSuccess.php.
      * 2-column layout: sidebar (static pages menu, browse-by, popular this week)
      * + main content (featured collection carousel, static page HTML content).
      */
@@ -90,7 +90,7 @@ class HomeController extends Controller
                 ->applySiblingOrder($bq, 'menu', 'menu.id', 'menu.lft')->get();
         }
 
-        // Static pages menu — children of the "staticPagesMenu" menu item.
+        // Static pages menu - children of the "staticPagesMenu" menu item.
         // Renders Favorites / Feedback / Cart links (not actual static-page content).
         $staticPagesMenuId = DB::table('menu')->where('name', 'staticPagesMenu')->value('id');
         $staticPages = collect();

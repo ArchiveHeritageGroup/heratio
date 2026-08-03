@@ -1,5 +1,5 @@
 {{--
-  Marketplace — Seller: Respond to Offer (accept / reject / counter)
+  Marketplace - Seller: Respond to Offer (accept / reject / counter)
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.
@@ -50,7 +50,7 @@
               <p class="text-muted mb-1">{{ __('Listing Price: :c :a', ['c' => $listing->currency ?? '', 'a' => number_format((float) $listing->price, 2)]) }}</p>
             @endif
             <p class="h5 text-primary mb-1">{{ __('Offer Amount: :c :a', ['c' => $offer->currency ?? '', 'a' => number_format((float) ($offer->offer_amount ?? 0), 2)]) }}</p>
-            <p class="small text-muted mb-0">{{ __('From: :name', ['name' => $buyerName ?? '-']) }} &mdash; {{ !empty($offer->created_at) ? date('d M Y H:i', strtotime($offer->created_at)) : '' }}</p>
+            <p class="small text-muted mb-0">{{ __('From: :name', ['name' => $buyerName ?? '-']) }} - {{ !empty($offer->created_at) ? date('d M Y H:i', strtotime($offer->created_at)) : '' }}</p>
           </div>
         </div>
         @if(!empty($offer->message))

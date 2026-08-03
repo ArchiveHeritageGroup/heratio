@@ -8,8 +8,8 @@
  * OAI-PMH v2.0 endpoint. Implements the six verbs (Identify,
  * ListMetadataFormats, ListSets, ListIdentifiers, ListRecords, GetRecord)
  * over information_object. Supported metadata prefixes:
- *   - oai_dc    (Dublin Core — mapped from IO title/identifier/scope/creator)
- *   - rico_ld   (RiC-O JSON-LD wrapped in CDATA — non-standard but useful)
+ *   - oai_dc    (Dublin Core - mapped from IO title/identifier/scope/creator)
+ *   - rico_ld   (RiC-O JSON-LD wrapped in CDATA - non-standard but useful)
  *
  * Spec: https://www.openarchives.org/OAI/openarchivesprotocol.html
  */
@@ -185,13 +185,13 @@ XML;
             ->select('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content',
                     'o.created_at', 'o.updated_at');
 
-        // #1384/#1389 — this endpoint previously disseminated ALL records; gate to
+        // #1384/#1389 - this endpoint previously disseminated ALL records; gate to
         // Published only, then exclude ICIP/TK + ODRL-restricted (fail-closed).
         app(\AhgCore\Services\DisclosureGate::class)->wherePublished($q, 'io');
         app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($q, 'io.id');
 
         if ($set) {
-            // Only "fonds:N" supported — descendants of fonds N via parent chain
+            // Only "fonds:N" supported - descendants of fonds N via parent chain
             if (preg_match('/^fonds:(\d+)$/', $set, $m)) {
                 $fondsId = (int) $m[1];
                 if (!DB::table('information_object')->where('id', $fondsId)->exists()) {
@@ -259,7 +259,7 @@ XML;
         $id = $this->parseOaiIdentifier($ident);
         if (!$id) $this->oaiError('idDoesNotExist', "Unknown identifier: {$ident}");
 
-        // #1384/#1389 — never disclose an unpublished / ICIP-TK / ODRL-restricted record
+        // #1384/#1389 - never disclose an unpublished / ICIP-TK / ODRL-restricted record
         if (!app(\AhgCore\Services\DisclosureGate::class)->allows($id)) {
             $this->oaiError('idDoesNotExist', "Unknown identifier: {$ident}");
         }

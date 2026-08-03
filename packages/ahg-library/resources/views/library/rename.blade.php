@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Rename — ' . ($item->title ?? ''))
+@section('title', 'Rename - ' . ($item->title ?? ''))
 @section('body-class', 'edit library')
 
 @section('content')
@@ -30,7 +30,7 @@
             <div class="mb-3" id="title-field">
               <label for="title" class="form-label">{{ __('Title') }}</label>
               <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $item->title ?? '') }}">
-              <div class="form-text">Editing the title will automatically update the slug field if "Update slug" is selected — you can still edit it after.</div>
+              <div class="form-text">Editing the title will automatically update the slug field if "Update slug" is selected - you can still edit it after.</div>
               <p class="mt-1 mb-0"><small>Original title: <em>{{ $item->title ?? '' }}</em></small></p>
             </div>
             <hr>
@@ -46,7 +46,7 @@
             <div class="mb-3" id="slug-field">
               <label for="slug" class="form-label">{{ __('Slug') }}</label>
               <input type="text" name="slug" id="slug" class="form-control" value="{{ old('slug', $item->slug ?? '') }}">
-              <div class="form-text">Do not use special characters or spaces — only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.</div>
+              <div class="form-text">Do not use special characters or spaces - only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.</div>
               <p class="mt-1 mb-0"><small>Original slug: <em>{{ $item->slug ?? '' }}</em></small></p>
             </div>
 
@@ -60,7 +60,7 @@
               <div class="mb-3" id="filename-field">
                 <label for="filename" class="form-label">{{ __('Filename') }}</label>
                 <input type="text" name="filename" id="filename" class="form-control" value="{{ old('filename', $digitalObject->name ?? '') }}">
-                <div class="form-text">Do not use special characters or spaces — only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.</div>
+                <div class="form-text">Do not use special characters or spaces - only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.</div>
                 <p class="mt-1 mb-0"><small>Original filename: <em>{{ $digitalObject->name ?? '' }}</em></small></p>
               </div>
             @endif

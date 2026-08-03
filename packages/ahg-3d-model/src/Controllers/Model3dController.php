@@ -996,7 +996,7 @@ class Model3dController extends Controller
     {
         // #1361: this method serves both the PUBLIC /api/3d/hotspots/{modelId} route
         // and the authed admin route. For anon callers, only expose hotspots of a
-        // PUBLIC model — otherwise hotspot titles/descriptions/link_url/positions of
+        // PUBLIC model - otherwise hotspot titles/descriptions/link_url/positions of
         // a non-public model leak (unlike apiModels, which filters is_public).
         $isPublic = (int) DB::table('object_3d_model')->where('id', $modelId)->value('is_public') === 1;
         if (! $isPublic && ! auth()->check()) {
@@ -1100,12 +1100,12 @@ class Model3dController extends Controller
     }
 
     /**
-     * POST /3d-models/generate/{ioId} — user-triggered 2D→3D generation for a
+     * POST /3d-models/generate/{ioId} - user-triggered 2D→3D generation for a
      * single IO. Honours the admin enable/disable toggles. Runs the existing
      * artisan command synchronously (TripoSR call ~30-60s on the AI server).
      */
     /**
-     * Step 1 — generate to a staged GLB and stash the path in session.
+     * Step 1 - generate to a staged GLB and stash the path in session.
      * Doesn't write any DB rows or copy into the IO's permanent dir.
      * The IO show page reads the session and opens a preview modal.
      */
@@ -1122,7 +1122,7 @@ class Model3dController extends Controller
             abort(404);
         }
 
-        // Idempotency — refuse if a 3D model already exists for this IO
+        // Idempotency - refuse if a 3D model already exists for this IO
         $existing = DB::table('object_3d_model')->where('object_id', $ioId)->first(['id']);
         if ($existing) {
             session()->flash('notice', 'This object already has a 3D model.');
@@ -1130,7 +1130,7 @@ class Model3dController extends Controller
             return redirect()->back();
         }
 
-        // Find a usable source image — prefer master, fall back to reference.
+        // Find a usable source image - prefer master, fall back to reference.
         $sourceDo = DB::table('digital_object')
             ->where('object_id', $ioId)
             ->where('mime_type', 'like', 'image/%')
@@ -1185,7 +1185,7 @@ class Model3dController extends Controller
 
             $isDemo = (bool) preg_match('/^TRIPOSR_DEMO=1$/m', $output);
 
-            // Park the staging path in session — the show page picks it up
+            // Park the staging path in session - the show page picks it up
             // and opens the preview modal automatically.
             session()->put('triposr_preview', [
                 'io_id' => $ioId,
@@ -1195,8 +1195,8 @@ class Model3dController extends Controller
                 'is_demo' => $isDemo,
             ]);
             session()->flash('notice', $isDemo
-                ? '3D demo placeholder ready — real GPU/AI generation is on its way.'
-                : '3D preview ready — review and click Save to attach it.');
+                ? '3D demo placeholder ready - real GPU/AI generation is on its way.'
+                : '3D preview ready - review and click Save to attach it.');
         } catch (\Throwable $e) {
             Log::error('[userGenerate3d] failed', ['io' => $ioId, 'err' => $e->getMessage()]);
             session()->flash('error', '3D generation failed: '.$e->getMessage());
@@ -1205,7 +1205,7 @@ class Model3dController extends Controller
         return redirect()->back();
     }
 
-    /** Step 2a — confirm the preview and import the GLB into the IO. */
+    /** Step 2a - confirm the preview and import the GLB into the IO. */
     public function confirmAttach3d(Request $request, int $ioId)
     {
         $preview = session('triposr_preview');
@@ -1228,7 +1228,7 @@ class Model3dController extends Controller
         return redirect()->back();
     }
 
-    /** Step 2b — discard the preview (delete the staged file). */
+    /** Step 2b - discard the preview (delete the staged file). */
     public function discard3d(Request $request, int $ioId)
     {
         $preview = session('triposr_preview');
@@ -1243,7 +1243,7 @@ class Model3dController extends Controller
     }
 
     /**
-     * GET /3d-models/preview-file — serves the staged GLB to the in-page
+     * GET /3d-models/preview-file - serves the staged GLB to the in-page
      * <model-viewer>. The path is whitelisted against the session-stored
      * preview so users can't fish around the temp dir.
      */

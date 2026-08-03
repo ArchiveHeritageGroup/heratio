@@ -425,7 +425,7 @@
   @endif
   @endif {{-- end heratio/ric view mode --}}
 
-  {{-- Action buttons (bottom bar, matching AtoM) — shown in both views --}}
+  {{-- Action buttons (bottom bar, matching AtoM) - shown in both views --}}
   @auth
   @php
     $canUpdate = \AhgCore\Services\AclService::check($repository, 'update');
@@ -468,10 +468,10 @@
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $repository->id])
 
-  {{-- Side-by-side translator. Repository has two i18n tables — actor_i18n
+  {{-- Side-by-side translator. Repository has two i18n tables - actor_i18n
        (covered here, controller-supported via QubitRepository column whitelist)
        and repository_i18n (geocultural_context / collecting_policies / holdings
-       / opening_times / etc., not yet wired — would need a synthetic class
+       / opening_times / etc., not yet wired - would need a synthetic class
        entry in TranslationController::I18N_TABLE_BY_CLASS, similar to
        QubitMuseumMetadata). --}}
   @auth

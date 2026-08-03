@@ -2,13 +2,13 @@
   Condition Assessment Template selector + form container.
 
   Vars:
-    $conditionCheckId    (?int)    — current check ID (null = new)
-    $selectedTemplateId  (?int)    — currently selected template ID
-    $materialType        (?string) — object material type, used to pick a default
-    $canEdit             (bool)    — disable controls when false
+    $conditionCheckId    (?int)    - current check ID (null = new)
+    $selectedTemplateId  (?int)    - currently selected template ID
+    $materialType        (?string) - object material type, used to pick a default
+    $canEdit             (bool)    - disable controls when false
 
   Templates load directly from spectrum_condition_template (no service
-  abstraction needed — the table is small and the view-side reads are
+  abstraction needed - the table is small and the view-side reads are
   trivial). The form fragment for the chosen template is fetched via AJAX
   from /condition/template/{id}/form (controller endpoint to be wired
   separately if not already).

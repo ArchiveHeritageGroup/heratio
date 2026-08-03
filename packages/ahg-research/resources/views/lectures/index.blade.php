@@ -1,4 +1,4 @@
-{{-- #1105 Lecture builder — index --}}
+{{-- #1105 Lecture builder - index --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')

@@ -12,19 +12,19 @@ records every inference to the EU AI Act tamper-evident chain.
 
 ## Features
 
-- **RAG-grounded responses** — retrieves catalogue records via Elasticsearch
+- **RAG-grounded responses** - retrieves catalogue records via Elasticsearch
   keyword/KNN hybrid search, then synthesises an answer with the retrieved
   snippets injected as context into the LLM prompt.
-- **Grounding transparency** — every answer lists the source records (title,
+- **Grounding transparency** - every answer lists the source records (title,
   identifier, link) so users can verify and trace provenance.
-- **EU AI Act inference logging** — every RAG round is recorded to
+- **EU AI Act inference logging** - every RAG round is recorded to
   `ahg_ai_inference_log` via the InferenceLogger chain.
-- **Per-conversation history** — `ahg_ai_chatbot_message` stores message
+- **Per-conversation history** - `ahg_ai_chatbot_message` stores message
   history per session (in-memory within a tab session; server-side persistence
   on login).
-- **Guardrail enforcement** — GuardrailService inspects every dispatch:
+- **Guardrail enforcement** - GuardrailService inspects every dispatch:
   purpose-limitation, data-scope, PII masking, grounding threshold.
-- **Quota gating** — `QuotaService::consume('chatbot')` limits usage.
+- **Quota gating** - `QuotaService::consume('chatbot')` limits usage.
 
 ## Architecture
 
@@ -46,7 +46,7 @@ Stored in `ahg_settings` under the `chatbot` feature (see AhgAiChatbotServicePro
 | `enabled` | Master switch | `true` |
 | `max_history` | Max messages to include in context | `20` |
 | `max_context_records` | Max catalogue records to retrieve per turn | `5` |
-| `grounding_threshold` | Minimum grounding score (0–1) | `0.5` |
+| `grounding_threshold` | Minimum grounding score (0-1) | `0.5` |
 | `system_prompt` | Custom system prompt | _(built-in)_ |
 | `model_fallback` | Model name when no user preference | _(LLM default)_ |
 | `temperature` | LLM sampling temperature | `0.3` |
@@ -54,10 +54,10 @@ Stored in `ahg_settings` under the `chatbot` feature (see AhgAiChatbotServicePro
 ## Routes
 
 ```
-GET  /chatbot          — Chat UI
-POST /chatbot/message  — Send a message (JSON)
-GET  /chatbot/history  — Load session history
-POST /chatbot/reset    — Clear session
+GET  /chatbot          - Chat UI
+POST /chatbot/message  - Send a message (JSON)
+GET  /chatbot/history  - Load session history
+POST /chatbot/reset    - Clear session
 ```
 
 ## Database Tables
@@ -80,6 +80,6 @@ CREATE TABLE ahg_ai_chatbot_message (
 
 ## Privacy
 
-PII is never sent to cloud providers — GuardrailService masks email addresses
+PII is never sent to cloud providers - GuardrailService masks email addresses
 and long numeric identifiers (phone / ID numbers) on cloud-dispatched prompts.
 Chatbot data stays inside the local trust domain.

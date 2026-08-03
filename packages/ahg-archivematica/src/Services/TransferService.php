@@ -91,7 +91,7 @@ class TransferService
             // start_transfer returns a `path`; its basename is the directory.
             $directory = $this->directoryFromStartResponse($started, $transferName);
 
-            // 2.5 Wait until the transfer shows up in the unapproved list — the
+            // 2.5 Wait until the transfer shows up in the unapproved list - the
             // copy into the watched dir is async, so approving immediately fails
             // with "Unable to start the transfer".
             $directory = $this->awaitUnapproved($directory, $type);
@@ -198,7 +198,7 @@ class TransferService
 
     /**
      * Copy the record's digital-object files into the transfer staging directory
-     * — the host mount of the AM transfer source ({staging}/{relativeSourcePath}).
+     * - the host mount of the AM transfer source ({staging}/{relativeSourcePath}).
      * Archivematica reads the same directory inside its own filesystem, so the
      * staged files become the transfer payload. Returns the count staged.
      */
@@ -208,7 +208,7 @@ class TransferService
         if ($stagingBase === '') {
             throw new RuntimeException(
                 'Archivematica transfer staging path is not configured '
-                . '(am_transfer_staging_path — the local mount of the AM transfer source).'
+                . '(am_transfer_staging_path - the local mount of the AM transfer source).'
             );
         }
         $destDir = $stagingBase . '/' . trim($relativeSourcePath, '/');
@@ -334,7 +334,7 @@ class TransferService
                     }
                 }
             } catch (\Throwable $e) {
-                // transient (AM still copying) — keep polling
+                // transient (AM still copying) - keep polling
             }
             usleep($sleepMs * 1000);
         }

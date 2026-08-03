@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ScanRetryFailedCommand — Heratio ahg-scan (P6)
+ * ScanRetryFailedCommand - Heratio ahg-scan (P6)
  *
  * Re-dispatches failed scan files whose backoff window has elapsed.
  * Registered in cron_schedule to run every 5 minutes; exits quickly when
@@ -40,7 +40,7 @@ class ScanRetryFailedCommand extends Command
         $maxAttempts = (int) config('heratio.scan.max_attempts', 5);
         $backoff = $this->parseBackoff((string) config('heratio.scan.retry_backoff_minutes', '15,60,240,1440,4320'));
         if (empty($backoff)) {
-            $this->warn('No retry backoff configured — command is a no-op.');
+            $this->warn('No retry backoff configured - command is a no-op.');
 
             return self::SUCCESS;
         }

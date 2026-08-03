@@ -78,11 +78,11 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
                 // at {base}/embed/image per the #1272 contract.
                 'ahg_discovery_image_embed_url' => 'https://ai.theahg.co.za/ai/v1',
                 'ahg_discovery_image_embed_model' => 'nomic-embed-vision-v1.5',
-                // Logging — always on; turn off via this flag if too chatty
+                // Logging - always on; turn off via this flag if too chatty
                 'ahg_discovery_log_queries' => '1',
                 // Retention for ahg_discovery_log; consumed by `php artisan ahg:discovery-prune` (#19)
                 'ahg_discovery_log_retention_days' => '90',
-                // Fusion / RRF tunables — issue #21. Defaults match the AtoM
+                // Fusion / RRF tunables - issue #21. Defaults match the AtoM
                 // ResultMerger constants so behaviour is unchanged on first boot.
                 'ahg_discovery_weight_keyword_3way' => '0.35',
                 'ahg_discovery_weight_entity_3way' => '0.40',

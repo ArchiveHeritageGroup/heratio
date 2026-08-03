@@ -56,7 +56,7 @@ class AhgInformationObjectManageServiceProvider extends ServiceProvider
     }
 
     /**
-     * #98 Phase 2 — install ahg_io_dacs / ahg_io_rad / ahg_io_mods
+     * #98 Phase 2 - install ahg_io_dacs / ahg_io_rad / ahg_io_mods
      * sidecar tables + seed the per-chapter / per-area / per-element
      * element_visibility flags so the show-{standard}.blade.php
      * templates can render only the operator-enabled sections.
@@ -80,7 +80,7 @@ class AhgInformationObjectManageServiceProvider extends ServiceProvider
 
     /**
      * Idempotent first-boot install for the ahg_io_security sidecar.
-     * Mirrors the convention used by ahg-dropdown-manage / ahg-registry —
+     * Mirrors the convention used by ahg-dropdown-manage / ahg-registry -
      * cheap Schema::hasTable() guard + CREATE TABLE IF NOT EXISTS so a
      * fresh install lights up the security panel without a manual migrate.
      */
@@ -123,7 +123,7 @@ class AhgInformationObjectManageServiceProvider extends ServiceProvider
             }
             // Forward-migrate: persistent "Make this the default for existing
             // children" flag (sticky version of the form's updateDescendants
-            // checkbox — keeps the box visibly ticked across reloads).
+            // checkbox - keeps the box visibly ticked across reloads).
             if (!\Illuminate\Support\Facades\Schema::hasColumn('ahg_io_security', 'update_descendants_default')) {
                 \Illuminate\Support\Facades\DB::statement(
                     'ALTER TABLE ahg_io_security ADD COLUMN update_descendants_default TINYINT(1) NOT NULL DEFAULT 0'

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BagItService — Phase 3.1.
+ * BagItService - Phase 3.1.
  *
  * Builds RFC-8493-compliant BagIt v1.0 packages from one or more digital_object
  * rows belonging to an information_object subtree, and validates existing bags.
@@ -127,7 +127,7 @@ class BagItService
                     continue;
                 }
 
-                // Place under data/<repo>/<hash-prefix>/<file>  — preserves provenance from the storage tree.
+                // Place under data/<repo>/<hash-prefix>/<file>  - preserves provenance from the storage tree.
                 $relativeInBag = $this->payloadRelativePath($row);
                 $destInBag     = $bagPath . '/data/' . $relativeInBag;
                 $destDir       = dirname($destInBag);
@@ -187,7 +187,7 @@ class BagItService
             ];
             file_put_contents($bagPath . '/bag-info.txt', $this->renderBagInfo($bagInfo));
 
-            // 4. Tag manifest — checksums of the tag files written above.
+            // 4. Tag manifest - checksums of the tag files written above.
             $tagManifestLines = [];
             foreach (['bagit.txt', 'bag-info.txt', $manifestFile] as $tagFile) {
                 $tagManifestLines[] = hash_file($algorithm, $bagPath . '/' . $tagFile) . '  ' . $tagFile;
@@ -380,7 +380,7 @@ class BagItService
             '/usr/share/nginx/heratio/uploads/' . $relStripped,
             '/usr/share/nginx/heratio/uploads/' . $rel,
         ];
-        // path columns sometimes look like /uploads/r/<hash>/file — try public/uploads as well
+        // path columns sometimes look like /uploads/r/<hash>/file - try public/uploads as well
         if (str_starts_with($path, '/uploads/')) {
             $candidates[] = '/usr/share/nginx/heratio/public' . $path . $name;
         }
@@ -394,7 +394,7 @@ class BagItService
 
     protected function payloadRelativePath(object $row): string
     {
-        // Preserve a stable, traceable path. Use object_id + filename — avoids collisions if
+        // Preserve a stable, traceable path. Use object_id + filename - avoids collisions if
         // a fonds has multiple files with the same name in different sub-records.
         $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', (string) $row->name) ?: 'file';
         return "io-{$row->object_id}/do-{$row->id}/{$safeName}";
@@ -430,7 +430,7 @@ class BagItService
             if ($v === null || $v === '') {
                 continue;
             }
-            // RFC 8493 line folding: keep simple — values are short.
+            // RFC 8493 line folding: keep simple - values are short.
             $out .= $k . ': ' . str_replace(["\r", "\n"], ' ', (string) $v) . "\n";
         }
         return $out;

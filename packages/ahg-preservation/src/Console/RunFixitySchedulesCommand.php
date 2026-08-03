@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RunFixitySchedulesCommand — Phase 3.5 (Scheduled fixity verification).
+ * RunFixitySchedulesCommand - Phase 3.5 (Scheduled fixity verification).
  *
  * Walks `preservation_workflow_schedule` rows where workflow_type='fixity_check',
  * picks up the ones whose next_run_at is due, and runs FixityService::batchVerify

@@ -1,5 +1,5 @@
 {{--
-  Browse Settings – browse-settings.blade.php
+  Browse Settings - browse-settings.blade.php
   Migrated from AtoM browseSettingsSuccess.php (ahgDisplayPlugin)
   Matches AtoM exactly: same fields, same names, same options, same layout
 --}}

@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-condition — install schema
+-- ahg-condition - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -699,7 +699,7 @@ CREATE TABLE IF NOT EXISTS `ahg_ai_training_contribution` (
 
 -- ============================================================================
 -- Seed Data: Dropdown Manager taxonomies (section: ai)
--- Moved to AhgCondition\Services\AiDropdownSeeder (PHP) — invoked from the
+-- Moved to AhgCondition\Services\AiDropdownSeeder (PHP) - invoked from the
 -- service provider's boot(). PDO can't parse the DELIMITER directive that
 -- the previous CREATE PROCEDURE wrapper used. See issue #105.
 -- ============================================================================

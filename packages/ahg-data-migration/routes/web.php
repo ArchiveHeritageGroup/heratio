@@ -143,7 +143,7 @@ Route::middleware('admin')->group(function () {
 
     Route::get('/admin/data-migration/preview-data', [DataMigrationController::class, 'previewData'])->name('data-migration.preview-data');
 
-    // ── Issue #740 — exports parity (PSIS twin atom-ahg-plugins#86) ──
+    // ── Issue #740 - exports parity (PSIS twin atom-ahg-plugins#86) ──
     Route::match(['get', 'post'], '/admin/data-migration/export-ead',
         [DataMigrationController::class, 'exportEad'])->name('data-migration.export-ead');
 

@@ -1,4 +1,4 @@
-Work staged for Issue #79 — ICIP settings wiring (workspace changes, commit required)
+Work staged for Issue #79 - ICIP settings wiring (workspace changes, commit required)
 
 What I added to the workspace (no commits yet):
 
@@ -18,7 +18,7 @@ What I added to the workspace (no commits yet):
 
 Outstanding work before this is fully live:
 
-1) Migration: create `icip_access_log` table (middleware writes to this table). I did not add a migration — please create and run migration before enabling audit.
+1) Migration: create `icip_access_log` table (middleware writes to this table). I did not add a migration - please create and run migration before enabling audit.
 
 2) Middleware registration: AuditIcipAccess is present but not registered. Two options:
    - Add to the global/route middleware registration (App\Http\Kernel or package service provider), or
@@ -56,7 +56,7 @@ php artisan queue:restart
 
 Smoke-test suggestions:
 - Create a consultation and verify the follow_up_date is pre-filled when `default_consultation_follow_up_days` is set in `icip_config`.
-- Enable audit (`audit_all_icip_access` = 1) and visit an object page (route guarded by AuditIcipAccess) — verify a row is in `icip_access_log`.
+- Enable audit (`audit_all_icip_access` = 1) and visit an object page (route guarded by AuditIcipAccess) - verify a row is in `icip_access_log`.
 - Toggle `enable_public_notices` / `enable_staff_notices` and verify notices are shown/hidden as expected.
 
 If you want, I can:

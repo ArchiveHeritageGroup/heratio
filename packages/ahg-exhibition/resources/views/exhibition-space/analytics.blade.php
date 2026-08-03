@@ -1,7 +1,7 @@
-{{-- heratio#1148 — Analytics dashboard: historical reading trends. --}}
+{{-- heratio#1148 - Analytics dashboard: historical reading trends. --}}
 @extends('theme::layouts.1col')
 
-@section('title', __('Analytics') . ' — ' . $space->name)
+@section('title', __('Analytics') . ' - ' . $space->name)
 @section('body-class', 'exhibition-space analytics')
 
 @section('content')
@@ -179,10 +179,10 @@
           @php $s = $data['summary'][$rm['id']]; @endphp
           <tr>
             <td>{{ $rm['name'] }}</td>
-            <td class="text-end">{{ $s['lux']['avg'] ?? '—' }} / {{ $s['lux']['latest'] ?? '—' }}</td>
-            <td class="text-end">{{ $s['temp_c']['avg'] ?? '—' }} / {{ $s['temp_c']['latest'] ?? '—' }}</td>
-            <td class="text-end">{{ $s['humidity']['avg'] ?? '—' }} / {{ $s['humidity']['latest'] ?? '—' }}</td>
-            <td class="text-end">{{ $s['visitors']['avg'] ?? '—' }} / {{ $s['visitors']['max'] ?? '—' }}</td>
+            <td class="text-end">{{ $s['lux']['avg'] ?? '-' }} / {{ $s['lux']['latest'] ?? '-' }}</td>
+            <td class="text-end">{{ $s['temp_c']['avg'] ?? '-' }} / {{ $s['temp_c']['latest'] ?? '-' }}</td>
+            <td class="text-end">{{ $s['humidity']['avg'] ?? '-' }} / {{ $s['humidity']['latest'] ?? '-' }}</td>
+            <td class="text-end">{{ $s['visitors']['avg'] ?? '-' }} / {{ $s['visitors']['max'] ?? '-' }}</td>
           </tr>
         @endforeach
         </tbody>

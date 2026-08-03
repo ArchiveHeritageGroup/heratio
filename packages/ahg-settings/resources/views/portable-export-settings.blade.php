@@ -1,5 +1,5 @@
 {{--
-  Portable Export — standalone portable catalogue viewer settings
+  Portable Export - standalone portable catalogue viewer settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('portable_export')
 
   @copyright  Johan Pieterse / Plain Sailing

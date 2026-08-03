@@ -1,5 +1,5 @@
 {{--
-  Spaces Report — cloned from AtoM galleryReports/spacesSuccess.php
+  Spaces Report - cloned from AtoM galleryReports/spacesSuccess.php
   @copyright  Johan Pieterse / Plain Sailing
   @license    AGPL-3.0-or-later
 --}}

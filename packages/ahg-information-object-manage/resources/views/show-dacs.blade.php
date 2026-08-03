@@ -1,14 +1,14 @@
 {{--
   ============================================================================
-  Heratio archival-record show template — DACS (Describing Archives: A
+  Heratio archival-record show template - DACS (Describing Archives: A
   Content Standard, 2nd ed., Society of American Archivists).
 
-  Issue #98 Phase 2 — uses ahg_io_dacs sidecar for DACS-specific elements
+  Issue #98 Phase 2 - uses ahg_io_dacs sidecar for DACS-specific elements
   not stored in Heratio's information_object_i18n schema, and honours the
   AtoM-seeded element_visibility flags (dacs_identity_area / dacs_content_area
   / dacs_conditions_of_access_area / dacs_acquisition_area / dacs_materials_area
   / dacs_notes_area / dacs_control_area / dacs_access_points_area /
-  dacs_physical_access — see packages/ahg-settings/resources/views/visible-elements.blade.php).
+  dacs_physical_access - see packages/ahg-settings/resources/views/visible-elements.blade.php).
 
   Field mapping:
 
@@ -102,11 +102,11 @@
     $translationSources = \AhgTranslation\Helpers\TranslationProvenance::forRecord((int) $io->id, app()->getLocale());
   @endphp
 
-  {{-- ========== Chapter 2 — Identity Elements ========== --}}
+  {{-- ========== Chapter 2 - Identity Elements ========== --}}
   @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('dacs_identity_area'))
     <section class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">
-        {{ __('Chapter 2 — Identity Elements') }}
+        {{ __('Chapter 2 - Identity Elements') }}
       </h2>
 
       @if($io->identifier)
@@ -144,10 +144,10 @@
                 <li>
                   {{ $event->date_display ?? '' }}
                   @if($event->start_date || $event->end_date)
-                    @if(!$event->date_display) ({{ $event->start_date ?? '?' }} – {{ $event->end_date ?? '?' }})@endif
+                    @if(!$event->date_display) ({{ $event->start_date ?? '?' }} - {{ $event->end_date ?? '?' }})@endif
                   @endif
                   @if($event->type_id && isset($eventTypeNames[$event->type_id]))
-                    <span class="text-muted small">— {{ $eventTypeNames[$event->type_id] }}</span>
+                    <span class="text-muted small">- {{ $eventTypeNames[$event->type_id] }}</span>
                   @endif
                 </li>
               @endforeach
@@ -188,11 +188,11 @@
     </section>
   @endif
 
-  {{-- ========== Chapter 3 — Content and Structure ========== --}}
+  {{-- ========== Chapter 3 - Content and Structure ========== --}}
   @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('dacs_content_area') && ($io->scope_and_content || $io->arrangement || $io->accruals))
     <section class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">
-        {{ __('Chapter 3 — Content and Structure') }}
+        {{ __('Chapter 3 - Content and Structure') }}
       </h2>
       @if($io->scope_and_content)
         <div class="field text-break row g-0">
@@ -215,7 +215,7 @@
     </section>
   @endif
 
-  {{-- ========== Chapter 4 — Conditions of Access and Use ========== --}}
+  {{-- ========== Chapter 4 - Conditions of Access and Use ========== --}}
   @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('dacs_conditions_of_access_area'))
     @php
       $hasCh4 = $io->access_conditions
@@ -228,7 +228,7 @@
     @if($hasCh4)
       <section class="border-bottom">
         <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">
-          {{ __('Chapter 4 — Conditions of Access and Use') }}
+          {{ __('Chapter 4 - Conditions of Access and Use') }}
         </h2>
 
         @if($io->access_conditions)
@@ -238,7 +238,7 @@
           </div>
         @endif
 
-        {{-- 4.2 / 4.3 — Physical and Technical Access. DACS splits these
+        {{-- 4.2 / 4.3 - Physical and Technical Access. DACS splits these
              but the original AtoM physical_characteristics column conflated
              them. Sidecar columns (ahg_io_dacs.physical_access_note +
              technical_access_note) hold the DACS-conformant split when
@@ -294,11 +294,11 @@
     @endif
   @endif
 
-  {{-- ========== Chapter 5 — Acquisition and Appraisal ========== --}}
+  {{-- ========== Chapter 5 - Acquisition and Appraisal ========== --}}
   @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('dacs_acquisition_area') && ($io->archival_history || $io->acquisition || $io->appraisal || $io->accruals))
     <section class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">
-        {{ __('Chapter 5 — Acquisition and Appraisal') }}
+        {{ __('Chapter 5 - Acquisition and Appraisal') }}
       </h2>
       @if($io->archival_history)
         <div class="field text-break row g-0">
@@ -327,7 +327,7 @@
     </section>
   @endif
 
-  {{-- ========== Chapter 6 — Allied Materials ========== --}}
+  {{-- ========== Chapter 6 - Allied Materials ========== --}}
   @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('dacs_materials_area'))
     @php
       $hasCh6 = $io->location_of_originals || $io->location_of_copies || $io->related_units_of_description || ($dacsExt && $dacsExt->publication_note);
@@ -335,7 +335,7 @@
     @if($hasCh6)
       <section class="border-bottom">
         <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">
-          {{ __('Chapter 6 — Allied Materials') }}
+          {{ __('Chapter 6 - Allied Materials') }}
         </h2>
         @if($io->location_of_originals)
           <div class="field text-break row g-0">
@@ -365,7 +365,7 @@
     @endif
   @endif
 
-  {{-- ========== Chapter 7 — Notes (reuses ISAD partial) ========== --}}
+  {{-- ========== Chapter 7 - Notes (reuses ISAD partial) ========== --}}
   @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('dacs_notes_area'))
     @include('ahg-information-object-manage::partials.sections.notes-area')
   @endif
@@ -375,12 +375,12 @@
     @include('ahg-information-object-manage::partials.sections.access-points-area')
   @endif
 
-  {{-- ========== Chapter 8 — Description Control (auth-only) ========== --}}
+  {{-- ========== Chapter 8 - Description Control (auth-only) ========== --}}
   @auth
     @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('dacs_control_area') && ($io->rules || $io->sources || $io->revision_history || $descriptionStatusName))
       <section class="border-bottom">
         <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">
-          {{ __('Chapter 8 — Description Control') }}
+          {{ __('Chapter 8 - Description Control') }}
         </h2>
         @if($io->rules)
           <div class="field text-break row g-0">
@@ -428,7 +428,7 @@
     @endif
   @endauth
 
-  {{-- Universal sections — share the partials with show.blade.php (these
+  {{-- Universal sections - share the partials with show.blade.php (these
        aren't part of DACS but they're page features the user expects). --}}
   @include('ahg-information-object-manage::partials.sections.security-classification-area')
   @include('ahg-information-object-manage::partials.sections.accession-area')

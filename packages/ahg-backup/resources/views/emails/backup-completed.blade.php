@@ -40,7 +40,7 @@
 <h4>{{ __('Files') }}</h4>
 <ul>
   @foreach($backup['files'] as $f)
-    <li>{{ $f['component'] ?? '?' }} &mdash; {{ $f['filename'] ?? '?' }} ({{ $f['size'] ?? '?' }})</li>
+    <li>{{ $f['component'] ?? '?' }} - {{ $f['filename'] ?? '?' }} ({{ $f['size'] ?? '?' }})</li>
   @endforeach
 </ul>
 @endif

@@ -1,5 +1,5 @@
 -- ============================================================================
--- ahg-privacy Phase 3 (#1108) — Field-level structured redaction for archival
+-- ahg-privacy Phase 3 (#1108) - Field-level structured redaction for archival
 -- description metadata. Idempotent (CREATE TABLE IF NOT EXISTS / INSERT IGNORE).
 -- ============================================================================
 

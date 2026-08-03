@@ -1,7 +1,7 @@
 <?php
 
 /**
- * VectorSearchService — embedding-based semantic search backed by Qdrant.
+ * VectorSearchService - embedding-based semantic search backed by Qdrant.
  *
  * Two-step pipeline:
  *
@@ -17,12 +17,12 @@
  *
  * All endpoints + model + collection are configurable via ahg_settings:
  *   semantic_embedding_url       (gateway override; node-port values ignored)
- *   semantic_embedding_model     (default all-minilm — 384-dim, matches anc_records)
+ *   semantic_embedding_model     (default all-minilm - 384-dim, matches anc_records)
  *   semantic_qdrant_url          (default http://localhost:6333)
  *   semantic_qdrant_collection   (default anc_records)
  *   semantic_timeout_ms          (default 5000)
  *
- * Returns gracefully on AI-server-offline / Qdrant-down — never throws to the
+ * Returns gracefully on AI-server-offline / Qdrant-down - never throws to the
  * caller; instead returns ['ok' => false, 'reason' => '...'].
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
@@ -273,7 +273,7 @@ class VectorSearchService
     }
 
     /**
-     * Fetch a single point's vector — used for similar-to-this-point queries.
+     * Fetch a single point's vector - used for similar-to-this-point queries.
      *
      * @return array<int, float>|null
      */

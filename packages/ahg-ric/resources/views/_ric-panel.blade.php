@@ -1,4 +1,4 @@
-{{-- Partial: RiC Explorer panel — visible when RiC view mode is active for this
+{{-- Partial: RiC Explorer panel - visible when RiC view mode is active for this
      record, or when the host passes alwaysShow (e.g. the RiC-O record page,
      which IS the RiC view). #1425: the old guard read the session-global
      `ric_view_mode`, which the per-record RicViewModeService (v1.154.423)
@@ -74,7 +74,7 @@
   var fsGraph = null;
   var currentView = '2d';
 
-  // Activity bucket — Production / Accumulation / Custody / Transfer / Publication /
+  // Activity bucket - Production / Accumulation / Custody / Transfer / Publication /
   // Reproduction are pre-spec-v0.37 emissions. v0.37+ servers emit rico:Activity +
   // rico:hasActivityType; getEffectiveType() resolves the slug for colouring.
   var typeColors = {

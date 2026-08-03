@@ -64,7 +64,7 @@ class SpectrumComplianceTest extends TestCase
     {
         $wfId = $this->makeSpectrumWorkflow('audit');
         $sId = $this->makeStep($wfId, 'Step 1', 1);
-        // First task approved, second rejected — rejection wins
+        // First task approved, second rejected - rejection wins
         $this->makeTask($wfId, $sId, 42, 'completed', 'approved');
         $this->makeTask($wfId, $sId, 42, 'completed', 'rejected');
 
@@ -76,7 +76,7 @@ class SpectrumComplianceTest extends TestCase
     {
         $wfId = $this->makeSpectrumWorkflow('inventory');
         $sId = $this->makeStep($wfId, 'Step 1', 1);
-        // Task pending, created 60 days ago — should be overdue with threshold 30
+        // Task pending, created 60 days ago - should be overdue with threshold 30
         $now = now();
         DB::table('ahg_workflow_task')->insert([
             'workflow_id' => $wfId, 'workflow_step_id' => $sId, 'object_id' => 42,
@@ -205,14 +205,14 @@ class SpectrumComplianceTest extends TestCase
         $wfId = $this->makeSpectrumWorkflow('reproduction');
         $sId = $this->makeStep($wfId, 'Step 1', 1);
         $now = now();
-        // Old pending — should be overdue
+        // Old pending - should be overdue
         DB::table('ahg_workflow_task')->insert([
             'workflow_id' => $wfId, 'workflow_step_id' => $sId, 'object_id' => 1001,
             'object_type' => 'information_object', 'status' => 'pending', 'priority' => 'normal',
             'submitted_by' => 1, 'decision' => 'pending', 'retry_count' => 0,
             'created_at' => $now->copy()->subDays(30), 'updated_at' => $now,
         ]);
-        // Recent pending — should NOT be overdue
+        // Recent pending - should NOT be overdue
         DB::table('ahg_workflow_task')->insert([
             'workflow_id' => $wfId, 'workflow_step_id' => $sId, 'object_id' => 1002,
             'object_type' => 'information_object', 'status' => 'pending', 'priority' => 'normal',

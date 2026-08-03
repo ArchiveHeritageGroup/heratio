@@ -644,7 +644,7 @@
 
   @endif {{-- end heratio/ric view mode --}}
 
-  {{-- Action buttons (bottom bar) — shown in both views --}}
+  {{-- Action buttons (bottom bar) - shown in both views --}}
   @auth
   @php
     $canUpdate = \AhgCore\Services\AclService::check($actor, 'update');
@@ -666,7 +666,7 @@
       @endif
       @if($canUpdate)
         <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>{{ __('Rename') }}</a></li>
-        {{-- Guard on `digitalObjects['master']` — show() passes `digitalObjects`
+        {{-- Guard on `digitalObjects['master']` - show() passes `digitalObjects`
              (plural); the old `$digitalObject` was never defined, so the item
              always rendered and always pointed at AtoM's /{slug}/linkDigitalObject,
              a route Heratio does not have. --}}
@@ -694,7 +694,7 @@
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $actor->id])
 
-  {{-- RiC Explorer Panel + RiC Context — only visible in RiC view mode --}}
+  {{-- RiC Explorer Panel + RiC Context - only visible in RiC view mode --}}
   @if(\AhgRic\Services\RicViewModeService::isRic('actor', $actor->id))
     @include('ahg-ric::_ric-panel', ['resourceId' => $actor->id])
 

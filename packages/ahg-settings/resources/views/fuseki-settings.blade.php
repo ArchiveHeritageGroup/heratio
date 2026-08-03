@@ -1,5 +1,5 @@
 {{--
-  Fuseki / RIC Triplestore — connection and sync settings
+  Fuseki / RIC Triplestore - connection and sync settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('fuseki')
 
   @copyright  Johan Pieterse / Plain Sailing

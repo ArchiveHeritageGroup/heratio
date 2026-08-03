@@ -45,7 +45,7 @@
                         <div class="mb-3">
                             <label class="form-label" for="parent_id">Parent Collection <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="parent_id" name="parent_id">
-                                <option value="">— None (Top Level) —</option>
+                                <option value="">- None (Top Level) -</option>
                                 @foreach($allCollections as $col)
                                     @if($col->id != $collection->id)
                                     <option value="{{ $col->id }}" {{ $collection->parent_id == $col->id ? 'selected' : '' }}>

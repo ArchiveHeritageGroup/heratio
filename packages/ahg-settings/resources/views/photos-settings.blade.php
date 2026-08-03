@@ -1,5 +1,5 @@
 {{--
-  Condition Photos — photo upload and thumbnail settings
+  Condition Photos - photo upload and thumbnail settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('photos')
 
   @copyright  Johan Pieterse / Plain Sailing

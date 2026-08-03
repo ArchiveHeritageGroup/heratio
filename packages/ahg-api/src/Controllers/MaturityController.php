@@ -325,7 +325,7 @@ class MaturityController extends Controller
                     ? '<code>'.$e($ev['url']).'</code>'
                     : '<a href="'.$e($ev['url']).'">'.$e($ev['url']).'</a>';
                 $types = $e(implode(', ', $ev['mediaTypes'] ?? []));
-                $items .= '<li><strong>'.$e($ev['title']).'</strong> &mdash; '.$link
+                $items .= '<li><strong>'.$e($ev['title']).'</strong> - '.$link
                     .($types !== '' ? ' <code>'.$types.'</code>' : '').'</li>';
             }
             if ($items === '') {

@@ -1,6 +1,6 @@
 @extends('theme::layout')
 
-@section('title', $reportTitle . ' — ' . ($io->title ?? 'Untitled'))
+@section('title', $reportTitle . ' - ' . ($io->title ?? 'Untitled'))
 
 @section('content')
 <div class="container-fluid py-3">

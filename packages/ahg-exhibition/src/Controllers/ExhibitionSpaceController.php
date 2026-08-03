@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ExhibitionSpaceController - heratio#146 — front-of-house space allocation HTTP layer.
+ * ExhibitionSpaceController - heratio#146 - front-of-house space allocation HTTP layer.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * Licensed under the GNU Affero General Public License v3.0 or later.

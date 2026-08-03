@@ -1,4 +1,4 @@
-{{-- ahg-biblio-frbr/import.blade.php — FRBR import UI --}}
+{{-- ahg-biblio-frbr/import.blade.php - FRBR import UI --}}
 @extends('theme::layouts.1col')
 
 @section('content')

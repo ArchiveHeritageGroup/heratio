@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BerEncoderTest — unit tests for BER (ISO 8824 / X.690) encoding/decoding.
+ * BerEncoderTest - unit tests for BER (ISO 8824 / X.690) encoding/decoding.
  *
  * Tests:
  *   - encodeIntegerValue (positive, zero, negative, leading-zero rule)
@@ -17,7 +17,7 @@
  *   - decodeOidValue (round-trip)
  *   - round-trip encode/decode for integers and OIDs
  *
- * Copyright (C) 2026 Johan Pieterse — AGPL-3.0
+ * Copyright (C) 2026 Johan Pieterse - AGPL-3.0
  */
 
 namespace AhgZ3950\Tests\Unit;
@@ -337,7 +337,7 @@ class BerEncoderTest extends AhgZ3950TestCase
      * Negative integer: BER two's complement. MSB bit7 set → sign extend.
      *   -1: 0xff (single byte, bit7=1)
      *   -128: 0x80 (single byte, bit7=1)
-     *   -256: 0x00 0xff (bit7 of first byte is 0, so treated as positive 255 by BER rules — minimal encoding uses just 0xff)
+     *   -256: 0x00 0xff (bit7 of first byte is 0, so treated as positive 255 by BER rules - minimal encoding uses just 0xff)
      */
     public function testDecodeIntegerValueNegative(): void
     {

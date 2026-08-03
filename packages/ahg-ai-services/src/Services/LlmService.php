@@ -391,10 +391,10 @@ class LlmService
     }
 
     // =====================================================================
-    //  LLM suggestion pipeline (Phase X.4 — Heratio-specific, no PSIS source)
+    //  LLM suggestion pipeline (Phase X.4 - Heratio-specific, no PSIS source)
     //
     //  These four methods back the "AI Suggest Description" feature in the
-    //  information-object editor. PSIS has no equivalent — its AI flow is
+    //  information-object editor. PSIS has no equivalent - its AI flow is
     //  OCR-only. The suggestion pipeline is:
     //    1. gatherContext(id)      → assemble IO fields + OCR text
     //    2. getTemplateForObject(id, templateId?) → pick matching prompt template
@@ -1320,7 +1320,7 @@ class LlmService
                     break;
 
                 case 'ollama':
-                    // #1368 — route Ollama completion through the AHG AI gateway,
+                    // #1368 - route Ollama completion through the AHG AI gateway,
                     // never a direct :11434 node. resolveOllamaBase() rejects a
                     // raw-node endpoint_url (stale ahg_llm_config row) and falls
                     // back to ai.theahg.co.za/ai/v1.
@@ -1563,7 +1563,7 @@ class LlmService
                 return $key;
             }
         } catch (\Throwable $e) {
-            // settings table absent during boot — fall through.
+            // settings table absent during boot - fall through.
         }
         $key = (string) ($this->getAiSetting('general', 'api_key', '') ?? '');
 
@@ -1646,7 +1646,7 @@ class LlmService
         try {
             switch ($config->provider) {
                 case 'ollama':
-                    // #1368 — health-check the gateway Ollama passthrough, not a
+                    // #1368 - health-check the gateway Ollama passthrough, not a
                     // direct node; a stale node endpoint_url is ignored.
                     $url      = $this->resolveOllamaBase($config->endpoint_url ?? null);
                     $gatewayKey = $this->resolveGatewayKey();

@@ -7,7 +7,7 @@ UI, reachable from every page via the navbar **?** (Help Center) icon.
 ## Package purpose
 
 Surface Heratio's help corpus (540+ markdown articles under `docs/help/`) as a
-first-class in-app experience — browse by category, full-text search, per-article
+first-class in-app experience - browse by category, full-text search, per-article
 pages with adjacent-article navigation, plus a system map / system breakdown.
 
 ## Status: implemented and live
@@ -20,10 +20,10 @@ pages with adjacent-article navigation, plus a system map / system breakdown.
 - **Services:** `HelpArticleService` (categories, recently-updated, by-category,
   by-slug, adjacent), `SystemMapService`, `SystemBreakdownService`.
 - **Controller/routes** (`HelpController`):
-  - `/help` — index (categories + recently updated)
-  - `/help/search?q=` — full-text search
-  - `/help/category/{category}` — category listing
-  - `/help/article/{slug}` — article page (+ prev/next)
+  - `/help` - index (categories + recently updated)
+  - `/help/search?q=` - full-text search
+  - `/help/category/{category}` - category listing
+  - `/help/article/{slug}` - article page (+ prev/next)
   - `/help/system-map`, `/help/system-breakdown`
 - **Global surfacing:** the theme navbar (`ahg-theme-b5` `header.blade.php`) links
   the **?** Help Center icon to `/help` on every page.
@@ -38,5 +38,5 @@ pages with adjacent-article navigation, plus a system map / system breakdown.
 
 ## References
 
-- `docs/help/` — the article corpus (markdown source of truth)
-- `packages/ahg-help/` — source (Commands / Controllers / Services / Providers)
+- `docs/help/` - the article corpus (markdown source of truth)
+- `packages/ahg-help/` - source (Commands / Controllers / Services / Providers)

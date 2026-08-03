@@ -16,7 +16,7 @@
       @if($artist->nationality || $artist->artist_type)
         <span class="small text-muted">
           @if($artist->artist_type){{ $artist->artist_type }}@endif
-          @if($artist->artist_type && $artist->nationality) &mdash; @endif
+          @if($artist->artist_type && $artist->nationality) - @endif
           @if($artist->nationality){{ $artist->nationality }}@endif
         </span>
       @endif

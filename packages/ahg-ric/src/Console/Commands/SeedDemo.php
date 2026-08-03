@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Seed a coherent mini-fonds into a fresh OpenRiC server so /demo/browse/
- * has something to show. Idempotent — re-running skips entities whose
+ * has something to show. Idempotent - re-running skips entities whose
  * slugs already exist, so it's safe in dev loops.
  *
  * Usage:
@@ -25,7 +25,7 @@ use Illuminate\Support\Str;
 class SeedDemo extends Command
 {
     protected $signature = 'openric:seed-demo {--drop : Delete the demo fonds first} {--dry-run : Report without writing}';
-    protected $description = 'Seed a coherent mini-fonds for /demo/browse/ — Repository, Agent, Place, Activity, Rule, Function, Records, Instantiation + relations.';
+    protected $description = 'Seed a coherent mini-fonds for /demo/browse/ - Repository, Agent, Place, Activity, Rule, Function, Records, Instantiation + relations.';
 
     private const SLUG_PREFIX = 'openric-demo';
     private RicEntityService $svc;
@@ -45,18 +45,18 @@ class SeedDemo extends Command
         $this->info('Seeding OpenRiC demo fonds' . ($dry ? ' [dry-run]' : '') . '…');
 
         // Each entry: [internal-key, type, slug, data, description].
-        // Ordering matters — later entries reference earlier ones by internal key.
+        // Ordering matters - later entries reference earlier ones by internal key.
         $plan = [
             // Repository (custodial institution)
             ['repo', 'repository', 'openric-demo-archive', [
                 'name'                => 'OpenRiC Demo Archive',
                 'identifier'          => 'ORDA',
                 'history'             => 'A small curated collection assembled to showcase the OpenRiC data model end-to-end. Not a real institution.',
-                'geocultural_context' => 'Stellenbosch, Western Cape, South Africa — emblematic of the wine-country valley archives.',
-                'collecting_policies' => 'Family papers, farm records, and botanical field notes from the Cape wine-growing region, 1860 – 1960.',
+                'geocultural_context' => 'Stellenbosch, Western Cape, South Africa - emblematic of the wine-country valley archives.',
+                'collecting_policies' => 'Family papers, farm records, and botanical field notes from the Cape wine-growing region, 1860 - 1960.',
                 'buildings'           => 'A single reading room above the bakery on Dorp Street.',
                 'holdings'            => 'Approximately 20 linear metres of mixed paper and a few hundred glass-plate negatives.',
-                'opening_times'       => 'Tues / Thurs 10:00 – 16:00 by appointment.',
+                'opening_times'       => 'Tues / Thurs 10:00 - 16:00 by appointment.',
                 'access_conditions'   => 'Open to researchers on written request. Photography permitted without flash.',
             ]],
 
@@ -73,7 +73,7 @@ class SeedDemo extends Command
             // Agent (creator)
             ['agent', 'agent', 'openric-demo-agent-leroux', [
                 'name'               => 'Johanna le Roux (OpenRiC demo)',
-                'dates_of_existence' => '1872 – 1958',
+                'dates_of_existence' => '1872 - 1958',
                 'history'            => 'Botanical illustrator and amateur archivist. Documented the fynbos of the Jonkershoek valley between 1898 and 1940 in a series of field journals, maintained family correspondence with cousins in Paarl and Swellendam, and kept meticulous farm-account ledgers for the family vineyard.',
                 'places'             => 'Stellenbosch, Jonkershoek',
                 'functions'          => 'Botanical illustration; family correspondence; vineyard accounting.',
@@ -82,7 +82,7 @@ class SeedDemo extends Command
             // Rule (mandate governing retention / copyright)
             ['rule', 'rule', 'openric-demo-rule-retention', [
                 'title'         => 'Family Papers Retention Policy (OpenRiC demo)',
-                'jurisdiction'  => 'Internal — OpenRiC Demo Archive',
+                'jurisdiction'  => 'Internal - OpenRiC Demo Archive',
                 'start_date'    => '2026-01-01',
                 'description'   => 'Original family papers accepted by the OpenRiC Demo Archive are retained indefinitely. Digital surrogates are refreshed to current master formats on a five-year cycle. Access copies are re-derived from masters on demand.',
                 'sources'       => 'Cape Wine Valley Archives Consortium, retention guidelines 2024 edition.',
@@ -92,14 +92,14 @@ class SeedDemo extends Command
             ['fn', 'function', 'openric-demo-fn-correspondence', [
                 'name'        => 'Family Correspondence (OpenRiC demo)',
                 'description' => 'The administrative function of maintaining personal and professional correspondence with family members, colleagues in the botanical illustration community, and suppliers of vineyard goods.',
-                'dates'       => '1898 – 1958',
+                'dates'       => '1898 - 1958',
             ]],
 
-            // Records — top-level fonds + two child series
+            // Records - top-level fonds + two child series
             ['rec_fonds', 'record', 'openric-demo-leroux-papers', [
                 'title'             => 'Johanna le Roux Papers (OpenRiC demo fonds)',
                 'identifier'        => 'ORDA-1',
-                'scope_and_content' => 'The personal papers of Johanna le Roux, botanical illustrator of Stellenbosch, comprising correspondence, field journals, and farm ledgers, 1898 – 1958.',
+                'scope_and_content' => 'The personal papers of Johanna le Roux, botanical illustrator of Stellenbosch, comprising correspondence, field journals, and farm ledgers, 1898 - 1958.',
                 'extent_and_medium' => '1 archive box; approx. 0.5 linear metres of paper plus 120 glass-plate negatives.',
                 'archival_history'  => 'Accessioned 2026 by the OpenRiC Demo Archive from family descendants.',
                 'arrangement'       => 'Arranged in three series: correspondence, field journals, accounts.',
@@ -116,14 +116,14 @@ class SeedDemo extends Command
             ['rec_journals', 'record', 'openric-demo-leroux-journals', [
                 'title'             => 'Botanical field journals series (OpenRiC demo)',
                 'identifier'        => 'ORDA-1-B',
-                'scope_and_content' => 'Eighteen bound field journals documenting fynbos observations in the Jonkershoek valley, 1898 – 1940, with watercolour plates.',
+                'scope_and_content' => 'Eighteen bound field journals documenting fynbos observations in the Jonkershoek valley, 1898 - 1940, with watercolour plates.',
                 'extent_and_medium' => '18 bound volumes, approx. 2000 pages of manuscript and 320 watercolours.',
             ]],
 
-            // Activity (creation event — the field journals were produced)
+            // Activity (creation event - the field journals were produced)
             ['activity', 'activity', 'openric-demo-activity-journaling', [
                 'name'         => 'Field-journaling activity (OpenRiC demo)',
-                'date_display' => 'c. 1898 – 1940',
+                'date_display' => 'c. 1898 - 1940',
                 'start_date'   => '1898-03-15',
                 'end_date'     => '1940-11-02',
                 'description'  => 'Regular walking-and-recording trips into the Jonkershoek mountains to observe, sketch, and annotate fynbos specimens across seasons.',
@@ -251,7 +251,7 @@ class SeedDemo extends Command
         $this->warn('Dropping OpenRiC demo fonds (all objects with slug prefix "' . self::SLUG_PREFIX . '")…');
         $ids = DB::table('slug')->where('slug', 'like', self::SLUG_PREFIX . '%')->pluck('object_id')->all();
         if (empty($ids)) {
-            $this->info('Nothing to drop — no slugs match.');
+            $this->info('Nothing to drop - no slugs match.');
             return self::SUCCESS;
         }
         DB::transaction(function () use ($ids) {

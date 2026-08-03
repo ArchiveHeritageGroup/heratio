@@ -9,7 +9,7 @@ class DedupeMergeCommand extends Command
 {
     protected $signature = 'ahg:dedupe-merge
         {--scan-id= : ahg_dedupe_scan row whose approved candidates to merge}
-        {--keep= : object_id to keep (winner) — use with --remove}
+        {--keep= : object_id to keep (winner) - use with --remove}
         {--remove= : object_id to remove (loser, redirected to --keep)}
         {--dry-run : Simulate without writing}
         {--connection=atom : Source DB}';
@@ -25,7 +25,7 @@ class DedupeMergeCommand extends Command
         $scanId = $this->option('scan-id');
 
         if (! $keep || ! $remove) {
-            // Without explicit pair, refuse — bulk merge from a scan needs admin curation.
+            // Without explicit pair, refuse - bulk merge from a scan needs admin curation.
             $this->error('Provide --keep=ID and --remove=ID to merge a single pair. Bulk merge from --scan-id requires admin-curated pairs (manual review UI), not a CLI default.');
 
             return self::FAILURE;

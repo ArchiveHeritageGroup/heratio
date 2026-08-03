@@ -64,7 +64,7 @@ class AuditService
      */
     /**
      * Log an audit event to security_audit_log.
-     * Respects the audit_enabled setting — returns 0 if disabled.
+     * Respects the audit_enabled setting - returns 0 if disabled.
      */
     public function log(string $action, ?int $objectId = null, ?int $userId = null, array $details = []): int
     {

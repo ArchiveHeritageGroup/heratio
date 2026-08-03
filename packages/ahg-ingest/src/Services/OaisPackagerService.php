@@ -1,24 +1,24 @@
 <?php
 
 /**
- * OaisPackagerService — Heratio ingest
+ * OaisPackagerService - Heratio ingest
  *
  * Builds OAIS Submission / Archival / Dissemination Information Packages
  * (SIP / AIP / DIP) for an information object. Uses BagIt (RFC 8493)
  * as the package format.
  *
  * Contents by type:
- *   SIP (Submission) — payload master(s) + descriptive XML + bag-info
- *   AIP (Archival)   — SIP content + PREMIS event export + fixity manifest
- *   DIP (Dissemination) — access derivatives only (no master) + descriptive
+ *   SIP (Submission) - payload master(s) + descriptive XML + bag-info
+ *   AIP (Archival)   - SIP content + PREMIS event export + fixity manifest
+ *   DIP (Dissemination) - access derivatives only (no master) + descriptive
  *
  * Records into `preservation_package` + `preservation_package_object` +
  * `preservation_package_event` so the Admin → Preservation → Packages
  * view picks them up. Emits PREMIS events into `preservation_event`.
  *
  * Callers:
- *   - IngestService::commit() (wizard) — per-batch packages
- *   - ProcessScanFile::stagePackaging() (scanner) — per-file packages
+ *   - IngestService::commit() (wizard) - per-batch packages
+ *   - ProcessScanFile::stagePackaging() (scanner) - per-file packages
  *   - On-demand from an admin "Build package" button (future)
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
@@ -69,7 +69,7 @@ class OaisPackagerService
 
         $dos = DB::table('digital_object')->where('object_id', $ioId)->get();
         if ($dos->isEmpty()) {
-            throw new \RuntimeException("IO {$ioId} has no digital objects — nothing to package");
+            throw new \RuntimeException("IO {$ioId} has no digital objects - nothing to package");
         }
 
         $uuid = (string) Str::uuid();
@@ -126,7 +126,7 @@ class OaisPackagerService
         $totalSize = array_sum(array_column($included, 'size'));
 
         // Persist to preservation_package
-        $name = sprintf('%s — %s [%s]', strtoupper($type), $io->identifier ?: 'Untitled', substr($uuid, 0, 8));
+        $name = sprintf('%s - %s [%s]', strtoupper($type), $io->identifier ?: 'Untitled', substr($uuid, 0, 8));
         $packageId = DB::table('preservation_package')->insertGetId([
             'uuid' => $uuid,
             'name' => mb_substr($name, 0, 255),
@@ -248,7 +248,7 @@ class OaisPackagerService
     }
 
     // ----------------------------------------------------------------
-    // Descriptive XML (Dublin Core for now — sector-specific export later)
+    // Descriptive XML (Dublin Core for now - sector-specific export later)
     // ----------------------------------------------------------------
 
     protected function writeDescriptive(object $io, string $dir): void

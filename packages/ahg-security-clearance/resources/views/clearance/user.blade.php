@@ -1,6 +1,6 @@
 @extends('ahg-theme-b5::layout')
 
-@section('title', 'User Clearance — ' . e($targetUser->authorized_form_of_name ?? $targetUser->username ?? ''))
+@section('title', 'User Clearance - ' . e($targetUser->authorized_form_of_name ?? $targetUser->username ?? ''))
 
 @section('content')
 <div class="container-fluid mt-3">

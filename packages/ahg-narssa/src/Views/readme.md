@@ -1,4 +1,4 @@
-# AhgNarssa — Views
+# AhgNarssa - Views
 
 Views directory for the AhgNarssa package.
 

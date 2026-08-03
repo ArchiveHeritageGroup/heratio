@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-heritage-manage — install schema
+-- ahg-heritage-manage - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgHeritagePlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -1062,7 +1062,7 @@ CREATE TABLE IF NOT EXISTS heritage_hero_slide (
 CREATE TABLE IF NOT EXISTS heritage_explore_category (
     id INT AUTO_INCREMENT PRIMARY KEY,
     -- 0 = global (not institution-scoped). NOT NULL because MySQL treats NULL
-    -- as unknown for unique-key purposes — with NULL allowed, the
+    -- as unknown for unique-key purposes - with NULL allowed, the
     -- (institution_id, code) UNIQUE KEY couldn't catch INSERT IGNORE replays
     -- and we ended up with two of every category on the heritage landing.
     institution_id INT NOT NULL DEFAULT 0,

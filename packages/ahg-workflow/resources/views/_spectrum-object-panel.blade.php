@@ -1,4 +1,4 @@
-{{-- Spectrum Phase C3 — per-object compliance panel (additive partial).
+{{-- Spectrum Phase C3 - per-object compliance panel (additive partial).
 
   Usage from a Blade view that already has an information object loaded:
 
@@ -41,7 +41,7 @@
     <div class="card-body">
       <div class="spectrum-obj-grid">
         @foreach($summary as $code => $entry)
-          <div class="spectrum-obj-cell s-{{ $entry['status'] }}" title="{{ $entry['label'] }} — {{ \AhgWorkflow\Services\SpectrumComplianceService::STATUSES[$entry['status']] ?? $entry['status'] }}">
+          <div class="spectrum-obj-cell s-{{ $entry['status'] }}" title="{{ $entry['label'] }} - {{ \AhgWorkflow\Services\SpectrumComplianceService::STATUSES[$entry['status']] ?? $entry['status'] }}">
             <span>{{ $entry['label'] }}</span>
             <span class="icon">
               @if($entry['status'] === 'completed')

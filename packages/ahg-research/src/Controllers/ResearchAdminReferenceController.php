@@ -183,7 +183,7 @@ class ResearchAdminReferenceController extends Controller
                 ->groupBy('rm.name')->orderByDesc('count')->get()->toArray();
         } catch (\Exception $e) {}
 
-        // Most active researchers (cloned from PSIS adminStatistics — includes view_count + citation_count)
+        // Most active researchers (cloned from PSIS adminStatistics - includes view_count + citation_count)
         $activeResearchers = [];
         try {
             $activeResearchers = DB::table('research_researcher as r')

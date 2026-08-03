@@ -121,7 +121,7 @@ class FederationController extends Controller
             return response()->json(['success' => false, 'error' => 'Base URL is required']);
         }
 
-        // #1380: SSRF guard — this fetches an admin-supplied URL and reflects the
+        // #1380: SSRF guard - this fetches an admin-supplied URL and reflects the
         // response, so apply the same host allow-list the harvest path uses
         // (blocks private/reserved/cloud-metadata hosts) before any request.
         if (! app(\AhgFederation\Services\FederationClient::class)->hostAllowed($baseUrl)) {
@@ -238,7 +238,7 @@ class FederationController extends Controller
     }
 
     /**
-     * Phase H — translate Phase-H form fields into the federation_peer.config JSON shape
+     * Phase H - translate Phase-H form fields into the federation_peer.config JSON shape
      * expected by SharePointGraphConnector.
      *
      * @return array<string,mixed>

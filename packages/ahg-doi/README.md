@@ -13,11 +13,11 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `controllers` — TODO: implement
-- [ ] `services` — TODO: implement
-- [ ] `views` — TODO: implement
-- [ ] `routes` — TODO: implement
-- [ ] `readme` — TODO: implement
+- [ ] `controllers` - TODO: implement
+- [ ] `services` - TODO: implement
+- [ ] `views` - TODO: implement
+- [ ] `routes` - TODO: implement
+- [ ] `readme` - TODO: implement
 
 ## References
 - docs/help/ (search for `doi`)

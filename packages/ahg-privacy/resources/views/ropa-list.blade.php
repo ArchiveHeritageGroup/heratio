@@ -1,7 +1,7 @@
 {{--
-    Record of Processing Activities (ROPA) — list page
+    Record of Processing Activities (ROPA) - list page
     Cloned from PSIS ahgPrivacyPlugin/modules/privacyAdmin/templates/ropaListSuccess.blade.php
-    Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems — AGPL-3.0-or-later
+    Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems - AGPL-3.0-or-later
 --}}
 @extends('theme::layouts.1col')
 

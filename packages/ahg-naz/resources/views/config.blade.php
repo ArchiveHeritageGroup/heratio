@@ -16,7 +16,7 @@
 
 @section('content')
 @php
-    // Controller passes $settings; PSIS template used $config — alias for parity.
+    // Controller passes $settings; PSIS template used $config - alias for parity.
     $config = $settings ?? [];
 @endphp
 <div class="container-fluid">

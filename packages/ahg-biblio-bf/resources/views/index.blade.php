@@ -1,4 +1,4 @@
-{{-- ahg-biblio-bf/index.blade.php — BIBFRAME integration dashboard --}}
+{{-- ahg-biblio-bf/index.blade.php - BIBFRAME integration dashboard --}}
 @extends('theme::layouts.1col')
 
 @section('content')
@@ -92,7 +92,7 @@
           <i class="bi bi-person me-1"></i> Agents
         </div>
         <div class="card-body">
-          <p class="small text-muted">Browse the agent authority used in BIBFRAME records — authors, editors, illustrators.</p>
+          <p class="small text-muted">Browse the agent authority used in BIBFRAME records - authors, editors, illustrators.</p>
           <a href="{{ route('bibframe.agent') }}" class="btn btn-outline-secondary btn-sm w-100">
             Browse Agents
           </a>

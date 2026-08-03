@@ -2,9 +2,9 @@
     Shared right-column blocks for GLAM/DAM show pages.
 
     Required:
-      $record  — the IO entity (id, slug, title, updated_at)
-      $slug    — $record->slug (or override)
-      $type    — clipboard type, default 'informationObject'
+      $record  - the IO entity (id, slug, title, updated_at)
+      $slug    - $record->slug (or override)
+      $type    - clipboard type, default 'informationObject'
 
     Optional (degrade gracefully if absent):
       $collectionRootId, $digitalObjects, $hasChildren,
@@ -80,7 +80,7 @@
     @endif
   @endauth
 
-  {{-- Export — moved here directly under Import per user request 2026-05-03 --}}
+  {{-- Export - moved here directly under Import per user request 2026-05-03 --}}
   @unless($skipExport)
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">

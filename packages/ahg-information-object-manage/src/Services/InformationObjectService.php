@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * InformationObjectService — core CRUD operations for information objects.
+ * InformationObjectService - core CRUD operations for information objects.
  *
  * Migrated from InformationObjectCrudService in the ahgInformationObjectManagePlugin.
  * Provides methods that the ImportJob and other services need without duplicating
@@ -183,7 +183,7 @@ class InformationObjectService
      * Data keys may be either snake_case (matching DB columns) or camelCase
      * (matching the field map from InformationObjectCrudService).
      *
-     * Required: 'title' (or nothing — defaults to 'Untitled')
+     * Required: 'title' (or nothing - defaults to 'Untitled')
      * Optional: 'parent_id'/'parentId', 'identifier', 'level_of_description_id'/'levelOfDescriptionId',
      *           'repository_id'/'repositoryId', all i18n fields, etc.
      *
@@ -363,7 +363,7 @@ class InformationObjectService
      * Flat snapshot of IO-update fields for the security_audit_log
      * before/after diff. Captures the structural columns + the i18n
      * narrative fields most edits touch. See packages/ahg-core/src/Support/AuditLog.php.
-     * Public so InformationObjectController::update can reuse it — the
+     * Public so InformationObjectController::update can reuse it - the
      * controller writes the IO directly rather than calling
      * InformationObjectService::update, so it needs to take its own
      * snapshot to feed AuditLog::captureEdit.

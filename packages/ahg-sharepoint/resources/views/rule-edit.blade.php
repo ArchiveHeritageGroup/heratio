@@ -31,7 +31,7 @@
             <div class="mb-3">
                 <label class="form-label">{{ __('Drive') }}</label>
                 <select name="drive_id" class="form-select" required>
-                    <option value="">— {{ __('Select drive') }} —</option>
+                    <option value="">- {{ __('Select drive') }} -</option>
                     @foreach($drives as $d)
                         <option value="{{ (int) $d->id }}" @selected($rule && (int) $rule->drive_id === (int) $d->id)>
                             {{ $d->site_title ?: '?' }} / {{ $d->drive_name ?: '?' }}
@@ -56,7 +56,7 @@
                     <input class="form-check-input" type="radio" name="retention_mode" id="retention_mode_off" value="off" @checked(!$hasLabel)>
                     <label class="form-check-label" for="retention_mode_off">
                         {{ __('Ingest all matching files') }}
-                        <small class="text-muted ms-1">({{ __('no Purview filter — use this for demos or tenants without Purview') }})</small>
+                        <small class="text-muted ms-1">({{ __('no Purview filter - use this for demos or tenants without Purview') }})</small>
                     </label>
                 </div>
                 <div class="form-check">
@@ -76,7 +76,7 @@
             <div class="mb-3">
                 <label class="form-label" for="template_id">{{ __('Mapping template') }}</label>
                 <select name="template_id" id="template_id" class="form-select">
-                    <option value="">— {{ __('Use drive default') }} —</option>
+                    <option value="">- {{ __('Use drive default') }} -</option>
                 </select>
                 <small class="text-muted">{{ __('Templates are managed at') }}
                     <a href="{{ route('sharepoint.mappings') }}">{{ __('SharePoint → Mappings') }}</a>.
@@ -130,7 +130,7 @@
                                     if (!empty($parentLabel->identifier)) { $bits[] = $parentLabel->identifier; }
                                     $bits[] = $parentLabel->name ?: ('Record #' . $parentLabel->id);
                                 @endphp
-                                {{ implode(' — ', $bits) }}
+                                {{ implode(' - ', $bits) }}
                             </option>
                         @endif
                     </select>

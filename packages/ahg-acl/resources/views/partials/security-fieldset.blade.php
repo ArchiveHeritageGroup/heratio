@@ -57,7 +57,7 @@ if ($watermarkPositions->isEmpty()) {
     ]);
 }
 // Stored positions may use legacy spaced/hyphenated values ('bottom right',
-// 'repeat') — normalise both sides before comparing for the selected option.
+// 'repeat') - normalise both sides before comparing for the selected option.
 $normalisePosition = function ($value) {
     $value = str_replace([' ', '-'], '_', strtolower(trim((string) $value)));
 

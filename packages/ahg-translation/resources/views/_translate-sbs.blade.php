@@ -111,19 +111,19 @@
     'RiC Explorer', 'RiC Dashboard', 'RiC-O JSON-LD',
     // RiC view-mode toggle (flat-view button label is the description standard)
     'View:', 'View mode', 'ISAD(G)', 'ISAAR(CPF)', 'Record',
-    // RiC Entities Panel (DAM/IO/Actor show pages — header, OpenRiC link, action buttons, tabs)
-    'RiC Context', 'OpenRiC', 'Open RiC contract — see openric.org', 'Validate',
+    // RiC Entities Panel (DAM/IO/Actor show pages - header, OpenRiC link, action buttons, tabs)
+    'RiC Context', 'OpenRiC', 'Open RiC contract - see openric.org', 'Validate',
     'Add Activity', 'Add Place', 'Add Rule', 'Add Instantiation',
     'Activities', 'Instantiations', 'Places', 'Rules', 'Relations',
-    // RiC Entities Panel — table column headings (Title/Type/Dates already in list)
+    // RiC Entities Panel - table column headings (Title/Type/Dates already in list)
     'Name', 'Predicate', 'Carrier', 'MIME Type', 'Size', 'Coordinates', 'Jurisdiction',
-    // RiC Relations tab — _relation-editor partial (intro paragraph + table headings + add-form labels + placeholders)
-    'Predicate vocabulary follows the :openric mapping — each relation written here also serialises as canonical :rico in the RDF/JSON-LD/Turtle exports.',
+    // RiC Relations tab - _relation-editor partial (intro paragraph + table headings + add-form labels + placeholders)
+    'Predicate vocabulary follows the :openric mapping - each relation written here also serialises as canonical :rico in the RDF/JSON-LD/Turtle exports.',
     'Direction', 'Related Entity', 'Relation Type', 'Certainty', 'Evidence',
     'Add Relation', 'Edit Relation', 'Target Entity', 'Search entities...',
     '-- Select --', '-- Unspecified --', 'Loading...', 'No relations',
     'Source citation, record identifier, or note supporting this relation', 'Cancel edit',
-    // RiC Entity creation modal (_ric-entity-modal — Activity / Place / Rule / Instantiation forms)
+    // RiC Entity creation modal (_ric-entity-modal - Activity / Place / Rule / Instantiation forms)
     'Create RiC Entity', 'Relation to this record', '-- No link --',
     'Activity Name', 'Activity Type', 'Place Name', 'Place Type', 'Rule Title', 'Rule Type', 'Carrier Type',
     'Start Date', 'End Date', 'Date Display', 'e.g. ca. 1920',
@@ -162,11 +162,11 @@
   // Saves go through ahgtranslation.strings.save (same workflow split as
   // record-content saves: admin auto-applies, editor queues).
   $labelTranslations = [];
-  // CCO field labels also live as UI strings — include them so the per-record
+  // CCO field labels also live as UI strings - include them so the per-record
   // SBS modal can edit the label translations alongside the IO field labels.
   $ccoLabelStrings = [];
   // Defined below in $museumGroups; flattened here for the labels pre-load.
-  // Mirror of the museumGroups arrays — kept in sync manually.
+  // Mirror of the museumGroups arrays - kept in sync manually.
   $ccoLabelStrings = [
     // Section / group headers (rendered as card headers on the show view)
     'CCO / Museum metadata',
@@ -195,7 +195,7 @@
       if (is_readable($p)) {
           $j = json_decode((string) file_get_contents($p), true);
           if (is_array($j)) {
-              // Only keep keys we render — keeps payload small.
+              // Only keep keys we render - keeps payload small.
               $labelTranslations[$loc] = array_intersect_key($j, array_flip($allUiKeys));
           }
       }
@@ -205,7 +205,7 @@
   // Only renders if this IO has a museum_metadata row. Pre-load every culture
   // already in museum_metadata_i18n so the modal switches client-side without
   // a round trip, mirroring $i18nByCulture.
-  // IO-only — repository / actor SBS skips this block entirely.
+  // IO-only - repository / actor SBS skips this block entirely.
   $museumByCulture = [];
   $museumRowId = null;
   $museumGroups = [];
@@ -242,7 +242,7 @@
           }
       }
   } catch (\Throwable $e) {
-      // museum_metadata / museum_metadata_i18n missing — skip CCO section.
+      // museum_metadata / museum_metadata_i18n missing - skip CCO section.
       $museumRowId = null;
   }
   } // end if ($sbsEntityType === 'information_object')
@@ -296,14 +296,14 @@
 
         <div id="sbs-section-labels-{{ $objectId }}"></div>
         {{-- ── Field LABEL translations (UI strings) ── --}}
-        <h6 class="text-uppercase small fw-bold text-muted mt-2 mb-2"><i class="fas fa-tag me-1"></i>{{ __('Field labels') }} <span class="text-muted">({{ __('translations of the field names themselves — saved into lang/{locale}.json') }})</span></h6>
+        <h6 class="text-uppercase small fw-bold text-muted mt-2 mb-2"><i class="fas fa-tag me-1"></i>{{ __('Field labels') }} <span class="text-muted">({{ __('translations of the field names themselves - saved into lang/{locale}.json') }})</span></h6>
         <div class="table-responsive mb-4">
           <table class="table table-sm table-bordered align-top">
             <thead class="table-light">
               <tr>
                 <th style="width:18%;">{{ __('Field key') }}</th>
                 <th style="width:38%;"><span class="badge bg-light text-dark">en</span> {{ __('Label (English source)') }}</th>
-                <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label-lbl" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Label (target — edit here)') }}</th>
+                <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label-lbl" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Label (target - edit here)') }}</th>
                 <th style="width:6%;"></th>
               </tr>
             </thead>
@@ -327,12 +327,12 @@
         </div>
 
         @if($museumRowId && !empty($museumGroups))
-        {{-- ── CCO field LABELS (UI strings — saved to lang/{locale}.json + mirrored to setting_i18n) ── --}}
+        {{-- ── CCO field LABELS (UI strings - saved to lang/{locale}.json + mirrored to setting_i18n) ── --}}
         <div class="alert alert-success small mt-3 mb-2 py-2">
           <strong><i class="fas fa-tag me-1"></i>{{ __('Use this section to translate FIELD LABELS (the field names themselves).') }}</strong>
           {{ __('e.g. "Edition description" → "Uitgawe beskrywing". Saves to lang/{locale}.json and mirrors to setting_i18n. Same place as /admin/translation/strings.') }}
         </div>
-        <h6 class="text-uppercase small fw-bold text-success mb-2"><i class="fas fa-landmark me-1"></i>{{ __('CCO / Museum field LABELS') }} <span class="text-success">({{ __('field names — saved into lang/{locale}.json') }})</span></h6>
+        <h6 class="text-uppercase small fw-bold text-success mb-2"><i class="fas fa-landmark me-1"></i>{{ __('CCO / Museum field LABELS') }} <span class="text-success">({{ __('field names - saved into lang/{locale}.json') }})</span></h6>
         @foreach($museumGroups as $groupTitle => $groupFields)
           <div class="card mb-2 border-secondary-subtle">
             <div class="card-header py-1 small fw-semibold" style="background:#f5f5f5">{{ __($groupTitle) }}</div>
@@ -342,7 +342,7 @@
                   <tr>
                     <th style="width:18%;">{{ __('Field key') }}</th>
                     <th style="width:38%;"><span class="badge bg-light text-dark">en</span> {{ __('Label (English source)') }}</th>
-                    <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label-lbl" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Label (target — edit here)') }}</th>
+                    <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label-lbl" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Label (target - edit here)') }}</th>
                     <th style="width:6%;"></th>
                   </tr>
                 </thead>
@@ -382,14 +382,14 @@
         @endif
 
         {{-- ── Common link / button labels (UI strings) ── --}}
-        <h6 class="text-uppercase small fw-bold text-muted mt-3 mb-2"><i class="fas fa-mouse-pointer me-1"></i>{{ __('Common buttons & links') }} <span class="text-muted">({{ __('UI strings that appear all over the app — saved into lang/{locale}.json') }})</span></h6>
+        <h6 class="text-uppercase small fw-bold text-muted mt-3 mb-2"><i class="fas fa-mouse-pointer me-1"></i>{{ __('Common buttons & links') }} <span class="text-muted">({{ __('UI strings that appear all over the app - saved into lang/{locale}.json') }})</span></h6>
         <div class="table-responsive mb-4">
           <table class="table table-sm table-bordered align-top">
             <thead class="table-light">
               <tr>
                 <th style="width:18%;">{{ __('Key') }}</th>
                 <th style="width:38%;"><span class="badge bg-light text-dark">en</span> {{ __('Source') }}</th>
-                <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label-lbl" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Target — edit here') }}</th>
+                <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label-lbl" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Target - edit here') }}</th>
                 <th style="width:6%;"></th>
               </tr>
             </thead>
@@ -423,7 +423,7 @@
         <div id="sbs-section-values-{{ $objectId }}"></div>
         {{-- ── Field VALUE translations (record content in *_i18n) ── --}}
         <div class="d-flex justify-content-between align-items-center mt-2 mb-2 flex-wrap gap-2">
-          <h6 class="text-uppercase small fw-bold text-muted mb-0"><i class="fas fa-database me-1"></i>{{ __('Field values') }} <span class="text-muted">({{ __('the actual record content — saved into') }} <code>{{ $sbsI18nTable }}</code>)</span></h6>
+          <h6 class="text-uppercase small fw-bold text-muted mb-0"><i class="fas fa-database me-1"></i>{{ __('Field values') }} <span class="text-muted">({{ __('the actual record content - saved into') }} <code>{{ $sbsI18nTable }}</code>)</span></h6>
           <div class="form-check form-switch mb-0">
             <input class="form-check-input sbs-filter-empty" type="checkbox" id="sbs-filter-empty-{{ $objectId }}" data-object-id="{{ $objectId }}">
             <label class="form-check-label small" for="sbs-filter-empty-{{ $objectId }}">
@@ -437,7 +437,7 @@
               <tr>
                 <th style="width:18%;">{{ __('Field') }}</th>
                 <th style="width:38%;"><span class="badge bg-light text-dark sbs-src-label" data-object-id="{{ $objectId }}">{{ $defaultSource }}</span> {{ __('Source') }}</th>
-                <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Target — edit here') }}</th>
+                <th style="width:38%;"><span class="badge bg-light text-dark sbs-tgt-label" data-object-id="{{ $objectId }}">{{ $defaultTarget }}</span> {{ __('Target - edit here') }}</th>
                 <th style="width:6%;"></th>
               </tr>
             </thead>
@@ -465,7 +465,7 @@
              Keeps this modal LABELS-only so admins can't accidentally type label
              text into a value cell. --}}
 
-        {{-- ── Issue #59 Phase 5 — Dropdown values used on this record ── --}}
+        {{-- ── Issue #59 Phase 5 - Dropdown values used on this record ── --}}
         {{-- IO-only: the introspection inspects information_object term FKs +
              museum_metadata cells, neither of which apply to repository / actor. --}}
         @php
@@ -538,7 +538,7 @@
                   }
               }
           } catch (\Throwable $e) {
-              // Defensive — never break the SBS modal because of an introspection error.
+              // Defensive - never break the SBS modal because of an introspection error.
               $sbsDropdowns = [];
           }
           } // end if ($sbsEntityType === 'information_object')
@@ -547,7 +547,7 @@
           <div id="sbs-section-dropdowns-{{ $objectId }}"></div>
           <h6 class="text-uppercase small fw-bold text-muted mt-2 mb-2">
             <i class="fas fa-list me-1"></i>{{ __('Dropdown values used on this record') }}
-            <span class="text-muted">({{ __('translates the source-of-truth dropdown row — appears anywhere this code is used') }})</span>
+            <span class="text-muted">({{ __('translates the source-of-truth dropdown row - appears anywhere this code is used') }})</span>
           </h6>
           <div class="table-responsive mb-4" id="sbs-dropdowns-{{ $objectId }}"
                data-csrf="{{ csrf_token() }}">
@@ -557,7 +557,7 @@
                   <th style="width:18%;">{{ __('Field') }}</th>
                   <th style="width:14%;">{{ __('Source') }}</th>
                   <th style="width:24%;"><span class="badge bg-light text-dark">en</span> {{ __('Source label') }}</th>
-                  <th style="width:32%;"><span class="badge bg-light text-dark sbs-dd-target-badge">{{ $defaultTarget }}</span> {{ __('Target — edit here') }}</th>
+                  <th style="width:32%;"><span class="badge bg-light text-dark sbs-dd-target-badge">{{ $defaultTarget }}</span> {{ __('Target - edit here') }}</th>
                   <th style="width:12%;"></th>
                 </tr>
               </thead>
@@ -587,7 +587,7 @@
       <div class="modal-footer flex-wrap gap-2">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
         <a href="{{ route('ahgtranslation.drafts') }}" class="btn btn-outline-warning" target="_blank">
-          <i class="fas fa-clipboard-check me-1"></i>{{ __('Translation workflow — record drafts queue') }}
+          <i class="fas fa-clipboard-check me-1"></i>{{ __('Translation workflow - record drafts queue') }}
         </a>
         @if(\AhgCore\Services\AclService::isAdministrator())
           <a href="{{ route('ahgtranslation.strings.pending') }}" class="btn btn-outline-warning" target="_blank">
@@ -602,7 +602,7 @@
 <script>
 (function () {
   // i18n data preloaded server-side. Switching source language just re-renders
-  // from this map — no extra round trip.
+  // from this map - no extra round trip.
   window.__sbsData = window.__sbsData || {};
   window.__sbsData[{{ $objectId }}] = @json($i18nByCulture);
 
@@ -683,7 +683,7 @@
     var prevApplyTargetForFilter = applyTargetLabel;
     applyTargetLabel = function (objId) { prevApplyTargetForFilter(objId); applyEmptyFilter(); };
 
-    // ─── Label / button rows (UI strings — saved to lang/{locale}.json) ───
+    // ─── Label / button rows (UI strings - saved to lang/{locale}.json) ───
     function applyLabelTargetValues(objId) {
       var tgt = tgtSel.value;
       var labelsByLocale = window.__sbsLabels[objId] || {};
@@ -753,7 +753,7 @@
           .then(function (d) {
             if (d && d.ok && d.translated) {
               input.value = d.translated;
-              status.innerHTML = '<span class="text-info">MT — review then save</span>';
+              status.innerHTML = '<span class="text-info">MT - review then save</span>';
             } else {
               status.innerHTML = '<span class="text-danger">✗ ' + ((d && d.error) || 'MT failed') + '</span>';
             }
@@ -811,7 +811,7 @@
 
     {{-- CCO values handlers moved to _translate-cco-values.blade.php (own modal). --}}
 
-    // Per-row AI suggest — reuses /admin/translation/strings/mt-suggest
+    // Per-row AI suggest - reuses /admin/translation/strings/mt-suggest
     // (returns translated text from the Ollama backend per #45). Source text
     // taken from the rendered .sbs-src column.
     modal.querySelectorAll('.sbs-mt-btn').forEach(function (btn) {
@@ -832,7 +832,7 @@
               // Prefix with [AI] so admins can spot machine-translated values at
               // a glance and decide whether to confirm or edit before saving.
               tgtArea.value = (d.translated.indexOf('[AI]') === 0 ? d.translated : '[AI] ' + d.translated);
-              status.innerHTML = '<span class="text-info">MT suggestion — review then save</span>';
+              status.innerHTML = '<span class="text-info">MT suggestion - review then save</span>';
             } else {
               status.innerHTML = '<span class="text-danger">✗ MT failed: ' + ((d && d.error) || 'unknown') + '</span>';
             }
@@ -842,7 +842,7 @@
       });
     });
 
-    // Issue #59 Phase 5 — dropdown rows save handler. Each row carries
+    // Issue #59 Phase 5 - dropdown rows save handler. Each row carries
     // data-source + data-id + data-save-url; the URL is the Phase 3 endpoint
     // /admin/dropdowns/{source}/{id}/i18n. Admin auto-applies; editor queues
     // a draft into ahg_translation_draft. Same target-culture as the rest of

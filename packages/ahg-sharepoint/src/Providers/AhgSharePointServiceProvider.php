@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * AhgSharePointServiceProvider — Heratio package wiring.
+ * AhgSharePointServiceProvider - Heratio package wiring.
  *
  * Mirrored in atom-ahg-plugins/ahgSharePointPlugin/config/ahgSharePointPluginConfiguration.class.php.
  * Both must register: routes, queue handlers, settings section, services.
@@ -21,7 +21,7 @@ class AhgSharePointServiceProvider extends ServiceProvider
         $this->app->singleton(\AhgSharePoint\Services\GraphTokenCache::class);
         $this->app->singleton(\AhgSharePoint\Services\GraphClientService::class);
 
-        // Phase 2.A — repositories + services
+        // Phase 2.A - repositories + services
         $this->app->singleton(\AhgSharePoint\Repositories\SharePointTenantRepository::class);
         $this->app->singleton(\AhgSharePoint\Repositories\SharePointDriveRepository::class);
         $this->app->singleton(\AhgSharePoint\Repositories\SharePointSubscriptionRepository::class);
@@ -32,7 +32,7 @@ class AhgSharePointServiceProvider extends ServiceProvider
         $this->app->singleton(\AhgSharePoint\Services\SharePointWebhookHandler::class);
         $this->app->singleton(\AhgSharePoint\Services\SharePointIngestAdapter::class);
 
-        // Phase 2.B — push + user mapping + JWT
+        // Phase 2.B - push + user mapping + JWT
         $this->app->singleton(\AhgSharePoint\Repositories\SharePointUserMappingRepository::class);
         $this->app->singleton(\AhgSharePoint\Services\GraphTokenValidatorService::class);
         $this->app->singleton(\AhgSharePoint\Services\SharePointUserMappingService::class);
@@ -42,7 +42,7 @@ class AhgSharePointServiceProvider extends ServiceProvider
         $this->app->singleton(\AhgSharePoint\Services\SharePointBrowserService::class);
         $this->app->singleton(\AhgSharePoint\Services\SharePointAutoIngestService::class);
 
-        // Issue #1221 — SharePoint federated search, self-contained in this
+        // Issue #1221 - SharePoint federated search, self-contained in this
         // package. The connector + its runner read tenant/credentials from this
         // package's OWN M365 tenant store (via GraphClientService /
         // SharePointTenantRepository), never from ahg-federation peer config.

@@ -125,7 +125,7 @@ class AccessionService
      *   relation.object_id  = donor.id
      *   relation.type_id    = TermId::RELATION_DONOR (169)
      * The relation row re-uses the object table's id (Qubit class-table
-     * inheritance) — a QubitRelation object row is pre-created and its id is
+     * inheritance) - a QubitRelation object row is pre-created and its id is
      * used as relation.id, mirroring createInformationObject() and
      * DonorService::syncInformationObjects().
      *
@@ -170,7 +170,7 @@ class AccessionService
 
     /**
      * Remove the link between a donor and an accession. Deletes only the
-     * relation row(s) and their parent QubitRelation object row — the donor
+     * relation row(s) and their parent QubitRelation object row - the donor
      * actor itself is left intact. No-op when no such link exists.
      *
      * @return int number of relation rows removed
@@ -565,7 +565,7 @@ class AccessionService
     /**
      * Get creators linked to an accession via relation table.
      * AtoM: subject=actor, object=accession, type=RELATION_CREATION (111)
-     * — see qtAccessionPlugin/modules/accession/actions/editAction.class.php.
+     * - see qtAccessionPlugin/modules/accession/actions/editAction.class.php.
      */
     public function getCreators(int $accessionId): \Illuminate\Support\Collection
     {
@@ -668,7 +668,7 @@ class AccessionService
     /**
      * Get information objects linked to an accession via relation table.
      * AtoM: subject=information_object, object=accession, type=RELATION_ACCESSION (167)
-     * — see qtAccessionPlugin/modules/accession/actions/addInformationObjectAction.class.php.
+     * - see qtAccessionPlugin/modules/accession/actions/addInformationObjectAction.class.php.
      */
     public function getInformationObjects(int $accessionId): \Illuminate\Support\Collection
     {
@@ -912,7 +912,7 @@ class AccessionService
      * naming each requirement that's still missing for this accession.
      * Empty array means the accession can be finalised. Honours the
      * accession_require_donor_agreement and accession_require_appraisal
-     * settings — a setting that's false skips its check entirely. Callable
+     * settings - a setting that's false skips its check entirely. Callable
      * from a future finalise endpoint or surfaced as a banner on show.
      */
     public function finalisationBlockers(int $accessionId): array
@@ -944,7 +944,7 @@ class AccessionService
 
     /**
      * Copy donor's PREMIS rights from the accession to a newly-created IO.
-     * Honours accession_rights_inheritance_enabled — a no-op when the
+     * Honours accession_rights_inheritance_enabled - a no-op when the
      * setting is false. Idempotent: existing rows for the same IO are
      * left alone. Called from any flow that materialises an IO out of an
      * accession (the create-IO-from-accession flow doesn't exist yet, but
@@ -959,7 +959,7 @@ class AccessionService
         // accession_rights_inherited is a join table (rights_id +
         // information_object_id), not a copy. Idempotent: skip rows that
         // are already linked. Honours each rights row's inherit_to_children
-        // flag — rows with that flag set to 0 stay attached to the
+        // flag - rows with that flag set to 0 stay attached to the
         // accession only and don't propagate.
         $rows = DB::table('accession_rights')
             ->where('accession_id', $accessionId)

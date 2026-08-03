@@ -91,8 +91,8 @@
                     <td>{{ number_format($f->pending ?? 0) }}</td>
                     <td>{{ number_format($f->failed ?? 0) }}</td>
                     <td>{{ number_format($f->done ?? 0) }}</td>
-                    <td><small class="text-muted">{{ $f->last_done ?? '—' }}</small></td>
-                    <td><small class="text-muted">{{ $f->last_scanned_at ?? '—' }}</small></td>
+                    <td><small class="text-muted">{{ $f->last_done ?? '-' }}</small></td>
+                    <td><small class="text-muted">{{ $f->last_scanned_at ?? '-' }}</small></td>
                 </tr>
                 @endforeach
             </tbody>
@@ -121,18 +121,18 @@
                 @foreach($recent as $r)
                 <tr>
                     <td><a href="{{ route('scan.inbox.show', $r->id) }}">{{ $r->id }}</a></td>
-                    <td><small><code>{{ $r->folder_code ?? '—' }}</code></small></td>
+                    <td><small><code>{{ $r->folder_code ?? '-' }}</code></small></td>
                     <td><small>{{ $r->original_name }}</small></td>
                     <td>
                         @php $colors = ['pending'=>'secondary','processing'=>'primary','done'=>'success','failed'=>'danger','duplicate'=>'warning','quarantined'=>'warning']; @endphp
                         <span class="badge bg-{{ $colors[$r->status] ?? 'secondary' }}">{{ $r->status }}</span>
                     </td>
-                    <td><small class="text-muted">{{ $r->stage ?? '—' }}</small></td>
+                    <td><small class="text-muted">{{ $r->stage ?? '-' }}</small></td>
                     <td>
                         @if($r->resolved_io_id)
                             <a href="{{ url('/informationobject/' . $r->resolved_io_id) }}">IO #{{ $r->resolved_io_id }}</a>
                         @else
-                            <small class="text-muted">—</small>
+                            <small class="text-muted">-</small>
                         @endif
                     </td>
                     <td><small class="text-muted">{{ $r->created_at }}</small></td>

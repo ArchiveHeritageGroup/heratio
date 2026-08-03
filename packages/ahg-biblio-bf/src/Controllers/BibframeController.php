@@ -49,7 +49,7 @@ class BibframeController extends Controller
     }
 
     /**
-     * BIBFRAME integration dashboard — overview + quick links.
+     * BIBFRAME integration dashboard - overview + quick links.
      */
     public function index(): Response
     {
@@ -81,7 +81,7 @@ class BibframeController extends Controller
     }
 
     /**
-     * Export UI — select works and format for BIBFRAME output.
+     * Export UI - select works and format for BIBFRAME output.
      */
     public function export(): Response
     {
@@ -129,7 +129,7 @@ class BibframeController extends Controller
     }
 
     /**
-     * Import UI — submit a BIBFRAME RDF/XML document.
+     * Import UI - submit a BIBFRAME RDF/XML document.
      */
     public function import(): Response
     {
@@ -161,7 +161,7 @@ class BibframeController extends Controller
     }
 
     /**
-     * Validation UI — paste or upload a BIBFRAME document for validation.
+     * Validation UI - paste or upload a BIBFRAME document for validation.
      */
     public function validate(): Response
     {
@@ -205,7 +205,7 @@ class BibframeController extends Controller
     }
 
     /**
-     * Agent management UI — browse/manage BIBFRAME agents.
+     * Agent management UI - browse/manage BIBFRAME agents.
      */
     public function agent(): Response
     {

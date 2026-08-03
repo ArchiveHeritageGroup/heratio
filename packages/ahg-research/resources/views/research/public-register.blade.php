@@ -99,7 +99,7 @@
             <label for="id_type" class="form-label">ID Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <select name="id_type" id="id_type" class="form-select" required>
               <option value="">-- Select --</option>
-              {{-- Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper. --}}
+              {{-- Issue #59 Tier 2 - culture-aware dropdown via the COALESCE helper. --}}
               @foreach(\AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('id_type') as $idt)
                 <option value="{{ $idt->code }}" {{ old('id_type') === $idt->code ? 'selected' : '' }}>{{ $idt->label }}</option>
               @endforeach

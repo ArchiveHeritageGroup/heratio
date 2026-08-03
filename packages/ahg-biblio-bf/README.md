@@ -6,18 +6,18 @@
 Serialises AHG bibliographic catalogue records to the Library of Congress BIBFRAME 2.0 vocabulary and converts incoming BIBFRAME RDF for import back into the Heratio catalogue. All round-trips go through OpenRiC for canonical RiC-O handling.
 
 BIBFRAME 2.0 model (Library of Congress):
-- **Work** — a distinct intellectual or artistic creation
-- **Instance** — a specific realisation of a Work (edition, format)
-- **Item** — a concrete copy of an Instance
-- **Agent** — a person or corporate body associated with a Work
+- **Work** - a distinct intellectual or artistic creation
+- **Instance** - a specific realisation of a Work (edition, format)
+- **Item** - a concrete copy of an Instance
+- **Agent** - a person or corporate body associated with a Work
 
 ## Status
 - **GH Issue:** https://github.com/ArchiveHeritageGroup/heratio/issues/760
 
 ## What's implemented
 - [x] `composer.json` scaffold
-- [x] `BibframeService` — full BF <-> Heratio conversion (catalogToRdf, importRdf, validateRdf)
-- [x] `BibframeSerializer` — InformationObjectFetcher-based serializer for archival description
+- [x] `BibframeService` - full BF <-> Heratio conversion (catalogToRdf, importRdf, validateRdf)
+- [x] `BibframeSerializer` - InformationObjectFetcher-based serializer for archival description
 - [x] `BibframeController` + `BiblioBfController` (two controllers)
 - [x] `AhgBiblioBfServiceProvider` with web routes + view namespace
 - [x] Routes: index, export, import, validate, agent pages
@@ -35,4 +35,4 @@ BIBFRAME 2.0 model (Library of Congress):
 ## References
 - [BIBFRAME 2.0 Vocabulary](https://www.loc.gov/standards/bibframe/)
 - [BIBFRAME 2.0 Documentation](https://www.loc.gov/standards/bibframe/docs/)
-- [OpenRiC service](../openric/) — RiC-O authoritative layer
+- [OpenRiC service](../openric/) - RiC-O authoritative layer

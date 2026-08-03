@@ -15,7 +15,7 @@ class PreservationPackageCommand extends Command
         {--include-derivatives : Include derivative files}
         {--created-by=cli : Audit string for who created the package}';
 
-    protected $description = 'Generate OAIS packages (BagIt) — SIP/AIP/DIP via OaisLifecycleService';
+    protected $description = 'Generate OAIS packages (BagIt) - SIP/AIP/DIP via OaisLifecycleService';
 
     public function handle(OaisLifecycleService $svc): int
     {

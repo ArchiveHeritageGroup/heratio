@@ -1,5 +1,5 @@
 {{--
-  SKOS Import — Heratio
+  SKOS Import - Heratio
 
   Copyright (C) 2026 Johan Pieterse
   Plain Sailing Information Systems
@@ -37,7 +37,7 @@
                 <div class="form-text">Importing into the taxonomy of the term you came from. <a href="{{ route('term.import.skos') }}">Choose a different taxonomy</a></div>
             @else
                 <select class="form-select" name="taxonomy_id" id="taxonomy_id" required>
-                    <option value="">— Select taxonomy —</option>
+                    <option value="">- Select taxonomy -</option>
                     @foreach($taxonomies as $tax)
                         <option value="{{ $tax->id }}">{{ $tax->name }}</option>
                     @endforeach
@@ -51,7 +51,7 @@
             <div class="form-text">Standard SKOS RDF/XML format (.rdf or .xml)</div>
         </div>
 
-        <div class="mb-3 text-center text-muted small">— OR —</div>
+        <div class="mb-3 text-center text-muted small">- OR -</div>
 
         <div class="mb-3">
             <label for="skos_url" class="form-label">{{ __('Remote resource URL') }}</label>

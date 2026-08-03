@@ -1,6 +1,6 @@
 {{--
 /**
- * Spatial Analysis Export — clone of PSIS reportSpatialAnalysisSuccess template.
+ * Spatial Analysis Export - clone of PSIS reportSpatialAnalysisSuccess template.
  *
  * @author    Johan Pieterse <johan@plainsailing.co.za>
  * @copyright (c) Plain Sailing (Pty) Ltd

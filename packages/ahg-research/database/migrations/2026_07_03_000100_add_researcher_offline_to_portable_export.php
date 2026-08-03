@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Researcher offline packages (Phase 1–2).
+ * Researcher offline packages (Phase 1-2).
  *
  * A researcher can take a *group* of records (research project / collection /
  * workspace / favourites folder) offline as an editable portable-export bundle,
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
  * pipeline and tag the rows so they can be:
  *   - listed/owned per researcher (researcher_user_id),
  *   - traced back to the group they came from (group_source + group_ref),
- *   - verified on sync-back (sync_token — embedded in the bundle manifest and
+ *   - verified on sync-back (sync_token - embedded in the bundle manifest and
  *     echoed by the researcher-sync.json the offline viewer produces).
  */
 return new class extends Migration

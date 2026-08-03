@@ -1,9 +1,9 @@
 <?php
 
 /**
- * AhgShareLinkServiceProvider — service provider for the AHG Share Link package.
+ * AhgShareLinkServiceProvider - service provider for the AHG Share Link package.
  *
- * Phase A — schema only. Migrations are loaded; routes, middleware and services
+ * Phase A - schema only. Migrations are loaded; routes, middleware and services
  * register in subsequent build phases.
  *
  * Copyright (C) 2026 The Archive and Heritage Group (Pty) Ltd

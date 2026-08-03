@@ -1,4 +1,4 @@
-# AhgNarssa — Controllers
+# AhgNarssa - Controllers
 
 Controllers directory for the AhgNarssa package.
 

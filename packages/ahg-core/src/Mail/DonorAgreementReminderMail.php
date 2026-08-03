@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DonorAgreementReminderMail — donor agreement reminder notification.
+ * DonorAgreementReminderMail - donor agreement reminder notification.
  *
  * Issue #1262. Sent by ahg:donor-reminders for each due
  * donor_agreement_reminder row. Recipient resolution and the due query

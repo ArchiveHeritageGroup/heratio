@@ -37,7 +37,7 @@
         @else
         <div class="alert alert-info small mb-0">
           <i class="fas fa-info-circle me-1"></i>
-          {{ __('Add/Delete are disabled for the :source source — only label translations can be authored here.', ['source' => $source]) }}
+          {{ __('Add/Delete are disabled for the :source source - only label translations can be authored here.', ['source' => $source]) }}
         </div>
         @endif
       </div>

@@ -38,7 +38,7 @@ class LocalContextsHubService
                 return null;
             }
 
-            // #1395(D) decrypt-at-rest — value may be Crypt ciphertext or legacy plaintext.
+            // #1395(D) decrypt-at-rest - value may be Crypt ciphertext or legacy plaintext.
             return SecretCrypto::reveal((string) DB::table('icip_config')->where('config_key', 'local_contexts_api_key')->value('config_value')) ?: null;
         } catch (\Throwable $e) {
             Log::warning('LocalContextsHubService::getApiKey error: '.$e->getMessage());
@@ -48,7 +48,7 @@ class LocalContextsHubService
     }
 
     /**
-     * Query the Local Contexts Hub — stub implementation.
+     * Query the Local Contexts Hub - stub implementation.
      * Returns an empty array unless isEnabled() and api key present.
      */
     public function query(string $q, array $opts = []): array

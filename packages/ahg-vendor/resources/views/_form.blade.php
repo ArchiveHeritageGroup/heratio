@@ -2,12 +2,12 @@
   Contract create/edit form.
 
   Vars:
-    $contract  (?object)              — existing row (or null for create).
-    $isNew     (bool)                  — convenience flag.
-    $types     (iterable of objects)   — rows from ahg_contract_type (id, name).
-    $vendors   (iterable of objects)   — rows from ahg_vendors (id, name) for the link select.
-    $vendor    (?object)               — pre-selected vendor when arriving from vendor view.
-    $action    (?string)               — form POST URL; defaults to current URL.
+    $contract  (?object)              - existing row (or null for create).
+    $isNew     (bool)                  - convenience flag.
+    $types     (iterable of objects)   - rows from ahg_contract_type (id, name).
+    $vendors   (iterable of objects)   - rows from ahg_vendors (id, name) for the link select.
+    $vendor    (?object)               - pre-selected vendor when arriving from vendor view.
+    $action    (?string)               - form POST URL; defaults to current URL.
 
   Status, risk level, counterparty type, and currency all read live from
   ahg_dropdown (taxonomies: contract_status, risk_level, contract_counterparty_type,
@@ -24,7 +24,7 @@
     $isNew = $isNew ?? empty($contract->id ?? null);
     $action = $action ?? url()->current();
 
-    // Issue #59 Tier 2 — closure delegates to the culture-aware COALESCE helper.
+    // Issue #59 Tier 2 - closure delegates to the culture-aware COALESCE helper.
     $dd = function (string $taxonomy): \Illuminate\Support\Collection {
         return \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes($taxonomy);
     };

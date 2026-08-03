@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SidecarParser — Heratio ahg-scan
+ * SidecarParser - Heratio ahg-scan
  *
  * Parses a heratioScan XML sidecar into a normalised metadata array
  * compatible with IngestService::ingestFile().
@@ -24,7 +24,7 @@
  *   <merge>add-sequence|replace|error</merge>
  *
  * Sector-specific profile content is parsed but preserved as raw structure
- * for P3 sector-routing to consume from ingest_file.sidecar_json — the
+ * for P3 sector-routing to consume from ingest_file.sidecar_json - the
  * common envelope fields are what IngestService::ingestFile() needs today.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
@@ -159,7 +159,7 @@ class SidecarParser
             }
         }
 
-        // Creators — only in profile or archiveProfile but also at envelope level if archive-style
+        // Creators - only in profile or archiveProfile but also at envelope level if archive-style
         // (handled under sector_profile below; here we leave the array empty unless envelope has creators)
 
         // Rights
@@ -194,7 +194,7 @@ class SidecarParser
             ];
         }
 
-        // Sector profile — keep raw structure for P3 sector routing
+        // Sector profile - keep raw structure for P3 sector routing
         foreach (['archiveProfile', 'libraryProfile', 'galleryProfile', 'museumProfile'] as $profileName) {
             $pn = $this->firstChildEl($root, $profileName);
             if ($pn) {

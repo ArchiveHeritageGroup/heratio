@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FindingAidGenerateCommand — generate HTML/PDF finding aid for an IO subtree.
+ * FindingAidGenerateCommand - generate HTML/PDF finding aid for an IO subtree.
  *
  * Walks the IO + lft/rgt descendants, renders an HTML finding aid, and
  * writes it to {uploads_path}/findingaid/{id}.{ext}. Optional pdf output
@@ -71,7 +71,7 @@ class FindingAidGenerateCommand extends Command
                     @shell_exec(escapeshellcmd($bin).' '.escapeshellarg($tmp).' '.escapeshellarg($out).' 2>&1');
                 } else {
                     file_put_contents($out, $html);
-                    $out .= ' (html fallback — wkhtmltopdf not installed)';
+                    $out .= ' (html fallback - wkhtmltopdf not installed)';
                 }
                 @unlink($tmp);
             } else {

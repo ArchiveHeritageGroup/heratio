@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SharePointGraphConnector — federation peer implemented against the Microsoft
+ * SharePointGraphConnector - federation peer implemented against the Microsoft
  * Graph search API.
  *
  * Copyright (C) 2026 Johan Pieterse
@@ -24,7 +24,7 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  *
  * -----------------------------------------------------------------------------
- * INERT SCAFFOLD — issue #1221, step 1 (non-destructive).
+ * INERT SCAFFOLD - issue #1221, step 1 (non-destructive).
  *
  * This is the new canonical home for the SharePoint federation connector. It is
  * a re-namespaced copy of the F3 connector that currently lives (as canonical
@@ -51,7 +51,7 @@
  *   Filters:  AND Modified>=<from> AND Modified<=<to>  for date_range
  *
  * Result shape:
- *   Graph returns hitsContainers[].hits[].resource — typically driveItem or listItem.
+ *   Graph returns hitsContainers[].hits[].resource - typically driveItem or listItem.
  *   We map: title=name, snippet=summary, url=webUrl, dedupeKey=id, date=lastModifiedDateTime.
  *
  * Auth: app-only via GraphClientService::post(tenantId, ...). On-behalf-of mode
@@ -208,7 +208,7 @@ final class SharePointGraphConnector implements PeerConnector
 
         $siteIds = (array) ($this->config['default_site_ids'] ?? []);
         if (!empty($siteIds)) {
-            // siteIds contain commas and punctuation — KQL tokenizes on these, so wrap in quotes.
+            // siteIds contain commas and punctuation - KQL tokenizes on these, so wrap in quotes.
             // Embedded double-quotes are stripped (not legal in Graph siteIds).
             $siteClauses = array_map(
                 static fn ($s) => 'siteId:"' . str_replace('"', '', (string) $s) . '"',

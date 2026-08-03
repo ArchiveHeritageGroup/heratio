@@ -1,4 +1,4 @@
--- ahgVersionControlPlugin / ahg-version-control — schema (Phase A)
+-- ahgVersionControlPlugin / ahg-version-control - schema (Phase A)
 --
 -- Two version tables, one per entity type in the v1 scope (information_object, actor).
 -- Snapshot is the full deterministic JSON state including all i18n cultures,

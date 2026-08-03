@@ -10,12 +10,12 @@
   Supported mdWrap MDTYPEs:
     DC    → Dublin Core 1.1 → envelope fields + archiveProfile
     MODS  → selected MODS 3.x fields mapped inline (title, creator, date,
-            publisher, subject) — this XSLT doesn't do full MODS crosswalk;
+            publisher, subject) - this XSLT doesn't do full MODS crosswalk;
             use mods-to-heratio.xsl for rich MODS records.
 
   Unsupported dmdSec types (MARC, EAD, DDI, TEI-P5, VRA, DarwinCore): the
   transform still emits a heratioScan shell with the mets:OBJID as
-  identifier so operators see the file passed detection — they should
+  identifier so operators see the file passed detection - they should
   export the dmdSec as a standalone XML and feed it directly.
 
   Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems

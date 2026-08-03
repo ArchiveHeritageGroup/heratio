@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ScanDashboardController — Heratio ahg-scan
+ * ScanDashboardController - Heratio ahg-scan
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

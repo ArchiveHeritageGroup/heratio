@@ -1,4 +1,4 @@
-{{-- Timeline Builder — cloned from AtoM --}}
+{{-- Timeline Builder - cloned from AtoM --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Create event — POST form submit
+    // Create event - POST form submit
     document.getElementById('saveEvent')?.addEventListener('click', function() {
         var form = document.createElement('form');
         form.method = 'POST'; form.action = apiUrl; form.style.display = 'none';
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.appendChild(form); form.submit();
     });
 
-    // Edit event — open modal
+    // Edit event - open modal
     document.querySelectorAll('.edit-event-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             document.getElementById('editEventId').value = this.dataset.id;
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Update event — POST form submit
+    // Update event - POST form submit
     document.getElementById('updateEvent')?.addEventListener('click', function() {
         var form = document.createElement('form');
         form.method = 'POST'; form.action = apiUrl; form.style.display = 'none';

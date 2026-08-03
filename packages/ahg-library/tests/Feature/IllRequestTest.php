@@ -56,7 +56,7 @@ class IllRequestTest extends LibraryFeatureTestCase
     {
         // Borrow lane (#1103 fix): the only legal first move from 'pending' is
         // 'requested' (the ILL request is transmitted to the lender). The
-        // lend-lane jump pending→shipped must be REJECTED for a borrow request —
+        // lend-lane jump pending→shipped must be REJECTED for a borrow request -
         // before the fix the duplicate TRANSITIONS key collapsed the lanes and
         // wrongly allowed it.
         $id = $this->ill->create(['type' => 'borrow', 'title' => 'X', 'library_name' => 'L']);

@@ -1,5 +1,5 @@
 {{--
-  Records Management — New compliance assessment (P2.8)
+  Records Management - New compliance assessment (P2.8)
   @copyright Johan Pieterse / Plain Sailing Information Systems
   @license   AGPL-3.0-or-later
 --}}
@@ -20,14 +20,14 @@
   <div class="col-md-6">
     <label class="form-label">{{ __('Framework') }}</label>
     <select name="framework" class="form-select" required>
-      <option value="">— pick a framework —</option>
+      <option value="">- pick a framework -</option>
       @foreach($frameworks as $f)<option value="{{ $f->code }}" @selected(old('framework')===$f->code)>{{ $f->label }}</option>@endforeach
     </select>
   </div>
   <div class="col-md-6">
     <label class="form-label">{{ __('Assessment ref') }}</label>
     <input type="text" name="assessment_ref" class="form-control" value="{{ old('assessment_ref', 'CA-' . date('Y') . '-' . sprintf('%03d', random_int(1, 999))) }}" required>
-    <div class="form-text small">Unique identifier — e.g. CA-2026-001.</div>
+    <div class="form-text small">Unique identifier - e.g. CA-2026-001.</div>
   </div>
   <div class="col-12">
     <label class="form-label">{{ __('Title') }}</label>

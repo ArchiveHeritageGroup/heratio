@@ -1,5 +1,5 @@
 {{--
-  Heratio — Manual Condition Assessment
+  Heratio - Manual Condition Assessment
   Copyright (c) Johan Pieterse / Plain Sailing (Pty) Ltd
   Licensed under AGPL-3.0-or-later
 --}}

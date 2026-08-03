@@ -1,4 +1,4 @@
-{{-- Assertion Batch Review — cloned from AtoM --}}
+{{-- Assertion Batch Review - cloned from AtoM --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')

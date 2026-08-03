@@ -21,7 +21,7 @@
  * Known limitations:
  *   - Language tags on literals are preserved only via @language objects.
  *   - Nested structures deeper than one level are emitted as blank nodes
- *     without unique skolemization — good enough for single-document export,
+ *     without unique skolemization - good enough for single-document export,
  *     not for triple-store ingest with deduplication.
  */
 
@@ -36,7 +36,7 @@ class JsonLdConverter
 
         $prefixes = [];
         foreach ($context as $k => $v) {
-            // Skip malformed entries — a prefix must itself be a short name,
+            // Skip malformed entries - a prefix must itself be a short name,
             // not a full IRI (some serializers put self-mapped IRIs here).
             if (!is_string($v)) continue;
             if (!preg_match('/^[a-zA-Z][a-zA-Z0-9]*$/', (string) $k)) continue;
@@ -106,7 +106,7 @@ class JsonLdConverter
         if (isset($doc['@graph']) && is_array($doc['@graph'])) {
             return [$context, $doc['@graph']];
         }
-        // Single-node document — wrap in array.
+        // Single-node document - wrap in array.
         return [$context, [$doc]];
     }
 
@@ -147,7 +147,7 @@ class JsonLdConverter
             }
             // Blank-node with nested object structure.
             $bn = '_:b' . (++$bnCounter);
-            return $bn;  // nested values are skolemised away — good enough for single-doc export
+            return $bn;  // nested values are skolemised away - good enough for single-doc export
         }
         if (is_bool($v))   return $v ? 'true' : 'false';
         if (is_numeric($v)) return (string) $v;
@@ -161,7 +161,7 @@ class JsonLdConverter
         if (preg_match('/^([a-zA-Z][a-zA-Z0-9]*):[a-zA-Z][A-Za-z0-9._-]*$/', $v, $m) && isset($prefixes[$m[1]])) {
             return $v;
         }
-        // Full IRI — try to compact against a known prefix.
+        // Full IRI - try to compact against a known prefix.
         foreach ($prefixes as $p => $iri) {
             if (str_starts_with($v, $iri) && substr($v, strlen($iri)) !== '') {
                 $local = substr($v, strlen($iri));
@@ -210,7 +210,7 @@ class JsonLdConverter
                         $dt   = isset($val['@type']) ? ' rdf:datatype="' . htmlspecialchars(self::expand($val['@type'], $nsMap), ENT_XML1 | ENT_QUOTES) . '"' : '';
                         $xml .= "    <{$tag}{$lang}{$dt}>" . htmlspecialchars((string) $val['@value'], ENT_XML1) . "</{$tag}>\n";
                     }
-                    // Nested objects without @id/@value are skipped — see class docblock.
+                    // Nested objects without @id/@value are skipped - see class docblock.
                     continue;
                 }
                 $xml .= "    <{$tag}>" . htmlspecialchars((string) $val, ENT_XML1) . "</{$tag}>\n";

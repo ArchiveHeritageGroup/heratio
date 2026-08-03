@@ -38,7 +38,7 @@ class ExportController extends Controller
     ) {}
 
     /**
-     * Export dashboard — index page showing all export options.
+     * Export dashboard - index page showing all export options.
      */
     public function index()
     {
@@ -49,7 +49,7 @@ class ExportController extends Controller
     }
 
     /**
-     * CSV export page — information object CSV export.
+     * CSV export page - information object CSV export.
      */
     public function csv(Request $request)
     {
@@ -64,7 +64,7 @@ class ExportController extends Controller
     }
 
     /**
-     * EAD export — form (GET) or EAD 2002 XML download (POST). Reuses the
+     * EAD export - form (GET) or EAD 2002 XML download (POST). Reuses the
      * working ahg-metadata-export serializer rather than re-implementing EAD.
      */
     public function ead(Request $request)
@@ -95,7 +95,7 @@ class ExportController extends Controller
     }
 
     /**
-     * Archival description export — form (GET) or CSV download (POST). The
+     * Archival description export - form (GET) or CSV download (POST). The
      * single-record EAD/DC formats are handled on the dedicated EAD page.
      */
     public function archival(Request $request)
@@ -104,7 +104,7 @@ class ExportController extends Controller
             $format = (string) $request->input('format', 'csv');
             if ($format === 'ead' || $format === 'dc') {
                 return redirect()->route('export.ead')
-                    ->with('info', __('EAD / Dublin Core export is per-record — choose a record below.'));
+                    ->with('info', __('EAD / Dublin Core export is per-record - choose a record below.'));
             }
 
             return $this->exportService->streamInformationObjectCsv([
@@ -118,7 +118,7 @@ class ExportController extends Controller
     }
 
     /**
-     * Authority record export — form (GET) or CSV download (POST).
+     * Authority record export - form (GET) or CSV download (POST).
      */
     public function authority(Request $request)
     {
@@ -131,7 +131,7 @@ class ExportController extends Controller
     }
 
     /**
-     * Repository export — form (GET) or CSV download (POST).
+     * Repository export - form (GET) or CSV download (POST).
      */
     public function repository(Request $request)
     {
@@ -145,7 +145,7 @@ class ExportController extends Controller
     }
 
     /**
-     * Accession CSV export — form (GET) or CSV download (POST).
+     * Accession CSV export - form (GET) or CSV download (POST).
      */
     public function accessionCsv(Request $request)
     {

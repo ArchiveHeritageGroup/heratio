@@ -1,4 +1,4 @@
-Condition assessment & Annotation — evaluation and recommendations
+Condition assessment & Annotation - evaluation and recommendations
 
 Summary
 
@@ -6,7 +6,7 @@ This note evaluates the current "condition assessment" and "annotation" capabili
 
 Where to look in the codebase (evidence)
 - Schema / tables (package):
-  - packages/ahg-research/database/install.sql — fields and tables referencing condition: condition_before, condition_after, condition_status, condition_notes, return_condition, condition_on_return, etc.
+  - packages/ahg-research/database/install.sql - fields and tables referencing condition: condition_before, condition_after, condition_status, condition_notes, return_condition, condition_on_return, etc.
   - research_custody_handoff table (condition_at_handoff, condition_notes)
   - research_activity_material (condition_before, condition_after)
   - research_equipment, research_equipment_maintenance (condition fields)
@@ -20,13 +20,13 @@ Where to look in the codebase (evidence)
   - packages/ahg-research/resources/views/research/document-templates.blade.php (condition_report template option)
 
 - Controllers and services:
-  - packages/ahg-research/src/Controllers/ResearchController.php — custody/condition handling code paths (checkout/return/condition update flows).
+  - packages/ahg-research/src/Controllers/ResearchController.php - custody/condition handling code paths (checkout/return/condition update flows).
   - packages/ahg-research/src/Services/ResearchService.php and related services used by the controllers for handoffs and condition updates.
 
 - Annotation support (tables & concept):
   - research_annotation (simple annotation model)
   - research_annotation_target (selector, canvas/IIIF fields)
-  - research_annotation_v2 (JSON bodies, motivations) — indicates movement toward Web Annotation-style storage
+  - research_annotation_v2 (JSON bodies, motivations) - indicates movement toward Web Annotation-style storage
 
 What exists today (facts)
 - The database contains fields for recording object condition at multiple points (handoff, return, equipment maintenance)
@@ -56,7 +56,7 @@ Gaps and incomplete code (concrete)
 
 Recommended enhancements (detailed & prioritized)
 
-High priority (deliver in 1–3 days)
+High priority (deliver in 1-3 days)
 - Create a first-class ConditionReport entity and table
   - New table: research_condition_report
     - fields: id, object_id, object_type, assessor_id, assessor_role, reported_at, condition_state_before, condition_state_after, condition_code (enum), notes, media_json (array of attachment metadata), provenance_json (who/when/why), created_at/updated_at
@@ -68,7 +68,7 @@ High priority (deliver in 1–3 days)
   - When a condition check happens (handoff or return), create a ConditionReport record and reference it from research_custody_handoff.condition_report_id (or record id in details JSON)
   - Log the action via research_activity_log with entity_type=condition_report and entity_id set to the new id
 
-Medium priority (3–7 days)
+Medium priority (3-7 days)
 - Full IIIF/WebAnnotation integration for annotations & condition evidence
   - Provide endpoints to publish annotations (POST to /research/annotations) and to serve annotation lists for a canvas/manifest
   - Ensure research_annotation_v2 body_json schema matches W3C Web Annotation (body, target, motivation) so external tools can import/export
@@ -77,7 +77,7 @@ Medium priority (3–7 days)
 - Conservation workflow UI
   - Create a conservation queue view that lists condition reports requiring action (triage_status), with assign/accept/reject/complete actions and links to material_request and maintenance records
 
-Lower priority (7–14 days)
+Lower priority (7-14 days)
 - Provenance and retention policy for condition records
   - Persist provenance for every condition report (who created/edited, which tool, IP, device), map to research_activity_log and ai_provenance (if AI-assisted image enhancement was used)
   - Add retention settings and a prune command for old condition reports with legal hold support
@@ -100,7 +100,7 @@ Acceptance criteria (how to tell work is done)
 - Annotations created on a condition photo are persisted in research_annotation_v2 and are retrievable via an annotations endpoint using IIIF canvas_id.
 - Unit and feature tests cover create/store/attach/export and pass in CI.
 
-Minimal quick wins (30–120 minutes)
+Minimal quick wins (30-120 minutes)
 - Surface existing condition fields in one consolidated "Condition" panel on the custody handoff page (show condition_before, condition_after, condition_notes and link to uploads).
 - Add a document template rendering for condition_report (populate template with fields from the condition panel and allow download as PDF).
 
@@ -110,10 +110,10 @@ Files to inspect now (commands to run locally)
 - Open annotation tables: packages/ahg-research/database/install.sql (look for research_annotation and research_annotation_v2)
 
 Status: very good
-Next action — outstanding issue to work on
+Next action - outstanding issue to work on
 1. Create the research_condition_report migration + ConditionReport controller/service + basic create/show views (PR).
 2. Implement IIIF-compatible annotation publish/serve endpoints backed by research_annotation_v2.
 3. Add feature tests for ConditionReport creation + attachment + PDF export.
 4. Do the quick-win UI consolidation (condition panel) and template PDF rendering.
 
-Reply with the single digit (1–4) to pick the next task and I will produce the exact patch(es)/diff(s).
+Reply with the single digit (1-4) to pick the next task and I will produce the exact patch(es)/diff(s).

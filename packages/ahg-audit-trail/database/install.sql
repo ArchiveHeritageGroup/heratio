@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-audit-trail — install schema
+-- ahg-audit-trail - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgAuditTrailPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS `ahg_audit_settings` (
 INSERT IGNORE INTO `ahg_audit_settings` (`setting_key`, `setting_value`, `setting_type`, `description`) VALUES
 ('audit_enabled', '1', 'boolean', 'Enable audit trail logging'),
 ('audit_authentication', '1', 'boolean', 'Log authentication events (login, logout, failed login)'),
-('audit_views', '0', 'boolean', 'Log view-only actions (high volume — enable only when needed)'),
+('audit_views', '0', 'boolean', 'Log view-only actions (high volume - enable only when needed)'),
 ('retention_days', '365', 'integer', 'Number of days to retain audit log entries');
 
 

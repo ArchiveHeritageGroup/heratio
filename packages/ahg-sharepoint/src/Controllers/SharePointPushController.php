@@ -11,7 +11,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Phase 2.B push endpoints — POST /api/v2/sharepoint/push/* .
+ * Phase 2.B push endpoints - POST /api/v2/sharepoint/push/* .
  *
  * AAD bearer token required. Routes are CSRF-exempt (see routes/api.php
  * and the package service provider middleware config).

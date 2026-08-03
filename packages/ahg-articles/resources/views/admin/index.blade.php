@@ -44,7 +44,7 @@
                                 @endif
                                 <br><small class="text-muted"><code>{{ $a->slug }}</code></small>
                             </td>
-                            <td>{{ $a->article_group ?: '—' }}</td>
+                            <td>{{ $a->article_group ?: '-' }}</td>
                             <td>
                                 <span class="badge bg-{{ $a->status === 'published' ? 'success' : 'secondary' }}">{{ ucfirst($a->status) }}</span>
                             </td>
@@ -60,7 +60,7 @@
                                     </button>
                                 </form>
                             </td>
-                            <td>{{ $a->published_at ? \Carbon\Carbon::parse($a->published_at)->format('d M Y') : '—' }}</td>
+                            <td>{{ $a->published_at ? \Carbon\Carbon::parse($a->published_at)->format('d M Y') : '-' }}</td>
                             <td class="text-end">
                                 @if($a->status === 'published')
                                     <a href="{{ route('articles.show', $a->slug) }}" class="btn btn-sm btn-outline-primary" title="{{ __('View') }}" target="_blank"><i class="fas fa-eye"></i></a>

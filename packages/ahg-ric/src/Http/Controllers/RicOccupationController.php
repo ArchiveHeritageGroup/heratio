@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RicOccupationController — admin CRUD for RiC-O Occupation entities.
+ * RicOccupationController - admin CRUD for RiC-O Occupation entities.
  *
  * Phase 1 of issue #660: lightweight create/update/delete UI for rico:Occupation
  * records linked to an Actor.

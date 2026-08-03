@@ -299,7 +299,7 @@ class TermController extends Controller
         // Narrower terms count
         $narrowerCount = \Illuminate\Support\Facades\DB::table('term')->where('parent_id', $term->id)->count();
 
-        // Related descriptions (paginated) — include narrower terms unless onlyDirect
+        // Related descriptions (paginated) - include narrower terms unless onlyDirect
         $page = max(1, (int) $request->get('page', 1));
         $limit = 10;
         $sort = $request->get('sort', 'lastUpdated');
@@ -377,7 +377,7 @@ class TermController extends Controller
                         // Path starts with /uploads/ which nginx aliases to AtoM's uploads dir
                         $desc->thumbnail = ($thumb->path ?? '').($thumb->name ?? '');
                     } else {
-                        // No thumbnail — use generic icon image from AtoM
+                        // No thumbnail - use generic icon image from AtoM
                         $desc->thumbnail = '/generic-icons/'.match ((int) ($master->media_type_id ?? 0)) {
                             135 => 'audio.png',
                             136 => 'image.png',
@@ -454,7 +454,7 @@ class TermController extends Controller
             ->where('term_i18n.culture', $culture);
 
         if ($narrowerTotal > 0 && $term->taxonomy_id == 30) {
-            // Root term — show children
+            // Root term - show children
             $listQuery->where('term.parent_id', $term->id);
         } else {
             $listQuery->where('term.taxonomy_id', $term->taxonomy_id);
@@ -620,10 +620,10 @@ class TermController extends Controller
      *
      * Format dispatch happens here: the data walk is shared, only the
      * serialisation layer differs. Supported formats:
-     *   - rdfxml    (.rdf,     application/rdf+xml)        — original endpoint
-     *   - turtle    (.ttl,     text/turtle)                — #661 Phase 2
-     *   - ntriples  (.nt,      application/n-triples)      — #661 Phase 2
-     *   - jsonld    (.jsonld,  application/ld+json)        — #661 Phase 2
+     *   - rdfxml    (.rdf,     application/rdf+xml)        - original endpoint
+     *   - turtle    (.ttl,     text/turtle)                - #661 Phase 2
+     *   - ntriples  (.nt,      application/n-triples)      - #661 Phase 2
+     *   - jsonld    (.jsonld,  application/ld+json)        - #661 Phase 2
      *
      * Format is selected via the `format` route default OR ?format=… query
      * param. Defaults to rdfxml so the legacy `/term/export/skos` URL keeps
@@ -687,7 +687,7 @@ class TermController extends Controller
 
         // -------- #661 Phase 1: SKOS label/note types completeness ---------
         // Pre-fetch the per-term additional labels + notes in 2 batched
-        // queries so the per-term loop below stays O(N) — avoids N+1.
+        // queries so the per-term loop below stays O(N) - avoids N+1.
         $termIds = $terms->pluck('id')->all();
         $altLabelsByTerm = [];
         $hiddenLabelsByTerm = [];
@@ -1411,7 +1411,7 @@ class TermController extends Controller
                 ->with('success', "Imported $imported terms from SKOS file.");
         }
 
-        // GET — show upload form
+        // GET - show upload form
         $taxonomyId = (int) $request->input('taxonomy');
         $taxonomies = $this->termService->getTaxonomies($culture);
 

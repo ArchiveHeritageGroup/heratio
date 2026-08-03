@@ -82,7 +82,7 @@
                                 <input type="number" min="1" class="form-control" id="sp_tenant_id" name="sp_tenant_id"
                                        value="{{ $peerConfig['tenant_id'] ?? '' }}"
                                        placeholder="{{ __('sharepoint_tenant.id (e.g. 1)') }}">
-                                <div class="form-text">{{ __('FK to sharepoint_tenant.id — not the AAD tenant GUID. Configure tenants under SharePoint admin.') }}</div>
+                                <div class="form-text">{{ __('FK to sharepoint_tenant.id - not the AAD tenant GUID. Configure tenants under SharePoint admin.') }}</div>
                             </div>
                             <div class="mb-3">
                                 <label for="sp_default_site_ids" class="form-label">{{ __('Default site IDs (optional)') }}</label>

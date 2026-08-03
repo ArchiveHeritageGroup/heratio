@@ -1,5 +1,5 @@
 {{--
-  RiC View: Gallery artwork — record-resource context with creators and exhibition history.
+  RiC View: Gallery artwork - record-resource context with creators and exhibition history.
 
   @copyright  Johan Pieterse / Plain Sailing Information Systems
   @license    AGPL-3.0-or-later

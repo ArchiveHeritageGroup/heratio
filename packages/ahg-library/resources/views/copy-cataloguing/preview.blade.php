@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Preview & Import — Copy Cataloguing')
+@section('title', 'Preview & Import - Copy Cataloguing')
 @section('content')
 <div class="container py-4">
     <div class="d-flex align-items-center mb-4">

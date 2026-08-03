@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PremisEventService — Heratio ahg-scan (P4)
+ * PremisEventService - Heratio ahg-scan (P4)
  *
  * Writes PREMIS-style preservation events into `preservation_event`. One
  * row per observable pipeline outcome (virus check, format identification,
@@ -41,7 +41,7 @@ class PremisEventService
     public const OUTCOME_FAILURE = 'failure';
 
     /**
-     * Emit a preservation event. Designed to be fire-and-forget — logging
+     * Emit a preservation event. Designed to be fire-and-forget - logging
      * failure must never block the ingest pipeline.
      *
      * @param  int|null  $ioId  Linked information_object.id (null is allowed for pre-IO events)

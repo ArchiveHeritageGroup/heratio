@@ -2,7 +2,7 @@
 <div class="card mb-3">
   <div class="card-header d-flex justify-content-between align-items-center">
     <span><i class="bi bi-book"></i> Title Report (TR)</span>
-    <small class="text-muted">COUNTER 5 — Per-title usage metrics</small>
+    <small class="text-muted">COUNTER 5 - Per-title usage metrics</small>
   </div>
   <div class="card-body">
 

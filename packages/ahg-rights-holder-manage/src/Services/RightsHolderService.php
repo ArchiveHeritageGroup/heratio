@@ -395,7 +395,7 @@ class RightsHolderService
     {
         foreach ($contacts as $c) {
             if (! empty($c['delete']) && ! empty($c['id'])) {
-                // #1395(A) — only delete a contact that belongs to THIS actor
+                // #1395(A) - only delete a contact that belongs to THIS actor
                 // (contact_information is shared across all actors).
                 if (DB::table('contact_information')->where('id', $c['id'])->where('actor_id', $actorId)->exists()) {
                     DB::table('contact_information_i18n')->where('id', $c['id'])->delete();

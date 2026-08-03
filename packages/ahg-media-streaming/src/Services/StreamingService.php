@@ -181,7 +181,7 @@ class StreamingService
             return $this->stream($transcodedPath, $mimeType);
         }
 
-        // No transcoding needed — stream the original file
+        // No transcoding needed - stream the original file
         return $this->stream($sourcePath, $digitalObject->mime_type);
     }
 

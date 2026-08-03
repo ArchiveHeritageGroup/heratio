@@ -23,7 +23,7 @@ class AhgGisServiceProvider extends ServiceProvider
             \AhgGis\Services\IndexHelper::add('contact_information', 'idx_contact_latitude', 'latitude');
             \AhgGis\Services\IndexHelper::add('contact_information', 'idx_contact_longitude', 'longitude');
         } catch (\Throwable $e) {
-            // No DB or contact_information missing — retries on next boot.
+            // No DB or contact_information missing - retries on next boot.
         }
     }
 }

@@ -48,7 +48,7 @@
 
       @forelse($sectors ?? [] as $code => $label)
         <div class="card mb-3">
-          <div class="card-header"><i class="fas fa-fingerprint me-2"></i>{{ ucfirst($label) }} — Identifier Numbering</div>
+          <div class="card-header"><i class="fas fa-fingerprint me-2"></i>{{ ucfirst($label) }} - Identifier Numbering</div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-4">

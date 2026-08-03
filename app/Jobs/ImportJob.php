@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Import Job — processes XML (EAD) and CSV file imports for information objects.
+ * Import Job - processes XML (EAD) and CSV file imports for information objects.
  *
  * Migrated from arFileImportJob. Handles:
  *  - EAD XML: parse archival descriptions, create information_object + i18n + object + slug
@@ -74,7 +74,7 @@ class ImportJob implements ShouldQueue
 
         try {
             // Resolve via the 'local' disk so the root is correct regardless of
-            // Laravel version — Laravel 11 moved the 'local' disk root from
+            // Laravel version - Laravel 11 moved the 'local' disk root from
             // storage/app to storage/app/private, where ImportController's
             // storeAs(..., 'local') now writes. Fall back to the legacy
             // storage/app/<path> layout for older uploads.
@@ -112,7 +112,7 @@ class ImportJob implements ShouldQueue
 
             // Imported records are written with raw DB inserts (no Eloquent
             // model events), so nothing reaches Elasticsearch on its own and
-            // browse/search — which read from ES — wouldn't show the import.
+            // browse/search - which read from ES - wouldn't show the import.
             // Reindex the affected index so the records become visible.
             if ($this->importedCount > 0) {
                 $this->reindexImported();
@@ -833,7 +833,7 @@ class ImportJob implements ShouldQueue
         ]);
 
         // job.id is the class-table-inheritance PK (= object.id), not
-        // auto-increment — set it explicitly to the QubitJob object id.
+        // auto-increment - set it explicitly to the QubitJob object id.
         // insertGetId() returned 0 here (no auto-increment column), so the row
         // failed with "Field 'id' doesn't have a default value" and the whole
         // import job crashed before importing anything.
@@ -847,7 +847,7 @@ class ImportJob implements ShouldQueue
         DB::table('job')->insert([
             'id' => $objectId,
             // Human-friendly label for /jobs/browse instead of the raw class name.
-            'name' => strtoupper($this->importType).' import — '.$objectLabel,
+            'name' => strtoupper($this->importType).' import - '.$objectLabel,
             'status_id' => self::STATUS_IN_PROGRESS,
             'object_id' => $objectId,
             'user_id' => null,
@@ -859,7 +859,7 @@ class ImportJob implements ShouldQueue
     /**
      * Index the just-imported records into Elasticsearch. The CSV/XML importer
      * uses raw DB inserts (no Eloquent model events), so nothing reaches ES on
-     * its own — browse/search read from ES and wouldn't show the import. A full
+     * its own - browse/search read from ES and wouldn't show the import. A full
      * index pass is fine for typical imports; for very large catalogues this
      * could be narrowed to per-id reindexing.
      */
@@ -876,9 +876,9 @@ class ImportJob implements ShouldQueue
         }
         try {
             \Illuminate\Support\Facades\Artisan::call('ahg:es-reindex', ['--index' => $index]);
-            $this->log("Elasticsearch reindex ({$index}) complete — imported records are now searchable.");
+            $this->log("Elasticsearch reindex ({$index}) complete - imported records are now searchable.");
         } catch (\Throwable $e) {
-            $this->logError('Elasticsearch reindex after import failed (records imported but not yet searchable — run `php artisan ahg:es-reindex`): '.$e->getMessage());
+            $this->logError('Elasticsearch reindex after import failed (records imported but not yet searchable - run `php artisan ahg:es-reindex`): '.$e->getMessage());
         }
     }
 

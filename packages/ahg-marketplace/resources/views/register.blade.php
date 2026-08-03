@@ -1,5 +1,5 @@
 {{--
-  Marketplace registration chooser — buyer or seller (or both).
+  Marketplace registration chooser - buyer or seller (or both).
   Receives: $isAuthenticated, $existingSeller.
 --}}
 @extends('theme::layouts.1col')
@@ -14,7 +14,7 @@
       <i class="fas fa-store me-2 text-primary"></i>
       {{ __('Join the Heratio Marketplace') }}
     </h1>
-    <p class="lead text-muted">Buy, sell, or both — choose how you want to get started.</p>
+    <p class="lead text-muted">Buy, sell, or both - choose how you want to get started.</p>
   </div>
 
   <div class="row g-4 mb-4">
@@ -28,7 +28,7 @@
           </div>
           <h2 class="h4 text-center mb-3">{{ __('Register as a Buyer') }}</h2>
           <ul class="small mb-4">
-            <li>Browse all listings &mdash; gallery, museum, archive, library, DAM</li>
+            <li>Browse all listings - gallery, museum, archive, library, DAM</li>
             <li>Place bids on auctions</li>
             <li>Make offers on fixed-price items</li>
             <li>Send enquiries to sellers</li>
@@ -36,7 +36,7 @@
           </ul>
           <p class="small text-muted mb-4">
             <i class="fas fa-info-circle me-1"></i>
-            {{ __('No extra signup needed &mdash; your Heratio account is your buyer account.') }}
+            {{ __('No extra signup needed - your Heratio account is your buyer account.') }}
           </p>
           <div class="d-grid">
             @if($isAuthenticated)
@@ -94,7 +94,7 @@
 
   <div class="text-center text-muted small">
     <i class="fas fa-lightbulb me-1"></i>
-    {{ __('You can be both &mdash; register as a buyer now, and add a seller profile any time from your dashboard.') }}
+    {{ __('You can be both - register as a buyer now, and add a seller profile any time from your dashboard.') }}
   </div>
 
 @endsection

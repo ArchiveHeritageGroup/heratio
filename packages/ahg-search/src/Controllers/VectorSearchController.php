@@ -1,14 +1,14 @@
 <?php
 
 /**
- * VectorSearchController — public-ish vector-similarity search.
+ * VectorSearchController - public-ish vector-similarity search.
  *
  *   GET /api/search/semantic?q=...&limit=20&collection=anc_records
  *   GET /api/search/semantic/health
  *   GET /api/search/semantic/similar/{ioId}?limit=12
  *
  * Returns JSON. When the AI server or Qdrant is unreachable, returns
- * 503 with a clear "service degraded" payload — never throws.
+ * 503 with a clear "service degraded" payload - never throws.
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
  * @license    AGPL-3.0-or-later

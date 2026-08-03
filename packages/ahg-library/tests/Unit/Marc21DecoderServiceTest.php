@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Marc21DecoderServiceTest — unit tests for Marc21DecoderService.
+ * Marc21DecoderServiceTest - unit tests for Marc21DecoderService.
  *
  * Tests cover:
  *   - detectSyntax (MARCXML vs binary vs unknown)
@@ -97,7 +97,7 @@ class Marc21DecoderServiceTest extends AhgLibraryTestCase
         foreach ($parsed['data'] as $field) {
             if (isset($field['ind1'])) {
                 $hasIndicators = true;
-                // Indicators are single bytes — MARC21 allows ASCII printable + space
+                // Indicators are single bytes - MARC21 allows ASCII printable + space
                 $this->assertMatchesRegularExpression('/^[\x00-\x7F]$/', $field['ind1']);
                 $this->assertMatchesRegularExpression('/^[\x00-\x7F]$/', $field['ind2']);
             }
@@ -132,7 +132,7 @@ class Marc21DecoderServiceTest extends AhgLibraryTestCase
 
     public function test_decode_preserves_repeated_fields(): void
     {
-        // Two 650 fields must BOTH survive — a tag-keyed directory would keep
+        // Two 650 fields must BOTH survive - a tag-keyed directory would keep
         // only the last (regression guard for the repeated-field collapse).
         $parsed = $this->service->decode($this->buildSyntheticRecord());
 
@@ -145,7 +145,7 @@ class Marc21DecoderServiceTest extends AhgLibraryTestCase
 
     public function test_decode_handles_short_record(): void
     {
-        // Truncated record — should not throw, returns empty data
+        // Truncated record - should not throw, returns empty data
         $short = str_repeat("\x00", 10);
         $parsed = $this->service->decode($short);
         $this->assertSame('', $parsed['leader']);
@@ -423,7 +423,7 @@ class Marc21DecoderServiceTest extends AhgLibraryTestCase
         $dirBytes = implode('', $dirEntries) . "\x1E";
         $baseAddress = 24 + strlen($dirBytes);
 
-        // Leader — standard 24-byte layout so decode() reads the base address
+        // Leader - standard 24-byte layout so decode() reads the base address
         // from bytes 12-16, indicator length from byte 10, etc.
         $totalLen = 24 + strlen($dirBytes) + strlen($dataArea);
         $leader = str_pad((string) $totalLen, 5, '0', STR_PAD_LEFT)  // 0-4 record length

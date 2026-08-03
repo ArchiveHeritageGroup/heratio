@@ -40,7 +40,7 @@ class ApplyRedactionMiddleware
 
             $userId = $request->user()?->getAuthIdentifier();
             if ($this->service->canViewUnredacted($userId !== null ? (int) $userId : null)) {
-                return $response; // privileged — leave full record
+                return $response; // privileged - leave full record
             }
 
             $payload = $response->getData(true);
@@ -50,7 +50,7 @@ class ApplyRedactionMiddleware
             $this->service->logAccess($ioId, $userId !== null ? (int) $userId : null, 'redacted_view');
         } catch (\Throwable $e) {
             // Fail safe: a redaction-layer error must not break the response,
-            // but must NOT leak — on error we strip the known fields wholesale.
+            // but must NOT leak - on error we strip the known fields wholesale.
             if (isset($profile, $payload) && $response instanceof JsonResponse) {
                 foreach ($profile->fields as $f) {
                     $this->stripKey($payload, $f->field_name);

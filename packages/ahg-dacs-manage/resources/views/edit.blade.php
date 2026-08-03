@@ -77,7 +77,7 @@
   <div class="mb-3">
     <label class="form-label">{{ __('Display standard') }}</label>
     <select name="display_standard_id" class="form-select">
-      <option value="">—</option>
+      <option value="">-</option>
       @foreach(($displayStandards ?? collect()) as $ds)
         <option value="{{ $ds->id }}" @if(($io->display_standard_id ?? null) == $ds->id) selected @endif>{{ $ds->name }}</option>
       @endforeach

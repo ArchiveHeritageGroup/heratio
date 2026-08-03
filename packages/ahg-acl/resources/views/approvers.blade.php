@@ -83,7 +83,7 @@
                       @endif
                     </td>
                     <td>
-                      Level {{ $approver->min_classification_level }} &ndash; {{ $approver->max_classification_level }}
+                      Level {{ $approver->min_classification_level }} - {{ $approver->max_classification_level }}
                     </td>
                     <td>
                       @if($approver->email_notifications)

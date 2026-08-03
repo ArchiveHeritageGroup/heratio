@@ -46,7 +46,7 @@ class MediaStreamController extends Controller
      * Supports HTTP Range requests for video/audio seeking.
      *
      * This route is public (players use it), so it is the raw-binary path that
-     * must enforce ODRL itself — a restricted/embargoed dataset's files have to
+     * must enforce ODRL itself - a restricted/embargoed dataset's files have to
      * be inaccessible here, not merely unlinked from the landing page (#1347).
      * Open objects carry no prohibition, so this is a no-op for public media.
      */

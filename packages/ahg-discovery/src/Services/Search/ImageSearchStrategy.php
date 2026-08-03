@@ -1,12 +1,12 @@
 <?php
 
 /**
- * ImageSearchStrategy — image similarity via Qdrant CLIP collection.
+ * ImageSearchStrategy - image similarity via Qdrant CLIP collection.
  *
  * Two query modes:
- *   1. By uploaded image bytes — the controller sends them to the multimodal
+ *   1. By uploaded image bytes - the controller sends them to the multimodal
  *      embed endpoint (nomic-embed-vision-v1.5, #1272), then calls {@see searchByVector()}.
- *   2. By an existing IO with a known representative image — call
+ *   2. By an existing IO with a known representative image - call
  *      {@see searchByExistingObject()} which fetches that point's vector from
  *      Qdrant and finds nearest neighbours.
  *
@@ -21,7 +21,7 @@
  *
  * Graceful when image embed endpoint is offline. Implements
  * SearchStrategyInterface but its search() always returns [] for plain text
- * queries — image search needs an image input. The Discovery controller
+ * queries - image search needs an image input. The Discovery controller
  * is expected to call {@see searchByExistingObject()} or {@see searchByVector()}
  * directly when an image context is available.
  *
@@ -52,7 +52,7 @@ class ImageSearchStrategy implements SearchStrategyInterface
     }
 
     /**
-     * Plain-text invocation is a no-op — image search needs an image input.
+     * Plain-text invocation is a no-op - image search needs an image input.
      * The controller sets $context['image_path'] or $context['similar_to_object_id']
      * to drive the real image pipeline; for the standard text branch return [].
      */

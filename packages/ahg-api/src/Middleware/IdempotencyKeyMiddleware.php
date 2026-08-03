@@ -108,7 +108,7 @@ class IdempotencyKeyMiddleware
                     'created_at' => now(),
                 ]);
             } catch (\Throwable $e) {
-                // Duplicate-key races are fine — first writer wins; ignore.
+                // Duplicate-key races are fine - first writer wins; ignore.
             }
         }
 

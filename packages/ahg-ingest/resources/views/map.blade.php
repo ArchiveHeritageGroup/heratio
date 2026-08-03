@@ -120,7 +120,7 @@
                             </label>
                             @if(($fieldDef['type'] ?? '') === 'select' && !empty($vocabOptions))
                                 <select class="form-select" id="meta_{{ $fieldName }}" name="metadata[{{ $fieldName }}]">
-                                    <option value="">— Select —</option>
+                                    <option value="">- Select -</option>
                                     @foreach($vocabOptions as $opt)
                                         <option value="{{ $opt }}" {{ ($fieldName === 'levelOfDescription' && $opt === 'Item') ? 'selected' : '' }}>{{ $opt }}</option>
                                     @endforeach
@@ -150,7 +150,7 @@
                         @foreach($sampleRows as $i => $sr)
                             <div class="mb-2 p-2 border rounded">
                                 <small class="text-muted">Row {{ $sr->row_number ?? '' }}</small>
-                                <div><strong>{{ $sr->title ?? '—' }}</strong></div>
+                                <div><strong>{{ $sr->title ?? '-' }}</strong></div>
                                 @if(!empty($sr->digital_object_path))
                                     <small class="text-muted"><i class="fas fa-file me-1"></i>{{ basename($sr->digital_object_path) }}</small>
                                 @endif
@@ -200,7 +200,7 @@
             <input type="hidden" name="form_action" value="load_profile">
             <label class="form-label mb-0 me-2 text-nowrap">{{ __('Load saved profile:') }}</label>
             <select class="form-select form-select-sm me-2" name="mapping_profile_id" style="max-width: 300px;">
-                <option value="">— Select —</option>
+                <option value="">- Select -</option>
                 @foreach($savedProfiles as $p)
                     <option value="{{ $p->id }}">{{ $p->name }} ({{ $p->target_type }})</option>
                 @endforeach
@@ -248,7 +248,7 @@
                                         <td><code>{{ $map->source_column ?? '' }}</code></td>
                                         <td>
                                             <select class="form-select form-select-sm" name="target_field[{{ $map->id }}]">
-                                                <option value="">— unmapped —</option>
+                                                <option value="">- unmapped -</option>
                                                 @foreach($targetFields as $tf)
                                                     <option value="{{ $tf }}" {{ ($map->target_field ?? '') === $tf ? 'selected' : '' }}>{{ $tf }}</option>
                                                 @endforeach
@@ -292,7 +292,7 @@
                         @foreach($sampleRows as $i => $sr)
                             <div class="mb-2 p-2 border rounded {{ $i === 0 ? 'border-primary' : '' }}">
                                 <small class="text-muted">Row {{ $sr->row_number ?? '' }}</small>
-                                <div><strong>{{ $sr->title ?? '—' }}</strong></div>
+                                <div><strong>{{ $sr->title ?? '-' }}</strong></div>
                                 @if(!empty($sr->level_of_description))
                                     <small class="badge bg-secondary">{{ $sr->level_of_description }}</small>
                                 @endif

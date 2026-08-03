@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SharePointFederatedSearchController — package-owned admin UI for running a
+ * SharePointFederatedSearchController - package-owned admin UI for running a
  * SharePoint federated search directly, independent of the ahg-federation
  * dispatcher.
  *
@@ -25,7 +25,7 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  *
  * -----------------------------------------------------------------------------
- * Issue #1221 — a working, registered way to run a SharePoint search from this
+ * Issue #1221 - a working, registered way to run a SharePoint search from this
  * package. Route: GET /sharepoint/federated-search (rendered form + results),
  * and GET /sharepoint/federated-search.json (JSON for the union catalogue or an
  * AJAX caller).
@@ -75,7 +75,7 @@ class SharePointFederatedSearchController extends Controller
     }
 
     /**
-     * JSON endpoint — for the union catalogue or AJAX. Always HTTP 200 with an
+     * JSON endpoint - for the union catalogue or AJAX. Always HTTP 200 with an
      * honest state. When unconfigured, returns {state:"not_configured", ...}.
      */
     public function json(Request $request): JsonResponse

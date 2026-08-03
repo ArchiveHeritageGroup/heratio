@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LibraryIllOverdueCommand — report ILL items past due_date with no return.
+ * LibraryIllOverdueCommand - report ILL items past due_date with no return.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -38,7 +38,7 @@ class LibraryIllOverdueCommand extends Command
             ->orderBy('due_date')
             ->get(['id', 'request_number', 'direction', 'partner_library', 'title', 'due_date', 'status']);
 
-        $this->info("=== ILL overdue (>= {$days}d) — {$rows->count()} ===");
+        $this->info("=== ILL overdue (>= {$days}d) - {$rows->count()} ===");
         foreach ($rows as $r) {
             $this->line(sprintf('  #%-12s  %-8s  due=%s  partner=%s  %s',
                 $r->request_number, $r->direction, $r->due_date,

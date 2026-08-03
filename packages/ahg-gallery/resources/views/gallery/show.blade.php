@@ -44,7 +44,7 @@
         @endif
         @if($galleryArtist->birth_date || $galleryArtist->death_date)
           <p class="small text-muted mb-1">
-            {{ $galleryArtist->birth_date ?? '?' }} &ndash; {{ $galleryArtist->death_date ?? 'present' }}
+            {{ $galleryArtist->birth_date ?? '?' }} - {{ $galleryArtist->death_date ?? 'present' }}
           </p>
         @endif
         @if($galleryArtist->medium_specialty)
@@ -114,7 +114,7 @@
     </div>
     @endif {{-- end $canUpdate || $canDelete management card --}}
 
-    {{-- Translate modal — side-by-side per-field translator + CCO values --}}
+    {{-- Translate modal - side-by-side per-field translator + CCO values --}}
     @if(view()->exists('ahg-translation::_translate-sbs') && \AhgCore\Services\AclService::check($artwork, 'translate'))
       @include('ahg-translation::_translate-sbs', ['objectId' => $artwork->id])
       @if(\Illuminate\Support\Facades\Schema::hasTable('museum_metadata') && \Illuminate\Support\Facades\DB::table('museum_metadata')->where('object_id', $artwork->id)->exists())
@@ -547,7 +547,7 @@
       @foreach($physicalObjects as $po)
         <div class="mb-1">
           @if($po->name)<strong>{{ $po->name }}</strong>@endif
-          @if($po->location) &mdash; {{ $po->location }}@endif
+          @if($po->location) - {{ $po->location }}@endif
         </div>
       @endforeach
     </section>
@@ -574,7 +574,7 @@
 
   @endif {{-- end ric_view_mode toggle --}}
 
-  {{-- RiC Context / OpenRiC / Validate — only in RiC view mode, mirroring the
+  {{-- RiC Context / OpenRiC / Validate - only in RiC view mode, mirroring the
        IO show page. Previously this sat inside the @else (standard/CDWA) branch,
        so it wrongly showed on the standard view and was hidden in RiC view. --}}
   @if(\AhgRic\Services\RicViewModeService::isRic('gallery', $artwork->id) && class_exists(\AhgRic\Controllers\RicEntityController::class))
@@ -642,7 +642,7 @@
               {{ $event->date_display }}
             @elseif($event->start_date)
               {{ $event->start_date }}
-              @if($event->end_date) &ndash; {{ $event->end_date }}@endif
+              @if($event->end_date) - {{ $event->end_date }}@endif
             @endif
           </div>
         @endforeach

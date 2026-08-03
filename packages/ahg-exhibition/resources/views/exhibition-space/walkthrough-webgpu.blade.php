@@ -1,11 +1,11 @@
-{{-- heratio#1153 — WebGPU renderer SPIKE (proof page). NOT the live walkthrough.
+{{-- heratio#1153 - WebGPU renderer SPIKE (proof page). NOT the live walkthrough.
      Modern three.js (r169) ES modules + WebGPURenderer, which renders with the WebGPU
      backend on capable devices and AUTO-FALLS-BACK to WebGL2 otherwise. Validates the
      renderer stack + importmap-under-CSP + jsm loaders/controls + scan-shell loading,
      to de-risk a future migration of the live r137 walkthrough. --}}
 @extends('theme::layouts.1col')
 
-@section('title', __('3D Walkthrough (WebGPU spike)') . ' — ' . $space->name)
+@section('title', __('3D Walkthrough (WebGPU spike)') . ' - ' . $space->name)
 @section('body-class', 'exhibition-space walkthrough-3d-webgpu')
 
 @section('content')

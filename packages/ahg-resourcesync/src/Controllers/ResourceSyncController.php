@@ -48,8 +48,8 @@ use Illuminate\Support\Facades\Schema;
  * Publication-status filter mirrors ahg-oai exactly: `information_object` is
  * joined to `object` (for updated_at) and `status` (type_id=158, status_id=160
  * = published) and we exclude the root node by requiring a non-null, non-zero
- * parent_id. Tombstones come from `oai_deleted_record` — the same table the
- * OAI-PMH `php artisan oai:mark-deleted` worker populates — so ResourceSync
+ * parent_id. Tombstones come from `oai_deleted_record` - the same table the
+ * OAI-PMH `php artisan oai:mark-deleted` worker populates - so ResourceSync
  * and OAI report the same deletion set.
  */
 class ResourceSyncController extends Controller
@@ -81,7 +81,7 @@ class ResourceSyncController extends Controller
     private const DEFAULT_PAGE_SIZE = 1000;
 
     /**
-     * ChangeList horizon default — last 30 days of updates + tombstones.
+     * ChangeList horizon default - last 30 days of updates + tombstones.
      */
     private const DEFAULT_CHANGELIST_DAYS = 30;
 
@@ -90,7 +90,7 @@ class ResourceSyncController extends Controller
     // ------------------------------------------------------------------
 
     /**
-     * SourceDescription document — the well-known discovery file every
+     * SourceDescription document - the well-known discovery file every
      * ResourceSync aggregator looks up first. Points to the CapabilityList.
      */
     public function sourceDescription(Request $request): Response
@@ -130,7 +130,7 @@ class ResourceSyncController extends Controller
     }
 
     /**
-     * CapabilityList document — describes which ResourceSync capabilities
+     * CapabilityList document - describes which ResourceSync capabilities
      * this source offers (ResourceList + ChangeList). Aggregators discover
      * the full inventory + changes from here.
      */
@@ -179,7 +179,7 @@ class ResourceSyncController extends Controller
     }
 
     /**
-     * ResourceList document — full inventory of published archival records.
+     * ResourceList document - full inventory of published archival records.
      * Paginated via ?page=N (1-indexed). Each page advertises the next via
      * a sitemap-style <rs:ln rel="next"> link so aggregators can walk the
      * whole chain without guessing.
@@ -212,7 +212,7 @@ class ResourceSyncController extends Controller
         $writer->writeAttribute('href', url('/resourcesync/capabilitylist.xml'));
         $writer->endElement();
 
-        // <rs:md capability="resourcelist" at="..."> — at is the document
+        // <rs:md capability="resourcelist" at="..."> - at is the document
         // timestamp; we use the request time because the inventory is
         // generated on-the-fly (no snapshot file).
         $writer->startElement('rs:md');
@@ -245,7 +245,7 @@ class ResourceSyncController extends Controller
     }
 
     /**
-     * ChangeList document — records updated or tombstoned within the
+     * ChangeList document - records updated or tombstoned within the
      * configured horizon (default 30 days). Each entry carries change=
      * "created"|"updated"|"deleted" so the aggregator can apply the right
      * action.
@@ -334,7 +334,7 @@ class ResourceSyncController extends Controller
             $writer->endElement();
         }
 
-        // Live changes — created vs updated heuristic.
+        // Live changes - created vs updated heuristic.
         foreach ($liveSlice as $record) {
             $change = ($record->created_at && $record->updated_at && $record->created_at === $record->updated_at)
                 ? 'created'
@@ -342,7 +342,7 @@ class ResourceSyncController extends Controller
             $this->writeUrlEntry($writer, $record, $change);
         }
 
-        // Tombstones — change="deleted". No slug (the IO is gone), so we
+        // Tombstones - change="deleted". No slug (the IO is gone), so we
         // synthesise a stable loc using the OAI local identifier route.
         foreach ($tombSlice as $tomb) {
             $this->writeTombstoneEntry($writer, $tomb);
@@ -426,7 +426,7 @@ class ResourceSyncController extends Controller
 
     /**
      * Write a sitemap <url> entry for a live record. Optional change
-     * attribute (used by ChangeList only — null on ResourceList).
+     * attribute (used by ChangeList only - null on ResourceList).
      */
     private function writeUrlEntry(\XMLWriter $writer, object $record, ?string $change): void
     {
@@ -486,7 +486,7 @@ class ResourceSyncController extends Controller
             }
         }
 
-        // Pre-slug records (rare) — point at an OAI-id route. Same shape
+        // Pre-slug records (rare) - point at an OAI-id route. Same shape
         // as the tombstone fallback.
         return url('/informationobject/by-oai/'.((int) $record->oai_local_identifier));
     }

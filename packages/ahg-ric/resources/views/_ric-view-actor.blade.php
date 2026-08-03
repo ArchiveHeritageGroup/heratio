@@ -1,4 +1,4 @@
-{{-- RiC View: Actor — agent network and contextual relationships --}}
+{{-- RiC View: Actor - agent network and contextual relationships --}}
 @php
   $culture = app()->getLocale();
 

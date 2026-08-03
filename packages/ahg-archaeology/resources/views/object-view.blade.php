@@ -70,7 +70,7 @@
         <div class="card-body">
           <dl class="row mb-0 small">
             <dt class="col-sm-5">{{ __('Range') }}</dt>
-            <dd class="col-sm-7">{{ $object->date_earliest ?: '?' }} &ndash; {{ $object->date_latest ?: '?' }}</dd>
+            <dd class="col-sm-7">{{ $object->date_earliest ?: '?' }} - {{ $object->date_latest ?: '?' }}</dd>
             <dt class="col-sm-5">{{ __('Method') }}</dt><dd class="col-sm-7">{{ $object->dating_method_name ?: '-' }}</dd>
           </dl>
           @if($object->dating_note)

@@ -552,7 +552,7 @@ class AuditTrailController extends Controller
             ]);
         }
 
-        // CSV stream — columns match PSIS exportSuccess.php header row.
+        // CSV stream - columns match PSIS exportSuccess.php header row.
         $columns = [
             'id', 'uuid', 'created_at', 'user_id', 'username', 'ip_address',
             'action', 'entity_type', 'entity_id', 'entity_slug', 'entity_title', 'status',

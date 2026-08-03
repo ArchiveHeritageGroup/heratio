@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ScanSessionTokenService — Heratio ahg-scan
+ * ScanSessionTokenService - Heratio ahg-scan
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

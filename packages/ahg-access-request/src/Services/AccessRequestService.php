@@ -205,7 +205,7 @@ class AccessRequestService
     /**
      * Create a new access request.
      *
-     * Writes to `access_request` — the package's canonical table, which the
+     * Writes to `access_request` - the package's canonical table, which the
      * My-Requests / view / approve / deny / cancel paths all read, and which
      * owns the approver/justification/log/scope satellites. (#1366: previously
      * this wrote `security_access_request`, ahg-security-clearance's own table,
@@ -213,7 +213,7 @@ class AccessRequestService
      */
     public function createRequest(int $userId, array $data): int
     {
-        // #1366 — write the canonical `access_request` table (native reason/
+        // #1366 - write the canonical `access_request` table (native reason/
         // justification/urgency columns; no flatten hack), NOT security-
         // clearance's `security_access_request`.
         $reason = trim((string) ($data['reason'] ?? ''));
@@ -294,7 +294,7 @@ class AccessRequestService
     }
 
     /**
-     * #1366 — baseline classification for requests that don't specify one.
+     * #1366 - baseline classification for requests that don't specify one.
      * The lowest level (Public, level 0); cached. Falls back to 1 if the
      * classification table is empty/absent so the NOT-NULL insert can't throw.
      */

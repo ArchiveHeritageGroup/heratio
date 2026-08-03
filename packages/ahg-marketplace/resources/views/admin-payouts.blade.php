@@ -1,11 +1,11 @@
 {{--
-  Marketplace Admin — Payouts Queue
+  Marketplace Admin - Payouts Queue
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.
 
   Cloned from PSIS ahgMarketplacePlugin/marketplace/adminPayoutsSuccess.php.
-  Currency is rendered per-row from $payout->currency (international — no hardcoded currency default).
+  Currency is rendered per-row from $payout->currency (international - no hardcoded currency default).
 --}}
 @extends('theme::layouts.1col')
 @section('title', __('Manage Payouts') . ' - ' . __('Marketplace Admin'))
@@ -35,7 +35,7 @@
 
 <h1 class="h3 mb-4">{{ __('Manage Payouts') }}</h1>
 
-{{-- Pending payouts summary — grouped by currency for multi-market installs --}}
+{{-- Pending payouts summary - grouped by currency for multi-market installs --}}
 @php
   $pendingCount = 0;
   $pendingByCurrency = [];

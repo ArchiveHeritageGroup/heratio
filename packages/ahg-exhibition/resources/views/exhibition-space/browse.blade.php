@@ -1,4 +1,4 @@
-{{-- heratio#146 — Exhibition spaces browse --}}
+{{-- heratio#146 - Exhibition spaces browse --}}
 @extends('theme::layouts.1col')
 
 @section('title', __('Exhibition spaces'))
@@ -66,12 +66,12 @@
             <tr>
               <td><a href="{{ route('exhibition-space.show', ['slug' => $row->slug]) }}">{{ $row->name }}</a></td>
               <td><span class="badge bg-secondary">{{ ucwords(str_replace('_', ' ', $row->space_type)) }}</span></td>
-              <td>{{ trim($row->building.($row->floor ? ' · '.$row->floor : '')) ?: '—' }}</td>
+              <td>{{ trim($row->building.($row->floor ? ' · '.$row->floor : '')) ?: '-' }}</td>
               <td>
                 @if($row->capacity_value !== null)
                   {{ (float) $row->capacity_value }} {{ __(\AhgExhibition\Services\ExhibitionSpaceService::CAPACITY_UNITS[$row->capacity_unit] ?? $row->capacity_unit) }}
                 @else
-                  <span class="text-muted small">—</span>
+                  <span class="text-muted small">-</span>
                 @endif
               </td>
               <td>

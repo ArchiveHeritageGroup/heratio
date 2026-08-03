@@ -59,7 +59,7 @@
                 @if($m->seller_name)
                   <a href="{{ url('/marketplace/seller?slug=' . $m->seller_slug) }}" class="text-decoration-none">{{ $m->seller_name }}</a>
                 @else
-                  <span class="text-muted">—</span>
+                  <span class="text-muted">-</span>
                 @endif
               </td>
               <td class="text-end fw-semibold">{{ $m->currency ?: 'ZAR' }} {{ number_format((float) $m->price, 2) }}</td>

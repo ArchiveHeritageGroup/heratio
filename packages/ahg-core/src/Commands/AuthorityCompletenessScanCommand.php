@@ -20,7 +20,7 @@ class AuthorityCompletenessScanCommand extends Command
             ? DB::table('ahg_authority_config')->where('config_key', 'completeness_auto_recalc')->value('config_value')
             : null;
         if ($autoRecalc === '0') {
-            $this->info('completeness_auto_recalc disabled in ahg_authority_config — skipping.');
+            $this->info('completeness_auto_recalc disabled in ahg_authority_config - skipping.');
 
             return self::SUCCESS;
         }

@@ -47,7 +47,7 @@
                                             <br><small class="text-muted">{{ $h->call_number }}</small>
                                         @endif
                                     </td>
-                                    <td class="text-center">{{ $h->queue_position ?? '—' }}</td>
+                                    <td class="text-center">{{ $h->queue_position ?? '-' }}</td>
                                     <td>
                                         @if(($h->status ?? '') === 'ready')
                                             <span class="badge bg-success">{{ __('Ready for Pickup') }}</span>
@@ -55,8 +55,8 @@
                                             <span class="badge bg-info">{{ __('Waiting') }}</span>
                                         @endif
                                     </td>
-                                    <td>{{ $h->hold_date ?? '—' }}</td>
-                                    <td>{{ $h->expiry_date ?? '—' }}</td>
+                                    <td>{{ $h->hold_date ?? '-' }}</td>
+                                    <td>{{ $h->expiry_date ?? '-' }}</td>
                                     <td class="text-end">
                                         <form method="POST" action="{{ route('opac.patron.holds.cancel') }}" class="d-inline">
                                             @csrf

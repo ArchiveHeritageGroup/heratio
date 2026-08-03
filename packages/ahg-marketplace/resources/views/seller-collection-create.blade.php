@@ -1,5 +1,5 @@
 {{--
-  Marketplace — Create / Edit Collection
+  Marketplace - Create / Edit Collection
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.

@@ -1,4 +1,4 @@
-{{-- Snapshots — cloned from AtoM ahgResearchPlugin/snapshotsSuccess.php --}}
+{{-- Snapshots - cloned from AtoM ahgResearchPlugin/snapshotsSuccess.php --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
@@ -63,7 +63,7 @@
                         <textarea name="description" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ __('Collection (optional — freezes a specific collection)') }}</label>
+                        <label class="form-label">{{ __('Collection (optional - freezes a specific collection)') }}</label>
                         <select id="snapshotCollectionSelect" name="collection_id"></select>
                         <small class="text-muted">{{ __('Leave empty to snapshot the entire project.') }}</small>
                     </div>

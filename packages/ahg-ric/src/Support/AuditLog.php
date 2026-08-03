@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Write an audit-log entry for a successful mutation. Logging itself is
- * wrapped in try/catch — a logging failure must never break the mutation.
+ * wrapped in try/catch - a logging failure must never break the mutation.
  */
 
 namespace AhgRic\Support;

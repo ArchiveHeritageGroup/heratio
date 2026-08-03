@@ -1,5 +1,5 @@
 {{--
-  Records Management — Compliance assessment detail (P2.8)
+  Records Management - Compliance assessment detail (P2.8)
   @copyright Johan Pieterse / Plain Sailing Information Systems
   @license   AGPL-3.0-or-later
 --}}
@@ -32,7 +32,7 @@
       <tr><th class="text-muted" style="width:25%">{{ __('Framework') }}</th><td>{{ $assessment->framework }}</td></tr>
       <tr><th class="text-muted">{{ __('Title') }}</th><td>{{ $assessment->title }}</td></tr>
       @if($assessment->scope)<tr><th class="text-muted">{{ __('Scope') }}</th><td>{!! nl2br(e($assessment->scope)) !!}</td></tr>@endif
-      <tr><th class="text-muted">{{ __('Period') }}</th><td>{{ $assessment->period_start ?: '—' }} → {{ $assessment->period_end ?: '—' }}</td></tr>
+      <tr><th class="text-muted">{{ __('Period') }}</th><td>{{ $assessment->period_start ?: '-' }} → {{ $assessment->period_end ?: '-' }}</td></tr>
       <tr><th class="text-muted">{{ __('Assessed at') }}</th><td>{{ $assessment->assessed_at }}</td></tr>
       @if($assessment->signed_off_by)
         <tr><th class="text-muted">{{ __('Signed off') }}</th><td>{{ $assessment->signed_off_by }} ({{ $assessment->signed_off_at }})</td></tr>
@@ -82,7 +82,7 @@
         <td><small>{{ $c['finding'] ?? '' }}</small></td>
       </tr>
     @empty
-      <tr><td colspan="5" class="text-muted text-center py-3">No checks have run yet — click <em>Re-run checks</em>.</td></tr>
+      <tr><td colspan="5" class="text-muted text-center py-3">No checks have run yet - click <em>Re-run checks</em>.</td></tr>
     @endforelse
     </tbody>
   </table>
@@ -93,7 +93,7 @@
     <div class="card-header bg-warning text-dark"><i class="fas fa-bolt me-1"></i> Recommendations ({{ count($recommendations) }})</div>
     <ul class="list-group list-group-flush">
       @foreach($recommendations as $r)
-        <li class="list-group-item small"><code>{{ $r['ref'] }}</code> — {{ $r['recommendation'] }}</li>
+        <li class="list-group-item small"><code>{{ $r['ref'] }}</code> - {{ $r['recommendation'] }}</li>
       @endforeach
     </ul>
   </div>

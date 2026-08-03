@@ -324,7 +324,7 @@ class StaticPageController extends Controller
         if ($markdownEnabled !== '0' && ! empty($page->content)) {
             // Convert literal \n to actual newlines (DB may store escaped newlines)
             $content = str_replace(['\\n', '\n'], "\n", $page->content);
-            // GFM converter — handles pipe tables, task lists, autolinks; plain CommonMark
+            // GFM converter - handles pipe tables, task lists, autolinks; plain CommonMark
             // would render | tables | as raw paragraph text.
             $converter = new \League\CommonMark\GithubFlavoredMarkdownConverter([
                 'html_input' => 'allow',

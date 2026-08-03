@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Marc21DecoderService — ISO 2709 | MARC21 binary decoder for Heratio.
+ * Marc21DecoderService - ISO 2709 | MARC21 binary decoder for Heratio.
  *
  * Provides:
  *   - Syntax detection (binary MARC vs MARCXML)
@@ -102,7 +102,7 @@ class Marc21DecoderService
         $baseAddress  = (int) substr($leader, 12, 5);
 
         // Directory starts at byte 24 and runs until the 0x1E terminator
-        // (which is the byte just before the data area — i.e. byte baseAddress - 1).
+        // (which is the byte just before the data area - i.e. byte baseAddress - 1).
         $dirStart = 24;
         $dirEnd   = $baseAddress - 1; // last byte of directory (the 0x1E terminator slot)
 
@@ -111,7 +111,7 @@ class Marc21DecoderService
         // The 'offset' is from the BASE ADDRESS (the start of the data area).
         // Control fields (00x) go into $control keyed by tag; data fields (010+)
         // go into $data as a SEQUENTIAL list so repeated tags (e.g. two 650
-        // subjects, multiple 700 added entries, repeated 020) are all kept —
+        // subjects, multiple 700 added entries, repeated 020) are all kept -
         // a tag-keyed map would silently drop all but the last occurrence.
         $control = [];
         $data    = [];
@@ -221,7 +221,7 @@ class Marc21DecoderService
             return null;
         };
 
-        // Helper: flatten subfields — strips repeat suffixes (a2 → a)
+        // Helper: flatten subfields - strips repeat suffixes (a2 → a)
         $flat = function (?array $field): array {
             if (! $field) return [];
             $out = [];
@@ -271,7 +271,7 @@ class Marc21DecoderService
             $langCode = $langMap[$rawLang] ?? $rawLang;
         }
 
-        // 008 date (positions 7-10) — four-character publication year
+        // 008 date (positions 7-10) - four-character publication year
         $pubDate = null;
         if (strlen($c008) >= 11) {
             $yearRaw = substr($c008, 7, 4);

@@ -27,7 +27,7 @@
         @forelse ($datasets as $d)
           <tr>
             <td><a href="{{ route('rdm.datasets.show', $d->id) }}">{{ $d->title }}</a></td>
-            <td class="small text-muted">{{ $d->project_title ?? '—' }}</td>
+            <td class="small text-muted">{{ $d->project_title ?? '-' }}</td>
             <td><span class="badge bg-secondary">{{ $d->status }}</span></td>
             <td class="text-end">{{ $d->file_count }}</td>
             <td class="small text-muted">{{ \Illuminate\Support\Str::limit((string) $d->created_at, 16, '') }}</td>

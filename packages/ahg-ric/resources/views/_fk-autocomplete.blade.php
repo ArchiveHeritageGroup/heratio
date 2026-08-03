@@ -4,12 +4,12 @@
 {{-- Reusable autocomplete widget for a foreign-key field.
 
 Required vars:
-  $name       — form field name (the hidden input that holds the FK id)
-  $types      — comma-separated entity types for the autocomplete endpoint (e.g. "io", "digital_object", "place,rule")
-  $label      — label shown above the input
-  $currentId  — currently-selected id (null if none)
-  $currentLabel — human-readable label of the currently-selected entity (null if none)
-  $hint       — optional help text below the input
+  $name       - form field name (the hidden input that holds the FK id)
+  $types      - comma-separated entity types for the autocomplete endpoint (e.g. "io", "digital_object", "place,rule")
+  $label      - label shown above the input
+  $currentId  - currently-selected id (null if none)
+  $currentLabel - human-readable label of the currently-selected entity (null if none)
+  $hint       - optional help text below the input
 --}}
 @php
     $uid = 'fkac-' . uniqid();

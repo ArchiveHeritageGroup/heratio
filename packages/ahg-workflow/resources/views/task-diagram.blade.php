@@ -1,4 +1,4 @@
-{{-- heratio#143 Phase 2 — workflow diagram with task progress overlay --}}
+{{-- heratio#143 Phase 2 - workflow diagram with task progress overlay --}}
 @extends('theme::layouts.1col')
 
 @section('title', __('Task progress: :name', ['name' => $workflow->name ?? '']))

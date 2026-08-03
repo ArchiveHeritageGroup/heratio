@@ -7,7 +7,7 @@
  *
  * Bulk import endpoint. Accepts CSV or JSON via multipart/form-data and
  * dispatches each row to the appropriate RicEntityService creator. Returns
- * a per-row report — the import never short-circuits on a single failure.
+ * a per-row report - the import never short-circuits on a single failure.
  *
  *   POST /api/ric/v1/import?type=records&format=csv       multipart file=@records.csv
  *   POST /api/ric/v1/import?type=places                   application/json  [ {...}, {...} ]
@@ -217,7 +217,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Quick field presence check — the actual createXxx methods do their
+     * Quick field presence check - the actual createXxx methods do their
      * own validation and will throw on missing required fields even if we
      * let it through. This is just so dry-run mode gives useful feedback.
      */

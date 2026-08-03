@@ -466,7 +466,7 @@ class RightsAdminController extends Controller
 
     public function exportCsv(Request $request)
     {
-        // Single-object export form sends format=json-ld here when JSON-LD is selected — delegate.
+        // Single-object export form sends format=json-ld here when JSON-LD is selected - delegate.
         if ($request->input('format') === 'json-ld') {
             return $this->exportJsonld($request);
         }
@@ -477,7 +477,7 @@ class RightsAdminController extends Controller
 
         // rights_record real columns: basis, copyright_status, copyright_holder,
         // license_identifier, start_date, end_date. There is no `rights_type`/
-        // `rights_value`/`rights_date` — we derive them from the real fields.
+        // `rights_value`/`rights_date` - we derive them from the real fields.
         $query = DB::table('rights_record as r')
             ->leftJoin('information_object as o', 'r.object_id', '=', 'o.id')
             ->leftJoin('information_object_i18n as oi', function ($j) {

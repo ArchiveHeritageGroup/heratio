@@ -1,7 +1,7 @@
 <?php
 
 /**
- * OtpCodeMail — locale-aware Mailable that delivers a 6-digit OTP code
+ * OtpCodeMail - locale-aware Mailable that delivers a 6-digit OTP code
  * to the user's enrolled email destination (issue #722).
  *
  * Mirrors PasswordResetMail (#674 Phase 2) for layout + branding so the
@@ -11,7 +11,7 @@
  * emails/{en,af}/otp-code.blade.php and are surfaced through the
  * 'ahg-security-clearance' view namespace via the localised resolver.
  *
- * The code is treated as ephemeral display data — it must never be logged
+ * The code is treated as ephemeral display data - it must never be logged
  * by Mailable serialisation; it's only embedded in the body of this one
  * email. The challenge row keeps a SHA-256 hash only.
  *

@@ -165,10 +165,10 @@
             {{ __('Trains a non-destructive QLoRA adapter over the local LLM from KM Q&A, release notes and session logs. Runs on the GPU node via the AI gateway; the base model is never removed.') }}
           </p>
           <div class="row text-center mb-2" id="llmft-stats">
-            <div class="col"><div class="fw-bold" id="llmft-total">–</div><div class="text-muted">{{ __('examples') }}</div></div>
-            <div class="col"><div class="fw-bold" id="llmft-train">–</div><div class="text-muted">{{ __('train') }}</div></div>
-            <div class="col"><div class="fw-bold" id="llmft-eval">–</div><div class="text-muted">{{ __('eval') }}</div></div>
-            <div class="col"><div class="fw-bold" id="llmft-delta">–</div><div class="text-muted">{{ __('last eval Δ') }}</div></div>
+            <div class="col"><div class="fw-bold" id="llmft-total">-</div><div class="text-muted">{{ __('examples') }}</div></div>
+            <div class="col"><div class="fw-bold" id="llmft-train">-</div><div class="text-muted">{{ __('train') }}</div></div>
+            <div class="col"><div class="fw-bold" id="llmft-eval">-</div><div class="text-muted">{{ __('eval') }}</div></div>
+            <div class="col"><div class="fw-bold" id="llmft-delta">-</div><div class="text-muted">{{ __('last eval Δ') }}</div></div>
           </div>
           <form method="POST" action="{{ route('admin.ai.llmFinetune.startTraining') }}" class="row g-2 align-items-end">
             @csrf
@@ -203,7 +203,7 @@
           <strong><i class="fas fa-file-alt"></i> Vital Records HTR</strong>
         </div>
         <div class="card-body">
-          <p class="small">Handwritten Text Recognition for SA vital records — death certificates, church registers, narrative documents. Extract, batch process, annotate, and fine-tune models.</p>
+          <p class="small">Handwritten Text Recognition for SA vital records - death certificates, church registers, narrative documents. Extract, batch process, annotate, and fine-tune models.</p>
         </div>
         <div class="card-footer">
           <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-right me-1"></i>{{ __('Open HTR Dashboard') }}</a>

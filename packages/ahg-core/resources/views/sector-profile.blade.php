@@ -18,7 +18,7 @@
 
 <div class="alert alert-info small d-flex align-items-center">
   <i class="fas fa-info-circle me-2"></i>
-  <div>{{ __('A profile sets a theme colour palette, the default identifier mask, and the install sector marker. It does NOT remove any package and changes no records — switch or re-apply freely. Jurisdiction-neutral (sector only).') }}</div>
+  <div>{{ __('A profile sets a theme colour palette, the default identifier mask, and the install sector marker. It does NOT remove any package and changes no records - switch or re-apply freely. Jurisdiction-neutral (sector only).') }}</div>
 </div>
 
 <div class="card">
@@ -38,7 +38,7 @@
         <label for="sector" class="form-label fw-bold">{{ __('Sector') }}</label>
         <select name="sector" id="sector" class="form-select">
           @foreach ($profiles as $code => $p)
-            <option value="{{ $code }}" @selected($current === $code)>{{ $p['label'] }} — {{ __('mask') }} {{ $p['mask'] }}</option>
+            <option value="{{ $code }}" @selected($current === $code)>{{ $p['label'] }} - {{ __('mask') }} {{ $p['mask'] }}</option>
           @endforeach
         </select>
       </div>

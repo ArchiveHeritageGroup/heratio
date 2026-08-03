@@ -53,7 +53,7 @@ class TermService
     /**
      * Get a term by its id, joining term + term_i18n + object + slug.
      *
-     * Same fallback semantics as getBySlug — see that method for rationale.
+     * Same fallback semantics as getBySlug - see that method for rationale.
      */
     public function getById(int $id, string $culture): ?object
     {
@@ -212,7 +212,7 @@ class TermService
 
                 $parentId = $parentTerm->id;
             } else {
-                // No existing terms in this taxonomy — first term
+                // No existing terms in this taxonomy - first term
                 $newLft = 1;
                 $newRgt = 2;
                 $parentId = null;

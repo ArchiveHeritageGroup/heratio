@@ -6,7 +6,7 @@ use AhgCore\Controllers\TtsController;
 use AhgCore\Controllers\VoiceController;
 use Illuminate\Support\Facades\Route;
 
-// Client-side error logging — captures JS errors to Laravel log
+// Client-side error logging - captures JS errors to Laravel log
 Route::post('/api/log-error', function (\Illuminate\Http\Request $request) {
     \Log::warning('[JS Error] '.($request->input('message', 'Unknown JS error')), [
         'url' => $request->input('url', ''),
@@ -19,14 +19,14 @@ Route::post('/api/log-error', function (\Illuminate\Http\Request $request) {
     return response()->json(['logged' => true]);
 })->name('api.log-error');
 
-// TTS (Text-to-Speech) API endpoints — AJAX, used by TTS widget
+// TTS (Text-to-Speech) API endpoints - AJAX, used by TTS widget
 Route::get('/tts/settings', [TtsController::class, 'settings'])->name('tts.settings');
 Route::get('/tts/pdfText', [TtsController::class, 'pdfText'])->name('tts.pdfText');
 // Legacy AtoM URL aliases (JS widgets may use /index.php/tts/...)
 Route::get('/index.php/tts/settings', [TtsController::class, 'settings'])->name('tts.settings.legacy');
 Route::get('/index.php/tts/pdfText', [TtsController::class, 'pdfText'])->name('tts.pdfText.legacy');
 
-// Voice settings endpoint — voiceCommands.js fetches this at init.
+// Voice settings endpoint - voiceCommands.js fetches this at init.
 // Path matches the legacy AtoM URL hard-coded into the bundled JS.
 Route::get('/index.php/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->name('voice.settings');
 Route::get('/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->name('voice.settings.modern');
@@ -38,7 +38,7 @@ Route::get('/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->na
 //
 // Path is /api/iiif-settings rather than /iiif/settings because nginx
 // routes the entire /iiif/ prefix to the Cantaloupe image server (see
-// /etc/nginx ^~ /iiif/ block) — colliding here would 404 from Java.
+// /etc/nginx ^~ /iiif/ block) - colliding here would 404 from Java.
 Route::get('/api/iiif-settings', [IiifController::class, 'getSettings'])->name('iiif.viewer.settings');
 
 // heratio#1202 - storytelling engine (admin): theme -> AI narrative from catalogue objects

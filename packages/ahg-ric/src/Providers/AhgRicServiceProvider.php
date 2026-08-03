@@ -82,7 +82,7 @@ class AhgRicServiceProvider extends ServiceProvider
         // (memory: project_ric_separation_plan.md) the relational ric_* tables
         // stay in Heratio; OpenRiC handles graph/SPARQL READS only. Even
         // post-split, write surfaces (modal entity create, relation editor)
-        // need a local endpoint that accepts the admin's session cookie —
+        // need a local endpoint that accepts the admin's session cookie -
         // otherwise the embedded JS would have to ship an API key to call
         // OpenRiC cross-origin, which we don't do. Reads can still go to
         // RIC_API_BASE = config('ric.api_url') for graph traversal.
@@ -173,7 +173,7 @@ class AhgRicServiceProvider extends ServiceProvider
             // Non-fatal: deprecation / provenance emission stays inert until the tables exist.
         }
 
-        // Register artisan commands (only when running in console — cheap guard).
+        // Register artisan commands (only when running in console - cheap guard).
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgRic\Console\Commands\VerifySplit::class,

@@ -1,4 +1,4 @@
--- ahgTimeLimitedShareLinkPlugin / ahg-share-link — schema (Phase A)
+-- ahgTimeLimitedShareLinkPlugin / ahg-share-link - schema (Phase A)
 --
 -- Byte-equivalent to:
 --   /usr/share/nginx/archive/atom-ahg-plugins/ahgTimeLimitedShareLinkPlugin/database/install.sql
@@ -17,14 +17,14 @@ CREATE TABLE IF NOT EXISTS information_object_share_token (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     information_object_id INT NOT NULL,
     token                 VARCHAR(64) NOT NULL COMMENT 'URL-safe base64; HMAC-derived; unguessable',
-    issued_by             INT NOT NULL COMMENT 'FK user.id — the curator/officer who issued the link',
+    issued_by             INT NOT NULL COMMENT 'FK user.id - the curator/officer who issued the link',
     recipient_email       VARCHAR(255) DEFAULT NULL COMMENT 'Informational only; not enforced as an access gate',
     recipient_note        VARCHAR(500) DEFAULT NULL COMMENT 'Free-text reason captured at issuance',
     expires_at            DATETIME NOT NULL COMMENT 'Cap on link validity',
     max_access            INT UNSIGNED DEFAULT NULL COMMENT 'NULL = unlimited within window',
     access_count          INT UNSIGNED NOT NULL DEFAULT 0,
     revoked_at            DATETIME DEFAULT NULL,
-    revoked_by            INT DEFAULT NULL COMMENT 'FK user.id — admin or original issuer',
+    revoked_by            INT DEFAULT NULL COMMENT 'FK user.id - admin or original issuer',
     revoke_reason         VARCHAR(255) DEFAULT NULL,
     classification_level_at_issuance TINYINT UNSIGNED DEFAULT NULL COMMENT 'Snapshot of record classification level when issued',
     issuer_download_at_issuance      TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Whether the issuer could download the DO at the moment of issuance',

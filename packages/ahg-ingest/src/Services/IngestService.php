@@ -244,7 +244,7 @@ class IngestService
 
     /**
      * Delete an ingest session and all its dependent rows (files, mappings,
-     * rows, validation errors, jobs). Wizard sessions only — refuses
+     * rows, validation errors, jobs). Wizard sessions only - refuses
      * watched-folder and scan-API sessions, which are long-lived records
      * that must be retired through their owning package (ahg-scan) so that
      * historical ingest_file audit rows and scan_folder linkage are
@@ -641,7 +641,7 @@ class IngestService
     /**
      * Walk every ingest_row, project its source `data` through ingest_mapping,
      * and write the result into `enriched_data`. The validator + commit runner
-     * read enriched_data as their canonical input — anything written to
+     * read enriched_data as their canonical input - anything written to
      * `data` that has no mapping (or a mapping flagged is_ignored) is dropped.
      *
      * Also promotes a few specific enriched fields back onto the ingest_row
@@ -942,7 +942,7 @@ class IngestService
     }
 
     /**
-     * #1395(G) — reject a zip-bomb before extraction: cap entry count + total
+     * #1395(G) - reject a zip-bomb before extraction: cap entry count + total
      * uncompressed size. \ZipArchive::extractTo() has no such limit, so a small
      * archive can fill the disk.
      */

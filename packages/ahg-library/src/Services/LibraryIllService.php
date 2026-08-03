@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LibraryIllService — ISO 10160 / ISO 10161 ILL state machine + CRUD
+ * LibraryIllService - ISO 10160 / ISO 10161 ILL state machine + CRUD
  *
  * Copyright (C) 2026 Johan Pieterse
  * The Archive Heritage Group (Pty) Ltd
@@ -82,10 +82,10 @@ class LibraryIllService
     // Keyed by request TYPE first, then current_status => allowed next statuses.
     // The lend and borrow lanes share several status names (pending, shipped,
     // received) but with DIFFERENT allowed transitions, so they MUST live in
-    // separate sub-arrays — a single flat array silently collapses the duplicate
+    // separate sub-arrays - a single flat array silently collapses the duplicate
     // keys (PHP keeps the last literal) and the borrow lane disappears.
     private const TRANSITIONS = [
-        // BORROW lane — we request an item from another library (requester side).
+        // BORROW lane - we request an item from another library (requester side).
         self::TYPE_BORROW => [
             self::STATUS_PENDING     => [self::STATUS_REQUESTED, self::STATUS_CANCELLED],
             self::STATUS_REQUESTED   => [self::STATUS_SHIPPED, self::STATUS_UNFULFILLED, self::STATUS_CANCELLED],
@@ -99,7 +99,7 @@ class LibraryIllService
             // the borrower can still receive / lose / return the item.
             self::STATUS_OVERDUE     => [self::STATUS_RECEIVED, self::STATUS_LOST, self::STATUS_RETURNED],
         ],
-        // LEND lane — another library requests an item from us (responder side).
+        // LEND lane - another library requests an item from us (responder side).
         self::TYPE_LEND => [
             self::STATUS_PENDING     => [self::STATUS_SHIPPED, self::STATUS_UNFULFILLED, self::STATUS_CANCELLED],
             self::STATUS_SHIPPED     => [self::STATUS_RECEIVED, self::STATUS_LOST],
@@ -144,7 +144,7 @@ class LibraryIllService
     public const OCLC_SYSTEM_CUSTOM    = 'custom';
 
     // ─────────────────────────────────────────────────────────────────────────
-    // CRUD — list
+    // CRUD - list
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
@@ -195,7 +195,7 @@ class LibraryIllService
     }
 
     /**
-     * Count requests by status — used by the staff dashboard badges.
+     * Count requests by status - used by the staff dashboard badges.
      *
      * @param  string|null $type  filter by TYPE_BORROW or TYPE_LEND
      * @return array   [status => count]
@@ -216,7 +216,7 @@ class LibraryIllService
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // CRUD — single record
+    // CRUD - single record
     // ─────────────────────────────────────────────────────────────────────────
 
     public function get(int $id): ?object
@@ -402,7 +402,7 @@ class LibraryIllService
 
     /**
      * Mark all past-due requests as overdue (called by nightly cron).
-     * Overdue is not a terminal state — it coexists with whatever state
+     * Overdue is not a terminal state - it coexists with whatever state
      * the request was in (REQUESTED, SHIPPED, RECEIVED …).
      *
      * @return int  rows affected
@@ -491,7 +491,7 @@ class LibraryIllService
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // OPAC suppression — for filtering from public catalogue views
+    // OPAC suppression - for filtering from public catalogue views
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
@@ -521,7 +521,7 @@ class LibraryIllService
     private function logTransition(string $illNumber, ?string $from, string $to, string $description): void
     {
         // Record an audit entry. library_ill_audit table may not exist on a
-        // fresh install — fail silently rather than break the request pipeline.
+        // fresh install - fail silently rather than break the request pipeline.
         try {
             if (!Schema::hasTable('library_ill_audit')) {
                 return;

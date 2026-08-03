@@ -66,11 +66,11 @@ class SpectrumController extends Controller
     const PROC_COLLECTIONS_REVIEW = 'collections_review';
     const PROC_AUDIT              = 'audit';
 
-    /** @deprecated Use PROC_EMERGENCY — kept for backward compatibility with existing DB records */
+    /** @deprecated Use PROC_EMERGENCY - kept for backward compatibility with existing DB records */
     const PROC_RISK          = 'risk_management';
     /** @deprecated Merged into PROC_DEACCESSION in Spectrum 5.1 */
     const PROC_DISPOSAL      = 'disposal';
-    /** @deprecated Not a current Spectrum 5.1 procedure name — use PROC_DOCUMENTATION / PROC_INVENTORY */
+    /** @deprecated Not a current Spectrum 5.1 procedure name - use PROC_DOCUMENTATION / PROC_INVENTORY */
     const PROC_RETROSPECTIVE = 'retrospective_documentation';
 
     const STATUS_NOT_STARTED = 'not_started';
@@ -817,7 +817,7 @@ class SpectrumController extends Controller
             DB::table('spectrum_workflow_state')->insert($insertData);
         }
 
-        // Record history — include sign-off metadata on closure
+        // Record history - include sign-off metadata on closure
         $historyMeta = $assignedToInt ? ['assigned_to' => $assignedToInt] : [];
         if ($transitionKey === 'close' && in_array($toState, $finalStates)) {
             $historyMeta['signed_off_by'] = $userId;
@@ -988,7 +988,7 @@ class SpectrumController extends Controller
 
         $objectTitle = $resource->title ?: ($resource->slug ?? 'Untitled');
 
-        $subject = "Spectrum: {$transitionLabel} — {$procedureLabel}";
+        $subject = "Spectrum: {$transitionLabel} - {$procedureLabel}";
         $message = "{$actingName} performed '{$transitionLabel}' on a task.\n\n"
             . "Object: {$objectTitle}\n"
             . "Procedure: {$procedureLabel}\n"

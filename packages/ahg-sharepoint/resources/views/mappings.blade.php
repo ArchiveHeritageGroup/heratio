@@ -50,7 +50,7 @@
     <div class="col-md-5">
         <label class="form-label">{{ __('Drive') }}</label>
         <select name="drive_id" class="form-select" onchange="this.form.submit()">
-            <option value="">— {{ __('Select drive') }} —</option>
+            <option value="">- {{ __('Select drive') }} -</option>
             @foreach($drives as $d)
                 <option value="{{ (int) $d->id }}" @selected($driveId === (int) $d->id)>{{ $d->site_title ?: '?' }} / {{ $d->drive_name ?: '?' }}</option>
             @endforeach
@@ -61,14 +61,14 @@
         <label class="form-label">{{ __('Template') }}</label>
         <select name="template_id" class="form-select" onchange="this.form.submit()">
             @if($templates->isEmpty())
-                <option value="">— {{ __('No templates yet — create one below') }} —</option>
+                <option value="">- {{ __('No templates yet - create one below') }} -</option>
             @endif
             @foreach($templates as $t)
                 <option value="{{ (int) $t->id }}" @selected($selectedTemplate && (int) $selectedTemplate->id === (int) $t->id)>
                     {{ $t->name }}{{ $t->is_default ? ' ★' : '' }} ({{ $t->sector }}/{{ $t->standard }})
                 </option>
             @endforeach
-            <option value="new" @selected(!$selectedTemplate)>— {{ __('+ New template…') }} —</option>
+            <option value="new" @selected(!$selectedTemplate)>- {{ __('+ New template…') }} -</option>
         </select>
     </div>
     @endif
@@ -87,7 +87,7 @@
                 <label class="form-label">{{ __('Template name') }} <span class="text-danger">*</span></label>
                 <input type="text" name="template_name" class="form-control" required
                        value="{{ $selectedTemplate->name ?? '' }}"
-                       placeholder="{{ __('e.g. Heritage Photos — ISAD(G)') }}">
+                       placeholder="{{ __('e.g. Heritage Photos - ISAD(G)') }}">
             </div>
             <div class="col-md-3 mb-3">
                 <label class="form-label" for="sector">{{ __('Sector') }}</label>

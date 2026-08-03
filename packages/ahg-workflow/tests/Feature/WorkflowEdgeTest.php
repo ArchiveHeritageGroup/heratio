@@ -68,7 +68,7 @@ class WorkflowEdgeTest extends TestCase
         ]);
         $this->assertCount(2, $this->svc->getEdges($wfId));
 
-        // Now replace with just one — the old two must be gone.
+        // Now replace with just one - the old two must be gone.
         $this->svc->replaceEdges($wfId, [
             ['from_step_id' => $s1, 'to_step_id' => $s3],
         ]);

@@ -184,7 +184,7 @@
                                     @elseif($right->rights_holder_name ?? null)
                                         {{ $right->rights_holder_name }}
                                     @else
-                                        <span class="text-muted">&mdash;</span>
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td>
@@ -203,16 +203,16 @@
                                             <span class="badge bg-{{ $gColor }} me-1">{{ ucfirst($grant->act ?? '') }}</span>
                                         @endforeach
                                     @else
-                                        <span class="text-muted">&mdash;</span>
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td class="small">
                                     @if(($right->start_date ?? null) || ($right->end_date ?? null))
                                         {{ $right->start_date ? \Carbon\Carbon::parse($right->start_date)->format('Y') : '...' }}
-                                        &ndash;
+                                        -
                                         {{ $right->end_date ? \Carbon\Carbon::parse($right->end_date)->format('Y') : (($right->end_date_open ?? 0) ? 'Open' : '...') }}
                                     @else
-                                        &mdash;
+                                        -
                                     @endif
                                 </td>
                                 @if($canEdit)

@@ -556,7 +556,7 @@
                 'name'          => 'relatedDescriptionsSearch',
                 'label'         => __('Related descriptions'),
                 'route'         => 'informationobject.autocomplete',
-                'placeholder'   => __('Type to add a related description — pick from the list to create a new row...'),
+                'placeholder'   => __('Type to add a related description - pick from the list to create a new row...'),
                 'required'      => false,
                 'idField'       => 'id',
                 'nameField'     => 'name',
@@ -647,7 +647,7 @@
                 'name'          => 'subjectAccessPoints',
                 'label'         => 'Subject access points',
                 'route'         => 'term.autocomplete',
-                'placeholder'   => __('Type a subject and press Enter (or click off) to add — picks from the list also create a new row...'),
+                'placeholder'   => __('Type a subject and press Enter (or click off) to add - picks from the list also create a new row...'),
                 'required'      => false,
                 'idField'       => 'id',
                 'nameField'     => 'name',
@@ -671,7 +671,7 @@
                 'name'          => 'placeAccessPoints',
                 'label'         => 'Place access points',
                 'route'         => 'term.autocomplete',
-                'placeholder'   => __('Type a place and press Enter (or click off) to add — picks from the list also create a new row...'),
+                'placeholder'   => __('Type a place and press Enter (or click off) to add - picks from the list also create a new row...'),
                 'required'      => false,
                 'idField'       => 'id',
                 'nameField'     => 'name',
@@ -695,7 +695,7 @@
                 'name'          => 'genreAccessPoints',
                 'label'         => 'Genre access points',
                 'route'         => 'term.autocomplete',
-                'placeholder'   => __('Type a genre and press Enter (or click off) to add — picks from the list also create a new row...'),
+                'placeholder'   => __('Type a genre and press Enter (or click off) to add - picks from the list also create a new row...'),
                 'required'      => false,
                 'idField'       => 'id',
                 'nameField'     => 'name',
@@ -719,7 +719,7 @@
                 'name'          => 'nameAccessPoints',
                 'label'         => 'Name access points (subjects)',
                 'route'         => 'actor.autocomplete',
-                'placeholder'   => __('Type a name and press Enter (or click off) to add — picks from the list also create a new row...'),
+                'placeholder'   => __('Type a name and press Enter (or click off) to add - picks from the list also create a new row...'),
                 'required'      => false,
                 'idField'       => 'id',
                 'nameField'     => 'name',
@@ -1122,7 +1122,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Generate identifier handler lives in the compiled theme bundle (Webpack
   // module 7269), keyed off the data-generate-identifier-url attribute on the
-  // button. We deliberately don't bind a second handler here — having two
+  // button. We deliberately don't bind a second handler here - having two
   // listeners on the same click was racing with the bundle's success callback
   // and clearing the field. See attribute set above.
 

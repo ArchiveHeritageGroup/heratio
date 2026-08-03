@@ -10,7 +10,7 @@
   </nav>
 
   <h1 class="h4 mb-1">{{ __('Field-level redaction') }}</h1>
-  <p class="text-muted">{{ __('Description') }} #{{ $io->id }} — {{ $io->title ?: __('(untitled)') }}</p>
+  <p class="text-muted">{{ __('Description') }} #{{ $io->id }} - {{ $io->title ?: __('(untitled)') }}</p>
 
   @if(session('success'))
     <div class="alert alert-success py-2">{{ session('success') }}</div>
@@ -70,9 +70,9 @@
             <tr>
               <td><code>{{ $f->field_name }}</code></td>
               <td>{{ $f->redaction_type }}</td>
-              <td>{{ $f->redaction_pattern ?: '—' }}</td>
+              <td>{{ $f->redaction_pattern ?: '-' }}</td>
               <td>{{ $f->reason }}</td>
-              <td>{!! $f->is_sensitive ? '<span class="badge bg-danger">'.__('Yes').'</span>' : '—' !!}</td>
+              <td>{!! $f->is_sensitive ? '<span class="badge bg-danger">'.__('Yes').'</span>' : '-' !!}</td>
               <td class="text-end">
                 <form method="post" action="/admin/privacy/description/{{ $io->id }}/redaction/field/{{ $f->id }}/remove" onsubmit="return confirm('{{ __('Remove this field redaction?') }}')">
                   @csrf
@@ -109,7 +109,7 @@
         <div class="col-md-3">
           <label class="form-label small fw-bold">{{ __('Pattern (partial)') }}</label>
           <select name="redaction_pattern" class="form-select form-select-sm">
-            <option value="">—</option>
+            <option value="">-</option>
             @foreach($patterns as $p)<option value="{{ $p }}">{{ $p }}</option>@endforeach
           </select>
         </div>

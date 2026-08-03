@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ComplianceReportService — automated compliance assessments (Phase 2.8).
+ * ComplianceReportService - automated compliance assessments (Phase 2.8).
  *
  * Runs framework-specific checks against the live RM data plane and writes
  * findings + recommendations into rm_compliance_assessment. Supports:
@@ -189,11 +189,11 @@ class ComplianceReportService
         return [
             $this->check('DoD-C2.1', 'Records can be declared and locked',
                 DB::table('information_schema.tables')->where('table_schema', DB::connection()->getDatabaseName())->where('TABLE_NAME', 'integrity_record_declaration')->exists(),
-                'No record_declaration table — DoD 5015.2 requires records become immutable on declaration.',
+                'No record_declaration table - DoD 5015.2 requires records become immutable on declaration.',
                 'Enable RecordDeclarationService (Phase 1).', 8),
             $this->check('DoD-C2.2', 'Disposal actions track approval chain',
                 ! DB::table('rm_disposal_action')->whereNull('approved_by')->where('status', 'executed')->exists(),
-                'Some executed disposal actions have no approver — DoD chain-of-approval failure.',
+                'Some executed disposal actions have no approver - DoD chain-of-approval failure.',
                 'Reject any future executions where approved_by is null.', 8),
             $this->check('DoD-C2.3', 'Legal hold mechanism exists',
                 DB::table('information_schema.tables')->where('table_schema', DB::connection()->getDatabaseName())->where('TABLE_NAME', 'integrity_legal_hold')->exists(),

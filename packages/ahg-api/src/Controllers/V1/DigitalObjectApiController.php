@@ -25,7 +25,7 @@ class DigitalObjectApiController extends Controller
         $query = DB::table('digital_object as do')
             ->join('object', 'do.id', '=', 'object.id')
             ->leftJoin('slug', 'do.object_id', '=', 'slug.object_id')
-            // Publication-status gate — only expose digital objects whose parent
+            // Publication-status gate - only expose digital objects whose parent
             // record is Published (status.type_id=158, status_id=160). Drafts are
             // never leaked to anonymous callers.
             ->join('status', function ($j) {
@@ -33,7 +33,7 @@ class DigitalObjectApiController extends Controller
                     ->where('status.type_id', '=', 158)
                     ->where('status.status_id', '=', 160);
             })
-            // #1384/#1389 — withhold digital objects of ICIP/ODRL-restricted or
+            // #1384/#1389 - withhold digital objects of ICIP/ODRL-restricted or
             // PII-redacted records (raw derivatives must never leak).
             ->whereNotIn('do.object_id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
             ->whereNotIn('do.object_id', app(\AhgCore\Services\DisclosureGate::class)->redactedIds())
@@ -49,7 +49,7 @@ class DigitalObjectApiController extends Controller
                 'do.id', 'do.object_id', 'do.usage_id',
                 'do.mime_type', 'do.media_type_id',
                 'do.byte_size', 'do.name as filename',
-                // 'do.path' deliberately omitted — never leak the raw server
+                // 'do.path' deliberately omitted - never leak the raw server
                 // filesystem path to anonymous callers.
                 'slug.slug as parent_slug',
                 'object.created_at', 'object.updated_at'
@@ -83,14 +83,14 @@ class DigitalObjectApiController extends Controller
         $do = DB::table('digital_object as do')
             ->join('object', 'do.id', '=', 'object.id')
             ->leftJoin('slug', 'do.object_id', '=', 'slug.object_id')
-            // Publication-status gate — only expose a digital object whose parent
+            // Publication-status gate - only expose a digital object whose parent
             // record is Published. A draft record's digital object 404s for anon.
             ->join('status', function ($j) {
                 $j->on('do.object_id', '=', 'status.object_id')
                     ->where('status.type_id', '=', 158)
                     ->where('status.status_id', '=', 160);
             })
-            // #1384/#1389 — withhold digital objects of ICIP/ODRL-restricted or
+            // #1384/#1389 - withhold digital objects of ICIP/ODRL-restricted or
             // PII-redacted records (raw derivatives must never leak).
             ->whereNotIn('do.object_id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
             ->whereNotIn('do.object_id', app(\AhgCore\Services\DisclosureGate::class)->redactedIds())
@@ -99,7 +99,7 @@ class DigitalObjectApiController extends Controller
                 'do.id', 'do.object_id', 'do.usage_id',
                 'do.mime_type', 'do.media_type_id',
                 'do.byte_size', 'do.name as filename',
-                // 'do.path' + 'do.checksum' deliberately omitted — never leak the
+                // 'do.path' + 'do.checksum' deliberately omitted - never leak the
                 // raw server filesystem path or checksum to anonymous callers.
                 'slug.slug as parent_slug',
                 'object.created_at', 'object.updated_at'
@@ -142,7 +142,7 @@ class DigitalObjectApiController extends Controller
     }
 
     /**
-     * POST /api/v1/digitalobjects — Upload a digital object for an information object.
+     * POST /api/v1/digitalobjects - Upload a digital object for an information object.
      */
     public function store(Request $request): JsonResponse
     {

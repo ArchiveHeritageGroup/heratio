@@ -35,7 +35,7 @@ use Illuminate\Support\Facades\Schema;
 class DoiController extends Controller
 {
     /**
-     * Dashboard — stats, recent DOIs, quick links.
+     * Dashboard - stats, recent DOIs, quick links.
      */
     public function index()
     {
@@ -325,7 +325,7 @@ class DoiController extends Controller
     }
 
     /**
-     * Reporting — monthly minting stats, by-repository breakdown.
+     * Reporting - monthly minting stats, by-repository breakdown.
      */
     public function report()
     {

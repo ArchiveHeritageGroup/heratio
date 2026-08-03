@@ -20,7 +20,7 @@
          ================================================================ -->
     <section class="heritage-hero" id="heritage-hero" style="height: calc(100vh - 280px); min-height: 450px;">
 
-        <!-- Marketplace CTA (top-right corner) — only when ahgMarketplacePlugin enabled -->
+        <!-- Marketplace CTA (top-right corner) - only when ahgMarketplacePlugin enabled -->
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgMarketplacePlugin'))
         <div class="position-absolute d-flex flex-wrap gap-2"
              style="top: 1rem; right: 1rem; z-index: 5;">

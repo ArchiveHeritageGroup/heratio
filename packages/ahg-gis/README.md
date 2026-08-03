@@ -13,7 +13,7 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `readme` — TODO: implement
+- [ ] `readme` - TODO: implement
 
 ## References
 - docs/help/ (search for `gis`)

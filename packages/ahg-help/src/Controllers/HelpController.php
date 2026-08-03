@@ -184,7 +184,7 @@ class HelpController extends Controller
         $category = urldecode($category);
         $articles = HelpArticleService::getByCategory($category);
 
-        // Slug-form (e.g. "import-export") — reverse-resolve to display name ("Import/Export")
+        // Slug-form (e.g. "import-export") - reverse-resolve to display name ("Import/Export")
         if (empty($articles)) {
             $resolved = HelpArticleService::categoryFromSlug($category);
             if ($resolved !== $category) {
@@ -264,7 +264,7 @@ class HelpController extends Controller
         }
         $targetId = HelpArticleService::resolveArticleId((string) $request->input('target', ''));
         if (! $targetId) {
-            return back()->with('error', 'Could not find that article — pick one from the list or paste its /help/article/… URL.');
+            return back()->with('error', 'Could not find that article - pick one from the list or paste its /help/article/… URL.');
         }
         HelpArticleService::addManualLink((int) $article['id'], $targetId);
 

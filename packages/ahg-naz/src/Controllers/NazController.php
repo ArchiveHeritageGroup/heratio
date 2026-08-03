@@ -75,14 +75,14 @@ class NazController extends Controller
     // #754: naz_researcher PII stored unencrypted at rest.
     // EncryptionService gates all writes (insert/update) and decrypts on
     // read so the UI stays human-readable.  Each encrypt() call no-ops
-    // to plaintext when its category is off — the same gate ahg-research
+    // to plaintext when its category is off - the same gate ahg-research
     // uses, so both modules share the same policy.
     //
     // PII columns: phone, passport_number, national_id, address (contact),
     //              notes (personal).
 
     /**
-     * Encrypt a PII field on write.  Idempotent — already-encrypted values
+     * Encrypt a PII field on write.  Idempotent - already-encrypted values
      * pass through unchanged.  No-ops when the category gate is off.
      */
     private function encryptPii(string $category, ?string $value, ?string $table = 'naz_researcher', ?string $column = null, $id = null): ?string
@@ -102,7 +102,7 @@ class NazController extends Controller
 
     /**
      * Decrypt all PII columns on a naz_researcher row for display.  Returns
-     * a stdClass clone — the DB row is never modified.  Read-only.
+     * a stdClass clone - the DB row is never modified.  Read-only.
      */
     private function decryptResearcherPii(object $row): object
     {
@@ -119,7 +119,7 @@ class NazController extends Controller
 
     /**
      * Encrypt PII fields present in a data array before a DB insert/update.
-     * Only fields that are array keys are encrypted — nulls and absent
+     * Only fields that are array keys are encrypted - nulls and absent
      * fields are left alone.  Mirrors the gate used by ahg-research so
      * both modules share the same policy.
      */
@@ -215,7 +215,7 @@ class NazController extends Controller
             ->where('end_date', '<', now())
             ->count();
         if ($overdueClosures > 0) {
-            $compliance['issues'][] = "{$overdueClosures} active closure period(s) past end date — review for release.";
+            $compliance['issues'][] = "{$overdueClosures} active closure period(s) past end date - review for release.";
         }
 
         $overduePermits = DB::table('naz_research_permit')
@@ -845,7 +845,7 @@ class NazController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // #754: encrypt sensitive PII on update — same gate as researcherStore().
+        // #754: encrypt sensitive PII on update - same gate as researcherStore().
         $data = $this->encryptResearcherPii($data, $id);
 
         $data['updated_at'] = now();

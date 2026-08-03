@@ -1,14 +1,14 @@
 <?php
 
 /**
- * SecretsEncryptAtRestCommand — #1395(D) one-off (idempotent) backfill that
+ * SecretsEncryptAtRestCommand - #1395(D) one-off (idempotent) backfill that
  * encrypts existing plaintext integration secrets in place, so a DB dump of the
  * settings tables never exposes a usable key. Complements the encrypt-on-write
  * now in the settings save paths and SecretCrypto::reveal() at every consumer.
  *
  * Scans the three settings stores for rows whose key is a known secret
  * (SettingsService::secretKeys()):
- *   - setting / setting_i18n  (AtoM settings — value in setting_i18n.value)
+ *   - setting / setting_i18n  (AtoM settings - value in setting_i18n.value)
  *   - ahg_settings            (value in setting_value)
  *   - icip_config             (value in config_value)
  *
@@ -46,7 +46,7 @@ class SecretsEncryptAtRestCommand extends Command
         $encrypted = 0;
         $skipped = 0;
 
-        $this->info($dry ? 'Dry run — no changes will be written.' : 'Encrypting plaintext secrets at rest…');
+        $this->info($dry ? 'Dry run - no changes will be written.' : 'Encrypting plaintext secrets at rest…');
 
         // ── setting / setting_i18n (keyed by setting.name) ──
         if (Schema::hasTable('setting') && Schema::hasTable('setting_i18n')) {

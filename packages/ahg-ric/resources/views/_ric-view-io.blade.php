@@ -1,4 +1,4 @@
-{{-- RiC View: Information Object — relationship-centered layout --}}
+{{-- RiC View: Information Object - relationship-centered layout --}}
 @php
   $culture = app()->getLocale();
 
@@ -107,8 +107,8 @@
     <div class="card-body">
       <table class="table table-sm mb-0">
         <tr><th class="text-muted" style="width:25%">{{ __('RiC Entity Type') }}</th><td><code>rico:{{ $ricType }}</code></td></tr>
-        <tr><th class="text-muted">{{ __('Identifier') }}</th><td>{{ $io->identifier ?? '—' }}</td></tr>
-        <tr><th class="text-muted">{{ __('Level') }}</th><td>{{ $lodLabel ?: '—' }}</td></tr>
+        <tr><th class="text-muted">{{ __('Identifier') }}</th><td>{{ $io->identifier ?? '-' }}</td></tr>
+        <tr><th class="text-muted">{{ __('Level') }}</th><td>{{ $lodLabel ?: '-' }}</td></tr>
         @if($holder)
           <tr><th class="text-muted">{{ __('hasOrHadHolder') }}</th><td><a href="{{ url('/' . $holder->slug) }}">{{ $holder->name }}</a></td></tr>
         @endif
@@ -126,7 +126,7 @@
     {{-- Relationships --}}
     <div class="col-12">
 
-      {{-- Hierarchy removed — IO parent/child already shown via treeview in left sidebar --}}
+      {{-- Hierarchy removed - IO parent/child already shown via treeview in left sidebar --}}
 
       {{-- Creators / Accumulators --}}
       @if($creators->count())
@@ -235,9 +235,9 @@
                   </div>
                   <small class="text-muted">
                     @if($entry->start_date && $entry->end_date)
-                      {{ $entry->start_date }} &ndash; {{ $entry->end_date }}
+                      {{ $entry->start_date }} - {{ $entry->end_date }}
                     @elseif($entry->start_date)
-                      {{ $entry->start_date }} &ndash; present
+                      {{ $entry->start_date }} - present
                     @elseif($entry->end_date)
                       until {{ $entry->end_date }}
                     @endif
@@ -260,7 +260,7 @@
         </div>
       @endif
 
-      {{-- Instantiations — digital object metadata --}}
+      {{-- Instantiations - digital object metadata --}}
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-file-image me-1"></i> Instantiations ({{ $digitalObjects->count() }})

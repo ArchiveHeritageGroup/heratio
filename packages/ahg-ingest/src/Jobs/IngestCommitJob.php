@@ -1,14 +1,14 @@
 <?php
 
 /**
- * IngestCommitJob — Heratio ingest (queued commit)
+ * IngestCommitJob - Heratio ingest (queued commit)
  *
  * Queue-backed variant of IngestCommitRunner::run(). The controller
  * dispatches one of these when an ingest_session has more than
  * heratio.ingest.queue_threshold (default 500) rows, so large batches
  * don't block the web request thread.
  *
- * Progress tracking is unchanged — the existing commit.blade.php polling
+ * Progress tracking is unchanged - the existing commit.blade.php polling
  * already reads ingest_job rows every 3 seconds, so nothing on the UI
  * side needs to change.
  *
@@ -33,7 +33,7 @@ class IngestCommitJob implements ShouldQueue
 
     public int $sessionId;
     public int $tries = 1;          // don't auto-retry; failures go on the job row
-    public int $timeout = 3600;     // 1 hour max — large batches + packaging can take a while
+    public int $timeout = 3600;     // 1 hour max - large batches + packaging can take a while
 
     public function __construct(int $sessionId)
     {

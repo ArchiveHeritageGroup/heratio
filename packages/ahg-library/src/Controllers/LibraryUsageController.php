@@ -4,14 +4,14 @@
  * LibraryUsageController - COUNTER 5 / SUSHI usage statistics HTTP layer.
  *
  * Wraps LibraryUsageService and SushiService to expose:
- *   GET  /library-manage/usage              — usage dashboard / PR report
- *   GET  /library-manage/usage/tr           — title-level report (TR)
- *   GET  /library-manage/usage/dr           — database report (DR)
- *   GET  /library-manage/usage/harvest      — trigger SUSHI harvest for all partners
- *   GET  /library-manage/usage/subscriptions       — manage SUSHI partners
- *   POST /library-manage/usage/subscriptions       — add/update a SUSHI partner
- *   GET  /library-manage/usage/subscriptions/{id}/test — test SUSHI endpoint connectivity
- *   GET  /library-manage/usage/export/{type}       — download TSV for PR/TR/DR
+ *   GET  /library-manage/usage              - usage dashboard / PR report
+ *   GET  /library-manage/usage/tr           - title-level report (TR)
+ *   GET  /library-manage/usage/dr           - database report (DR)
+ *   GET  /library-manage/usage/harvest      - trigger SUSHI harvest for all partners
+ *   GET  /library-manage/usage/subscriptions       - manage SUSHI partners
+ *   POST /library-manage/usage/subscriptions       - add/update a SUSHI partner
+ *   GET  /library-manage/usage/subscriptions/{id}/test - test SUSHI endpoint connectivity
+ *   GET  /library-manage/usage/export/{type}       - download TSV for PR/TR/DR
  *
  * Copyright (C) 2026 Johan Pieterse
  *
@@ -48,7 +48,7 @@ class LibraryUsageController extends Controller
     // ── Dashboard / platform report (PR) ──────────────────────────────────
 
     /**
-     * Platform Usage Report (PR) — default view.
+     * Platform Usage Report (PR) - default view.
      * Shows aggregated metrics across all reporting periods.
      */
     public function index(Request $request): \Illuminate\View\View
@@ -71,7 +71,7 @@ class LibraryUsageController extends Controller
     }
 
     /**
-     * Title Usage Report (TR) — per-title breakdown.
+     * Title Usage Report (TR) - per-title breakdown.
      */
     public function titleReport(Request $request): \Illuminate\View\View
     {
@@ -108,7 +108,7 @@ class LibraryUsageController extends Controller
     }
 
     /**
-     * Database Usage Report (DR) — per-database breakdown.
+     * Database Usage Report (DR) - per-database breakdown.
      */
     public function databaseReport(Request $request): \Illuminate\View\View
     {
@@ -159,7 +159,7 @@ class LibraryUsageController extends Controller
     {
         $this->usage->ensureTables();
 
-        // Handle optional deletion — triggered by ?delete_id=N in the URL
+        // Handle optional deletion - triggered by ?delete_id=N in the URL
         if ($id = $request->query('delete_id')) {
             $this->subscriptionsDelete((int) $id);
         }
@@ -225,7 +225,7 @@ class LibraryUsageController extends Controller
 
     /**
      * Test connectivity to a SUSHI partner endpoint.
-     * Returns JSON — called via AJAX from the subscriptions blade.
+     * Returns JSON - called via AJAX from the subscriptions blade.
      */
     public function testConnection(Request $request): JsonResponse
     {

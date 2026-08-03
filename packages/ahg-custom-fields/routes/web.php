@@ -14,4 +14,4 @@ Route::middleware(['auth', 'admin'])->prefix('admin/custom-fields')->group(funct
     Route::post('/import', [CustomFieldAdminController::class, 'import'])->name('customFields.import');
 });
 
-// Duplicate stub routes removed — the auth-protected group above handles all custom-fields admin routes
+// Duplicate stub routes removed - the auth-protected group above handles all custom-fields admin routes

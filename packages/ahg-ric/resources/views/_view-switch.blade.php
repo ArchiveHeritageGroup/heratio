@@ -1,4 +1,4 @@
-{{-- Heratio / RiC View Toggle — only rendered when ahgRicExplorerPlugin is enabled.
+{{-- Heratio / RiC View Toggle - only rendered when ahgRicExplorerPlugin is enabled.
      The flat-view button label reflects the description standard used for the
      current entity type (ISAD(G) for archival descriptions, ISAAR(CPF) for
      actors, ISDIAH for repositories, etc.). Pass via:

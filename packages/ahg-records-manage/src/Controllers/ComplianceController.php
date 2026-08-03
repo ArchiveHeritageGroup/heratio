@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ComplianceController — automated compliance assessments (P2.8).
+ * ComplianceController - automated compliance assessments (P2.8).
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
  * @license    AGPL-3.0-or-later

@@ -1,5 +1,5 @@
 {{--
-  New Ingest / Edit Ingest Configuration — Heratio
+  New Ingest / Edit Ingest Configuration - Heratio
   Migrated from AtoM ahgIngestPlugin ingest/configureSuccess.php
 
   Copyright (C) 2026 Johan Pieterse
@@ -106,7 +106,7 @@
                     <div class="mb-3">
                         <label for="repository_id" class="form-label">{{ __('Repository') }}</label>
                         <select class="form-select" id="repository_id" name="repository_id">
-                            <option value="">— Select repository —</option>
+                            <option value="">- Select repository -</option>
                             @foreach($repositories as $repo)
                                 <option value="{{ $repo->id }}" @selected(($session->repository_id ?? '') == $repo->id)>{{ e($repo->name) }}</option>
                             @endforeach

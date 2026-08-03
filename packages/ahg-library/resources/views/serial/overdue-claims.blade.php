@@ -43,9 +43,9 @@
                                         <strong>{{ e($ser->title ?? '') }}</strong>
                                     </a>
                                 </td>
-                                <td><code>{{ e($ser->issn ?? '—') }}</code></td>
+                                <td><code>{{ e($ser->issn ?? '-') }}</code></td>
                                 <td>{{ e($ser->frequency ?? '') }}</td>
-                                <td>{{ $claim['predicted_date'] ? \Carbon\Carbon::parse($claim['predicted_date'])->format('d M Y') : '—' }}</td>
+                                <td>{{ $claim['predicted_date'] ? \Carbon\Carbon::parse($claim['predicted_date'])->format('d M Y') : '-' }}</td>
                                 <td>
                                     <span class="badge bg-danger">{{ $daysLate }}d late</span>
                                 </td>

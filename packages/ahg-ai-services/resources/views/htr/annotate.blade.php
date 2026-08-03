@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'ILM Annotate — HTR')
+@section('title', 'ILM Annotate - HTR')
 @section('body-class', 'admin ai-services htr')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
@@ -40,7 +40,7 @@
             <option value="type_a">{{ __('Training: Type A') }}</option>
             <option value="type_b">{{ __('Training: Type B') }}</option>
             <option value="type_c">{{ __('Training: Type C') }}</option>
-            <option value="">— Custom path —</option>
+            <option value="">- Custom path -</option>
           </select>
           <input type="text" id="folder-custom" class="form-control form-control-sm" placeholder="{{ __('or type path here') }}">
           <button class="btn atom-btn-outline-success" id="btn-folder-load"><i class="fas fa-folder-open me-1"></i>{{ __('Load') }}</button>
@@ -76,9 +76,9 @@
       </div>
       <div class="col-auto">
         <select id="doc-type" class="form-select form-select-sm" style="width:auto;">
-          <option value="type_a">{{ __('Type A — Death Cert') }}</option>
-          <option value="type_b">{{ __('Type B — Register') }}</option>
-          <option value="type_c">{{ __('Type C — Narrative') }}</option>
+          <option value="type_a">{{ __('Type A - Death Cert') }}</option>
+          <option value="type_b">{{ __('Type B - Register') }}</option>
+          <option value="type_c">{{ __('Type C - Narrative') }}</option>
         </select>
       </div>
       <div class="col-auto border-start ps-2">
@@ -112,7 +112,7 @@
         </div>
       </div>
       <div class="col-auto ms-auto">
-        <button class="btn atom-btn-white btn-sm" id="btn-skip" disabled title="{{ __('Skip — move to rework folder') }}"><i class="fas fa-forward me-1"></i>{{ __('Skip') }}</button>
+        <button class="btn atom-btn-white btn-sm" id="btn-skip" disabled title="{{ __('Skip - move to rework folder') }}"><i class="fas fa-forward me-1"></i>{{ __('Skip') }}</button>
         <button class="btn atom-btn-outline-success btn-sm" id="btn-save" disabled><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
       </div>
     </div>
@@ -128,7 +128,7 @@
       <option value="135165">{{ __('No Extractable Data') }}</option>
       <option value="135784">{{ __('No Genealogical Data') }}</option>
     </select>
-    <span class="small text-muted">{{ __('No field boxes needed — just save.') }}</span>
+    <span class="small text-muted">{{ __('No field boxes needed - just save.') }}</span>
   </div>
 </div>
 
@@ -213,7 +213,7 @@
         <i class="fas fa-question-circle me-1"></i>{{ __('How to Annotate') }}
       </div>
       <div class="card-body py-2 small">
-        <div class="fw-bold mb-1">Type A — Single Form (Death Cert):</div>
+        <div class="fw-bold mb-1">Type A - Single Form (Death Cert):</div>
         <ol class="mb-2 ps-3" style="line-height:1.7;">
           <li>Select <strong>server folder</strong> → click <strong>{{ __('Load') }}</strong></li>
           <li>Set <strong>{{ __('Record Type') }}</strong> (top-right)</li>
@@ -221,9 +221,9 @@
           <li>Press <strong>R</strong> → draw box around <strong>event place</strong> → type place</li>
           <li>Press <strong>{{ __('Enter') }}</strong> to save → auto-advances</li>
         </ol>
-        <div class="fw-bold mb-1">Type B — Register (Multiple Records):</div>
+        <div class="fw-bold mb-1">Type B - Register (Multiple Records):</div>
         <ol class="mb-2 ps-3" style="line-height:1.7;">
-          <li>Select <strong>{{ __('Type B — Register') }}</strong> from Doc Type</li>
+          <li>Select <strong>{{ __('Type B - Register') }}</strong> from Doc Type</li>
           <li>Load image → click <strong>{{ __('Auto Rows') }}</strong> (set row count first)</li>
           <li>Use <strong>V</strong> to drag/resize row boxes to fit entries</li>
           <li><strong>{{ __('Delete') }}</strong> empty rows, <strong>R</strong> to add missed ones</li>
@@ -273,7 +273,7 @@
   const MAX_ANNS = 2; // Only 2 field boxes allowed: year + place
   const PLACES = ['Cape Province','Transvaal','Natal','Orange Free State'];
 
-  // Printed form labels — what's physically printed on the document next to the field
+  // Printed form labels - what's physically printed on the document next to the field
   // Grouped by ILM field they map to
   const FORM_LABELS = {
     EVENT_YEAR_ORIG: [
@@ -337,7 +337,7 @@
     if (this.value === 'type_b') { rowSplitMode = true; } else { rowSplitMode = false; }
   });
   let rowSplitMode = false;
-  let rowBoxes = []; // [{id, x, y, w, h, color}] — row regions before splitting
+  let rowBoxes = []; // [{id, x, y, w, h, color}] - row regions before splitting
   let preSplitState = null; // Saved folder state before split, so we can restore after last row
 
   // ── Image loading ──
@@ -380,7 +380,7 @@
     return null;
   }
 
-  // Resize handle hit-test — returns which edge/corner to resize
+  // Resize handle hit-test - returns which edge/corner to resize
   // Returns: 'nw','n','ne','e','se','s','sw','w' or null
   const HANDLE_SIZE = 8; // pixels in image coords
   function handleHitTest(p, a) {
@@ -408,12 +408,12 @@
   let resizing = false, resizeHandle = null, resizeAnn = null, resizeStart = {};
 
   cvs.addEventListener('mousedown', function(e) {
-    // Hand tool — pan
+    // Hand tool - pan
     if (tool==='hand') { panning=true; px=e.clientX; py=e.clientY; psx=wrap.scrollLeft; psy=wrap.scrollTop; e.preventDefault(); return; }
 
     const p = pos(e);
 
-    // Select tool — check resize handle first, then drag, then select
+    // Select tool - check resize handle first, then drag, then select
     if (tool==='select') {
       // Check resize on active annotation
       if (activeId) {
@@ -444,7 +444,7 @@
       return;
     }
 
-    // Rect tool — draw new box (max 2)
+    // Rect tool - draw new box (max 2)
     if (!rowSplitMode && anns.length >= MAX_ANNS) { return; }
     drawing=true; sx=p.x; sy=p.y;
   });
@@ -488,7 +488,7 @@
       return;
     }
 
-    // Select tool hover cursor — show resize cursor near edges of active
+    // Select tool hover cursor - show resize cursor near edges of active
     if (tool==='select' && !dragging && !resizing) {
       if (activeId) {
         const active = anns.find(a => a.id === activeId);
@@ -531,7 +531,7 @@
     let x=Math.min(sx,p.x),y=Math.min(sy,p.y),w=Math.abs(p.x-sx),h=Math.abs(p.y-sy);
     if (w<5||h<5){redraw();return;}
 
-    // First box = EVENT_YEAR_ORIG, second = EVENT_PLACE_ORIG — fixed, no choice
+    // First box = EVENT_YEAR_ORIG, second = EVENT_PLACE_ORIG - fixed, no choice
     const label = ILM_LABELS[anns.length];
 
     // Default form label based on doc type
@@ -596,7 +596,7 @@
             buildPanel();
           }
         } else {
-          // OCR failed or empty — just clear placeholder
+          // OCR failed or empty - just clear placeholder
           const inp = document.querySelector('.fi.active input[data-role="txt"]');
           if (inp) inp.placeholder = 'Type text...';
         }
@@ -638,11 +638,11 @@
       const i = anns.indexOf(a);
       const act = a.id===activeId;
 
-      // Fill — active is brighter
+      // Fill - active is brighter
       ctx.fillStyle = a.color + (act ? '44' : '15');
       ctx.fillRect(a.x, a.y, a.w, a.h);
 
-      // Border — active is much thicker with solid line
+      // Border - active is much thicker with solid line
       ctx.strokeStyle = act ? a.color : a.color + 'AA';
       ctx.lineWidth = (act ? 4 : 1.5) / scale;
       ctx.setLineDash(act ? [] : []);
@@ -659,7 +659,7 @@
         ctx.fillRect(a.x+a.w-hs/2, a.y+a.h-hs/2, hs, hs);
       }
 
-      // Label tag — show form label (e.g. "Date of Death") not ILM field name
+      // Label tag - show form label (e.g. "Date of Death") not ILM field name
       let lbl = '#'+(i+1)+' '+(a.form_label || a.label);
       if (a.text) lbl += ': '+a.text;
       ctx.font = ((act?13:11)/scale)+'px sans-serif';
@@ -707,7 +707,7 @@
         '<div class="position-relative">' +
           '<input type="text" class="form-control form-control-sm'+(missing?' border-danger':'')+'" data-role="txt" ' +
             'data-field="'+(isYear?'year':'place')+'" ' +
-            'placeholder="'+(isYear ? 'e.g. 1904 — Ctrl+Space to lookup' : 'e.g. Cape Province — Ctrl+Space to lookup')+'" ' +
+            'placeholder="'+(isYear ? 'e.g. 1904 - Ctrl+Space to lookup' : 'e.g. Cape Province - Ctrl+Space to lookup')+'" ' +
             'value="'+(a.text||'').replace(/"/g,'&quot;')+'" ' +
             'oninput="window._input('+a.id+',this)" ' +
             'onchange="window._sf('+a.id+',\'text\',this.value)" ' +
@@ -832,7 +832,7 @@
     }
   };
 
-  // Ctrl+Space — force open lookup dropdown for current field
+  // Ctrl+Space - force open lookup dropdown for current field
   function ctrlSpaceLookup(inp) {
     const id = getAnnIdFromInput(inp);
     if (id === null) return;
@@ -885,7 +885,7 @@
       const dd = item.parentElement;
       if (dd) dd.style.display = 'none';
 
-      // Update the input directly (don't rebuild panel — keeps focus)
+      // Update the input directly (don't rebuild panel - keeps focus)
       const fi = document.querySelector('.fi[data-id="'+id+'"]');
       if (fi) {
         const inp = fi.querySelector('input[data-role="txt"]');
@@ -936,17 +936,17 @@
         .then(r => r.json())
         .then(data => {
           if (data.errors && data.errors.length) {
-            // Errors found — show them, keep focus, don't save
+            // Errors found - show them, keep focus, don't save
             showSpellErrors(fi, inp, data.errors);
             inp.focus();
           } else {
-            // Clean — proceed to save
+            // Clean - proceed to save
             showSpellErrors(fi, inp, []);
             document.getElementById('btn-save').click();
           }
         })
         .catch(() => {
-          // Network error — save anyway
+          // Network error - save anyway
           document.getElementById('btn-save').click();
         });
       } else {
@@ -984,7 +984,7 @@
 
   pan.addEventListener('click',function(e){const it=e.target.closest('.fi');if(it&&!e.target.closest('input,select,button,.ac-dropdown'))setActive(parseInt(it.dataset.id));});
 
-  // ── Spellcheck — runs on blur AND can be called directly ──
+  // ── Spellcheck - runs on blur AND can be called directly ──
   let spellTimers = {};
 
   function renderSpellErrors(errors) {
@@ -1053,7 +1053,7 @@
     spellTimers[id] = setTimeout(() => runSpellcheck(fi, inp), 800);
   });
 
-  // Replace misspelled word with clicked suggestion — auto-updates text input
+  // Replace misspelled word with clicked suggestion - auto-updates text input
   window._spellFix = function(el, badWord, replacement) {
     const fi = el.closest('.fi');
     if (!fi) return;
@@ -1077,7 +1077,7 @@
     runSpellcheck(fi, inp);
   };
 
-  // Add word to custom dictionary — no popup, just add and clear the error
+  // Add word to custom dictionary - no popup, just add and clear the error
   window._spellAdd = function(word, el) {
     fetch('{{ route("admin.ai.htr.addWord") }}', {
       method: 'POST',
@@ -1138,7 +1138,7 @@
       if (!yearAnn || !yearAnn.text.trim()) { alert('Event Year is required. Type the year in box #1.'); return; }
       if (!placeAnn || !placeAnn.text.trim()) { alert('Event Place is required. Type the place in box #2.'); return; }
 
-      // Check for unresolved spell errors — if any red errors visible, block save and focus the field
+      // Check for unresolved spell errors - if any red errors visible, block save and focus the field
       const errDivs = document.querySelectorAll('.spell-errors .spell-error');
       if (errDivs.length > 0) {
         const firstErr = errDivs[0].closest('.fi');
@@ -1147,7 +1147,7 @@
           if (inp) { inp.focus(); inp.classList.add('border-danger'); }
           setActive(parseInt(firstErr.dataset.id));
         }
-        return; // Block save — fix spelling first
+        return; // Block save - fix spelling first
       }
     }
 
@@ -1237,7 +1237,7 @@
   });
 
   // ══════════════════════════════════════════════════════════════════
-  // Skip — move image to rework/ folder
+  // Skip - move image to rework/ folder
   // ══════════════════════════════════════════════════════════════════
   document.getElementById('btn-skip').addEventListener('click', function() {
     const sp = cvs.dataset.serverPath || '';
@@ -1370,7 +1370,7 @@
           fidx = nextIdx;
           loadFolderImg();
         } else if (preSplitState) {
-          // Last split row done — restore original folder and advance to next Type B image
+          // Last split row done - restore original folder and advance to next Type B image
           files = preSplitState.files;
           // Mark the image we just split as annotated
           if (preSplitState.fidx >= 0 && preSplitState.fidx < files.length) {
@@ -1410,7 +1410,7 @@
             updNav();
           }
         } else {
-          // Last image — clear everything (no split state to restore)
+          // Last image - clear everything (no split state to restore)
           anns = []; activeId = null; img = null;
           cvs.dataset.serverPath = '';
           ctx.clearRect(0, 0, cvs.width, cvs.height);
@@ -1431,10 +1431,10 @@
   obs.observe(saveBtn,{childList:true,subtree:true,characterData:true});
 
   // ══════════════════════════════════════════════════════════════════
-  // Row Split Mode — for Type B register pages with multiple records
+  // Row Split Mode - for Type B register pages with multiple records
   // ══════════════════════════════════════════════════════════════════
 
-  // Auto Rows — divide image into N equal horizontal rows
+  // Auto Rows - divide image into N equal horizontal rows
   document.getElementById('btn-auto-rows').addEventListener('click', function() {
     if (!img) return;
     const n = parseInt(document.getElementById('row-count').value) || 7;
@@ -1469,7 +1469,7 @@
     setTool('select'); // So user can adjust rows
   });
 
-  // Split & Annotate — crop each row box and load them as separate images
+  // Split & Annotate - crop each row box and load them as separate images
   document.getElementById('btn-split-go').addEventListener('click', function() {
     const sp = cvs.dataset.serverPath || '';
     if (!sp) { alert('Load a server image first.'); return; }
@@ -1503,7 +1503,7 @@
         folderPath: document.getElementById('folder-preset').value || document.getElementById('folder-custom').value || '',
       };
 
-      // Load the split directory as a new folder — each row becomes a separate image to annotate
+      // Load the split directory as a new folder - each row becomes a separate image to annotate
       const splitDir = data.split_dir;
       files = data.rows.map(r => ({
         name: r.name,
@@ -1537,7 +1537,7 @@
     });
   });
 
-  // Override MAX_ANNS check when in row split mode — allow unlimited row boxes
+  // Override MAX_ANNS check when in row split mode - allow unlimited row boxes
   // (The mousedown handler already checks MAX_ANNS for rect tool)
 
 })();

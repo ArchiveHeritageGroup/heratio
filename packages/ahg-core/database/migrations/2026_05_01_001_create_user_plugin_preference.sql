@@ -1,11 +1,11 @@
 -- ============================================================================
--- ahg-core — user_plugin_preference  (issue #40 "Plugin per user")
+-- ahg-core - user_plugin_preference  (issue #40 "Plugin per user")
 -- ============================================================================
 -- Lets users hide globally-enabled plugins from THEIR own nav. Default:
 -- show every globally-enabled plugin. A row in this table marks a plugin as
 -- "hidden for this user". Re-enabled by deleting the row.
 --
--- This is per-USER (visibility / clutter), not per-ROLE (capability — that's
+-- This is per-USER (visibility / clutter), not per-ROLE (capability - that's
 -- ACL's job in qb_acl_permission).
 -- ============================================================================
 

@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (d.conflicts && d.conflicts.length > 0) {
                     var html = '<div class="alert alert-warning"><strong>' + d.conflicts.length + ' conflicting assertion(s) found:</strong></div><ul class="list-group">';
                     d.conflicts.forEach(function(c) {
-                        html += '<li class="list-group-item"><strong>' + (c.predicate || 'unknown') + '</strong> — ' + (c.subject_type || '') + ' #' + (c.subject_id || '') + ' → ' + (c.object_type || '') + ' #' + (c.object_id || '') + ' <span class="badge bg-' + (c.status === 'accepted' ? 'success' : 'warning') + '">' + (c.status || '') + '</span></li>';
+                        html += '<li class="list-group-item"><strong>' + (c.predicate || 'unknown') + '</strong> - ' + (c.subject_type || '') + ' #' + (c.subject_id || '') + ' → ' + (c.object_type || '') + ' #' + (c.object_id || '') + ' <span class="badge bg-' + (c.status === 'accepted' ? 'success' : 'warning') + '">' + (c.status || '') + '</span></li>';
                     });
                     html += '</ul>';
                     document.getElementById('conflictBody').innerHTML = html;

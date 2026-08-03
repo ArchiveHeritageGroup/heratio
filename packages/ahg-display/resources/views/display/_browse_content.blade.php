@@ -1,5 +1,5 @@
 {{--
-  GLAM Browser – _browse_content.blade.php
+  GLAM Browser - _browse_content.blade.php
   Shared content partial for browse (used by both 2-col and full-width layouts)
 --}}
 @php
@@ -501,7 +501,7 @@
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
           $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
-          // Treat empty strings as missing — keeps the typed-icon fallback meaningful
+          // Treat empty strings as missing - keeps the typed-icon fallback meaningful
           $__candidates = array_filter([$obj->thumbnail_path ?? null, $obj->thumbnail ?? null], fn ($v) => is_string($v) && trim($v) !== '');
           $objThumb = $__candidates ? reset($__candidates) : null;
           $objUrl = '/' . $objSlug;
@@ -624,9 +624,9 @@
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
           $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
-          // Prefer the larger reference image over the thumbnail — tile cards
+          // Prefer the larger reference image over the thumbnail - tile cards
           // are 200px tall, and small thumbnails (~100px) upscale to a blur.
-          // Filter empty strings — a blank thumbnail column would otherwise render <img src="">
+          // Filter empty strings - a blank thumbnail column would otherwise render <img src="">
           // and surface a browser broken-image icon instead of the typed fallback below.
           $__candidates = array_filter([
               $obj->reference ?? null,

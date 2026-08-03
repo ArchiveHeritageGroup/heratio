@@ -43,7 +43,7 @@
                 <span class="badge bg-info">{{ $row->object_class ?: '?' }}</span>
                 #{{ $row->object_id }}
             </td>
-            <td>{{ trim(($row->start_date ?: '') . ' – ' . ($row->end_date ?: ''), ' –') }}</td>
+            <td>{{ trim(($row->start_date ?: '') . ' - ' . ($row->end_date ?: ''), ' -') }}</td>
             <td>@if($row->certainty)<span class="badge bg-warning">{{ $row->certainty }}</span>@endif</td>
             <td><small>{{ Str::limit($row->evidence ?: '', 80) }}</small></td>
         </tr>

@@ -26,7 +26,7 @@ $viewerId = 'viewer-' . uniqid(); @endphp
         } catch (\Throwable $e) { /* ignore */ }
       @endphp
       @if($isAiGenerated)
-        <span class="badge bg-warning text-dark" title="{{ __('Reconstructed by an AI model from a 2D source — geometry is approximate') }}">
+        <span class="badge bg-warning text-dark" title="{{ __('Reconstructed by an AI model from a 2D source - geometry is approximate') }}">
           <i class="fas fa-flask me-1"></i>{{ __('AI-generated reconstruction') }}
         </span>
       @endif
@@ -111,7 +111,7 @@ $viewerId = 'viewer-' . uniqid(); @endphp
     @if($isAiGenerated)
       <small class="text-muted mt-1 fst-italic" style="max-width:520px;text-align:center;">
         <i class="fas fa-info-circle me-1"></i>
-        {{ __('This model was reconstructed by an AI from a 2D source image. Geometry is approximate and not authoritative — refer to the source image for accurate detail.') }}
+        {{ __('This model was reconstructed by an AI from a 2D source image. Geometry is approximate and not authoritative - refer to the source image for accurate detail.') }}
       </small>
     @endif
   </div>

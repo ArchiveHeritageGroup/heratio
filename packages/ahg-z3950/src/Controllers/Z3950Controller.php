@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Z3950Controller — Z39.50 client and server for Heratio
+ * Z3950Controller - Z39.50 client and server for Heratio
  *
  * Provides a web UI for the Z39.50 protocol client. Allows operators to:
  * - Manage target profiles (add/edit/delete remote Z39.50 servers)
@@ -51,7 +51,7 @@ class Z3950Controller extends Controller
     }
 
     /**
-     * Dashboard — system overview and quick links.
+     * Dashboard - system overview and quick links.
      */
     public function index(): Response
     {
@@ -75,7 +75,7 @@ class Z3950Controller extends Controller
     }
 
     /**
-     * Search form — select target and build query.
+     * Search form - select target and build query.
      */
     public function search(): Response
     {
@@ -295,7 +295,7 @@ class Z3950Controller extends Controller
     }
 
     /**
-     * Admin dashboard — target list and query/import stats.
+     * Admin dashboard - target list and query/import stats.
      */
     public function admin(): Response
     {

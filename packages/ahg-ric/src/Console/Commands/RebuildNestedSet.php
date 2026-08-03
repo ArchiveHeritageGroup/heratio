@@ -131,7 +131,7 @@ class RebuildNestedSet extends Command
         $this->info('Walked ' . count($updates) . ' reachable rows. Unreachable: ' . ($total - count($updates)) . '.');
 
         if ($total !== count($updates)) {
-            $this->warn('Some rows are unreachable — they have a parent_id pointing at a non-existent or out-of-table id. They will keep their current lft/rgt.');
+            $this->warn('Some rows are unreachable - they have a parent_id pointing at a non-existent or out-of-table id. They will keep their current lft/rgt.');
         }
 
         if ($dry) {

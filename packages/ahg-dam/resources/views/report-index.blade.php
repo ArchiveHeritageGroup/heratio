@@ -1,5 +1,5 @@
 {{--
-  DAM Reports Dashboard — cloned from AtoM ahgDAMPlugin damReports/indexSuccess.php
+  DAM Reports Dashboard - cloned from AtoM ahgDAMPlugin damReports/indexSuccess.php
   @copyright  Johan Pieterse / Plain Sailing
   @license    AGPL-3.0-or-later
 --}}

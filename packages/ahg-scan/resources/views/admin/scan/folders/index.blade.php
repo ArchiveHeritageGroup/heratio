@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Scan — Watched folders')
+@section('title', 'Scan - Watched folders')
 
 @section('content')
 <h1>{{ __('Watched scan folders') }}</h1>
@@ -61,8 +61,8 @@
                     <td><code>{{ $f->code }}</code></td>
                     <td>{{ $f->label }}</td>
                     <td><small class="text-muted">{{ $f->path }}</small></td>
-                    <td>{{ ucfirst($f->sector ?? '—') }}</td>
-                    <td><small>{{ strtoupper($f->standard ?? '—') }}</small></td>
+                    <td>{{ ucfirst($f->sector ?? '-') }}</td>
+                    <td><small>{{ strtoupper($f->standard ?? '-') }}</small></td>
                     <td><small>{{ $f->layout }}</small></td>
                     <td>
                         @if($f->enabled)

@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\DB;
  * and performs LLM-driven retrieval over them.
  *
  * Three document types supported:
- *   1. EAD finding aids — parsed from information_object + related tables
- *   2. Uploaded PDFs — text extracted via OCR service at 192.168.0.115:5006
- *   3. RiC-O metadata — queried from Fuseki via SPARQL
+ *   1. EAD finding aids - parsed from information_object + related tables
+ *   2. Uploaded PDFs - text extracted via OCR service at 192.168.0.115:5006
+ *   3. RiC-O metadata - queried from Fuseki via SPARQL
  *
  * @author The Archive and Heritage Group
  */

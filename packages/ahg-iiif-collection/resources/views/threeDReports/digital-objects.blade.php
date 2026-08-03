@@ -1,4 +1,4 @@
-{{-- 3D Digital Objects Report — cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
+{{-- 3D Digital Objects Report - cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
 @extends('theme::layouts.2col')
 @section('title', '3D Files Report')
 @section('body-class', 'admin three-d-reports digital-objects')

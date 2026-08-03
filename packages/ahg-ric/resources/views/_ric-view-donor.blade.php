@@ -1,4 +1,4 @@
-{{-- RiC View: Donor — provenance agent with accession links --}}
+{{-- RiC View: Donor - provenance agent with accession links --}}
 @php
   $culture = app()->getLocale();
 

@@ -52,7 +52,7 @@ class AhgResearchServiceProvider extends ServiceProvider
             $this->app->booted(function () {
                 $schedule = $this->app->make(Schedule::class);
 
-                // #755: ORCID sync — pull Works for all approved researchers who
+                // #755: ORCID sync - pull Works for all approved researchers who
                 // have linked their ORCID iD. Runs at 01:30, after KBART refresh,
                 // so feed metadata is current before staff arrive. Self-gates on
                 // ORCID_CLIENT_ID being set so the schedule fires harmlessly when

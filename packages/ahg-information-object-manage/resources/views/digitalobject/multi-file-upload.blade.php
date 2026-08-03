@@ -1,5 +1,5 @@
 {{--
-  Import multiple digital objects — Heratio
+  Import multiple digital objects - Heratio
   Migrated from AtoM informationobject/multiFileUploadSuccess.php
 
   Copyright (C) 2026 Johan Pieterse
@@ -9,7 +9,7 @@
   Heratio is free software under the GNU AGPL v3.
 --}}
 @extends('theme::layouts.1col')
-@section('title', 'Import multiple digital objects — ' . ($io->title ?? ''))
+@section('title', 'Import multiple digital objects - ' . ($io->title ?? ''))
 
 @section('content')
 <div class="multiline-header d-flex flex-column mb-3">
@@ -73,7 +73,7 @@
                     <div class="accordion-body">
                         <div class="alert alert-info" role="alert">
                             <p>Add your digital objects by dragging and dropping local files into the pane below, or by clicking the browse link to open your local file explorer.</p>
-                            <p>The Title and Level of description values entered on this page will be applied to each child description created for the associated digital objects — <strong>%dd%</strong> represents an incrementing 2-value number, so by default descriptions created via this uploader will be named image 01, image 02, etc.</p>
+                            <p>The Title and Level of description values entered on this page will be applied to each child description created for the associated digital objects - <strong>%dd%</strong> represents an incrementing 2-value number, so by default descriptions created via this uploader will be named image 01, image 02, etc.</p>
                             <p>You will also be able to review and individually modify each description title on the next page after clicking "Upload."</p>
                         </div>
 
@@ -86,7 +86,7 @@
                         <div class="mb-3">
                             <label for="levelOfDescription" class="form-label">{{ __('Level of description') }}</label>
                             <select class="form-select" id="levelOfDescription" name="levelOfDescription">
-                                <option value="">—</option>
+                                <option value="">-</option>
                                 @foreach($levels as $level)
                                     <option value="{{ $level->id }}">{{ e($level->name) }}</option>
                                 @endforeach

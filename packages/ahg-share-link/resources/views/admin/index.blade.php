@@ -107,7 +107,7 @@
               </td>
               <td>{{ $t->issuer_username ?? ('#' . $t->issued_by) }}</td>
               <td>
-                @if ($t->recipient_email){{ $t->recipient_email }}@else<span class="text-muted">—</span>@endif
+                @if ($t->recipient_email){{ $t->recipient_email }}@else<span class="text-muted">-</span>@endif
               </td>
               <td><span class="meta">{{ $t->created_at }}</span></td>
               <td><span class="meta">{{ $t->expires_at }}</span></td>

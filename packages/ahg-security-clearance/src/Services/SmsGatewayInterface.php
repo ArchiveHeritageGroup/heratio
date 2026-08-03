@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SmsGatewayInterface — pluggable SMS sender for OTP MFA (issue #722).
+ * SmsGatewayInterface - pluggable SMS sender for OTP MFA (issue #722).
  *
  * Concrete implementations:
  *   - NullSmsGateway: logs to laravel.log only (development default).

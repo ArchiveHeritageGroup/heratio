@@ -1,4 +1,4 @@
-{{-- #1105 Journal builder — article / manuscript editor --}}
+{{-- #1105 Journal builder - article / manuscript editor --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -45,12 +45,12 @@
     <div class="row">
       @unless ($isManuscript)
       <div class="col-md-4 mb-3"><label class="form-label">{{ __('Issue') }}</label>
-        <select name="issue_id" class="form-select"><option value="">{{ __('— unassigned —') }}</option>
+        <select name="issue_id" class="form-select"><option value="">{{ __('- unassigned -') }}</option>
           @foreach ($issues as $i)<option value="{{ $i['id'] }}" @selected((string)old('issue_id', $article['issue_id'] ?? '') === (string)$i['id'])>{{ trim(($i['volume']?'Vol '.$i['volume']:'').' '.($i['number']?'No '.$i['number']:'')) ?: ($i['title'] ?: 'Issue '.$i['id']) }}</option>@endforeach
         </select></div>
       @endunless
       <div class="col-md-4 mb-3"><label class="form-label">{{ __('Reference style') }}</label>
-        <select name="reference_style" class="form-select"><option value="">{{ __('— none —') }}</option>
+        <select name="reference_style" class="form-select"><option value="">{{ __('- none -') }}</option>
           @foreach ($styles as $s)<option value="{{ $s }}" @selected(old('reference_style', $article['reference_style'] ?? '') === $s)>{{ $s }}</option>@endforeach
         </select></div>
       <div class="col-md-4 mb-3"><label class="form-label">{{ __('Status') }}</label>
@@ -62,7 +62,7 @@
     @if ($isManuscript)
     <div class="mb-3"><label class="form-label">{{ __('Target journal (where to submit)') }}</label>
       @if (count($targetJournals))
-        <select name="target_journal_id" class="form-select"><option value="">{{ __('— none —') }}</option>
+        <select name="target_journal_id" class="form-select"><option value="">{{ __('- none -') }}</option>
           @foreach ($targetJournals as $t)<option value="{{ $t['id'] }}" @selected((string)old('target_journal_id', $article['target_journal_id'] ?? '') === (string)$t['id'])>{{ $t['title'] }}</option>@endforeach
         </select>
       @else

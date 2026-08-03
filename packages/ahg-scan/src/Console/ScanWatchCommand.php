@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ScanWatchCommand — Heratio ahg-scan
+ * ScanWatchCommand - Heratio ahg-scan
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -258,7 +258,7 @@ class ScanWatchCommand extends Command
      * Stem-matching rules (per plan §3.1 Style 2):
      *   ARC-2026-0001.tiff     → look for ARC-2026-0001.xml
      *   ARC-2026-0001_p2.tiff  → strip _pN suffix → look for ARC-2026-0001.xml
-     *   ARC-2026-0001-002.tiff → same — strip trailing -NNN / _NNN → base stem
+     *   ARC-2026-0001-002.tiff → same - strip trailing -NNN / _NNN → base stem
      */
     protected function findSidecar(string $filePath, string $layout): ?string
     {

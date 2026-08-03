@@ -1,4 +1,4 @@
-# AhgMetadataExtraction — Db
+# AhgMetadataExtraction - Db
 
 Database directory for the AhgMetadataExtraction package.
 

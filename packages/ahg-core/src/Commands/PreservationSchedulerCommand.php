@@ -47,7 +47,7 @@ class PreservationSchedulerCommand extends Command
             };
             if (! $cmd) {
                 $skipped++;
-                $this->warn("  schedule id={$s->id} unknown action='{$action}' — skipping");
+                $this->warn("  schedule id={$s->id} unknown action='{$action}' - skipping");
 
                 continue;
             }

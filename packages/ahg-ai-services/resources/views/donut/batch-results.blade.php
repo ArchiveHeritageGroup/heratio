@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Donut — Batch Results')
+@section('title', 'Donut - Batch Results')
 @section('body-class', 'admin ai-services donut')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Batch Results</li></ol></nav>
@@ -29,7 +29,7 @@
     <tbody>
       @foreach($results as $r)
       <tr>
-        <td>{{ $r['filename'] ?? '—' }}</td>
+        <td>{{ $r['filename'] ?? '-' }}</td>
         <td>{{ $r['FS_RECORD_TYPE'] ?? '' }}</td>
         <td><code>{{ $r['FS_RECORD_TYPE_ID'] ?? '' }}</code></td>
         <td>{{ $r['EVENT_YEAR_ORIG'] ?? '' }}</td>

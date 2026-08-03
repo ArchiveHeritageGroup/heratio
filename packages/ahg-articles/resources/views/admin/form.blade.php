@@ -148,7 +148,7 @@
                             @foreach($attachments as $att)
                                 <tr data-id="{{ $att->id }}" draggable="true">
                                     <td class="text-muted" style="cursor:grab;" title="{{ __('Drag to reorder') }}"><i class="fas fa-grip-vertical att-drag-handle"></i></td>
-                                    <td class="small">@if(!empty($att->group_label))<span class="badge bg-secondary"><i class="fas fa-folder-open me-1"></i>{{ $att->group_label }}</span>@else<span class="text-muted">—</span>@endif</td>
+                                    <td class="small">@if(!empty($att->group_label))<span class="badge bg-secondary"><i class="fas fa-folder-open me-1"></i>{{ $att->group_label }}</span>@else<span class="text-muted">-</span>@endif</td>
                                     <td><span class="badge bg-{{ $att->kind === 'template' ? 'info' : 'success' }}">{{ __(ucfirst($att->kind)) }}</span></td>
                                     <td>{{ $att->title }}</td>
                                     <td class="text-muted small">{{ $att->description }}</td>
@@ -208,7 +208,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">{{ __('Section') }}</label>
-                                            <input type="text" name="group_label" list="section-options" class="form-control" value="{{ $att->group_label }}" maxlength="150" placeholder="{{ __('Optional heading — group files under it') }}">
+                                            <input type="text" name="group_label" list="section-options" class="form-control" value="{{ $att->group_label }}" maxlength="150" placeholder="{{ __('Optional heading - group files under it') }}">
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">{{ __('Description') }}</label>
@@ -288,7 +288,7 @@
         <p class="text-muted mt-4"><i class="fas fa-info-circle me-1"></i>{{ __('Save the article first, then you can attach guides and templates.') }}</p>
     @endif
 
-    {{-- Linked articles (bidirectional) — under Guides & Templates. heratio#1399 --}}
+    {{-- Linked articles (bidirectional) - under Guides & Templates. heratio#1399 --}}
     @if($editing)
     <div class="card shadow-sm mb-4">
         <div class="card-header"><strong><i class="fas fa-link me-1"></i>{{ __('Linked articles') }}</strong> <span class="badge bg-secondary">{{ count($related) }}</span></div>
@@ -305,11 +305,11 @@
                     <button class="btn btn-primary" type="submit">{{ __('Add & save') }}</button>
                 </div>
                 <input type="text" name="description" class="form-control mt-2" maxlength="500"
-                       placeholder="{{ __('Description (optional) — shown under the linked article') }}">
+                       placeholder="{{ __('Description (optional) - shown under the linked article') }}">
                 <datalist id="post-options">
                     @foreach($allPosts as $p)<option value="{{ $p['title'] }}"></option>@endforeach
                 </datalist>
-                <div class="form-text">{{ __('Bidirectional — appears on both articles and on the public article page. Repeat to add more.') }}</div>
+                <div class="form-text">{{ __('Bidirectional - appears on both articles and on the public article page. Repeat to add more.') }}</div>
             </form>
 
             @if(empty($related))
@@ -423,7 +423,7 @@
     function dirty() { if (saveBtn) saveBtn.disabled = false; sync(); }
     sync();
 
-    // Arrows — reliable on mobile/keyboard.
+    // Arrows - reliable on mobile/keyboard.
     ul.addEventListener('click', function (e) {
         var up = e.target.closest('.links-up');
         var down = e.target.closest('.links-down');
@@ -434,7 +434,7 @@
         if (down && li.nextElementSibling) { ul.insertBefore(li.nextElementSibling, li); dirty(); }
     });
 
-    // HTML5 drag — desktop.
+    // HTML5 drag - desktop.
     ul.addEventListener('dragstart', function (e) {
         var li = e.target.closest('[data-id]');
         if (!li) return;
@@ -456,7 +456,7 @@
     ul.addEventListener('drop', function (e) { e.preventDefault(); dirty(); });
 })();
 </script>
-{{-- Attachments (Guides & Templates) reorder — HTML5 drag on desktop + up/down
+{{-- Attachments (Guides & Templates) reorder - HTML5 drag on desktop + up/down
      arrows for touch/mobile, over table rows; Save order posts the id sequence. --}}
 <script>
 (function () {

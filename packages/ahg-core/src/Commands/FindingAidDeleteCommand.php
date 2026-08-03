@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FindingAidDeleteCommand — remove generated finding aid files / DB rows.
+ * FindingAidDeleteCommand - remove generated finding aid files / DB rows.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

@@ -107,7 +107,7 @@ class ResearchExportsController extends Controller
         $data = $this->getCollectionFindingAidData($collectionId);
 
         if ($format === 'pdf') {
-            // Render as printable HTML — user can print to PDF
+            // Render as printable HTML - user can print to PDF
             return view('research::research.finding-aid', [
                 'collection' => $collection,
                 'items' => $data,

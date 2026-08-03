@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LibraryCirculationServiceTest — unit tests for LibraryCirculationService.
+ * LibraryCirculationServiceTest - unit tests for LibraryCirculationService.
  *
  * Tests cover:
  *   - resolveLoanDays (rule lookup + wildcard fallback)
@@ -38,7 +38,7 @@ class LibraryCirculationServiceTest extends AhgLibraryTestCase
         // Tests are logically independent; this provides isolation.
         $this->setUpDatabase();
 
-        // LibraryCirculationService calls DB:: facade — unit tests verify
+        // LibraryCirculationService calls DB:: facade - unit tests verify
         // SQL logic via raw PDO; integration/feature tests exercise the
         // full service against MySQL with RefreshDatabase.
         $this->service = new LibraryCirculationService();
@@ -56,7 +56,7 @@ class LibraryCirculationServiceTest extends AhgLibraryTestCase
         $schema = file_get_contents($this->fixturesPath('schema.sql'));
         $pdo->exec($schema);
 
-        // Seed loan rules — mirrors LibrarySettings defaults.
+        // Seed loan rules - mirrors LibrarySettings defaults.
         $pdo->exec("INSERT INTO library_loan_rule (id, material_type, patron_type, loan_period_days, max_renewals, fine_per_day, fine_cap, grace_period_days, is_loanable) VALUES
             (1, 'monograph',    'student',   14, 2, 0.50, 25.00, 1, 1),
             (2, 'monograph',    'academic',  21, 3, 0.50, 50.00, 3, 1),
@@ -90,7 +90,7 @@ class LibraryCirculationServiceTest extends AhgLibraryTestCase
         $this->assertSame(7, $days, 'Unmatched patron_type should fall back to wildcard rule');
     }
 
-    /** No matching rule at all — SQL query returns false; the service falls
+    /** No matching rule at all - SQL query returns false; the service falls
      *  back to LibrarySettings::defaultLoanDays() (14 days, verified by
      *  integration test against the real MySQL + LibrarySettings). */
     public function test_resolve_loan_days_no_rule_returns_default(): void
@@ -103,7 +103,7 @@ class LibraryCirculationServiceTest extends AhgLibraryTestCase
         );
         $stmt->execute(['nonexistent_type', 'student', 'student']);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        // $row is false (no rows) — service falls back to defaultLoanDays() = 14.
+        // $row is false (no rows) - service falls back to defaultLoanDays() = 14.
         $this->assertFalse($row, 'No rule should be found for nonexistent_type');
     }
 

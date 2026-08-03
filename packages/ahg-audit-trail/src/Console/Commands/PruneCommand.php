@@ -1,18 +1,18 @@
 <?php
 
 /**
- * audit:prune — delete audit-log rows older than the configured retention.
+ * audit:prune - delete audit-log rows older than the configured retention.
  *
  * Reads ahg_settings.audit_retention_days (compliance group, default 365).
  * Prunes security_audit_log + every other audit-shaped table with a
- * created_at column. Skips tables that don't exist (defensive — different
+ * created_at column. Skips tables that don't exist (defensive - different
  * Heratio installs have different module sets).
  *
  * Daily schedule registered in AhgAuditTrailServiceProvider::boot().
  * Manual run from /admin/ahgSettings/compliance via the "Run prune now"
  * button (POST /admin/audit-trail/prune).
  *
- * A retention value of 0 (or empty) disables pruning — existing rows stay
+ * A retention value of 0 (or empty) disables pruning - existing rows stay
  * forever. Useful for compliance regimes that mandate permanent retention.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems

@@ -89,7 +89,7 @@ class ModsSerializer
             $xml .= '  <typeOfResource>'.$this->escXml($resourceType)."</typeOfResource>\n";
         }
 
-        // Origin info — #662 Phase 2 adds publisher (actor preferred over
+        // Origin info - #662 Phase 2 adds publisher (actor preferred over
         // repository fallback), dateIssued (event type 114), dateCreated
         // (event type 111), and placeOfPublication (relation type 162).
         $publisherFreeText = $this->loadModsPublisherFreeText((int) $io->id, $culture);
@@ -158,7 +158,7 @@ class ModsSerializer
             $xml .= $originXml;
         }
 
-        // mods:note — #662 Phase 2 general note
+        // mods:note - #662 Phase 2 general note
         $modsNote = $this->loadModsNote((int) $io->id, $culture);
         if ($modsNote !== '') {
             $xml .= '  <note type="general">'.$this->escXml($modsNote)."</note>\n";

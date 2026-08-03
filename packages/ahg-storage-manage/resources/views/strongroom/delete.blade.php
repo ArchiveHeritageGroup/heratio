@@ -1,4 +1,4 @@
-{{-- heratio#144 — Strongroom delete confirmation --}}
+{{-- heratio#144 - Strongroom delete confirmation --}}
 @extends('theme::layouts.1col')
 
 @section('title', __('Delete :name', ['name' => $room->name]))

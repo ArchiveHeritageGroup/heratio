@@ -60,14 +60,14 @@ class CartController extends Controller
         $productTypes = $isEcommerce ? $this->ecommerceService->getProductTypes() : collect();
         $pricing = $isEcommerce ? $this->ecommerceService->getProductPricing() : collect();
 
-        // Marketplace cart (separate kind) — listings the user wants to buy
+        // Marketplace cart (separate kind) - listings the user wants to buy
         $marketplaceCart = $this->cartService->getMarketplaceCart($userId, $userId ? null : $sessionId);
 
         return view('ahg-cart::browse', compact('items', 'isEcommerce', 'productTypes', 'pricing', 'marketplaceCart'));
     }
 
     /**
-     * POST /cart/listing/add/{listingId} — add a marketplace listing to the cart.
+     * POST /cart/listing/add/{listingId} - add a marketplace listing to the cart.
      */
     public function addListing(Request $request, int $listingId)
     {
@@ -101,7 +101,7 @@ class CartController extends Controller
     }
 
     /**
-     * POST /cart/marketplace/checkout — combined PayFast checkout for every
+     * POST /cart/marketplace/checkout - combined PayFast checkout for every
      * marketplace listing currently in the cart.
      *
      * Strategy: create one marketplace_transaction per cart item in
@@ -169,7 +169,7 @@ class CartController extends Controller
             ->where('cart_group_id', $groupId)
             ->sum('grand_total');
 
-        // Build a synthetic "transaction" object for PayFast — group id as
+        // Build a synthetic "transaction" object for PayFast - group id as
         // identifier, summed grand_total. Reuse the first listing's title for
         // a friendly item_name.
         $firstListing = $marketplace->getListingById($listingsCovered[0]);
@@ -201,7 +201,7 @@ class CartController extends Controller
     }
 
     /**
-     * Demo-mode cart checkout — used when e-commerce is disabled. Creates
+     * Demo-mode cart checkout - used when e-commerce is disabled. Creates
      * marketplace_transaction rows with payment_gateway=demo + status=paid,
      * marks the cart items as completed (so they don't reappear in the cart),
      * but leaves the underlying marketplace_listing rows on 'active' so
@@ -216,7 +216,7 @@ class CartController extends Controller
 
         $ecommerce = app(\AhgCart\Services\EcommerceService::class);
         if ($ecommerce->isEcommerceEnabled()) {
-            session()->flash('error', 'E-commerce is enabled — use the real PayFast checkout.');
+            session()->flash('error', 'E-commerce is enabled - use the real PayFast checkout.');
 
             return redirect()->route('cart.browse');
         }
@@ -260,7 +260,7 @@ class CartController extends Controller
                     'payment_status' => 'paid',
                     'payment_gateway' => 'demo',
                     'payment_transaction_id' => 'TXN-DEMO-'.random_int(10000, 99999),
-                    'gateway_response' => json_encode(['demo' => true, 'note' => 'simulated payment — e-commerce disabled']),
+                    'gateway_response' => json_encode(['demo' => true, 'note' => 'simulated payment - e-commerce disabled']),
                     'paid_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -296,7 +296,7 @@ class CartController extends Controller
         $total = (float) DB::table('marketplace_transaction')->whereIn('id', $createdTxns)->sum('grand_total');
 
         session()->flash('notice', sprintf(
-            'Demo sale completed — %d listing%s simulated for %s %s. Listings remain available for further demos.',
+            'Demo sale completed - %d listing%s simulated for %s %s. Listings remain available for further demos.',
             $count,
             $count === 1 ? '' : 's',
             $cart['currency'],
@@ -357,7 +357,7 @@ class CartController extends Controller
     }
 
     /**
-     * POST /cart/listing/remove/{listingId} — remove a marketplace listing
+     * POST /cart/listing/remove/{listingId} - remove a marketplace listing
      * from the cart by listing_id. AJAX-friendly counterpart of `remove(id)`.
      */
     public function removeListing(Request $request, int $listingId)
@@ -476,8 +476,8 @@ class CartController extends Controller
             abort(404);
         }
         // Ownership gate (#1359): order-confirmation carries customer PII
-        // (name / email / billing). Only the order's owner — matched by user_id
-        // for an authenticated buyer, or session_id for guest checkout — or an
+        // (name / email / billing). Only the order's owner - matched by user_id
+        // for an authenticated buyer, or session_id for guest checkout - or an
         // admin may view it. Previously this was public, an IDOR over order ids.
         if (! $this->canViewOrder($order)) {
             abort(403);

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AhgZ3950ServiceProvider — Z39.50 package service provider for Heratio
+ * AhgZ3950ServiceProvider - Z39.50 package service provider for Heratio
  *
  * Auto-runs: publishes config, registers routes, runs migrations for the
  * z3950_targets and z3950_query_log / z3950_import_log tables.

@@ -1,6 +1,6 @@
 {
     "name": "ahg/records-manage",
-    "description": "Records Management module for Heratio — retention schedules, disposal workflows, file plan, compliance reporting. Disablable.",
+    "description": "Records Management module for Heratio - retention schedules, disposal workflows, file plan, compliance reporting. Disablable.",
     "type": "library",
     "require": {
         "ahg/core": "@dev",

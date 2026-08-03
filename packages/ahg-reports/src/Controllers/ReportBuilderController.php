@@ -35,7 +35,7 @@ use Illuminate\Support\Facades\Schema;
 class ReportBuilderController extends Controller
 {
     /**
-     * Report Builder dashboard — lists all custom reports grouped by category.
+     * Report Builder dashboard - lists all custom reports grouped by category.
      */
     public function index()
     {
@@ -374,7 +374,7 @@ class ReportBuilderController extends Controller
      * API: Get available tables for query builder.
      */
     /**
-     * #1384 — the ONLY tables the report builder may query / export / introspect.
+     * #1384 - the ONLY tables the report builder may query / export / introspect.
      * Enforced (via isAllowedTable) at every dynamic DB::table()/Schema site so
      * an admin cannot pull `user` (password hashes) or anything off this list.
      */
@@ -386,7 +386,7 @@ class ReportBuilderController extends Controller
         'property', 'property_i18n', 'contact_information',
     ];
 
-    /** #1384 — true only if $table is on the report-builder allow-list. */
+    /** #1384 - true only if $table is on the report-builder allow-list. */
     private function isAllowedTable($table): bool
     {
         return is_string($table) && in_array($table, self::REPORT_TABLES, true);
@@ -1354,7 +1354,7 @@ class ReportBuilderController extends Controller
     }
 
     /**
-     * Schedule management — delete a schedule entry.
+     * Schedule management - delete a schedule entry.
      */
     public function scheduleDelete(Request $request, int $id)
     {

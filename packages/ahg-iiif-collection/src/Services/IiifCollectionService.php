@@ -1108,7 +1108,7 @@ class IiifCollectionService
             })
             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
             ->where('s.slug', $slug)
-            // Guests get manifests for published objects only (status 158/160) — an
+            // Guests get manifests for published objects only (status 158/160) - an
             // unpublished IO must not leak its metadata + Cantaloupe image IDs to
             // anon via IIIF (#1363). Authenticated staff may preview drafts.
             ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s2) {

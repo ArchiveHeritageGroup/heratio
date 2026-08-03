@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-calendar-check me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Edit Retention Schedule') }}</h1><span class="small text-muted">{{ $schedule->schedule_ref }} — {{ $schedule->title }}</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Edit Retention Schedule') }}</h1><span class="small text-muted">{{ $schedule->schedule_ref }} - {{ $schedule->title }}</span></div>
   </div>
 @endsection
 @section('content')

@@ -104,7 +104,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /forms/template/{id}/export — download the template as JSON.
+     * GET /forms/template/{id}/export - download the template as JSON.
      */
     public function templateExport(int $id)
     {

@@ -29,9 +29,9 @@ class DatasetController extends Controller
     }
 
     /**
-     * #1393 — resolve a dataset the current user is authorised to act on: an
+     * #1393 - resolve a dataset the current user is authorised to act on: an
      * admin, the dataset's creator, or the owner/collaborator of its research
-     * project. 404 if it doesn't exist, 403 if it isn't theirs. Fail-closed —
+     * project. 404 if it doesn't exist, 403 if it isn't theirs. Fail-closed -
      * every dataset write must go through this instead of a bare existence check.
      */
     private function authorizeDataset(int $id): object
@@ -72,7 +72,7 @@ class DatasetController extends Controller
 
     public function index()
     {
-        // #1393 — a researcher sees only their own datasets; admins see all.
+        // #1393 - a researcher sees only their own datasets; admins see all.
         $userId = (int) (\Illuminate\Support\Facades\Auth::id() ?? 0);
         $isAdmin = false;
         try {
@@ -279,7 +279,7 @@ class DatasetController extends Controller
 
         return redirect()->route('rdm.datasets.show', $id)->with(
             'success',
-            'POPIA scan queued — deterministic PII first, then AI-suggested names. Refresh in a moment for the findings.'
+            'POPIA scan queued - deterministic PII first, then AI-suggested names. Refresh in a moment for the findings.'
         );
     }
 

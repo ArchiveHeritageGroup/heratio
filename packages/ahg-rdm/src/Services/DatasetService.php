@@ -141,7 +141,7 @@ class DatasetService
             ->orderByDesc('d.id')
             ->select('d.id', 'd.title', 'd.status', 'd.created_at', 'p.title as project_title', DB::raw('COUNT(f.id) as file_count'));
 
-        // #1393 — when a non-admin scope is supplied, restrict to datasets the
+        // #1393 - when a non-admin scope is supplied, restrict to datasets the
         // user created or that belong to a project they own / collaborate on.
         if ($userId !== null) {
             $projectIds = [];

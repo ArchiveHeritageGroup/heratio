@@ -55,7 +55,7 @@ class GraphTokenValidatorService
         }
 
         if (empty($decoded['oid'])) {
-            throw new \RuntimeException('JWT missing oid claim — cannot identify user');
+            throw new \RuntimeException('JWT missing oid claim - cannot identify user');
         }
 
         return [

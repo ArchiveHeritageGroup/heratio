@@ -32,7 +32,7 @@
                     <dt class="col-sm-3">{{ __('Title') }}</dt>
                     <dd class="col-sm-9">{{ $checkout->title ?? __('(untitled)') }}</dd>
                     <dt class="col-sm-3">{{ __('Call Number') }}</dt>
-                    <dd class="col-sm-9">{{ $checkout->call_number ?? '—' }}</dd>
+                    <dd class="col-sm-9">{{ $checkout->call_number ?? '-' }}</dd>
                     <dt class="col-sm-3">{{ __('Checked Out') }}</dt>
                     <dd class="col-sm-9">{{ $checkout->checkout_date ?? '' }}</dd>
                     <dt class="col-sm-3">{{ __('Due Date') }}</dt>
@@ -55,9 +55,9 @@
                 <div class="mb-3">
                     <label for="condition" class="form-label">{{ __('Condition') }}</label>
                     <select name="condition" id="condition" class="form-select">
-                        <option value="good">{{ __('Good — item returned in normal condition') }}</option>
-                        <option value="damaged">{{ __('Damaged — item has minor to moderate damage') }}</option>
-                        <option value="lost">{{ __('Lost — patron has reported the item lost') }}</option>
+                        <option value="good">{{ __('Good - item returned in normal condition') }}</option>
+                        <option value="damaged">{{ __('Damaged - item has minor to moderate damage') }}</option>
+                        <option value="lost">{{ __('Lost - patron has reported the item lost') }}</option>
                     </select>
                 </div>
                 <div class="mb-0">

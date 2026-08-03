@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AnimationService — HTTP client for the AI video server (SVD / CogVideoX /
+ * AnimationService - HTTP client for the AI video server (SVD / CogVideoX /
  * WAN). Posts an image (+ optional prompt + params) and gets an MP4 back.
  *
  * The video-server lives at packages/ahg-image-ar/tools/video-server/ and
@@ -61,7 +61,7 @@ class AnimationService
 
         @mkdir(dirname($destMp4), 0775, true);
 
-        // #1361 — gateway Bearer auth when routed through ai.theahg.co.za.
+        // #1361 - gateway Bearer auth when routed through ai.theahg.co.za.
         $reqHeaders = [];
         if (! empty($opts['api_key'])) {
             $reqHeaders[] = 'Authorization: Bearer '.$opts['api_key'];
@@ -127,7 +127,7 @@ class AnimationService
             // table may not exist yet
         }
 
-        // #1361 — route through the AHG AI gateway (/ai/v1/ar), never a direct
+        // #1361 - route through the AHG AI gateway (/ai/v1/ar), never a direct
         // node. A raw-node ar_server_url override is ignored so a stale setting
         // can't bypass the gateway (metering/quota/failover).
         $override = (string) ($rows['ar_server_url'] ?? '');
@@ -189,7 +189,7 @@ class AnimationService
                 return $key;
             }
         } catch (\Throwable) {
-            // settings tables absent — no key.
+            // settings tables absent - no key.
         }
 
         return '';

@@ -48,7 +48,7 @@ class SettingsService
 
         $value = $query->value('setting_i18n.value');
 
-        // #1395(D) — transparently decrypt secrets stored at rest. Passthrough
+        // #1395(D) - transparently decrypt secrets stored at rest. Passthrough
         // for legacy plaintext / not-yet-backfilled rows (SecretCrypto::reveal).
         if ($value !== null && in_array($name, self::SECRET_KEYS, true)) {
             return SecretCrypto::reveal($value);
@@ -58,7 +58,7 @@ class SettingsService
     }
 
     /**
-     * #1395(D) — secret settings are rendered as write-only fields (blank value)
+     * #1395(D) - secret settings are rendered as write-only fields (blank value)
      * so they aren't echoed into the admin form / DOM / browser cache. A blank
      * submission therefore means "keep the current value"; never overwrite a
      * stored secret with an empty string.
@@ -69,14 +69,14 @@ class SettingsService
         'voice_anthropic_api_key', 'ai_condition_api_key', 'local_contexts_api_key',
     ];
 
-    /** #1395(D) — canonical secret-key list (for the encrypt-at-rest backfill command). */
+    /** #1395(D) - canonical secret-key list (for the encrypt-at-rest backfill command). */
     public static function secretKeys(): array
     {
         return self::SECRET_KEYS;
     }
 
     /**
-     * #1395(D) — true when $name is a write-only secret field and the submitted
+     * #1395(D) - true when $name is a write-only secret field and the submitted
      * value is blank, i.e. "keep the current stored secret" (don't overwrite).
      * Custom save loops that write directly to their own tables (bypassing
      * saveSetting) MUST consult this before persisting, or a blank write-only
@@ -88,7 +88,7 @@ class SettingsService
     }
 
     /**
-     * #1395(D) — encryption-at-rest. Returns the value to actually persist for
+     * #1395(D) - encryption-at-rest. Returns the value to actually persist for
      * $name: a secret key's plaintext is encrypted (idempotently) so a DB dump
      * of the settings tables never exposes it; non-secret values pass through.
      * Save paths that write a secret directly to their own table (bypassing
@@ -106,12 +106,12 @@ class SettingsService
 
     public function saveSetting(string $name, ?string $scope, string $value, string $culture = 'en'): void
     {
-        // #1395(D) — don't wipe a stored secret when its write-only field is blank.
+        // #1395(D) - don't wipe a stored secret when its write-only field is blank.
         if ($this->isBlankSecret($name, $value)) {
             return;
         }
 
-        // #1395(D) — encrypt secrets at rest before persisting.
+        // #1395(D) - encrypt secrets at rest before persisting.
         $value = $this->concealSecret($name, $value);
 
         $query = DB::table('setting')->where('name', $name);
@@ -126,7 +126,7 @@ class SettingsService
         if (!$setting) {
             // No parent row yet (e.g. a settings key added after the AtoM base
             // `setting` rows were seeded). Create it so the value below can be
-            // persisted — without this the save is a silent no-op and the
+            // persisted - without this the save is a silent no-op and the
             // reader falls back to the default forever.
             $id = DB::table('setting')->insertGetId([
                 'name'           => $name,

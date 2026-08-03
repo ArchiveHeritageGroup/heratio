@@ -6,13 +6,13 @@ Microsoft 365 SharePoint integration for Heratio. One-way ingest from SharePoint
 
 **Plan:** [`atom-extensions-catalog/docs/technical/ahgSharePointPlugin_Implementation_Plan.md`](https://github.com/ArchiveHeritageGroup/atom-extensions-catalog/blob/main/docs/technical/ahgSharePointPlugin_Implementation_Plan.md)
 
-**AtoM counterpart:** `/usr/share/nginx/archive/atom-ahg-plugins/ahgSharePointPlugin/` — schema and feature parity required (no drift).
+**AtoM counterpart:** `/usr/share/nginx/archive/atom-ahg-plugins/ahgSharePointPlugin/` - schema and feature parity required (no drift).
 
 ## Phases
 
-1. **Foundation** (this scaffold) — tenant config, drive registration, manual delta sync (`sharepoint:sync`), settings UI, audit-trail.
-2. **Webhooks** — subscription lifecycle, records handoff, Purview retention-label mapping. Gated on a half-day verification spike.
-3. **Discovery** — AtoM-side federated search tab (staff-only), M365-side Microsoft Search connector feed.
+1. **Foundation** (this scaffold) - tenant config, drive registration, manual delta sync (`sharepoint:sync`), settings UI, audit-trail.
+2. **Webhooks** - subscription lifecycle, records handoff, Purview retention-label mapping. Gated on a half-day verification spike.
+3. **Discovery** - AtoM-side federated search tab (staff-only), M365-side Microsoft Search connector feed.
 
 ## Install (once services are implemented)
 

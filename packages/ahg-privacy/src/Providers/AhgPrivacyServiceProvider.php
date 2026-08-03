@@ -147,7 +147,7 @@ class AhgPrivacyServiceProvider extends ServiceProvider
                 \AhgPrivacy\Console\Commands\DsarPackageCommand::class,
             ]);
 
-            // Daily 09:00 sweep — the command itself short-circuits when
+            // Daily 09:00 sweep - the command itself short-circuits when
             // dp_notify_overdue=false or dp_notify_email is empty, so this
             // schedule entry is safe to enable unconditionally.
             $this->app->afterResolving(Schedule::class, function (Schedule $schedule) {

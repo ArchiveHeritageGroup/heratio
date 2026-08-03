@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'PageIndex Build — ' . $title)
+@section('title', 'PageIndex Build - ' . $title)
 
 @section('content')
 <div class="container-fluid py-4">

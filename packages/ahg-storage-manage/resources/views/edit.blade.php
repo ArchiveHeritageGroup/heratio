@@ -349,7 +349,7 @@
           </div>
         </div>
 
-        {{-- heratio#144 — Strongroom assignment (only when strongroom feature installed) --}}
+        {{-- heratio#144 - Strongroom assignment (only when strongroom feature installed) --}}
         @if(!empty($strongroomChoices ?? []) || ($currentAssignment ?? null))
         <div class="card mb-4">
           <div class="card-header bg-info text-white">
@@ -360,7 +360,7 @@
               <div class="alert alert-secondary py-2 mb-3">
                 {{ __('Currently in:') }}
                 <strong>{{ $currentAssignment->strongroom_name }}</strong>
-                — {{ (float) $currentAssignment->size_units_used }}
+                - {{ (float) $currentAssignment->size_units_used }}
                 {{ __($currentAssignment->capacity_unit) }}
               </div>
             @endif

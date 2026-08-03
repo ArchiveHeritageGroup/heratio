@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ScanApiController — /api/v2/scan/* endpoints
+ * ScanApiController - /api/v2/scan/* endpoints
  *
  * Mode B entry point: scanner applications (VueScan, NAPS2, custom scripts)
  * upload files directly via HTTP and Heratio runs the ingest pipeline.

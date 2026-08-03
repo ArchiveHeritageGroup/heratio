@@ -450,7 +450,7 @@ class DonorService
     {
         foreach ($contacts as $c) {
             if (! empty($c['delete']) && ! empty($c['id'])) {
-                // #1395(A) — contact_information is shared across all actors; only
+                // #1395(A) - contact_information is shared across all actors; only
                 // delete a contact that actually belongs to THIS actor, so a
                 // client-supplied id can't tamper with another actor's PII.
                 if (DB::table('contact_information')->where('id', $c['id'])->where('actor_id', $actorId)->exists()) {

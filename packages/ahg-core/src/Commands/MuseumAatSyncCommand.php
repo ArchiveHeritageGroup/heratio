@@ -36,7 +36,7 @@ class MuseumAatSyncCommand extends Command
 
         $cat = (string) $this->option('category');
         $limit = max(1, (int) $this->option('limit'));
-        // Refresh stalest rows; full SPARQL fetch is delegated to a job — this command
+        // Refresh stalest rows; full SPARQL fetch is delegated to a job - this command
         // marks rows for refresh so a worker can batch-fetch from vocab.getty.edu.
         $q = DB::table('getty_aat_cache')->orderBy('synced_at');
         if ($cat !== 'all') {

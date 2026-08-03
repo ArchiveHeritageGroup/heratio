@@ -90,7 +90,7 @@ class ExhibitionSpaceTest extends TestCase
             'size_units_used' => 8, 'starts_at' => '2026-06-01', 'ends_at' => '2026-08-31',
         ]);
 
-        // Second placement of 5 OVERLAPS — should fail (8+5=13 > 10)
+        // Second placement of 5 OVERLAPS - should fail (8+5=13 > 10)
         $this->expectException(\RuntimeException::class);
         $this->svc->placePlacement([
             'exhibition_space_id' => $spaceId, 'information_object_id' => $ioB,
@@ -104,12 +104,12 @@ class ExhibitionSpaceTest extends TestCase
         $ioA = $this->makeInformationObject();
         $ioB = $this->makeInformationObject();
 
-        // First — Jun-Aug
+        // First - Jun-Aug
         $this->svc->placePlacement([
             'exhibition_space_id' => $spaceId, 'information_object_id' => $ioA,
             'size_units_used' => 8, 'starts_at' => '2026-06-01', 'ends_at' => '2026-08-31',
         ]);
-        // Second — Sep-Nov, no overlap, even 9 units should fit
+        // Second - Sep-Nov, no overlap, even 9 units should fit
         $pid = $this->svc->placePlacement([
             'exhibition_space_id' => $spaceId, 'information_object_id' => $ioB,
             'size_units_used' => 9, 'starts_at' => '2026-09-01', 'ends_at' => '2026-11-30',

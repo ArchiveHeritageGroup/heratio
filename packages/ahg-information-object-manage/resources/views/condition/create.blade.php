@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'New Condition Report — ' . ($io->title ?? ''))
+@section('title', 'New Condition Report - ' . ($io->title ?? ''))
 @section('body-class', 'condition create')
 
 @section('content')

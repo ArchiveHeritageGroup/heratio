@@ -115,7 +115,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $l->due_date ?? '—' }}
+                                        {{ $l->due_date ?? '-' }}
                                         @if($isOverdue)
                                             <span class="badge bg-danger ms-1">{{ __('OVERDUE') }}</span>
                                         @endif
@@ -173,7 +173,7 @@
                                             <br><small class="text-muted">{{ $h->call_number }}</small>
                                         @endif
                                     </td>
-                                    <td class="text-center">{{ $h->queue_position ?? '—' }}</td>
+                                    <td class="text-center">{{ $h->queue_position ?? '-' }}</td>
                                     <td>
                                         <span class="badge bg-{{ ($h->status ?? '') === 'ready' ? 'success' : 'info' }}">
                                             @if(($h->status ?? '') === 'ready')
@@ -183,7 +183,7 @@
                                             @endif
                                         </span>
                                     </td>
-                                    <td>{{ $h->expiry_date ?? '—' }}</td>
+                                    <td>{{ $h->expiry_date ?? '-' }}</td>
                                     <td class="text-end">
                                         <form method="POST" action="{{ route('opac.patron.holds.cancel') }}" class="d-inline">
                                             @csrf

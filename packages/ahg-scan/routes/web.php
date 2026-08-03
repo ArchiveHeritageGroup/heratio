@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ahg-scan routes — Heratio
+ * ahg-scan routes - Heratio
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

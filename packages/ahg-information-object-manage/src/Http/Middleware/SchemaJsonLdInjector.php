@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SchemaJsonLdInjector — server-side HTML response filter that injects a
+ * SchemaJsonLdInjector - server-side HTML response filter that injects a
  * Schema.org JSON-LD block into the `<head>` of information-object,
  * actor, and repository show pages.
  *
@@ -170,7 +170,7 @@ class SchemaJsonLdInjector
         // Map entity_type_id to Schema.org type:
         //   131 = corporate  -> Organization
         //   132 = personal   -> Person
-        //   130 = family     -> Person  (no Schema.org Family type — Person is acceptable per spec)
+        //   130 = family     -> Person  (no Schema.org Family type - Person is acceptable per spec)
         $type = match ((int) ($actor->entity_type_id ?? 0)) {
             131     => 'Organization',
             132     => 'Person',
@@ -197,7 +197,7 @@ class SchemaJsonLdInjector
     private function renderScript(array $doc, Request $request): string
     {
         $json = json_encode($doc, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        // CSP nonce — same source as the theme uses for inline scripts
+        // CSP nonce - same source as the theme uses for inline scripts
         $nonce = '';
         try {
             $cspNonce = config('csp.nonce') ?? (function_exists('csp_nonce') ? csp_nonce() : null);
@@ -205,7 +205,7 @@ class SchemaJsonLdInjector
                 $nonce = ' nonce="' . htmlspecialchars((string) $cspNonce, ENT_QUOTES) . '"';
             }
         } catch (\Throwable $e) {
-            // Best effort — CSP nonce is optional for JSON-LD per spec
+            // Best effort - CSP nonce is optional for JSON-LD per spec
         }
         return "\n<script type=\"application/ld+json\"{$nonce}>\n{$json}\n</script>\n";
     }

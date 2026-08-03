@@ -30,7 +30,7 @@
             <dt class="col-sm-4">{{ __('Period') }}</dt><dd class="col-sm-8">{{ $site->period_name ?: '-' }}</dd>
             <dt class="col-sm-4">{{ __('Date range') }}</dt>
             <dd class="col-sm-8">
-              {{ $site->date_earliest ?: '?' }} &ndash; {{ $site->date_latest ?: '?' }}
+              {{ $site->date_earliest ?: '?' }} - {{ $site->date_latest ?: '?' }}
               @if($site->dating_note)<div class="text-muted">{{ $site->dating_note }}</div>@endif
             </dd>
             <dt class="col-sm-4">{{ __('Region') }}</dt><dd class="col-sm-8">{{ $site->region ?: '-' }}</dd>

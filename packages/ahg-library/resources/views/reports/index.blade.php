@@ -1,5 +1,5 @@
 {{--
-  Library Reports Dashboard — stats overview with sidebar nav
+  Library Reports Dashboard - stats overview with sidebar nav
   Cloned from AtoM ahgLibraryPlugin libraryReports/indexSuccess.php
 
   @copyright  Johan Pieterse / Plain Sailing

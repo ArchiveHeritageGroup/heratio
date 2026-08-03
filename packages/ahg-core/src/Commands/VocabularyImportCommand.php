@@ -1,7 +1,7 @@
 <?php
 
 /**
- * VocabularyImportCommand — load a SKOS / OWL / RDF vocabulary into Fuseki
+ * VocabularyImportCommand - load a SKOS / OWL / RDF vocabulary into Fuseki
  * and pre-warm the vocabulary_label_cache MySQL table for every culture
  * with skos:prefLabel triples in the source data.
  *
@@ -29,7 +29,7 @@ class VocabularyImportCommand extends Command
 {
     protected $signature = 'ahg:vocabulary-import
                             {source : Path or URL to RDF/Turtle/RDF-XML/N-Triples file}
-                            {--vocabulary= : Short name (e.g. ric-o, aat, lcsh, icip) — required}
+                            {--vocabulary= : Short name (e.g. ric-o, aat, lcsh, icip) - required}
                             {--format=rdfxml : RDF format hint: rdfxml | turtle | ntriples | nquads | trig | jsonld}
                             {--graph= : Optional named graph URI (defaults to vocabulary tag)}
                             {--fuseki-user= : Override Fuseki HTTP basic auth user}
@@ -86,12 +86,12 @@ class VocabularyImportCommand extends Command
         $this->info("Fuseki data endpoint: {$dataEndpoint}");
 
         if ($dryRun) {
-            $this->warn('DRY RUN — not writing to Fuseki, not priming cache.');
+            $this->warn('DRY RUN - not writing to Fuseki, not priming cache.');
 
             return self::SUCCESS;
         }
 
-        // 3) Upload to Fuseki via SPARQL Graph Store Protocol — auth-aware
+        // 3) Upload to Fuseki via SPARQL Graph Store Protocol - auth-aware
         $this->info('Uploading to Fuseki...');
         // Auth resolution: --fuseki-user/--fuseki-password flag > RIC_FUSEKI_* env > FUSEKI_* env > none
         $fusekiUser = (string) ($this->option('fuseki-user')
@@ -111,7 +111,7 @@ class VocabularyImportCommand extends Command
             }
             $resp = $req->put($dataEndpoint);
             if (! $resp->successful()) {
-                $this->error('Fuseki upload failed: HTTP '.$resp->status().' — '.substr($resp->body(), 0, 300));
+                $this->error('Fuseki upload failed: HTTP '.$resp->status().' - '.substr($resp->body(), 0, 300));
                 if ($resp->status() === 401 && $fusekiUser === '') {
                     $this->warn('Fuseki returned 401. Set FUSEKI_USER + FUSEKI_PASSWORD in .env (Heratio reads these via config/ric.php).');
                 }

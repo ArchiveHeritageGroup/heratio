@@ -1,4 +1,4 @@
-OPERATOR-ONLY PATCH — issue #1221 SharePoint federated-search cutover, step C.
+OPERATOR-ONLY PATCH - issue #1221 SharePoint federated-search cutover, step C.
 
 WHY THIS IS NOT IN THE REPO
 ===========================
@@ -8,11 +8,11 @@ contributed by ahg-sharepoint (via config('federation.connectors')) instead of
 being hard-coded in ahg-federation source.
 
 That file is BOTH:
-  * locked      — packages/ahg-federation/src/Services/FederatedSearchService.php
+  * locked      - packages/ahg-federation/src/Services/FederatedSearchService.php
                   is in .locked-paths (the F3 SharePoint federated-search lock,
                   lines 188-194), so it cannot be committed/released without an
                   explicit operator ./bin/unlock; and
-  * no-push     — per the SharePoint NO-PUSH policy
+  * no-push     - per the SharePoint NO-PUSH policy
                   (memory/f3_federation_sharepoint_local.md), the F3 federation
                   files NEVER commit and NEVER release. Their canonical source of
                   truth is /opt/ahg-sp-integration/F3/, which is operator-managed.
@@ -25,14 +25,14 @@ below is applied by the OPERATOR to the canonical source, NOT pushed from here:
 
   When the operator later PROMOTES F3 into the live tree (MIGRATION.md step B),
   the promoted FederatedSearchService.php already carries this change, and the
-  SharePoint FQCN never appears in ahg-federation source — ahg-sharepoint's
+  SharePoint FQCN never appears in ahg-federation source - ahg-sharepoint's
   service provider supplies it through config('federation.connectors').
 
 WHAT THE PATCH DOES
 ===================
 Replaces the hard-coded match() in connectorClassFor() with a registry-first
 lookup:
-  1. consult config('federation.connectors')[$peerType] — this is the map that
+  1. consult config('federation.connectors')[$peerType] - this is the map that
      ahg-sharepoint publishes in AhgSharePointServiceProvider::register():
          'sharepoint_graph_search' =>
              \AhgSharePoint\Federation\SharePointGraphConnector::class
@@ -54,13 +54,13 @@ packages/ahg-sharepoint/src/Federation/SharePointGraphConnector.php to the
 \AhgFederation\Connectors\... FQCNs and add "ahg/federation": "@dev" to the
 package composer require block. (That edit is inside ahg-sharepoint and is safe
 to push; it is deferred here only because ahg-federation's F3 PeerConnector is
-not yet in the live tree — promoting it is MIGRATION.md step B, operator-run.)
+not yet in the live tree - promoting it is MIGRATION.md step B, operator-run.)
 
 APPLY (operator, on the canonical /opt source)
 ==============================================
     cd /opt/ahg-sp-integration/F3/heratio
     git apply /usr/share/nginx/heratio/packages/ahg-sharepoint/cutover.patch   # if /opt is a git tree
-    #   – or –
+    #   - or -
     patch -p1 < /usr/share/nginx/heratio/packages/ahg-sharepoint/cutover.patch
 
 --- a/src/Services/FederatedSearchService.php

@@ -1,5 +1,5 @@
 {{--
-  Records Management — Review Queue (P2.4)
+  Records Management - Review Queue (P2.4)
 
   @copyright  Johan Pieterse / Plain Sailing Information Systems
   @license    AGPL-3.0-or-later
@@ -92,11 +92,11 @@
               {{ $r->record_title ?: ('IO #' . $r->information_object_id) }}
             @endif
           </td>
-          <td><small>{{ $r->disposal_class_ref ?? '—' }}<br>{{ $r->disposal_class_title ?? '' }}</small></td>
+          <td><small>{{ $r->disposal_class_ref ?? '-' }}<br>{{ $r->disposal_class_title ?? '' }}</small></td>
           <td><small>{{ $r->review_type }}</small></td>
           <td><small>{{ $r->review_due_date }}</small></td>
           <td><span class="badge bg-{{ $r->status === 'completed' ? 'success' : ($overdue ? 'danger' : 'warning text-dark') }}">{{ $r->status }}</span></td>
-          <td><small>{{ $r->decision ?? '—' }}</small></td>
+          <td><small>{{ $r->decision ?? '-' }}</small></td>
           <td class="text-end">
             <a href="{{ route('records.reviews.show', $r->id) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-right"></i></a>
           </td>

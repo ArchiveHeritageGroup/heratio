@@ -45,7 +45,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/approvers/{id}/remove', [AclController::class, 'removeApprover'])->name('admin.remove-approver')->where('id', '[0-9]+');
 
     // Alias: AtoM DB menu path → Heratio groups page
-    // AtoM-legacy URL aliases — same controller as /admin/acl, just under
+    // AtoM-legacy URL aliases - same controller as /admin/acl, just under
     // the historical /aclGroup/* path so old bookmarks / sidebar links land
     // somewhere useful instead of the slug catch-all returning a white page.
     Route::get('/aclGroup', [AclController::class, 'groups']);
@@ -84,7 +84,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/acl/security-audit-trail', [AclController::class, 'securityAudit'])->name('acl.security-audit-trail');
 });
 
-// Legacy URL aliases — redirect to real Heratio routes
+// Legacy URL aliases - redirect to real Heratio routes
 Route::get('/security/audit', fn () => redirect('/admin/acl/security-audit', 301));
 
 // AtoM-style security routes (authenticated users, not admin-only)

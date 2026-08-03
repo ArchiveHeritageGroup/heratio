@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Schema;
  * voiceCommands.js fetches /index.php/ahgVoice/getSettings at init and uses
  * the returned object to apply user-configured language, speech rate,
  * confidence threshold, hover-read behaviour and floating-button visibility.
- * The endpoint had no controller before — closes issue #94.
+ * The endpoint had no controller before - closes issue #94.
  *
  * Response shape matches what voiceCommands.js already expects:
  *   { success: true, settings: { voice_enabled, voice_language, ... } }
@@ -50,11 +50,11 @@ class VoiceController extends Controller
 {
     public function getSettings(Request $request)
     {
-        // Issue #99: expose all 16 keys from /admin/ahgSettings/voice_ai (was 8 — the
+        // Issue #99: expose all 16 keys from /admin/ahgSettings/voice_ai (was 8 - the
         // remaining 6 LLM-routing / cloud-limit / timeout / audit keys plus the 2
         // already-consumed keys are surfaced too so a future JS-side consumer can
         // read provider/model/limit without an extra fetch). voice_anthropic_api_key
-        // is intentionally NOT echoed — it's a credential, not a UI flag.
+        // is intentionally NOT echoed - it's a credential, not a UI flag.
         $defaults = [
             'voice_enabled' => 'true',
             'voice_language' => 'en-US',

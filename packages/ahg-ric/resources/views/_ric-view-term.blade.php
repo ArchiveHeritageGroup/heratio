@@ -1,4 +1,4 @@
-{{-- RiC View: Term — concept/subject with linked descriptions --}}
+{{-- RiC View: Term - concept/subject with linked descriptions --}}
 @php
   $culture = app()->getLocale();
 

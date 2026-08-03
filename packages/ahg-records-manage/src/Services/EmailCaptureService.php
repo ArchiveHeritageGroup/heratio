@@ -1,7 +1,7 @@
 <?php
 
 /**
- * EmailCaptureService — capture business email as records (Phase 2.6).
+ * EmailCaptureService - capture business email as records (Phase 2.6).
  *
  * MVP scope: EML file upload (single message per file). Each captured email lands
  * in rm_email_capture with the original .eml saved to storage for forensic
@@ -164,10 +164,10 @@ class EmailCaptureService
      *
      * Follows Heratio's canonical Qubit class-table-inheritance pattern:
      *
-     *   1. Insert into `object` (parent)        — owns class_name + created_at
-     *   2. Insert into `information_object`     — sub-class fields, lft/rgt at end of root
-     *   3. Insert into `information_object_i18n`— title + scope_and_content
-     *   4. Insert into `slug`                   — public URL component
+     *   1. Insert into `object` (parent)        - owns class_name + created_at
+     *   2. Insert into `information_object`     - sub-class fields, lft/rgt at end of root
+     *   3. Insert into `information_object_i18n`- title + scope_and_content
+     *   4. Insert into `slug`                   - public URL component
      *   5. If the email was classified, link disposal class via rm_record_disposal_class
      *   6. Mark rm_email_capture.status=declared and back-link information_object_id
      *
@@ -199,7 +199,7 @@ class EmailCaptureService
                     'serial_number' => 0,
                 ]);
 
-                // Determine lft/rgt — append as last child of root (id=1).
+                // Determine lft/rgt - append as last child of root (id=1).
                 $root = DB::table('information_object')->where('id', 1)->select('rgt')->first();
                 $newLft = $root ? (int) $root->rgt : 0;
                 $newRgt = $newLft + 1;
@@ -231,7 +231,7 @@ class EmailCaptureService
                     'scope_and_content' => $this->summariseForScope($email),
                 ]);
 
-                // 4. slug — uniqueness via incrementing suffix
+                // 4. slug - uniqueness via incrementing suffix
                 $baseSlug = Str::slug($title) ?: ('email-'.$id);
                 $slug = $baseSlug;
                 $counter = 1;
@@ -405,7 +405,7 @@ class EmailCaptureService
     {
         $delim = '--'.$boundary;
         $segments = explode($delim, $body);
-        // First segment is preamble, last segment is "--\n" closing — drop both.
+        // First segment is preamble, last segment is "--\n" closing - drop both.
         array_shift($segments);
         if (! empty($segments) && trim((string) end($segments)) === '--') {
             array_pop($segments);

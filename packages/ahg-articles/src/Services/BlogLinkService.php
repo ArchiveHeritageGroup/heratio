@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * heratio#1399 — bidirectional cross-links between content articles (blog_post).
+ * heratio#1399 - bidirectional cross-links between content articles (blog_post).
  * A link authored on one article surfaces as "Related" on both. Managed from
  * the article edit screen (searchable picker / paste-URL). Idempotent table
  * creation so it works on already-installed instances.

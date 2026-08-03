@@ -1,4 +1,4 @@
-{{-- #1105 Journal builder — index --}}
+{{-- #1105 Journal builder - index --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -30,7 +30,7 @@
             @foreach ($group['rows'] as $j)
             <tr>
               <td><a href="{{ route('research.journal-builder.show', $j['id']) }}">{{ $j['title'] }}</a>@if($j['subtitle'])<br><small class="text-muted">{{ $j['subtitle'] }}</small>@endif</td>
-              <td>{{ $j['issn'] ?: ($j['eissn'] ?: '—') }}</td>
+              <td>{{ $j['issn'] ?: ($j['eissn'] ?: '-') }}</td>
               <td><span class="badge bg-{{ $j['status'] === 'published' ? 'success' : ($j['status'] === 'archived' ? 'secondary' : 'warning text-dark') }}">{{ ucfirst($j['status']) }}</span></td>
               <td class="text-end">
                 <a href="{{ route('research.journal-builder.show', $j['id']) }}" class="btn btn-sm atom-btn-white">{{ __('Open') }}</a>

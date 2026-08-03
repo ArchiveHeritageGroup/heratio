@@ -60,7 +60,7 @@ class RepositoryService
      */
     public function getById(int $id): ?object
     {
-        // Two i18n tables — actor_i18n (ISAAR) + repository_i18n (ISDIAH).
+        // Two i18n tables - actor_i18n (ISAAR) + repository_i18n (ISDIAH).
         // Each gets a current+fallback pair via WithCultureFallback trait.
         return DB::table('repository')
             ->join('actor', 'repository.id', '=', 'actor.id')
@@ -86,7 +86,7 @@ class RepositoryService
                 'actor.corporate_body_identifiers',
                 'actor.parent_id',
                 'actor.icip_sensitivity',
-                // Actor i18n (ISAAR) — culture fallback
+                // Actor i18n (ISAAR) - culture fallback
                 DB::raw('COALESCE(ai_cur.authorized_form_of_name, ai_fb.authorized_form_of_name) AS authorized_form_of_name'),
                 DB::raw('COALESCE(ai_cur.dates_of_existence, ai_fb.dates_of_existence) AS dates_of_existence'),
                 DB::raw('COALESCE(ai_cur.history, ai_fb.history) AS history'),
@@ -100,7 +100,7 @@ class RepositoryService
                 DB::raw('COALESCE(ai_cur.rules, ai_fb.rules) AS rules'),
                 DB::raw('COALESCE(ai_cur.sources, ai_fb.sources) AS sources'),
                 DB::raw('COALESCE(ai_cur.revision_history, ai_fb.revision_history) AS revision_history'),
-                // Repository i18n (ISDIAH) — culture fallback
+                // Repository i18n (ISDIAH) - culture fallback
                 DB::raw('COALESCE(ri_cur.geocultural_context, ri_fb.geocultural_context) AS geocultural_context'),
                 DB::raw('COALESCE(ri_cur.collecting_policies, ri_fb.collecting_policies) AS collecting_policies'),
                 DB::raw('COALESCE(ri_cur.buildings, ri_fb.buildings) AS buildings'),
@@ -617,7 +617,7 @@ class RepositoryService
             }
 
             // 1b. Update actor record (ICIP cultural-sensitivity URI lives on
-            // actor for repository entities — class-table-inheritance parent).
+            // actor for repository entities - class-table-inheritance parent).
             if (array_key_exists('icip_sensitivity', $data)) {
                 $value = $data['icip_sensitivity'];
                 if ($value === '') {
@@ -626,7 +626,7 @@ class RepositoryService
                 DB::table('actor')->where('id', $id)->update(['icip_sensitivity' => $value]);
             }
 
-            // 2. Update actor_i18n (ISAAR fields) — upsert
+            // 2. Update actor_i18n (ISAAR fields) - upsert
             $actorI18nFields = [
                 'authorized_form_of_name', 'dates_of_existence', 'history', 'places',
                 'legal_status', 'functions', 'mandates', 'internal_structures',
@@ -653,7 +653,7 @@ class RepositoryService
                 }
             }
 
-            // 3. Update repository_i18n (ISDIAH fields) — upsert
+            // 3. Update repository_i18n (ISDIAH fields) - upsert
             $repoI18nFields = [
                 'geocultural_context', 'collecting_policies', 'buildings', 'holdings',
                 'finding_aids', 'opening_times', 'access_conditions', 'disabled_access',

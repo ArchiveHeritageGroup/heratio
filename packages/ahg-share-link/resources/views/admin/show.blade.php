@@ -14,10 +14,10 @@
 
     $accessIcons = [
         'view'           => ['fa-check text-success',  __('Viewed')],
-        'denied_expired' => ['fa-clock text-warning',  __('Denied — expired')],
-        'denied_revoked' => ['fa-ban text-secondary',  __('Denied — revoked')],
-        'denied_quota'   => ['fa-stop text-info',      __('Denied — quota exhausted')],
-        'denied_unknown' => ['fa-question text-muted', __('Denied — unknown')],
+        'denied_expired' => ['fa-clock text-warning',  __('Denied - expired')],
+        'denied_revoked' => ['fa-ban text-secondary',  __('Denied - revoked')],
+        'denied_quota'   => ['fa-stop text-info',      __('Denied - quota exhausted')],
+        'denied_unknown' => ['fa-question text-muted', __('Denied - unknown')],
     ];
 @endphp
 
@@ -115,8 +115,8 @@
             <tr>
               <td>{{ $a->accessed_at }}</td>
               <td><i class="fas {{ $icon }} me-1"></i>{{ $label }}</td>
-              <td>{{ $a->ip_address ?? '—' }}</td>
-              <td class="text-truncate" style="max-width:300px;">{{ $a->user_agent ?? '—' }}</td>
+              <td>{{ $a->ip_address ?? '-' }}</td>
+              <td class="text-truncate" style="max-width:300px;">{{ $a->user_agent ?? '-' }}</td>
             </tr>
           @endforeach
         </tbody>

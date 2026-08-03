@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Condition Report — ' . ($io->title ?? ''))
+@section('title', 'Condition Report - ' . ($io->title ?? ''))
 @section('body-class', 'condition show')
 
 @php
@@ -13,7 +13,7 @@
   ];
   $assessor = $report->assessor_user_id
       ? (\Illuminate\Support\Facades\DB::table('user')->where('id', $report->assessor_user_id)->value('username') ?? 'User #' . $report->assessor_user_id)
-      : '—';
+      : '-';
   $ratingColors = [
       'excellent' => 'success', 'good' => 'success',
       'fair' => 'warning', 'poor' => 'danger', 'critical' => 'dark',
@@ -48,15 +48,15 @@
       <div class="row g-3">
         <div class="col-md-3">
           <strong>{{ __('Assessment Date') }}</strong>
-          <p class="mb-0">{{ $report->assessment_date ?? '—' }}</p>
+          <p class="mb-0">{{ $report->assessment_date ?? '-' }}</p>
         </div>
         <div class="col-md-3">
           <strong>{{ __('Overall Rating') }}</strong>
-          <p class="mb-0"><span class="badge bg-{{ $ratingColor }} fs-6">{{ ucfirst($report->overall_rating ?? '—') }}</span></p>
+          <p class="mb-0"><span class="badge bg-{{ $ratingColor }} fs-6">{{ ucfirst($report->overall_rating ?? '-') }}</span></p>
         </div>
         <div class="col-md-3">
           <strong>{{ __('Context') }}</strong>
-          <p class="mb-0">{{ ucfirst($report->context ?? '—') }}</p>
+          <p class="mb-0">{{ ucfirst($report->context ?? '-') }}</p>
         </div>
         <div class="col-md-3">
           <strong>{{ __('Assessor') }}</strong>
@@ -66,11 +66,11 @@
       <div class="row g-3 mt-2">
         <div class="col-md-3">
           <strong>{{ __('Priority') }}</strong>
-          <p class="mb-0">{{ ucfirst($report->priority ?? '—') }}</p>
+          <p class="mb-0">{{ ucfirst($report->priority ?? '-') }}</p>
         </div>
         <div class="col-md-3">
           <strong>{{ __('Next Check') }}</strong>
-          <p class="mb-0">{{ $report->next_check_date ?? '—' }}</p>
+          <p class="mb-0">{{ $report->next_check_date ?? '-' }}</p>
         </div>
       </div>
     </div>
@@ -124,11 +124,11 @@
             <tbody>
               @foreach($damages as $dmg)
                 <tr>
-                  <td>{{ $dmg->damage_type ?? '—' }}</td>
-                  <td>{{ $dmg->location ?? '—' }}</td>
+                  <td>{{ $dmg->damage_type ?? '-' }}</td>
+                  <td>{{ $dmg->location ?? '-' }}</td>
                   <td>
                     @php $sevColor = ['minor'=>'info','moderate'=>'warning','severe'=>'danger','critical'=>'dark'][$dmg->severity ?? ''] ?? 'secondary'; @endphp
-                    <span class="badge bg-{{ $sevColor }}">{{ ucfirst($dmg->severity ?? '—') }}</span>
+                    <span class="badge bg-{{ $sevColor }}">{{ ucfirst($dmg->severity ?? '-') }}</span>
                   </td>
                   <td>{{ $dmg->description ?? '' }}</td>
                   <td>{{ $dmg->treatment_notes ?? '' }}</td>

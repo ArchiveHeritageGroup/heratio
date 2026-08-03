@@ -1,5 +1,5 @@
 {{--
-  transfer-panel.blade.php — "Send to Archivematica" trigger + live status panel.
+  transfer-panel.blade.php - "Send to Archivematica" trigger + live status panel.
   Direction 2 (Heratio -> Archivematica). Include on a record show page:
 
       @include('ahg-archivematica::transfer-panel', ['objectId' => $io->id])
@@ -7,7 +7,7 @@
   Bootstrap 5 admin styling (matches ahg-iiif-collection views). Progressive
   enhancement: the button is a real form POST, JS just adds live status polling.
 
-  Copyright (C) 2026 Johan Pieterse — Plain Sailing Information Systems
+  Copyright (C) 2026 Johan Pieterse - Plain Sailing Information Systems
   AGPL-3.0-or-later
 --}}
 @php

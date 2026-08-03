@@ -11,7 +11,7 @@ class EmbargoReportCommand extends Command
         {--expiring=30 : Window for "soon expiring" (days)}
         {--format=table : Output (table or json)}';
 
-    protected $description = 'Embargo status report — counts + soon-expiring list';
+    protected $description = 'Embargo status report - counts + soon-expiring list';
 
     public function handle(EmbargoService $svc): int
     {

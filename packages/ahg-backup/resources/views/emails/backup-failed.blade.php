@@ -40,7 +40,7 @@ No complete artefact set was produced. Please investigate as soon as possible.</
 <h4>{{ __('Partial artefacts on disk (may be incomplete)') }}</h4>
 <ul>
   @foreach($backup['partial_files'] as $f)
-    <li>{{ $f['component'] ?? '?' }} &mdash; {{ $f['filename'] ?? '?' }} ({{ $f['size'] ?? '?' }})</li>
+    <li>{{ $f['component'] ?? '?' }} - {{ $f['filename'] ?? '?' }} ({{ $f['size'] ?? '?' }})</li>
   @endforeach
 </ul>
 @endif

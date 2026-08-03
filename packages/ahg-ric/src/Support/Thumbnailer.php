@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class Thumbnailer
 {
-    /** Accepted width/height — other values are clamped. Keeps the cache bounded. */
+    /** Accepted width/height - other values are clamped. Keeps the cache bounded. */
     public const ALLOWED_SIZES = [150, 300, 600, 1200];
 
     public const DEFAULT_WIDTH  = 300;
@@ -69,7 +69,7 @@ class Thumbnailer
         return $abs;
     }
 
-    /** Public URL for the cached thumbnail — resolves to /thumbnails/… served by nginx. */
+    /** Public URL for the cached thumbnail - resolves to /thumbnails/… served by nginx. */
     public static function publicUrlFor(string $absSourcePath, int $w = self::DEFAULT_WIDTH, int $h = self::DEFAULT_HEIGHT): string
     {
         $w = self::clamp($w); $h = self::clamp($h);

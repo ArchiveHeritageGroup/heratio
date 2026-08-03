@@ -96,10 +96,10 @@ class AhgCoreServiceProvider extends ServiceProvider
                         continue;
                     }
 
-                    // a) config('app.ui_label_*') — used wherever code calls config()
+                    // a) config('app.ui_label_*') - used wherever code calls config()
                     config(["app.ui_label_{$r->name}" => $val]);
 
-                    // b) translator override — so __('Archival description') in any
+                    // b) translator override - so __('Archival description') in any
                     // blade also flips to the admin-configured label for the current
                     // culture without changing every call site to use config().
                     // The en value is the source key __() looks up; map it to the
@@ -113,7 +113,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                     app('translator')->addLines($translatorOverrides, app()->getLocale(), '*');
                 }
             } catch (\Throwable $e) {
-                // Settings table missing (fresh install / misconfigured DB) — leave
+                // Settings table missing (fresh install / misconfigured DB) - leave
                 // the ui_label_* config defaults from config/app.php in place.
             }
 
@@ -386,7 +386,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                             return false;
                         }
                     });
-                // #755: RegenDerivativesCommand — regenerate thumbnails / reference
+                // #755: RegenDerivativesCommand - regenerate thumbnails / reference
                 // copies from master files. Weekly Sunday 02:00 (same slot as the
                 // DB-driven cron_schedule entry so the two mechanisms stay in sync).
                 $schedule->command('ahg:regen-derivatives --type=all')
@@ -510,7 +510,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 }
             }
         } catch (\Throwable $e) {
-            // No DB connection or install hiccup — VoiceLLMService fails
+            // No DB connection or install hiccup - VoiceLLMService fails
             // open (no enforcement) when the table is missing; install
             // retries on next boot.
             \Log::warning('[ahg-core] voice_usage install failed: '.$e->getMessage());

@@ -96,7 +96,7 @@ text:Methodology
 heading:Findings
 text:Discussion
 bibliography') }}"></textarea>
-            <small class="text-muted">Format: <code>type:Title</code> — Types: text, heading, title_page, toc, bibliography, collection_list, annotation_list</small>
+            <small class="text-muted">Format: <code>type:Title</code> - Types: text, heading, title_page, toc, bibliography, collection_list, annotation_list</small>
         </div>
     </div>
     <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Create') }}</button></div>

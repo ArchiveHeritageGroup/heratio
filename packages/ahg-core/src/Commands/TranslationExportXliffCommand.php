@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TranslationExportXliffCommand — export Heratio's lang/{culture}.json as
+ * TranslationExportXliffCommand - export Heratio's lang/{culture}.json as
  * XLIFF 1.2 for offline-translator workflows. Round-trips with the
  * ahg:translation-import-xliff command.
  *
@@ -13,7 +13,7 @@
  *
  * Output XLIFF contains every key from lang/en.json (the canonical source set)
  * with the matching <target> from lang/{culture}.json. Empty <target/> for
- * untranslated keys — translators fill these in then return the file for
+ * untranslated keys - translators fill these in then return the file for
  * re-import.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
@@ -56,7 +56,7 @@ class TranslationExportXliffCommand extends Command
 
         // Build trans-units: every key from source. The XLIFF <source> is the
         // EN canonical text; <target> is the translation if present. AtoM uses
-        // a deterministic SHA1 of source text as the trans-unit id — we do the
+        // a deterministic SHA1 of source text as the trans-unit id - we do the
         // same so re-exports stay stable.
         $units = [];
         $translatedCount = 0;

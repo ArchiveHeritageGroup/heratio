@@ -22,7 +22,7 @@
                 <td><code>{{ $sub->resource }}</code></td>
                 <td><span class="badge bg-{{ $cls }}">{{ $sub->status }}</span></td>
                 <td>{{ $sub->expires_at }}</td>
-                <td>{{ $sub->last_renewed_at ?? '—' }}</td>
+                <td>{{ $sub->last_renewed_at ?? '-' }}</td>
                 <td class="small text-muted">{{ $sub->subscription_id }}</td>
             </tr>
         @endforeach

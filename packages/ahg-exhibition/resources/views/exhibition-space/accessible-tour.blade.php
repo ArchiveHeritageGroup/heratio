@@ -8,7 +8,7 @@
 <a href="#axtour-main" class="visually-hidden-focusable btn btn-primary m-2">{{ __('Skip to the tour') }}</a>
 
 <div class="d-flex flex-wrap align-items-baseline mb-2 gap-2">
-  <h1 class="mb-0 flex-grow-1"><i class="fas fa-universal-access me-2" aria-hidden="true"></i>{{ $space->name }} &mdash; {{ __('Accessible tour') }}</h1>
+  <h1 class="mb-0 flex-grow-1"><i class="fas fa-universal-access me-2" aria-hidden="true"></i>{{ $space->name }} - {{ __('Accessible tour') }}</h1>
   @include('ahg-exhibition::exhibition-space._nav-actions', ['space' => $space, 'current' => 'accessible'])
 </div>
 <p class="text-muted">{{ __('A described, keyboard-navigable tour. Use Next and Previous (or the N and P keys) to move between stops, and Play to hear each one read aloud.') }}</p>
@@ -42,7 +42,7 @@
                   @if($s['thumb_url'])
                     <div class="col-sm-4">
                       <img src="{{ $s['thumb_url'] }}" class="img-fluid rounded"
-                           alt="{{ $s['title'] }}{{ $s['description'] ? ' — '.\Illuminate\Support\Str::limit($s['description'], 200) : '' }}">
+                           alt="{{ $s['title'] }}{{ $s['description'] ? ' - '.\Illuminate\Support\Str::limit($s['description'], 200) : '' }}">
                     </div>
                   @endif
                   <div class="col-sm-{{ $s['thumb_url'] ? 8 : 12 }}">

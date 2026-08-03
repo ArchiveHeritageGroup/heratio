@@ -122,7 +122,7 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth', 'admin'])->gro
     Route::get('/ropa-view', [PrivacyController::class, 'ropaView'])->name('ahgprivacy.ropa-view');
     Route::get('/visual-redaction-editor', [PrivacyController::class, 'visualRedactionEditor'])->name('ahgprivacy.visual-redaction-editor');
 
-    // Phase X.2 — POST handlers cloned from PSIS privacyAdmin actions
+    // Phase X.2 - POST handlers cloned from PSIS privacyAdmin actions
     Route::post('/dsar-update', [PrivacyController::class, 'dsarUpdate'])->name('ahgprivacy.dsar-update');
     Route::post('/breach-update', [PrivacyController::class, 'breachUpdate'])->name('ahgprivacy.breach-update');
     Route::post('/consent-withdraw', [PrivacyController::class, 'consentWithdraw'])->name('ahgprivacy.consent-withdraw');

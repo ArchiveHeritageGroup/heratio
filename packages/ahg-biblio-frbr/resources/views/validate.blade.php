@@ -1,4 +1,4 @@
-{{-- ahg-biblio-frbr/validate.blade.php — FRBR validation UI --}}
+{{-- ahg-biblio-frbr/validate.blade.php - FRBR validation UI --}}
 @extends('theme::layouts.1col')
 
 @section('content')

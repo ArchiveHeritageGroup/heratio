@@ -255,7 +255,7 @@ class AuthorityReconciliationService
 
     private function searchIsni(string $name): array
     {
-        // ISNI doesn't have a free public JSON API — use the SRU endpoint
+        // ISNI doesn't have a free public JSON API - use the SRU endpoint
         $query = 'pica.nw="'.addslashes($name).'"';
         $response = Http::timeout(10)->get('https://isni.org/sru/', [
             'query' => $query,

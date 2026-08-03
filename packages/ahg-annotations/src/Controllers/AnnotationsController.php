@@ -594,14 +594,14 @@ class AnnotationsController extends Controller
     }
 
     /**
-     * SECURITY (#1365) — read visibility model, applied identically by
+     * SECURITY (#1365) - read visibility model, applied identically by
      * search() (as a query scope) and show() (as a per-row check via
      * canReadRow()).
      *
      * Rules:
-     *   - Admin / editor (AclService::canAdmin) — see everything.
-     *   - Anonymous (! Auth::check()) — only visibility='public'.
-     *   - Authenticated non-admin — visibility='public' OR own rows
+     *   - Admin / editor (AclService::canAdmin) - see everything.
+     *   - Anonymous (! Auth::check()) - only visibility='public'.
+     *   - Authenticated non-admin - visibility='public' OR own rows
      *     (created_by = Auth::id()).
      *
      * NOTE on 'project' visibility: ahg-annotations does not (today) have a
@@ -609,7 +609,7 @@ class AnnotationsController extends Controller
      * permitted users. ahg-research keys project membership on
      * research_project_collaborator.researcher_id (research_researcher.id),
      * NOT directly on the auth user id, and there is no documented contract
-     * that an annotation's project_id references research_project.id — the
+     * that an annotation's project_id references research_project.id - the
      * value arrives unvalidated from the viewer's ?projectId= query param.
      * Wiring it would also add a cross-package dependency
      * (ahg-annotations -> ahg-research) this package does not currently
@@ -644,7 +644,7 @@ class AnnotationsController extends Controller
     }
 
     /**
-     * SECURITY (#1365) — single-row mirror of applyReadVisibilityScope()
+     * SECURITY (#1365) - single-row mirror of applyReadVisibilityScope()
      * for show(). Returns true when the current caller may read $row.
      */
     private function canReadRow(object $row): bool
@@ -665,7 +665,7 @@ class AnnotationsController extends Controller
     }
 
     /**
-     * SECURITY (#1365) — write ownership gate for update()/destroy().
+     * SECURITY (#1365) - write ownership gate for update()/destroy().
      * Only the row's creator or an admin/editor may mutate it. Callers
      * have already enforced Auth::check() before reaching this.
      */
@@ -691,7 +691,7 @@ class AnnotationsController extends Controller
      * and round-trip through the `slug` table to the object id.
      *
      * Returns null when the IRI is not a local manifest IRI (remote IIIF
-     * servers, legacy shapes) or the slug doesn't resolve — callers MUST
+     * servers, legacy shapes) or the slug doesn't resolve - callers MUST
      * fail safe (treat null as "not published" for anonymous readers).
      */
     private function resolveIoIdFromTarget(string $iri): ?int
@@ -706,7 +706,7 @@ class AnnotationsController extends Controller
             $path = $iri;
         }
 
-        // NB: delimiter is ~ (not #) — the pattern's char class contains a
+        // NB: delimiter is ~ (not #) - the pattern's char class contains a
         // literal '#', which would otherwise be read as the closing delimiter
         // and throw "preg_match(): Unknown modifier ']'" (500 on anon search).
         if (! preg_match('~/iiif-manifest/([^/?#]+)~', $path, $m)) {

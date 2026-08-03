@@ -5,7 +5,7 @@
   Transforms a LIDO 1.0/1.1 <lido> record into a heratioScan sidecar envelope
   with sector=gallery (LIDO is most common in art-museum / gallery catalogues
   feeding Europeana). Museums using LIDO for ethnographic or natural-history
-  collections can override sector in the ingest_session — the transformer
+  collections can override sector in the ingest_session - the transformer
   only sets sector at the sidecar level.
 
   Common LIDO elements mapped:

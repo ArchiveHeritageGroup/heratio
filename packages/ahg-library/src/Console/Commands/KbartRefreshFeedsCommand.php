@@ -81,7 +81,7 @@ class KbartRefreshFeedsCommand extends Command
             default   => $r['status'],
         };
 
-        $this->line("  [{$emoji}] {$r['name']} — {$r['row_count']} row(s) imported.");
+        $this->line("  [{$emoji}] {$r['name']} - {$r['row_count']} row(s) imported.");
         if ($r['error']) {
             $this->warn("  Error: {$r['error']}");
         }

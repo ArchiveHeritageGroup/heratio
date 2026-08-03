@@ -225,7 +225,7 @@ class AclService
     /**
      * Save Profile tab: name, description, translate flag.
      * Translate is stored as a single grant row on action='translate' with
-     * object_id NULL — matches AtoM's QubitAclGroup model.
+     * object_id NULL - matches AtoM's QubitAclGroup model.
      */
     public function saveGroupProfile(int $groupId, array $data): void
     {
@@ -394,7 +394,7 @@ class AclService
             $objectId = null;
             $constants = null;
             if ($scopeKey === 'root') {
-                // Whole-class scope (root) — object_id NULL, no constants
+                // Whole-class scope (root) - object_id NULL, no constants
             } elseif (str_starts_with($scopeKey, 'repo:')) {
                 // Per-repository scope inside IO ACL → constants={"repository":"<slug>"}
                 $constants = json_encode(['repository' => substr($scopeKey, 5)]);

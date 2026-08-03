@@ -1,5 +1,5 @@
 {{--
-  Donor Report — browse donors with contact info
+  Donor Report - browse donors with contact info
   Cloned from AtoM ahgReportsPlugin reportDonorSuccess.blade.php
 
   @copyright  Johan Pieterse / Plain Sailing

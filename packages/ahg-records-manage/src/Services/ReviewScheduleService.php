@@ -1,9 +1,9 @@
 <?php
 
 /**
- * ReviewScheduleService — periodic review queue for the RM module (Phase 2.4).
+ * ReviewScheduleService - periodic review queue for the RM module (Phase 2.4).
  *
- * A review is a check-in scheduled on a record before its disposal date — "look
+ * A review is a check-in scheduled on a record before its disposal date - "look
  * again before destroying / transferring". A disposal class with review_required=1
  * spawns a review_schedule row when the record is assigned to that class. When the
  * reviewer completes the check, they pick a decision: extend retention, schedule

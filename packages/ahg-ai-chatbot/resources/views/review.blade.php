@@ -1,7 +1,7 @@
 {{-- Chatbot low-grounding review queue --}}
 @extends('layouts/admin')
 
-@section('title', 'Chatbot Review — Admin')
+@section('title', 'Chatbot Review - Admin')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -40,7 +40,7 @@
                                         {{ number_format($row['grounding_score'], 3) }}
                                     </span>
                                 </td>
-                                <td class="small">{{ $row['model'] ?? '–' }}</td>
+                                <td class="small">{{ $row['model'] ?? '-' }}</td>
                                 <td class="small" style="max-width: 200px;">
                                     @if (!empty($row['sources']))
                                         @foreach (array_slice($row['sources'], 0, 3) as $src)

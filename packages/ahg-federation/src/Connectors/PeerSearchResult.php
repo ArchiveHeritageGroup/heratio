@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PeerSearchResult — common result shape returned by every PeerConnector.
+ * PeerSearchResult - common result shape returned by every PeerConnector.
  *
  * The federation dispatcher collects PeerSearchResult arrays from every
  * connector, applies dedupe (by dedupe_key when present), tags each row with
@@ -32,16 +32,16 @@ final class PeerSearchResult
         /** @var string Click-through URL. SHOULD be absolute. */
         public readonly string $url,
 
-        /** @var string peerTypeKey of the producing connector — used for badge dispatch. */
+        /** @var string peerTypeKey of the producing connector - used for badge dispatch. */
         public readonly string $peerType,
 
         /** @var string Human-readable source label (e.g. "Archived in AtoM"). */
         public readonly string $sourceBadge,
 
-        /** @var float Relevance score (0.0–1.0). Connector responsible for normalisation. */
+        /** @var float Relevance score (0.0-1.0). Connector responsible for normalisation. */
         public readonly float $score,
 
-        /** @var ?string Optional dedupe key — when two results share this, dedupe wins by score. */
+        /** @var ?string Optional dedupe key - when two results share this, dedupe wins by score. */
         public readonly ?string $dedupeKey = null,
 
         /** @var ?string ISO-8601 date string for the result's primary date (modified/created/event). */

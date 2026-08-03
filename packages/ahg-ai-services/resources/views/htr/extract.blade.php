@@ -19,9 +19,9 @@
           <label class="form-label">Document Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="doc_type" class="form-select">
             <option value="auto">{{ __('Auto-detect') }}</option>
-            <option value="type_a">{{ __('Type A — Government Form (Death Certificate)') }}</option>
-            <option value="type_b">{{ __('Type B — Church/Civil Register') }}</option>
-            <option value="type_c">{{ __('Type C — Narrative Document') }}</option>
+            <option value="type_a">{{ __('Type A - Government Form (Death Certificate)') }}</option>
+            <option value="type_b">{{ __('Type B - Church/Civil Register') }}</option>
+            <option value="type_c">{{ __('Type C - Narrative Document') }}</option>
           </select>
         </div>
         <div class="col-md-4 mb-3">

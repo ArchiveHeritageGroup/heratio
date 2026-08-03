@@ -48,7 +48,7 @@ class MuseumService
      */
     public function getBySlug(string $slug): ?object
     {
-        // Culture-fallback i18n joins via the WithCultureFallback trait — keeps
+        // Culture-fallback i18n joins via the WithCultureFallback trait - keeps
         // the ioi_cur/ioi_fb alias names so the COALESCE expressions below stay
         // readable. See packages/ahg-core/src/Traits/WithCultureFallback.php.
         $q = DB::table('information_object');
@@ -82,7 +82,7 @@ class MuseumService
                 $q->whereNotNull('museum_metadata.id')
                     ->orWhereNotNull('display_object_config.object_id');
             })
-            // Guests see only published objects (status 158/160) — draft-leak fix (#1360).
+            // Guests see only published objects (status 158/160) - draft-leak fix (#1360).
             ->when(! auth()->check(), fn ($qq) => $qq->whereExists(function ($s) {
                 $s->select(DB::raw(1))->from('status as pub_st')
                     ->whereColumn('pub_st.object_id', 'information_object.id')
@@ -259,7 +259,7 @@ class MuseumService
                 ->join('museum_metadata', 'information_object.id', '=', 'museum_metadata.object_id')
                 ->where('information_object_i18n.culture', $this->culture);
 
-            // Guests see only published objects (status 158/160) — draft-leak fix (#1360).
+            // Guests see only published objects (status 158/160) - draft-leak fix (#1360).
             if (! auth()->check()) {
                 $query->whereExists(function ($s) {
                     $s->select(DB::raw(1))->from('status as pub_st')

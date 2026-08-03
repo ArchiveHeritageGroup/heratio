@@ -1,4 +1,4 @@
-# AhgRights — Views
+# AhgRights - Views
 
 Views directory for the AhgRights package.
 

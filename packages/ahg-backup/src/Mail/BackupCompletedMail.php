@@ -38,7 +38,7 @@ use Illuminate\Queue\SerializesModels;
  *
  * The $backup payload is a plain array (not an Eloquent model) so the
  * queued job is trivially serialisable and survives across queue
- * workers — fields:
+ * workers - fields:
  *   - id          (string)  e.g. md5(filename) or 'multi-<timestamp>'
  *   - components  (array)   ['database', 'uploads', ...]
  *   - files       (array)   list of file rows (filename / size human)

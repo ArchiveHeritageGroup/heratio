@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Researcher Offline — sync-back targets for work done in the /research/mobile
+ * Researcher Offline - sync-back targets for work done in the /research/mobile
  * offline package. Notes and sources reuse research_annotation; collection-item
  * notes update research_collection_item. These two tables cover the remaining
  * kinds: metadata suggestions (curator-reviewed, never a live edit) and files.

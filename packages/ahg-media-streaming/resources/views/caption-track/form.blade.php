@@ -1,6 +1,6 @@
 @extends('theme::layouts.3col')
 
-@section('title', $mode === 'edit' ? "Edit Track — {$track->label}" : 'Add Caption Track')
+@section('title', $mode === 'edit' ? "Edit Track - {$track->label}" : 'Add Caption Track')
 @section('body-class', 'caption-track-form')
 
 @section('content')
@@ -89,7 +89,7 @@
                         ];
                     @endphp
                     @foreach($isoLangs as $code => $name)
-                        <option value="{{ $code }}" {{ $selectedLang === $code ? 'selected' : '' }}>{{ strtoupper($code) }} — {{ $name }}</option>
+                        <option value="{{ $code }}" {{ $selectedLang === $code ? 'selected' : '' }}>{{ strtoupper($code) }} - {{ $name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -102,7 +102,7 @@
                            value="1"
                            {{ ($track->is_sdh ?? false) ? 'checked' : '' }}>
                     <label class="form-check-label" for="is_sdh">
-                        SDH — Subtitle for the Deaf and Hard of Hearing
+                        SDH - Subtitle for the Deaf and Hard of Hearing
                     </label>
                 </div>
                 <small class="text-muted">SDH tracks include speaker identification and sound/event descriptions. Enable for accessibility compliance.</small>
@@ -116,7 +116,7 @@
                            value="1"
                            {{ ($track->is_default ?? false) ? 'checked' : '' }}>
                     <label class="form-check-label" for="is_default">
-                        Default track — auto-selected when the video loads
+                        Default track - auto-selected when the video loads
                     </label>
                 </div>
             </div>
@@ -135,7 +135,7 @@
             </div>
 
             <div class="text-center my-3">
-                <span class="text-muted">— or paste VTT content below —</span>
+                <span class="text-muted">- or paste VTT content below -</span>
             </div>
 
             {{-- VTT content --}}
@@ -178,7 +178,7 @@ document.querySelector('{{ $mode === 'edit' ? '#label' : 'form' }}').addEventLis
     if (labelInput && !labelInput.value && langSelect) {
         var langOpts = langSelect.options;
         var selectedOpt = langOpts[langSelect.selectedIndex];
-        labelInput.value = selectedOpt ? selectedOpt.text.split(' — ')[1] : 'Untitled';
+        labelInput.value = selectedOpt ? selectedOpt.text.split(' - ')[1] : 'Untitled';
     }
 });
 </script>

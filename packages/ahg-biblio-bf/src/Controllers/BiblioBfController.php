@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BiblioBfController — BIBFRAME 2.0 export controller for Heratio.
+ * BiblioBfController - BIBFRAME 2.0 export controller for Heratio.
  *
  * Provides a human landing page and a machine-readable Turtle/JSON-LD export
  * endpoint for bibliographic materials serialised via BibframeSerializer.
@@ -42,7 +42,7 @@ class BiblioBfController extends Controller
     }
 
     /**
-     * Human landing page — lists the format, vocabulary references, and sample
+     * Human landing page - lists the format, vocabulary references, and sample
      * query lines operators can crib for testing.
      */
     public function index(Request $request): Response
@@ -53,7 +53,7 @@ class BiblioBfController extends Controller
     }
 
     /**
-     * Preview endpoint — returns Turtle for the slug specified by ?slug=.
+     * Preview endpoint - returns Turtle for the slug specified by ?slug=.
      * Used by the metadata-export dashboard to show a live preview before
      * committing to a download.
      */
@@ -82,7 +82,7 @@ class BiblioBfController extends Controller
     }
 
     /**
-     * Download endpoint — returns Turtle for ?slug= as a file attachment.
+     * Download endpoint - returns Turtle for ?slug= as a file attachment.
      */
     public function download(Request $request): StreamedResponse
     {

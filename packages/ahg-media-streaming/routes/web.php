@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Media streaming — public (players use these)
+// Media streaming - public (players use these)
 Route::get('/media-streaming/stream/{digitalObjectId}', [MediaStreamController::class, 'stream'])
     ->name('media-streaming.stream');
 
-// Caption track VTT endpoint — public (video players need direct access)
+// Caption track VTT endpoint - public (video players need direct access)
 Route::get('/media-streaming/captions/{trackId}', [CaptionTrackController::class, 'serve'])
     ->name('media-streaming.captions')
     ->whereNumber('trackId');

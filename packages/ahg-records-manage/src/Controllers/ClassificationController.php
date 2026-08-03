@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ClassificationController — auto-classification rules CRUD + run (P4.2).
+ * ClassificationController - auto-classification rules CRUD + run (P4.2).
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
  * @license    AGPL-3.0-or-later

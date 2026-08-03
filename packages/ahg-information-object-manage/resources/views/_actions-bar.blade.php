@@ -132,7 +132,7 @@
           <li><hr class="dropdown-divider"></li>
           <li>
             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $io->id }}">
-              <i class="fas fa-language me-2"></i>{{ __('Translate (labels — side-by-side)') }}
+              <i class="fas fa-language me-2"></i>{{ __('Translate (labels - side-by-side)') }}
             </a>
           </li>
           @if(\Illuminate\Support\Facades\Schema::hasTable('museum_metadata') && \Illuminate\Support\Facades\DB::table('museum_metadata')->where('object_id', $io->id)->exists())

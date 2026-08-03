@@ -11,7 +11,7 @@ class PreservationStatsCommand extends Command
         {--days=30 : Daily stats window}
         {--format=table : Output (table or json)}';
 
-    protected $description = 'Preservation statistics — overall counts + daily fixity/migration trend';
+    protected $description = 'Preservation statistics - overall counts + daily fixity/migration trend';
 
     public function handle(PreservationService $svc): int
     {

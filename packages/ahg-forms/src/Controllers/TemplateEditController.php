@@ -247,7 +247,7 @@ class TemplateEditController extends Controller
         if (str_ends_with($table, '_i18n')) {
             return 'id';
         }
-        // Best guess — could be made data-driven later via ahg_form_field_mapping.target_id_column if needed.
+        // Best guess - could be made data-driven later via ahg_form_field_mapping.target_id_column if needed.
         $candidates = ['object_id', 'information_object_id', 'actor_id', 'entity_id'];
         try {
             $cols = DB::getSchemaBuilder()->getColumnListing($table);

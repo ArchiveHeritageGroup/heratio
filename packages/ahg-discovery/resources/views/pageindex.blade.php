@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loading = document.getElementById('pageindex-loading');
     const resultsDiv = document.getElementById('pageindex-results');
 
-    // AJAX search (optional — the form also works as standard GET)
+    // AJAX search (optional - the form also works as standard GET)
     form.addEventListener('submit', function(e) {
         const q = document.getElementById('pageindex-query').value.trim();
         if (!q) return; // Let standard form submission handle empty queries

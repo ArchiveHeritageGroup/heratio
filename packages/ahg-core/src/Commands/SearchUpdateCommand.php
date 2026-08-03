@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SearchUpdateCommand — incremental ES reindex of records modified since a timestamp.
+ * SearchUpdateCommand - incremental ES reindex of records modified since a timestamp.
  *
  * Walks information_object / actor / term / repository for rows whose
  * updated_at is newer than --since, then re-indexes each by delegating

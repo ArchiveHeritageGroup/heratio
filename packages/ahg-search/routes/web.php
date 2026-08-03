@@ -12,7 +12,7 @@ Route::get('/search/autocomplete', [SearchController::class, 'autocomplete'])->n
 Route::get('/search/index', fn () => redirect('/search', 301));
 Route::get('/search/semantic', [SearchController::class, 'search'])->name('search.semantic');
 
-// Vector-similarity API (Qdrant-backed). Public — read-only.
+// Vector-similarity API (Qdrant-backed). Public - read-only.
 Route::get('/api/search/semantic', [VectorSearchController::class, 'search'])
     ->name('search.api.semantic');
 Route::get('/api/search/semantic/health', [VectorSearchController::class, 'health'])

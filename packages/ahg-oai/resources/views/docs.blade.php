@@ -17,12 +17,12 @@
 
   <h2 class="h4 mt-4">{{ __('Supported verbs') }}</h2>
   <ul>
-    <li><code>Identify</code> — repository identification + admin contacts + linked friends</li>
-    <li><code>ListMetadataFormats</code> — formats available for harvesting</li>
-    <li><code>ListSets</code> — top-level archival collections offered as sets</li>
-    <li><code>ListIdentifiers</code> — record identifiers + datestamps</li>
-    <li><code>ListRecords</code> — full records in the selected format</li>
-    <li><code>GetRecord</code> — single record by identifier</li>
+    <li><code>Identify</code> - repository identification + admin contacts + linked friends</li>
+    <li><code>ListMetadataFormats</code> - formats available for harvesting</li>
+    <li><code>ListSets</code> - top-level archival collections offered as sets</li>
+    <li><code>ListIdentifiers</code> - record identifiers + datestamps</li>
+    <li><code>ListRecords</code> - full records in the selected format</li>
+    <li><code>GetRecord</code> - single record by identifier</li>
   </ul>
   <p class="small text-muted">Each verb accepts both GET and POST as required by the OAI-PMH spec.</p>
 

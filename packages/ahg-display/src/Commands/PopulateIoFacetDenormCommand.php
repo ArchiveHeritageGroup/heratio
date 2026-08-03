@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PopulateIoFacetDenormCommand — populate the ahg_io_facet_denorm sidecar.
+ * PopulateIoFacetDenormCommand - populate the ahg_io_facet_denorm sidecar.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * License: AGPL-3.0-or-later

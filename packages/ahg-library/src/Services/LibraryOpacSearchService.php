@@ -182,7 +182,7 @@ class LibraryOpacSearchService
         // Sorting
         $sortClause = $this->buildSortClause($sort, $query);
 
-        // Aggregations (sidebar facets — always computed across the full result set
+        // Aggregations (sidebar facets - always computed across the full result set
         // by running them outside the query scope)
         $aggs = [
             'material_types' => [
@@ -338,7 +338,7 @@ class LibraryOpacSearchService
             ], $rawAggs['material_types']['buckets']);
         }
 
-        // Languages — resolve ISO codes to human labels
+        // Languages - resolve ISO codes to human labels
         if (! empty($rawAggs['languages']['buckets'])) {
             $facets['languages'] = array_map(fn ($b) => [
                 'value' => $b['key'],

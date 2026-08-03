@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-integrity — install schema
+-- ahg-integrity - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgIntegrityPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `integrity_run` (
 CREATE TABLE IF NOT EXISTS `integrity_ledger` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `run_id` BIGINT UNSIGNED NULL,
-    `digital_object_id` INT NOT NULL COMMENT 'No FK — survives object deletion',
+    `digital_object_id` INT NOT NULL COMMENT 'No FK - survives object deletion',
     `information_object_id` INT NULL COMMENT 'Denormalized for scoped queries',
     `repository_id` INT NULL COMMENT 'Denormalized for scoped queries',
     `file_path` VARCHAR(1024) NULL,

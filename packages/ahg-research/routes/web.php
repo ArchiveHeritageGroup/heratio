@@ -86,7 +86,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::get('/researcher-autocomplete', [ResearchOdrlPoliciesController::class, 'researcherAutocomplete'])->name('researcherAutocomplete');
     Route::get('/target-autocomplete', [ResearchOdrlPoliciesController::class, 'targetAutocomplete'])->name('targetAutocomplete');
 
-    // #1105 Journal builder — institutional publication + manuscript workspace
+    // #1105 Journal builder - institutional publication + manuscript workspace
     Route::prefix('journals')->name('journal-builder.')->group(function () {
         Route::get('/', [ResearchJournalController::class, 'index'])->name('index');
         Route::get('/create', [ResearchJournalController::class, 'create'])->name('create');
@@ -108,7 +108,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
         Route::delete('/article/{id}', [ResearchJournalController::class, 'destroyArticle'])->whereNumber('id')->name('article-destroy');
     });
 
-    // #1105 Lecture builder — curriculum content / talk records / standalone authoring
+    // #1105 Lecture builder - curriculum content / talk records / standalone authoring
     Route::prefix('lectures')->name('lecture-builder.')->group(function () {
         Route::get('/', [ResearchLectureController::class, 'index'])->name('index');
         Route::get('/create', [ResearchLectureController::class, 'create'])->name('create');
@@ -128,7 +128,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
         Route::delete('/resource/{id}', [ResearchLectureController::class, 'destroyResource'])->whereNumber('id')->name('resource-destroy');
     });
 
-    // #1107 Target-journal directory — where to publish (scope + rules), DHET-seeded
+    // #1107 Target-journal directory - where to publish (scope + rules), DHET-seeded
     Route::prefix('target-journals')->name('target-journal.')->group(function () {
         Route::get('/', [ResearchTargetJournalController::class, 'index'])->name('index');
         Route::post('/seed-dhet', [ResearchTargetJournalController::class, 'seedDhet'])->name('seed-dhet');

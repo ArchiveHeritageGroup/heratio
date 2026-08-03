@@ -6,8 +6,8 @@ Runs on the AI host (Heratio convention: `192.168.0.78`). Listens on `:5052`.
 
 | GPU | Models that work | Notes |
 |---|---|---|
-| RTX 3070 8 GB (current) | SVD, SVD-XT (with `VIDEO_LOW_VRAM=1`) | ~3–8 min/clip, no text prompt |
-| RTX 3090 / 4090 / A4500 24 GB | + CogVideoX-2B/5B-I2V, WAN 2.1 I2V | text prompts work, ~30–90 s/clip |
+| RTX 3070 8 GB (current) | SVD, SVD-XT (with `VIDEO_LOW_VRAM=1`) | ~3-8 min/clip, no text prompt |
+| RTX 3090 / 4090 / A4500 24 GB | + CogVideoX-2B/5B-I2V, WAN 2.1 I2V | text prompts work, ~30-90 s/clip |
 
 When the bigger card lands, edit `server.py` to add a `_load_cogvideox()` /
 `_load_wan()` branch alongside `_load_svd()`, set `VIDEO_MODEL=cogvideox-2b`,
@@ -44,7 +44,7 @@ VIDEO_LOW_VRAM=1 .venv/bin/uvicorn server:app --host 0.0.0.0 --port 5052
 curl -s http://localhost:5052/health | jq
 curl -s -X POST -F image=@/path/to/test.jpg -F num_frames=14 -F fps=7 \
      http://localhost:5052/animate -o /tmp/out.mp4
-ls -lh /tmp/out.mp4   # expect ~200–800 KB
+ls -lh /tmp/out.mp4   # expect ~200-800 KB
 
 # 5. Install as a systemd service
 sudo cp heratio-video-server.service /etc/systemd/system/
@@ -65,7 +65,7 @@ Symptoms → knobs:
 
 | Symptom | Try |
 |---|---|
-| `OutOfMemoryError` mid-generation | reduce `num_frames` to 8–10, drop `width`/`height` to `512x288` |
+| `OutOfMemoryError` mid-generation | reduce `num_frames` to 8-10, drop `width`/`height` to `512x288` |
 | Generation takes > 10 min | drop `num_frames`, drop resolution, or accept it (offload trade-off) |
 | Motion is too jittery | lower `motion_bucket_id` (try 80) |
 | Subjects barely move | raise `motion_bucket_id` (try 180) - may add artifacts |

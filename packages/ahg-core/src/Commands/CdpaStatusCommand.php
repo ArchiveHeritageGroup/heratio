@@ -10,7 +10,7 @@ class CdpaStatusCommand extends Command
     protected $signature = 'ahg:cdpa-status
         {--format=table : Output (table or json)}';
 
-    protected $description = 'Zimbabwe CDPA — overall compliance status (license, DPO, DPIA, breach, request stats)';
+    protected $description = 'Zimbabwe CDPA - overall compliance status (license, DPO, DPIA, breach, request stats)';
 
     public function handle(): int
     {

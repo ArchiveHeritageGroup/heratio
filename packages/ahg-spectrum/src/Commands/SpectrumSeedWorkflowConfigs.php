@@ -39,9 +39,9 @@ class SpectrumSeedWorkflowConfigs extends Command
                             'updated_at'  => now(),
                         ]);
                     $updated++;
-                    $this->line("  Updated: {$procedureType} ({$config['name']}) — " . count($config['config']['steps']) . " steps");
+                    $this->line("  Updated: {$procedureType} ({$config['name']}) - " . count($config['config']['steps']) . " steps");
                 } else {
-                    $this->line("  Skipped (exists): {$procedureType} — use --force to overwrite");
+                    $this->line("  Skipped (exists): {$procedureType} - use --force to overwrite");
                 }
             } else {
                 DB::table('spectrum_workflow_config')->insert([
@@ -54,7 +54,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'updated_at'     => now(),
                 ]);
                 $created++;
-                $this->line("  Created: {$procedureType} ({$config['name']}) — " . count($config['config']['steps']) . " steps");
+                $this->line("  Created: {$procedureType} ({$config['name']}) - " . count($config['config']['steps']) . " steps");
             }
         }
 
@@ -167,7 +167,7 @@ class SpectrumSeedWorkflowConfigs extends Command
         return [
             // ── Primary procedures ──────────────────────────────────
 
-            // Link patterns use {slug} placeholder — resolved at render time
+            // Link patterns use {slug} placeholder - resolved at render time
             // Points to GLAM/DAM pages and relevant record sections
 
             'object_entry' => self::buildConfig(
@@ -187,7 +187,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     '/informationobject/{slug}/edit#context-collapse',
                     '/informationobject/{slug}/edit#identity-collapse',
                     '/informationobject/{slug}/edit#identity-collapse',
-                    null, // workflow decision — no external link
+                    null, // workflow decision - no external link
                 ]
             ),
 

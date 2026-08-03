@@ -11,7 +11,7 @@ class WorkflowStatusCommand extends Command
         {--queues : Show queue statistics}
         {--format=table : Output (table or json)}';
 
-    protected $description = 'Workflow status — counts by status, breaches, queue depth';
+    protected $description = 'Workflow status - counts by status, breaches, queue depth';
 
     public function handle(): int
     {

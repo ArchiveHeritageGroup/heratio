@@ -1,4 +1,4 @@
--- ahgRecordsManagePlugin — install schema
+-- ahgRecordsManagePlugin - install schema
 --
 -- Idempotent. Safe to re-run on existing installs (CREATE TABLE IF NOT EXISTS).
 -- Creates the 11 tables backing Heratio's Records Management module:
@@ -12,7 +12,7 @@
 -- License: AGPL-3.0-or-later
 
 -- =============================================================================
--- P2.1 — Retention schedules + disposal classes
+-- P2.1 - Retention schedules + disposal classes
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS `rm_retention_schedule` (
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `rm_record_disposal_class` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
--- P2.2-P2.3 — Disposal workflow + execution
+-- P2.2-P2.3 - Disposal workflow + execution
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS `rm_disposal_action` (
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `rm_disposal_action` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
--- P2.4 — Review triggers + scheduled review queue (NEW)
+-- P2.4 - Review triggers + scheduled review queue (NEW)
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS `rm_review_schedule` (
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS `rm_review_schedule` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
--- P2.5 — File plan (nested set)
+-- P2.5 - File plan (nested set)
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS `rm_fileplan_node` (
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS `rm_fileplan_import_session` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
--- P2.6 — Email capture (NEW)
+-- P2.6 - Email capture (NEW)
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS `rm_email_capture` (
@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS `rm_email_capture` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
--- P2.8 — Compliance assessment (NEW)
+-- P2.8 - Compliance assessment (NEW)
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS `rm_compliance_assessment` (
@@ -262,7 +262,7 @@ CREATE TABLE IF NOT EXISTS `rm_compliance_assessment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
--- P4.2 — Auto-classification rules + log (NEW)
+-- P4.2 - Auto-classification rules + log (NEW)
 -- (Lives in rm_ namespace because RM owns the file plan that classification targets.)
 -- =============================================================================
 

@@ -1,4 +1,4 @@
-{{-- Extraction Jobs — cloned from AtoM ahgResearchPlugin/extractionJobsSuccess.php --}}
+{{-- Extraction Jobs - cloned from AtoM ahgResearchPlugin/extractionJobsSuccess.php --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')

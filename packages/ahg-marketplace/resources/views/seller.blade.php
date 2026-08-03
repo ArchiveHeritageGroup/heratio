@@ -1,5 +1,5 @@
 {{--
-  Marketplace — Public Seller Profile
+  Marketplace - Public Seller Profile
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.
@@ -88,7 +88,7 @@
               <i class="fa{{ $s <= round($seller->average_rating) ? 's' : 'r' }} fa-star text-warning" style="font-size:0.85rem;"></i>
             @endfor
           @else
-            &mdash;
+            -
           @endif
         </div>
         <small class="text-muted">{{ __('Rating (:count)', ['count' => (int) ($seller->rating_count ?? 0)]) }}</small>

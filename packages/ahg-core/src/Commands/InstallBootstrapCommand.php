@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Heratio — heratio:install-bootstrap artisan command
+ * Heratio - heratio:install-bootstrap artisan command
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing iSystems
  * Licensed under AGPL-3.0-or-later. See LICENSE.
@@ -16,7 +16,7 @@ use Illuminate\Console\Command;
  * Standalone install plan §6 stage 9.
  *
  * Iterates every packages/<name>/database/install.sql and runs it when the
- * package's sentinel table is missing. Idempotent — already-installed
+ * package's sentinel table is missing. Idempotent - already-installed
  * packages are skipped. Two-pass option lets cross-plugin INSERTs land
  * after their dependency tables exist.
  *
@@ -49,7 +49,7 @@ class InstallBootstrapCommand extends Command
             $this->line("    ran={$result['ran']}  skipped={$result['skipped']}");
 
             // Always print per-file rows for any non-installed status. Skips
-            // are otherwise invisible — PackageInstaller logs warnings to
+            // are otherwise invisible - PackageInstaller logs warnings to
             // storage/logs/laravel.log only, and that file is too noisy to
             // tail meaningfully in CI (a single failing install.sql can
             // produce a kilobyte of SQL inside its exception message). With
@@ -63,7 +63,7 @@ class InstallBootstrapCommand extends Command
             }
 
             if ($pass < $passes && $result['ran'] === 0) {
-                $this->line('    (no further work to do — exiting early)');
+                $this->line('    (no further work to do - exiting early)');
                 break;
             }
         }

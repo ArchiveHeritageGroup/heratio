@@ -3,7 +3,7 @@
 /**
  * php artisan share-link:prune [--dry-run]
  *
- * Runs PruneService — applies retention rules to share-link tables.
+ * Runs PruneService - applies retention rules to share-link tables.
  *
  * Retention settings (read from ahg_settings):
  *   share_link.token_retain_days       (default 365)

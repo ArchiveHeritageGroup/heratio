@@ -301,7 +301,7 @@
             <div class="mb-3">
               <label for="finding_aids" class="form-label">Finding aids, guides and publications <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <textarea name="finding_aids" id="finding_aids" class="form-control" rows="4">{{ old('finding_aids', $repository->finding_aids ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&quot;Record the title and other pertinent details of the published and/or unpublished finding aids and guides prepared by the institution and of any other relevant publications. Use ISO 690 Information and documentation – Bibliographic references and other national or international cataloguing rules.&quot; (ISDIAH 5.3.8)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&quot;Record the title and other pertinent details of the published and/or unpublished finding aids and guides prepared by the institution and of any other relevant publications. Use ISO 690 Information and documentation - Bibliographic references and other national or international cataloguing rules.&quot; (ISDIAH 5.3.8)"><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>

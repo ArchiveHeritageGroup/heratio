@@ -246,7 +246,7 @@
         </div>
       </div>
 
-      {{-- ===== 3. Creation (CCO Ch 4) — merged Creator + Creation ===== --}}
+      {{-- ===== 3. Creation (CCO Ch 4) - merged Creator + Creation ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingCreation">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreation" aria-expanded="false" aria-controls="collapseCreation">
@@ -1093,7 +1093,7 @@
         </div>
       </div>
 
-      {{-- ===== 12. Related Works (CCO Ch 14) — empty section in General template ===== --}}
+      {{-- ===== 12. Related Works (CCO Ch 14) - empty section in General template ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingRelated">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRelated" aria-expanded="false" aria-controls="collapseRelated">

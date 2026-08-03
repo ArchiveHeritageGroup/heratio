@@ -157,7 +157,7 @@ class MarketplaceService
         }
 
         // The public detail page must not expose non-active listings (draft /
-        // pending_review / withdrawn / rejected) — consistent with the storefront
+        // pending_review / withdrawn / rejected) - consistent with the storefront
         // grids, which only show status='active'. Only the owning seller may view
         // their own non-active listing; admins moderate via the admin screens (#1360).
         if ($listing->status !== 'active') {
@@ -2531,7 +2531,7 @@ class MarketplaceService
             ->first();
     }
 
-    // ---- Category CRUD (Phase X.1.6 — matches PSIS SettingsRepository) ----
+    // ---- Category CRUD (Phase X.1.6 - matches PSIS SettingsRepository) ----
 
     public function createCategory(array $data): int
     {
@@ -2558,7 +2558,7 @@ class MarketplaceService
         return DB::table($this->categoryTable)->where('id', $id)->delete() > 0;
     }
 
-    // ---- Currency CRUD (Phase X.1.6 — matches PSIS SettingsRepository) ----
+    // ---- Currency CRUD (Phase X.1.6 - matches PSIS SettingsRepository) ----
 
     public function addCurrency(array $data): int
     {
@@ -2817,7 +2817,7 @@ class MarketplaceService
             ->where('seller_id', $sellerId)
             ->where('payment_status', 'paid')
             ->where(function ($q) {
-                // Real revenue only — exclude demo-mode transactions
+                // Real revenue only - exclude demo-mode transactions
                 $q->whereNull('payment_gateway')->orWhere('payment_gateway', '!=', 'demo');
             })
             ->sum('sale_price') ?? 0;
@@ -3444,7 +3444,7 @@ class MarketplaceService
         if (!empty($filters['search'])) {
             $query->whereRaw("MATCH(l.title, l.description, l.artist_name, l.medium) AGAINST(? IN BOOLEAN MODE)", [$filters['search']]);
         }
-        // Favourites-only filter — restrict to listings the given user_id has
+        // Favourites-only filter - restrict to listings the given user_id has
         // hearted. Joining keeps the existing l.* projection intact.
         if (!empty($filters['favourites_only_user_id'])) {
             $query->join(
@@ -3820,7 +3820,7 @@ class MarketplaceService
      */
     public function getBidHistory(int $auctionId, int $limit = 50): \Illuminate\Support\Collection
     {
-        // Matches PSIS AuctionRepository::getBids — highest bid first, default limit 50.
+        // Matches PSIS AuctionRepository::getBids - highest bid first, default limit 50.
         return DB::table($this->bidTable)
             ->where('auction_id', $auctionId)
             ->orderByDesc('bid_amount')
@@ -3863,7 +3863,7 @@ class MarketplaceService
     }
 
     /**
-     * Related listings — same category or sector, excluding the current listing,
+     * Related listings - same category or sector, excluding the current listing,
      * limited to active status, ordered by recency. Accepts a listing object or
      * a listing id.
      *
@@ -3881,7 +3881,7 @@ class MarketplaceService
             return collect();
         }
 
-        // Matches PSIS marketplaceListingAction — applies sector AND category_id
+        // Matches PSIS marketplaceListingAction - applies sector AND category_id
         // simultaneously, fetches slightly more than needed, excludes current
         // listing, slices to $limit. PSIS fetches 6 and slices to 4.
         $query = DB::table($this->listingTable)
@@ -3986,7 +3986,7 @@ class MarketplaceService
 
     public function getSellerReviews(int $sellerId, int $limit = 20, int $offset = 0): array
     {
-        // Matches PSIS ReviewRepository::getSellerReviews — filters to buyer_to_seller only.
+        // Matches PSIS ReviewRepository::getSellerReviews - filters to buyer_to_seller only.
         $query = DB::table($this->reviewTable)
             ->where('reviewed_seller_id', $sellerId)
             ->where('review_type', 'buyer_to_seller')
@@ -4001,7 +4001,7 @@ class MarketplaceService
 
     public function getRatingStats(int $sellerId): array
     {
-        // Matches PSIS ReviewRepository::getSellerRatingStats — filters to buyer_to_seller only.
+        // Matches PSIS ReviewRepository::getSellerRatingStats - filters to buyer_to_seller only.
         $base = DB::table($this->reviewTable)
             ->where('reviewed_seller_id', $sellerId)
             ->where('is_visible', 1)
@@ -4021,7 +4021,7 @@ class MarketplaceService
 
     public function getSellerCollections(int $sellerId): \Illuminate\Support\Collection
     {
-        // Matches PSIS CollectionRepository::getSellerCollections — sort_order ASC only.
+        // Matches PSIS CollectionRepository::getSellerCollections - sort_order ASC only.
         return DB::table($this->collectionTable)
             ->where('seller_id', $sellerId)
             ->orderBy('sort_order', 'ASC')
@@ -4040,7 +4040,7 @@ class MarketplaceService
 
     public function getFollowedSellers(int $userId, int $limit = 50, int $offset = 0): array
     {
-        // Matches PSIS SettingsRepository::getFollowedSellers — filters to active sellers only.
+        // Matches PSIS SettingsRepository::getFollowedSellers - filters to active sellers only.
         $query = DB::table($this->followTable . ' as f')
             ->join($this->sellerTable . ' as s', 'f.seller_id', '=', 's.id')
             ->where('f.user_id', $userId)
@@ -4315,7 +4315,7 @@ class MarketplaceService
      * Listing IDs the user has favourited from a candidate set.
      * Returns a flat array, suitable for `in_array()` checks in views.
      * (Note: toggleFavourite is defined further down in this file with the
-     *  PSIS-style array return shape — do not duplicate it here.)
+     *  PSIS-style array return shape - do not duplicate it here.)
      */
     public function getFavouritedListingIds(int $userId, array $listingIds = []): array
     {
@@ -4359,7 +4359,7 @@ class MarketplaceService
     /**
      * Pre-fill listing creation form from an archival information object.
      * Heratio-specific: PSIS does not integrate marketplace listings with
-     * the GLAM information_object model — Heratio does.
+     * the GLAM information_object model - Heratio does.
      *
      * Returns an object with: information_object_id, title, description, slug.
      */
@@ -4382,7 +4382,7 @@ class MarketplaceService
     }
 
     // =========================================================================
-    //  LICENCE AGREEMENTS — listing_type='licence' purchases mint an agreement
+    //  LICENCE AGREEMENTS - listing_type='licence' purchases mint an agreement
     // =========================================================================
 
     private const LICENCE_TYPES = [
@@ -4402,7 +4402,7 @@ class MarketplaceService
 
     /**
      * Create a marketplace_licence_agreement from a paid licence-type listing.
-     * Idempotent — if an agreement already exists for this (listing, buyer,
+     * Idempotent - if an agreement already exists for this (listing, buyer,
      * transaction), returns the existing id.
      */
     public function createLicenceAgreementForTransaction(int $transactionId): ?int
@@ -4492,7 +4492,7 @@ class MarketplaceService
     }
 
     // =========================================================================
-    //  BROKER / ARTIST MANAGEMENT — sellers acting on behalf of artists
+    //  BROKER / ARTIST MANAGEMENT - sellers acting on behalf of artists
     // =========================================================================
 
     /**
@@ -4617,7 +4617,7 @@ class MarketplaceService
     }
 
     // =========================================================================
-    //  RESERVATIONS — 12-hour holds, max 2 per user per 24 hours
+    //  RESERVATIONS - 12-hour holds, max 2 per user per 24 hours
     // =========================================================================
 
     private const RESERVATION_DURATION_HOURS = 12;
@@ -4705,7 +4705,7 @@ class MarketplaceService
             return $rid;
         });
 
-        // Fire-and-forget notification (best effort — failure doesn't affect reservation)
+        // Fire-and-forget notification (best effort - failure doesn't affect reservation)
         try {
             app(\AhgMarketplace\Services\ReservationNotifier::class)->notifyOnReserve($reservationId);
         } catch (\Throwable $e) {
@@ -4721,7 +4721,7 @@ class MarketplaceService
 
     /**
      * Release any reservations whose expires_at has passed. Returns rows expired.
-     * Idempotent — safe to call on every read.
+     * Idempotent - safe to call on every read.
      */
     public function expireOldReservations(): int
     {
@@ -4804,7 +4804,7 @@ class MarketplaceService
     /**
      * If a listing is linked to an IO and has no marketplace_listing_image rows,
      * create a primary image pointing at the IO's reference/master digital object.
-     * Also populates featured_image_path on the listing. Idempotent — does nothing
+     * Also populates featured_image_path on the listing. Idempotent - does nothing
      * if the listing already has at least one image, or no linked IO with a DO.
      *
      * Returns true if a default image was inserted, false otherwise.
@@ -4861,7 +4861,7 @@ class MarketplaceService
         }
 
         if (!$cardDo) {
-            return false; // no image, no PDF, nothing to default to — let the seller upload manually
+            return false; // no image, no PDF, nothing to default to - let the seller upload manually
         }
 
         $primaryDo = $masterDo ?: $cardDo;
@@ -5181,7 +5181,7 @@ class MarketplaceService
     // =========================================================================
 
     /**
-     * Admin listings list — shows all statuses including drafts/suspended/withdrawn.
+     * Admin listings list - shows all statuses including drafts/suspended/withdrawn.
      *
      * @param array{status?:string, sector?:string, search?:string} $filters
      * @return array{items: \Illuminate\Support\Collection, total: int}
@@ -5371,7 +5371,7 @@ class MarketplaceService
     }
 
     /**
-     * Count of sold listings grouped by sector — for the seller dashboard's sector pie.
+     * Count of sold listings grouped by sector - for the seller dashboard's sector pie.
      *
      * @return \Illuminate\Support\Collection each row has: sector, total
      */

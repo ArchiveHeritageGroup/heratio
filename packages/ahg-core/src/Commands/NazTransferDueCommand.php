@@ -10,7 +10,7 @@ class NazTransferDueCommand extends Command
     protected $signature = 'ahg:naz-transfer-due
         {--days=90 : Show transfers proposed for the next N days}';
 
-    protected $description = 'Zimbabwe NAZ — list transfers proposed for the upcoming window (status=proposed/scheduled)';
+    protected $description = 'Zimbabwe NAZ - list transfers proposed for the upcoming window (status=proposed/scheduled)';
 
     public function handle(): int
     {

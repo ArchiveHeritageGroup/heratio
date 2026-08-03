@@ -1,5 +1,5 @@
 {{--
-  Print Preview – print.blade.php
+  Print Preview - print.blade.php
   Migrated from AtoM printSuccess.php (ahgDisplayPlugin)
   Matches AtoM exactly: same styling, same table columns, same layout
 --}}
@@ -56,7 +56,7 @@
     @endphp
     @if($__capped)
       <strong>{{ __('Showing:') }}</strong> first {{ number_format($__shown) }} of {{ number_format($__total) }} records
-      <span style="color:#a00;">(print capped at {{ number_format($__printCap) }} — refine the filter to print all)</span>
+      <span style="color:#a00;">(print capped at {{ number_format($__printCap) }} - refine the filter to print all)</span>
     @else
       <strong>{{ __('Total:') }}</strong> {{ number_format($__total) }} records
     @endif

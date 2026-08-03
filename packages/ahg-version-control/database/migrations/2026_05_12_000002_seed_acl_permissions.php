@@ -4,10 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Phase K — seed default ACL permissions for the four version.* actions.
+ * Phase K - seed default ACL permissions for the four version.* actions.
  *
  * Idempotent: each row is guarded by a NOT EXISTS check on (group_id, action).
- * Administrator (group 100) is intentionally NOT seeded — base AtoM grants
+ * Administrator (group 100) is intentionally NOT seeded - base AtoM grants
  * administrator allow-all via action=NULL which AclCheck honours.
  */
 return new class extends Migration

@@ -7,7 +7,7 @@ use AhgRightsHolderManage\Controllers\RightsController;
 use AhgRightsHolderManage\Controllers\RightsHolderController;
 use Illuminate\Support\Facades\Route;
 
-// Rights-holders carry contact PII (email/phone/address) — gate the read surface
+// Rights-holders carry contact PII (email/phone/address) - gate the read surface
 // under auth so anon can't harvest contacts (#1370).
 Route::get('/rightsholder/browse', [RightsHolderController::class, 'browse'])->name('rightsholder.browse')->middleware('auth');
 
@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/extended-rights/{slug}/edit', [ExtendedRightsController::class, 'view'])->name('extended-rights.edit');
     Route::get('/extended-rights/{slug}/clear', [ExtendedRightsController::class, 'clear'])->name('extended-rights.clear');
     Route::post('/extended-rights/{slug}/clear', [ExtendedRightsController::class, 'clearStore'])->name('extended-rights.clear.store')->middleware('acl:delete');
-    // #1372: lifting an embargo is a privileged state change — require the acl grant
+    // #1372: lifting an embargo is a privileged state change - require the acl grant
     // (was auth-only: any authenticated user could lift ANY embargo). Now POST-only
     // so the DB mutation can't be triggered by a GET/CSRF-less link; callers submit
     // a @csrf form. The acl gate closes the privilege-escalation.

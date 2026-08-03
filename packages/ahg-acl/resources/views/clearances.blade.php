@@ -85,7 +85,7 @@
                 <input type="checkbox" class="form-check-input user-select" value="{{ $clr->user_id }}">
               </td>
               <td>
-                <strong>{{ $clr->user_display_name ?? $clr->username ?? '—' }}</strong><br>
+                <strong>{{ $clr->user_display_name ?? $clr->username ?? '-' }}</strong><br>
                 <small class="text-muted">{{ $clr->email ?? '' }}</small>
                 @if(!$clr->active)
                   <span class="badge bg-secondary ms-1">{{ __('Inactive') }}</span>
@@ -101,8 +101,8 @@
                   <span class="badge bg-secondary">{{ __('No Clearance') }}</span>
                 @endif
               </td>
-              <td>{{ $clr->granted_by_name ?? '—' }}</td>
-              <td>{{ $clr->granted_at ? \Carbon\Carbon::parse($clr->granted_at)->format('M j, Y') : '—' }}</td>
+              <td>{{ $clr->granted_by_name ?? '-' }}</td>
+              <td>{{ $clr->granted_at ? \Carbon\Carbon::parse($clr->granted_at)->format('M j, Y') : '-' }}</td>
               <td>
                 @if($clr->expires_at)
                   @php
@@ -128,7 +128,7 @@
               </td>
               <td class="text-center">
                 @if(!$clr->classification_id)
-                  <span class="badge bg-secondary">—</span>
+                  <span class="badge bg-secondary">-</span>
                 @elseif(($clr->renewal_status ?? '') === 'pending')
                   <span class="badge bg-warning">{{ __('Renewal Pending') }}</span>
                 @else
@@ -218,7 +218,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Per-row Grant button — pre-populates the existing grantModal user/classification
+  // Per-row Grant button - pre-populates the existing grantModal user/classification
   document.getElementById('grantModal').addEventListener('show.bs.modal', function(event) {
     var btn = event.relatedTarget;
     if (!btn || !btn.classList.contains('btn-row-grant')) return;

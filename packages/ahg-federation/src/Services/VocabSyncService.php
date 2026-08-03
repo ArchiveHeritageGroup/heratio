@@ -468,7 +468,7 @@ class VocabSyncService
             $headers[] = 'X-API-Key: '.$apiKey;
         }
 
-        // #1395(C) — SSRF guard: peers are persisted with only url validation, so
+        // #1395(C) - SSRF guard: peers are persisted with only url validation, so
         // verify the resolved host is public before fetching (throws on violation).
         app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($url);
 

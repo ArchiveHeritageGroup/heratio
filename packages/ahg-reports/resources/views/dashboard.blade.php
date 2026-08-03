@@ -57,7 +57,7 @@
         @endif
     </ul>
 
-    {{-- All dashboards (alphabetical) — gated on the same plugin checks the cards below use --}}
+    {{-- All dashboards (alphabetical) - gated on the same plugin checks the cards below use --}}
     <h4 class="mt-4">{{ __('Dashboards') }}</h4>
     <ul class="list-unstyled small">
         @if($hasAiCondition)
@@ -792,7 +792,7 @@
           @if($hasPreservation)
           <div class="small text-center mt-2">
             <i class="fas fa-shield-alt me-1 text-success"></i>{{ __('Ingested objects are auto-preserved') }}
-            &mdash; <a href="{{ Route::has('preservation.events') ? route('preservation.events') : url('/admin/preservation/events') }}">{{ number_format($stats['premis_events'] ?? 0) }} {{ __('PREMIS events') }}</a>,
+            - <a href="{{ Route::has('preservation.events') ? route('preservation.events') : url('/admin/preservation/events') }}">{{ number_format($stats['premis_events'] ?? 0) }} {{ __('PREMIS events') }}</a>,
             <a href="{{ Route::has('preservation.fixity-log') ? route('preservation.fixity-log') : url('/admin/preservation/fixity-log') }}">{{ number_format($stats['preserved_objects'] ?? 0) }} {{ __('with checksums') }}</a>@if(($stats['normalized_objects'] ?? 0) > 0), {{ number_format($stats['normalized_objects']) }} {{ __('normalized') }}@endif
           </div>
           @endif

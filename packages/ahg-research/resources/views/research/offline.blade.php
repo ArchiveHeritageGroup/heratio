@@ -1,4 +1,4 @@
-{{-- Researcher offline packages (Phase 1–2) --}}
+{{-- Researcher offline packages (Phase 1-2) --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -24,7 +24,7 @@
   </div>
 
   <p class="text-muted">
-    {{ __('Take one of your research groups offline as a self-contained package you can browse and annotate with no internet — on a laptop, USB stick or in the field. When you are back online, use “Save for sync” inside the package and bring your changes home.') }}
+    {{ __('Take one of your research groups offline as a self-contained package you can browse and annotate with no internet - on a laptop, USB stick or in the field. When you are back online, use “Save for sync” inside the package and bring your changes home.') }}
   </p>
 
   <div class="alert alert-info small">

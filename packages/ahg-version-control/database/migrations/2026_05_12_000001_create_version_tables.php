@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Phase A — create information_object_version + actor_version.
+ * Phase A - create information_object_version + actor_version.
  *
  * Runs the package install.sql, which is the source of truth and byte-equivalent
  * to /usr/share/nginx/archive/atom-ahg-plugins/ahgVersionControlPlugin/database/install.sql

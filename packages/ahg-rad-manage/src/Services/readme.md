@@ -1,4 +1,4 @@
-# AhgRadManage — Services
+# AhgRadManage - Services
 
 Services directory for the AhgRadManage package.
 

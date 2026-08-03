@@ -1,5 +1,5 @@
 {{--
-  RiC View: Loan — Activity context with borrower, lender, and items on loan.
+  RiC View: Loan - Activity context with borrower, lender, and items on loan.
 
   @copyright  Johan Pieterse / Plain Sailing Information Systems
   @license    AGPL-3.0-or-later
@@ -32,7 +32,7 @@
   <div class="card mb-3">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-1"></i> {{ __('RiC Context') }}</div>
     <div class="card-body small text-muted">
-      A loan is modelled as <code>rico:Activity</code> — an event that links one or more <code>rico:RecordResource</code> instances to a borrowing <code>rico:Agent</code> for a bounded time. Open the explorer to see the full graph of items, borrower, and lender.
+      A loan is modelled as <code>rico:Activity</code> - an event that links one or more <code>rico:RecordResource</code> instances to a borrowing <code>rico:Agent</code> for a bounded time. Open the explorer to see the full graph of items, borrower, and lender.
     </div>
   </div>
 

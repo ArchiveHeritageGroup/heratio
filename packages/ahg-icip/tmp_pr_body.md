@@ -44,7 +44,7 @@ Smoke test checklist:
 
 This PR is intentionally conservative: no fields removed/renamed; the LocalContextsHubService is a safe stub by default.
 
-Issue: closes none yet — this is a work-in-progress for #79 and should not close the issue until runtime verification and polish are complete.
+Issue: closes none yet - this is a work-in-progress for #79 and should not close the issue until runtime verification and polish are complete.
 
 Reviewer notes:
 - Please run migrations and the smoke tests above before enabling audit in production.

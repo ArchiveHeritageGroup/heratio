@@ -132,7 +132,7 @@
     @endauth
   </div>
 
-  {{-- Finalisation blockers — surfaces the accession_require_donor_agreement
+  {{-- Finalisation blockers - surfaces the accession_require_donor_agreement
        and accession_require_appraisal settings as a list of unmet criteria.
        Empty array = all settings are off OR all gates pass; banner stays
        hidden. --}}

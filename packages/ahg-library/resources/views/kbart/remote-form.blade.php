@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', $feed ? "Edit Feed — {$feed->name}" : 'Add KBART Feed')
+@section('title', $feed ? "Edit Feed - {$feed->name}" : 'Add KBART Feed')
 
 @section('content')
 <div class="container py-4">

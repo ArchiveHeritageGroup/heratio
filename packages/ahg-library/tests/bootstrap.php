@@ -1,6 +1,6 @@
 <?php
 /**
- * bootstrap.php — PHPUnit bootstrap for ahg-library tests.
+ * bootstrap.php - PHPUnit bootstrap for ahg-library tests.
  *
  * Registers PSR-4 namespaces for the package's test suite so that
  * AhgLibrary\Tests\* classes are visible to PHPUnit when run from

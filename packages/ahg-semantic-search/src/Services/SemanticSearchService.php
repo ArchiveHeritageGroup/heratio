@@ -72,7 +72,7 @@ class SemanticSearchService
     }
 
     // Terms
-    // Canonical AtoM table `ahg_thesaurus_term` — columns: term, normalized_term,
+    // Canonical AtoM table `ahg_thesaurus_term` - columns: term, normalized_term,
     // language, source, source_id, is_active, etc.
     public function getTerms(array $filters = []): \Illuminate\Support\Collection
     {

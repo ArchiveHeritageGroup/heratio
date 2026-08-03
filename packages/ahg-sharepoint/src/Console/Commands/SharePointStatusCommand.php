@@ -44,7 +44,7 @@ class SharePointStatusCommand extends Command
         foreach (DB::table('sharepoint_sync_state')->get() as $s) {
             $this->line(sprintf(
                 '  drive=%d  last_run=%s  status=%s  items=%d%s',
-                $s->drive_id, $s->last_run_at ?? 'never', $s->last_status ?? '—', $s->items_processed,
+                $s->drive_id, $s->last_run_at ?? 'never', $s->last_status ?? '-', $s->items_processed,
                 $s->last_error ? ' ERROR: '.substr($s->last_error, 0, 80) : '',
             ));
         }

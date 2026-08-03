@@ -119,7 +119,7 @@ class DamController extends Controller
             if ($role === '' && $name === '') continue;
             $credits[] = ['role' => $role, 'name' => $name];
         }
-        // Always send the key — including empty array — so a save that clears
+        // Always send the key - including empty array - so a save that clears
         // every row actually wipes the stored JSON.
         $merge['contributors_json'] = $credits ? json_encode($credits, JSON_UNESCAPED_UNICODE) : null;
 
@@ -181,7 +181,7 @@ class DamController extends Controller
         $digitalObjects = \AhgCore\Services\DigitalObjectService::getForObject($asset->id);
         $relatedItems = $this->service->getRelatedItems($asset->id);
 
-        // Repository — needed by the cloned museum-style sidebar to render
+        // Repository - needed by the cloned museum-style sidebar to render
         // the institution logo + link at the top. Mirrors MuseumController::show.
         $repository = null;
         if (!empty($asset->repository_id)) {
@@ -299,7 +299,7 @@ class DamController extends Controller
             'production_company' => 'nullable|string|max:255',
             'distributor' => 'nullable|string|max:255',
             // Stored as VARCHAR(100). Accept year-only (1954), year-month
-            // (1954-06), or full date (1954-06-15) — Laravel's `date` rule
+            // (1954-06), or full date (1954-06-15) - Laravel's `date` rule
             // rejected bare years even though the form's placeholder
             // explicitly says "e.g., 1954".
             'broadcast_date' => ['nullable', 'string', 'max:100', 'regex:/^\d{4}(-\d{2}(-\d{2})?)?$/'],
@@ -419,7 +419,7 @@ class DamController extends Controller
             'production_company' => 'nullable|string|max:255',
             'distributor' => 'nullable|string|max:255',
             // Stored as VARCHAR(100). Accept year-only (1954), year-month
-            // (1954-06), or full date (1954-06-15) — Laravel's `date` rule
+            // (1954-06), or full date (1954-06-15) - Laravel's `date` rule
             // rejected bare years even though the form's placeholder
             // explicitly says "e.g., 1954".
             'broadcast_date' => ['nullable', 'string', 'max:100', 'regex:/^\d{4}(-\d{2}(-\d{2})?)?$/'],
@@ -492,7 +492,7 @@ class DamController extends Controller
             'iptc_title', 'job_id', 'instructions',
             // Production credits (zipped from credit_role[]+credit_name[] by normalizeFormFields).
             'contributors_json',
-            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to information_object.icip_sensitivity.
+            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) - persisted to information_object.icip_sensitivity.
             'icip_sensitivity',
         ]);
 

@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
  * config('session.lifetime') when constructing the session cookie, so we
  * patch the config very early in the middleware chain (before
  * StartSession) so the override takes effect for the current request's
- * cookie issuance. The override is per-request — we don't write to .env
+ * cookie issuance. The override is per-request - we don't write to .env
  * or cache config.
  *
  * 0 (or any non-positive value) means "use config/session.php default"

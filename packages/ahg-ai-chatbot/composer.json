@@ -1,6 +1,6 @@
 {
     "name": "ahg/ai-chatbot",
-    "description": "AHG AI chatbot — conversational LLM interface over the Heratio archival catalogue. Grounded responses via RAG over catalogue metadata and domain knowledge.",
+    "description": "AHG AI chatbot - conversational LLM interface over the Heratio archival catalogue. Grounded responses via RAG over catalogue metadata and domain knowledge.",
     "type": "heratio-plugin",
     "license": "AGPL-3.0",
     "require": {

@@ -4,7 +4,7 @@
 @section('record-title', $io->title ?? '[Untitled]')
 @section('record-type')
   @if($levelName) {{ $levelName }} @endif
-  @if($io->identifier) &mdash; {{ $io->identifier }} @endif
+  @if($io->identifier) - {{ $io->identifier }} @endif
 @endsection
 
 @section('content')

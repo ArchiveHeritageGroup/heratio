@@ -39,7 +39,7 @@ class DonutService
 
     public function __construct()
     {
-        // #1368 — route Donut document-extraction through the AHG AI gateway
+        // #1368 - route Donut document-extraction through the AHG AI gateway
         // (/ai/v1/donut/*), never a direct :5008 node. A raw-node
         // DONUT_SERVICE_URL override is ignored so a stale env value cannot
         // bypass the gateway (metering/quota/failover/logging).
@@ -77,7 +77,7 @@ class DonutService
                 return $key;
             }
         } catch (\Throwable) {
-            // settings tables absent during boot — no key.
+            // settings tables absent during boot - no key.
         }
 
         return '';

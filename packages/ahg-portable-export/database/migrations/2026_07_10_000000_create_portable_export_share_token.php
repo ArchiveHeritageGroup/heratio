@@ -1,14 +1,14 @@
 <?php
 
 /**
- * #1357 — token table backing the anonymous, published-only share links produced
+ * #1357 - token table backing the anonymous, published-only share links produced
  * by PortableExportController::apiToken() and served by ::share(). Previously
  * apiToken() returned a /portable-export/share/{token} URL but neither the table
  * nor the route existed, so every generated link 404'd.
  *
  * A 128-bit token + expiry + optional download cap gate the public download; the
  * published-only safety check lives in the controller. This is a new plugin table
- * — it does not touch any base-AtoM table.
+ * - it does not touch any base-AtoM table.
  */
 
 use Illuminate\Database\Migrations\Migration;

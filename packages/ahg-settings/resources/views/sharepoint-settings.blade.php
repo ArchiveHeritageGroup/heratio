@@ -22,7 +22,7 @@
                 </div>
                 <div class="form-check form-switch mb-2">
                     <input type="checkbox" class="form-check-input" id="sharepoint_records_handoff_enabled" name="sharepoint_records_handoff_enabled" @checked(($settings['sharepoint_records_handoff_enabled'] ?? 'false') === 'true')>
-                    <label class="form-check-label" for="sharepoint_records_handoff_enabled">{{ __('Records handoff (auto/declare) — Phase 2.A') }}</label>
+                    <label class="form-check-label" for="sharepoint_records_handoff_enabled">{{ __('Records handoff (auto/declare) - Phase 2.A') }}</label>
                 </div>
                 <div class="form-check form-switch mb-2">
                     <input type="checkbox" class="form-check-input" id="sharepoint_push_user_create_enabled" name="sharepoint_push_user_create_enabled" @checked(($settings['sharepoint_push_user_create_enabled'] ?? 'true') === 'true')>

@@ -56,7 +56,7 @@
 
         <div class="tab-content mb-3" id="treeview-content">
 
-          {{-- TAB 1: Treeview — full ancestor chain + siblings + current + children --}}
+          {{-- TAB 1: Treeview - full ancestor chain + siblings + current + children --}}
           <div class="tab-pane fade show active" id="treeview-pane" role="tabpanel">
             <ul class="list-group rounded-0" style="max-height:500px;overflow-y:auto;">
               {{-- Ancestor chain (excluding root) --}}
@@ -362,7 +362,7 @@
         @endif
       @endauth
 
-      {{-- Action buttons — between term details and related results --}}
+      {{-- Action buttons - between term details and related results --}}
       @auth
       @php $isAdmin = \AhgCore\Services\AclService::check($term, 'update'); @endphp
       @if($isAdmin)

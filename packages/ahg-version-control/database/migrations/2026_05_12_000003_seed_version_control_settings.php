@@ -4,12 +4,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Phase M — seed default retention settings.
+ * Phase M - seed default retention settings.
  *
  * Three keys in ahg_settings under setting_group='version_control':
  *   retain_count            (integer, default 0 = unlimited)
  *   retain_days             (integer, default 0 = unlimited)
- *   skip_on_minor_edit      (boolean, default 0 — reserved for future use)
+ *   skip_on_minor_edit      (boolean, default 0 - reserved for future use)
  */
 return new class extends Migration
 {
@@ -30,7 +30,7 @@ return new class extends Migration
             'setting_key' => 'version_control.skip_on_minor_edit',
             'setting_value' => '0',
             'setting_type' => 'boolean',
-            'description' => 'Reserved — if 1, the save listener skips capture when changed_fields is empty. Currently unused.',
+            'description' => 'Reserved - if 1, the save listener skips capture when changed_fields is empty. Currently unused.',
         ],
     ];
 

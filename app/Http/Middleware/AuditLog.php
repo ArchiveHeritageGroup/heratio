@@ -110,7 +110,7 @@ class AuditLog
         // (audit.diff / audit.object_id / audit.object_type); we splice
         // them into details and override the URL-derived object coords
         // when the service supplied a more authoritative value. This
-        // keeps the audit log to one row per request — the middleware
+        // keeps the audit log to one row per request - the middleware
         // row gets enriched rather than competing with a service row.
         $diff = $request->attributes->get('audit.diff');
         if (is_array($diff) && ! empty($diff)) {
@@ -224,7 +224,7 @@ class AuditLog
             }
         }
 
-        // View events (GET on entity show pages) — only log for authenticated users
+        // View events (GET on entity show pages) - only log for authenticated users
         if ($method === 'GET' && auth()->check()) {
             $objectType = $this->extractObjectType($path);
             if ($objectType && ! str_contains($path, '/browse') && ! str_contains($path, '/add') && ! str_contains($path, '/edit')) {

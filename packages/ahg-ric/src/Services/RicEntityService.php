@@ -653,7 +653,7 @@ class RicEntityService
     public function updateRelation(int $relationId, array $data): void
     {
         DB::transaction(function () use ($relationId, $data) {
-            // Relation row — subject/object stay fixed; only dates are mutable here.
+            // Relation row - subject/object stay fixed; only dates are mutable here.
             $relationFields = array_intersect_key(
                 ['start_date' => $data['start_date'] ?? null, 'end_date' => $data['end_date'] ?? null],
                 array_flip(['start_date', 'end_date'])
@@ -662,7 +662,7 @@ class RicEntityService
                 DB::table('relation')->where('id', $relationId)->update($relationFields);
             }
 
-            // Meta row — certainty + evidence always, plus predicate if relation_type changed.
+            // Meta row - certainty + evidence always, plus predicate if relation_type changed.
             $metaFields = [
                 'certainty' => $data['certainty'] ?? null,
                 'evidence' => $data['evidence'] ?? null,
@@ -1108,13 +1108,13 @@ class RicEntityService
     }
 
     // ================================================================
-    // AGENT (actor) — rico:Agent / rico:Person / rico:CorporateBody / rico:Family
+    // AGENT (actor) - rico:Agent / rico:Person / rico:CorporateBody / rico:Family
     // ================================================================
 
     /**
      * Create an Agent. Expected $data keys:
      *   name (required)            → actor_i18n.authorized_form_of_name
-     *   entity_type_id (optional)  → actor.entity_type_id (term id — Person/CB/Family)
+     *   entity_type_id (optional)  → actor.entity_type_id (term id - Person/CB/Family)
      *   description_identifier     → actor.description_identifier
      *   source_standard            → actor.source_standard (default: "ISAAR-CPF")
      *   corporate_body_identifiers
@@ -1174,7 +1174,7 @@ class RicEntityService
                 'parent_id',
             ]);
 
-            // i18n — remap "name" → authorized_form_of_name for caller convenience
+            // i18n - remap "name" → authorized_form_of_name for caller convenience
             $i18nData = $data;
             if (isset($data['name']) && !isset($data['authorized_form_of_name'])) {
                 $i18nData['authorized_form_of_name'] = $data['name'];
@@ -1196,14 +1196,14 @@ class RicEntityService
             DB::table('actor_i18n')->where('id', $id)->delete();
             DB::table('actor')->where('id', $id)->delete();
             DB::table('slug')->where('object_id', $id)->delete();
-            // Incoming relations referencing this agent — let the caller clean up
+            // Incoming relations referencing this agent - let the caller clean up
             // or cascade via FK. The object row is the canonical "gone" marker.
             DB::table('object')->where('id', $id)->delete();
         });
     }
 
     // ================================================================
-    // RECORD (information_object) — rico:Record / rico:RecordSet
+    // RECORD (information_object) - rico:Record / rico:RecordSet
     // ================================================================
 
     /**
@@ -1319,7 +1319,7 @@ class RicEntityService
     public function deleteRecord(int $id): void
     {
         DB::transaction(function () use ($id) {
-            // Prevent orphaning descendants — refuse if this node has children.
+            // Prevent orphaning descendants - refuse if this node has children.
             $hasChildren = DB::table('information_object')->where('parent_id', $id)->exists();
             if ($hasChildren) {
                 throw new \RuntimeException("Cannot delete record {$id}: it has descendants. Delete or re-parent them first.");
@@ -1332,7 +1332,7 @@ class RicEntityService
     }
 
     // ================================================================
-    // REPOSITORY (ISDIAH) — rico:CorporateBody with repository extension
+    // REPOSITORY (ISDIAH) - rico:CorporateBody with repository extension
     // ================================================================
 
     /**
@@ -1462,7 +1462,7 @@ class RicEntityService
     }
 
     // ================================================================
-    // FUNCTION (ISDF) — rico:Function
+    // FUNCTION (ISDF) - rico:Function
     // ================================================================
 
     public function createFunction(array $data): int

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * TokenService — generates and parses time-limited share-link tokens.
+ * TokenService - generates and parses time-limited share-link tokens.
  *
  * Mirror of the AtoM-side service. Byte-equivalent token generation for the
- * same input + same hmac_secret — useful if a deployment ever wants to migrate
+ * same input + same hmac_secret - useful if a deployment ever wants to migrate
  * tokens between surfaces.
  *
  * @phase B

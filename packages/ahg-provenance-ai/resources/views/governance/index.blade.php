@@ -19,7 +19,7 @@
         ['label' => __('Inferences (total)'), 'value' => $stats['inferences_total'], 'icon' => 'fa-stream'],
         ['label' => __('Inferences (7 days)'),'value' => $stats['inferences_7d'],    'icon' => 'fa-calendar-week'],
         ['label' => __('Avg confidence'),
-         'value' => $stats['avg_confidence'] !== null ? number_format(((float) $stats['avg_confidence']) * 100, 1) . '%' : '—',
+         'value' => $stats['avg_confidence'] !== null ? number_format(((float) $stats['avg_confidence']) * 100, 1) . '%' : '-',
          'icon'  => 'fa-percentage'],
       ];
     @endphp
@@ -73,12 +73,12 @@
               <td class="text-end">{{ $m->max_tokens }}</td>
               <td class="text-end">{{ $m->temperature }}</td>
               <td class="text-end">{{ $m->inference_count }}</td>
-              <td class="small">{{ $m->last_used ? \Illuminate\Support\Str::limit((string) $m->last_used, 16, '') : '—' }}</td>
+              <td class="small">{{ $m->last_used ? \Illuminate\Support\Str::limit((string) $m->last_used, 16, '') : '-' }}</td>
               <td class="small">
                 @if(is_array($m->model_manifest) && $m->model_manifest)
                   <span class="badge bg-success" title="{{ implode(', ', array_keys($m->model_manifest)) }}">{{ count($m->model_manifest) }} {{ __('keys') }}</span>
                 @else
-                  <span class="text-muted">—</span>
+                  <span class="text-muted">-</span>
                 @endif
               </td>
             </tr>
@@ -113,19 +113,19 @@
         <tbody>
           @forelse($inferences as $i)
             <tr>
-              <td class="small">{{ $i->occurred_at ? \Illuminate\Support\Str::limit((string) $i->occurred_at, 16, '') : '—' }}</td>
-              <td>{{ $i->service_name ?? '—' }}</td>
-              <td><code>{{ $i->model_name ?? '—' }}</code>@if($i->model_version)<span class="text-muted small"> {{ $i->model_version }}</span>@endif</td>
-              <td class="small">{{ $i->target_entity_type ? $i->target_entity_type . ' #' . $i->target_entity_id : '—' }}</td>
-              <td class="small">{{ $i->target_field ?? '—' }}</td>
+              <td class="small">{{ $i->occurred_at ? \Illuminate\Support\Str::limit((string) $i->occurred_at, 16, '') : '-' }}</td>
+              <td>{{ $i->service_name ?? '-' }}</td>
+              <td><code>{{ $i->model_name ?? '-' }}</code>@if($i->model_version)<span class="text-muted small"> {{ $i->model_version }}</span>@endif</td>
+              <td class="small">{{ $i->target_entity_type ? $i->target_entity_type . ' #' . $i->target_entity_id : '-' }}</td>
+              <td class="small">{{ $i->target_field ?? '-' }}</td>
               <td class="text-end">
                 @if($i->confidence !== null)
                   {{ number_format(((float) $i->confidence) * 100, 1) }}%
                 @else
-                  <span class="text-muted">—</span>
+                  <span class="text-muted">-</span>
                 @endif
               </td>
-              <td class="text-end small">{{ $i->elapsed_ms !== null ? $i->elapsed_ms . ' ms' : '—' }}</td>
+              <td class="text-end small">{{ $i->elapsed_ms !== null ? $i->elapsed_ms . ' ms' : '-' }}</td>
               <td>
                 @if($i->signed)
                   <span class="badge bg-success">{{ __('signed') }}</span>

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Identifier API controller.
  *
- * Ported from AtoM identifierApi module — provides ISBN/ISSN lookup,
+ * Ported from AtoM identifierApi module - provides ISBN/ISSN lookup,
  * identifier validation, type detection, barcode generation, and
  * sector-based identifier type listing.
  */

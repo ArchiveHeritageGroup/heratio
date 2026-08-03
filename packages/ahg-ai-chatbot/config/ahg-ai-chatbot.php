@@ -27,7 +27,7 @@ return [
     |--------------------------------------------------------------------------
     | Max information-object rows to retrieve from Qdrant/Elasticsearch
     | per turn and feed into the system prompt. Each record consumes
-    | ~200–400 tokens of the LLM context window.
+    | ~200-400 tokens of the LLM context window.
     */
 
     'max_context_records'    => (int) env('AHG_CHATBOT_MAX_CONTEXT', 5),
@@ -49,7 +49,7 @@ return [
     |--------------------------------------------------------------------------
     | RAG grounding threshold
     |--------------------------------------------------------------------------
-    | Minimum normalised grounding score (0–1) for a response to be accepted.
+    | Minimum normalised grounding score (0-1) for a response to be accepted.
     | Responses below this threshold receive a low_grounding flag and are
     | surfaced in the admin review dashboard. Set to 0.0 to disable gating.
     */
@@ -140,7 +140,7 @@ return [
     |--------------------------------------------------------------------------
     | Guardrail mode
     |--------------------------------------------------------------------------
-    | off | warn | mask | block  — see GuardrailService.
+    | off | warn | mask | block  - see GuardrailService.
     | Default 'warn' is safe to deploy: flags but never blocks/mutates.
     */
 

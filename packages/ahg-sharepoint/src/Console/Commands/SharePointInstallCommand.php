@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Install schema. Idempotent — guards every ALTER with information_schema check.
+ * Install schema. Idempotent - guards every ALTER with information_schema check.
  *
  * @phase 1
  */

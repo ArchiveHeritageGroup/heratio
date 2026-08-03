@@ -1,5 +1,5 @@
 {{--
-  RiC View: Library item — record-resource context with creators and holding institution.
+  RiC View: Library item - record-resource context with creators and holding institution.
 
   @copyright  Johan Pieterse / Plain Sailing Information Systems
   @license    AGPL-3.0-or-later

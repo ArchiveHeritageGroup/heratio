@@ -45,7 +45,7 @@ class DigitalObjectController extends Controller
      */
     /**
      * Render the dedicated "Link digital object" page (clone of AtoM
-     * object/addDigitalObject — accordion of upload / external URL /
+     * object/addDigitalObject - accordion of upload / external URL /
      * FTP-pick / merge).
      */
     public function addDigitalObject(string $slug)
@@ -514,7 +514,7 @@ class DigitalObjectController extends Controller
     public function stream(Request $request, int $id)
     {
         // ODRL gate (#1347): this serves raw bytes, so it must enforce the same
-        // policy as the IO show page — an authed-but-unauthorised user must not
+        // policy as the IO show page - an authed-but-unauthorised user must not
         // pull a restricted/embargoed dataset's file. Open objects carry no
         // prohibition, so this is a no-op for normal access.
         if (! app(\AhgResearch\Services\OdrlService::class)->isDigitalObjectPermitted($id, 'use')) {
@@ -576,7 +576,7 @@ class DigitalObjectController extends Controller
         // Get the IO slug for redirect
         $objectId = $doRow->object_id;
         if ($doRow->parent_id) {
-            // This is a derivative — get the master's object_id
+            // This is a derivative - get the master's object_id
             $master = DB::table('digital_object')->where('id', $doRow->parent_id)->first();
             $objectId = $master ? $master->object_id : $objectId;
             // Delete the master (which cascades to derivatives)
@@ -621,7 +621,7 @@ class DigitalObjectController extends Controller
         $doRow = DB::table('digital_object')->where('id', $id)->first();
         if (!$doRow) abort(404);
 
-        // Refuse to delete the master via this endpoint — use the regular
+        // Refuse to delete the master via this endpoint - use the regular
         // delete() route which cascades to derivatives.
         if (empty($doRow->parent_id)) {
             return redirect()->back()->with('error', 'Use the master delete action to remove the whole digital object.');
@@ -815,7 +815,7 @@ class DigitalObjectController extends Controller
     }
 
     /**
-     * Multi-file upload page — drag & drop batch uploader.
+     * Multi-file upload page - drag & drop batch uploader.
      * Migrated from AtoM informationobject/multiFileUpload.
      */
     public function multiFileUpload(Request $request, string $slug)
@@ -859,7 +859,7 @@ class DigitalObjectController extends Controller
             ->select('term.id', 'term_i18n.name', 'level_of_description_sector.display_order')
             ->get();
 
-        // Handle POST — process uploaded files and create child IOs
+        // Handle POST - process uploaded files and create child IOs
         if ($request->isMethod('post')) {
             $title = $request->input('title', 'image %dd%');
             $levelId = $request->input('levelOfDescription');
@@ -985,7 +985,7 @@ class DigitalObjectController extends Controller
         }
         $culture = app()->getLocale();
 
-        // POST — persist the edited titles (only for genuine children of $resource).
+        // POST - persist the edited titles (only for genuine children of $resource).
         if ($request->isMethod('post')) {
             foreach ((array) $request->input('titles', []) as $id => $title) {
                 $id = (int) $id;
@@ -1004,7 +1004,7 @@ class DigitalObjectController extends Controller
                 ->with('success', __('Digital objects imported.'));
         }
 
-        // GET — build the per-child rows for the review form.
+        // GET - build the per-child rows for the review form.
         $slugs = array_values(array_filter(array_map('trim', explode(',', (string) $request->query('items')))));
         $informationObjects = [];
         foreach ($slugs as $childSlug) {

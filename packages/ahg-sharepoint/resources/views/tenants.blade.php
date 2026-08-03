@@ -28,7 +28,7 @@
                 <td class="small font-monospace">{{ $t->tenant_id }}</td>
                 <td class="small font-monospace">{{ $t->client_id }}</td>
                 <td><span class="badge bg-{{ $cls }}">{{ ucfirst($t->status) }}</span></td>
-                <td class="small text-muted">{{ $t->last_token_at ?? '—' }}</td>
+                <td class="small text-muted">{{ $t->last_token_at ?? '-' }}</td>
                 <td class="text-end">
                     <a class="btn btn-sm btn-outline-secondary" href="{{ route('sharepoint.tenant.edit', ['id' => $t->id]) }}">{{ __('Edit') }}</a>
                 </td>

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ClassificationRuleService — auto-classification engine (Phase 4.2).
+ * ClassificationRuleService - auto-classification engine (Phase 4.2).
  *
  * Evaluates a stack of classification rules against a document or record's
  * metadata and returns the best-matching file plan node + (optional) disposal
@@ -10,15 +10,15 @@
  *
  * Supported rule types (codes from `ahg_dropdown` taxonomy `rm_classification_rule_type`):
  *
- *   folder_path  — match_pattern is a regex (e.g. `^/Projects/`) tested against meta.folder_path
- *   workspace    — exact (case-insensitive) match against meta.workspace
- *   tag          — any of meta.tags[] (comma-sep) appears in match_pattern (comma-sep)
- *   mime_type    — match_pattern is a regex tested against meta.mime_type
- *   metadata     — match_pattern is "key=value" matched against meta.custom[key]
- *   department   — exact (case-insensitive) match against meta.department
+ *   folder_path  - match_pattern is a regex (e.g. `^/Projects/`) tested against meta.folder_path
+ *   workspace    - exact (case-insensitive) match against meta.workspace
+ *   tag          - any of meta.tags[] (comma-sep) appears in match_pattern (comma-sep)
+ *   mime_type    - match_pattern is a regex tested against meta.mime_type
+ *   metadata     - match_pattern is "key=value" matched against meta.custom[key]
+ *   department   - exact (case-insensitive) match against meta.department
  *
  * The same engine runs for either a DM document (when ahg-dm ships) or a raw
- * information_object (today) — both produce the same shape of metadata array
+ * information_object (today) - both produce the same shape of metadata array
  * via the {@see buildMetaForIO()} helper.
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems

@@ -28,7 +28,7 @@
 
     <div class="d-flex flex-wrap gap-2 ms-auto">
       @php
-        // One reusable dropdown body — keeps the markup tight for 10 facets.
+        // One reusable dropdown body - keeps the markup tight for 10 facets.
         // $label    : button label when nothing is selected
         // $key      : query-string key (matches MuseumController::browse keys)
         // $selected : currently-applied value (null if "all")

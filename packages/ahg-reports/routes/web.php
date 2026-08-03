@@ -105,7 +105,7 @@ Route::middleware('admin')->group(function () {
 });
 
 // Main dashboard at /reports (matching AtoM URL)
-// #1384 — the dashboard/index/checksums surfaces expose draft/unpublished
+// #1384 - the dashboard/index/checksums surfaces expose draft/unpublished
 // counts, total user count and donor/digital-object stats + usernames; gate
 // them to admin like every drill-down report (were auth-only = any researcher).
 Route::middleware('admin')->group(function () {
@@ -187,7 +187,7 @@ Route::middleware('admin')->prefix('admin/reports')->group(function () {
 
 });
 
-// Custom report view — #1384: admin-gated (renders report data; was auth-only)
+// Custom report view - #1384: admin-gated (renders report data; was auth-only)
 Route::middleware('admin')->group(function () {
     Route::get('/reports/custom/{id}', [ReportBuilderController::class, 'view'])->name('reports.custom.view')->where('id', '[0-9]+');
 });

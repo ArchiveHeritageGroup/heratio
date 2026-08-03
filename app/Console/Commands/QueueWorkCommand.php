@@ -148,7 +148,7 @@ class QueueWorkCommand extends Command
 
     protected function executeJob(string $jobType, array $payload): void
     {
-        // Legacy job types — should be processed by the Symfony job worker
+        // Legacy job types - should be processed by the Symfony job worker
         if (str_starts_with($jobType, 'ar') || str_starts_with($jobType, 'Qubit')) {
             throw new \RuntimeException(
                 "Legacy job type '{$jobType}' should be processed by the Symfony job worker, not the Heratio queue worker."

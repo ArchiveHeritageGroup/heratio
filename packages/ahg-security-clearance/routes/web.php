@@ -183,7 +183,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/security-clearance/two-factor', [SecurityClearanceController::class, 'twoFactor'])
         ->name('security-clearance.two-factor');
     Route::post('/security-clearance/verify-2fa', [SecurityClearanceController::class, 'verifyTwoFactor'])
-        ->middleware('throttle:6,1') // #1395(E) — cap TOTP brute-force (6-digit code, was unthrottled)
+        ->middleware('throttle:6,1') // #1395(E) - cap TOTP brute-force (6-digit code, was unthrottled)
         ->name('security-clearance.verify-2fa');
     Route::get('/security-clearance/setup-2fa', [SecurityClearanceController::class, 'setupTwoFactor'])
         ->name('security-clearance.setup-2fa');
@@ -204,7 +204,7 @@ Route::middleware('auth')->group(function () {
         ->name('security-clearance.disable-2fa.confirm');
 
     // WebAuthn / FIDO2 / passkey MFA routes (issue #721)
-    // /security/2fa/webauthn/* — sibling factor to TOTP. A user with TOTP
+    // /security/2fa/webauthn/* - sibling factor to TOTP. A user with TOTP
     // enrolled can also enrol a passkey; login flow asks which to use when
     // both are present.
     Route::get('/security/2fa/webauthn', [WebAuthnController::class, 'setupPage'])
@@ -234,7 +234,7 @@ Route::middleware('auth')->group(function () {
         ->name('security-clearance.two-factor-choose');
 
     // Email / SMS OTP MFA routes (issue #722).
-    // /security/2fa/otp/* — third sibling factor next to TOTP + WebAuthn.
+    // /security/2fa/otp/* - third sibling factor next to TOTP + WebAuthn.
     // Enrolment management.
     Route::get('/security/2fa/otp', [OtpController::class, 'list'])
         ->name('security-clearance.otp.list');

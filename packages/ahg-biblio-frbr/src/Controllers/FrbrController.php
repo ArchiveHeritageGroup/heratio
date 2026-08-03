@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FrbrController — IFLA FRBR conceptual model for Heratio
+ * FrbrController - IFLA FRBR conceptual model for Heratio
  *
  * Converts bibliographic catalogue records to/from the FRBR entity model
  * (Work, Expression, Manifestation, Item) via OpenRiC. Supports import,
@@ -59,7 +59,7 @@ class FrbrController extends Controller
     }
 
     /**
-     * FRBR integration dashboard — overview + quick links.
+     * FRBR integration dashboard - overview + quick links.
      */
     public function index(): Response
     {
@@ -93,7 +93,7 @@ class FrbrController extends Controller
     }
 
     /**
-     * Export UI — select works and format for FRBR output.
+     * Export UI - select works and format for FRBR output.
      */
     public function export(): Response
     {
@@ -130,7 +130,7 @@ class FrbrController extends Controller
     }
 
     /**
-     * Import UI — submit an FRBR XML document.
+     * Import UI - submit an FRBR XML document.
      */
     public function import(): Response
     {
@@ -162,7 +162,7 @@ class FrbrController extends Controller
     }
 
     /**
-     * Validation UI — paste or upload an FRBR document.
+     * Validation UI - paste or upload an FRBR document.
      */
     public function validate(): Response
     {
@@ -206,7 +206,7 @@ class FrbrController extends Controller
     }
 
     /**
-     * Agent management UI — browse FRBR agents.
+     * Agent management UI - browse FRBR agents.
      */
     public function agent(): Response
     {

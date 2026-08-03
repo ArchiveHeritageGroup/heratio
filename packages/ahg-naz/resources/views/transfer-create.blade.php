@@ -107,7 +107,7 @@
                             <select name="schedule_id" class="form-select">
                                 <option value="">{{ __('None') }}</option>
                                 @foreach($schedules as $s)
-                                    <option value="{{ $s->id }}">{{ $s->agency_name ?? '' }} — {{ $s->record_series ?? '' }}</option>
+                                    <option value="{{ $s->id }}">{{ $s->agency_name ?? '' }} - {{ $s->record_series ?? '' }}</option>
                                 @endforeach
                             </select>
                         </div>

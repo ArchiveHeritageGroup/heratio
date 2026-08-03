@@ -343,11 +343,11 @@ class OaiPmhController extends Controller
             })
             ->where('io.id', '!=', self::ROOT_ID);
 
-        // #1384/#1389 — ICIP/TK + ODRL gate (fail-closed) on top of publication;
+        // #1384/#1389 - ICIP/TK + ODRL gate (fail-closed) on top of publication;
         // the single funnel for every OAI verb (list/get/isPublished).
         app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($q, 'io.id');
 
-        // #1388 — drop records tagged with a restricted community-protocol term
+        // #1388 - drop records tagged with a restricted community-protocol term
         // from the harvest too (sacred_secret/restricted/gendered/seasonal/community_voice).
         \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($q, 'io.id');
 

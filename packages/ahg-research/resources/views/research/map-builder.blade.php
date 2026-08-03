@@ -1,4 +1,4 @@
-{{-- Map Builder — cloned from AtoM --}}
+{{-- Map Builder - cloned from AtoM --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
         new bootstrap.Modal(document.getElementById('addPointModal')).show();
     });
 
-    // Edit point — open modal with data
+    // Edit point - open modal with data
     document.querySelectorAll('.edit-point-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             document.getElementById('editPointId').value = this.dataset.id;

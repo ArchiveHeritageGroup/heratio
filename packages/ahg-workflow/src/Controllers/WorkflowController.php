@@ -151,7 +151,7 @@ class WorkflowController extends Controller
         $result = $this->service->approveTask($id, $userId, $request->input('comment'));
 
         if ($result) {
-            // Spectrum Phase C2 — apply cross-procedure chain rules
+            // Spectrum Phase C2 - apply cross-procedure chain rules
             try {
                 $svc = new SpectrumComplianceService;
                 $chain = $svc->applyChainOnTaskApproved($id);
@@ -159,7 +159,7 @@ class WorkflowController extends Controller
                     return redirect()->route('workflow.my-tasks')->with('success', "Task approved. Spectrum chain spawned {$chain['spawned']} downstream task(s).");
                 }
             } catch (\Throwable $e) {
-                // chain spawn is best-effort — don't block approval
+                // chain spawn is best-effort - don't block approval
             }
 
             return redirect()->route('workflow.my-tasks')->with('success', 'Task approved successfully.');
@@ -232,7 +232,7 @@ class WorkflowController extends Controller
      */
     public function admin(Request $request)
     {
-        // Spectrum#A — optional filter to find workflows for a given procedure
+        // Spectrum#A - optional filter to find workflows for a given procedure
         $spectrumFilter = $request->query('spectrum');
         if ($spectrumFilter !== null) {
             $spectrumFilter = SpectrumProcedureCatalog::normalize($spectrumFilter);   // null if invalid
@@ -339,7 +339,7 @@ class WorkflowController extends Controller
     }
 
     /**
-     * heratio#143 Phase 1 — read-only visual diagram of a workflow.
+     * heratio#143 Phase 1 - read-only visual diagram of a workflow.
      */
     public function diagram(int $id)
     {
@@ -359,7 +359,7 @@ class WorkflowController extends Controller
     }
 
     /**
-     * Spectrum#B — install (or re-install) the Spectrum 5.1 procedure pack via
+     * Spectrum#B - install (or re-install) the Spectrum 5.1 procedure pack via
      * the Artisan command. Idempotent default; --overwrite is opt-in via
      * the form checkbox.
      */
@@ -382,7 +382,7 @@ class WorkflowController extends Controller
     }
 
     /**
-     * heratio#143 Phase 3 — drag-drop designer canvas.
+     * heratio#143 Phase 3 - drag-drop designer canvas.
      */
     public function designer(int $id)
     {
@@ -407,7 +407,7 @@ class WorkflowController extends Controller
     }
 
     /**
-     * heratio#143 Phase 3 — AJAX save endpoint. Replaces ALL edges for a
+     * heratio#143 Phase 3 - AJAX save endpoint. Replaces ALL edges for a
      * workflow with the supplied set, after DAG validation.
      */
     public function designerSave(Request $request, int $id)
@@ -440,7 +440,7 @@ class WorkflowController extends Controller
     }
 
     /**
-     * heratio#143 Phase 2 — task progress overlay on the workflow diagram.
+     * heratio#143 Phase 2 - task progress overlay on the workflow diagram.
      */
     public function taskDiagram(int $taskId)
     {
@@ -702,7 +702,7 @@ class WorkflowController extends Controller
     }
 
     // =========================================================================
-    // Spectrum Phase C — compliance dashboard, chain rules, per-object, export
+    // Spectrum Phase C - compliance dashboard, chain rules, per-object, export
     // =========================================================================
 
     public function spectrumDashboard(Request $request)

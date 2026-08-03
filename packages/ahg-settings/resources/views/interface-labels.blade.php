@@ -9,7 +9,7 @@
 @section('title-block')
   <h1>{{ __('User interface labels') }}</h1>
   <p class="small text-muted">
-    {{ __('Customise the entity-type names used across the UI (e.g. "Archival description", "Authority record"). Edits write to setting_i18n for the selected culture — the en row is the canonical fallback when a culture has no override.') }}
+    {{ __('Customise the entity-type names used across the UI (e.g. "Archival description", "Authority record"). Edits write to setting_i18n for the selected culture - the en row is the canonical fallback when a culture has no override.') }}
   </p>
 @endsection
 
@@ -18,7 +18,7 @@
     <div class="alert alert-success">{{ session('success') }}</div>
   @endif
 
-  {{-- Culture picker — switching reloads the page with ?culture= --}}
+  {{-- Culture picker - switching reloads the page with ?culture= --}}
   <form method="GET" class="d-flex align-items-center gap-2 mb-3" id="ui-label-culture-form">
     <label for="culture" class="form-label mb-0 fw-semibold">{{ __('Edit labels for culture:') }}</label>
     <select id="culture" name="culture" class="form-select form-select-sm" style="max-width:200px;">
@@ -49,7 +49,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="interface-label-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#interface-label-collapse" aria-expanded="true" aria-controls="interface-label-collapse">
-            {{ __('User interface labels') }} — <code class="ms-1">{{ $culture }}</code>
+            {{ __('User interface labels') }} - <code class="ms-1">{{ $culture }}</code>
           </button>
         </h2>
         <div id="interface-label-collapse" class="accordion-collapse collapse show" aria-labelledby="interface-label-heading">
@@ -61,7 +61,7 @@
                   <tr>
                     <th style="width:25%;">{{ __('Key') }}</th>
                     <th style="width:35%;"><span class="badge bg-light text-dark">en</span> {{ __('Source (English canonical)') }}</th>
-                    <th style="width:40%;"><span class="badge bg-light text-dark">{{ $culture }}</span> {{ __('Translation — edit here') }}</th>
+                    <th style="width:40%;"><span class="badge bg-light text-dark">{{ $culture }}</span> {{ __('Translation - edit here') }}</th>
                   </tr>
                 </thead>
                 <tbody>

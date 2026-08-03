@@ -74,7 +74,7 @@ class Marc21BinaryEncoder
         $offset = 0;
 
         // controlfields first (tags 001-009), then datafields. Use document
-        // order — the MarcxmlSerializer emits them in tag order already.
+        // order - the MarcxmlSerializer emits them in tag order already.
         $controlFields = $xpath->query('//marc:controlfield');
         if ($controlFields !== false) {
             foreach ($controlFields as $cf) {
@@ -130,7 +130,7 @@ class Marc21BinaryEncoder
      */
     private function directoryEntry(string $tag, int $length, int $offset): string
     {
-        // MARC tags are 3 chars (digits or alpha — alphas are rare). Pad
+        // MARC tags are 3 chars (digits or alpha - alphas are rare). Pad
         // or truncate defensively.
         $tag = str_pad(substr($tag, 0, 3), 3);
 

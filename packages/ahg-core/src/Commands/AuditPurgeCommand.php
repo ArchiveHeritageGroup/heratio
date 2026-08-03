@@ -26,9 +26,9 @@ class AuditPurgeCommand extends Command
 
             return self::FAILURE;
         }
-        // Only allow tables whose name looks like an audit table — defence against typos.
+        // Only allow tables whose name looks like an audit table - defence against typos.
         if (! preg_match('/audit/i', $table)) {
-            $this->error("Refusing to purge {$table} — name does not contain 'audit'.");
+            $this->error("Refusing to purge {$table} - name does not contain 'audit'.");
 
             return self::FAILURE;
         }
@@ -37,7 +37,7 @@ class AuditPurgeCommand extends Command
               : (Schema::hasColumn($table, 'logged_at') ? 'logged_at'
               : (Schema::hasColumn($table, 'occurred_at') ? 'occurred_at' : null));
         if (! $tsCol) {
-            $this->error("Table {$table} has no created_at/logged_at/occurred_at column — cannot determine age.");
+            $this->error("Table {$table} has no created_at/logged_at/occurred_at column - cannot determine age.");
 
             return self::FAILURE;
         }

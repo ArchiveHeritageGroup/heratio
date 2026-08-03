@@ -1,5 +1,5 @@
 {{--
-  Data Ingest — AI processing defaults, output defaults, and service availability
+  Data Ingest - AI processing defaults, output defaults, and service availability
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('ingest')
 
   @copyright  Johan Pieterse / Plain Sailing

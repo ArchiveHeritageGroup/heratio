@@ -284,7 +284,7 @@ class PdfRedactor:
                         continue
 
                 # Apply all redactions for this page. PyMuPDF only paints the
-                # `fill` colour where TEXT existed under the redaction rect —
+                # `fill` colour where TEXT existed under the redaction rect -
                 # whitespace areas inside the rect remain transparent, which
                 # leaks the original visual through. After apply_redactions
                 # runs, also draw an explicit filled rectangle for each region

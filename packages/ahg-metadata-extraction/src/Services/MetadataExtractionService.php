@@ -1595,7 +1595,7 @@ class MetadataExtractionService
             'updated_at' => now(),
         ]);
 
-        // AtoM `property` has no created_at/updated_at — timestamps live on `object`.
+        // AtoM `property` has no created_at/updated_at - timestamps live on `object`.
         DB::table('property')->insert([
             'id' => $propertyObjectId,
             'object_id' => $objectId,

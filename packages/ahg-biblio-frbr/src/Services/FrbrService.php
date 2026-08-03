@@ -1,11 +1,11 @@
 <?php
 
 /**
- * FrbrService — IFLA FRBR conceptual model conversion for Heratio
+ * FrbrService - IFLA FRBR conceptual model conversion for Heratio
  *
  * Converts bibliographic catalogue records to/from the FRBR entity model:
  *   Work → Expression → Manifestation → Item
- *   (Person | Corporate Body) — responsible Agent entities
+ *   (Person | Corporate Body) - responsible Agent entities
  *
  * Heratio catalogue mapping (see AhgBiblioBf\Services\BiblioWorkRepository):
  *   library_item work_key cluster → FRBR Work
@@ -238,18 +238,18 @@ class FrbrService
         $expressions = $xml->xpath('//frbr:Expression') ?: [];
 
         if (empty($works) && empty($expressions)) {
-            $issues['warnings'][] = 'No frbr:Work or frbr:Expression elements found — document may not be FRBR.';
+            $issues['warnings'][] = 'No frbr:Work or frbr:Expression elements found - document may not be FRBR.';
         }
 
         // Warn if no rdf:RDF root
         if (! $xml->xpath('//rdf:RDF') && ! $xml->getNamespaces()) {
-            $issues['warnings'][] = 'No rdf:RDF root element — namespace-independent check applied.';
+            $issues['warnings'][] = 'No rdf:RDF root element - namespace-independent check applied.';
         }
 
         // Warn about orphan Items (Items should belong to an Expression)
         $items = $xml->xpath('//frbr:Item') ?: [];
         if (count($items) > 0 && empty($expressions)) {
-            $issues['warnings'][] = 'frbr:Item elements found with no parent Expression — verify hierarchy.';
+            $issues['warnings'][] = 'frbr:Item elements found with no parent Expression - verify hierarchy.';
         }
 
         return $issues;

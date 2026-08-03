@@ -7,7 +7,7 @@
  * its modules sequence content (each may reuse a #1105 curriculum lecture);
  * learners enrol, work through modules (progress tracked), take an assessment,
  * and on passing are issued a certificate. Nothing about any customer is
- * hard-coded — cohort, languages, pass mark and roles are all data.
+ * hard-coded - cohort, languages, pass mark and roles are all data.
  *
  * @author    Johan Pieterse
  * @copyright Plain Sailing Information Systems
@@ -257,8 +257,8 @@ class ResearchTrainingService
     }
 
     /**
-     * Score an assessment attempt, record the best score, and — when all modules
-     * are complete AND the score meets the pass mark — mark the enrolment
+     * Score an assessment attempt, record the best score, and - when all modules
+     * are complete AND the score meets the pass mark - mark the enrolment
      * completed and issue a certificate. Returns [score, passed, certificate_no?].
      */
     public function submitAssessment(int $enrolmentId, array $answers): array

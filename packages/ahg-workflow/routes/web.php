@@ -39,20 +39,20 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/workflow/admin/{id}/edit', [WorkflowController::class, 'editWorkflow'])->name('workflow.admin.edit');
     Route::post('/workflow/admin/{id}/delete', [WorkflowController::class, 'deleteWorkflow'])->name('workflow.admin.delete');
 
-    // heratio#143 Phase 1 — visual diagram (read-only).
+    // heratio#143 Phase 1 - visual diagram (read-only).
     Route::get('/workflow/{id}/diagram', [WorkflowController::class, 'diagram'])->name('workflow.diagram')->whereNumber('id');
 
-    // heratio#143 Phase 2 — task progress overlay on the diagram.
+    // heratio#143 Phase 2 - task progress overlay on the diagram.
     Route::get('/workflow/task/{taskId}/diagram', [WorkflowController::class, 'taskDiagram'])->name('workflow.task.diagram')->whereNumber('taskId');
 
-    // heratio#143 Phase 3 — drag-drop designer.
+    // heratio#143 Phase 3 - drag-drop designer.
     Route::get('/workflow/{id}/designer', [WorkflowController::class, 'designer'])->name('workflow.designer')->whereNumber('id');
     Route::post('/workflow/{id}/designer/save', [WorkflowController::class, 'designerSave'])->name('workflow.designer.save')->whereNumber('id');
 
-    // Spectrum#B — install/re-install Spectrum 5.1 procedure pack.
+    // Spectrum#B - install/re-install Spectrum 5.1 procedure pack.
     Route::post('/workflow/admin/install-spectrum', [WorkflowController::class, 'installSpectrumPack'])->name('workflow.admin.install-spectrum');
 
-    // Spectrum Phase C — compliance dashboard + chain rules + export.
+    // Spectrum Phase C - compliance dashboard + chain rules + export.
     Route::get('/spectrum/dashboard', [WorkflowController::class, 'spectrumDashboard'])->name('workflow.spectrum.dashboard');
     Route::get('/spectrum/export.csv', [WorkflowController::class, 'spectrumExportCsv'])->name('workflow.spectrum.export');
     Route::get('/spectrum/chain', [WorkflowController::class, 'spectrumChainRules'])->name('workflow.spectrum.chain');

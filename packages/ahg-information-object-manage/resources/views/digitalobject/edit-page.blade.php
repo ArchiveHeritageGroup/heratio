@@ -1,5 +1,5 @@
 {{--
-  Edit Digital Object — Heratio
+  Edit Digital Object - Heratio
   Migrated from AtoM ahgThemeB5Plugin digitalobject/editSuccess.php
 
   Copyright (C) 2026 Johan Pieterse
@@ -10,7 +10,7 @@
 --}}
 @extends('theme::layouts.1col')
 
-@section('title', 'Edit ' . mb_strtolower(config('app.ui_label_digitalobject', 'digital object')) . ' — ' . ($ioTitle ?: 'Untitled'))
+@section('title', 'Edit ' . mb_strtolower(config('app.ui_label_digitalobject', 'digital object')) . ' - ' . ($ioTitle ?: 'Untitled'))
 
 @section('content')
 <div class="multiline-header d-flex align-items-center mb-3">

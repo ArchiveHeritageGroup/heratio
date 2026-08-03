@@ -16,7 +16,7 @@ class CleanupUploadsCommand extends Command
     {
         $tmpDir = rtrim((string) config('heratio.uploads_path', base_path('uploads')), '/').'/tmp';
         if (! is_dir($tmpDir)) {
-            $this->info("[cleanup-uploads] {$tmpDir} does not exist — nothing to clean.");
+            $this->info("[cleanup-uploads] {$tmpDir} does not exist - nothing to clean.");
 
             return self::SUCCESS;
         }

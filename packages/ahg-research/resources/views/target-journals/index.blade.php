@@ -1,4 +1,4 @@
-{{-- #1107 Target-journal directory — index --}}
+{{-- #1107 Target-journal directory - index --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -39,7 +39,7 @@
             @if($j['publisher'])<br><small class="text-muted">{{ $j['publisher'] }}</small>@endif</td>
           <td class="text-muted small">{{ \Illuminate\Support\Str::limit($j['subject_scope'] ?? '', 90) }}</td>
           <td class="small">{{ $j['accreditation'] }}</td>
-          <td class="small">{{ $j['reference_style'] ?: '—' }}</td>
+          <td class="small">{{ $j['reference_style'] ?: '-' }}</td>
           <td class="text-end">
             <a href="{{ route('research.target-journal.edit', $j['id']) }}" class="btn btn-sm atom-btn-white">{{ __('Edit') }}</a>
             <form action="{{ route('research.target-journal.destroy', $j['id']) }}" method="post" class="d-inline" onsubmit="return confirm('{{ __('Remove from directory?') }}')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">{{ __('Delete') }}</button></form>

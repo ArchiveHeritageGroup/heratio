@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PronomIdentificationService — Phase 3.2.
+ * PronomIdentificationService - Phase 3.2.
  *
  * Pure-PHP file-format identification driven by the PRONOM registry vocabulary
  * (PUIDs like fmt/14 for PDF 1.0, fmt/353 for TIFF 6.0, x-fmt/263 for ZIP).
@@ -18,10 +18,10 @@
  *   - preservation_object_format   (per-digital-object identification result)
  *
  * Risk levels per PRONOM-style classifications:
- *   - low      — preservation-quality formats (PDF/A, TIFF uncompressed, FLAC, WAV, JP2, EML)
- *   - medium   — widely supported but not preservation-grade (PDF, JPEG, MP3, MP4, DOCX)
- *   - high     — proprietary or version-bound (DOC, XLS, PPT, RAR)
- *   - unknown  — could not be identified
+ *   - low      - preservation-quality formats (PDF/A, TIFF uncompressed, FLAC, WAV, JP2, EML)
+ *   - medium   - widely supported but not preservation-grade (PDF, JPEG, MP3, MP4, DOCX)
+ *   - high     - proprietary or version-bound (DOC, XLS, PPT, RAR)
+ *   - unknown  - could not be identified
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
  * @license    AGPL-3.0-or-later
@@ -44,7 +44,7 @@ class PronomIdentificationService
      *                       offset:int, hex:string, risk:string, is_preservation:bool}>
      */
     public const MAGIC_SIGNATURES = [
-        // PDF/A is just PDF with extra metadata — we identify both as PDF and let DROID handle PDF/A later
+        // PDF/A is just PDF with extra metadata - we identify both as PDF and let DROID handle PDF/A later
         ['puid' => 'fmt/14',   'name' => 'Acrobat PDF 1.0',          'version' => '1.0', 'ext' => 'pdf',  'mime' => 'application/pdf',                'offset' => 0, 'hex' => '255044462d312e30', 'risk' => 'medium', 'is_preservation' => false],
         ['puid' => 'fmt/15',   'name' => 'Acrobat PDF 1.1',          'version' => '1.1', 'ext' => 'pdf',  'mime' => 'application/pdf',                'offset' => 0, 'hex' => '255044462d312e31', 'risk' => 'medium', 'is_preservation' => false],
         ['puid' => 'fmt/16',   'name' => 'Acrobat PDF 1.2',          'version' => '1.2', 'ext' => 'pdf',  'mime' => 'application/pdf',                'offset' => 0, 'hex' => '255044462d312e32', 'risk' => 'medium', 'is_preservation' => false],
@@ -55,11 +55,11 @@ class PronomIdentificationService
         ['puid' => 'fmt/276',  'name' => 'Acrobat PDF 1.7',          'version' => '1.7', 'ext' => 'pdf',  'mime' => 'application/pdf',                'offset' => 0, 'hex' => '255044462d312e37', 'risk' => 'medium', 'is_preservation' => false],
         ['puid' => 'fmt/95',   'name' => 'PDF/A-1',                  'version' => '1',   'ext' => 'pdf',  'mime' => 'application/pdf',                'offset' => 0, 'hex' => '255044462d',         'risk' => 'low',    'is_preservation' => true],
 
-        // Image — TIFF (LE/BE)
+        // Image - TIFF (LE/BE)
         ['puid' => 'fmt/353',  'name' => 'TIFF (little-endian)',     'version' => '6.0', 'ext' => 'tiff', 'mime' => 'image/tiff',                     'offset' => 0, 'hex' => '49492a00',           'risk' => 'low',    'is_preservation' => true],
         ['puid' => 'fmt/353',  'name' => 'TIFF (big-endian)',        'version' => '6.0', 'ext' => 'tiff', 'mime' => 'image/tiff',                     'offset' => 0, 'hex' => '4d4d002a',           'risk' => 'low',    'is_preservation' => true],
 
-        // Image — JPEG family
+        // Image - JPEG family
         ['puid' => 'fmt/43',   'name' => 'JPEG File Interchange',    'version' => '1.01','ext' => 'jpg',  'mime' => 'image/jpeg',                     'offset' => 0, 'hex' => 'ffd8ff',             'risk' => 'medium', 'is_preservation' => false],
         ['puid' => 'x-fmt/391','name' => 'JPEG 2000',                'version' => null,  'ext' => 'jp2',  'mime' => 'image/jp2',                      'offset' => 0, 'hex' => '0000000c6a5020200d0a870a', 'risk' => 'low', 'is_preservation' => true],
         ['puid' => 'fmt/11',   'name' => 'PNG',                      'version' => null,  'ext' => 'png',  'mime' => 'image/png',                      'offset' => 0, 'hex' => '89504e470d0a1a0a',   'risk' => 'low',    'is_preservation' => true],
@@ -81,7 +81,7 @@ class PronomIdentificationService
         ['puid' => 'x-fmt/384','name' => 'Matroska',                 'version' => null,  'ext' => 'mkv',  'mime' => 'video/x-matroska',               'offset' => 0, 'hex' => '1a45dfa3',           'risk' => 'medium', 'is_preservation' => false],
         ['puid' => 'fmt/569',  'name' => 'QuickTime / MOV',          'version' => null,  'ext' => 'mov',  'mime' => 'video/quicktime',                'offset' => 4, 'hex' => '6674797071742020',   'risk' => 'medium', 'is_preservation' => false],
 
-        // Office / OOXML — all start with PK\x03\x04 (zip), but more specific subtypes first.
+        // Office / OOXML - all start with PK\x03\x04 (zip), but more specific subtypes first.
         ['puid' => 'fmt/412',  'name' => 'Microsoft Word DOCX',      'version' => '2007','ext' => 'docx', 'mime' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'offset' => 0, 'hex' => '504b0304', 'risk' => 'medium', 'is_preservation' => false],
         ['puid' => 'fmt/214',  'name' => 'Microsoft Excel XLSX',     'version' => '2007','ext' => 'xlsx', 'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',     'offset' => 0, 'hex' => '504b0304', 'risk' => 'medium', 'is_preservation' => false],
         ['puid' => 'fmt/215',  'name' => 'Microsoft PowerPoint PPTX','version' => '2007','ext' => 'pptx', 'mime' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'offset' => 0, 'hex' => '504b0304', 'risk' => 'medium', 'is_preservation' => false],
@@ -145,7 +145,7 @@ class PronomIdentificationService
                 if ($this->matchesSignature($sample, $sig['offset'], $sig['hex'])) {
                     // ZIP-magic ambiguity: PK\x03\x04 is shared by ZIP + OOXML (DOCX/XLSX/PPTX) + JAR + many others.
                     // Resolve by file extension. Without an extension we cannot tell from the wire bytes alone
-                    // (which is why DROID inspects [Content_Types].xml inside the zip — a future enhancement).
+                    // (which is why DROID inspects [Content_Types].xml inside the zip - a future enhancement).
                     if (in_array($sig['puid'], ['fmt/412', 'fmt/214', 'fmt/215', 'x-fmt/263'], true)) {
                         $resolved = $this->disambiguateZipFamily($ext);
                         if ($resolved !== null) {
@@ -161,7 +161,7 @@ class PronomIdentificationService
                                 'is_preservation'  => (bool) $resolved['is_preservation'],
                             ];
                         }
-                        // No extension — return generic ZIP.
+                        // No extension - return generic ZIP.
                         $generic = $this->findRow(self::MAGIC_SIGNATURES, fn($r) => $r['puid'] === 'x-fmt/263');
                         return [
                             'puid'             => $generic['puid'],
@@ -249,7 +249,7 @@ class PronomIdentificationService
         if (is_string($mime) && $mime !== '') {
             return [
                 'puid'             => 'fmt/0',
-                'name'             => 'Unknown — best-guess MIME',
+                'name'             => 'Unknown - best-guess MIME',
                 'version'          => null,
                 'mime'             => $mime,
                 'ext'              => $ext ?: null,

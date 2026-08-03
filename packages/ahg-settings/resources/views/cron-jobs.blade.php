@@ -145,7 +145,7 @@
                     @if($job->last_run_at)
                       <small class="text-nowrap" title="{{ $job->last_run_at }}">{{ \Carbon\Carbon::parse($job->last_run_at)->diffForHumans() }}</small>
                     @else
-                      <small class="text-muted">—</small>
+                      <small class="text-muted">-</small>
                     @endif
                   </td>
 
@@ -154,7 +154,7 @@
                     @if($job->last_run_duration_ms !== null)
                       <small>{{ $job->last_run_duration_ms >= 1000 ? round($job->last_run_duration_ms / 1000, 1) . 's' : $job->last_run_duration_ms . 'ms' }}</small>
                     @else
-                      <small class="text-muted">—</small>
+                      <small class="text-muted">-</small>
                     @endif
                   </td>
 
@@ -163,7 +163,7 @@
                     @if($job->next_run_at && $job->is_enabled)
                       <small class="text-nowrap" title="{{ $job->next_run_at }}">{{ \Carbon\Carbon::parse($job->next_run_at)->diffForHumans() }}</small>
                     @else
-                      <small class="text-muted">—</small>
+                      <small class="text-muted">-</small>
                     @endif
                   </td>
 
@@ -272,11 +272,11 @@
       </div>
       <div id="cron-reference" class="collapse">
         <div class="card-body">
-          <pre class="bg-dark text-light p-3 rounded mb-3">┌───────────── minute (0–59)
-│ ┌───────────── hour (0–23)
-│ │ ┌───────────── day of month (1–31)
-│ │ │ ┌───────────── month (1–12)
-│ │ │ │ ┌───────────── day of week (0–7, 0 and 7 are Sunday)
+          <pre class="bg-dark text-light p-3 rounded mb-3">┌───────────── minute (0-59)
+│ ┌───────────── hour (0-23)
+│ │ ┌───────────── day of month (1-31)
+│ │ │ ┌───────────── month (1-12)
+│ │ │ │ ┌───────────── day of week (0-7, 0 and 7 are Sunday)
 │ │ │ │ │
 * * * * * command</pre>
           <div class="row">

@@ -93,7 +93,7 @@ class OaiMarkDeletedCommand extends Command
 
     /**
      * Mark every IO that has an oai_local_identifier set but is not currently
-     * published as deleted. Idempotent — re-runs only add new tombstones.
+     * published as deleted. Idempotent - re-runs only add new tombstones.
      */
     private function markAllUnpublished(): int
     {

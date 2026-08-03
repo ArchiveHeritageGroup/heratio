@@ -316,7 +316,7 @@ class EagSerializer
     {
         $identity = $this->el('identity');
 
-        // <repositoryType> — corporate body by definition
+        // <repositoryType> - corporate body by definition
         $repositoryType = $this->el('repositoryType', 'Archive');
         $identity->appendChild($repositoryType);
 

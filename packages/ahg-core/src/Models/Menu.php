@@ -72,7 +72,7 @@ class Menu extends Model
 
     /** AtoM-port helper: getPath. The current schema stores plain strings on
      *  menu.path; the array shape (['getUrl' => true, 'resolveAlias' => true])
-     *  is accepted for compatibility but ignored — no symfony-style aliases. */
+     *  is accepted for compatibility but ignored - no symfony-style aliases. */
     public function getPath($options = []): string
     {
         $path = (string) $this->path;

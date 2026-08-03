@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DiffComputer — produces a structured diff between two version snapshots.
+ * DiffComputer - produces a structured diff between two version snapshots.
  *
  * Mirror of the AtoM-side service at
  *   atom-ahg-plugins/ahgVersionControlPlugin/lib/Services/DiffComputer.php

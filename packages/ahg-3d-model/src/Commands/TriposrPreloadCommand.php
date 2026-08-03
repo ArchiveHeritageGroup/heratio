@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TriposrPreloadCommand — warm up the TripoSR worker so first request isn't a cold start.
+ * TriposrPreloadCommand - warm up the TripoSR worker so first request isn't a cold start.
  *
  * Hits the /preload endpoint (server-side keeps weights in VRAM) once it's
  * reachable. Useful as a service-startup hook or scheduled keep-alive.

@@ -1,5 +1,5 @@
 {{--
-  Heratio — AI Condition / Model Training page
+  Heratio - AI Condition / Model Training page
   Copyright (c) 2026 Johan Pieterse / Plain Sailing (Pty) Ltd
   Licensed under the GNU Affero General Public License v3.0 (AGPL-3.0)
   Cloned from PSIS ahgAiConditionPlugin/templates/trainingSuccess.php

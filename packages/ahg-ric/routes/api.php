@@ -53,7 +53,7 @@ use AhgRic\Http\Controllers\DatasetController;
 Route::prefix('api/ric/v1')->middleware([
     // Session middleware so api.auth:write can fall back to the logged-in
     // admin's cookie when no X-API-Key / Bearer is present (the embedded
-    // RiC modal + relation editor rely on this — they're called from
+    // RiC modal + relation editor rely on this - they're called from
     // Heratio pages and don't ship an API key). CSRF is intentionally
     // excluded so external API-key callers aren't broken.
     \Illuminate\Cookie\Middleware\EncryptCookies::class,
@@ -105,12 +105,12 @@ Route::prefix('api/ric/v1')->middleware([
     Route::get('/sparql', [LinkedDataApiController::class, 'sparql']);
     Route::get('/graph', [LinkedDataApiController::class, 'graph']);
 
-    // Thumbnails — derivative of /uploads/. Generates + caches on first call.
+    // Thumbnails - derivative of /uploads/. Generates + caches on first call.
     // Public (no auth) since the /uploads/ files themselves are public.
     Route::get('/thumbnail/{id}', [LinkedDataApiController::class, 'thumbnail'])
         ->where('id', '[0-9]+');
 
-    // OAI-PMH v2.0 — standard archival harvest protocol.
+    // OAI-PMH v2.0 - standard archival harvest protocol.
     // Accepts both GET and POST per the OAI-PMH spec.
     Route::match(['get', 'post'], '/oai', [OaiPmhController::class, 'handle']);
 
@@ -160,7 +160,7 @@ Route::prefix('api/ric/v1')->middleware([
     Route::get('/places/flat', [LinkedDataApiController::class, 'placesFlat']);
 
     // ------------------------------------------------------------
-    // API-2 write surface — gated by api.auth:write
+    // API-2 write surface - gated by api.auth:write
     // ------------------------------------------------------------
     Route::middleware(['api.auth:write'])->group(function () {
         // Bulk import (CSV or JSON). See AhgRic\Http\Controllers\ImportController
@@ -181,22 +181,22 @@ Route::prefix('api/ric/v1')->middleware([
         Route::match(['patch', 'put'], '/agents/{id}', [LinkedDataApiController::class, 'updateAgent'])->where('id', '[0-9]+');
         Route::delete('/agents/{id}', [LinkedDataApiController::class, 'deleteAgent'])->where('id', '[0-9]+');
 
-        // Records (rico:Record / rico:RecordSet — information_object)
+        // Records (rico:Record / rico:RecordSet - information_object)
         Route::post('/records', [LinkedDataApiController::class, 'createRecord']);
         Route::match(['patch', 'put'], '/records/{id}', [LinkedDataApiController::class, 'updateRecord'])->where('id', '[0-9]+');
         Route::delete('/records/{id}', [LinkedDataApiController::class, 'deleteRecord'])->where('id', '[0-9]+');
 
-        // Repositories (ISDIAH — rico:CorporateBody with repository extension)
+        // Repositories (ISDIAH - rico:CorporateBody with repository extension)
         Route::post('/repositories', [LinkedDataApiController::class, 'createRepository']);
         Route::match(['patch', 'put'], '/repositories/{id}', [LinkedDataApiController::class, 'updateRepository'])->where('id', '[0-9]+');
         Route::delete('/repositories/{id}', [LinkedDataApiController::class, 'deleteRepository'])->where('id', '[0-9]+');
 
-        // Functions (ISDF — rico:Function)
+        // Functions (ISDF - rico:Function)
         Route::post('/functions', [LinkedDataApiController::class, 'createFunction']);
         Route::match(['patch', 'put'], '/functions/{id}', [LinkedDataApiController::class, 'updateFunction'])->where('id', '[0-9]+');
         Route::delete('/functions/{id}', [LinkedDataApiController::class, 'deleteFunctionEntity'])->where('id', '[0-9]+');
 
-        // Generic delete-by-id (looks up class_name and dispatches) — useful
+        // Generic delete-by-id (looks up class_name and dispatches) - useful
         // for UIs that hold only an id, not a type.
         Route::delete('/entities/{id}', [LinkedDataApiController::class, 'deleteEntityById'])->where('id', '[0-9]+');
 
@@ -227,7 +227,7 @@ Route::prefix('api/ric/v1')->middleware([
         ]);
     });
 
-    // OpenAPI 3.0 spec — single source of truth is AhgRic\Support\OpenApiSpec.
+    // OpenAPI 3.0 spec - single source of truth is AhgRic\Support\OpenApiSpec.
     Route::get('/openapi.json', function (\Illuminate\Http\Request $r) {
         $spec = \AhgRic\Support\OpenApiSpec::build(url('/api/ric/v1'));
         return response()->json($spec, 200, [
@@ -236,7 +236,7 @@ Route::prefix('api/ric/v1')->middleware([
         ]);
     });
 
-    // Swagger UI explorer — loads the spec above and lets the developer
+    // Swagger UI explorer - loads the spec above and lets the developer
     // "Try it out" on any endpoint with their own X-API-Key. Inlined (not
     // Blade) so it works on minimal deployments without a writable view
     // cache. Single source of truth for the HTML lives in AhgRic\Support\SwaggerUiHtml.

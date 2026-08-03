@@ -1,5 +1,5 @@
 {{--
-  Related contact information — modal table editor
+  Related contact information - modal table editor
   Matches AtoM contactinformation/_edit.php exactly:
   - Table with Contact person + Primary columns
   - Modal with 3 pill tabs: Main, Physical location, Other details

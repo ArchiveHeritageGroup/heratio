@@ -16,8 +16,8 @@
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Current Assignment') }}</h5></div>
   <div class="card-body">
     <table class="table table-sm">
-      <tr><th style="width:200px">{{ __('Schedule') }}</th><td>{{ $assignment->schedule_ref ?? '' }} — {{ $assignment->schedule_title ?? '' }}</td></tr>
-      <tr><th>{{ __('Disposal Class') }}</th><td>{{ $assignment->class_ref ?? '' }} — {{ $assignment->class_title ?? '' }}</td></tr>
+      <tr><th style="width:200px">{{ __('Schedule') }}</th><td>{{ $assignment->schedule_ref ?? '' }} - {{ $assignment->schedule_title ?? '' }}</td></tr>
+      <tr><th>{{ __('Disposal Class') }}</th><td>{{ $assignment->class_ref ?? '' }} - {{ $assignment->class_title ?? '' }}</td></tr>
       <tr><th>{{ __('Disposal Action') }}</th><td>{{ ucfirst(str_replace('_', ' ', $assignment->disposal_action ?? '')) }}</td></tr>
       <tr><th>{{ __('Retention Period') }}</th><td>
         @if($assignment->retention_period_years || $assignment->retention_period_months)
@@ -51,7 +51,7 @@
             <option value="">-- Select a disposal class --</option>
             @foreach($activeClasses as $cls)
               <option value="{{ $cls->id }}" {{ ($assignment && $assignment->disposal_class_id == $cls->id) ? 'selected' : '' }}>
-                {{ $cls->schedule_title }} / {{ $cls->class_ref }} — {{ $cls->title }} ({{ ucfirst($cls->disposal_action) }})
+                {{ $cls->schedule_title }} / {{ $cls->class_ref }} - {{ $cls->title }} ({{ ucfirst($cls->disposal_action) }})
               </option>
             @endforeach
           </select>

@@ -1,4 +1,4 @@
-{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems — johan@plainsailingisystems.co.za
+{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems - johan@plainsailingisystems.co.za
      This file is part of Heratio. Licensed under the GNU Affero General Public License v3+. --}}
 @extends('theme::layouts.1col')
 
@@ -42,7 +42,7 @@
     if (!$license) {
         $compliance['issues'][] = 'No data-protection controller license registered.';
     } elseif ($licenseDaysRemaining !== null && $licenseDaysRemaining < 0) {
-        $compliance['issues'][] = 'Controller license is expired — renew with the regulator.';
+        $compliance['issues'][] = 'Controller license is expired - renew with the regulator.';
     } elseif ($licenseDaysRemaining !== null && $licenseDaysRemaining <= 60) {
         $compliance['warnings'][] = "Controller license expires in {$licenseDaysRemaining} days.";
     }
@@ -67,7 +67,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-shield-alt me-2"></i>{{ __('CDPA Compliance Dashboard') }}</h1>
-            <p class="text-muted">Cyber and Data Protection Act [Chapter 12:07] &mdash; regulator-administered</p>
+            <p class="text-muted">Cyber and Data Protection Act [Chapter 12:07] - regulator-administered</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgcdpa.reports') }}" class="btn atom-btn-outline-primary">

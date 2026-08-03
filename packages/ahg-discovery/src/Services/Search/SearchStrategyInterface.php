@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SearchStrategyInterface — contract every Discovery search strategy implements.
+ * SearchStrategyInterface - contract every Discovery search strategy implements.
  *
  * The Discovery pipeline runs N strategies in parallel, captures per-strategy
  * results + timing into rm_discovery_log.strategy_breakdown, then merges + enriches.

@@ -1,5 +1,5 @@
 -- ============================================================================
--- ahg-scan — Dropdown seed
+-- ahg-scan - Dropdown seed
 -- Idempotent: INSERT IGNORE. Run: mysql -u root heratio < packages/ahg-scan/database/seed_dropdowns.sql
 -- ============================================================================
 

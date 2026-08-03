@@ -1,4 +1,4 @@
-{{-- RiC Entity Right Sidebar — Actions + Metadata --}}
+{{-- RiC Entity Right Sidebar - Actions + Metadata --}}
 @php
     $ricOType = $ricOType ?? 'Entity';
     $browseRoute = $browseRoute ?? '#';

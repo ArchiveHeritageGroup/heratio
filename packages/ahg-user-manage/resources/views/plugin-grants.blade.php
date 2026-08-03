@@ -1,22 +1,22 @@
 @extends('theme::layouts.1col')
 
 @php $displayName = $target->username ?? $target->email ?? $slug; @endphp
-@section('title', __('Plugin Grants') . ' — ' . $displayName)
+@section('title', __('Plugin Grants') . ' - ' . $displayName)
 @section('body-class', 'view admin-plugin-grants')
 
 @section('content')
   <h1>
     {{ __('Plugin grants') }}
-    <small class="text-muted">— {{ $displayName }}{{ $target->email ? " ({$target->email})" : '' }}</small>
+    <small class="text-muted">- {{ $displayName }}{{ $target->email ? " ({$target->email})" : '' }}</small>
   </h1>
   <p class="text-muted">
     {{ __('Per-user CAPABILITY layer. This grants or denies plugin access for this user. The user themselves can additionally HIDE plugins from their own nav at') }}
-    <code>/user/profile/plugins</code>{{ __(' — that is a separate visibility layer.') }}
+    <code>/user/profile/plugins</code>{{ __(' - that is a separate visibility layer.') }}
   </p>
   <ul class="text-muted small">
-    <li><strong>Inherit</strong> — follow the global enable/disable on Settings → Plugins (default).</li>
-    <li><strong>Allow</strong>  — user has access even if globally disabled (use for beta-testers).</li>
-    <li><strong>Deny</strong>   — user is blocked even if globally enabled. Plugin URLs return 403.</li>
+    <li><strong>Inherit</strong> - follow the global enable/disable on Settings → Plugins (default).</li>
+    <li><strong>Allow</strong>  - user has access even if globally disabled (use for beta-testers).</li>
+    <li><strong>Deny</strong>   - user is blocked even if globally enabled. Plugin URLs return 403.</li>
   </ul>
 
   @if(session('status'))

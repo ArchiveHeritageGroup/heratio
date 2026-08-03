@@ -13,8 +13,8 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `views` — TODO: implement
-- [ ] `readme` — TODO: implement
+- [ ] `views` - TODO: implement
+- [ ] `readme` - TODO: implement
 
 ## References
 - docs/help/ (search for `api`)

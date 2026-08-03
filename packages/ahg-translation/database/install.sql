@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-translation — install schema
+-- ahg-translation - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgTranslationPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -76,7 +76,7 @@ INSERT IGNORE INTO `ahg_translation_settings` (`setting_key`, `setting_value`)
   SELECT 'mt.target_culture', 'en'
   WHERE NOT EXISTS (SELECT 1 FROM `ahg_translation_settings` WHERE `setting_key`='mt.target_culture');
 
--- ui_string — DB-backed catalogue for every UI translation key (issue #57).
+-- ui_string - DB-backed catalogue for every UI translation key (issue #57).
 -- Replaces lang/{locale}.json as the system-of-record for UI labels. The JSON
 -- files remain on disk as a deploy-time fallback (DbAwareLoader reads files
 -- when the DB has no rows for a culture) and as the seed source for the
@@ -108,8 +108,8 @@ CREATE TABLE IF NOT EXISTS `ui_string` (
   KEY `idx_culture` (`culture`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ui_string_change — pending/approved/rejected workflow for /admin/translation/strings
--- (issue #54 second-pass — admin auto-approves, editor goes to queue, admin
+-- ui_string_change - pending/approved/rejected workflow for /admin/translation/strings
+-- (issue #54 second-pass - admin auto-approves, editor goes to queue, admin
 -- can opt-in to second-review). Also serves as the audit log: every change
 -- (immediate-approve OR queued-then-approved) writes a row.
 CREATE TABLE IF NOT EXISTS `ui_string_change` (

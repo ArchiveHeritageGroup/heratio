@@ -193,7 +193,7 @@ class FilePlanController extends Controller
     }
 
     /**
-     * Step 1: Import form — upload file.
+     * Step 1: Import form - upload file.
      */
     public function importForm()
     {

@@ -1,12 +1,12 @@
 <?php
 
 /**
- * TranslationExtractCommand — harvest __() keys from the codebase into lang/en.json.
+ * TranslationExtractCommand - harvest __() keys from the codebase into lang/en.json.
  *
  * Heratio had no extraction step, so UI written with correct __() wrapping never
  * reached the locale files. Laravel's __() falls back to rendering the key when
  * no entry exists, so those strings display as English and nothing reports a
- * problem — 13,914 keys were missing when this was first measured, leaving
+ * problem - 13,914 keys were missing when this was first measured, leaving
  * en.json covering roughly 27% of the interface (#1420).
  *
  * This walks the source tree for __('...'), trans('...') and @lang('...') with a

@@ -138,7 +138,7 @@ class NormalizationService
                     'completed_at' => now()->format('Y-m-d H:i:s'),
                     'duration_ms' => (int) ((microtime(true) - $start) * 1000),
                 ]);
-                // #1385 Phase 3 — a tool error / no-output is a provenance-worthy
+                // #1385 Phase 3 - a tool error / no-output is a provenance-worthy
                 // failure, not a silent skip: record a failed PREMIS normalization event.
                 $this->premis($digitalObjectId, $ioId, 'normalization',
                     ucfirst($purpose) . " normalization FAILED for DO {$digitalObjectId} → {$rule->target_format} via {$rule->tool}: " . substr($err, 0, 400),
@@ -170,7 +170,7 @@ class NormalizationService
                 'success'
             );
 
-            // #1385 Phase 3 — post-normalization verification: re-hash the stored
+            // #1385 Phase 3 - post-normalization verification: re-hash the stored
             // derivative and confirm it matches the checksum we recorded, emitted as
             // a PREMIS fixity-check event so the AIP carries a verifiable QA step
             // (not just the checksum column).
@@ -180,7 +180,7 @@ class NormalizationService
                 $ioId,
                 'fixity check',
                 "Post-normalization fixity verification of the {$purpose} derivative (sha256:" . substr($outChecksum, 0, 16) . "…): "
-                    . ($verified ? 'verified — file matches recorded checksum' : 'MISMATCH — derivative does not match its recorded checksum'),
+                    . ($verified ? 'verified - file matches recorded checksum' : 'MISMATCH - derivative does not match its recorded checksum'),
                 $verified ? 'success' : 'fail'
             );
 
@@ -196,7 +196,7 @@ class NormalizationService
                 'completed_at' => now()->format('Y-m-d H:i:s'),
                 'duration_ms' => (int) ((microtime(true) - $start) * 1000),
             ]);
-            // #1385 Phase 3 — record the exception as a failed PREMIS normalization event.
+            // #1385 Phase 3 - record the exception as a failed PREMIS normalization event.
             $this->premis($digitalObjectId, $ioId, 'normalization',
                 ucfirst($purpose) . " normalization threw for DO {$digitalObjectId} → {$rule->target_format} via {$rule->tool}: " . substr($e->getMessage(), 0, 400),
                 'fail');
@@ -205,7 +205,7 @@ class NormalizationService
         }
     }
 
-    /** Best-effort PREMIS event — never let provenance logging break normalization. */
+    /** Best-effort PREMIS event - never let provenance logging break normalization. */
     private function premis(int $objectId, ?int $ioId, string $type, string $detail, string $outcome): void
     {
         try {

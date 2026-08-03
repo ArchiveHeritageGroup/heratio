@@ -1,5 +1,5 @@
 {{--
-  Voice & AI — voice commands and AI image description settings
+  Voice & AI - voice commands and AI image description settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('voice_ai')
 
   @copyright  Johan Pieterse / Plain Sailing

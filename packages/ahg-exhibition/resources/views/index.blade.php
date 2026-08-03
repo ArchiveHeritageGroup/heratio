@@ -10,7 +10,7 @@
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Exhibition Dashboard — PSIS parity clone of
+  Exhibition Dashboard - PSIS parity clone of
   ahgExhibitionPlugin/modules/exhibition/templates/dashboardSuccess.php
   rendered in the clean Heratio Bootstrap 5 theme.
 --}}
@@ -395,7 +395,7 @@
                 <span class="text-muted">
                   {{ $a['transition'] ?? '' }}
                   @if(!empty($a['created_at']))
-                    &mdash; {{ \Carbon\Carbon::parse($a['created_at'])->format('M j') }}
+                    - {{ \Carbon\Carbon::parse($a['created_at'])->format('M j') }}
                   @endif
                 </span>
               </small>
@@ -423,7 +423,7 @@
                       {{ \Carbon\Carbon::parse($e['event_date'])->format('M j') }}
                     @endif
                   </strong>
-                  &mdash; {{ $e['title'] ?? '' }}
+                  - {{ $e['title'] ?? '' }}
                 </small>
               </li>
             @endforeach

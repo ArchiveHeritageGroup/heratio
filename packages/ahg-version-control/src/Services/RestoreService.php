@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RestoreService — apply a stored version snapshot back to the live entity.
+ * RestoreService - apply a stored version snapshot back to the live entity.
  *
  * Mirror of the AtoM-side service. v1 scope: base + i18n + custom_fields.
  * Access points / events / relations / physical_objects are not restored.
@@ -45,7 +45,7 @@ class RestoreService
         $versionTable = $entityType === 'actor' ? 'actor_version' : 'information_object_version';
         $vfk = $entityType === 'actor' ? 'actor_id' : 'information_object_id';
 
-        // Phase J — clearance check (against the CURRENT classification of the entity).
+        // Phase J - clearance check (against the CURRENT classification of the entity).
         $clearance = new ClearanceCheck;
         if (! $clearance->canUserRestore($userId, $entityId)) {
             throw new InsufficientClearanceException(
@@ -108,7 +108,7 @@ class RestoreService
                         ]);
                     }
                 } catch (\Throwable $e) {
-                    // ahg-custom-fields not installed — silently skip.
+                    // ahg-custom-fields not installed - silently skip.
                 }
             });
         } finally {

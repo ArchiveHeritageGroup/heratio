@@ -41,7 +41,7 @@ class QueueRetryCommand extends Command
         }
 
         if ($job->status !== 'failed') {
-            $this->error("Job #{$id} has status '{$job->status}' — only failed jobs can be retried.");
+            $this->error("Job #{$id} has status '{$job->status}' - only failed jobs can be retried.");
 
             return self::FAILURE;
         }

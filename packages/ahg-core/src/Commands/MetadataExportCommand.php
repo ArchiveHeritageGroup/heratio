@@ -1,11 +1,11 @@
 <?php
 
 /**
- * MetadataExportCommand — export descriptions in GLAM standards.
+ * MetadataExportCommand - export descriptions in GLAM standards.
  *
  * Renders one file per IO per format, using lightweight XML/JSON
  * serialisers that mirror the structure of AtoM's standards-templates.
- * The full external-namespace XSDs are deliberately not validated here —
+ * The full external-namespace XSDs are deliberately not validated here -
  * downstream consumers (research portal, OAI, RIC) re-validate.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems

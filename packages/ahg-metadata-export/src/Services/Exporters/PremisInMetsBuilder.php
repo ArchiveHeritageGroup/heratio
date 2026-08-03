@@ -35,7 +35,7 @@ class PremisInMetsBuilder
     /**
      * Emit one <digiprovMD> per preservation_event row attached to the IO
      * (or to any digital_object the IO owns). When no events exist the
-     * caller still receives a valid (but empty) sequence — the surrounding
+     * caller still receives a valid (but empty) sequence - the surrounding
      * <amdSec> will simply contain zero children.
      */
     public function appendDigiprovMd(XMLWriter $w, int $ioId): void

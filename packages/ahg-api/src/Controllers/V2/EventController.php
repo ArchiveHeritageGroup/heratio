@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class EventController extends BaseApiController
 {
     /**
-     * GET /api/v2/events — Browse webhook delivery events (audit trail).
+     * GET /api/v2/events - Browse webhook delivery events (audit trail).
      */
     public function index(Request $request): JsonResponse
     {
@@ -63,7 +63,7 @@ class EventController extends BaseApiController
     }
 
     /**
-     * GET /api/v2/events/correlation/{id} — Events sharing same entity_id.
+     * GET /api/v2/events/correlation/{id} - Events sharing same entity_id.
      */
     public function correlation(int $entityId): JsonResponse
     {

@@ -81,7 +81,7 @@ class PortableExportController extends Controller
         $this->abortIfDisabled();
         $culture = app()->getLocale();
 
-        // Repositories for the Step 1 dropdown — name comes from actor_i18n
+        // Repositories for the Step 1 dropdown - name comes from actor_i18n
         $repositories = DB::table('repository')
             ->join('actor_i18n', function ($j) use ($culture) {
                 $j->on('repository.id', '=', 'actor_i18n.id')
@@ -145,12 +145,12 @@ class PortableExportController extends Controller
     }
 
     /**
-     * #1357 — anonymous, token-gated public download of a shared bundle. NOT
+     * #1357 - anonymous, token-gated public download of a shared bundle. NOT
      * admin-gated (that is the point of a share link); the safety is the 128-bit
      * token, the expiry, the optional download cap, and the published-only gate
      * below. ICIP/TK, ODRL and PII were already excluded at BUILD time, so the
-     * only residual risk — a bundle the operator built with the include-drafts
-     * override — is refused here.
+     * only residual risk - a bundle the operator built with the include-drafts
+     * override - is refused here.
      */
     public function share(Request $request, string $token)
     {
@@ -208,7 +208,7 @@ class PortableExportController extends Controller
     {
         $destination = (string) ($export->destination ?? 'zip');
 
-        // 'download' — the bundle is staged uncompressed; stream it as a ZIP64 on
+        // 'download' - the bundle is staged uncompressed; stream it as a ZIP64 on
         // the fly (the zip CLI handles >4 GB natively, and no second full copy is
         // ever written to the server disk). Lands in the browser Downloads.
         if ($destination === 'download' && is_dir($export->output_path)) {
@@ -229,7 +229,7 @@ class PortableExportController extends Controller
             }, $name, ['Content-Type' => 'application/zip']);
         }
 
-        // 'folder' — an uncompressed directory on an operator drive; nothing to
+        // 'folder' - an uncompressed directory on an operator drive; nothing to
         // stream, point the operator at the path.
         if (is_dir($export->output_path)) {
             return redirect()->route('portable-export.index')
@@ -265,7 +265,7 @@ class PortableExportController extends Controller
         if (! Schema::hasTable('portable_export')) {
             return response()->json([
                 'success' => false,
-                'error' => 'portable_export table does not exist — install the package schema first.',
+                'error' => 'portable_export table does not exist - install the package schema first.',
             ], 500);
         }
 
@@ -275,7 +275,7 @@ class PortableExportController extends Controller
         // same heuristic apiEstimate uses; honest limit, not a hard guarantee.
         // Export destination: 'zip' (downloadable ZIP) or 'folder' (dump the
         // uncompressed bundle straight to an operator-chosen directory / mounted
-        // drive — for collections too large for a ZIP). Admin-only surface, but
+        // drive - for collections too large for a ZIP). Admin-only surface, but
         // the folder path is still validated as an existing writable directory.
         $destination = in_array(($data['destination'] ?? 'zip'), ['zip', 'folder', 'download'], true)
             ? $data['destination'] : 'zip';
@@ -290,7 +290,7 @@ class PortableExportController extends Controller
             }
         }
 
-        // The pre-build size cap applies to ZIP exports only — folder dumps are
+        // The pre-build size cap applies to ZIP exports only - folder dumps are
         // for collections that deliberately exceed the ZIP-friendly size.
         $maxMb = (int) $this->setting('portable_export_max_size_mb', 2048);
         if ($destination === 'zip' && $maxMb > 0) {
@@ -513,7 +513,7 @@ class PortableExportController extends Controller
             return response()->json(['success' => false, 'error' => 'Export not found'], 404);
         }
 
-        // #1357 — a public share link may only be minted for a published-only
+        // #1357 - a public share link may only be minted for a published-only
         // bundle. If the operator built it with the include-drafts override,
         // refuse (the authenticated admin download link is still available).
         $summary = json_decode((string) ($export->disclosure_summary ?? ''), true);
@@ -523,7 +523,7 @@ class PortableExportController extends Controller
         }
         if (! Schema::hasTable('portable_export_share_token')) {
             return response()->json(['success' => false,
-                'error' => 'Share links are unavailable (token store missing — run migrations).'], 503);
+                'error' => 'Share links are unavailable (token store missing - run migrations).'], 503);
         }
 
         $token = bin2hex(random_bytes(16));

@@ -56,7 +56,7 @@ class JobWorkerCommand extends Command
                 break;
             }
 
-            // Run continuously — worker will process pending jobs then exit
+            // Run continuously - worker will process pending jobs then exit
             passthru($cmd, $exitCode);
 
             if ($exitCode !== 0) {

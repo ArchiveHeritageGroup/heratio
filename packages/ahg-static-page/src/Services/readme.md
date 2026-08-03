@@ -1,4 +1,4 @@
-# AhgStaticPage — Services
+# AhgStaticPage - Services
 
 Services directory for the AhgStaticPage package.
 

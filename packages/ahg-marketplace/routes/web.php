@@ -24,11 +24,11 @@ Route::prefix('marketplace')->middleware(['web'])->group(function () use ($contr
     Route::get('/register', [$controller, 'register'])->name('ahgmarketplace.register');
 });
 
-// Buyer "start" entry — auth-only convenience route.
+// Buyer "start" entry - auth-only convenience route.
 Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use ($controller) {
     Route::get('/buyer/start', [$controller, 'buyerStart'])->name('ahgmarketplace.buyer-start');
 
-    // Checkout — buy-now (fixed-price) and auction-win flows
+    // Checkout - buy-now (fixed-price) and auction-win flows
     Route::post('/checkout/buy/{listingId}', [$controller, 'checkoutBuy'])
         ->where('listingId', '[0-9]+')
         ->name('ahgmarketplace.checkout-buy');
@@ -41,7 +41,7 @@ Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use
     Route::get('/payment/cancel', [$controller, 'paymentCancel'])->name('ahgmarketplace.payment-cancel');
 });
 
-// PayFast ITN webhook — public, no CSRF (excepted in bootstrap/app.php),
+// PayFast ITN webhook - public, no CSRF (excepted in bootstrap/app.php),
 // verified by signature + IP + server-to-server validate
 Route::post('/marketplace/payfast/notify', [$controller, 'payfastNotify'])
     ->middleware('web')
@@ -79,11 +79,11 @@ Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use
         ->where('listingId', '[0-9]+')
         ->name('ahgmarketplace.favourite-toggle');
 
-    // Phase X.3 — cloned from PSIS marketplace actions
+    // Phase X.3 - cloned from PSIS marketplace actions
     Route::match(['get', 'post'], '/buy', [$controller, 'buy'])->name('ahgmarketplace.buy')->middleware('acl:create');
     Route::post('/follow', [$controller, 'follow'])->name('ahgmarketplace.follow')->middleware('acl:update');
 
-    // Reservations — 12-hour holds, max 2 per user per 24h
+    // Reservations - 12-hour holds, max 2 per user per 24h
     Route::post('/listing/reserve/{listingId}', [$controller, 'reserveListing'])
         ->where('listingId', '[0-9]+')
         ->name('ahgmarketplace.reserve');
@@ -92,7 +92,7 @@ Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use
         ->name('ahgmarketplace.reservation-cancel');
 });
 
-// Broker artist management — for sellers acting on behalf of multiple artists
+// Broker artist management - for sellers acting on behalf of multiple artists
 Route::prefix('marketplace/seller')->middleware(['web', 'auth'])->group(function () use ($controller) {
     Route::get('/artists', [$controller, 'sellerArtists'])->name('ahgmarketplace.seller-artists');
     Route::get('/artist/create', [$controller, 'sellerArtistCreate'])->name('ahgmarketplace.seller-artist-create');
@@ -159,7 +159,7 @@ Route::prefix('marketplace/seller')->middleware(['web', 'auth'])->group(function
     Route::get('/payouts', [$controller, 'sellerPayouts'])->name('ahgmarketplace.seller-payouts');
     Route::get('/reviews', [$controller, 'sellerReviews'])->name('ahgmarketplace.seller-reviews');
 
-    // Phase X.3 — cloned from PSIS seller-listing-publish/withdraw actions
+    // Phase X.3 - cloned from PSIS seller-listing-publish/withdraw actions
     Route::post('/listing-publish', [$controller, 'sellerListingPublish'])->name('ahgmarketplace.seller-listing-publish')->middleware('acl:update');
     Route::post('/listing-withdraw', [$controller, 'sellerListingWithdraw'])->name('ahgmarketplace.seller-listing-withdraw')->middleware('acl:update');
 });

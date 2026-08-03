@@ -72,7 +72,7 @@ class TranslationController extends Controller
                 'revision_history',
             ],
         ],
-        // Museum metadata (CCO) is a synthetic class — there's no `object` row
+        // Museum metadata (CCO) is a synthetic class - there's no `object` row
         // with class_name='QubitMuseumMetadata'. The save flow gets the IO
         // object_id, resolves museum_metadata.id WHERE object_id=?, then writes
         // to museum_metadata_i18n keyed on (museum_metadata.id, culture).
@@ -438,11 +438,11 @@ class TranslationController extends Controller
      * that the per-field Save button on the Translate modal posts to.
      *
      * Inputs:
-     *   - object_id: int (required)        — IO/Actor/Repository ID
-     *   - culture:   string (required)     — target culture code (e.g. 'af')
-     *   - field:     string (required)     — i18n column name
-     *   - value:     string (required)     — translated text
-     *   - confirmed: bool (optional)       — true if a human reviewed it
+     *   - object_id: int (required)        - IO/Actor/Repository ID
+     *   - culture:   string (required)     - target culture code (e.g. 'af')
+     *   - field:     string (required)     - i18n column name
+     *   - value:     string (required)     - translated text
+     *   - confirmed: bool (optional)       - true if a human reviewed it
      *
      * Provenance is recorded in ahg_translation_log with source='ai' (when
      * confirmed=false) or 'human' (when confirmed=true), plus created_by_user_id.
@@ -464,7 +464,7 @@ class TranslationController extends Controller
         }
 
         // Caller may pass class_name explicitly (e.g. QubitMuseumMetadata, which
-        // is a synthetic class — there's no `object` row with that class_name).
+        // is a synthetic class - there's no `object` row with that class_name).
         // Otherwise fall back to looking up object.class_name.
         $explicitClass = trim((string) $request->input('class_name'));
         if ($explicitClass !== '' && isset(self::I18N_TABLE_BY_CLASS[$explicitClass])) {
@@ -504,7 +504,7 @@ class TranslationController extends Controller
             if ($i18nRowId <= 0) {
                 return response()->json([
                     'ok' => false,
-                    'error' => 'No museum_metadata row exists for this object — create one before translating.',
+                    'error' => 'No museum_metadata row exists for this object - create one before translating.',
                 ], 404);
             }
         }
@@ -526,7 +526,7 @@ class TranslationController extends Controller
         $autoApprove = $isAdmin && !$reqReview;
 
         if (!$autoApprove) {
-            // Read source for the draft row context (best-effort — old value goes
+            // Read source for the draft row context (best-effort - old value goes
             // in source_text so the reviewer can compare).
             $oldValue = DB::table($i18nTable)
                 ->where('id', $i18nRowId)
@@ -1046,7 +1046,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * GET /admin/translation/drafts — list pending MT drafts with filters.
+     * GET /admin/translation/drafts - list pending MT drafts with filters.
      */
     public function drafts(Request $request)
     {
@@ -1098,7 +1098,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * POST /admin/translation/drafts/{id}/approve — apply a single draft to its target *_i18n row.
+     * POST /admin/translation/drafts/{id}/approve - apply a single draft to its target *_i18n row.
      */
     public function draftApprove(Request $request, int $id)
     {
@@ -1120,7 +1120,7 @@ class TranslationController extends Controller
             return $this->draftApplyDropdown($draft);
         }
 
-        // Orphan check — the underlying object may have been deleted between
+        // Orphan check - the underlying object may have been deleted between
         // draft submission and approval. Saving would fail with "Object not
         // found" (or trip the FK on information_object_i18n.id). Mark the
         // draft as rejected with a clear note so it stops cluttering the queue.
@@ -1130,7 +1130,7 @@ class TranslationController extends Controller
                 ->where('id', $id)
                 ->update(['status' => 'rejected']);
             return back()->with('notice',
-                "Draft #{$id} discarded — original record (object #{$draft->object_id}) was deleted before approval.");
+                "Draft #{$id} discarded - original record (object #{$draft->object_id}) was deleted before approval.");
         }
 
         // Re-use save() logic by invoking it with the draft's payload. For
@@ -1212,7 +1212,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * POST /admin/translation/drafts/cleanup-orphans — bulk-mark every pending
+     * POST /admin/translation/drafts/cleanup-orphans - bulk-mark every pending
      * draft whose underlying object has been deleted as 'rejected'.
      */
     public function draftCleanupOrphans(Request $request)
@@ -1235,7 +1235,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * POST /admin/translation/drafts/{id}/edit-text — admin inline edit of
+     * POST /admin/translation/drafts/{id}/edit-text - admin inline edit of
      * the queued translation. Only mutates pending ('draft') rows; applied /
      * rejected rows are locked (their text is already on the entity or out of
      * the queue). Returns JSON for the inline save flow on the drafts table.
@@ -1260,7 +1260,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * POST /admin/translation/drafts/{id}/reject — mark draft as rejected (does not apply).
+     * POST /admin/translation/drafts/{id}/reject - mark draft as rejected (does not apply).
      */
     public function draftReject(Request $request, int $id)
     {
@@ -1273,7 +1273,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * POST /admin/translation/drafts/batch — bulk approve/reject by ID list.
+     * POST /admin/translation/drafts/batch - bulk approve/reject by ID list.
      */
     public function draftBatch(Request $request)
     {
@@ -1306,12 +1306,12 @@ class TranslationController extends Controller
     // ─── UI string editor (issue #54 MVP) ──────────────────────────────────
 
     /**
-     * GET /admin/translation/strings — list every key in lang/en.json with
+     * GET /admin/translation/strings - list every key in lang/en.json with
      * a column per enabled locale, plus search / missing-locale filters.
      */
     public function stringsIndex(Request $request)
     {
-        // Editor or Administrator only — translators / contributors don't get
+        // Editor or Administrator only - translators / contributors don't get
         // to edit UI strings even via the workflow.
         if (!\AhgCore\Services\AclService::isAdministrator() && !\AhgCore\Services\AclService::isEditor()) {
             abort(403, 'Insufficient permissions');
@@ -1394,7 +1394,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * POST /admin/translation/strings/save — save a single key+value.
+     * POST /admin/translation/strings/save - save a single key+value.
      *
      * Workflow:
      *  - Admin (default)            → applyApproved (writes JSON immediately, audit row)
@@ -1429,7 +1429,7 @@ class TranslationController extends Controller
             if ($autoApprove) {
                 $svc->applyApproved($userId, $locale, $key, $value);
                 // Mirror into setting_i18n if this key matches a ui_label setting
-                // (issue #57 part A — keep both surfaces in sync until B lands).
+                // (issue #57 part A - keep both surfaces in sync until B lands).
                 $this->mirrorStringToSettingI18n($locale, $key, $value);
                 return response()->json(['ok' => true, 'state' => 'approved']);
             }
@@ -1442,7 +1442,7 @@ class TranslationController extends Controller
 
     /**
      * Mirror a UI-string write into setting_i18n for any setting whose en value
-     * (with &nbsp; normalised) matches this key. Best-effort — never throws.
+     * (with &nbsp; normalised) matches this key. Best-effort - never throws.
      *
      * Why: setting_i18n is hydrated AFTER lang/*.json by SetLocale middleware,
      * so without this mirror the strings editor's write would be invisible at
@@ -1473,12 +1473,12 @@ class TranslationController extends Controller
                 \AhgCore\Services\SettingHelper::flush();
             }
         } catch (\Throwable $e) {
-            // best-effort — never block the primary save
+            // best-effort - never block the primary save
         }
     }
 
     /**
-     * GET /admin/translation/strings/pending — review queue for translation
+     * GET /admin/translation/strings/pending - review queue for translation
      * changes submitted by editors (or by admins who opted in to review).
      * Admin-only.
      */
@@ -1495,7 +1495,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * POST /admin/translation/strings/{id}/approve — admin approves a pending
+     * POST /admin/translation/strings/{id}/approve - admin approves a pending
      * change. Applies it to lang/{locale}.json and stamps the audit row.
      */
     public function stringsApprove(Request $request, int $id)
@@ -1519,7 +1519,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * POST /admin/translation/strings/{id}/reject — admin rejects a pending change.
+     * POST /admin/translation/strings/{id}/reject - admin rejects a pending change.
      */
     public function stringsReject(Request $request, int $id)
     {
@@ -1532,7 +1532,7 @@ class TranslationController extends Controller
     }
 
     /**
-     * GET /admin/translation/strings/mt-suggest — returns a machine-translated
+     * GET /admin/translation/strings/mt-suggest - returns a machine-translated
      * suggestion for a single key. Reuses the existing translateText() backend
      * (Ollama / Server 78 GPU per #45).
      */

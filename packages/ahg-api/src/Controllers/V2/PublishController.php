@@ -93,7 +93,7 @@ class PublishController extends BaseApiController
                         'Workflow approval required before publishing. Start or complete a workflow first.', 412);
                 }
             } catch (\Exception $e) {
-                // Workflow package not available — allow publish
+                // Workflow package not available - allow publish
             }
         }
 

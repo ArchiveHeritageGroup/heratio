@@ -1,5 +1,5 @@
 {{--
-  AI Condition Assessment — settings + API clients + training data approval
+  AI Condition Assessment - settings + API clients + training data approval
   Cloned from AtoM ahgAiConditionPlugin/modules/aiCondition/templates/indexSuccess.php
 
   @copyright  Johan Pieterse / Plain Sailing
@@ -365,7 +365,7 @@
     </div>
 </div>
 
-{{-- Add Client Modal — real POST form (no JS) --}}
+{{-- Add Client Modal - real POST form (no JS) --}}
 <div class="modal fade" id="addClientModal" tabindex="-1">
     <div class="modal-dialog">
         <form class="modal-content" method="POST" action="{{ url('/admin/ai/condition/client/save') }}">

@@ -96,7 +96,7 @@ class UserController extends Controller
             $viewData['oaiApiKey'] = $apiKeys['OaiApiKey'];
         }
 
-        // Security clearance — only when the package + table are present.
+        // Security clearance - only when the package + table are present.
         $viewData['clearance'] = null;
         if (class_exists(\AhgSecurityClearance\Services\SecurityClearanceService::class)
             && \Illuminate\Support\Facades\Schema::hasTable('user_security_clearance')) {
@@ -253,7 +253,7 @@ class UserController extends Controller
         }
 
         // generate. Always write/update against the property's source_culture
-        // (not the current UI locale) — API keys aren't language-dependent
+        // (not the current UI locale) - API keys aren't language-dependent
         // and editing under a different locale must not orphan the existing
         // value or create a duplicate row in another culture.
         $newKey = bin2hex(random_bytes(8));
@@ -536,7 +536,7 @@ class UserController extends Controller
     }
 
     /**
-     * Self-service edit — redirect to the authenticated user's edit page.
+     * Self-service edit - redirect to the authenticated user's edit page.
      */
     public function profileEdit()
     {
@@ -724,7 +724,7 @@ class UserController extends Controller
     }
 
     /**
-     * Build edit ACL data (simpler — just user's own permissions for a class).
+     * Build edit ACL data (simpler - just user's own permissions for a class).
      */
     private function buildEditAclData(string $slug, string $className): array
     {
@@ -963,7 +963,7 @@ class UserController extends Controller
     // -------------------------------------------------------------------
 
     /**
-     * Show the current user's plugin-preference page — list of all globally
+     * Show the current user's plugin-preference page - list of all globally
      * enabled plugins with a checkbox per plugin to hide it from this user's
      * nav. No admin privilege required (a user manages their OWN nav).
      */
@@ -973,7 +973,7 @@ class UserController extends Controller
         if (! $user) {
             return redirect()->route('login');
         }
-        // Admin or Editor only — non-privileged users can't manage their own nav.
+        // Admin or Editor only - non-privileged users can't manage their own nav.
         if (! \AhgCore\Services\AclService::isAdministrator() && ! \AhgCore\Services\AclService::isEditor()) {
             abort(403, 'Insufficient permissions');
         }
@@ -996,10 +996,10 @@ class UserController extends Controller
     }
 
     // -------------------------------------------------------------------
-    // Admin: edit per-user plugin GRANTS (capability layer — issue #40 c5)
+    // Admin: edit per-user plugin GRANTS (capability layer - issue #40 c5)
     // -------------------------------------------------------------------
 
-    /** GET  /user/{slug}/plugins — admin grants/denies plugins per user. */
+    /** GET  /user/{slug}/plugins - admin grants/denies plugins per user. */
     public function pluginGrants(string $slug)
     {
         // Resolve via the same service used by user.show / user.edit so URL
@@ -1027,7 +1027,7 @@ class UserController extends Controller
         ]);
     }
 
-    /** POST /user/{slug}/plugins — apply admin grants. */
+    /** POST /user/{slug}/plugins - apply admin grants. */
     public function savePluginGrants(Request $request, string $slug)
     {
         $target = $this->service->getBySlug($slug);
@@ -1111,7 +1111,7 @@ class UserController extends Controller
         $rows = [];
         foreach ($hidden as $name) {
             if (! in_array($name, $globallyEnabled, true)) {
-                continue;   // sanitise — only allow real plugin names
+                continue;   // sanitise - only allow real plugin names
             }
             $rows[] = [
                 'user_id' => $user->id,

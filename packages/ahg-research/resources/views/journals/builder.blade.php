@@ -1,4 +1,4 @@
-{{-- #1105 Journal builder — create/edit journal --}}
+{{-- #1105 Journal builder - create/edit journal --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -48,7 +48,7 @@
     <div class="mb-3"><label class="form-label">{{ __('Target journal (where to submit)') }}</label>
       @if (count($targetJournals))
         <select name="target_journal_id" class="form-select">
-          <option value="">{{ __('— none —') }}</option>
+          <option value="">{{ __('- none -') }}</option>
           @foreach ($targetJournals as $t)<option value="{{ $t['id'] }}" @selected((string)old('target_journal_id', $journal['target_journal_id'] ?? '') === (string)$t['id'])>{{ $t['title'] }}</option>@endforeach
         </select>
       @else

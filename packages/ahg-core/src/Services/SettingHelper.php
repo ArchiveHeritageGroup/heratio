@@ -181,7 +181,7 @@ class SettingHelper
                 config(["atom.element_visibility.{$row->name}" => (bool) (int) ($row->value ?? '1')]);
             }
         } catch (\Exception $e) {
-            // setting table doesn't exist yet — skip
+            // setting table doesn't exist yet - skip
         }
     }
 
@@ -190,7 +190,7 @@ class SettingHelper
      *
      * Reads the setting at scope='default_template', name=$entityType (the AtoM
      * legacy mechanism for picking ISAD vs DACS vs RAD vs MODS for descriptions
-     * — and ISAAR for actors, ISDIAH for repositories). Falls back to the base
+     * - and ISAAR for actors, ISDIAH for repositories). Falls back to the base
      * view when the chosen template's blade hasn't been authored yet so an
      * operator can pick a value the codebase doesn't yet implement and still
      * see a valid page.

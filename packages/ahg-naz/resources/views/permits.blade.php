@@ -1,4 +1,4 @@
-{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems — johan@plainsailingisystems.co.za
+{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems - johan@plainsailingisystems.co.za
      This file is part of Heratio. Licensed under the GNU Affero General Public License v3+. --}}
 @extends('theme::layouts.1col')
 
@@ -21,7 +21,7 @@
                 </ol>
             </nav>
             <h1><i class="fas fa-id-card me-2"></i>{{ __('Research Permits') }}</h1>
-            <p class="text-muted">Foreign researchers: fee applies &mdash; Local researchers: free</p>
+            <p class="text-muted">Foreign researchers: fee applies - Local researchers: free</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.permit-create') }}" class="btn btn-primary">

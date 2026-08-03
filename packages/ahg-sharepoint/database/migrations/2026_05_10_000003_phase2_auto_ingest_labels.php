@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Phase 2.A — add the auto-ingest label allowlist to sharepoint_drive.
+ * Phase 2.A - add the auto-ingest label allowlist to sharepoint_drive.
  * Mirrored in atom-ahg-plugins/ahgSharePointPlugin/database/migrations/.
  */
 return new class extends Migration

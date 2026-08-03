@@ -81,7 +81,7 @@
         };
         $extra = '';
         if (!empty($r['start_date']) || !empty($r['end_date'])) {
-            $extra = ' (' . e(($r['start_date'] ?? '') . ' – ' . ($r['end_date'] ?? '')) . ')';
+            $extra = ' (' . e(($r['start_date'] ?? '') . ' - ' . ($r['end_date'] ?? '')) . ')';
         }
         return '<span class="badge bg-light text-dark me-1">' . e($taxonomyLabel) . '</span>'
             . e($label) . $extra;
@@ -102,7 +102,7 @@
         if ($actorId) { $bits[] = 'actor: ' . ($actorLabels[$actorId] ?? "#{$actorId}"); }
         if ($objId)   { $bits[] = 'object: #' . $objId; }
         if (!empty($r['start_date']) || !empty($r['end_date'])) {
-            $bits[] = ($r['start_date'] ?? '') . ' – ' . ($r['end_date'] ?? '');
+            $bits[] = ($r['start_date'] ?? '') . ' - ' . ($r['end_date'] ?? '');
         }
         return e(implode(' · ', $bits));
     };

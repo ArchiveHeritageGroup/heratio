@@ -1,5 +1,5 @@
 {{--
-  GLAM Browser – browse.blade.php
+  GLAM Browser - browse.blade.php
   Migrated from AtoM browseSuccess.php (Display plugin)
 --}}
 @extends('theme::layouts.master')

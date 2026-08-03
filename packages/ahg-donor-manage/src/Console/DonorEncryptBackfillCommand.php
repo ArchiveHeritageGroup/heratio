@@ -94,7 +94,7 @@ class DonorEncryptBackfillCommand extends Command
         $skipped = 0;
         $errors = 0;
 
-        // contact_information.email — donor-scoped.
+        // contact_information.email - donor-scoped.
         DB::table('contact_information')
             ->join('object', 'contact_information.actor_id', '=', 'object.id')
             ->where('object.class_name', 'QubitDonor')
@@ -130,7 +130,7 @@ class DonorEncryptBackfillCommand extends Command
                 }
             }, 'contact_information.id', 'id');
 
-        // contact_information_i18n.city — donor-scoped via the parent row.
+        // contact_information_i18n.city - donor-scoped via the parent row.
         if (Schema::hasTable('contact_information_i18n')) {
             DB::table('contact_information_i18n')
                 ->join('contact_information', 'contact_information_i18n.id', '=', 'contact_information.id')

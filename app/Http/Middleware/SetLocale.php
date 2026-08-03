@@ -48,7 +48,7 @@ class SetLocale
             App::setLocale($userLocale);
             session(['locale' => $userLocale]);
         } elseif ($acceptLocale = $this->resolveFromAcceptLanguage($request)) {
-            // #675 Phase 1: only triggers when URL/session/cookie ALL missing —
+            // #675 Phase 1: only triggers when URL/session/cookie ALL missing -
             // i.e. first-time anonymous visitor. We DON'T persist via cookie
             // here; cookies are reserved for explicit user choices so a Chrome
             // sending Accept-Language: de doesn't lock the device into German
@@ -60,7 +60,7 @@ class SetLocale
 
         // Hydrate ui_label overrides AFTER the locale is set so config('app.ui_label_*')
         // and __('Archival description') etc. flip per-culture. This runs every
-        // request because App::setLocale changes the locale dynamically — the
+        // request because App::setLocale changes the locale dynamically - the
         // booted-once hydrator in AhgCoreServiceProvider can't see the request culture.
         $this->hydrateUiLabels(App::getLocale());
 
@@ -270,7 +270,7 @@ class SetLocale
                 }
             }
         } catch (\Throwable $e) {
-            // Boot-time, missing tables, etc — fall through to lang/ scan.
+            // Boot-time, missing tables, etc - fall through to lang/ scan.
         }
 
         // 3. lang/*.json fallback (single source-of-truth for a fresh install
@@ -331,7 +331,7 @@ class SetLocale
                 app('translator')->addLines($translatorOverrides, $culture, '*');
             }
         } catch (\Throwable $e) {
-            // Swallow — boot-time hydrator already covered the default locale.
+            // Swallow - boot-time hydrator already covered the default locale.
         }
     }
 

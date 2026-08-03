@@ -1,4 +1,4 @@
-{{-- Museum Reports Dashboard — cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
+{{-- Museum Reports Dashboard - cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
 @extends('theme::layouts.2col')
 @section('title', 'Museum Reports Dashboard')
 @section('body-class', 'museum-reports index')

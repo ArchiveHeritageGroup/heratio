@@ -3,7 +3,7 @@
 use AhgDonorManage\Controllers\DonorController;
 use Illuminate\Support\Facades\Route;
 
-// Donor records carry contact PII (address/email/phone) — staff-only read surface;
+// Donor records carry contact PII (address/email/phone) - staff-only read surface;
 // gate browse + show under auth so anon can't harvest donor contacts (#1370).
 Route::get('/donor/browse', [DonorController::class, 'browse'])->name('donor.browse')->middleware('auth');
 

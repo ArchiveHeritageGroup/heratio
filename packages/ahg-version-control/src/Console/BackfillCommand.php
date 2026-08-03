@@ -3,7 +3,7 @@
 /**
  * php artisan ahg:version-backfill [--entity=information_object,actor] [--batch=500] [--dry-run] [--user-id=N]
  *
- * Phase L — backfill v1 baselines for entities that have no version history.
+ * Phase L - backfill v1 baselines for entities that have no version history.
  * Idempotent: entities that already have any version row are skipped.
  *
  * @phase L
@@ -47,7 +47,7 @@ class BackfillCommand extends Command
                 : ['base' => 'information_object', 'ver' => 'information_object_version', 'fk' => 'information_object_id'];
 
             $startedAt = microtime(true);
-            $this->info("backfill: {$entityType} — scanning…");
+            $this->info("backfill: {$entityType} - scanning…");
 
             $todo = DB::table($cfg['base'])
                 ->leftJoin($cfg['ver'], $cfg['ver'].'.'.$cfg['fk'], '=', $cfg['base'].'.id')
@@ -55,13 +55,13 @@ class BackfillCommand extends Command
                 ->pluck($cfg['base'].'.id')
                 ->all();
             $total = count($todo);
-            $this->info("backfill: {$entityType} — {$total} entity/entities to backfill");
+            $this->info("backfill: {$entityType} - {$total} entity/entities to backfill");
 
             if ($total === 0) {
                 continue;
             }
             if ($dryRun) {
-                $this->warn('[dry-run] — no rows would be written');
+                $this->warn('[dry-run] - no rows would be written');
 
                 continue;
             }
@@ -91,7 +91,7 @@ class BackfillCommand extends Command
                 $elapsed = microtime(true) - $startedAt;
                 $rate = $elapsed > 0 ? round($processed / $elapsed, 1) : 0;
                 $this->line(sprintf(
-                    'backfill: %s — batch %d/%d · processed=%d · errors=%d · rate=%.1f/s',
+                    'backfill: %s - batch %d/%d · processed=%d · errors=%d · rate=%.1f/s',
                     $entityType, $chunkIdx + 1, count($chunks), $processed, $errors, $rate,
                 ));
             }
@@ -99,7 +99,7 @@ class BackfillCommand extends Command
             $elapsed = microtime(true) - $startedAt;
             $rate = $elapsed > 0 ? round($processed / $elapsed, 1) : 0;
             $this->info(sprintf(
-                'backfill: %s — DONE · processed=%d · errors=%d · total=%.1fs · rate=%.1f/s',
+                'backfill: %s - DONE · processed=%d · errors=%d · total=%.1fs · rate=%.1f/s',
                 $entityType, $processed, $errors, $elapsed, $rate,
             ));
         }

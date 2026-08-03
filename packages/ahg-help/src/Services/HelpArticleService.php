@@ -51,7 +51,7 @@ class HelpArticleService
 
             return;
         }
-        // Existing table (created before the source column) — add it.
+        // Existing table (created before the source column) - add it.
         if (! Schema::hasColumn('help_article_link', 'source')) {
             Schema::table('help_article_link', function ($t) {
                 $t->string('source', 16)->default('markdown')->after('related_article_id');

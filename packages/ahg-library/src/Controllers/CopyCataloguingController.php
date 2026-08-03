@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CopyCataloguingController — Z39.50 copy cataloguing for Heratio.
+ * CopyCataloguingController - Z39.50 copy cataloguing for Heratio.
  *
  * Routes:
  *   GET  /library-manage/copy-cataloguing          → index

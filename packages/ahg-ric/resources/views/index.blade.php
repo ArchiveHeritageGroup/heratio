@@ -362,7 +362,7 @@ function updateCharts(trendData, opsData) {
 // Auto-refresh every 30 seconds
 setInterval(loadDashboardData, 30000);
 
-// Sync readiness gate — queries /ajax-sync-readiness once on load and re-checks every 60s.
+// Sync readiness gate - queries /ajax-sync-readiness once on load and re-checks every 60s.
 function refreshSyncReadiness() {
   var btn = document.getElementById('sync-btn');
   var note = document.getElementById('sync-readiness');

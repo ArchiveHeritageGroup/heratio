@@ -1,4 +1,4 @@
-{{-- heratio#144 — Strongroom show (rebuild 2026-05-23) --}}
+{{-- heratio#144 - Strongroom show (rebuild 2026-05-23) --}}
 @extends('theme::layouts.1col')
 
 @section('title', $room->name)
@@ -43,10 +43,10 @@
             <dd class="col-sm-8"><code>{{ $room->slug }}</code></dd>
 
             <dt class="col-sm-4">{{ __('Location') }}</dt>
-            <dd class="col-sm-8">{{ $room->location_description ?: '—' }}</dd>
+            <dd class="col-sm-8">{{ $room->location_description ?: '-' }}</dd>
 
             <dt class="col-sm-4">{{ __('Notes') }}</dt>
-            <dd class="col-sm-8" style="white-space: pre-wrap;">{{ $room->notes ?: '—' }}</dd>
+            <dd class="col-sm-8" style="white-space: pre-wrap;">{{ $room->notes ?: '-' }}</dd>
           </dl>
         </div>
       </div>

@@ -1,5 +1,5 @@
 {{--
-  Records Management — Email detail + classify + declare (P2.6)
+  Records Management - Email detail + classify + declare (P2.6)
   @copyright Johan Pieterse / Plain Sailing Information Systems
   @license   AGPL-3.0-or-later
 --}}
@@ -53,22 +53,22 @@
       <div class="card-header bg-primary text-white"><i class="fas fa-tags me-1"></i> {{ __('Classify') }}</div>
       <div class="card-body">
         @if($email->fileplan_code)
-          <div class="mb-2 small text-muted">Currently classified to <strong>{{ $email->fileplan_code }} — {{ $email->fileplan_title }}</strong>@if($email->disposal_class_ref) under disposal class <code>{{ $email->disposal_class_ref }}</code>@endif</div>
+          <div class="mb-2 small text-muted">Currently classified to <strong>{{ $email->fileplan_code }} - {{ $email->fileplan_title }}</strong>@if($email->disposal_class_ref) under disposal class <code>{{ $email->disposal_class_ref }}</code>@endif</div>
         @endif
         <form method="POST" action="{{ route('records.emails.classify', $email->id) }}">
           @csrf
           <div class="mb-2">
             <label class="form-label small mb-1">{{ __('File plan node') }}</label>
             <select name="fileplan_node_id" class="form-select form-select-sm" required>
-              <option value="">— pick a node —</option>
-              @foreach($fileplanNodes as $n)<option value="{{ $n->id }}" @selected($email->fileplan_node_id == $n->id)>{{ str_repeat('— ', $n->depth) }}{{ $n->code }} — {{ $n->title }}</option>@endforeach
+              <option value="">- pick a node -</option>
+              @foreach($fileplanNodes as $n)<option value="{{ $n->id }}" @selected($email->fileplan_node_id == $n->id)>{{ str_repeat('- ', $n->depth) }}{{ $n->code }} - {{ $n->title }}</option>@endforeach
             </select>
           </div>
           <div class="mb-2">
             <label class="form-label small mb-1">{{ __('Disposal class (optional)') }}</label>
             <select name="disposal_class_id" class="form-select form-select-sm">
-              <option value="">— inherit from node —</option>
-              @foreach($disposalClasses as $dc)<option value="{{ $dc->id }}" @selected($email->disposal_class_id == $dc->id)>{{ $dc->class_ref }} — {{ $dc->title }}</option>@endforeach
+              <option value="">- inherit from node -</option>
+              @foreach($disposalClasses as $dc)<option value="{{ $dc->id }}" @selected($email->disposal_class_id == $dc->id)>{{ $dc->class_ref }} - {{ $dc->title }}</option>@endforeach
             </select>
           </div>
           <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-tags me-1"></i>{{ __('Save classification') }}</button>

@@ -5,7 +5,7 @@
   - Admins see no overlay (canBypassRedaction=true) and a "Redactions hidden
     for admin viewing" notice instead.
   Coordinates may be normalised (0..1) when normalized=1, or raw px when
-  normalized=0. We support both — the JS shim picks based on the row flag.
+  normalized=0. We support both - the JS shim picks based on the row flag.
 --}}
 @if(isset($visualRedactions) && count($visualRedactions))
   @php
@@ -34,7 +34,7 @@
        window.resize so coordinates re-scale when the layout reflows. --}}
   @unless($canBypassRedaction ?? false)
     @php
-      // Build the JSON payload in PHP — Blade's @json directive arg-parser
+      // Build the JSON payload in PHP - Blade's @json directive arg-parser
       // mis-counts brackets when given a nested array literal + arrow-fn
       // inside the directive args, causing a parse error at the closing ')'.
       $__redactionPayload = collect($visualRedactions)->map(function ($r) {
@@ -60,7 +60,7 @@
 
       function paint() {
         // Find the first preview image in the digital-object viewer area.
-        // We don't try to support PDFs/canvases here — those need a server-
+        // We don't try to support PDFs/canvases here - those need a server-
         // side redacted file (see PdfRedactionService roadmap).
         var img = document.querySelector('.digital-object-preview img, .iiif-viewer img, .pdf-viewer-container img, #content img.img-fluid:not([src*="logo"])');
         if (!img || !img.complete || img.naturalWidth === 0) return;
@@ -128,7 +128,7 @@
         clearTimeout(rid);
         rid = setTimeout(paint, 100);
       });
-      // Re-paint after a short delay too — PDF.js / OpenSeadragon may finish
+      // Re-paint after a short delay too - PDF.js / OpenSeadragon may finish
       // their first render slightly after DOMContentLoaded.
       setTimeout(paint, 400);
       setTimeout(paint, 1500);

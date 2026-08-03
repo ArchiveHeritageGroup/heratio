@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Translate — ' . ($io->title ?? ''))
+@section('title', 'Translate - ' . ($io->title ?? ''))
 
 @section('content')
   @include('ahg-io-manage::partials.feature-header', [

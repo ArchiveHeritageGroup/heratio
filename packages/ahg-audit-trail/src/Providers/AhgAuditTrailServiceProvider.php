@@ -62,7 +62,7 @@ class AhgAuditTrailServiceProvider extends ServiceProvider
             ]);
 
             // Schedule a daily prune. Honours ahg_settings.audit_retention_days
-            // (compliance group) — set to 0 to disable. The command itself
+            // (compliance group) - set to 0 to disable. The command itself
             // is a no-op when retention is disabled.
             $this->app->afterResolving(\Illuminate\Console\Scheduling\Schedule::class, function (\Illuminate\Console\Scheduling\Schedule $schedule) {
                 $schedule->command('audit:prune')->dailyAt('03:30')->withoutOverlapping();

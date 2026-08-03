@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DiscoverySimulateCommand — generate the simulated query corpus, write a
+ * DiscoverySimulateCommand - generate the simulated query corpus, write a
  * qrels CSV that matches issue #16's schema, and (optionally) run the
  * resulting CSV through bin/discovery-eval.php for each ablation config.
  *
@@ -92,7 +92,7 @@ class DiscoverySimulateCommand extends Command
         foreach ($records as $r) {
             $expected = $r['expected_object_ids'];
             if (empty($expected)) {
-                // Per issue #16 rule 4 — every query_id must have at least one
+                // Per issue #16 rule 4 - every query_id must have at least one
                 // relevance=2 row. Skip queries whose generator produced no
                 // ground truth (e.g. typo queries where the canonical form
                 // doesn't appear in title or scope).

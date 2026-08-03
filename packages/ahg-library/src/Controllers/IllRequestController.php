@@ -19,7 +19,7 @@ class IllRequestController
         protected EdiAdapter $ediAdapter
     ) {}
 
-    /** Staff list — ILL request management */
+    /** Staff list - ILL request management */
     public function index(Request $request): View
     {
         $q = DB::table('library_ill_request');

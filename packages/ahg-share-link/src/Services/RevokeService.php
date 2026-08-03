@@ -5,11 +5,11 @@ namespace AhgShareLink\Services;
 use Illuminate\Support\Facades\DB;
 
 /**
- * RevokeService — revoke an existing share-link token.
+ * RevokeService - revoke an existing share-link token.
  *
  * Guards (in order):
  *   1. user_id present (anonymous can never revoke)
- *   2. ACL — token issued_by == user OR user has share_link.revoke_others
+ *   2. ACL - token issued_by == user OR user has share_link.revoke_others
  *   3. Token must exist (404 reported by caller via TokenNotFound)
  *
  * Idempotent: revoking an already-revoked token returns the existing row

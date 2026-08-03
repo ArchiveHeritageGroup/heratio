@@ -669,7 +669,7 @@ class GalleryController extends Controller
                     ->count();
             }
         } catch (\Throwable $e) {
-            // Tables may have different column names — keep defaults
+            // Tables may have different column names - keep defaults
         }
         return view('ahg-gallery::galleryReports.index', compact('stats'));
     }

@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PrivacyRedactionService
 {
-    public const FULL_PLACEHOLDER = '[REDACTED — personal data removed]';
+    public const FULL_PLACEHOLDER = '[REDACTED - personal data removed]';
 
     public const PARTIAL_PLACEHOLDER = '[PARTIALLY REDACTED]';
 
@@ -31,14 +31,14 @@ class PrivacyRedactionService
                 ->where('information_object_id', $informationObjectId)
                 ->first();
         } catch (\Throwable $e) {
-            return null; // schema not installed yet — no redaction
+            return null; // schema not installed yet - no redaction
         }
     }
 
     /**
      * Whether this user may see the unredacted record. Administrators always
      * may. (Researcher-with-active-agreement access plugs in here when that
-     * mechanism lands; until then only admins bypass — fail closed.)
+     * mechanism lands; until then only admins bypass - fail closed.)
      */
     public function canViewUnredacted(?int $userId): bool
     {

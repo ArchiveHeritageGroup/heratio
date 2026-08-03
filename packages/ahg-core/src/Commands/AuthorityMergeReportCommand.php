@@ -19,7 +19,7 @@ class AuthorityMergeReportCommand extends Command
         $cutoff = now()->subDays($days);
 
         if (! Schema::hasTable('audit_log')) {
-            $this->warn('audit_log missing — nothing to report.');
+            $this->warn('audit_log missing - nothing to report.');
 
             return self::SUCCESS;
         }

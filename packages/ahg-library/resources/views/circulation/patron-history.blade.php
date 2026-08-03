@@ -52,8 +52,8 @@
         <div class="card-body p-0">
             <dl class="row mb-0 p-3">
                 <div class="col-md-4">
-                    <dt>{{ __('Email') }}</dt><dd>{{ $patron->email ?? '—' }}</dd>
-                    <dt>{{ __('Phone') }}</dt><dd>{{ $patron->phone ?? '—' }}</dd>
+                    <dt>{{ __('Email') }}</dt><dd>{{ $patron->email ?? '-' }}</dd>
+                    <dt>{{ __('Phone') }}</dt><dd>{{ $patron->phone ?? '-' }}</dd>
                 </div>
                 <div class="col-md-4">
                     <dt>{{ __('Items Out') }}</dt><dd>× {{ $loans->count() }}</dd>
@@ -123,10 +123,10 @@
                                                     <br><small class="text-muted">{{ $l->barcode }}</small>
                                                 @endif
                                             </td>
-                                            <td>{{ $l->call_number ?? '—' }}</td>
-                                            <td>{{ $l->checkout_date ?? '—' }}</td>
+                                            <td>{{ $l->call_number ?? '-' }}</td>
+                                            <td>{{ $l->checkout_date ?? '-' }}</td>
                                             <td>
-                                                {{ $l->due_date ?? '—' }}
+                                                {{ $l->due_date ?? '-' }}
                                                 @if($isOverdue)
                                                     <span class="badge bg-danger ms-1">{{ __('OVERDUE') }}</span>
                                                 @endif
@@ -184,14 +184,14 @@
                                     @foreach($holds as $h)
                                         <tr class="{{ ($h->status ?? '') === 'ready' ? 'table-success' : '' }}">
                                             <td>{{ $h->title ?? __('(unknown)') }}</td>
-                                            <td class="text-center">{{ $h->queue_position ?? '—' }}</td>
+                                            <td class="text-center">{{ $h->queue_position ?? '-' }}</td>
                                             <td>
                                                 <span class="badge bg-{{ ($h->status ?? '') === 'ready' ? 'success' : 'info' }}">
                                                     {{ ucfirst($h->status ?? 'pending') }}
                                                 </span>
                                             </td>
-                                            <td>{{ $h->hold_date ?? '—' }}</td>
-                                            <td>{{ $h->expiry_date ?? '—' }}</td>
+                                            <td>{{ $h->hold_date ?? '-' }}</td>
+                                            <td>{{ $h->expiry_date ?? '-' }}</td>
                                             <td class="text-end">
                                                 <form method="POST" action="{{ route('library.hold-cancel', $h->id) }}" class="d-inline">
                                                     @csrf

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * NullSmsGateway — dev/CI default. Logs the outbound SMS instead of
+ * NullSmsGateway - dev/CI default. Logs the outbound SMS instead of
  * dispatching it to a real provider. Used when ahg_setting.sms_gateway
  * is 'null', unset, or the operator has not yet picked a driver.
  *

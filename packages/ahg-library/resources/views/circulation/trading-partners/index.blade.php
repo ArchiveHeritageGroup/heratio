@@ -90,7 +90,7 @@
             <td><span class="badge bg-info">{{ $p->edi_type }}</span></td>
             <td><small>{{ $p->message_profile }}</small></td>
             <td><small>{{ $p->config_summary }}</small></td>
-            <td><small>{{ $p->vendor?->name ?: '—' }}</small></td>
+            <td><small>{{ $p->vendor?->name ?: '-' }}</small></td>
             <td>
               @if($p->is_active)
                 <span class="badge bg-success">Active</span>
@@ -114,7 +114,7 @@
                   <small>{{ $p->last_error_at->diffForHumans() }}</small>
                 </span>
               @else
-                <small class="text-muted">—</small>
+                <small class="text-muted">-</small>
               @endif
             </td>
             <td>

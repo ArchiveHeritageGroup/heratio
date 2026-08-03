@@ -302,7 +302,7 @@ class SearchController extends Controller
     }
 
     /**
-     * Description Updates — recently added/modified records across all entity types.
+     * Description Updates - recently added/modified records across all entity types.
      */
     public function descriptionUpdates(Request $request)
     {
@@ -355,7 +355,7 @@ class SearchController extends Controller
             );
         }
 
-        // Get users for the filter dropdown — fall back to username when actor_i18n
+        // Get users for the filter dropdown - fall back to username when actor_i18n
         // has no authorized_form_of_name, and skip blank entries entirely.
         $users = DB::table('user')
             ->leftJoin('actor_i18n', function ($j) {
@@ -623,7 +623,7 @@ class SearchController extends Controller
             ]);
         }
 
-        // POST — either preview or execute
+        // POST - either preview or execute
         $request->validate([
             'column' => 'required|in:'.implode(',', array_keys($columns)),
             'pattern' => 'required|string|min:1',
@@ -668,7 +668,7 @@ class SearchController extends Controller
                         $column => DB::raw("REPLACE(`{$column}`, ".DB::getPdo()->quote($pattern).', '.DB::getPdo()->quote($replacement).')'),
                     ]);
             } else {
-                // Case-insensitive replace using REPLACE() — MySQL REPLACE is case-sensitive,
+                // Case-insensitive replace using REPLACE() - MySQL REPLACE is case-sensitive,
                 // so we find rows case-insensitively then apply replace
                 $updatedCount = DB::table('information_object_i18n')
                     ->where('culture', 'en')
@@ -682,7 +682,7 @@ class SearchController extends Controller
                 ->with('success', "Successfully replaced {$updatedCount} record(s). Column: {$columns[$column]}.");
         }
 
-        // Preview mode — show affected records with snippets
+        // Preview mode - show affected records with snippets
         $previewResults = $affected->map(function ($row) use ($pattern, $replacement) {
             $currentValue = $row->field_value ?? '';
             $snippet = mb_strlen($currentValue) > 200

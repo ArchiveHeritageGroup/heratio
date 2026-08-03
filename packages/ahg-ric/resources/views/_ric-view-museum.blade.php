@@ -1,5 +1,5 @@
 {{--
-  RiC View: Museum object — record-resource context with creators and place of origin.
+  RiC View: Museum object - record-resource context with creators and place of origin.
 
   @copyright  Johan Pieterse / Plain Sailing Information Systems
   @license    AGPL-3.0-or-later

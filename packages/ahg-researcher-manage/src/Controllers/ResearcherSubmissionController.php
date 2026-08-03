@@ -86,7 +86,7 @@ class ResearcherSubmissionController extends Controller
 
         $recent = $recentQuery->get()->toArray();
 
-        // Research integration — load projects, collections, annotations
+        // Research integration - load projects, collections, annotations
         $hasResearch = Schema::hasTable('research_researcher');
         $researcherProfile = null;
         $projects = [];

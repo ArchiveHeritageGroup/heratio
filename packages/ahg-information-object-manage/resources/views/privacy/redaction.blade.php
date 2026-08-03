@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Visual Redaction Editor — ' . ($io->title ?? ''))
+@section('title', 'Visual Redaction Editor - ' . ($io->title ?? ''))
 
 @push('css')
 <style>
@@ -13,7 +13,7 @@
   .redaction-toolbar #tool-select {
     /* Make the toolbar buttons large + obvious so they're hard to miss.
        Earlier the buttons were btn-sm and rendered in a dark area where
-       they were hard to see — users were clicking on the canvas instead. */
+       they were hard to see - users were clicking on the canvas instead. */
     min-width: 110px !important;
     padding: 8px 16px !important;
     font-size: 14px !important;
@@ -39,7 +39,7 @@
     outline: 2px solid #ffc107 !important;
     outline-offset: 2px !important;
   }
-  /* Selected region in the sidebar — matches the gold canvas highlight. */
+  /* Selected region in the sidebar - matches the gold canvas highlight. */
   .region-item.region-item-active {
     background: rgba(255, 193, 7, 0.18);
     border-left: 3px solid #ffc107;
@@ -61,7 +61,7 @@
     position: relative;
     background: #1a1a2e;
     border-radius: 8px;
-    /* Was overflow:hidden + a 600px wrapper — that clipped any zoomed/long
+    /* Was overflow:hidden + a 600px wrapper - that clipped any zoomed/long
        page so the cataloguer couldn't reach the bottom of the PDF. Switch to
        auto-scroll, cap the height to the viewport, and let the wrapper grow
        to fit the canvas so the scrollbar surfaces the rest. */
@@ -231,7 +231,7 @@
       <i class="fas fa-exclamation-triangle me-2"></i>
       <strong>{{ __('Visual redaction is not available for this object type.') }}</strong>
       @if($documentType === '3d')
-        This is a 3D model — redaction only works on images and PDFs.
+        This is a 3D model - redaction only works on images and PDFs.
       @elseif(!$documentUrl)
         No digital object is attached to this record. Upload an image or PDF first, then return here to redact it.
       @else
@@ -413,7 +413,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
 <script nonce="{{ csp_nonce() }}">
-// Console-only debug helper. Field-debug is via DevTools — open the Console
+// Console-only debug helper. Field-debug is via DevTools - open the Console
 // tab and filter for "[redaction]" to see the full pipeline:
 //   script load → DOMContentLoaded → setTool(...) → mouse:down/up.
 // Earlier sessions also wrote to a visible textarea on the page; that strip
@@ -422,7 +422,7 @@ function __heratioRedactDebug(msg) {
   try { console.log('[redaction]', msg); } catch(e){}
 }
 
-__heratioRedactDebug('script loaded — registering tool handlers');
+__heratioRedactDebug('script loaded - registering tool handlers');
 
 // Delegated click handler for the Draw / Select buttons. Bound on document
 // so it's immune to any DOMContentLoaded-timing or nesting issue. Also runs
@@ -438,7 +438,7 @@ document.addEventListener('click', function (e) {
   if (typeof window.__heratioRedactionSetTool === 'function') {
     window.__heratioRedactionSetTool(tool);
   } else {
-    // Fabric hasn't initialised yet — at least toggle the visible button state
+    // Fabric hasn't initialised yet - at least toggle the visible button state
     // so the user gets immediate feedback. setTool() will sync once it loads.
     document.getElementById('tool-select') && document.getElementById('tool-select').classList.toggle('active', tool === 'select');
     document.getElementById('tool-draw')   && document.getElementById('tool-draw').classList.toggle('active',   tool === 'draw');
@@ -509,18 +509,18 @@ document.addEventListener('DOMContentLoaded', function() {
       if (tool === 'draw') viewerContainer.classList.add('drawing-active');
       else                  viewerContainer.classList.remove('drawing-active');
     }
-    // Fabric state — only when the overlay canvas has been initialised.
+    // Fabric state - only when the overlay canvas has been initialised.
     if (fabricCanvas) {
       fabricCanvas.isDrawingMode = false;
       fabricCanvas.selection = (tool === 'select');
       fabricCanvas.defaultCursor = (tool === 'draw') ? 'crosshair' : 'default';
       fabricCanvas.hoverCursor   = (tool === 'draw') ? 'crosshair' : 'move';
-      // Rects stay selectable+evented regardless of tool — the canvas-level
+      // Rects stay selectable+evented regardless of tool - the canvas-level
       // `selection` flag (above) controls whether group-select-by-drag is on,
       // which is what we actually need to differ between Select and Draw.
       // The previous code toggled per-object selectable/evented to false in
       // Draw mode, which Fabric's renderer then sometimes treated as "drop
-      // from visible layer" — making the freshly drawn rect disappear on
+      // from visible layer" - making the freshly drawn rect disappear on
       // mouse:up.
       fabricCanvas.forEachObject(function(obj) {
         obj.selectable = true;
@@ -530,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // to receive mouse events on the Fabric overlay (Select to click/move
       // existing rects, Draw to capture mouse:down/move/up). Earlier code
       // forced pointer-events=none in select mode, which broke selection.
-      // Pan-by-drag on OSD is sacrificed when the editor is active — the
+      // Pan-by-drag on OSD is sacrificed when the editor is active - the
       // user pans/zooms via OSD's nav-bar instead.
       if (osdViewer) {
         var fabricWrap = fabricCanvas.upperCanvasEl && fabricCanvas.upperCanvasEl.parentElement;
@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', function() {
               selection: currentTool === 'select',
             });
             // Fabric wraps the original <canvas> in a .canvas-container div
-            // that defaults to position:relative — pushing the overlay below
+            // that defaults to position:relative - pushing the overlay below
             // the PDF canvas in the DOM flow instead of stacking on top.
             // Force absolute positioning so the overlay covers the PDF, with
             // pointer-events enabled so clicks reach Fabric's upper-canvas.
@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fabricCanvas.on('mouse:down', function(opt) {
       if (currentTool !== 'draw') {
-        __heratioRedactDebug('mouse:down on canvas IGNORED — currentTool=' + currentTool
+        __heratioRedactDebug('mouse:down on canvas IGNORED - currentTool=' + currentTool
           + '. Click the red DRAW button in the toolbar first.');
         return;
       }
@@ -714,7 +714,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var w = activeRect.width  | 0;
       var h = activeRect.height | 0;
       if (w < 3 || h < 3) {
-        // User just clicked, didn't drag — silently drop it. Threshold tightened
+        // User just clicked, didn't drag - silently drop it. Threshold tightened
         // from 5 to 3 since some users do tiny redactions on small images.
         fabricCanvas.remove(activeRect);
         activeRect = null;
@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Always selectable + evented after creation. Earlier code set these
       // to false in Draw mode, but Fabric's hit-testing on a non-evented
       // fresh-add object can re-render in a way that drops the rect from
-      // view. Keeping them true is safe — the tool buttons control whether
+      // view. Keeping them true is safe - the tool buttons control whether
       // the user *can* click another rect.
       activeRect.set({
         selectable: true,
@@ -803,7 +803,7 @@ document.addEventListener('DOMContentLoaded', function() {
       overlayEl.style.left = '0';
       overlayEl.style.width = '100%';
       overlayEl.style.height = '100%';
-      // pointer-events default 'auto' — setTool() then refines per-mode.
+      // pointer-events default 'auto' - setTool() then refines per-mode.
       // Earlier code locked this at 'none' which made Select unusable.
 
       const container = osdViewer.canvas;
@@ -1021,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Sync Fabric overlay's wrapper position to track pdf-canvas. The CSS
   // rule `#pdf-canvas { margin: 0 auto }` centers the PDF horizontally when
   // it's narrower than the wrapper (i.e. zoomed out below 100%), but the
-  // Fabric overlay sits at left:0 anchored to the wrapper — which makes the
+  // Fabric overlay sits at left:0 anchored to the wrapper - which makes the
   // rectangles drift left of the actual content. After each (re)render of
   // the PDF canvas, copy pdf-canvas's offsetLeft/offsetTop onto Fabric's
   // .canvas-container so both stay aligned at every zoom level.
@@ -1037,7 +1037,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Rescale every Fabric object by the ratio between old/new canvas dims,
   // then resize the canvas. Without this, rectangles drawn at one zoom level
   // stay at their original pixel coordinates when the canvas grows or
-  // shrinks — visually drifting away from the underlying content.
+  // shrinks - visually drifting away from the underlying content.
   function rescaleFabricObjectsAndResize(newW, newH) {
     if (!fabricCanvas) return;
     var oldW = fabricCanvas.getWidth() || newW;
@@ -1123,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Normalise coordinates to 0-1 fractions of the canvas dimensions before
     // saving. Without this, the editor's current zoom level is baked into
-    // the stored values — PyMuPDF/Pillow then place the redaction rectangle
+    // the stored values - PyMuPDF/Pillow then place the redaction rectangle
     // at the wrong position because they interpret the numbers as absolute
     // PDF points / image pixels at the file's native resolution. With
     // normalised=1 the renderer multiplies by the file's actual page/image
@@ -1171,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Apply (permanent flatten) handler removed — admins always see the
+  // Apply (permanent flatten) handler removed - admins always see the
   // original; non-admins are served the on-the-fly redacted file by
   // RedactionRenderService at /privacy/redacted-asset/{slug}. There is
   // no "permanent" state in this design.

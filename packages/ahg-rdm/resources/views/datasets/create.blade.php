@@ -25,7 +25,7 @@
       <div class="mb-3">
         <label for="project_id" class="form-label">{{ __('Research project') }} <span class="text-muted small">({{ __('optional') }})</span></label>
         <select name="project_id" id="project_id" class="form-select">
-          <option value="">{{ __('— none —') }}</option>
+          <option value="">{{ __('- none -') }}</option>
           @foreach ($projects as $p)
             <option value="{{ $p->id }}" @selected(old('project_id') == $p->id)>{{ $p->title }}</option>
           @endforeach

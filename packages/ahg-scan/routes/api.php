@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ahg-scan API routes — Heratio /api/v2/scan/*
+ * ahg-scan API routes - Heratio /api/v2/scan/*
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

@@ -68,7 +68,7 @@
                         <i class="fas fa-info-circle me-1"></i>
                         <strong>{{ __('Scope of restore (v1):') }}</strong>
                         {{ __('Base record fields + descriptive metadata (titles, scope, notes, all cultures) + custom fields.') }}
-                        {{ __('Access points, events, relationships and physical-object links are NOT restored — they stay as they are currently. Full restore of these is a planned enhancement.') }}
+                        {{ __('Access points, events, relationships and physical-object links are NOT restored - they stay as they are currently. Full restore of these is a planned enhancement.') }}
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -98,10 +98,10 @@
             <dd class="col-sm-9">{{ $version->created_at }}</dd>
 
             <dt class="col-sm-3">{{ __('Created by') }}</dt>
-            <dd class="col-sm-9">{{ $version->created_by_username ?? '—' }}</dd>
+            <dd class="col-sm-9">{{ $version->created_by_username ?? '-' }}</dd>
 
             <dt class="col-sm-3">{{ __('Summary') }}</dt>
-            <dd class="col-sm-9">{{ $version->change_summary ?: '—' }}</dd>
+            <dd class="col-sm-9">{{ $version->change_summary ?: '-' }}</dd>
 
             <dt class="col-sm-3">{{ __('Changed fields') }}</dt>
             <dd class="col-sm-9">

@@ -1,4 +1,4 @@
-{{-- #1099 Training — course detail (modules, assessment, enrolments) --}}
+{{-- #1099 Training - course detail (modules, assessment, enrolments) --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -49,7 +49,7 @@
         <form method="post" action="{{ route('research.training.module-store', $course['id']) }}">@csrf
           <div class="mb-2"><label class="form-label">{{ __('Title') }}</label><input name="title" class="form-control" required></div>
           <div class="mb-2"><label class="form-label">{{ __('Curriculum lecture (optional content source)') }}</label>
-            <select name="lecture_id" class="form-select"><option value="">{{ __('— none / write below —') }}</option>
+            <select name="lecture_id" class="form-select"><option value="">{{ __('- none / write below -') }}</option>
               @foreach ($lectures as $l)<option value="{{ $l['id'] }}">{{ $l['title'] }}</option>@endforeach
             </select>
             @unless(count($lectures))<div class="form-text">{{ __('Create curriculum lectures in the Lectures builder to attach them here.') }}</div>@endunless

@@ -1,4 +1,4 @@
-{{-- RiC View: Accession — provenance and transfer context --}}
+{{-- RiC View: Accession - provenance and transfer context --}}
 @php
   $culture = app()->getLocale();
 

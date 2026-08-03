@@ -1,7 +1,7 @@
 {{-- heratio#1192 - Live virtual openings: admin schedule + manage. --}}
 @extends('theme::layouts.1col')
 
-@section('title', __('Live openings') . ' — ' . $space->name)
+@section('title', __('Live openings') . ' - ' . $space->name)
 @section('body-class', 'exhibition-space openings')
 
 @section('content')

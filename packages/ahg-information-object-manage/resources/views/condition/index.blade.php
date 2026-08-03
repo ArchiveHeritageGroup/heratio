@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Condition Reports — ' . ($io->title ?? 'Untitled'))
+@section('title', 'Condition Reports - ' . ($io->title ?? 'Untitled'))
 
 @section('content')
 <div class="container py-4">
@@ -39,7 +39,7 @@
         <div class="row">
           <div class="col-md-3">
             <strong>{{ __('Date') }}</strong>
-            <p>{{ $latestCondition->check_date ?? '—' }}</p>
+            <p>{{ $latestCondition->check_date ?? '-' }}</p>
           </div>
           <div class="col-md-3">
             <strong>{{ __('Status') }}</strong>
@@ -56,7 +56,7 @@
                     $badgeClass = 'bg-secondary';
                 }
               @endphp
-              <span class="badge {{ $badgeClass }}">{{ ucfirst($latestCondition->condition_rating ?? '—') }}</span>
+              <span class="badge {{ $badgeClass }}">{{ ucfirst($latestCondition->condition_rating ?? '-') }}</span>
             </p>
           </div>
           <div class="col-md-3">
@@ -113,7 +113,7 @@
             <tbody>
               @foreach($checks as $check)
                 <tr>
-                  <td>{{ $check->check_date ?? '—' }}</td>
+                  <td>{{ $check->check_date ?? '-' }}</td>
                   <td>
                     @php
                       $checkStatus = strtolower(trim($check->condition_rating ?? ''));
@@ -127,10 +127,10 @@
                           $checkBadgeClass = 'bg-secondary';
                       }
                     @endphp
-                    <span class="badge {{ $checkBadgeClass }}">{{ ucfirst($check->condition_rating ?? '—') }}</span>
+                    <span class="badge {{ $checkBadgeClass }}">{{ ucfirst($check->condition_rating ?? '-') }}</span>
                   </td>
-                  <td>{{ $check->check_type ?? '—' }}</td>
-                  <td>{{ $check->assessor ?? '—' }}</td>
+                  <td>{{ $check->check_type ?? '-' }}</td>
+                  <td>{{ $check->assessor ?? '-' }}</td>
                   <td>{{ \Illuminate\Support\Str::limit($check->notes ?? '', 80) }}</td>
                   <td class="text-end">
                     @if(($check->source ?? '') === 'spectrum')

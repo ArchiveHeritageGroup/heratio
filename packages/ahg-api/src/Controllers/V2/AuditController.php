@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class AuditController extends BaseApiController
 {
     /**
-     * GET /api/v2/audit — Browse API request logs.
+     * GET /api/v2/audit - Browse API request logs.
      */
     public function index(Request $request): JsonResponse
     {

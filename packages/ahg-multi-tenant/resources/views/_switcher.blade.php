@@ -1,7 +1,7 @@
 {{--
   Tenant switcher dropdown for the navbar.
 
-  Vars: none — reads everything from session + DB.
+  Vars: none - reads everything from session + DB.
 
   Behaviour:
     - hidden when user is not authenticated

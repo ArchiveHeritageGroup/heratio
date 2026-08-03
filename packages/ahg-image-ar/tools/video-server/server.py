@@ -1,20 +1,20 @@
 """
-ahg-image-ar — image-to-video FastAPI server.
+ahg-image-ar - image-to-video FastAPI server.
 
 Designed to run on the Heratio AI host (192.168.0.78). Hosts one or more
 diffusion image-to-video pipelines with a uniform HTTP interface. Heratio
 POSTs the master image (+ optional text prompt) and gets an MP4 back.
 
 Default model: Stable Video Diffusion (SVD). On an 8 GB GPU we enable
-sequential CPU offload — much slower per call but it fits.
+sequential CPU offload - much slower per call but it fits.
 
 When a 24 GB+ GPU is available, swap MODEL_DEFAULT to a prompt-aware
 model (cogvideox-2b / wan-2.1) and the Heratio side gains real text
 control without code changes.
 
 Endpoints:
-  GET  /health           — readiness + currently-loaded model + VRAM
-  POST /animate          — multipart: image, prompt, num_frames, fps,
+  GET  /health           - readiness + currently-loaded model + VRAM
+  POST /animate          - multipart: image, prompt, num_frames, fps,
                            motion_bucket_id, seed, model
                            returns: video/mp4 binary
 
@@ -65,7 +65,7 @@ def _load_svd(variant: str = "svd"):
         cache_dir=MODEL_CACHE,
     )
     if LOW_VRAM:
-        # Sequential CPU offload — slowest but fits in ~6 GB.
+        # Sequential CPU offload - slowest but fits in ~6 GB.
         pipe.enable_model_cpu_offload()
         try:
             pipe.unet.enable_forward_chunking()
@@ -188,11 +188,11 @@ async def animate(
             raise HTTPException(400, f"Unsupported model '{model}'.")
     except torch.cuda.OutOfMemoryError as e:
         torch.cuda.empty_cache()
-        raise HTTPException(507, f"Out of GPU memory — try fewer frames / smaller size: {e}")
+        raise HTTPException(507, f"Out of GPU memory - try fewer frames / smaller size: {e}")
 
     mp4 = _frames_to_mp4(frames, fps)
     elapsed = time.time() - t0
-    log.info(f"Done in {elapsed:.1f}s — {len(mp4)} bytes")
+    log.info(f"Done in {elapsed:.1f}s - {len(mp4)} bytes")
 
     return Response(
         content=mp4,

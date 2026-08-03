@@ -171,7 +171,7 @@ class DisposalWorkflowService
         }
 
         // Separation of duties (#1374): the initiator may not approve their own
-        // disposal — destruction requires a second pair of eyes.
+        // disposal - destruction requires a second pair of eyes.
         if ((int) $userId === (int) $action->initiated_by) {
             return false;
         }

@@ -3,7 +3,7 @@
   (/dam/browse, /gallery/browse, /library/browse, /museum/browse, etc.).
 
   Mirrors the Active-filters bar in `display::_browse_content.blade.php` but
-  reduced to a single pill — there's only ever one filter on these pages
+  reduced to a single pill - there's only ever one filter on these pages
   (the type) and "Clear all" goes to /glam/browse (no type filter).
 
   Usage:

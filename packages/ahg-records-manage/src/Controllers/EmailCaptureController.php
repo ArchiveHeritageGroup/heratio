@@ -1,7 +1,7 @@
 <?php
 
 /**
- * EmailCaptureController — capture, classify, declare email-as-record (P2.6).
+ * EmailCaptureController - capture, classify, declare email-as-record (P2.6).
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
  * @license    AGPL-3.0-or-later
@@ -61,7 +61,7 @@ class EmailCaptureController extends Controller
         }
 
         $msg = $result['duplicate']
-            ? 'This message was already captured (Message-ID match) — opened existing record.'
+            ? 'This message was already captured (Message-ID match) - opened existing record.'
             : 'Email captured.';
 
         return redirect()->route('records.emails.show', $result['id'])->with('success', $msg);

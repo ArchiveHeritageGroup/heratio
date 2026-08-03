@@ -6,7 +6,7 @@
  * Journals to publish TO, each with its subject scope and submission rules.
  * The directory core is jurisdiction-neutral; the DHET accredited list is the
  * South-African accreditation MODULE (accreditation_market='ZA') seeded here as
- * a starter set — other markets seed from DOAJ / Scopus / Web of Science.
+ * a starter set - other markets seed from DOAJ / Scopus / Web of Science.
  *
  * @author    Johan Pieterse
  * @copyright Plain Sailing Information Systems

@@ -501,7 +501,7 @@ class FederatedSearchService
             }
         }
 
-        // Phase G — dedupe by dedupe_key. When two rows share a key, the higher-score
+        // Phase G - dedupe by dedupe_key. When two rows share a key, the higher-score
         // row wins and absorbs a `peer_types_also_present` pill from the losing row(s).
         $allResults = $this->dedupeByKey($allResults);
 
@@ -521,7 +521,7 @@ class FederatedSearchService
     }
 
     /**
-     * Phase G — source-attribution badge. If the connector already wrote
+     * Phase G - source-attribution badge. If the connector already wrote
      * `source.badge` we leave it alone. For legacy OAI rows (which don't go
      * through the connector path) we synthesise the badge from the peer name.
      */
@@ -537,7 +537,7 @@ class FederatedSearchService
     }
 
     /**
-     * Phase G — collapse rows with the same dedupe_key. Highest-score row wins
+     * Phase G - collapse rows with the same dedupe_key. Highest-score row wins
      * and gets a `also_present_in` array listing the other peer types that
      * matched. AtoM hits with sp_item_id collapse with SharePoint hits sharing
      * the same id; the AtoM hit wins (more authoritative metadata) and renders

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * InjectCspNonces — auto-tags inline <script> and <style> elements in HTML
+ * InjectCspNonces - auto-tags inline <script> and <style> elements in HTML
  * responses with the per-request CSP nonce that spatie/laravel-csp emits in
  * the Content-Security-Policy header.
  *

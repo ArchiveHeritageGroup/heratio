@@ -94,10 +94,10 @@
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
                 <h3 class="font-medium text-gray-700 text-sm mb-2">{{ __('Query examples') }}</h3>
                 <div class="space-y-1 text-xs font-mono text-gray-500">
-                    <div><code>title=preservation</code> — works with "preservation" in the title</div>
-                    <div><code>author=pieterse AND isbn=978*</code> — by author with ISBN starting 978</div>
-                    <div><code>subject=archives AND subject=digitization</code> — both subject terms</div>
-                    <div><code>subject=metadata*</code> — right truncation (metadata, metadatamanagement, etc.)</div>
+                    <div><code>title=preservation</code> - works with "preservation" in the title</div>
+                    <div><code>author=pieterse AND isbn=978*</code> - by author with ISBN starting 978</div>
+                    <div><code>subject=archives AND subject=digitization</code> - both subject terms</div>
+                    <div><code>subject=metadata*</code> - right truncation (metadata, metadatamanagement, etc.)</div>
                 </div>
             </div>
 

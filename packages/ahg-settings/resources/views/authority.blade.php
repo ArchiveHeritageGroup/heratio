@@ -1,6 +1,6 @@
 {{--
-  Authority Records Settings — cloned from AtoM section.blade.php @case('authority')
-  Copyright (C) 2026 Johan Pieterse — Plain Sailing Information Systems
+  Authority Records Settings - cloned from AtoM section.blade.php @case('authority')
+  Copyright (C) 2026 Johan Pieterse - Plain Sailing Information Systems
   AGPL-3.0-or-later
 --}}
 @extends('theme::layouts.2col')
@@ -117,7 +117,7 @@
                    name="settings[authority_ner_auto_stub_threshold]"
                    value="{{ $settings['authority_ner_auto_stub_threshold'] ?? '0.85' }}"
                    min="0" max="1" step="0.05">
-            <div class="form-text">Minimum confidence score (0.0–1.0) for auto-creating stubs. Default: 0.85</div>
+            <div class="form-text">Minimum confidence score (0.0-1.0) for auto-creating stubs. Default: 0.85</div>
           </div>
         </div>
       </div>
@@ -143,7 +143,7 @@
                    name="settings[authority_dedup_threshold]"
                    value="{{ $settings['authority_dedup_threshold'] ?? '0.80' }}"
                    min="0" max="1" step="0.05">
-            <div class="form-text">Minimum similarity score (0.0–1.0) for flagging potential duplicates. Default: 0.80</div>
+            <div class="form-text">Minimum similarity score (0.0-1.0) for flagging potential duplicates. Default: 0.80</div>
           </div>
         </div>
       </div>

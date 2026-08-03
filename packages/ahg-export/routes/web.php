@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'admin'])->prefix('export')->group(function () {
     Route::get('/', [ExportController::class, 'index'])->name('export.index');
-    // GET renders the form; POST generates the actual download (#1357 — the
+    // GET renders the form; POST generates the actual download (#1357 - the
     // forms POST to these names, which were previously GET-only → 405/no output).
     Route::match(['get', 'post'], '/csv', [ExportController::class, 'csv'])->name('export.csv');
     Route::match(['get', 'post'], '/ead', [ExportController::class, 'ead'])->name('export.ead');

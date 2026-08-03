@@ -1,5 +1,5 @@
 {{--
-  Find-similar widget — calls /api/search/semantic/similar/{ioId} via fetch
+  Find-similar widget - calls /api/search/semantic/similar/{ioId} via fetch
   and renders top-N nearest neighbours by cosine similarity.
 
   Usage: @include('ahg-search::_find-similar', ['ioId' => $io->id])

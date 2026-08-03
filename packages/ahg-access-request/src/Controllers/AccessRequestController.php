@@ -172,7 +172,7 @@ class AccessRequestController extends Controller
 
         // Ownership gate (#1366): a request exposes the requester's identity +
         // justification + the target record's classification. Only the owner or an
-        // admin/approver may view it (was unguarded — any authed user by id).
+        // admin/approver may view it (was unguarded - any authed user by id).
         abort_unless(
             (int) ($accessRequest->user_id ?? 0) === (int) auth()->id()
                 || AclService::canAdmin(auth()->id()),
@@ -224,7 +224,7 @@ class AccessRequestController extends Controller
         $payload = [
             'subject' => $validated['subject'],
             'request_type' => $validated['request_type'],
-            // #1366 — explicit classification key (null → baseline Public default).
+            // #1366 - explicit classification key (null → baseline Public default).
             'requested_classification_id' => $validated['requested_classification_id'] ?? null,
             'reason' => 'Subject: '.$validated['subject']."\n\n".$validated['description'],
             'justification' => $validated['justification'] ?? null,
@@ -309,7 +309,7 @@ class AccessRequestController extends Controller
             'reason' => 'required|string|max:2000',
         ]);
 
-        // #1366 — object request: the target IO goes to access_request_scope
+        // #1366 - object request: the target IO goes to access_request_scope
         // (request_type=object); classification defaults to baseline Public.
         $this->service->createRequest(auth()->id(), [
             'request_type' => 'object',

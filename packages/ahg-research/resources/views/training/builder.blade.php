@@ -1,4 +1,4 @@
-{{-- #1099 Training — course create/edit --}}
+{{-- #1099 Training - course create/edit --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')

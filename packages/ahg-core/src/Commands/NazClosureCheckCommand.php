@@ -11,7 +11,7 @@ class NazClosureCheckCommand extends Command
         {--auto-release : Auto-flip status to released for closure_period rows past their end_date}
         {--system-user-id=1 : User id to credit auto-releases to}';
 
-    protected $description = 'Zimbabwe NAZ — check 25-year closure periods, optionally auto-release expired ones';
+    protected $description = 'Zimbabwe NAZ - check 25-year closure periods, optionally auto-release expired ones';
 
     public function handle(): int
     {

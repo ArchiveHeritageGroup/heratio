@@ -31,7 +31,7 @@ Route::middleware('auth')->prefix('exhibition')->group(function () {
     Route::get('/{id}', [ExhibitionController::class, 'show'])->name('exhibition.show');
 });
 
-// heratio#146 — exhibition space (front-of-house space allocation, sibling of strongroom)
+// heratio#146 - exhibition space (front-of-house space allocation, sibling of strongroom)
 Route::get('/exhibition-space/browse', [ExhibitionSpaceController::class, 'browse'])->name('exhibition-space.browse');
 
 // Public demo: these four pages are viewable without login (builder/plan/analytics/forecast). All
@@ -74,7 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/sync-ric', [ExhibitionSpaceController::class, 'syncRic'])->name('exhibition-space.sync-ric')->middleware('acl:update');
     Route::post('/exhibition-space/placement/{placementId}/remove', [ExhibitionSpaceController::class, 'removePlacement'])->name('exhibition-space.placement.remove')->middleware('acl:update')->whereNumber('placementId');
 
-    // heratio#1138 — digital twin builder + #1143 plan editor: GET views are public (see above);
+    // heratio#1138 - digital twin builder + #1143 plan editor: GET views are public (see above);
     // all save/edit/delete actions below stay auth+acl gated.
     Route::post('/exhibition-space/{slug}/plan/save', [ExhibitionSpaceController::class, 'savePlanAjax'])->name('exhibition-space.plan.save')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/doors', [ExhibitionSpaceController::class, 'saveDoorsAjax'])->name('exhibition-space.plan.doors')->middleware('acl:update');
@@ -177,40 +177,40 @@ Route::post('/exhibition-space/opening/{token}/rsvp', [ExhibitionEventController
 // attendee in session, redirects into the walkthrough as a live co-present visitor.
 Route::get('/exhibition-space/opening/{token}/join', [ExhibitionEventController::class, 'join'])->name('exhibition-space.opening-join')->where('token', '[a-z0-9]+');
 
-// heratio#1138 — digital twin: 2.5D pannable walkthrough (Phase 2, visitor-facing/public)
+// heratio#1138 - digital twin: 2.5D pannable walkthrough (Phase 2, visitor-facing/public)
 Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::class, 'walkthrough'])->name('exhibition-space.walkthrough');
 // heratio#1191 - on-site AR companion (first slice): mobile-first phone page opened in the
 // gallery via QR; twin-sourced object cards + room AI docent. Geo/marker AR anchoring is a later slice.
 Route::get('/exhibition-space/{slug}/companion', [ExhibitionSpaceController::class, 'companion'])->name('exhibition-space.companion');
 // heratio#1194 - accessible text + narration tour (keyboard / screen-reader alternative)
 Route::get('/exhibition-space/{slug}/accessible-tour', [ExhibitionSpaceController::class, 'accessibleTour'])->name('exhibition-space.accessible-tour');
-// heratio#1153 — WebGPU renderer spike (proof page; live walkthrough untouched)
+// heratio#1153 - WebGPU renderer spike (proof page; live walkthrough untouched)
 Route::get('/exhibition-space/{slug}/walkthrough-webgpu', [ExhibitionSpaceController::class, 'walkthroughWebgpu'])->name('exhibition-space.walkthrough-webgpu');
-// heratio#1153/#1193 — BETA ESM/r169 walkthrough with in-room Gaussian splats (live one untouched)
+// heratio#1153/#1193 - BETA ESM/r169 walkthrough with in-room Gaussian splats (live one untouched)
 Route::get('/exhibition-space/{slug}/walkthrough-next', [ExhibitionSpaceController::class, 'walkthroughNext'])->name('exhibition-space.walkthrough-next');
-// heratio#1149 — in-twin recommendations (public, read-only) for the walkthrough
+// heratio#1149 - in-twin recommendations (public, read-only) for the walkthrough
 Route::get('/exhibition-space/{slug}/recommend', [ExhibitionSpaceController::class, 'recommendAjax'])->name('exhibition-space.recommend');
 // AI-describe an object with no metadata (walkthrough T=talk docent, public)
 Route::get('/exhibition-space/object/{ioId}/describe', [ExhibitionSpaceController::class, 'describeObjectAjax'])->name('exhibition-space.describe')->whereNumber('ioId');
-// heratio#1185 — AI docent: grounded Q&A about an object (public, read-only)
+// heratio#1185 - AI docent: grounded Q&A about an object (public, read-only)
 Route::get('/exhibition-space/object/{ioId}/ask', [ExhibitionSpaceController::class, 'askObjectAjax'])->name('exhibition-space.ask')->whereNumber('ioId');
-// heratio#1185 — AI docent: grounded Q&A about the whole ROOM / exhibition + suggested questions (public, read-only)
+// heratio#1185 - AI docent: grounded Q&A about the whole ROOM / exhibition + suggested questions (public, read-only)
 Route::get('/exhibition-space/{slug}/ask-room', [ExhibitionSpaceController::class, 'askRoomAjax'])->name('exhibition-space.ask-room');
 Route::get('/exhibition-space/{slug}/room-questions', [ExhibitionSpaceController::class, 'roomQuestionsAjax'])->name('exhibition-space.room-questions');
-// heratio#1185 — conversational (multi-turn) room docent; POST so the transcript fits the body
+// heratio#1185 - conversational (multi-turn) room docent; POST so the transcript fits the body
 Route::post('/exhibition-space/{slug}/converse', [ExhibitionSpaceController::class, 'converseRoomAjax'])->name('exhibition-space.converse');
 Route::post('/exhibition-space/tts', [ExhibitionSpaceController::class, 'ttsAjax'])->name('exhibition-space.tts');   // #1168 neural TTS via the gateway (public; walkthrough narration)
-// heratio#1188 — IoT sensor/gateway ingest, authenticated by a per-space token (no session/CSRF)
+// heratio#1188 - IoT sensor/gateway ingest, authenticated by a per-space token (no session/CSRF)
 Route::post('/exhibition-space/sensor/ingest', [ExhibitionSpaceController::class, 'sensorIngestAjax'])->name('exhibition-space.sensor.ingest');
-// heratio#1150 — multi-user presence (public; docent role gated server-side on auth)
+// heratio#1150 - multi-user presence (public; docent role gated server-side on auth)
 Route::post('/exhibition-space/{slug}/presence/beat', [ExhibitionSpaceController::class, 'presenceBeatAjax'])->name('exhibition-space.presence.beat');
 Route::post('/exhibition-space/{slug}/presence/leave', [ExhibitionSpaceController::class, 'presenceLeaveAjax'])->name('exhibition-space.presence.leave');
-// heratio#1165 — wall graffiti / annotations (public, walkthrough)
+// heratio#1165 - wall graffiti / annotations (public, walkthrough)
 Route::post('/exhibition-space/{slug}/annotation', [ExhibitionSpaceController::class, 'annotationAddAjax'])->name('exhibition-space.annotation');
 Route::post('/exhibition-space/{slug}/annotation/{id}/delete', [ExhibitionSpaceController::class, 'annotationDeleteAjax'])->name('exhibition-space.annotation.delete')->whereNumber('id');
-// heratio#1173 — visitor analytics event (public, walkthrough)
+// heratio#1173 - visitor analytics event (public, walkthrough)
 Route::post('/exhibition-space/{slug}/visit-event', [ExhibitionSpaceController::class, 'visitEventAjax'])->name('exhibition-space.visit-event');
-// heratio#1151 — open-standard interoperability exports (public, read-only, CORS *)
+// heratio#1151 - open-standard interoperability exports (public, read-only, CORS *)
 Route::get('/exhibition-space/{slug}/manifest.json', [ExhibitionSpaceController::class, 'iiifManifest'])->name('exhibition-space.iiif');
 Route::get('/exhibition-space/{slug}/scene.json', [ExhibitionSpaceController::class, 'sceneExport'])->name('exhibition-space.scene');
 Route::get('/exhibition-space/{slug}/exhibition.jsonld', [ExhibitionSpaceController::class, 'exhibitionJsonLd'])->name('exhibition-space.jsonld');

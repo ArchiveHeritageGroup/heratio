@@ -6,9 +6,9 @@
   <div>
     <strong>{{ ucfirst(str_replace('_', ' ', $embargo->embargo_type ?? 'Embargo')) }}</strong>
     @if(!empty($embargo->end_date))
-      — Until {{ $embargo->end_date }}
+      - Until {{ $embargo->end_date }}
     @elseif($embargo->is_perpetual ?? false)
-      — Perpetual
+      - Perpetual
     @endif
     @if(!empty($embargo->public_message))
       <br><small>{{ e($embargo->public_message) }}</small>

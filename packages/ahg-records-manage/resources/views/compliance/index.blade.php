@@ -1,5 +1,5 @@
 {{--
-  Records Management — Compliance assessments index (P2.8)
+  Records Management - Compliance assessments index (P2.8)
   @copyright Johan Pieterse / Plain Sailing Information Systems
   @license   AGPL-3.0-or-later
 --}}
@@ -57,7 +57,7 @@
         <td><code>{{ $a->assessment_ref }}</code></td>
         <td><small>{{ $a->framework }}</small></td>
         <td>{{ $a->title }}</td>
-        <td><small>{{ $a->period_start ? $a->period_start : '—' }} → {{ $a->period_end ?: '—' }}</small></td>
+        <td><small>{{ $a->period_start ? $a->period_start : '-' }} → {{ $a->period_end ?: '-' }}</small></td>
         <td>
           @if($pct !== null)
             <span class="badge bg-{{ $bandClass }}">{{ $pct }}%</span>

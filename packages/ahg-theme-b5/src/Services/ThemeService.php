@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Theme service — provides all data needed by layout templates.
+ * Theme service - provides all data needed by layout templates.
  */
 class ThemeService
 {
@@ -116,12 +116,12 @@ class ThemeService
      * Setting `ahg_logo_path` may be:
      *   - An absolute URL                       (returned verbatim)
      *   - A web-relative path under public/     (e.g. "vendor/ahg-theme-b5/images/foo.svg"
-     *                                            or "public/vendor/...svg" — leading "public/"
+     *                                            or "public/vendor/...svg" - leading "public/"
      *                                            is stripped because nginx serves from public/)
-     *   - An uploads-relative path              (e.g. "/uploads/r/.../logo.png" — nginx alias
+     *   - An uploads-relative path              (e.g. "/uploads/r/.../logo.png" - nginx alias
      *                                            serves /uploads/ from HERATIO_UPLOADS_PATH)
      *
-     * Previously the existence check hardcoded "/usr/share/nginx/archive" — wrong on every
+     * Previously the existence check hardcoded "/usr/share/nginx/archive" - wrong on every
      * install except the AtoM PSIS box. Replaced with public_path() / uploads_path() lookup.
      */
     private function getCustomLogo(): ?string
@@ -132,12 +132,12 @@ class ThemeService
             return null;
         }
 
-        // Absolute URL — return as-is
+        // Absolute URL - return as-is
         if (preg_match('#^https?://#', $logoPath)) {
             return $logoPath;
         }
 
-        // Strip leading "public/" — DB occasionally stores it but the served URL must not include it
+        // Strip leading "public/" - DB occasionally stores it but the served URL must not include it
         $webPath = preg_replace('#^public/#', '', $logoPath);
         $webPath = '/'.ltrim($webPath, '/');
 
@@ -154,7 +154,7 @@ class ThemeService
             }
         }
 
-        // 3. Fall through — return the path so the admin sees a broken logo and can correct it,
+        // 3. Fall through - return the path so the admin sees a broken logo and can correct it,
         // rather than silently reverting to the default.
         return $webPath;
     }

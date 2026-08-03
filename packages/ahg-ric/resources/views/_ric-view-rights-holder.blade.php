@@ -1,4 +1,4 @@
-{{-- RiC View: Rights Holder — rights context and linked records --}}
+{{-- RiC View: Rights Holder - rights context and linked records --}}
 @php
   $culture = app()->getLocale();
 

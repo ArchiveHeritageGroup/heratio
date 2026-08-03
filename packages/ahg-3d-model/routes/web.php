@@ -4,7 +4,7 @@ use Ahg3dModel\Controllers\CameraBookmarkController;
 use Ahg3dModel\Controllers\Model3dController;
 use Illuminate\Support\Facades\Route;
 
-// User-facing — auth-only Generate 3D button on IO show pages.
+// User-facing - auth-only Generate 3D button on IO show pages.
 // Two-step flow: generate → preview modal → save / discard.
 Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/3d-models/generate/{ioId}', [Model3dController::class, 'userGenerate3d'])
@@ -132,7 +132,7 @@ Route::get('/api/3d/hotspots/{modelId}', [Model3dController::class, 'apiHotspots
 
 // Legacy AtoM URL aliases (JS widgets reference these paths).
 // #1361: these add/delete hotspots and must match the canonical routes' `admin`
-// gate (were `auth`-only — a privilege downgrade letting any authed user mutate
+// gate (were `auth`-only - a privilege downgrade letting any authed user mutate
 // hotspots via the legacy path).
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/index.php/ar3DModel/addHotspot/{modelId}', [Model3dController::class, 'addHotspot'])
@@ -152,7 +152,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->whereNumber('hotspotId')
         ->name('ar3d.deleteHotspot');
 
-    // Legacy base-path aliases (no ID) — return JSON error for parity coverage
+    // Legacy base-path aliases (no ID) - return JSON error for parity coverage
     Route::match(['get', 'post'], '/index.php/ar3DModel/addHotspot', function () {
         return response()->json(['success' => false, 'error' => 'Model ID required. Use /ar3DModel/addHotspot/{modelId}'], 400);
     })->name('legacy.3d.addHotspot.base');

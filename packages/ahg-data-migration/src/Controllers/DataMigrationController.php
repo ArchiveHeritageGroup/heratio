@@ -287,7 +287,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     }
 
     // ════════════════════════════════════════════════════════
-    // NEW METHODS — 17 gaps resolved
+    // NEW METHODS - 17 gaps resolved
     // ════════════════════════════════════════════════════════
 
     /** GET /admin/data-migration/export */
@@ -344,7 +344,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         return view('ahg-data-migration::preservica-export', compact('repositories'));
     }
 
-    /** GET /admin/data-migration/download — download a completed export file */
+    /** GET /admin/data-migration/download - download a completed export file */
     public function download(Request $req)
     {
         $req->validate(['file' => 'required|string']);
@@ -356,7 +356,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         return Storage::download($path);
     }
 
-    /** GET /admin/data-migration/mapping — return mapping JSON for AJAX */
+    /** GET /admin/data-migration/mapping - return mapping JSON for AJAX */
     public function getMapping(Request $req)
     {
         $req->validate(['id' => 'required|integer']);
@@ -368,7 +368,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         return response()->json($mapping);
     }
 
-    /** GET /dataMigration/job/progress — AJAX polling */
+    /** GET /dataMigration/job/progress - AJAX polling */
     public function jobProgress(Request $req)
     {
         $req->validate(['id' => 'required|integer']);
@@ -386,7 +386,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         ]);
     }
 
-    /** POST /dataMigration/queue — queue a migration job via AJAX */
+    /** POST /dataMigration/queue - queue a migration job via AJAX */
     public function queueJob(Request $req)
     {
         $req->validate(['type' => 'required|string']);
@@ -408,7 +408,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
             ->with('success', 'Job cancelled.');
     }
 
-    /** GET /dataMigration/exportCsv — export current result set as CSV */
+    /** GET /dataMigration/exportCsv - export current result set as CSV */
     public function exportCsv(Request $req)
     {
         $req->validate(['job_id' => 'required|integer']);
@@ -432,7 +432,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    /** GET /dataMigration/loadMapping — load a saved mapping by id (AJAX) */
+    /** GET /dataMigration/loadMapping - load a saved mapping by id (AJAX) */
     public function loadMapping(Request $req)
     {
         $req->validate(['id' => 'required|integer']);
@@ -448,7 +448,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         ]);
     }
 
-    /** POST /dataMigration/previewValidation — validate before committing */
+    /** POST /dataMigration/previewValidation - validate before committing */
     public function previewValidation(Request $req)
     {
         $filePath = session('dm_file');
@@ -459,7 +459,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         return response()->json($validation);
     }
 
-    /** GET /dataMigration/exportMapping/{id} — download mapping as JSON file */
+    /** GET /dataMigration/exportMapping/{id} - download mapping as JSON file */
     public function exportMapping(int $id)
     {
         $mapping = $this->repo->getMappingById($id);
@@ -472,7 +472,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
             ->header('Content-Disposition', 'attachment; filename="'.$fileName.'"');
     }
 
-    /** POST /dataMigration/importMapping — upload and save a mapping JSON file */
+    /** POST /dataMigration/importMapping - upload and save a mapping JSON file */
     public function importMapping(Request $req)
     {
         $req->validate(['mapping_file' => 'required|file|mimes:json|max:1024']);
@@ -493,7 +493,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
             ->with('success', 'Mapping imported successfully.');
     }
 
-    /** POST /dataMigration/validate — validate file without executing */
+    /** POST /dataMigration/validate - validate file without executing */
     public function validate(Request $req)
     {
         $filePath = session('dm_file');
@@ -506,7 +506,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         return response()->json($result);
     }
 
-    /** POST /dataMigration/executeAhgImport — execute AHG-specific import */
+    /** POST /dataMigration/executeAhgImport - execute AHG-specific import */
     public function executeAhgImport(Request $req)
     {
         $filePath = session('dm_file');
@@ -520,7 +520,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         return response()->json(['success' => true, 'job_id' => $jobId]);
     }
 
-    /** GET /dataMigration/ahgImportResults — AHG import results view */
+    /** GET /dataMigration/ahgImportResults - AHG import results view */
     public function ahgImportResults(Request $req)
     {
         $req->validate(['job_id' => 'required|integer']);
@@ -548,7 +548,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     }
 
     // ════════════════════════════════════════════════════════
-    // Issue #740 — Data-migration exports parity (PSIS twin
+    // Issue #740 - Data-migration exports parity (PSIS twin
     // atom-ahg-plugins#86). Six new actions:
     // exportEad, exportAhgCsv, sectorExport, detectSheets,
     // renameMapping, getPreview.
@@ -635,8 +635,8 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     /**
      * GET|POST /admin/data-migration/sector-export/{sector?}.
      *
-     * GET  – render the sector picker / column resolver view.
-     * POST – stream a CSV using the sector-specific column resolver,
+     * GET  - render the sector picker / column resolver view.
+     * POST - stream a CSV using the sector-specific column resolver,
      *        sourced from the current mapping session.
      */
     public function sectorExport(Request $req, ?string $sector = null)
@@ -681,7 +681,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     }
 
     /**
-     * POST /admin/data-migration/detect-sheets — JSON.
+     * POST /admin/data-migration/detect-sheets - JSON.
      *
      * Probes an uploaded spreadsheet (XLS/XLSX/CSV/TSV) and returns
      * sheet metadata + column headers for the UI to render.
@@ -711,7 +711,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     }
 
     /**
-     * POST /admin/data-migration/rename-mapping — JSON.
+     * POST /admin/data-migration/rename-mapping - JSON.
      */
     public function renameMapping(Request $req)
     {
@@ -726,7 +726,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     }
 
     /**
-     * GET /admin/data-migration/get-preview — JSON.
+     * GET /admin/data-migration/get-preview - JSON.
      *
      * Returns the first N rows of the source file projected through
      * the current saved mapping. Used by the live preview pane.

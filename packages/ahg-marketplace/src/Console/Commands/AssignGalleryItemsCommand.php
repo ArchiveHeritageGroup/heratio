@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AssignGalleryItemsCommand — bulk-create marketplace listings for gallery
+ * AssignGalleryItemsCommand - bulk-create marketplace listings for gallery
  * items, assigning them all to a single seller.
  *
  * Copyright (C) 2026 Johan Pieterse
@@ -92,7 +92,7 @@ class AssignGalleryItemsCommand extends Command
                 ->first();
 
             if ($existing && !$force) {
-                $this->line("[{$io->identifier}] already has listing #{$existing->id} — skipping");
+                $this->line("[{$io->identifier}] already has listing #{$existing->id} - skipping");
                 $skipped++;
                 continue;
             }
@@ -126,7 +126,7 @@ class AssignGalleryItemsCommand extends Command
 
             if ($dryRun) {
                 $action = $existing ? 'OVERWRITE' : 'CREATE';
-                $this->info("[{$io->identifier}] DRY RUN — would {$action} listing for '{$payload['title']}'");
+                $this->info("[{$io->identifier}] DRY RUN - would {$action} listing for '{$payload['title']}'");
                 continue;
             }
 

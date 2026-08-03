@@ -3,7 +3,7 @@
   Include with ['objectId' => <io id>]; the ahg-3d-model View::composer fills
   $threeDModel (the object_3d_model row, created/extracted on demand). Renders
   nothing when the record has no 3D model. Used by the shared sidebar partial
-  (DAM/gallery/museum) and the main GLAM show — one panel, every surface.
+  (DAM/gallery/museum) and the main GLAM show - one panel, every surface.
 --}}
 @if(!empty($threeDModel ?? null))
   @php $__m = $threeDModel; @endphp

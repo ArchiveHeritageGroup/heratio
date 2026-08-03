@@ -130,7 +130,7 @@ class DacsManageController extends Controller
             ->distinct()
             ->get();
 
-        // Notes — DACS note types: publication notes (220), archivist notes (174), general notes (125)
+        // Notes - DACS note types: publication notes (220), archivist notes (174), general notes (125)
         $notes = DB::table('note')
             ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
             ->where('note.object_id', $io->id)
@@ -323,8 +323,8 @@ class DacsManageController extends Controller
                     'revision_history' => $request->input('revision_history'),
                 ]);
 
-            // DACS-specific properties. languageNotes (Conditions — language/script
-            // OF THE MATERIAL) and languageOfDescription (Description control —
+            // DACS-specific properties. languageNotes (Conditions - language/script
+            // OF THE MATERIAL) and languageOfDescription (Description control -
             // DACS 8.3, language the finding aid is written in) are distinct fields
             // that previously collided on the same `languageNotes` name (#1357).
             $this->saveProperty($ioId, 'languageNotes', $request->input('languageNotes'), $culture);

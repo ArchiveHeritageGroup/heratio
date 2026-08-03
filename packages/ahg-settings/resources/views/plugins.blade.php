@@ -1,5 +1,5 @@
 {{--
-  Plugin Management — card grid with category/status filters
+  Plugin Management - card grid with category/status filters
   Cloned from AtoM ahgSettingsPlugin pluginsSuccess.php
 
   @copyright  Johan Pieterse / Plain Sailing
@@ -85,7 +85,7 @@
         @php
           // Find the preferred help article for this plugin.
           // Strategy:
-          //   1. exact related_plugin match (best — explicit curation)
+          //   1. exact related_plugin match (best - explicit curation)
           //   2. fuzzy fallback: slug contains plugin-stem as a token (handles unlinked articles)
           //
           // Stem derivation: "ahgAccessionManagePlugin" → "accession" (drop ahg/Manage/Plugin
@@ -174,13 +174,13 @@
             @if(($plugin->admin_only ?? 0))
               <button type="submit" name="plugin_action" value="unlock-for-users"
                       class="btn btn-sm btn-warning"
-                      title="{{ __('Currently admin-only — click to unlock for all users (subject to per-user grants)') }}">
+                      title="{{ __('Currently admin-only - click to unlock for all users (subject to per-user grants)') }}">
                 <i class="fas fa-user-shield me-1"></i>{{ __('Admin-only') }}
               </button>
             @else
               <button type="submit" name="plugin_action" value="lock-to-admins"
                       class="btn btn-sm btn-outline-secondary"
-                      title="{{ __('Click to lock this plugin to admin users only — non-admins will not see it') }}">
+                      title="{{ __('Click to lock this plugin to admin users only - non-admins will not see it') }}">
                 <i class="fas fa-users me-1"></i>{{ __('All users') }}
               </button>
             @endif

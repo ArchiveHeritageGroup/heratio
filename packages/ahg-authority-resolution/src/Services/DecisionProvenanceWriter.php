@@ -159,7 +159,7 @@ class DecisionProvenanceWriter
 
         $body = implode("\n", $triples).$candidatesTurtle.$evidenceTurtle;
 
-        // No @prefix here — buildSparqlUpdate emits PREFIX (SPARQL syntax) outside
+        // No @prefix here - buildSparqlUpdate emits PREFIX (SPARQL syntax) outside
         // the INSERT DATA wrapper. Returning just the triples body.
         return $body;
     }

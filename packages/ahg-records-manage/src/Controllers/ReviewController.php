@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ReviewController — Phase 2.4 review queue + review completion.
+ * ReviewController - Phase 2.4 review queue + review completion.
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
  * @license    AGPL-3.0-or-later

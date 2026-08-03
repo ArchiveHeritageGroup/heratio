@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AtomElasticsearchConnector — exposes the local Heratio/AtoM Elasticsearch
+ * AtomElasticsearchConnector - exposes the local Heratio/AtoM Elasticsearch
  * index as a federation peer.
  *
  * Lets the same federation dispatch path consume local + remote hits in one
@@ -123,7 +123,7 @@ final class AtomElasticsearchConnector implements PeerConnector
         return null;
     }
 
-    /** ES scores are unbounded above ~1 — log-scale clamp into 0..1. */
+    /** ES scores are unbounded above ~1 - log-scale clamp into 0..1. */
     private function normaliseScore(float $score): float
     {
         if ($score <= 0) { return 0.0; }

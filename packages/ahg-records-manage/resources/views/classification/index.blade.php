@@ -1,5 +1,5 @@
 {{--
-  RM Classification Rules — index (P4.2)
+  RM Classification Rules - index (P4.2)
   @copyright Johan Pieterse / Plain Sailing Information Systems
   @license   AGPL-3.0-or-later
 --}}
@@ -65,7 +65,7 @@
         <td><strong>{{ $r->name }}</strong></td>
         <td><span class="badge bg-secondary">{{ $r->rule_type }}</span></td>
         <td><code class="small">{{ \Illuminate\Support\Str::limit($r->match_pattern, 60) }}</code></td>
-        <td><small>{{ $r->fileplan_code ?? '?' }} — {{ $r->fileplan_title ?? '?' }}</small></td>
+        <td><small>{{ $r->fileplan_code ?? '?' }} - {{ $r->fileplan_title ?? '?' }}</small></td>
         <td><small>{{ $r->apply_on }}</small></td>
         <td>
           @if($r->is_active)<i class="fas fa-check-circle text-success"></i>@else<i class="fas fa-circle text-muted"></i>@endif

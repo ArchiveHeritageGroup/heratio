@@ -38,7 +38,7 @@
     <div class="card-body small">
       @if($health)
         <div class="row">
-          <div class="col-md-3"><strong>{{ __('Default model:') }}</strong> <code>{{ $health['default_model'] ?? '—' }}</code></div>
+          <div class="col-md-3"><strong>{{ __('Default model:') }}</strong> <code>{{ $health['default_model'] ?? '-' }}</code></div>
           <div class="col-md-3"><strong>{{ __('Loaded:') }}</strong> <code>{{ implode(', ', $health['loaded_models'] ?? []) ?: 'none' }}</code></div>
           <div class="col-md-3"><strong>{{ __('CUDA:') }}</strong> {{ ($health['cuda'] ?? false) ? 'yes' : 'no' }}</div>
           <div class="col-md-3"><strong>{{ __('Low-VRAM mode:') }}</strong> {{ ($health['low_vram_mode'] ?? false) ? 'yes' : 'no' }}</div>
@@ -151,7 +151,7 @@
             <div class="form-text">0 = random per call</div>
           </div>
           <div class="col-md-12">
-            <label class="form-label">{{ __('Default prompt (CogVideoX/WAN only — SVD ignores it)') }}</label>
+            <label class="form-label">{{ __('Default prompt (CogVideoX/WAN only - SVD ignores it)') }}</label>
             <textarea class="form-control" rows="2" name="ar_default_prompt" placeholder="{{ __('e.g. cinematic, soft motion, painterly camera') }}">{{ get_ar_setting($settings, 'ar_default_prompt', '') }}</textarea>
           </div>
         </div>
@@ -170,10 +170,10 @@
           <tr>
             <td>{{ $r->id }}</td>
             <td>{{ $r->object_id }}</td>
-            <td><code>{{ $r->ai_model ?: '—' }}</code></td>
+            <td><code>{{ $r->ai_model ?: '-' }}</code></td>
             <td class="text-truncate small fst-italic" style="max-width:280px;">{{ $r->ai_prompt ?: '(none)' }}</td>
             <td>{{ number_format(($r->mp4_size ?? 0) / 1024, 0) }} KB</td>
-            <td>{{ $r->generation_secs ? (int) $r->generation_secs . 's' : '—' }}</td>
+            <td>{{ $r->generation_secs ? (int) $r->generation_secs . 's' : '-' }}</td>
             <td>{{ $r->created_at }}</td>
           </tr>
         @endforeach

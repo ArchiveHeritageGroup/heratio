@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Authority record ACL — ' . ($resource->name ?? 'Group ' . $resource->id))
+@section('title', 'Authority record ACL - ' . ($resource->name ?? 'Group ' . $resource->id))
 
 @section('content')
 <div class="container py-4">

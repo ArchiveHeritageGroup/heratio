@@ -533,7 +533,7 @@ class WorkflowService
             )
             ->orderBy('ahg_workflow.name');
 
-        // Spectrum#A — optional filter
+        // Spectrum#A - optional filter
         if ($spectrumProcedure !== null && $spectrumProcedure !== '') {
             $q->where('ahg_workflow.spectrum_procedure', $spectrumProcedure);
         }
@@ -1032,7 +1032,7 @@ class WorkflowService
             ->count();
 
         if ($totalTasks === 0) {
-            // No workflow started — not approved
+            // No workflow started - not approved
             return false;
         }
 

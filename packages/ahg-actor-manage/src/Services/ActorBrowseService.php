@@ -90,7 +90,7 @@ class ActorBrowseService extends BrowseService
     protected function getBaseSelect(): array
     {
         // i18n columns are emitted via COALESCE(cur, fb) by getBaseJoins()
-        // below — see WithCultureFallback. Non-i18n columns stay direct.
+        // below - see WithCultureFallback. Non-i18n columns stay direct.
         return [
             'actor.id',
             DB::raw('COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name) AS name'),
@@ -418,7 +418,7 @@ class ActorBrowseService extends BrowseService
             $query->where('actor.entity_type_id', (int) $params['entityType']);
         }
 
-        // Repository filter — actors related to a specific repository via event table
+        // Repository filter - actors related to a specific repository via event table
         if (! empty($params['repository'])) {
             $repoId = (int) $params['repository'];
             $query->whereExists(function ($sub) use ($repoId) {

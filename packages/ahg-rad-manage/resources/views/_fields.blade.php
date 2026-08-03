@@ -61,7 +61,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Level of description') }}</label>
             <select name="level_of_description_id" class="form-select">
-              <option value="">—</option>
+              <option value="">-</option>
               @foreach($levels as $lvl)
                 <option value="{{ $lvl->id }}" @if(($io->level_of_description_id ?? null) == $lvl->id) selected @endif>{{ $lvl->name }}</option>
               @endforeach
@@ -398,7 +398,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Status') }}</label>
             <select name="description_status_id" class="form-select">
-              <option value="">—</option>
+              <option value="">-</option>
               @foreach($descriptionStatuses as $s)
                 <option value="{{ $s->id }}" @if(($io->description_status_id ?? null) == $s->id) selected @endif>{{ $s->name }}</option>
               @endforeach
@@ -407,7 +407,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Level of detail') }}</label>
             <select name="description_detail_id" class="form-select">
-              <option value="">—</option>
+              <option value="">-</option>
               @foreach($descriptionDetails as $d)
                 <option value="{{ $d->id }}" @if(($io->description_detail_id ?? null) == $d->id) selected @endif>{{ $d->name }}</option>
               @endforeach
@@ -435,7 +435,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Repository') }}</label>
             <select name="repository_id" class="form-select">
-              <option value="">—</option>
+              <option value="">-</option>
               @foreach($repositories as $r)
                 <option value="{{ $r->id }}" @if(($io->repository_id ?? null) == $r->id) selected @endif>{{ $r->name }}</option>
               @endforeach
@@ -446,7 +446,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Publication status') }}</label>
             <select name="publication_status_id" class="form-select">
-              <option value="">—</option>
+              <option value="">-</option>
               <option value="159" @if($publicationStatusId == 159) selected @endif>{{ __('Draft') }}</option>
               <option value="160" @if($publicationStatusId == 160) selected @endif>{{ __('Published') }}</option>
             </select>

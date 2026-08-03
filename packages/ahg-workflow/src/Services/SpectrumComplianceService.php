@@ -6,7 +6,7 @@
  *
  * Compliance state is DERIVED on-the-fly from ahg_workflow_task rows tagged
  * (via their workflow) with a spectrum_procedure. The ahg_spectrum_object_compliance
- * table is a cache populated by recompute() — read paths can hit either.
+ * table is a cache populated by recompute() - read paths can hit either.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * Licensed under the GNU Affero General Public License v3.0 or later.
@@ -158,7 +158,7 @@ class SpectrumComplianceService
      */
     public function heatmap(string $objectType = 'information_object', ?int $overdueDays = 30): array
     {
-        // Total objects of this type — denominator for "not started" inference.
+        // Total objects of this type - denominator for "not started" inference.
         $totalObjects = (int) DB::table('object')
             ->where('class_name', $objectType === 'information_object' ? 'QubitInformationObject' : ucfirst($objectType))
             ->count();
@@ -237,7 +237,7 @@ class SpectrumComplianceService
     }
 
     /**
-     * For per-object panel — list the object's status across all 21 procedures.
+     * For per-object panel - list the object's status across all 21 procedures.
      *
      * @return array<string,array{label:string,status:string,completed_at:?string,last_task_id:?int}>
      */
@@ -258,7 +258,7 @@ class SpectrumComplianceService
         return $out;
     }
 
-    // -------- Phase C2 — cross-procedure chaining --------
+    // -------- Phase C2 - cross-procedure chaining --------
 
     /**
      * Called after a workflow task reaches 'approved' (or 'completed') to spawn
@@ -372,7 +372,7 @@ class SpectrumComplianceService
         return DB::table('ahg_spectrum_chain_rule')->where('id', $id)->delete() > 0;
     }
 
-    // -------- Phase C4 — overdue scan --------
+    // -------- Phase C4 - overdue scan --------
 
     /**
      * Find (object, procedure) pairs whose latest task is older than $overdueDays.

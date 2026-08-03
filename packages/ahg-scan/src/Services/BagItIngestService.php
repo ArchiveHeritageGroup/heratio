@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BagItIngestService — Heratio ahg-scan (P6)
+ * BagItIngestService - Heratio ahg-scan (P6)
  *
  * Unpacks a BagIt container (RFC 8493) and enqueues each `data/` file
  * as an ingest_file on the watched folder's session. The bag-info.txt is
@@ -164,7 +164,7 @@ class BagItIngestService
         if ($zip->open($zipPath) !== true) {
             throw new \RuntimeException("Cannot open zip: {$zipPath}");
         }
-        // #1395(G) — zip-bomb guard: cap entry count + total uncompressed size
+        // #1395(G) - zip-bomb guard: cap entry count + total uncompressed size
         // before extractTo (which has no such limit).
         if ($zip->numFiles > 20000) {
             $zip->close();

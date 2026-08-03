@@ -1,6 +1,6 @@
 {{--
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems / AGPL v3+
-  RDF inbound import — TTL / JSON-LD / RDF-XML upload + dry-run + commit.
+  RDF inbound import - TTL / JSON-LD / RDF-XML upload + dry-run + commit.
 --}}
 @extends('theme::layouts.1col')
 
@@ -65,7 +65,7 @@
 
   @if($result)
     <div class="card mb-3">
-      <div class="card-header bg-light"><strong>{{ __('Dry-run summary') }}</strong> — {{ ucfirst($result['format']) }}</div>
+      <div class="card-header bg-light"><strong>{{ __('Dry-run summary') }}</strong> - {{ ucfirst($result['format']) }}</div>
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0">{{ number_format($result['triples']) }}</div><small class="text-muted">{{ __('Triples') }}</small></div></div>
@@ -93,7 +93,7 @@
               @forelse($result['mapped_predicates'] as $p => $n)
                 <tr><td><code>{{ $p }}</code></td><td class="text-end">{{ $n }}</td></tr>
               @empty
-                <tr><td colspan="2" class="text-muted text-center">No mapped predicates yet — check rdf:type values.</td></tr>
+                <tr><td colspan="2" class="text-muted text-center">No mapped predicates yet - check rdf:type values.</td></tr>
               @endforelse
             </tbody>
           </table></div>

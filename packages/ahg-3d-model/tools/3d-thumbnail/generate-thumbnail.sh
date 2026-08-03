@@ -22,7 +22,7 @@ fi
 
 echo "Using: $BLENDER"
 
-# Snap Blender can't run as www-data (home dir restriction) — use sudo
+# Snap Blender can't run as www-data (home dir restriction) - use sudo
 if [ "$(id -u)" -ne 0 ] && sudo -n "$BLENDER" --version >/dev/null 2>&1; then
     sudo "$BLENDER" --background --python "$SCRIPT_DIR/blender_thumbnail.py" -- "$INPUT" "$OUTPUT" "$WIDTH" "$HEIGHT" 2>&1 | grep -v "^Blender\|^Read\|^Fra:\|^Color management"
     sudo chown www-data:www-data "$OUTPUT" 2>/dev/null

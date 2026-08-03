@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
  * Mirror of AtomExtensions\SharePoint\Repositories\SharePointSubscriptionRepository.
  *
  * Per Phase 2 decision (plan §6.4): every ingest-enabled drive has TWO
- * subscriptions — one on /drives/{id}/root, one on /sites/{site}/lists/{list}.
+ * subscriptions - one on /drives/{id}/root, one on /sites/{site}/lists/{list}.
  *
  * @phase 2.A
  */

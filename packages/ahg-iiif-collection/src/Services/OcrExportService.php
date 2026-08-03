@@ -42,7 +42,7 @@ use Illuminate\Support\Facades\DB;
  *
  * The "object id" passed in is `information_object.id`. The OCR tables
  * key on `iiif_ocr_text.object_id` which is the same value (the
- * information-object id, NOT the polymorphic `object.id` — though in
+ * information-object id, NOT the polymorphic `object.id` - though in
  * AtoM's inheritance model they coincide).
  *
  * Phase 3 of #665. Does NOT trigger any OCR work; strictly exports

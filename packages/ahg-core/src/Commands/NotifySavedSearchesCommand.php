@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * NotifySavedSearchesCommand — runs every saved_search whose owner has
+ * NotifySavedSearchesCommand - runs every saved_search whose owner has
  * notify_on_new=1 and whose notification_frequency matches the --frequency
  * argument. For each, re-executes the search via Elasticsearch (best
  * effort) and notifies the user when the result count has grown since
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
  * Notification path: drops a JSON file into /var/spool/workbench/notifications/
  * per the existing Workbench notification spool contract (see global
  * CLAUDE.md). Email is best-effort via the user's Mailable when configured
- * — defaults to skipping email entirely.
+ * - defaults to skipping email entirely.
  *
  * Run via cron: `php artisan ahg:notify-saved-searches --frequency=daily`
  * at 08:00 UTC + `--frequency=weekly` on Monday 08:00 UTC. Cron entries
@@ -48,7 +48,7 @@ class NotifySavedSearchesCommand extends Command
         // Filter window: don't notify the same row twice within its
         // frequency. Cutoff computed in PHP so we avoid MySQL-specific
         // INTERVAL syntax (the column compares as standard datetime).
-        // Approximate windows — daily=22h (DST safety), weekly=6d, monthly=27d.
+        // Approximate windows - daily=22h (DST safety), weekly=6d, monthly=27d.
         $windowMap = [
             'immediate' => 60,                  // 1 minute
             'daily' => 22 * 3600,           // 22 hours
@@ -110,7 +110,7 @@ class NotifySavedSearchesCommand extends Command
                 continue;
             }
 
-            // New matches present — notify
+            // New matches present - notify
             if (! $dry) {
                 $this->dropWorkbenchNotification($row, $currentCount, $newMatches);
                 DB::table('saved_search')->where('id', $row->id)
@@ -148,14 +148,14 @@ class NotifySavedSearchesCommand extends Command
     /**
      * Re-execute the saved search. Returns the total match count or null
      * on failure. The intent is just to detect WHETHER new matches exist
-     * — full result hydration is the user's job when they click through.
+     * - full result hydration is the user's job when they click through.
      */
     private function reExecuteSearch(array $params, string $entityType): ?int
     {
         try {
             // Only support the simplest case for now: a `q` text query.
             // Advanced filters (facets, date range, repository) require
-            // mirroring the SearchController query builder — deferred to
+            // mirroring the SearchController query builder - deferred to
             // a follow-up phase.
             $q = trim((string) ($params['q'] ?? $params['query'] ?? ''));
             if (! $q) {

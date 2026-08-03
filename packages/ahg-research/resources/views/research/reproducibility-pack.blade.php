@@ -1,4 +1,4 @@
-{{-- Reproducibility Pack — cloned from AtoM + Heratio extras --}}
+{{-- Reproducibility Pack - cloned from AtoM + Heratio extras --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')

@@ -1,7 +1,7 @@
--- Settings Help Articles — seed/update
+-- Settings Help Articles - seed/update
 -- Run: mysql -u root heratio < packages/ahg-settings/database/seed_help_settings.sql
 --
--- Copyright (C) 2026 Johan Pieterse — Plain Sailing Information Systems
+-- Copyright (C) 2026 Johan Pieterse - Plain Sailing Information Systems
 -- AGPL-3.0-or-later
 
 -- ── Fix: Remove duplicate setting rows ──
@@ -34,7 +34,7 @@ The dashboard displays tiles for all available settings pages, grouped by functi
 
 ---
 
-## Settings Pages — Complete Reference
+## Settings Pages - Complete Reference
 
 ### Core Settings (AtoM scope cards)
 
@@ -112,7 +112,7 @@ The dashboard displays tiles for all available settings pages, grouped by functi
 
 All enumerated values (statuses, types, grades) are managed via the Dropdown Manager at `/admin/settings/dropdown`.
 
-**Never hardcode select options** — always use the `ahg_dropdown` table via the Dropdown Manager.
+**Never hardcode select options** - always use the `ahg_dropdown` table via the Dropdown Manager.
 
 ---
 
@@ -153,7 +153,7 @@ body_html = '<h1 id="ahg-settings">AHG Settings</h1>
 <p>Navigate to <strong>Admin &gt; AHG Settings</strong> or go directly to <code>/admin/ahgSettings</code>.</p>
 <p>The dashboard displays tiles for all available settings pages, grouped by function.</p>
 <hr>
-<h2 id="settings-pages">Settings Pages — Complete Reference</h2>
+<h2 id="settings-pages">Settings Pages - Complete Reference</h2>
 <h3 id="core-settings">Core Settings (AtoM scope cards)</h3>
 <div class="table-responsive"><table class="table table-sm table-bordered">
 <thead><tr><th>Page</th><th>URL</th><th>Description</th></tr></thead>
@@ -223,7 +223,7 @@ body_html = '<h1 id="ahg-settings">AHG Settings</h1>
 <hr>
 <h2 id="dropdown-manager">Dropdown Manager</h2>
 <p>All enumerated values (statuses, types, grades) are managed via the Dropdown Manager at <code>/admin/settings/dropdown</code>.</p>
-<p><strong>Never hardcode select options</strong> — always use the <code>ahg_dropdown</code> table via the Dropdown Manager.</p>
+<p><strong>Never hardcode select options</strong> - always use the <code>ahg_dropdown</code> table via the Dropdown Manager.</p>
 <hr>
 <h2 id="legacy-urls">Legacy URLs</h2>
 <p>All old settings URLs automatically redirect to the new canonical paths:</p>
@@ -264,7 +264,7 @@ DELETE FROM help_section WHERE article_id = 4;
 INSERT INTO help_section (article_id, heading, anchor, level, body_text, sort_order) VALUES
 (4, 'Overview', 'overview', 2, 'Centralised administration interface for all Heratio configuration settings.', 10),
 (4, 'How to Access', 'how-to-access', 2, 'Navigate to Admin > AHG Settings or /admin/ahgSettings.', 20),
-(4, 'Settings Pages — Complete Reference', 'settings-pages', 2, 'Complete list of all settings pages with URLs and control counts.', 30),
+(4, 'Settings Pages - Complete Reference', 'settings-pages', 2, 'Complete list of all settings pages with URLs and control counts.', 30),
 (4, 'Core Settings', 'core-settings', 3, 'Global, Default page elements, Default templates, User interface labels, Visible elements, Languages, OAI repository, Federation.', 31),
 (4, 'AHG Plugin Settings', 'ahg-plugin-settings', 3, 'All /admin/ahgSettings/ pages: Accession, AI Services, Audit, Authority, Carousel, E-Commerce, Email, Encryption, and more.', 32),
 (4, 'Standalone Admin Pages', 'standalone-admin', 3, 'Heritage Accounting, Marketplace, Media Processing, Orders, Privacy, Reading Room, Semantic Search, Watermark.', 33),

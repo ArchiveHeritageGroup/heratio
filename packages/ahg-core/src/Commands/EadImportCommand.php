@@ -1,11 +1,11 @@
 <?php
 
 /**
- * EadImportCommand — bulk EAD/EAD3 XML import.
+ * EadImportCommand - bulk EAD/EAD3 XML import.
  *
  * Walks a file or directory of EAD XML, parses each <ead> root, and
  * creates information_object records under the requested repository.
- * Mirrors the logic of AtoM's EAD import action — title, scope, dates,
+ * Mirrors the logic of AtoM's EAD import action - title, scope, dates,
  * arrangement, access conditions, and one level of <c> children.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
@@ -25,7 +25,7 @@ class EadImportCommand extends Command
         {--schema=ead : Schema type (ead, ead3)}
         {--output= : Output report path}
         {--repository= : Target repository slug}
-        {--dry-run : Parse only — do not write}';
+        {--dry-run : Parse only - do not write}';
 
     protected $description = 'Bulk EAD/XML import (EAD2002, EAD3)';
 

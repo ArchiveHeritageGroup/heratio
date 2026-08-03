@@ -51,7 +51,7 @@
                         name="pin"
                         id="pin"
                         class="form-control"
-                        placeholder="{{ __('Your 4–6 digit PIN if set') }}"
+                        placeholder="{{ __('Your 4-6 digit PIN if set') }}"
                     >
                     @error('pin')
                         <div class="text-danger small mt-1">{{ $message }}</div>

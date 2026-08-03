@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\DB;
  * Ollama PageIndex Client
  *
  * Handles two LLM calls per query for the PageIndex retrieval system:
- *   1. Tree construction — analyse document structure, return JSON tree
- *   2. Retrieval reasoning — given tree + query, return ranked node_ids
+ *   1. Tree construction - analyse document structure, return JSON tree
+ *   2. Retrieval reasoning - given tree + query, return ranked node_ids
  *
  * Routes through the AHG AI gateway (ai.theahg.co.za/ai/v1) which proxies
  * Ollama transparently at /ollama/{path} (#1248). The Ollama chat/generate
- * request and response shapes are unchanged — only host+path+auth differ.
+ * request and response shapes are unchanged - only host+path+auth differ.
  * Model: qwen3:8b (configurable per-install via ahg_settings group='pageindex').
  *
  * @author The Archive and Heritage Group
@@ -278,19 +278,19 @@ You are a document structure analyser for an archival management system.
 Your task is to build a hierarchical JSON tree (table of contents) from {$typeDesc}.
 
 Each node in the tree MUST have:
-- "id": a unique string identifier (e.g., "n1", "n2", "n1.1")
-- "title": a short descriptive title for this section/level
-- "summary": a 1-2 sentence summary of what this section contains
-- "level": the hierarchical level (e.g., "fonds", "series", "sub-series", "file", "item", "section", "chapter", "paragraph")
-- "children": an array of child nodes (empty array if leaf node)
-- "keywords": an array of 3-5 key terms for this section
+  - "id": a unique string identifier (e.g., "n1", "n2", "n1.1")
+  - "title": a short descriptive title for this section/level
+  - "summary": a 1-2 sentence summary of what this section contains
+  - "level": the hierarchical level (e.g., "fonds", "series", "sub-series", "file", "item", "section", "chapter", "paragraph")
+  - "children": an array of child nodes (empty array if leaf node)
+  - "keywords": an array of 3-5 key terms for this section
 
 Rules:
 1. Preserve the original document hierarchy faithfully
 2. Every piece of content must belong to at least one node
-3. Summaries must be factual — do not invent information not in the source
+3. Summaries must be factual - do not invent information not in the source
 4. The root node represents the entire document
-5. Return ONLY valid JSON — no markdown, no explanation, no preamble
+5. Return ONLY valid JSON - no markdown, no explanation, no preamble
 
 Output format: a single JSON object representing the root node.
 PROMPT;
@@ -355,9 +355,9 @@ Output format (JSON only, no markdown):
 Rules:
 1. Return ALL relevant nodes, ranked by relevance (1.0 = perfect match, 0.0 = irrelevant)
 2. Only include nodes with relevance >= 0.3
-3. Consider parent nodes as context — a child node inherits relevance from its parent's topic
+3. Consider parent nodes as context - a child node inherits relevance from its parent's topic
 4. The "reason" field must reference specific content from the node, not generic statements
-5. Return ONLY valid JSON — no markdown fences, no preamble
+5. Return ONLY valid JSON - no markdown fences, no preamble
 PROMPT;
     }
 

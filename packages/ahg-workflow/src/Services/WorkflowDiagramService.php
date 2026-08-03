@@ -4,7 +4,7 @@
  * WorkflowDiagramService - heratio#143 Phase 1: read-only SVG diagram of a workflow.
  *
  * Renders an ahg_workflow + its ahg_workflow_step rows as an SVG flow chart.
- * Pure server-side — no JS, no client library, no CDN dependency. Works in print.
+ * Pure server-side - no JS, no client library, no CDN dependency. Works in print.
  * Phase 2 layers a `taskStatus` map on top to colour live progress.
  *
  * Copyright (C) 2026 Johan Pieterse
@@ -53,7 +53,7 @@ class WorkflowDiagramService
             return $this->emptyState(__('This workflow has no steps yet. Add at least one step to see a diagram.'));
         }
 
-        // heratio#143 Phase 3 — if explicit edges exist, lay out by topological rank.
+        // heratio#143 Phase 3 - if explicit edges exist, lay out by topological rank.
         // Otherwise fall back to step_order grouping (linear / parallel via shared order).
         $edgeSvc = new WorkflowEdgeService;
         $stepsById = $steps->keyBy('id');
@@ -72,7 +72,7 @@ class WorkflowDiagramService
         } else {
             $useExplicitEdges = false;
             $edges = [];
-            // Group by step_order — steps with the same order render as parallel siblings.
+            // Group by step_order - steps with the same order render as parallel siblings.
             $rows = [];
             foreach ($steps as $step) {
                 $rows[(int) $step->step_order][] = $step;
@@ -180,7 +180,7 @@ class WorkflowDiagramService
                 );
             $out .= $shape;
 
-            // Order badge — small circle top-left.
+            // Order badge - small circle top-left.
             $out .= sprintf(
                 '<circle cx="%d" cy="%d" r="11" class="wfdiag-badge"/><text x="%d" y="%d" class="wfdiag-badge-text" text-anchor="middle" dominant-baseline="central">%d</text>',
                 $pos['x'] + 14, $pos['y'] + 14,
@@ -197,7 +197,7 @@ class WorkflowDiagramService
                 e($name)
             );
 
-            // Step type — smaller subtitle.
+            // Step type - smaller subtitle.
             $type = ucwords(str_replace('_', ' ', (string) $step->step_type));
             $out .= sprintf(
                 '<text x="%d" y="%d" class="wfdiag-node-type" text-anchor="middle" dominant-baseline="central">%s</text>',
@@ -213,7 +213,7 @@ class WorkflowDiagramService
     }
 
     /**
-     * heratio#143 Phase 2 — render the diagram with per-step status overlay
+     * heratio#143 Phase 2 - render the diagram with per-step status overlay
      * for a specific running task. Returns SVG + status map for the view to consume.
      *
      * @return array{svg:string, statusMap:array<int,string>, task:object|null, workflowId:int|null}
@@ -250,7 +250,7 @@ class WorkflowDiagramService
      * (workflow_id, object_id) pair. A step is 'completed' if any task on that step
      * was approved; 'rejected' if any task on that step was rejected; 'current' if
      * the most recent task on that step is still pending/claimed; otherwise the
-     * step is not in the map (the view treats absence as 'pending — not yet reached').
+     * step is not in the map (the view treats absence as 'pending - not yet reached').
      *
      * @return array<int,string>
      */
@@ -298,7 +298,7 @@ class WorkflowDiagramService
     }
 
     /**
-     * Return a fallback ordered list — used by the diagram view as a screen-reader
+     * Return a fallback ordered list - used by the diagram view as a screen-reader
      * alternative and as a graceful fallback if SVG is hidden.
      *
      * @return array<int,string> Ordered list of "1. Step name (type)" strings.
@@ -314,7 +314,7 @@ class WorkflowDiagramService
         $out = [];
         foreach ($steps as $s) {
             $marker = $s->is_optional ? ' '.__('(optional)') : '';
-            $out[] = sprintf('%d. %s — %s%s', $s->step_order, $s->name, ucwords(str_replace('_', ' ', (string) $s->step_type)), $marker);
+            $out[] = sprintf('%d. %s - %s%s', $s->step_order, $s->name, ucwords(str_replace('_', ' ', (string) $s->step_type)), $marker);
         }
 
         return $out;

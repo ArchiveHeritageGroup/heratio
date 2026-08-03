@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Heratio image-to-video server — one-shot bootstrap.
+# Heratio image-to-video server - one-shot bootstrap.
 # Designed to run on the AI host (192.168.0.78) as a sudoer.
 #
 # Usage (from the Heratio server):
 #   scp -r packages/ahg-image-ar/tools/video-server/ ahg@192.168.0.78:/tmp/
 #   ssh ahg@192.168.0.78 'sudo bash /tmp/video-server/bootstrap.sh'
 #
-# Idempotent — safe to re-run. Resumes a partial install.
+# Idempotent - safe to re-run. Resumes a partial install.
 
 set -euo pipefail
 
@@ -24,7 +24,7 @@ warn(){ printf '\033[1;33m!\033[0m %s\n' "$*"; }
 
 log "0. Preflight"
 if ! command -v nvidia-smi >/dev/null; then
-  warn "nvidia-smi not found — diffusers will fall back to CPU and be unusably slow."
+  warn "nvidia-smi not found - diffusers will fall back to CPU and be unusably slow."
 fi
 nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv 2>/dev/null || true
 
@@ -37,7 +37,7 @@ PY_VERSION=$($PYTHON -c 'import sys; print("%d.%d" % sys.version_info[:2])')
 echo "Python: $PY_VERSION"
 case "$PY_VERSION" in
   3.10|3.11|3.12) ok "supported";;
-  *) warn "Python $PY_VERSION is outside tested range 3.10-3.12 — torch wheels may not exist";;
+  *) warn "Python $PY_VERSION is outside tested range 3.10-3.12 - torch wheels may not exist";;
 esac
 
 if ! command -v ffmpeg >/dev/null; then
@@ -56,7 +56,7 @@ for f in server.py requirements.txt heratio-video-server.service; do
 done
 ok "files installed"
 
-log "3. Python venv + dependencies (this is the slow step — 3-8 min)"
+log "3. Python venv + dependencies (this is the slow step - 3-8 min)"
 sudo -u "$SERVICE_USER" bash -c "
   cd '$INSTALL_DIR'
   if [[ ! -d .venv ]]; then
@@ -93,14 +93,14 @@ fi
 systemctl daemon-reload
 systemctl enable --now heratio-video-server
 sleep 3
-systemctl is-active --quiet heratio-video-server && ok "service started" || warn "service failed — see: journalctl -u heratio-video-server -n 50"
+systemctl is-active --quiet heratio-video-server && ok "service started" || warn "service failed - see: journalctl -u heratio-video-server -n 50"
 
 log "6. Firewall (UFW)"
 if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
   ufw allow from 192.168.0.0/24 to any port 5052 proto tcp || true
   ok "ufw rule added"
 else
-  warn "ufw not active — make sure 5052 is reachable from the Heratio host"
+  warn "ufw not active - make sure 5052 is reachable from the Heratio host"
 fi
 
 log "7. Smoke test"
@@ -109,7 +109,7 @@ if curl -fsS --max-time 5 http://localhost:5052/health >/dev/null; then
   ok "health endpoint responding"
   curl -s http://localhost:5052/health | python3 -m json.tool
 else
-  warn "health endpoint not responding yet — service may still be loading the model"
+  warn "health endpoint not responding yet - service may still be loading the model"
   warn "check progress: sudo journalctl -u heratio-video-server -f"
 fi
 

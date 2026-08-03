@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-researcher-manage — install schema
+-- ahg-researcher-manage - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgResearcherPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -17,7 +17,7 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ============================================================
--- ahgResearcherPlugin — Database Schema
+-- ahgResearcherPlugin - Database Schema
 -- Researcher Collection Upload & Approval Workflow
 -- ============================================================
 
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS researcher_submission_review (
 
 -- ============================================================
 -- Workflow seed data (high IDs to avoid conflicts)
--- Moved to AhgResearcherManage\Services\WorkflowSeeder (PHP) — invoked
+-- Moved to AhgResearcherManage\Services\WorkflowSeeder (PHP) - invoked
 -- from the service provider's boot(). PDO can't parse the DELIMITER
 -- directive that the previous CREATE PROCEDURE wrapper used. See #105.
 -- ============================================================

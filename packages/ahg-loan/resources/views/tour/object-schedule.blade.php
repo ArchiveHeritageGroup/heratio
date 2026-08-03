@@ -71,7 +71,7 @@
                     @endphp
                     <tr>
                       <td><span class="badge bg-{{ $badge }} text-uppercase">{{ $row['ref'] }}</span></td>
-                      <td>{{ $row['label'] ?: '—' }}</td>
+                      <td>{{ $row['label'] ?: '-' }}</td>
                       <td><span class="text-nowrap">{{ $row['start'] }}</span></td>
                       <td><span class="text-nowrap">{{ $row['end'] }}</span></td>
                       <td><small class="text-muted">{{ str_replace('_', ' ', (string) $row['status']) }}</small></td>

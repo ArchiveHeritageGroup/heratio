@@ -26,7 +26,7 @@
 namespace AhgCore\Constants;
 
 /**
- * Canonical AtoM term IDs — well-known term records used across status,
+ * Canonical AtoM term IDs - well-known term records used across status,
  * event, relation, note, and classification systems.
  *
  * These IDs are fixed in the AtoM database schema and inherited by Heratio
@@ -133,7 +133,7 @@ class TermId
 
     // ── Relation Types (taxonomy "Relation types") ──────────
     // These appear as `relation.type_id` values.
-    /** Same term ID as EVENT_TYPE_CREATION (111) — used in `relation.type_id`
+    /** Same term ID as EVENT_TYPE_CREATION (111) - used in `relation.type_id`
      *  for accession→creator links per AtoM `addInformationObjectAction`. */
     const RELATION_CREATION = 111;
 
@@ -235,7 +235,7 @@ class TermId
     const DO_SUBTITLES = 196;
 
     // ─────────────────────────────────────────────────────────
-    // Backwards-compat aliases (deprecated — kept so existing
+    // Backwards-compat aliases (deprecated - kept so existing
     // call sites don't break while the codebase migrates).
     // ─────────────────────────────────────────────────────────
     /** @deprecated Use EVENT_TYPE_CREATION */

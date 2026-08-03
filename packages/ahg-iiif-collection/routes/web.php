@@ -34,7 +34,7 @@ Route::get('/iiif-auth/auth-success', function () { return view('ahg-iiif-collec
 Route::get('/iiif-auth/clickthrough', function () { return view('ahg-iiif-collection::iiifAuth.clickthrough', ['terms' => '', 'acceptUrl' => '']); })->name('iiif-auth.clickthrough');
 Route::get('/iiif-auth/logout-success', function () { return view('ahg-iiif-collection::iiifAuth.logout-success'); })->name('iiif-auth.logout-success');
 
-// IIIF viewer/compare/validation (public) — use /iiif-viewer prefix to avoid nginx /iiif/ proxy
+// IIIF viewer/compare/validation (public) - use /iiif-viewer prefix to avoid nginx /iiif/ proxy
 Route::get('/iiif-viewer/{slug}', [IiifCollectionController::class, 'viewer'])->name('iiif.viewer');
 Route::get('/iiif-compare', [IiifCollectionController::class, 'compare'])->name('iiif.compare');
 
@@ -92,12 +92,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/manifest-collection/{id}/edit', [IiifCollectionController::class, 'edit'])->name('iiif-collection.edit');
     Route::put('/manifest-collection/{id}', [IiifCollectionController::class, 'update'])->name('iiif-collection.update')->middleware('acl:update');
     Route::delete('/manifest-collection/{id}', [IiifCollectionController::class, 'destroy'])->name('iiif-collection.destroy')->middleware('acl:delete');
-    Route::match(['get', 'post'], '/manifest-collection/{id}/items/add', [IiifCollectionController::class, 'addItems'])->name('iiif-collection.add-items')->middleware('acl:update'); // #1363: the "ACL checked in controller" comment was false — gate the route
+    Route::match(['get', 'post'], '/manifest-collection/{id}/items/add', [IiifCollectionController::class, 'addItems'])->name('iiif-collection.add-items')->middleware('acl:update'); // #1363: the "ACL checked in controller" comment was false - gate the route
     Route::post('/manifest-collection/remove-item', [IiifCollectionController::class, 'removeItem'])->name('iiif-collection.remove-item')->middleware('acl:update');
     Route::post('/manifest-collection/reorder', [IiifCollectionController::class, 'reorder'])->name('iiif-collection.reorder')->middleware('acl:update');
     Route::get('/manifest-collections/autocomplete', [IiifCollectionController::class, 'autocomplete'])->name('iiif-collection.autocomplete');
 
-    // IIIF Settings — canonical URL under /admin/ahgSettings/
+    // IIIF Settings - canonical URL under /admin/ahgSettings/
     Route::get('/admin/ahgSettings/carousel', [IiifCollectionController::class, 'settings'])->name('iiif.settings');
     Route::post('/admin/ahgSettings/carousel', [IiifCollectionController::class, 'settingsUpdate'])->name('iiif.settings.update')->middleware('acl:update');
     Route::get('/admin/iiif-settings', fn () => redirect('/admin/ahgSettings/carousel')); // legacy redirect

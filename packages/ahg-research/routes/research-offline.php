@@ -4,7 +4,7 @@ use AhgResearch\Controllers\ResearchOfflineController;
 use Illuminate\Support\Facades\Route;
 
 /**
- * Researcher offline packages (Phase 1–2). Self-contained route group loaded by
+ * Researcher offline packages (Phase 1-2). Self-contained route group loaded by
  * AhgResearchServiceProvider alongside the other Research OS slices.
  */
 Route::prefix('research')->name('research.')->middleware(['web', 'auth'])->group(function () {

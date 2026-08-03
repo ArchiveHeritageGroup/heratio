@@ -36,7 +36,7 @@
               </span>
             </td>
             <td>{{ $req->created_at ?? '' }}</td>
-            <td>{{ $req->reviewed_at ?? '—' }}</td>
+            <td>{{ $req->reviewed_at ?? '-' }}</td>
             <td>{{ e($req->review_notes ?? '') }}</td>
           </tr>
           @empty

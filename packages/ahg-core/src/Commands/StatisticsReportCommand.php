@@ -1,7 +1,7 @@
 <?php
 
 /**
- * StatisticsReportCommand — render usage stats from aggregated tables.
+ * StatisticsReportCommand - render usage stats from aggregated tables.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -29,7 +29,7 @@ class StatisticsReportCommand extends Command
     public function handle(): int
     {
         if (! Schema::hasTable('ahg_statistics_daily')) {
-            $this->warn('ahg_statistics_daily missing — run ahg:statistics-aggregate first.');
+            $this->warn('ahg_statistics_daily missing - run ahg:statistics-aggregate first.');
 
             return self::SUCCESS;
         }

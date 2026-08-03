@@ -18,7 +18,7 @@ class HeritageInstallCommand extends Command
     public function handle(): int
     {
         if (! Schema::hasTable('heritage_accounting_standard')) {
-            $this->error('heritage_accounting_standard missing — run base ahg-heritage-manage migration first.');
+            $this->error('heritage_accounting_standard missing - run base ahg-heritage-manage migration first.');
 
             return self::FAILURE;
         }

@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Edit Group — ' . ($group->name ?? 'Unnamed'))
+@section('title', 'Edit Group - ' . ($group->name ?? 'Unnamed'))
 
 @section('content')
 <div class="container py-4">

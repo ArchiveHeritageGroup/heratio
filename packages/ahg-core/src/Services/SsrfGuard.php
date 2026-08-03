@@ -26,13 +26,13 @@
 namespace AhgCore\Services;
 
 /**
- * #1395(C) — one shared SSRF guard for every outbound fetch. Mirrors the
+ * #1395(C) - one shared SSRF guard for every outbound fetch. Mirrors the
  * already-correct HarvestClient logic and closes the systemic gaps: hosts are
  * resolved (A + AAAA) and EVERY resolved IP is checked against private /
  * reserved / loopback / link-local ranges (not just IP literals), cloud-metadata
  * endpoints are blocked by name, and numeric-integer host bypasses are
  * normalised. Callers must additionally disable redirect-following (a 30x to a
- * private IP would otherwise re-open the hole) — use safeHttpOptions().
+ * private IP would otherwise re-open the hole) - use safeHttpOptions().
  *
  * Fail-closed: a URL that cannot be proven safe is rejected.
  */
@@ -107,7 +107,7 @@ class SsrfGuard
             return [$host];
         }
 
-        // Decimal-integer host (e.g. http://2130706433/ == 127.0.0.1) — a
+        // Decimal-integer host (e.g. http://2130706433/ == 127.0.0.1) - a
         // classic private-range bypass. Normalise and check the literal.
         if (ctype_digit($host)) {
             $ip = long2ip((int) $host);

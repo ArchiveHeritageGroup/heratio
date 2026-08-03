@@ -78,17 +78,17 @@ class ProvenanceDropdownSeeder
                 'blocked'     => 'Blocked',
             ]],
             'provenance_cultural_property_status' => ['Cultural Property Status', [
-                'none'       => 'None — no concern',
+                'none'       => 'None - no concern',
                 'flagged'    => 'Flagged for review',
                 'claimed'    => 'Subject to a restitution claim',
                 'restituted' => 'Restituted / repatriated',
-                'cleared'    => 'Reviewed — cleared',
+                'cleared'    => 'Reviewed - cleared',
             ]],
             'provenance_currency' => ['Provenance Currency', [
-                'ZAR' => 'ZAR — South African Rand',
-                'USD' => 'USD — US Dollar',
-                'GBP' => 'GBP — British Pound',
-                'EUR' => 'EUR — Euro',
+                'ZAR' => 'ZAR - South African Rand',
+                'USD' => 'USD - US Dollar',
+                'GBP' => 'GBP - British Pound',
+                'EUR' => 'EUR - Euro',
             ]],
             'provenance_certainty' => ['Provenance Certainty', [
                 'certain'   => 'Certain - Documented evidence',
@@ -169,7 +169,7 @@ class ProvenanceDropdownSeeder
 
         // Per-taxonomy sentinel: a taxonomy that already exists (e.g. seeded by
         // the retired provenance stack, or curated by a site admin) is admin-
-        // owned — never re-merge the shipped terms into it. Only missing
+        // owned - never re-merge the shipped terms into it. Only missing
         // taxonomies are seeded.
         $existing = DB::table('ahg_dropdown')
             ->whereIn('taxonomy', array_keys($vocabularies))

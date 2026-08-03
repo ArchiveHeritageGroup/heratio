@@ -1,5 +1,5 @@
 {{--
-  FTP / SFTP Upload — connection and path settings
+  FTP / SFTP Upload - connection and path settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('ftp')
 
   @copyright  Johan Pieterse / Plain Sailing
@@ -50,7 +50,7 @@
               <option value="ftp" {{ $curProto === 'ftp' ? 'selected' : '' }}>{{ __('FTP') }}</option>
               <option value="local" {{ $curProto === 'local' ? 'selected' : '' }}>{{ __('Local folder (no FTP)') }}</option>
             </select>
-            <div class="form-text">{{ __('SFTP recommended for remote servers. Choose "Local folder (no FTP)" to write uploads straight to a folder on this server — then only Disk path is required (Host/Username/Password are ignored).') }}</div>
+            <div class="form-text">{{ __('SFTP recommended for remote servers. Choose "Local folder (no FTP)" to write uploads straight to a folder on this server - then only Disk path is required (Host/Username/Password are ignored).') }}</div>
           </div>
           <div class="col-md-5">
             <label for="ftp_host" class="form-label fw-bold">{{ __('Host') }}</label>

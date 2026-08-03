@@ -75,7 +75,7 @@
         @forelse ($rows as $r)
           <tr>
             <td><a href="{{ route('rdm.datasets.show', $r->id) }}">{{ $r->title }}</a></td>
-            <td class="small text-muted">{{ $r->institution ?? '—' }}</td>
+            <td class="small text-muted">{{ $r->institution ?? '-' }}</td>
             <td>
               @if ($r->verdict)
                 <span class="badge bg-{{ $verdictColor[$r->verdict] ?? 'secondary' }}">{{ $r->verdict }}</span>
@@ -91,7 +91,7 @@
                 <span class="badge bg-{{ $accessColor[$r->disposition] ?? 'secondary' }}">{{ $r->disposition }}</span>
               @else <span class="badge bg-light text-dark">{{ $r->status }}</span>@endif
             </td>
-            <td class="small">@if ($r->doi)<a href="https://doi.org/{{ $r->doi }}" target="_blank"><code>{{ $r->doi }}</code></a>@else <span class="text-muted">—</span>@endif</td>
+            <td class="small">@if ($r->doi)<a href="https://doi.org/{{ $r->doi }}" target="_blank"><code>{{ $r->doi }}</code></a>@else <span class="text-muted">-</span>@endif</td>
             <td class="small">
               @if (! empty($r->dmp_id))
                 <span class="badge bg-info text-dark" title="{{ $r->dmp_title }}"><i class="fas fa-clipboard-list me-1"></i>{{ __('DMP') }}: {{ $r->dmp_status }}</span>

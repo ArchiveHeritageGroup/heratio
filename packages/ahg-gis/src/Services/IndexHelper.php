@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Schema;
  * DELIMITER (it's a mysql-CLI directive, not server SQL), so the procedure
  * was never created via PackageInstaller. See issue #105.
  *
- * Generic helper — no callers in the codebase yet, kept available for any
+ * Generic helper - no callers in the codebase yet, kept available for any
  * future GIS migration that wants to add a single-column index conditionally.
  */
 class IndexHelper

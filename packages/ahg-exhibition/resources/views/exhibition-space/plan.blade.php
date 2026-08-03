@@ -1,7 +1,7 @@
-{{-- heratio#1143 — Building plan editor: arrange rooms on a blueprint. --}}
+{{-- heratio#1143 - Building plan editor: arrange rooms on a blueprint. --}}
 @extends('theme::layouts.1col')
 
-@section('title', __('Building Plan') . ' — ' . $space->name)
+@section('title', __('Building Plan') . ' - ' . $space->name)
 @section('body-class', 'exhibition-space plan')
 
 @section('content')
@@ -1056,7 +1056,7 @@
       });
     })();
 
-    // Add a new room WITHOUT rescaling — existing rooms + blueprint stay aligned.
+    // Add a new room WITHOUT rescaling - existing rooms + blueprint stay aligned.
     // The new room is clamped into the current canvas so it's visible to drag.
     (function () {
       var b = document.getElementById('addRoomBtn'); if (!b) return;

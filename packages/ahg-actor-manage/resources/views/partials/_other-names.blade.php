@@ -36,7 +36,7 @@
   <button type="button" id="add-other-name" class="btn btn-sm atom-btn-white">
     <i class="bi bi-plus-circle me-1"></i>{{ __('Add other name') }}
   </button>
-  <div class="form-text">"Record parallel, standardized, or other forms of name." (ISAAR 5.1.3–5.1.5)</div>
+  <div class="form-text">"Record parallel, standardized, or other forms of name." (ISAAR 5.1.3-5.1.5)</div>
 </div>
 
 <template id="other-name-template">

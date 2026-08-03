@@ -13,9 +13,9 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `db` — TODO: implement
-- [ ] `readme` — TODO: implement
-- [ ] `docs_help` — TODO: implement
+- [ ] `db` - TODO: implement
+- [ ] `readme` - TODO: implement
+- [ ] `docs_help` - TODO: implement
 
 ## References
 - docs/help/ (search for `doi-manage`)

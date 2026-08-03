@@ -146,7 +146,7 @@
                     <div class="col-md-3">
                         <div class="card border-0">
                             <div class="card-body">
-                                <h2 class="mb-0">{{ $elapsed ?: '—' }}</h2>
+                                <h2 class="mb-0">{{ $elapsed ?: '-' }}</h2>
                                 <small class="text-muted">{{ __('Duration') }}</small>
                             </div>
                         </div>
@@ -218,7 +218,7 @@
     @endif
 
 @else
-    {{-- No job yet — show start button --}}
+    {{-- No job yet - show start button --}}
     <div class="card mb-4">
         <div class="card-body text-center py-5">
             <i class="fas fa-rocket fa-3x text-primary mb-3"></i>

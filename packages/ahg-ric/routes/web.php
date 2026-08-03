@@ -7,7 +7,7 @@ use AhgRic\Controllers\RicEntityController;
 use AhgRic\Http\Controllers\RicOccupationController;
 use Illuminate\Support\Facades\Route;
 
-// Public RiC API — web middleware for session support (view-mode toggle needs session)
+// Public RiC API - web middleware for session support (view-mode toggle needs session)
 Route::prefix('ric-api')->middleware('web')->group(function () {
     Route::get('/data', [RicController::class, 'getData'])->name('ric.public-data');
     Route::get('/autocomplete', [RicController::class, 'autocomplete'])->name('ric.public-autocomplete');
@@ -25,7 +25,7 @@ Route::prefix('ric-api')->middleware('web')->group(function () {
 
 // Public RiC viewer + read-only linked-data features. Reachable from the public
 // record show page ("View in RiC Explorer" links ric.explorer, whose JS fetches
-// ric.data + ric.autocomplete), so these MUST stay public — gating them would
+// ric.data + ric.autocomplete), so these MUST stay public - gating them would
 // break the public graph viewer. Read-only; no operator/mutation surface here.
 Route::middleware('web')->group(function () {
     // RIC Explorer
@@ -48,7 +48,7 @@ Route::middleware('web')->group(function () {
     Route::get('/admin/ric/lookup-external', [RicController::class, 'lookupExternal'])->name('ric.lookup-external');
 });
 
-// Operator/admin surface — dashboard, sync/queue/orphan status, config, RDF
+// Operator/admin surface - dashboard, sync/queue/orphan status, config, RDF
 // import, and ALL state-changing endpoints. Admin-only (RequireAdmin) closes the
 // prior anonymous exposure where these sat on bare 'web' (#1352): anon could read
 // the operator dashboards AND fire config/sync/cleanup/resync/delete mutations.
@@ -61,7 +61,7 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::match(['get', 'post'], '/admin/ric/config', [RicController::class, 'config'])->name('ric.config');
     Route::post('/admin/ric/create-entity', [RicController::class, 'createEntity'])->middleware('acl:create')->name('ric.create-entity');
 
-    // RDF inbound — TTL / JSON-LD / RDF-XML import (dry-run + commit)
+    // RDF inbound - TTL / JSON-LD / RDF-XML import (dry-run + commit)
     Route::get('/admin/ric/import',  [RdfImportController::class, 'form'])->name('ric.import');
     Route::post('/admin/ric/import', [RdfImportController::class, 'run'])->middleware('acl:create')->name('ric.import.run');
 
@@ -110,7 +110,7 @@ Route::middleware('web')->group(function () {
 });
 
 // ================================================================
-// RiC Entity CRUD — Record-level AJAX + Standalone browse
+// RiC Entity CRUD - Record-level AJAX + Standalone browse
 // ================================================================
 
 // NOTE: The admin/ric/entity-api/* AJAX route group was removed 2026-04-18.
@@ -140,7 +140,7 @@ Route::middleware('web')->group(function () {
     Route::get('/admin/ric/relations', [RicEntityController::class, 'browseRelations'])->name('ric.relations.browse');
 
     // ============================================================
-    // rico:Occupation CRUD (issue #660 Phase 1) — role/profession
+    // rico:Occupation CRUD (issue #660 Phase 1) - role/profession
     // held by an actor over a time-span (ISAAR(CPF) 5.2.6).
     // ============================================================
     Route::get('/admin/ric/occupations', [RicOccupationController::class, 'index'])
@@ -162,7 +162,7 @@ Route::middleware('web')->group(function () {
         ->middleware('acl:delete')
         ->name('ric.occupations.destroy');
 
-    // Capture workflow moved to https://capture.openric.org — the neutral
+    // Capture workflow moved to https://capture.openric.org - the neutral
     // browser-only client. Old URL preserved as a 302 for any bookmarks/links.
     Route::get('/ric-capture', function () {
         return redirect('https://capture.openric.org/', 302);

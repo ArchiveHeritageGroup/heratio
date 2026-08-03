@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Create library_z3950_target — Z39.50 server configuration for copy
+     * Create library_z3950_target - Z39.50 server configuration for copy
      * cataloguing. Idempotent: fully skips if table already exists (may have
      * been created by the partial batch-22 run of migration
      * 2026_05_01_000001).

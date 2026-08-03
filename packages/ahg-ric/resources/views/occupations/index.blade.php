@@ -45,13 +45,13 @@
                 <tr>
                     <td>{{ $o->title }}</td>
                     <td>{{ $o->actor_name ?: ('Actor #' . $o->actor_id) }}</td>
-                    <td>{{ $o->start_date ?? '—' }}</td>
-                    <td>{{ $o->end_date ?? '—' }}</td>
+                    <td>{{ $o->start_date ?? '-' }}</td>
+                    <td>{{ $o->end_date ?? '-' }}</td>
                     <td>
                         @if($o->is_current)
                             <span class="badge bg-success">{{ __('Yes') }}</span>
                         @else
-                            <span class="text-muted">—</span>
+                            <span class="text-muted">-</span>
                         @endif
                     </td>
                     <td class="text-end">

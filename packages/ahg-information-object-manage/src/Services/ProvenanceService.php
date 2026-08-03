@@ -143,11 +143,11 @@ class ProvenanceService
     public function getCulturalPropertyStatuses(): array
     {
         return $this->dropdownOptions('provenance_cultural_property_status', [
-            'none'      => 'None — no concern',
+            'none'      => 'None - no concern',
             'flagged'   => 'Flagged for review',
             'claimed'   => 'Subject to a restitution claim',
             'restituted' => 'Restituted / repatriated',
-            'cleared'   => 'Reviewed — cleared',
+            'cleared'   => 'Reviewed - cleared',
         ]);
     }
 
@@ -156,7 +156,7 @@ class ProvenanceService
      */
     public function getAcquisitionTypes(): array
     {
-        return ['' => '— Select —'] + $this->dropdownOptions('provenance_acquisition_type', [
+        return ['' => '- Select -'] + $this->dropdownOptions('provenance_acquisition_type', [
             'purchase'    => 'Purchase',
             'gift'        => 'Gift / Donation',
             'bequest'     => 'Bequest',
@@ -203,11 +203,11 @@ class ProvenanceService
      */
     public function getCurrencies(): array
     {
-        return ['' => '—'] + $this->dropdownOptions('provenance_currency', [
-            'ZAR' => 'ZAR — South African Rand',
-            'USD' => 'USD — US Dollar',
-            'GBP' => 'GBP — British Pound',
-            'EUR' => 'EUR — Euro',
+        return ['' => '-'] + $this->dropdownOptions('provenance_currency', [
+            'ZAR' => 'ZAR - South African Rand',
+            'USD' => 'USD - US Dollar',
+            'GBP' => 'GBP - British Pound',
+            'EUR' => 'EUR - Euro',
         ]);
     }
 
@@ -275,7 +275,7 @@ class ProvenanceService
 
     /**
      * Attach a supporting document to an information object. Either an uploaded
-     * file (stored privately) or an external_url reference — the caller
+     * file (stored privately) or an external_url reference - the caller
      * validates that at least one is present.
      *
      * @return int The new document id

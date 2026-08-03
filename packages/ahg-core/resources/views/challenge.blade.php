@@ -14,7 +14,7 @@
       </h1>
       <div class="p-3">
         <p>
-          Hang tight—we're just making sure you're a real person so our community stays safe.
+          Hang tight-we're just making sure you're a real person so our community stays safe.
           Redirecting in <span id="countdown"></span> seconds...
         </p>
         <noscript>

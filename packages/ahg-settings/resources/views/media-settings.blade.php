@@ -1,5 +1,5 @@
 {{--
-  Media Player — playback and display settings
+  Media Player - playback and display settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('media')
 
   @copyright  Johan Pieterse / Plain Sailing

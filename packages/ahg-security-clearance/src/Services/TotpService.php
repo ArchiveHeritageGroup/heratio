@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TotpService — TOTP MFA backend for Heratio (issue #690).
+ * TotpService - TOTP MFA backend for Heratio (issue #690).
  *
  * Wraps pragmarx/google2fa (RFC 6238) + bacon/bacon-qr-code (SVG QR generation)
  * with the Heratio user_totp_secret + user_mfa_recovery_code tables.
@@ -62,7 +62,7 @@ class TotpService
      * Begin enrolment: generate (and persist as pending) a fresh TOTP secret
      * for the user, return the otpauth:// URI and a base64-encoded SVG QR.
      *
-     * The row is created with enabled_at NULL — the user must POST a valid
+     * The row is created with enabled_at NULL - the user must POST a valid
      * code via confirmEnrolment() before the secret becomes active.
      *
      * @return array{secret: string, otpauth_uri: string, qr_svg_data_uri: string}
@@ -95,7 +95,7 @@ class TotpService
      * Confirm enrolment by checking the user-supplied TOTP code against the
      * pending secret. On success: mark enabled_at, mint recovery codes, and
      * return the plaintext codes (caller MUST display these once and never
-     * again — they're only stored as bcrypt hashes server-side).
+     * again - they're only stored as bcrypt hashes server-side).
      *
      * @return array{ok: bool, recovery_codes: array<int, string>}
      */

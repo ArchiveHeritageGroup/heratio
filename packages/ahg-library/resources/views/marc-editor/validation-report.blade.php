@@ -52,7 +52,7 @@
                     <span>
                         <strong>Record #{{ (int) ($rec['index'] ?? 0) + 1 }}</strong>
                         @if (! empty($rec['title']))
-                            &mdash; {{ $rec['title'] }}
+                            - {{ $rec['title'] }}
                         @endif
                         @if (! empty($rec['control_number']))
                             <span class="text-muted small">(001: {{ $rec['control_number'] }})</span>

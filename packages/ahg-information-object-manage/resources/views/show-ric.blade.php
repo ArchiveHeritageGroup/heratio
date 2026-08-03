@@ -73,7 +73,7 @@
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates') }} <span class="d-block small text-muted">rico:hasDateRangeSet</span></h3>
         <div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">
           @foreach($events as $event)
-            <li>{{ $event->date_display ?? '' }}@if(!$event->date_display && ($event->start_date || $event->end_date)) ({{ $event->start_date ?? '?' }} – {{ $event->end_date ?? '?' }})@endif</li>
+            <li>{{ $event->date_display ?? '' }}@if(!$event->date_display && ($event->start_date || $event->end_date)) ({{ $event->start_date ?? '?' }} - {{ $event->end_date ?? '?' }})@endif</li>
           @endforeach
         </ul></div>
       </div>

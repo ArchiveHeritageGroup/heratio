@@ -1,5 +1,5 @@
 {{--
-  AHG Central Integration — cloud NER training and AI services
+  AHG Central Integration - cloud NER training and AI services
   Cloned from AtoM ahgSettingsPlugin ahgIntegrationSuccess.php
 
   @copyright  Johan Pieterse / Plain Sailing

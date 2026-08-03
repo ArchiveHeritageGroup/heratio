@@ -1,4 +1,4 @@
-{{-- #1105 Lecture builder — edit a content section --}}
+{{-- #1105 Lecture builder - edit a content section --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -26,7 +26,7 @@
       <div class="col-md-8 mb-3"><label class="form-label">{{ __('Media URL') }}</label>
         <input name="media_url" class="form-control" value="{{ old('media_url', $section['media_url'] ?? '') }}"></div>
       <div class="col-md-4 mb-3"><label class="form-label">{{ __('Media type') }}</label>
-        <select name="media_type" class="form-select"><option value="">{{ __('— none —') }}</option>
+        <select name="media_type" class="form-select"><option value="">{{ __('- none -') }}</option>
           @foreach (['image','video','audio','embed'] as $m)<option value="{{ $m }}" @selected(old('media_type', $section['media_type'] ?? '') === $m)>{{ ucfirst($m) }}</option>@endforeach
         </select></div>
     </div>

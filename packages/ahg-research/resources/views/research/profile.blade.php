@@ -119,7 +119,7 @@
             @if(($themeData['isAdmin'] ?? false) || empty($researcher->id_type))
               <select name="id_type" class="form-select">
                 <option value="">-- Select --</option>
-                {{-- Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper. --}}
+                {{-- Issue #59 Tier 2 - culture-aware dropdown via the COALESCE helper. --}}
                 @foreach(\AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('id_type') as $idt)
                   <option value="{{ $idt->code }}" {{ ($researcher->id_type ?? '') === $idt->code ? 'selected' : '' }}>{{ $idt->label }}</option>
                 @endforeach

@@ -1,4 +1,4 @@
-{{-- #1105 Lecture builder — show / section + resource management --}}
+{{-- #1105 Lecture builder - show / section + resource management --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -69,7 +69,7 @@
           <div class="row">
             <div class="col-md-8 mb-2"><label class="form-label">{{ __('Media URL') }}</label><input name="media_url" class="form-control"></div>
             <div class="col-md-4 mb-2"><label class="form-label">{{ __('Media type') }}</label>
-              <select name="media_type" class="form-select"><option value="">{{ __('— none —') }}</option>
+              <select name="media_type" class="form-select"><option value="">{{ __('- none -') }}</option>
                 @foreach (['image','video','audio','embed'] as $m)<option value="{{ $m }}">{{ ucfirst($m) }}</option>@endforeach
               </select></div>
           </div>

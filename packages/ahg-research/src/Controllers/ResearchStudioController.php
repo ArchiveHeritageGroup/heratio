@@ -149,7 +149,7 @@ class ResearchStudioController extends Controller
         $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
         if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
 
-        // #1395(G) — project private to owner / collaborators / admins (IDOR).
+        // #1395(G) - project private to owner / collaborators / admins (IDOR).
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         $project = DB::table('research_project')->where('id', $projectId)->first();
         $isAdmin = \AhgCore\Services\AclService::canAdmin((int) Auth::id());

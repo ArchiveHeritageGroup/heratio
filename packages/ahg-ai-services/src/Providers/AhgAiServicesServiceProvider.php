@@ -67,7 +67,7 @@ class AhgAiServicesServiceProvider extends ServiceProvider
 
         // Share whether an AI services key is loaded so views can hide the
         // AI Tools (Describe / NER / Summary / Translate / Animate) when none
-        // is configured — those tools all call the AI gateway and would error
+        // is configured - those tools all call the AI gateway and would error
         // without a key. Guarded so a missing settings table never breaks boot.
         if (! $this->app->runningInConsole()) {
             \Illuminate\Support\Facades\View::share('aiConfigured', $this->aiKeyConfigured());

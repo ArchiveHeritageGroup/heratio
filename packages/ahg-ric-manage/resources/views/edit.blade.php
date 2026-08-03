@@ -56,7 +56,7 @@
 @endif
 
 <h1>{{ __('Edit description') }}
-  <small class="text-muted">(RiC-O 1.0 — Records in Contexts)</small>
+  <small class="text-muted">(RiC-O 1.0 - Records in Contexts)</small>
 </h1>
 
 @if($parentTitle)

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * KmContextService - heratio#1185 — optional KM (knowledge-management RAG) grounding
+ * KmContextService - heratio#1185 - optional KM (knowledge-management RAG) grounding
  * for the conversational room docent.
  *
  * Thin, fail-soft client for the sanctioned KM HTTP query surface at

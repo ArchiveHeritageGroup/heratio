@@ -1,4 +1,4 @@
-{{-- RiC View: Repository — holder relationships and holdings --}}
+{{-- RiC View: Repository - holder relationships and holdings --}}
 @php
   $culture = app()->getLocale();
 

@@ -1,5 +1,5 @@
 {{--
-  Gallery Reports Dashboard — stats overview with sidebar navigation
+  Gallery Reports Dashboard - stats overview with sidebar navigation
   Cloned from AtoM ahgGalleryPlugin galleryReports/indexSuccess.php
 
   @copyright  Johan Pieterse / Plain Sailing

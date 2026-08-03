@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-security-clearance — install schema
+-- ahg-security-clearance - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgSecurityClearancePlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -430,7 +430,7 @@ INSERT IGNORE INTO `security_classification` VALUES (7,'TOP_SECRET',5,'Top Secre
 UNLOCK TABLES;
 
 -- ────────────────────────────────────────────────────────────────────────────
--- TOTP MFA (issue #690) — opt-in per user.
+-- TOTP MFA (issue #690) - opt-in per user.
 --
 -- user_totp_secret: one row per user with an enrolled authenticator app.
 --   secret      = base32 TOTP shared secret (RFC 6238).
@@ -480,7 +480,7 @@ CREATE TABLE IF NOT EXISTS `user_mfa_recovery_code` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ────────────────────────────────────────────────────────────────────────────
--- WebAuthn / FIDO2 / passkeys (issue #721) — opt-in per user, sibling to TOTP.
+-- WebAuthn / FIDO2 / passkeys (issue #721) - opt-in per user, sibling to TOTP.
 --
 -- A user can enrol any number of authenticators (platform passkey, hardware
 -- key, etc.) alongside TOTP. Login flow asks "TOTP or passkey?" when both are
@@ -520,7 +520,7 @@ CREATE TABLE IF NOT EXISTS `ahg_webauthn_credential` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ────────────────────────────────────────────────────────────────────────────
--- Email / SMS OTP MFA (issue #722) — third opt-in factor, sibling to TOTP and
+-- Email / SMS OTP MFA (issue #722) - third opt-in factor, sibling to TOTP and
 -- WebAuthn. A user can enrol any combination of email and SMS destinations.
 -- Each enrolment requires the user to prove they own the destination by
 -- entering the first delivered code (verified_at is set on success).
@@ -534,7 +534,7 @@ CREATE TABLE IF NOT EXISTS `ahg_webauthn_credential` (
 --   last_used_at = updated on every successful login-time verify.
 --
 -- ahg_otp_challenge: short-lived codes. The 6-digit plaintext is NEVER
--- stored — code_hash is SHA-256(code) (fast; the code is rotated within
+-- stored - code_hash is SHA-256(code) (fast; the code is rotated within
 -- minutes so we do not need bcrypt). attempts is incremented on every
 -- verify call so 5-strikes-and-it-locks works; the cache layer also tracks
 -- a per-factor lockout window.

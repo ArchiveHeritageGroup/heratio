@@ -112,7 +112,7 @@ $isColumnLayout = in_array($block->machine_name, ['row_1_col', 'row_2_col', 'row
           <i class="bi bi-layout-wtf"></i> 1 Column Layout
           @break
         @case('divider')
-          &mdash; Divider ({{ $config['style'] ?? 'line' }})
+          - Divider ({{ $config['style'] ?? 'line' }})
           @break
         @case('spacer')
           <i class="bi bi-arrows-expand"></i> Spacer ({{ $config['height'] ?? '50px' }})

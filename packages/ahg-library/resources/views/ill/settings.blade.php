@@ -55,7 +55,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Default Partner') }}</label>
               <select name="tipasa_partner" class="form-select">
-                <option value="">— none —</option>
+                <option value="">- none -</option>
                 <option value="naz"      {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'naz')      ? 'selected' : '' }}>{{ __('National Archives of Zimbabwe (NAZ)') }}</option>
                 <option value="sabinet"  {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'sabinet')  ? 'selected' : '' }}>{{ __('SABINET (National Library of SA)') }}</option>
                 <option value="dals"     {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'dals')     ? 'selected' : '' }}>{{ __('DALS (Digital Access to Library Services)') }}</option>

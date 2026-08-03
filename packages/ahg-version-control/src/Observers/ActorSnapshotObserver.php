@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ActorSnapshotObserver — Eloquent observer that writes a version row whenever
+ * ActorSnapshotObserver - Eloquent observer that writes a version row whenever
  * an Actor is saved.
  *
  * @phase D

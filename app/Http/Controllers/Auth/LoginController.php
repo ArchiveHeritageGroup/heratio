@@ -18,7 +18,7 @@ class LoginController extends Controller
     // Lockout window + duration are now read from /admin/ahgSettings/security
     // via App\Auth\SecuritySettings (closes audit issue #90). The previous
     // hardcoded MAX_ATTEMPTS=5 and LOCKOUT_MINUTES=15 constants are kept as
-    // documentation of the historical defaults — defaults now live in
+    // documentation of the historical defaults - defaults now live in
     // SecuritySettings::lockoutMaxAttempts() and ::lockoutDurationMinutes().
 
     // =============================================
@@ -114,7 +114,7 @@ class LoginController extends Controller
                 $next = '/';
             }
 
-            // Issue #690 / #721 / #722 — MFA gate. If the user has opt-in
+            // Issue #690 / #721 / #722 - MFA gate. If the user has opt-in
             // TOTP, a WebAuthn passkey, or an enrolled email/SMS OTP
             // destination (any combination), flag the session as pending_mfa
             // and redirect to /security-clearance/two-factor, which routes
@@ -136,7 +136,7 @@ class LoginController extends Controller
                 $request->session()->put('mfa_return_url', $next);
 
                 // Skip the TOTP-default landing when the user only has an
-                // OTP factor enrolled — route them directly to the OTP
+                // OTP factor enrolled - route them directly to the OTP
                 // verify page so they don't get the wrong code-entry form.
                 if ($hasOtp && ! $hasTotp && ! $hasPasskey) {
                     return redirect()->route('security-clearance.otp.verify', ['return' => $next])
@@ -148,9 +148,9 @@ class LoginController extends Controller
             }
 
             // Password-policy gates after successful auth (issue #90):
-            //   1. password_expiry_days — force change when last
+            //   1. password_expiry_days - force change when last
             //      password_history.changed_at exceeds the threshold.
-            //   2. security_force_password_change — global flag flipped on
+            //   2. security_force_password_change - global flag flipped on
             //      by an admin; every user whose last change predates the
             //      baseline timestamp must reset.
             // Both routes lead to /user/password with a flash message; the
@@ -198,7 +198,7 @@ class LoginController extends Controller
             ->orderByDesc('changed_at')
             ->value('changed_at');
 
-        // Password expiry — only checked when expiry_days > 0 (0 disables).
+        // Password expiry - only checked when expiry_days > 0 (0 disables).
         if (SecuritySettings::passwordExpiryEnabled() && $latestChange) {
             $expiryDays = SecuritySettings::passwordExpiryDays();
             $expired = \Carbon\Carbon::parse($latestChange)->lt(now()->subDays($expiryDays));
@@ -207,7 +207,7 @@ class LoginController extends Controller
             }
         }
 
-        // Global force-change flag — applies when the admin flipped it ON
+        // Global force-change flag - applies when the admin flipped it ON
         // and the user hasn't reset since the baseline timestamp was stamped.
         if (SecuritySettings::forcePasswordChange()) {
             $baseline = SecuritySettings::forcePasswordChangeBaseline();
@@ -247,7 +247,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Process password reset request — send email with token.
+     * Process password reset request - send email with token.
      */
     public function submitPasswordReset(Request $request)
     {
@@ -854,7 +854,7 @@ class LoginController extends Controller
                 'mail.from.name' => $settings['smtp_from_name'] ?? config('mail.from.name'),
             ]);
         } catch (\Exception $e) {
-            // Table doesn't exist or query failed — fall back to .env
+            // Table doesn't exist or query failed - fall back to .env
             \Log::warning('Could not load email settings from database: '.$e->getMessage());
         }
     }

@@ -240,7 +240,7 @@ class InformationObjectApiController extends Controller
             })
             ->where('information_object.id', $objectId)
             ->where('information_object.id', '!=', 1) // Exclude root
-            ->where('status.status_id', '=', 160) // Published only — never leak drafts to anon
+            ->where('status.status_id', '=', 160) // Published only - never leak drafts to anon
             ->whereNotIn('information_object.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->where('information_object_i18n.culture', $this->culture)
             ->select([
@@ -533,7 +533,7 @@ class InformationObjectApiController extends Controller
     }
 
     /**
-     * POST /api/v1/informationobjects — Create a new description.
+     * POST /api/v1/informationobjects - Create a new description.
      */
     public function store(Request $request): JsonResponse
     {
@@ -649,7 +649,7 @@ class InformationObjectApiController extends Controller
     }
 
     /**
-     * PUT /api/v1/informationobjects/{slug} — Update a description.
+     * PUT /api/v1/informationobjects/{slug} - Update a description.
      * Accepts both slug and numeric ID.
      */
     public function update(string $slugOrId, Request $request): JsonResponse
@@ -731,7 +731,7 @@ class InformationObjectApiController extends Controller
     }
 
     /**
-     * DELETE /api/v1/informationobjects/{slug} — Delete a description.
+     * DELETE /api/v1/informationobjects/{slug} - Delete a description.
      * Accepts both slug and numeric ID.
      */
     public function destroy(string $slugOrId): JsonResponse
@@ -783,7 +783,7 @@ class InformationObjectApiController extends Controller
     }
 
     /**
-     * GET /api/v1/informationobjects/{slug}/digitalobject — Download the master digital object.
+     * GET /api/v1/informationobjects/{slug}/digitalobject - Download the master digital object.
      */
     public function digitalObject(string $slug): \Symfony\Component\HttpFoundation\Response
     {
@@ -792,13 +792,13 @@ class InformationObjectApiController extends Controller
             return response()->json(['error' => 'Not found.'], 404);
         }
 
-        // Publication-status gate — never serve a draft/unpublished record's
+        // Publication-status gate - never serve a draft/unpublished record's
         // master binary to an anonymous caller (mirrors the rest of the public API).
         if (! $this->isPublished((int) $objectId)) {
             return response()->json(['error' => 'Not found.'], 404);
         }
 
-        // #1391 — ICIP/TK + ODRL restricted records must not serve their master
+        // #1391 - ICIP/TK + ODRL restricted records must not serve their master
         // on this raw path, and a record with PII visual-redaction regions must
         // never ship its ORIGINAL master (no redacted rendition exists here).
         $gate = app(\AhgCore\Services\DisclosureGate::class);
@@ -818,7 +818,7 @@ class InformationObjectApiController extends Controller
             return response()->json(['error' => 'No digital object found.'], 404);
         }
 
-        // ODRL gate — a restricted/embargoed dataset's master file must be
+        // ODRL gate - a restricted/embargoed dataset's master file must be
         // inaccessible on this raw-download path, not merely unlinked from the
         // landing page (mirrors ahg-media-streaming/ahg-c2pa, #1347/#1362).
         // Guarded: if the research/ODRL stack isn't installed there are no
@@ -848,7 +848,7 @@ class InformationObjectApiController extends Controller
     }
 
     /**
-     * GET /api/v1/informationobjects/tree/{slug} — Get the hierarchy tree.
+     * GET /api/v1/informationobjects/tree/{slug} - Get the hierarchy tree.
      */
     public function tree(string $slug): JsonResponse
     {
@@ -858,7 +858,7 @@ class InformationObjectApiController extends Controller
         }
 
         $io = DB::table('information_object')->where('id', $objectId)->first();
-        // Published-only gate — never expose a draft/unpublished record's tree to anon.
+        // Published-only gate - never expose a draft/unpublished record's tree to anon.
         if (! $io || ! $this->isPublished((int) $objectId)) {
             return response()->json(['error' => 'Not found.'], 404);
         }
@@ -892,7 +892,7 @@ class InformationObjectApiController extends Controller
             $currentId = $ancestor->parent_id;
         }
 
-        // Get immediate children (published only — drafts are never exposed)
+        // Get immediate children (published only - drafts are never exposed)
         $children = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
@@ -956,7 +956,7 @@ class InformationObjectApiController extends Controller
         }
 
         $io = DB::table('information_object')->where('id', $objectId)->first();
-        // Published-only gate — a draft parent's child list is never exposed to anon.
+        // Published-only gate - a draft parent's child list is never exposed to anon.
         if (! $io || ! $this->isPublished((int) $objectId)) {
             return response()->json([
                 'error' => 'Not Found',
@@ -964,7 +964,7 @@ class InformationObjectApiController extends Controller
             ], 404);
         }
 
-        // Get immediate children (published only — never leak draft children or
+        // Get immediate children (published only - never leak draft children or
         // their publication_status_id to an anonymous caller).
         $children = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')

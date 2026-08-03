@@ -1,5 +1,5 @@
 {{--
-  Metadata Extraction — auto-extraction and field mapping settings
+  Metadata Extraction - auto-extraction and field mapping settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('metadata')
 
   @copyright  Johan Pieterse / Plain Sailing

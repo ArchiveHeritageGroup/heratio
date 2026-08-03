@@ -1,7 +1,7 @@
 @once
 @include('ahg-ric::_ric-api-base')
 @endonce
-{{-- RiC Entities Panel — included on IO/Actor show pages --}}
+{{-- RiC Entities Panel - included on IO/Actor show pages --}}
 {{-- Usage: @include('ahg-ric::_ric-entities-panel', ['record' => $io]) --}}
 @php
     $recordId = $record->id ?? null;
@@ -28,7 +28,7 @@
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h2 class="h5 mb-0">
             <i class="fas fa-project-diagram me-1"></i> {{ __('RiC Context') }}
-            <a href="https://openric.org" target="_blank" rel="noopener" class="ms-2 small text-decoration-none" title="{{ __('Open RiC contract — see openric.org') }}">
+            <a href="https://openric.org" target="_blank" rel="noopener" class="ms-2 small text-decoration-none" title="{{ __('Open RiC contract - see openric.org') }}">
                 <i class="fas fa-external-link-alt"></i> <span class="small">{{ __('OpenRiC') }}</span>
             </a>
             @if($ricIsAdmin)
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(() => { renderEmpty(); });
 
-    // Load relations — public API returns grouped {outgoing, incoming};
+    // Load relations - public API returns grouped {outgoing, incoming};
     // flatten back for the legacy table renderer.
     fetch(`/api/ric/v1/relations-for/${recordId}`, { credentials: 'same-origin' })
         .then(r => r.ok ? r.json() : null)

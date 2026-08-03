@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ClearanceCheck — focused single-record clearance lookup for restore guards.
+ * ClearanceCheck - focused single-record clearance lookup for restore guards.
  *
  * Mirror of the AtoM-side service. Same schema, same rules:
  *   1) Administrators always pass.
@@ -9,7 +9,7 @@
  *   3) User clearance level must be >= entity classification level.
  *   4) Null user (CLI) → pass.
  *
- * The classification used is the CURRENT one on the entity — never the
+ * The classification used is the CURRENT one on the entity - never the
  * historical one in the version being restored.
  *
  * @phase J

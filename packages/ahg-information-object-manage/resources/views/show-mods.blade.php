@@ -1,9 +1,9 @@
 {{--
   ============================================================================
-  Heratio archival-record show template — MODS (Metadata Object Description
+  Heratio archival-record show template - MODS (Metadata Object Description
   Schema, Library of Congress; current 3.8).
 
-  Issue #98 Phase 2 — uses ahg_io_mods sidecar for MODS-specific elements
+  Issue #98 Phase 2 - uses ahg_io_mods sidecar for MODS-specific elements
   not stored in Heratio's information_object_i18n schema (typeOfResource,
   genre, physicalDescription sub-elements, abstract, classification,
   recordInfo). Honours the new mods_*_area element_visibility flags
@@ -57,7 +57,7 @@
                 timestamps).
 
   Reviewer notes:
-    - MODS doesn't have an "archival history" / "appraisal" notion — those
+    - MODS doesn't have an "archival history" / "appraisal" notion - those
       Heratio fields are surfaced under <note> if visible at all. This
       draft elides them (operator can switch to ISAD/DACS/RAD if needed).
     - subject elements in MODS distinguish topic / geographic / temporal /
@@ -66,7 +66,7 @@
       access is rare and not modelled.
     - relatedItem in MODS uses a `type` attribute (preceding / succeeding /
       original / host / etc.). Heratio's $relatedMaterialDescriptions is
-      free-text without a typed relationship — render unlabelled.
+      free-text without a typed relationship - render unlabelled.
 --}}
 
 @extends('theme::layouts.3col')
@@ -87,7 +87,7 @@
     </div>
     <h1 class="h3 mb-0">{{ $io->title ?? __('Untitled resource') }}</h1>
     @if($modsExt && $modsExt->type_of_resource)
-      <small class="text-muted">{{ $modsExt->type_of_resource }}@if($modsExt->genre) — {{ $modsExt->genre }}@endif</small>
+      <small class="text-muted">{{ $modsExt->type_of_resource }}@if($modsExt->genre) - {{ $modsExt->genre }}@endif</small>
     @elseif($levelName)
       <small class="text-muted">{{ $levelName }}</small>
     @endif
@@ -195,10 +195,10 @@
                   <li>
                     {{ $event->date_display ?? '' }}
                     @if($event->start_date || $event->end_date)
-                      @if(!$event->date_display) ({{ $event->start_date ?? '?' }} – {{ $event->end_date ?? '?' }})@endif
+                      @if(!$event->date_display) ({{ $event->start_date ?? '?' }} - {{ $event->end_date ?? '?' }})@endif
                     @endif
                     @if($event->type_id && isset($eventTypeNames[$event->type_id]))
-                      <span class="text-muted small">— {{ $eventTypeNames[$event->type_id] }}</span>
+                      <span class="text-muted small">- {{ $eventTypeNames[$event->type_id] }}</span>
                     @endif
                   </li>
                 @endforeach
@@ -303,7 +303,7 @@
     </section>
   @endif
 
-  {{-- ========== <subject> — uses access-points partial which already
+  {{-- ========== <subject> - uses access-points partial which already
        structures by topic / geographic / name / genre. ========== --}}
   @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('mods_subject_area'))
     @include('ahg-information-object-manage::partials.sections.access-points-area')

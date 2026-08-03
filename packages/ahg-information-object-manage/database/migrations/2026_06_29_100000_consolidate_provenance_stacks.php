@@ -12,14 +12,14 @@
  *
  * Set B is the survivor (canonical io.provenance route, IO-keyed, audit-logged). This
  * migration keeps the best of both by:
- *   1. Creating provenance_overview — Set A's per-IO governance header reborn (Nazi-era
+ *   1. Creating provenance_overview - Set A's per-IO governance header reborn (Nazi-era
  *      due-diligence, cultural-property/restitution status, research workflow, narrative
  *      summary, acquisition + publication flags). Set B had no equivalent.
  *   2. Adding evidence_type / evidence_description to provenance_entry so the chain carries
  *      Set A's per-event evidence richness.
  *   3. Migrating Set A data into the survivor (record -> overview always; event -> entry
  *      only for IOs that have no existing Set B chain, so we never clobber Set B data).
- *   4. Soft-retiring the Set A tables (rename to *_retired — data preserved, reversible).
+ *   4. Soft-retiring the Set A tables (rename to *_retired - data preserved, reversible).
  *
  * Idempotent and install-safe: every step is guarded by hasTable/hasColumn, so installs
  * where Set A never existed simply create the overview table + columns and skip the rest.
@@ -42,7 +42,7 @@ return new class extends Migration
 
     public function up(): void
     {
-        // 1. Governance header — one row per information object.
+        // 1. Governance header - one row per information object.
         if (!Schema::hasTable('provenance_overview')) {
             Schema::create('provenance_overview', function (Blueprint $table) {
                 $table->bigIncrements('id');
@@ -172,7 +172,7 @@ return new class extends Migration
             }
         }
 
-        // 4. Soft-retire Set A tables (rename — data preserved, reversible).
+        // 4. Soft-retire Set A tables (rename - data preserved, reversible).
         foreach ($this->retire as $t) {
             if (Schema::hasTable($t) && !Schema::hasTable($t . '_retired')) {
                 Schema::rename($t, $t . '_retired');

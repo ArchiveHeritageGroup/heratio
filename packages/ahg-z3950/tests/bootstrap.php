@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bootstrap.php — PHPUnit bootstrap for ahg-z3950 tests.
+ * bootstrap.php - PHPUnit bootstrap for ahg-z3950 tests.
  *
  * Registers PSR-4 namespaces for the package's test suite so that
  * AhgZ3950\Tests\* classes are visible to PHPUnit.

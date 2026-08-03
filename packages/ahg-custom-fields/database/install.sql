@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-custom-fields — install schema
+-- ahg-custom-fields - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgCustomFieldsPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -45,7 +45,7 @@ UPDATE atom_plugin SET
 WHERE name = 'ahgCustomFieldsPlugin';
 
 -- ============================================================
--- Field definitions — admin-configurable schema
+-- Field definitions - admin-configurable schema
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `custom_field_definition` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `custom_field_definition` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- Field values — EAV storage
+-- Field values - EAV storage
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `custom_field_value` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

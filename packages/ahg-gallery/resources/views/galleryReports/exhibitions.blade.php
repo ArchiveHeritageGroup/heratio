@@ -1,5 +1,5 @@
 {{--
-  Exhibitions Report — cloned from AtoM galleryReports/exhibitionsSuccess.php
+  Exhibitions Report - cloned from AtoM galleryReports/exhibitionsSuccess.php
   @copyright  Johan Pieterse / Plain Sailing
   @license    AGPL-3.0-or-later
 --}}

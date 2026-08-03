@@ -20,7 +20,7 @@ class UploadController extends BaseApiController
     ];
 
     /**
-     * POST /api/v2/upload — Generic file upload.
+     * POST /api/v2/upload - Generic file upload.
      */
     public function upload(Request $request): JsonResponse
     {
@@ -77,7 +77,7 @@ class UploadController extends BaseApiController
     }
 
     /**
-     * POST /api/v2/descriptions/{slug}/upload — Upload digital object for a description.
+     * POST /api/v2/descriptions/{slug}/upload - Upload digital object for a description.
      */
     public function uploadForDescription(string $slug, Request $request): JsonResponse
     {

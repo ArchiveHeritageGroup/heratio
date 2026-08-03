@@ -6,7 +6,7 @@ Route::prefix('admin/cdpa')->middleware(['web', 'admin'])->group(function () {
     // Dashboard
     Route::get('/', [\AhgCdpa\Controllers\CdpaController::class, 'index'])->name('ahgcdpa.index');
 
-    // Config (GET + POST) — ACL must be checked in controller (Route::match)
+    // Config (GET + POST) - ACL must be checked in controller (Route::match)
     Route::match(['get', 'post'], '/config', [\AhgCdpa\Controllers\CdpaController::class, 'config'])->name('ahgcdpa.config');
 
     // DPO management

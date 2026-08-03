@@ -1,5 +1,5 @@
 -- ============================================================================
--- Add atom_plugin.admin_only — issue #40 follow-up
+-- Add atom_plugin.admin_only - issue #40 follow-up
 -- ============================================================================
 -- When 1, non-admin users NEVER see this plugin in their nav, regardless of
 -- any user_plugin_grant rows. Effectively "locked to admins".

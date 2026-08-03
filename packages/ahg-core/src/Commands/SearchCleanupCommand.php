@@ -20,7 +20,7 @@ class SearchCleanupCommand extends Command
         $ttl = max(1, (int) $this->option('cache-ttl-hours'));
         $totalDeleted = 0;
 
-        // ahg_discovery_cache — expired cache rows.
+        // ahg_discovery_cache - expired cache rows.
         if (Schema::hasTable('ahg_discovery_cache')) {
             $expired = DB::table('ahg_discovery_cache')->where('expires_at', '<', now());
             $count = (int) (clone $expired)->count();
@@ -30,7 +30,7 @@ class SearchCleanupCommand extends Command
             }
         }
 
-        // federation_search_cache (multi-system search) — drop rows older than the soft TTL.
+        // federation_search_cache (multi-system search) - drop rows older than the soft TTL.
         if (Schema::hasTable('federation_search_cache')) {
             $stale = DB::table('federation_search_cache')->where('created_at', '<', now()->subHours($ttl));
             $count = (int) (clone $stale)->count();
@@ -40,7 +40,7 @@ class SearchCleanupCommand extends Command
             }
         }
 
-        // getty_aat_cache — keep entries fresh; drop ones not synced in 30 days.
+        // getty_aat_cache - keep entries fresh; drop ones not synced in 30 days.
         if (Schema::hasTable('getty_aat_cache') && Schema::hasColumn('getty_aat_cache', 'synced_at')) {
             $stale = DB::table('getty_aat_cache')->where('synced_at', '<', now()->subDays(30));
             $count = (int) (clone $stale)->count();

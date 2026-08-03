@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DonorRemindersCommandTest — issue #1262.
+ * DonorRemindersCommandTest - issue #1262.
  *
  * Verifies ahg:donor-reminders actually dispatches mail to the resolved
  * recipient, flips the reminder to sent only on success, records the real
@@ -10,7 +10,7 @@
  * reminder due for retry.
  *
  * Runs against the pre-built heratio_test DB and rolls back each test
- * (DatabaseTransactions, NOT RefreshDatabase — the donor tables and ~995
+ * (DatabaseTransactions, NOT RefreshDatabase - the donor tables and ~995
  * base tables are created out of band). Mirrors
  * packages/ahg-research/tests/Feature/ResearchUserProvisionerTest.php.
  *

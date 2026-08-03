@@ -1,11 +1,11 @@
 {{--
-  Marketplace Admin — Verify Seller
+  Marketplace Admin - Verify Seller
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.
 
   Cloned from PSIS ahgMarketplacePlugin/marketplace/adminSellerVerifySuccess.php.
-  Payout currency is rendered per-row from $seller->payout_currency (international — no hardcoded default).
+  Payout currency is rendered per-row from $seller->payout_currency (international - no hardcoded default).
 --}}
 @extends('theme::layouts.1col')
 @section('title', __('Verify Seller') . ' - ' . __('Marketplace Admin'))

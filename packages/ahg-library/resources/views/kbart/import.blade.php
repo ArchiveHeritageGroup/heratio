@@ -180,21 +180,21 @@
                                             @if($row['isbn'])
                                                 <code>{{ e($row['isbn']) }}</code>
                                             @else
-                                                <span class="text-muted">—</span>
+                                                <span class="text-muted">-</span>
                                             @endif
                                         </td>
                                         <td>
                                             @if($row['issn'])
                                                 <code>{{ e($row['issn']) }}</code>
                                             @else
-                                                <span class="text-muted">—</span>
+                                                <span class="text-muted">-</span>
                                             @endif
                                         </td>
                                         <td>
                                             @if($row['eissn'])
                                                 <code>{{ e($row['eissn']) }}</code>
                                             @else
-                                                <span class="text-muted">—</span>
+                                                <span class="text-muted">-</span>
                                             @endif
                                         </td>
                                         <td>

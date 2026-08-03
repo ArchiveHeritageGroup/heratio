@@ -1,5 +1,5 @@
 {{--
-  Marketplace — Edit Listing (seller form)
+  Marketplace - Edit Listing (seller form)
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.
@@ -231,12 +231,12 @@
         </div>
       </div>
 
-      {{-- Licence-template fields — visible only when listing_type=licence --}}
+      {{-- Licence-template fields - visible only when listing_type=licence --}}
       <div class="card mb-3 border-warning" id="licence-terms-card"
            style="{{ ($listing->listing_type ?? '') === 'licence' ? '' : 'display:none;' }}">
         <div class="card-header bg-warning bg-opacity-10 fw-semibold">
           <i class="fas fa-file-contract me-1 text-warning"></i> {{ __('Licence terms') }}
-          <span class="small text-muted ms-1">{{ __('— template applied to new agreements; existing buyer agreements keep the terms they were issued under') }}</span>
+          <span class="small text-muted ms-1">{{ __('- template applied to new agreements; existing buyer agreements keep the terms they were issued under') }}</span>
         </div>
         <div class="card-body">
           <div class="row g-3">

@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `voice_usage` (
     PRIMARY KEY (`id`),
     -- Composite uniqueness so the ON DUPLICATE KEY UPDATE upsert pivots on
     -- the (user, day) pair. user_id of NULL collapses to a single anon row
-    -- per day under MySQL's "one NULL" rule for unique indexes — accepted.
+    -- per day under MySQL's "one NULL" rule for unique indexes - accepted.
     UNIQUE KEY `user_date_unique` (`user_id`, `call_date`),
     KEY `call_date_idx` (`call_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

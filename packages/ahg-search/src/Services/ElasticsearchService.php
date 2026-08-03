@@ -1192,7 +1192,7 @@ class ElasticsearchService
             case 'lastUpdated':
                 $qb->orderBy('object.updated_at', 'desc');
                 break;
-            default: // relevance — for DB just use title
+            default: // relevance - for DB just use title
                 $qb->orderBy('io_i18n.title', 'asc');
                 break;
         }
@@ -1452,7 +1452,7 @@ class ElasticsearchService
      * phrase_suggester on `i18n.{culture}.title` (the field with the best
      * recall for archival catalogues). Returns the top suggestion string
      * when one exists and differs (case-insensitive) from the original
-     * query, or null otherwise. Safe to call even when ES is down — any
+     * query, or null otherwise. Safe to call even when ES is down - any
      * failure short-circuits to null so the caller never explodes.
      *
      * @param  string  $query  Raw user query (will be lower-cased for compare).

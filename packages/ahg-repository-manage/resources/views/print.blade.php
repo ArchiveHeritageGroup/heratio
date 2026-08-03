@@ -4,7 +4,7 @@
 @section('record-title', $repository->authorized_form_of_name ?? '[Untitled]')
 @section('record-type')
   {{ config('app.ui_label_repository', 'Archival institution') }}
-  @if($repository->identifier) &mdash; {{ $repository->identifier }} @endif
+  @if($repository->identifier) - {{ $repository->identifier }} @endif
 @endsection
 
 @section('content')

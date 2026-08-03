@@ -35,7 +35,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('FS Overlay Annotate') }}</h1>
-    <span class="small text-muted">{{ __('Position field labels on document images — drag boxes to correct locations') }}</span>
+    <span class="small text-muted">{{ __('Position field labels on document images - drag boxes to correct locations') }}</span>
   </div>
   <div class="btn-group btn-group-sm">
     <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white"><i class="fas fa-th me-1"></i>{{ __('Bulk Annotate') }}</a>
@@ -94,9 +94,9 @@
         </select>
       </div>
       <div class="col-md-3">
-        <label class="form-label small fw-bold mb-0">{{ __('Image Type (this image — no record)') }}</label>
+        <label class="form-label small fw-bold mb-0">{{ __('Image Type (this image - no record)') }}</label>
         <select id="ba-fs-imagetype" class="form-select form-select-sm" onchange="fsSetImageType(this.value)">
-          <option value="">{{ __('(has a record — key fields)') }}</option>
+          <option value="">{{ __('(has a record - key fields)') }}</option>
           <option value="No Extractable Data Image">{{ __('No Extractable Data Image') }}</option>
           <option value="Blank Image">{{ __('Blank Image') }}</option>
           <option value="Duplicate Image">{{ __('Duplicate Image') }}</option>
@@ -169,7 +169,7 @@
   <div class="col-md-4">
     <div class="card">
       <div class="card-header py-1" style="background:var(--ahg-primary);color:#fff">
-        <span class="small">{{ __('Fields — drag boxes to position on image') }}</span>
+        <span class="small">{{ __('Fields - drag boxes to position on image') }}</span>
       </div>
       <div class="card-body p-2 ba-sidebar" id="ba-fields"></div>
     </div>
@@ -209,13 +209,13 @@
       </div>
       <div class="card-body p-2">
         <table class="table table-sm table-borderless mb-0" style="font-size:12px">
-          <tr><td class="text-muted" style="width:40%">Form Type</td><td id="ba-donut-form-type" style="font-family:monospace">—</td></tr>
-          <tr><td class="text-muted">Record Type</td><td id="ba-donut-type">—</td></tr>
-          <tr><td class="text-muted">Type ID</td><td id="ba-donut-type-id" style="font-family:monospace">—</td></tr>
-          <tr><td class="text-muted">Event Year</td><td id="ba-donut-year">—</td></tr>
-          <tr><td class="text-muted">Event Place</td><td id="ba-donut-place">—</td></tr>
-          <tr><td class="text-muted">Non-genealogical</td><td id="ba-donut-nongeo">—</td></tr>
-          <tr><td class="text-muted">Positions</td><td id="ba-donut-positions">—</td></tr>
+          <tr><td class="text-muted" style="width:40%">Form Type</td><td id="ba-donut-form-type" style="font-family:monospace">-</td></tr>
+          <tr><td class="text-muted">Record Type</td><td id="ba-donut-type">-</td></tr>
+          <tr><td class="text-muted">Type ID</td><td id="ba-donut-type-id" style="font-family:monospace">-</td></tr>
+          <tr><td class="text-muted">Event Year</td><td id="ba-donut-year">-</td></tr>
+          <tr><td class="text-muted">Event Place</td><td id="ba-donut-place">-</td></tr>
+          <tr><td class="text-muted">Non-genealogical</td><td id="ba-donut-nongeo">-</td></tr>
+          <tr><td class="text-muted">Positions</td><td id="ba-donut-positions">-</td></tr>
         </table>
       </div>
     </div>
@@ -245,7 +245,7 @@
   let skipped = [];
   let sessionDone = 0, sessionFields = 0;
 
-  // Saved positions — per form type
+  // Saved positions - per form type
   let savedPositions = {};
   let currentFolder = '';
   let currentFormType = '';
@@ -253,7 +253,7 @@
   let autoRecogTimers = []; // track staggered HTR timeouts so we can cancel on save/next
 
   // Fields to always skip
-  // Only these 5 fields are used — everything else is skipped
+  // Only these 5 fields are used - everything else is skipped
   const ALLOWED_FIELDS = [
     'Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place',
     'Husband Name', 'Husband Race', 'Spouse', 'Spouse Race', 'Place of Marriage', 'District', 'Province', 'Marriage Date',
@@ -384,14 +384,14 @@
     COLUMNS.forEach(c => { if (!e.fields[c]) e.fields[c] = ''; });
     loadSavedPositions(() => { applyFormTemplate(t); buildFieldList(); redraw(); });
   };
-  // Display names — rename fields for the UI
+  // Display names - rename fields for the UI
   const FIELD_LABELS = {
     'Residence Place': 'Duration of last Illness',
     'Event Year': 'Year (digits)',
   };
   function displayLabel(col) { return FIELD_LABELS[col] || col; }
   function shouldSkip(col) { return !ALLOWED_FIELDS.includes(col); }
-  // Check if a field was pre-filled from CSV — never overwrite these
+  // Check if a field was pre-filled from CSV - never overwrite these
   function hasCsvValue(col) {
     if (imgIdx < 0 || !images[imgIdx]) return false;
     return !!(images[imgIdx]._csvFields && images[imgIdx]._csvFields[col]);
@@ -595,19 +595,19 @@
     return fixed.join(' ');
   }
 
-  // Spellcheck age unit — keep the number as-is, just fix the unit text
+  // Spellcheck age unit - keep the number as-is, just fix the unit text
   // Valid units: Days, Months, Years (and common OCR misreads)
   function spellcheckAge(ageStr) {
     if (!ageStr) return '';
     const s = ageStr.trim();
 
-    // Already just a number — return as-is
+    // Already just a number - return as-is
     if (/^\d+$/.test(s)) return s;
 
     // Split into number part and unit part
     const m = s.match(/^(\d+)\s*(.*)/);
     if (!m) {
-      // No number — might be all text like "Six Months", return as-is
+      // No number - might be all text like "Six Months", return as-is
       return s;
     }
 
@@ -637,12 +637,12 @@
     // Accept fuzzy match if distance <= 2
     if (bestDist <= 2) return num + ' ' + bestUnit;
 
-    // Can't fix — return capitalised
+    // Can't fix - return capitalised
     return num + ' ' + unitRaw.charAt(0).toUpperCase() + unitRaw.slice(1);
   }
 
   // ── Known form templates (positions as % of image width/height) ──
-  // Form templates — positions as % of image width/height
+  // Form templates - positions as % of image width/height
   // Calibrated from actual scanned SA death certificates
   // Form templates with anchor-relative positioning:
   // - anchor: keywords to find the form title via OCR
@@ -651,7 +651,7 @@
   // On each image, OCR finds the anchor, computes offset + scale vs anchorRef, then shifts all fields
   const FORM_TEMPLATES = {
     'sa-death-1923': {
-      label: 'SA Death — Informasievorm (1923 Act, EN/AF bilingual)',
+      label: 'SA Death - Informasievorm (1923 Act, EN/AF bilingual)',
       detect: ['informasievorm', 'sterfgeval'],
       anchor: ['informasievorm', 'sterfgeval'],
       anchorRef: { x: 0.22, y: 0.04, w: 0.56, h: 0.02 }, // title position on reference image
@@ -664,20 +664,20 @@
       }
     },
     'sa-death-1894': {
-      label: 'SA Death — Form of Information / Kennisgewing (Act/Wet 7 of 1894)',
+      label: 'SA Death - Form of Information / Kennisgewing (Act/Wet 7 of 1894)',
       detect: ['1894', 'act no', 'deceased', 'kennisgewing', 'oorledene', 'wet no'],
-      anchor: ['death:', 'act'],  // "DEATH: ACT No. 7 OF 1894" — compact, consistent
+      anchor: ['death:', 'act'],  // "DEATH: ACT No. 7 OF 1894" - compact, consistent
       anchorRef: { x: 0.63, y: 0.09, w: 0.19, h: 0.01 },
       fields: {
         'Name':           { x: 0.51, y: 0.19, w: 0.42, h: 0.04 },  // 1. Christian Names and Surname
         'Residence Place':{ x: 0.51, y: 0.22, w: 0.42, h: 0.03 },  // 2. Usual place of Residence
         'Age':            { x: 0.51, y: 0.24, w: 0.20, h: 0.02 },  // 3. Age
-        'Sex':            { x: 0.51, y: 0.26, w: 0.15, h: 0.02 },  // 4. Race(a) — Sex
+        'Sex':            { x: 0.51, y: 0.26, w: 0.15, h: 0.02 },  // 4. Race(a) - Sex
         'Event Date':     { x: 0.51, y: 0.32, w: 0.40, h: 0.03 },  // 8. Date of Death
       }
     },
     'sa-death-generic': {
-      label: 'SA Death — Generic (fallback)',
+      label: 'SA Death - Generic (fallback)',
       detect: ['death', 'dood', 'form of information'],
       anchor: ['form', 'death'],
       anchorRef: { x: 0.22, y: 0.04, w: 0.56, h: 0.02 },
@@ -690,7 +690,7 @@
       }
     },
     'sa-marriage-register': {
-      label: 'SA Marriage — Duplicate Original Marriage Register (EN/AF)',
+      label: 'SA Marriage - Duplicate Original Marriage Register (EN/AF)',
       detect: ['marriage', 'huwelik', 'huweliksregister', 'duplicate original marriage', 'duplikaat origineel'],
       anchor: ['duplicate', 'marriage', 'register'],
       anchorRef: { x: 0.12, y: 0.04, w: 0.50, h: 0.02 },
@@ -707,7 +707,7 @@
       }
     },
     'sa-church-baptism': {
-      label: 'SA Church — Register of Baptisms (4 rows per page)',
+      label: 'SA Church - Register of Baptisms (4 rows per page)',
       detect: ['baptism', 'register of baptisms', 'diocese', 'doop', 'doopregister', 'gedoop'],
       anchor: ['register', 'baptism'],
       anchorRef: { x: 0.40, y: 0.03, w: 0.30, h: 0.03 },
@@ -743,7 +743,7 @@
       }
     },
     'narrative': {
-      label: 'Narrative — Free-form handwritten text (letters, diaries, notes)',
+      label: 'Narrative - Free-form handwritten text (letters, diaries, notes)',
       detect: ['dear', 'sir', 'madam', 'letter', 'diary', 'note', 'beloved'],
       anchor: [],
       anchorRef: {},
@@ -757,27 +757,27 @@
     // using the full per-event field set in FS_RECORD_FIELDS. The operator drags
     // the boxes and "Sync to server" saves the real layout per form type.
     'fs-scotland-marriage': {
-      label: 'FamilySearch Data Safe — Scotland Marriage',
+      label: 'FamilySearch Data Safe - Scotland Marriage',
       detect: ['marriage', 'married', 'when married', 'spinster', 'bachelor', 'register of marriages'],
       anchor: ['marriage'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
     },
     'fs-scotland-birth': {
-      label: 'FamilySearch Data Safe — Scotland Birth',
+      label: 'FamilySearch Data Safe - Scotland Birth',
       detect: ['birth', 'born', 'when and where born', 'register of births'],
       anchor: ['birth'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
     },
     'fs-scotland-death': {
-      label: 'FamilySearch Data Safe — Scotland Death',
+      label: 'FamilySearch Data Safe - Scotland Death',
       detect: ['death', 'died', 'when and where died', 'deceased', 'register of deaths'],
       anchor: ['death'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
     },
     'fs-scotland-baptism': {
-      label: 'FamilySearch Data Safe — Scotland Baptism',
+      label: 'FamilySearch Data Safe - Scotland Baptism',
       detect: ['baptism', 'baptised', 'baptized', 'christened'],
       anchor: ['baptism'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
     },
     'fs-scotland-burial': {
-      label: 'FamilySearch Data Safe — Scotland Burial',
+      label: 'FamilySearch Data Safe - Scotland Burial',
       detect: ['burial', 'buried', 'interment', 'interred'],
       anchor: ['burial'], anchorRef: { x: 0.10, y: 0.05, w: 0.50, h: 0.03 }, fields: {},
     },
@@ -847,7 +847,7 @@
     images[imgIdx]._imageType = v;
     const nm = images[imgIdx].fname || 'image';
     if (st) st.textContent = v
-      ? ('Marked "' + nm + '" as ' + v + ' (no record) — it will be in the CSV with Language "und".')
+      ? ('Marked "' + nm + '" as ' + v + ' (no record) - it will be in the CSV with Language "und".')
       : ('"' + nm + '" set back to a data record.');
   };
 
@@ -933,10 +933,10 @@
 
     if (bestScore === 0) {
       bestType = 'sa-death-generic'; // fallback only when nothing matches at all
-      document.getElementById('ba-image-name').textContent += ' — UNRECOGNISED FORM (using generic, select form type manually)';
+      document.getElementById('ba-image-name').textContent += ' - UNRECOGNISED FORM (using generic, select form type manually)';
     } else {
       const tpl = FORM_TEMPLATES[bestType];
-      document.getElementById('ba-image-name').textContent += ' — Detected: ' + (tpl ? tpl.label : bestType);
+      document.getElementById('ba-image-name').textContent += ' - Detected: ' + (tpl ? tpl.label : bestType);
     }
 
     return bestType;
@@ -945,7 +945,7 @@
   // Current anchor detection result (set by OCR)
   let detectedAnchor = null;
 
-  // Apply form template — positions fields relative to detected anchor
+  // Apply form template - positions fields relative to detected anchor
   function applyFormTemplate(templateKey, anchor) {
     const tpl = FORM_TEMPLATES[templateKey];
     if (!tpl) return;
@@ -1026,7 +1026,7 @@
           h: Math.round(adjH * imgNatH),
         });
       } else {
-        // No template position — stack below others
+        // No template position - stack below others
         const activeIdx = annotations.filter(a => a).length;
         annotations.push({
           label: col, value: val,
@@ -1179,7 +1179,7 @@
 
       // Step 2: data loaded
       images = data.images;
-      // Snapshot original CSV values — these are ground truth, never overwrite
+      // Snapshot original CSV values - these are ground truth, never overwrite
       // Exclude fields that are always cleared (user reads from document)
       const CSV_CLEAR = ['Event Date'];
       images.forEach(img => {
@@ -1306,7 +1306,7 @@
         autoPlaceFields();
         afterFieldsPlaced();
       } else {
-        // No form type selected — use OCR label detection if Detect is on
+        // No form type selected - use OCR label detection if Detect is on
         const autoDetectLabels = document.getElementById('ba-auto-detect')?.checked;
         if (autoDetectLabels) {
           ocrAndPlace(entry);
@@ -1314,7 +1314,7 @@
           return;
         }
         // Auto-detect: quick OCR to identify form type, then apply template
-        document.getElementById('ba-image-name').textContent += ' — detecting form type...';
+        document.getElementById('ba-image-name').textContent += ' - detecting form type...';
         fetch('{{ route("admin.ai.htr.fsOverlayOcr") }}', {
           method: 'POST',
           headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
@@ -1355,7 +1355,7 @@
     const activeFields = COLUMNS.filter(col => entry.fields[col]);
     const fieldCount = activeFields.length;
 
-    // Smart default sizing — spread fields vertically across the document
+    // Smart default sizing - spread fields vertically across the document
     const imgW = img.width;
     const imgH = img.height;
     const boxW = Math.round(imgW * 0.45);  // ~45% of image width
@@ -1410,7 +1410,7 @@
     // Capture the form type this OCR run is for; its async response must not
     // clobber a different/restored layout if the operator switches templates.
     const _ocrStartedFor = currentFormType;
-    document.getElementById('ba-image-name').textContent += ' — OCR detecting labels...';
+    document.getElementById('ba-image-name').textContent += ' - OCR detecting labels...';
 
     // Send ALL allowed fields for detection, not just ones with CSV data
     const activeFields = ALLOWED_FIELDS.slice();
@@ -1476,7 +1476,7 @@
               coordsEl.parentNode.appendChild(badge);
             }
           } else {
-            // No OCR match — use default position
+            // No OCR match - use default position
             const activeIdx = annotations.filter(a => a).length;
             annotations.push({
               label: col,
@@ -1502,9 +1502,9 @@
         redraw();
 
         const summary = phraseCount + ' phrase, ' + contextCount + ' context, ' + kwCount + ' keyword';
-        document.getElementById('ba-image-name').textContent = entry.fname + ' (' + (imgIdx + 1) + '/' + images.length + ') — ' + Object.keys(positions).length + ' labels detected (' + summary + ')';
+        document.getElementById('ba-image-name').textContent = entry.fname + ' (' + (imgIdx + 1) + '/' + images.length + ') - ' + Object.keys(positions).length + ' labels detected (' + summary + ')';
       } else {
-        // OCR failed — fall back to default placement
+        // OCR failed - fall back to default placement
         autoPlaceFields();
         redraw();
       }
@@ -1594,10 +1594,10 @@
     drawBtn.innerHTML = '<i class="fas fa-crop-alt me-1"></i>Drawing...';
     drawBtn.classList.add('active');
     document.getElementById('ba-crop-do-btn').classList.add('d-none');
-    document.getElementById('ba-image-name').textContent += ' — DRAW CROP RECTANGLE';
+    document.getElementById('ba-image-name').textContent += ' - DRAW CROP RECTANGLE';
   };
 
-  // Called from draw mouseup when cropMode is on — just stores the rect and shows it
+  // Called from draw mouseup when cropMode is on - just stores the rect and shows it
   function handleCropDraw(x, y, w, h) {
     cropMode = false;
     cropRect = { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
@@ -1721,7 +1721,7 @@
       btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise';
 
       if (data.success && data.results) {
-        // Show recognised text under each field — click to accept
+        // Show recognised text under each field - click to accept
         let count = 0;
         for (const [label, result] of Object.entries(data.results)) {
           const idx = COLUMNS.indexOf(label);
@@ -1755,7 +1755,7 @@
             }
             else if (label === 'Age') fixedText = spellcheckAge(cleanText);
 
-            // Auto-populate — never overwrite CSV spreadsheet values (ground truth)
+            // Auto-populate - never overwrite CSV spreadsheet values (ground truth)
             const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
             if (inp && !hasCsvValue(label)) {
               inp.value = fixedText;
@@ -1783,7 +1783,7 @@
             });
             coordsEl.parentNode.appendChild(recogDiv);
 
-            // Place match: "Add to dictionary" for place fields — only when NOT already in dict
+            // Place match: "Add to dictionary" for place fields - only when NOT already in dict
             const bulkPlaceLabels = ['Place of Marriage', 'District', 'Province'];
             const bulkIsExact = result.place_match && result.place_match.match_type === 'exact';
             if (bulkPlaceLabels.includes(label) && fixedText.length >= 2 && !bulkIsExact) {
@@ -1813,7 +1813,7 @@
               }
             }
 
-            // Place match badge — clickable to replace text
+            // Place match badge - clickable to replace text
             if (result.place_match) {
               const pm = result.place_match;
               const pmDiv = document.createElement('div');
@@ -1884,7 +1884,7 @@
         const msg = (data.error || 'Recognition failed');
         const st = document.getElementById('ba-fs-status');
         const hint = /no annotations/i.test(msg)
-          ? 'No boxes to recognise — if the image has no record, set its Image Type (right) to add it to the CSV.'
+          ? 'No boxes to recognise - if the image has no record, set its Image Type (right) to add it to the CSV.'
           : msg;
         if (st) st.textContent = hint; else { btn.title = hint; }
         btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise';
@@ -1978,7 +1978,7 @@
         });
         coordsEl.parentNode.appendChild(recogDiv);
 
-        // "Add to dictionary" button for place fields — only when NOT already in dict
+        // "Add to dictionary" button for place fields - only when NOT already in dict
         const placeLabels = ['Place of Marriage', 'District', 'Province'];
         const isExactPlaceMatch = result.place_match && result.place_match.match_type === 'exact';
         if (placeLabels.includes(label) && fixedText.length >= 2 && !isExactPlaceMatch) {
@@ -2013,7 +2013,7 @@
           }
         }
 
-        // Show place match badge if available — clickable to replace text
+        // Show place match badge if available - clickable to replace text
         if (result.place_match) {
           const pm = result.place_match;
           const pmDiv = document.createElement('div');
@@ -2094,7 +2094,7 @@
   };
 
   // ── Donut pre-fill: extract ILM fields from document image ──
-  // Fills empty fields only — never overwrites CSV data
+  // Fills empty fields only - never overwrites CSV data
   window.baDonutPrefill = function() {
     if (imgIdx < 0 || !images[imgIdx]) return;
     const entry = images[imgIdx];
@@ -2193,7 +2193,7 @@
 
         COLUMNS.forEach((col, i) => {
           if (!donutFields[col]) return;
-          if (hasCsvValue(col)) return; // CSV is ground truth — never overwrite
+          if (hasCsvValue(col)) return; // CSV is ground truth - never overwrite
 
           entry.fields[col] = donutFields[col];
           filled++;
@@ -2254,11 +2254,11 @@
       const card = document.getElementById('ba-donut-card');
       card.style.display = '';
       document.getElementById('ba-donut-conf').textContent = conf;
-      document.getElementById('ba-donut-form-type').textContent = data.FORM_TYPE || '—';
-      document.getElementById('ba-donut-type').textContent = data.FS_RECORD_TYPE || '—';
-      document.getElementById('ba-donut-type-id').textContent = data.FS_RECORD_TYPE_ID || '—';
-      document.getElementById('ba-donut-year').textContent = data.EVENT_YEAR_ORIG || '—';
-      document.getElementById('ba-donut-place').textContent = data.EVENT_PLACE_ORIG || '—';
+      document.getElementById('ba-donut-form-type').textContent = data.FORM_TYPE || '-';
+      document.getElementById('ba-donut-type').textContent = data.FS_RECORD_TYPE || '-';
+      document.getElementById('ba-donut-type-id').textContent = data.FS_RECORD_TYPE_ID || '-';
+      document.getElementById('ba-donut-year').textContent = data.EVENT_YEAR_ORIG || '-';
+      document.getElementById('ba-donut-place').textContent = data.EVENT_PLACE_ORIG || '-';
       document.getElementById('ba-donut-nongeo').innerHTML = data.non_genealogical
         ? '<span class="badge bg-secondary">Yes</span>'
         : '<span class="badge bg-success">No</span>';
@@ -2307,13 +2307,13 @@
     const itSel = document.getElementById('ba-fs-imagetype');
     if (itSel && entry) itSel.value = entry._imageType || '';
 
-    // Fields to clear (don't pre-fill from CSV — user reads from document)
+    // Fields to clear (don't pre-fill from CSV - user reads from document)
     const CLEAR_FIELDS = ['Event Date'];
 
     COLUMNS.forEach(function(col, i) {
       let val = entry.fields[col] || '';
       if (CLEAR_FIELDS.includes(col)) val = '';
-      // Don't modify Age CSV value — display as-is from spreadsheet
+      // Don't modify Age CSV value - display as-is from spreadsheet
       const div = document.createElement('div');
       div.className = 'ba-field' + (i === fieldIdx ? ' active' : '');
       div.dataset.idx = i;
@@ -2570,11 +2570,11 @@
     })
     .then(r => {
       if (!r.ok) {
-        // Session expired (419) or other error — refresh CSRF token
+        // Session expired (419) or other error - refresh CSRF token
         if (r.status === 419) {
-          console.warn('[FS Overlay] CSRF expired — positions saved to localStorage, refresh page to re-sync');
+          console.warn('[FS Overlay] CSRF expired - positions saved to localStorage, refresh page to re-sync');
           const bar = document.getElementById('ba-image-name');
-          if (bar) bar.textContent = bar.textContent.replace(/ — CSRF expired.*/, '') + ' — CSRF expired, refresh page to save to server';
+          if (bar) bar.textContent = bar.textContent.replace(/ - CSRF expired.*/, '') + ' - CSRF expired, refresh page to save to server';
         }
         return;
       }
@@ -2609,7 +2609,7 @@
       if (cb) cb();
     })
     .catch(() => {
-      // Server unreachable — try localStorage (coerce to a plain object).
+      // Server unreachable - try localStorage (coerce to a plain object).
       try {
         const ls = JSON.parse(localStorage.getItem('fs-overlay-pos-' + currentFormType) || '{}');
         savedPositions = (ls && typeof ls === 'object' && !Array.isArray(ls)) ? ls : {};
@@ -2775,7 +2775,7 @@
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
 
-    // Update savedPositions from ALL current annotations — save as % of image
+    // Update savedPositions from ALL current annotations - save as % of image
     console.log('[FS Overlay] Saving positions, image size:', imgNatW, 'x', imgNatH);
     annotations.forEach(function(ann) {
       if (ann && imgNatW > 0 && imgNatH > 0) {

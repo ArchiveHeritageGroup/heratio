@@ -112,7 +112,7 @@ class AhgDisplayServiceProvider extends ServiceProvider
 
     /**
      * Idempotent seed of Display defaults into ahg_settings.
-     * Read-path flag — off by default; flipped after populator completes.
+     * Read-path flag - off by default; flipped after populator completes.
      */
     protected function seedDefaultSettings(): void
     {

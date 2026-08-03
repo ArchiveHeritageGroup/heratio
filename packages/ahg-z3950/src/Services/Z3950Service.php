@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Z3950Service — Z39.50 client logic for Heratio
+ * Z3950Service - Z39.50 client logic for Heratio
  *
  * Wraps the yaz PECL extension to:
  * - Connect to remote Z39.50 targets (yaz_connect)
@@ -108,7 +108,7 @@ class Z3950Service
         $hits = yaz_hits($connectionId);
         $result['count'] = min((int) $hits, $maxRecords);
 
-        // Retrieve records — yaz_record returns string|false|null
+        // Retrieve records - yaz_record returns string|false|null
         $syntax = match (strtolower($syntax)) {
             'usmarc', 'marc21', 'marc' => 'xml',   // yaz returns MARC-in-XML for USmarc
             default => $syntax,

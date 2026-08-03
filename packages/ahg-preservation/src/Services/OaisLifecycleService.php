@@ -1,7 +1,7 @@
 <?php
 
 /**
- * OaisLifecycleService — Phase 3.4 (OAIS SIP / AIP / DIP formalisation).
+ * OaisLifecycleService - Phase 3.4 (OAIS SIP / AIP / DIP formalisation).
  *
  * Turns Heratio's `preservation_package` table into a proper OAIS Information
  * Package state machine:
@@ -14,7 +14,7 @@
  * Every transition writes a `preservation_package_event` row (PREMIS-shaped).
  *
  * - createSip(): receive a producer's submission. Records the package as
- *   package_type='sip', status='received'. No checksums computed yet — the
+ *   package_type='sip', status='received'. No checksums computed yet - the
  *   incoming bag may already be a BagIt or just a flat directory.
  *
  * - promoteSipToAip(): the curatorial step. Calls BagItService::buildPackage
@@ -48,7 +48,7 @@ class OaisLifecycleService
     }
 
     /* ====================================================================
-     *  SIP — Submission Information Package
+     *  SIP - Submission Information Package
      * ==================================================================== */
 
     /**
@@ -117,7 +117,7 @@ class OaisLifecycleService
             throw new \RuntimeException('Package #' . $sipId . ' is not a SIP (package_type=' . $sip->package_type . ')');
         }
         if (empty($sip->information_object_id)) {
-            throw new \RuntimeException('SIP #' . $sipId . ' has no information_object_id — cannot build AIP');
+            throw new \RuntimeException('SIP #' . $sipId . ' has no information_object_id - cannot build AIP');
         }
         if ($sip->status === 'promoted') {
             throw new \RuntimeException('SIP #' . $sipId . ' is already promoted');
@@ -133,7 +133,7 @@ class OaisLifecycleService
         $built = $this->bagit->buildPackage((int) $sip->information_object_id, $bagOpts, $createdBy);
         $aipId = (int) $built['package_id'];
 
-        // The BagItService writes package_type='AIP' uppercase — normalise to lowercase to match the SIP/DIP convention.
+        // The BagItService writes package_type='AIP' uppercase - normalise to lowercase to match the SIP/DIP convention.
         DB::table('preservation_package')->where('id', $aipId)->update([
             'package_type'      => 'aip',
             'parent_package_id' => $sipId,
@@ -163,7 +163,7 @@ class OaisLifecycleService
     /**
      * Convenience: build an AIP directly from an information_object without
      * going through a SIP. Used by the RM transfer-to-archives executor (P3.6)
-     * — there's no producer "submission", the IO is already in the catalogue.
+     * - there's no producer "submission", the IO is already in the catalogue.
      *
      * @return array{aip_id:int, bag_path:string, payload_files:int, total_size:int}
      */

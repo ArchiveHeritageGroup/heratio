@@ -259,7 +259,7 @@ class DisplayController extends Controller
         $originalQuery = $this->queryFilter;
         $esAssistedSearch = false;
 
-        // Semantic expansion (P5.a) — when ?semantic=1 is on, ask the thesaurus
+        // Semantic expansion (P5.a) - when ?semantic=1 is on, ask the thesaurus
         // (ahg-semantic-search) to expand the query into related terms; the search
         // builder then runs them as an OR-match in the FULLTEXT branch and as
         // additional should-match clauses in the ES branch.
@@ -400,7 +400,7 @@ class DisplayController extends Controller
 
         $totalPages = (int) ceil($total / $limit);
 
-        // Build main query — culture-fallback to lang/{fallback_locale} so a
+        // Build main query - culture-fallback to lang/{fallback_locale} so a
         // record that only has English doesn't render as "[Untitled]" when
         // browsed in af/zu/etc. Pattern mirrors AhgCore\Traits\WithCultureFallback.
         $fallback = config('app.fallback_locale', 'en');
@@ -661,7 +661,7 @@ class DisplayController extends Controller
         }
         unset($obj);
 
-        // Separate broken records (no slug) — admin-only diagnostics
+        // Separate broken records (no slug) - admin-only diagnostics
         $brokenItems = [];
         if (auth()->check() && \AhgCore\Services\AclService::isAdministrator()) {
             $validObjects = [];
@@ -797,7 +797,7 @@ class DisplayController extends Controller
                 'doc.object_type', 'slug.slug'
             );
 
-        // Guests see only published records (status_id 160) — same gate as
+        // Guests see only published records (status_id 160) - same gate as
         // browse()/applyFilters() so this public print view can't leak drafts (#1353).
         if (! auth()->check()) {
             $query->whereExists(function ($sub) {
@@ -915,7 +915,7 @@ class DisplayController extends Controller
                 'repo_name.authorized_form_of_name as repository'
             );
 
-        // Guests see only published records (status_id 160) — same gate as
+        // Guests see only published records (status_id 160) - same gate as
         // browse()/applyFilters() so this public export can't leak drafts (#1353).
         if (! auth()->check()) {
             $query->whereExists(function ($sub) {
@@ -1649,7 +1649,7 @@ class DisplayController extends Controller
     }
 
     /**
-     * Pattern C — read facet term relations from ahg_io_facet_denorm sidecar
+     * Pattern C - read facet term relations from ahg_io_facet_denorm sidecar
      * instead of joining object_term_relation → term, when the flag is on.
      * See docs/adr/0001-atom-base-schema-readonly-sidecar-pattern.md.
      */
@@ -1705,7 +1705,7 @@ class DisplayController extends Controller
      */
     protected function getLiveFacet(string $dimension): array
     {
-        // #errorlog — a facet is a sidebar convenience; a DB hiccup (transient
+        // #errorlog - a facet is a sidebar convenience; a DB hiccup (transient
         // 're-prepare' / table-cache eviction during nightly maintenance) must
         // drop just this facet, never 500 the whole browse page.
         try {

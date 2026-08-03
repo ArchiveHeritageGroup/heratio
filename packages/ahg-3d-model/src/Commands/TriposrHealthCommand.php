@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TriposrHealthCommand — ping the configured TripoSR API and report status.
+ * TriposrHealthCommand - ping the configured TripoSR API and report status.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

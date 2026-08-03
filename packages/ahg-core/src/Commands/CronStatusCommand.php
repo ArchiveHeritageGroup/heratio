@@ -43,7 +43,7 @@ class CronStatusCommand extends Command
                 'success' => '<info>OK</info>',
                 'failed' => '<error>FAIL</error>',
                 'running' => '<comment>RUN</comment>',
-                default => '<fg=gray>—</>',
+                default => '<fg=gray>-</>',
             };
 
             $enabled = $s->is_enabled ? '<info>Yes</info>' : '<fg=gray>No</>';
@@ -52,7 +52,7 @@ class CronStatusCommand extends Command
                 ? ($s->last_run_duration_ms >= 1000
                     ? round($s->last_run_duration_ms / 1000, 1).'s'
                     : $s->last_run_duration_ms.'ms')
-                : '—';
+                : '-';
 
             return [
                 $s->category,
@@ -60,9 +60,9 @@ class CronStatusCommand extends Command
                 $enabled,
                 $s->cron_expression,
                 $status,
-                $s->last_run_at ?? '—',
+                $s->last_run_at ?? '-',
                 $duration,
-                $s->next_run_at ?? '—',
+                $s->next_run_at ?? '-',
                 $s->total_runs,
                 $s->total_failures,
             ];

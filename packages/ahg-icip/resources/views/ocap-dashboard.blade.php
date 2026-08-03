@@ -1,6 +1,6 @@
 {{--
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems / AGPL v3+
-  OCAP overlay dashboard — traffic-light per record across the 4 principles.
+  OCAP overlay dashboard - traffic-light per record across the 4 principles.
 --}}
 @extends('theme::layouts.1col')
 

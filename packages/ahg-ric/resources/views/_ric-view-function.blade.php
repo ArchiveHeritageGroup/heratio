@@ -1,4 +1,4 @@
-{{-- RiC View: Function — ISDF function with related records and sub-functions --}}
+{{-- RiC View: Function - ISDF function with related records and sub-functions --}}
 @php
   $culture = app()->getLocale();
 
@@ -32,7 +32,7 @@
       ->limit(20)
       ->get();
 
-  // Sub-functions — function_object has no parent_id column in Heratio; return empty
+  // Sub-functions - function_object has no parent_id column in Heratio; return empty
   $subFunctions = collect();
 @endphp
 

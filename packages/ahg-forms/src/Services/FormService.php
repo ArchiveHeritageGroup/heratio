@@ -211,7 +211,7 @@ class FormService
      *   1. Active assignment whose repository_id / level_of_description_id / collection_id all match → highest priority wins
      *   2. Active assignment matching any subset of the context (priority order)
      *   3. is_default=1 active template for this form_type (global fallback)
-     *   4. null (no template — caller should fall back to standard edit)
+     *   4. null (no template - caller should fall back to standard edit)
      *
      * @param  string  $formType  e.g. 'information_object', 'actor', 'accession'
      * @param  array<string,mixed>|null  $context  optional: ['repository_id'=>, 'level_of_description_id'=>, 'collection_id'=>]
@@ -258,7 +258,7 @@ class FormService
     }
 
     /**
-     * List all active templates for a form_type — used to render a picker on the standard edit page.
+     * List all active templates for a form_type - used to render a picker on the standard edit page.
      */
     public function getActiveTemplates(string $formType): \Illuminate\Support\Collection
     {
@@ -271,7 +271,7 @@ class FormService
     }
 
     /**
-     * Field mappings for a template — keyed by field_id.
+     * Field mappings for a template - keyed by field_id.
      *
      * @return array<int,array<int,object>> map: field_id => list of mapping rows (a field can map to multiple columns)
      */

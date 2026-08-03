@@ -1,14 +1,14 @@
 <?php
 
 /**
- * BibframeSerializer — BIBFRAME 2.0 RDF/XML serializer.
+ * BibframeSerializer - BIBFRAME 2.0 RDF/XML serializer.
  *
  * Maps Heratio information object fields to the Library of Congress BIBFRAME 2.0
  * vocabulary (https://id.loc.gov/ontologies/bibframe.html). Each serialised
  * record produces a minimal-graph BIBFRAME CHO (Cultural Heritage Object)
  * using bf:Instance / bf:Item / bf:Work / bf:Agent and associated properties.
  *
- * Serialization shape mirrors CrmSerializer + ModsSerializer — the same
+ * Serialization shape mirrors CrmSerializer + ModsSerializer - the same
  * InformationObjectFetcher trait is re-used so field coverage is complete.
  *
  * Copyright (C) 2026 Johan Pieterse
@@ -99,7 +99,7 @@ class BibframeSerializer
      *     bf:itemOf <$instanceUri> ;
      *     bf:shelfMark <$shelfMark> .
      *
-     * Returns empty string on miss — caller (controller, OAI-PMH, bulk export)
+     * Returns empty string on miss - caller (controller, OAI-PMH, bulk export)
      * decides what to do with a blank response.
      */
     public function serializeRecord(int $objectId, string $culture = 'en'): string
@@ -130,7 +130,7 @@ class BibframeSerializer
         $xml .= "<{$workUri}> a bf:Work .\n";
         $xml .= $this->emitTitleStatement($workUri, (string) $io->title);
 
-        // Creators — from event type 111 / entity_type_id 132/130/131
+        // Creators - from event type 111 / entity_type_id 132/130/131
         foreach ($creators as $creator) {
             $agentUri = $this->agentUri((int) $creator->actor_id, (int) ($creator->entity_type_id ?? 0));
             $xml .= "{$workUri} bf:contributor <{$agentUri}> .\n";
@@ -174,7 +174,7 @@ class BibframeSerializer
             $xml .= "{$workUri} bf:language <{$langUri}> .\n";
         }
 
-        // Extent — from extent_and_medium (RDA carrier mapped via carrierType term)
+        // Extent - from extent_and_medium (RDA carrier mapped via carrierType term)
         if (! empty($io->extent_and_medium)) {
             $xml .= "{$workUri} bf:extent <<rdfs:label \"{$this->esc($io->extent_and_medium)}\">> .\n";
         }
@@ -194,13 +194,13 @@ class BibframeSerializer
         $xml .= "{$instanceUri} bf:instanceOf <{$workUri}> .\n";
         $xml .= $this->emitTitleStatement($instanceUri, (string) $io->title);
 
-        // Carrier — RDA carrier type term from extent_and_medium (best-effort)
+        // Carrier - RDA carrier type term from extent_and_medium (best-effort)
         $carrierUri = $this->carrierUriFromExtent((string) ($io->extent_and_medium ?? ''));
         if ($carrierUri !== null) {
             $xml .= "{$instanceUri} bf:carrier <{$carrierUri}> .\n";
         }
 
-        // Origin activity — publication / creation events
+        // Origin activity - publication / creation events
         $pubEvents = array_filter($events->all(), fn ($e) => (int) $e->type_id === 114);
         foreach ($pubEvents as $pub) {
             $actUri = $uri.'/activity/'.$pub->id;
@@ -220,7 +220,7 @@ class BibframeSerializer
             $xml .= "{$instanceUri} bf:originActivity <{$actUri}> .\n";
         }
 
-        // Identifier — institutional identifier (io.identifier)
+        // Identifier - institutional identifier (io.identifier)
         if (! empty($io->identifier)) {
             $xml .= "{$instanceUri} bf:identifiedBy << a bf:Local ; bf:source << a bf:Source ; rdfs:label \"{$this->esc($io->identifier)}\">>>> .\n";
         }
@@ -270,7 +270,7 @@ class BibframeSerializer
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     }
 
-    /** Turtle prefix block — shared across Work / Instance / Item graphs. */
+    /** Turtle prefix block - shared across Work / Instance / Item graphs. */
     private function prefixDeclarations(): string
     {
         return $this->indent(
@@ -324,7 +324,7 @@ class BibframeSerializer
         return config('app.url', 'http://localhost') . "/actor/{$actorId}#{$typeKey}";
     }
 
-    /** Language URI — use ISO 639-1 code via loc.gov. */
+    /** Language URI - use ISO 639-1 code via loc.gov. */
     private function langUri(string $langName): string
     {
         static $map = [
@@ -423,7 +423,7 @@ class BibframeSerializer
         return implode("\n", $lines) . "\n";
     }
 
-    /** Escape a string for Turtle — backslash-escape quotes and backslashes. */
+    /** Escape a string for Turtle - backslash-escape quotes and backslashes. */
     private function esc(string $s): string
     {
         return str_replace(['\\', '"', "\n", "\r", "\t"], ['\\\\', '\\"', '\\n', '\\r', '\\t'], $s);

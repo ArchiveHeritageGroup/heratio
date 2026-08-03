@@ -91,7 +91,7 @@
     clone.querySelectorAll('input[type="radio"][value="1"]').forEach(function (r) { r.checked = true; });
 
     var caption = clone.querySelector('caption span');
-    if (caption) caption.textContent = name + ' (newly added — review and Save)';
+    if (caption) caption.textContent = name + ' (newly added - review and Save)';
 
     // Visual highlight so the user notices the new section
     clone.style.outline = '2px solid var(--ahg-primary, #005837)';

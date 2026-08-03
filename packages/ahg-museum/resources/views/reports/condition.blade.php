@@ -1,4 +1,4 @@
-{{-- Condition Report — cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
+{{-- Condition Report - cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
 @extends('theme::layouts.2col')
 @section('title', 'Condition Report')
 @section('body-class', 'museum-reports condition')

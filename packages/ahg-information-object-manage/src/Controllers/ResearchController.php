@@ -94,7 +94,7 @@ class ResearchController extends Controller
 
     /**
      * Annotation studio for an IO.
-     * Migrated from ahgResearchPlugin annotationStudio action — uses research_annotation_v2 + research_annotation_target (W3C Web Annotation model).
+     * Migrated from ahgResearchPlugin annotationStudio action - uses research_annotation_v2 + research_annotation_target (W3C Web Annotation model).
      */
     public function annotations(Request $request, string $slug)
     {
@@ -363,7 +363,7 @@ class ResearchController extends Controller
     }
 
     /**
-     * Research dashboard — redirect to main research dashboard.
+     * Research dashboard - redirect to main research dashboard.
      */
     public function dashboard()
     {

@@ -106,7 +106,7 @@ class DcManageController extends Controller
         // ── GET: load related data for the form ──
         $dropdowns = $this->getFormDropdowns($culture);
 
-        // Events (dates) — DC uses dcDates component
+        // Events (dates) - DC uses dcDates component
         $events = DB::table('event')
             ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
             ->where('event.object_id', $io->id)

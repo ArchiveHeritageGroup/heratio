@@ -132,7 +132,7 @@ class ReplicationPackController extends Controller
         if (! $project) {
             abort(404, 'Project not found');
         }
-        // #1395(G) — project private to owner / collaborators / admins (IDOR).
+        // #1395(G) - project private to owner / collaborators / admins (IDOR).
         $isAdmin = \AhgCore\Services\AclService::canAdmin((int) Auth::id());
         $isOwner = (int) ($project->owner_id ?? 0) === (int) ($researcher->id ?? 0);
         $isCollab = \Illuminate\Support\Facades\Schema::hasTable('research_project_collaborator')

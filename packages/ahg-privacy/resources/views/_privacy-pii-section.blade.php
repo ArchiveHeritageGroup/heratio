@@ -1,10 +1,10 @@
 {{--
-  Privacy & PII status panel — visible to authenticated users on the IO show page.
+  Privacy & PII status panel - visible to authenticated users on the IO show page.
 
   Vars: $resource (object with ->id and ->slug).
 
   PII presence is detected directly from privacy_visual_redaction:
-    - any pending region   ⇒ "PII detected — review recommended"
+    - any pending region   ⇒ "PII detected - review recommended"
     - any approved region  ⇒ "Record contains redacted PII"
   The panel is hidden when neither applies (no PII flags on this record).
 
@@ -41,7 +41,7 @@
         @endif
         @if ($hasPii && ! $hasRedacted)
             <div class="alert alert-warning mb-2 py-2">
-                <i class="fas fa-exclamation-triangle me-2"></i>{{ __('PII detected in this record — review recommended.') }}
+                <i class="fas fa-exclamation-triangle me-2"></i>{{ __('PII detected in this record - review recommended.') }}
             </div>
         @endif
         <a href="{{ $reviewHref }}" class="btn btn-sm btn-outline-primary">

@@ -1,5 +1,5 @@
 {{--
-  Add / Link a digital object — dedicated 1-col page.
+  Add / Link a digital object - dedicated 1-col page.
   Cloned from atom-ahg-plugins/ahgThemeB5Plugin/modules/object/templates/addDigitalObjectSuccess.php
 
   @copyright  Johan Pieterse / Plain Sailing
@@ -446,7 +446,7 @@
         if (xhr.status >= 200 && xhr.status < 400) {
           progBar.style.width = '100%';
           progStat.textContent = 'Done. Redirecting …';
-          // Server redirects to the IO show page on success — follow it.
+          // Server redirects to the IO show page on success - follow it.
           window.location = (xhr.responseURL || ('/' + @json($resource->slug)));
         } else {
           progStat.textContent = 'Upload failed: HTTP ' + xhr.status;

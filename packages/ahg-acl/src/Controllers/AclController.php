@@ -60,7 +60,7 @@ class AclController extends Controller
      * POST: Update permissions for the group.
      */
     /**
-     * Profile tab — name / description / translate flag, plus member CRUD.
+     * Profile tab - name / description / translate flag, plus member CRUD.
      * (Issue #50 Phase 1: replaces the previous flat add/delete-permission
      * form. The four per-entity tabs handle scoped permissions.)
      */
@@ -566,7 +566,7 @@ class AclController extends Controller
     }
 
     /**
-     * My Access Requests — user's own requests, clearance status, access grants.
+     * My Access Requests - user's own requests, clearance status, access grants.
      * Migrated from AtoM: ahgAccessRequestPlugin/modules/accessRequest/actions/myRequests
      */
     public function myRequests(Request $request)
@@ -608,7 +608,7 @@ class AclController extends Controller
     }
 
     /**
-     * Pending Access Requests — admin/approver review page with stats.
+     * Pending Access Requests - admin/approver review page with stats.
      * Migrated from AtoM: ahgAccessRequestPlugin/modules/accessRequest/actions/pending
      */
     public function pendingRequests(Request $request)
@@ -655,7 +655,7 @@ class AclController extends Controller
         $limit = in_array($limit, [25, 50, 100, 250]) ? $limit : 50;
         $format = $request->string('format')->lower()->toString();
 
-        // Base query — same joins as getSecurityAuditLog but filterable & paginatable
+        // Base query - same joins as getSecurityAuditLog but filterable & paginatable
         $query = DB::table('security_audit_log as sal')
             ->leftJoin('user as u', 'u.id', '=', 'sal.user_id')
             ->leftJoin('actor_i18n as ai', function ($j) {
@@ -684,7 +684,7 @@ class AclController extends Controller
             $query->where('sal.created_at', '<=', $filters['to_date'].' 23:59:59');
         }
 
-        // CSV / JSON export — return all rows matching the filters (no pagination cap)
+        // CSV / JSON export - return all rows matching the filters (no pagination cap)
         if ($format === 'csv' || $format === 'json') {
             $rows = $query->orderByDesc('sal.created_at')->limit(50000)->get();
 

@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/term/autocomplete', [TermController::class, 'autocomplete'])->name('term.autocomplete');
 Route::get('/taxonomy/autocomplete', [TermController::class, 'taxonomyAutocomplete'])->name('taxonomy.autocomplete');
 
-// SKOS import/export — must be registered BEFORE the {slug} catch-all
+// SKOS import/export - must be registered BEFORE the {slug} catch-all
 Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/term/import/skos', [TermController::class, 'importSkos'])->name('term.import.skos')->middleware('acl:createTerm'); // #1349 bulk vocab mutation must carry the same ACL grant as term.store
 });

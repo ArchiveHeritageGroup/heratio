@@ -2,7 +2,7 @@
 @section('sidebar')
     @include('research::research._sidebar', ['sidebarActive' => 'workspace'])
 @endsection
-@section('title', 'Trust Score — ' . ($io->title ?? ''))
+@section('title', 'Trust Score - ' . ($io->title ?? ''))
 
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
@@ -211,7 +211,7 @@
                         <td>{{ e(($h->assessor_first_name ?? '') . ' ' . ($h->assessor_last_name ?? '')) }}</td>
                         <td><span class="badge bg-{{ $hBadge }}">{{ ucfirst($h->source_type) }}</span></td>
                         <td>{{ ucfirst(str_replace('_', ' ', $h->completeness)) }}</td>
-                        <td>{{ $h->trust_score !== null ? $h->trust_score . '/100' : '—' }}</td>
+                        <td>{{ $h->trust_score !== null ? $h->trust_score . '/100' : '-' }}</td>
                         <td>{{ $h->assessed_at ? date('M j, Y H:i', strtotime($h->assessed_at)) : '' }}</td>
                     </tr>
                 @endforeach

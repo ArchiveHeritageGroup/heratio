@@ -1,11 +1,11 @@
 <?php
 
 /**
- * LinkedDataSyncCommand — refresh authority linkages against VIAF / Wikidata / Getty.
+ * LinkedDataSyncCommand - refresh authority linkages against VIAF / Wikidata / Getty.
  *
  * Reads existing actor/term records that already have an external URI
  * stored, fetches the current label, and updates the local cache.
- * No record is created without an existing URI — discovery (NER / lookup)
+ * No record is created without an existing URI - discovery (NER / lookup)
  * is run by ahg:authority-ner-pipeline.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems

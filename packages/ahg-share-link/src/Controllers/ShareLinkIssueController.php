@@ -1,14 +1,14 @@
 <?php
 
 /**
- * ShareLinkIssueController — authenticated issuance endpoint.
+ * ShareLinkIssueController - authenticated issuance endpoint.
  *
  * Route: POST /share-link/issue (registered behind the `web` + `auth` stack).
  * Mirrors the AtoM POST /shareLink/issue contract.
  *
  * Body fields:
  *   information_object_id (int, required)
- *   expires_at            (string, optional — date or datetime)
+ *   expires_at            (string, optional - date or datetime)
  *   recipient_email       (string, optional)
  *   recipient_note        (string, optional)
  *   max_access            (int, optional)

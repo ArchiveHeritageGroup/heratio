@@ -16,7 +16,7 @@ class PortableCleanupCommand extends Command
     public function handle(): int
     {
         if (! Schema::hasTable('portable_export')) {
-            $this->warn('portable_export table missing — nothing to do.');
+            $this->warn('portable_export table missing - nothing to do.');
 
             return self::SUCCESS;
         }

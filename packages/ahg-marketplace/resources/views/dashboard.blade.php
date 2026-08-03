@@ -1,5 +1,5 @@
 {{--
-  Seller Dashboard — Heratio Marketplace.
+  Seller Dashboard - Heratio Marketplace.
   Receives: $seller, $stats, $recentTransactions, $pendingOfferCount,
             $recentListings (top 10), $recentListingsTotal, $recentOffers (top 5).
 --}}
@@ -326,15 +326,15 @@
         </div>
         <div class="col-md-4">
           <div class="text-muted">Email</div>
-          <div>{{ $seller->email ?: '—' }}</div>
+          <div>{{ $seller->email ?: '-' }}</div>
         </div>
         <div class="col-md-4">
           <div class="text-muted">Phone</div>
-          <div>{{ $seller->phone ?: '—' }}</div>
+          <div>{{ $seller->phone ?: '-' }}</div>
         </div>
         <div class="col-md-4">
           <div class="text-muted">Country / city</div>
-          <div>{{ trim(($seller->city ?? '') . ($seller->country ? ', ' . $seller->country : ''), ', ') ?: '—' }}</div>
+          <div>{{ trim(($seller->city ?? '') . ($seller->country ? ', ' . $seller->country : ''), ', ') ?: '-' }}</div>
         </div>
         <div class="col-md-4">
           <div class="text-muted">Commission rate</div>
@@ -342,7 +342,7 @@
         </div>
         <div class="col-md-4">
           <div class="text-muted">Payout method</div>
-          <div>{{ $seller->payout_method ?: '—' }} ({{ $seller->payout_currency ?: 'ZAR' }})</div>
+          <div>{{ $seller->payout_method ?: '-' }} ({{ $seller->payout_currency ?: 'ZAR' }})</div>
         </div>
         <div class="col-md-4">
           <div class="text-muted">Sectors</div>
@@ -353,12 +353,12 @@
             @foreach($sectors as $s)
               <span class="badge bg-light text-dark border me-1">{{ $s }}</span>
             @endforeach
-            @if(empty($sectors))<span class="text-muted">—</span>@endif
+            @if(empty($sectors))<span class="text-muted">-</span>@endif
           </div>
         </div>
         <div class="col-md-8">
           <div class="text-muted">Bio</div>
-          <div>{{ $seller->bio ?: '—' }}</div>
+          <div>{{ $seller->bio ?: '-' }}</div>
         </div>
       </div>
     </div>

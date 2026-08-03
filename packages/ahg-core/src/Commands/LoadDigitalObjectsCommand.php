@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LoadDigitalObjectsCommand — batch attach digital files under a parent IO.
+ * LoadDigitalObjectsCommand - batch attach digital files under a parent IO.
  *
  * Walks a source directory, creates child information_object records
  * under the supplied parent slug, and uploads each file as the master
@@ -81,7 +81,7 @@ class LoadDigitalObjectsCommand extends Command
                 }
             } catch (\Throwable $e) {
                 $failed++;
-                $this->warn(sprintf('  FAIL %s — %s', basename($file), $e->getMessage()));
+                $this->warn(sprintf('  FAIL %s - %s', basename($file), $e->getMessage()));
             }
         }
         $this->info("loaded={$loaded} failed={$failed}");

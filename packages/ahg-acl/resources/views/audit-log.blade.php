@@ -126,9 +126,9 @@
             <td>
               <span class="badge {{ $badge }}">{{ $log->action }}</span>
             </td>
-            <td>{{ $log->object_type ?? '—' }}</td>
-            <td>{{ $log->object_id ?? '—' }}</td>
-            <td><small><code>{{ $log->ip_address ?? '—' }}</code></small></td>
+            <td>{{ $log->object_type ?? '-' }}</td>
+            <td>{{ $log->object_id ?? '-' }}</td>
+            <td><small><code>{{ $log->ip_address ?? '-' }}</code></small></td>
             <td class="text-end">
               @if(!empty($log->details))
                 <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#auditDetailModal-{{ $log->id }}" title="{{ __('View Details') }}">
@@ -157,8 +157,8 @@
                               @foreach($changed as $field)
                                 <tr>
                                   <td><code>{{ $field }}</code></td>
-                                  <td class="small text-danger" style="white-space:pre-wrap;">{{ is_scalar($d['before'][$field] ?? null) ? ($d['before'][$field] ?? '—') : json_encode($d['before'][$field] ?? null, JSON_UNESCAPED_UNICODE) }}</td>
-                                  <td class="small text-success" style="white-space:pre-wrap;">{{ is_scalar($d['after'][$field] ?? null)  ? ($d['after'][$field]  ?? '—') : json_encode($d['after'][$field]  ?? null, JSON_UNESCAPED_UNICODE) }}</td>
+                                  <td class="small text-danger" style="white-space:pre-wrap;">{{ is_scalar($d['before'][$field] ?? null) ? ($d['before'][$field] ?? '-') : json_encode($d['before'][$field] ?? null, JSON_UNESCAPED_UNICODE) }}</td>
+                                  <td class="small text-success" style="white-space:pre-wrap;">{{ is_scalar($d['after'][$field] ?? null)  ? ($d['after'][$field]  ?? '-') : json_encode($d['after'][$field]  ?? null, JSON_UNESCAPED_UNICODE) }}</td>
                                 </tr>
                               @endforeach
                             </tbody>
@@ -166,7 +166,7 @@
                         @elseif(($isCreate || $isDelete) && !empty($snapshot))
                           <h6 class="mb-2 small text-uppercase {{ $isCreate ? 'text-success' : 'text-danger' }}">
                             <i class="fas fa-{{ $isCreate ? 'plus-circle' : 'trash-alt' }} me-1"></i>
-                            {{ $isCreate ? __('Created — initial values') : __('Deleted — last known values') }}
+                            {{ $isCreate ? __('Created - initial values') : __('Deleted - last known values') }}
                           </h6>
                           <table class="table table-sm table-striped mb-3">
                             <thead><tr><th>{{ __('Field') }}</th><th>{{ __('Value') }}</th></tr></thead>

@@ -28,7 +28,7 @@ class ChatbotController extends Controller
     }
 
     /**
-     * GET /chatbot — chat UI.
+     * GET /chatbot - chat UI.
      */
     public function index(Request $request)
     {
@@ -76,7 +76,7 @@ class ChatbotController extends Controller
     }
 
     /**
-     * POST /chatbot/message — send a message (JSON API).
+     * POST /chatbot/message - send a message (JSON API).
      */
     public function message(Request $request): JsonResponse
     {
@@ -142,7 +142,7 @@ class ChatbotController extends Controller
     }
 
     /**
-     * GET /chatbot/history — load session history.
+     * GET /chatbot/history - load session history.
      */
     public function history(Request $request): JsonResponse
     {
@@ -154,7 +154,7 @@ class ChatbotController extends Controller
     }
 
     /**
-     * POST /chatbot/reset — clear session.
+     * POST /chatbot/reset - clear session.
      */
     public function reset(Request $request): JsonResponse
     {
@@ -165,7 +165,7 @@ class ChatbotController extends Controller
     }
 
     /**
-     * GET /admin/chatbot — admin dashboard.
+     * GET /admin/chatbot - admin dashboard.
      */
     public function admin()
     {
@@ -176,7 +176,7 @@ class ChatbotController extends Controller
     }
 
     /**
-     * GET /admin/chatbot/review — low-grounding review queue.
+     * GET /admin/chatbot/review - low-grounding review queue.
      */
     public function review()
     {

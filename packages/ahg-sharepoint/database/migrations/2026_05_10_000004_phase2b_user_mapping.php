@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Phase 2.B — sharepoint_user_mapping table.
+ * Phase 2.B - sharepoint_user_mapping table.
  * Mirror of atom-ahg-plugins/ahgSharePointPlugin/database/migrations/20260510_phase2b_user_mapping.sql.
  */
 return new class extends Migration

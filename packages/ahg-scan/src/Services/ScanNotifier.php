@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ScanNotifier — Heratio ahg-scan (P6)
+ * ScanNotifier - Heratio ahg-scan (P6)
  *
  * Sends a terse failure email to the folder's configured recipients when
  * a file fails after all retries have been exhausted. Uses Laravel's
@@ -51,7 +51,7 @@ class ScanNotifier
             return;
         }
 
-        $subject = "[Heratio scanner] {$row->folder_code}: ingest failed — ".$row->original_name;
+        $subject = "[Heratio scanner] {$row->folder_code}: ingest failed - ".$row->original_name;
         $inboxUrl = rtrim(config('app.url') ?: '', '/').'/admin/scan/inbox/'.$row->id;
 
         $body = <<<TXT

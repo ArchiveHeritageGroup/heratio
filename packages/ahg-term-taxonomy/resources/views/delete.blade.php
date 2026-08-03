@@ -59,9 +59,9 @@
                     Event #{{ $evt->event_id }}
                   @endif
                   @if($evt->date_display)
-                    &mdash; {{ $evt->date_display }}
+                    - {{ $evt->date_display }}
                   @elseif($evt->start_date || $evt->end_date)
-                    &mdash; {{ $evt->start_date ?? '' }}{{ ($evt->start_date && $evt->end_date) ? ' - ' : '' }}{{ $evt->end_date ?? '' }}
+                    - {{ $evt->start_date ?? '' }}{{ ($evt->start_date && $evt->end_date) ? ' - ' : '' }}{{ $evt->end_date ?? '' }}
                   @endif
                 </li>
               @endforeach

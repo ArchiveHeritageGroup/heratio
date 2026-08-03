@@ -45,7 +45,7 @@
 @endif
 @endif
 
-{{-- Provenance — suppressed when the parent show page already renders a
+{{-- Provenance - suppressed when the parent show page already renders a
      Provenance entry in the left sidebar (e.g. DAM Collections Management
      card). Pass `hideProvenance => true` from those views. --}}
 @if(empty($hideProvenance) && \Illuminate\Support\Facades\Route::has('io.provenance') && $__slug)
@@ -69,7 +69,7 @@
 @endif
 @endif
 
-{{-- Rights — suppressed when the parent show page renders its own Rights
+{{-- Rights - suppressed when the parent show page renders its own Rights
      card in the left sidebar. Pass `hideRights => true` from those views. --}}
 @auth
 @if(empty($hideRights) && \Illuminate\Support\Facades\Route::has('io.rights.extended') && $__slug)
@@ -110,7 +110,7 @@
 @endif
 @endauth
 
-{{-- NER — suppressed when the parent show page renders its own AI Tools
+{{-- NER - suppressed when the parent show page renders its own AI Tools
      card in the left sidebar (museum, IO, library). Pass `hideNer => true`
      when including this partial from those views. --}}
 @auth
@@ -131,7 +131,7 @@
 @endif
 @endauth
 
-{{-- Export — suppressed when the parent show page already renders an Export
+{{-- Export - suppressed when the parent show page already renders an Export
      card via _right-blocks. Pass `hideExport => true` from those views. --}}
 @if(empty($hideExport) && $__slug)
   <div class="card mb-3">

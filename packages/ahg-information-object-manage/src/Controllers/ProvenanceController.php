@@ -117,7 +117,7 @@ class ProvenanceController extends Controller
             'is_public'                   => 'nullable|boolean',
         ]);
 
-        // Unchecked checkboxes don't post — normalise to 0 so they can be cleared.
+        // Unchecked checkboxes don't post - normalise to 0 so they can be cleared.
         foreach (['has_gaps', 'nazi_era_provenance_checked', 'is_complete', 'is_public'] as $flag) {
             $validated[$flag] = (int) ($request->boolean($flag));
         }
@@ -380,7 +380,7 @@ class ProvenanceController extends Controller
     }
 
     /**
-     * Stream a stored supporting document. Private by default — only public
+     * Stream a stored supporting document. Private by default - only public
      * documents are anonymously downloadable; everything else needs auth.
      */
     public function downloadDocument(int $id)

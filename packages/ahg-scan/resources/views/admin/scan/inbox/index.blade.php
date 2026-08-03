@@ -21,7 +21,7 @@
         <div class="col-md-3">
             <label class="form-label">{{ __('Status') }}</label>
             <select name="status" class="form-select form-select-sm">
-                <option value="">— All —</option>
+                <option value="">- All -</option>
                 @foreach($statuses as $s)
                     <option value="{{ $s }}" {{ $status === $s ? 'selected' : '' }}>{{ $s }}</option>
                 @endforeach
@@ -30,7 +30,7 @@
         <div class="col-md-3">
             <label class="form-label">{{ __('Folder') }}</label>
             <select name="folder" class="form-select form-select-sm">
-                <option value="">— All —</option>
+                <option value="">- All -</option>
                 @foreach($folders as $f)
                     <option value="{{ $f->code }}" {{ $folder === $f->code ? 'selected' : '' }}>{{ $f->label }}</option>
                 @endforeach
@@ -57,7 +57,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-2">
             <small class="text-muted">
-                Showing {{ $files->firstItem() }}–{{ $files->lastItem() }} of {{ $files->total() }}
+                Showing {{ $files->firstItem() }}-{{ $files->lastItem() }} of {{ $files->total() }}
             </small>
             <div class="btn-group btn-group-sm">
                 <button type="submit" name="action" value="retry" class="btn btn-outline-primary" data-confirm="Retry selected files?">
@@ -90,19 +90,19 @@
                     <tr>
                         <td><input type="checkbox" class="bulk-item" name="ids[]" value="{{ $f->id }}"></td>
                         <td><a href="{{ route('scan.inbox.show', $f->id) }}">{{ $f->id }}</a></td>
-                        <td><small><code>{{ $f->folder_code ?? '—' }}</code></small></td>
+                        <td><small><code>{{ $f->folder_code ?? '-' }}</code></small></td>
                         <td><small>{{ $f->original_name }}</small></td>
-                        <td><small class="text-muted">{{ $f->file_size ? number_format($f->file_size / 1024, 0) . ' KB' : '—' }}</small></td>
+                        <td><small class="text-muted">{{ $f->file_size ? number_format($f->file_size / 1024, 0) . ' KB' : '-' }}</small></td>
                         <td>
                             @php $colors = ['pending'=>'secondary','processing'=>'primary','done'=>'success','failed'=>'danger','duplicate'=>'warning','quarantined'=>'warning','awaiting_rights'=>'info']; @endphp
                             <span class="badge bg-{{ $colors[$f->status] ?? 'secondary' }}">{{ $f->status }}</span>
                         </td>
-                        <td><small class="text-muted">{{ $f->stage ?? '—' }}</small></td>
+                        <td><small class="text-muted">{{ $f->stage ?? '-' }}</small></td>
                         <td>
                             @if($f->resolved_io_id)
                                 <a href="{{ url('/informationobject/' . $f->resolved_io_id) }}">#{{ $f->resolved_io_id }}</a>
                             @else
-                                <small class="text-muted">—</small>
+                                <small class="text-muted">-</small>
                             @endif
                         </td>
                         <td>{{ $f->attempts }}</td>

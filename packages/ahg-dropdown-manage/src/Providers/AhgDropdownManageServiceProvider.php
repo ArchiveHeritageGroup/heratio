@@ -23,7 +23,7 @@ class AhgDropdownManageServiceProvider extends ServiceProvider
     }
 
     /**
-     * Issue #59 Phase 1 — idempotent install of ahg_dropdown_i18n + en seed.
+     * Issue #59 Phase 1 - idempotent install of ahg_dropdown_i18n + en seed.
      *
      * Runs at most once per row (the en seed is gated by a NOT-EXISTS check).
      * Failures are swallowed because a fresh install runs before ahg_dropdown
@@ -41,7 +41,7 @@ class AhgDropdownManageServiceProvider extends ServiceProvider
                     DB::unprepared($sql);
                 }
             }
-            // Seed en rows that don't have an i18n row yet — LEFT JOIN ...
+            // Seed en rows that don't have an i18n row yet - LEFT JOIN ...
             // WHERE i18n.id IS NULL touches only the gaps, so this is a no-op
             // once fully seeded.
             if (Schema::hasTable('ahg_dropdown_i18n')) {
@@ -55,7 +55,7 @@ class AhgDropdownManageServiceProvider extends ServiceProvider
                 ");
             }
         } catch (\Throwable $e) {
-            // Boot must never throw — missing parent table on a fresh install
+            // Boot must never throw - missing parent table on a fresh install
             // is the expected case; the next boot after install seeds it.
         }
     }

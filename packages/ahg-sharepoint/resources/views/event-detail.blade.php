@@ -5,13 +5,13 @@
 
 <dl class="row">
     <dt class="col-sm-3">{{ __('Received') }}</dt><dd class="col-sm-9">{{ $event->received_at }}</dd>
-    <dt class="col-sm-3">{{ __('Processed') }}</dt><dd class="col-sm-9">{{ $event->processed_at ?? '—' }}</dd>
+    <dt class="col-sm-3">{{ __('Processed') }}</dt><dd class="col-sm-9">{{ $event->processed_at ?? '-' }}</dd>
     <dt class="col-sm-3">{{ __('Status') }}</dt><dd class="col-sm-9"><code>{{ $event->status }}</code></dd>
     <dt class="col-sm-3">{{ __('Attempts') }}</dt><dd class="col-sm-9">{{ $event->attempts }}</dd>
     <dt class="col-sm-3">{{ __('Drive') }}</dt><dd class="col-sm-9">{{ $event->drive_id }}</dd>
-    <dt class="col-sm-3">{{ __('SP item') }}</dt><dd class="col-sm-9 small text-muted">{{ $event->sp_item_id ?? '—' }}</dd>
-    <dt class="col-sm-3">{{ __('eTag') }}</dt><dd class="col-sm-9 small text-muted">{{ $event->sp_etag ?? '—' }}</dd>
-    <dt class="col-sm-3">{{ __('Heratio info_object') }}</dt><dd class="col-sm-9">{{ $event->information_object_id ?? '—' }}</dd>
+    <dt class="col-sm-3">{{ __('SP item') }}</dt><dd class="col-sm-9 small text-muted">{{ $event->sp_item_id ?? '-' }}</dd>
+    <dt class="col-sm-3">{{ __('eTag') }}</dt><dd class="col-sm-9 small text-muted">{{ $event->sp_etag ?? '-' }}</dd>
+    <dt class="col-sm-3">{{ __('Heratio info_object') }}</dt><dd class="col-sm-9">{{ $event->information_object_id ?? '-' }}</dd>
 </dl>
 
 @if (!empty($event->last_error))

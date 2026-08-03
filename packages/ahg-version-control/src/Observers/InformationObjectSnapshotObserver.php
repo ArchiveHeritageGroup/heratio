@@ -1,7 +1,7 @@
 <?php
 
 /**
- * InformationObjectSnapshotObserver — Eloquent observer that writes a version
+ * InformationObjectSnapshotObserver - Eloquent observer that writes a version
  * row whenever an InformationObject is saved.
  *
  * Respects VersionContext::isSkipped() for bulk-import paths that want to emit

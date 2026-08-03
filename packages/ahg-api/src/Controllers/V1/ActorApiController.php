@@ -226,7 +226,7 @@ class ActorApiController extends Controller
             ->get();
 
         // Strip personal contact PII (email/telephone/fax/street_address) for
-        // anonymous callers. This is actor (person/family/corporate-body) PII —
+        // anonymous callers. This is actor (person/family/corporate-body) PII -
         // a public repository's contact details are handled elsewhere and stay.
         if (! $isStaff) {
             $contacts = $contacts->map(function ($c) {
@@ -251,7 +251,7 @@ class ActorApiController extends Controller
             ->where('information_object.id', '!=', 1);
 
         // Anonymous callers only see links to Published records (status.type_id=158,
-        // status_id=160) — never leak a draft record via an actor's relations.
+        // status_id=160) - never leak a draft record via an actor's relations.
         if (! $isStaff) {
             $relatedResourcesQuery->join('status', function ($j) {
                 $j->on('information_object.id', '=', 'status.object_id')

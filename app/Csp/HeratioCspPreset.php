@@ -1,16 +1,16 @@
 <?php
 
 /**
- * HeratioCspPreset — defense-in-depth CSP for the Heratio platform.
+ * HeratioCspPreset - defense-in-depth CSP for the Heratio platform.
  *
  * Allowlists:
- *   self                 — default for everything
- *   nonce                — auto-injected by spatie/laravel-csp into <script> / <style> tags
- *   jsdelivr / cdnjs     — Bootstrap, Font Awesome, the AtoM-era theme bundle
- *   Google Fonts         — fonts.googleapis.com (CSS) + fonts.gstatic.com (font files)
- *   data: in img-src     — needed for SVG-as-data-URL icons embedded in views
- *   https: in img-src    — registry/institutions/vendors host external logo URLs
- *   IIIF (Cantaloupe)    — local proxy on /iiif/, OpenSeadragon needs blob:
+ *   self                 - default for everything
+ *   nonce                - auto-injected by spatie/laravel-csp into <script> / <style> tags
+ *   jsdelivr / cdnjs     - Bootstrap, Font Awesome, the AtoM-era theme bundle
+ *   Google Fonts         - fonts.googleapis.com (CSS) + fonts.gstatic.com (font files)
+ *   data: in img-src     - needed for SVG-as-data-URL icons embedded in views
+ *   https: in img-src    - registry/institutions/vendors host external logo URLs
+ *   IIIF (Cantaloupe)    - local proxy on /iiif/, OpenSeadragon needs blob:
  *
  * Soft-rollout intent: install this in `report_only_presets` first to log
  * violations without breaking pages, then promote to `presets` once the
@@ -45,7 +45,7 @@ class HeratioCspPreset implements Preset
             // admin UI uses inline event-handler attributes (onclick=, onchange=,
             // ...) pervasively. CSP nonces apply to <script> tags but CANNOT be
             // attached to inline event handlers, and the presence of a nonce makes
-            // the browser ignore 'unsafe-inline' — so a nonce-source silently
+            // the browser ignore 'unsafe-inline' - so a nonce-source silently
             // breaks every inline handler (buttons do nothing). Until those
             // handlers are migrated to addEventListener, keep 'unsafe-inline' for
             // scripts (mirrors the style-src decision below).

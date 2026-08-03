@@ -1,4 +1,4 @@
-{{-- heratio#143 Phase 3 — drag-drop workflow designer (drawflow.js canvas) --}}
+{{-- heratio#143 Phase 3 - drag-drop workflow designer (drawflow.js canvas) --}}
 @extends('theme::layouts.1col')
 
 @section('title', __('Designer: :name', ['name' => $workflow->name]))
@@ -61,7 +61,7 @@
     <div class="alert alert-warning mt-3">
       {{ __('This workflow has no steps yet.') }}
       <a href="{{ route('workflow.admin.edit', $workflow->id) }}">{{ __('Add steps first') }}</a>
-      {{ __('— then come back here to connect them.') }}
+      {{ __('- then come back here to connect them.') }}
     </div>
   @endif
 

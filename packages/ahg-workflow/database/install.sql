@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-workflow — install schema
+-- ahg-workflow - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgWorkflowPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -332,7 +332,7 @@ INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `code`, `label`
 ('workflow_escalation_action', 'Workflow Escalation Action', 'auto_reassign', 'Auto-Reassign', '#dc3545', 'fa-exchange-alt', 3, 1, 'workflow');
 
 -- ============================================================================
--- heratio#143 Phase 3 — workflow graph edges (drag-drop designer support).
+-- heratio#143 Phase 3 - workflow graph edges (drag-drop designer support).
 -- Optional; when present, the diagram renderer uses these edges to model
 -- branching/parallel flow. When absent, the renderer falls back to
 -- ahg_workflow_step.step_order (linear).
@@ -342,7 +342,7 @@ CREATE TABLE IF NOT EXISTS ahg_workflow_edge (
     workflow_id INT NOT NULL,
     from_step_id INT NOT NULL,
     to_step_id INT NOT NULL,
-    condition_expr VARCHAR(500) NULL COMMENT 'optional gating expression — free text for now, structure later',
+    condition_expr VARCHAR(500) NULL COMMENT 'optional gating expression - free text for now, structure later',
     created_at TIMESTAMP NULL,
     updated_at TIMESTAMP NULL,
     UNIQUE KEY uq_workflow_edge (workflow_id, from_step_id, to_step_id),
@@ -355,7 +355,7 @@ CREATE TABLE IF NOT EXISTS ahg_workflow_edge (
 );
 
 -- ============================================================================
--- Spectrum Phase C — per-object compliance cache + cross-procedure chain rules
+-- Spectrum Phase C - per-object compliance cache + cross-procedure chain rules
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS ahg_spectrum_object_compliance (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

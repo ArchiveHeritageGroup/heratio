@@ -1,7 +1,7 @@
 <?php
 
 /**
- * GenerateMediaDerivativesJob — Heratio ahg-core
+ * GenerateMediaDerivativesJob - Heratio ahg-core
  *
  * Queued wrapper around MediaDerivativeService::generateForMaster().
  *
@@ -111,7 +111,7 @@ class GenerateMediaDerivativesJob implements ShouldQueue
                 'updated_at' => now(),
             ]);
         } catch (\Throwable) {
-            // DB may be unavailable in the failed() context — skip.
+            // DB may be unavailable in the failed() context - skip.
         }
     }
 

@@ -1,11 +1,11 @@
 <?php
 
 /**
- * FormatIdService — Heratio ahg-scan (P4)
+ * FormatIdService - Heratio ahg-scan (P4)
  *
  * Identifies the technical format of a staged file via the PRONOM vocabulary.
  *
- *   Primary tool:    siegfried (`sf -json`) — DROID-compatible, fast, open.
+ *   Primary tool:    siegfried (`sf -json`) - DROID-compatible, fast, open.
  *   Fallback:        GNU `file --mime-type` when siegfried isn't installed.
  *
  * Writes to `preservation_format` (registry), and the caller emits a
@@ -57,12 +57,12 @@ class FormatIdService
             return $result;
         }
 
-        // 1. siegfried — preferred
+        // 1. siegfried - preferred
         $sf = trim((string) @shell_exec('command -v sf 2>/dev/null'));
         if ($sf !== '') {
             $result = array_merge($result, self::runSiegfried($sf, $filePath));
         } else {
-            // 2. file command — fallback, no PUID, just MIME
+            // 2. file command - fallback, no PUID, just MIME
             $file = trim((string) @shell_exec('command -v file 2>/dev/null'));
             if ($file !== '') {
                 $mime = trim((string) @shell_exec($file.' --mime-type --brief '.escapeshellarg($filePath).' 2>/dev/null'));
@@ -156,7 +156,7 @@ class FormatIdService
 
     /**
      * Record an obsolete-format observation so migration planners can
-     * surface it. Idempotent per (format_id, puid) — increments the
+     * surface it. Idempotent per (format_id, puid) - increments the
      * affected-object count instead of duplicating rows.
      */
     protected static function recordObsolescence(object $format): void

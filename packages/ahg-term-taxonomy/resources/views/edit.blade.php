@@ -44,7 +44,7 @@
               @else
                 {{-- Fresh create: show dropdown of all taxonomies --}}
                 <select name="taxonomy_id" id="taxonomy_id" class="form-select" required>
-                  <option value="">— Select taxonomy —</option>
+                  <option value="">- Select taxonomy -</option>
                   @foreach($taxonomies as $tax)
                     <option value="{{ $tax->id }}" @selected(old('taxonomy_id') == $tax->id)>{{ $tax->name }}</option>
                   @endforeach

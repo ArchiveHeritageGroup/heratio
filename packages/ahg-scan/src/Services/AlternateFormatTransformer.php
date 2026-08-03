@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AlternateFormatTransformer — Heratio ahg-scan (P7)
+ * AlternateFormatTransformer - Heratio ahg-scan (P7)
  *
  * Detects non-heratioScan XML sidecars (EAD, MARC21-XML, MODS, LIDO) and
  * transforms them into the canonical heratioScan envelope via XSLT, so
@@ -10,7 +10,7 @@
  * Stylesheets live in packages/ahg-scan/resources/transforms/. Only EAD
  * ships with a working XSLT in the initial P7 release; MARC21 / MODS /
  * LIDO receive "transform pending" stubs so operators can see whether
- * the framework picked up their file at all — actual transforms are
+ * the framework picked up their file at all - actual transforms are
  * back-compat easy to add later.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
@@ -41,7 +41,7 @@ class AlternateFormatTransformer
      * unrecognised.
      *
      * The pending flag is true when we recognised the format but have no
-     * XSLT shipped — caller logs a warning and falls back to sidecar=null.
+     * XSLT shipped - caller logs a warning and falls back to sidecar=null.
      */
     public static function detectAndTransform(string $sidecarPath): ?array
     {
@@ -95,7 +95,7 @@ class AlternateFormatTransformer
 
     /**
      * Peek at the document root to decide which format we're looking at.
-     * Keeps the check cheap — just reads the root tag name + default
+     * Keeps the check cheap - just reads the root tag name + default
      * namespace without parsing the whole file.
      */
     protected static function detectFormat(string $path): ?string
@@ -109,7 +109,7 @@ class AlternateFormatTransformer
                 $local = $reader->localName;
                 $ns = $reader->namespaceURI ?? '';
                 $reader->close();
-                // heratioScan — already canonical
+                // heratioScan - already canonical
                 if ($local === 'heratioScan' && str_starts_with($ns, 'https://heratio.io/scan')) {
                     return 'heratioScan';
                 }
@@ -139,7 +139,7 @@ class AlternateFormatTransformer
                 if ($local === 'lidoWrap') {
                     return 'lido';
                 }
-                // METS — wrapper that can carry DC/MODS/etc. inside dmdSec
+                // METS - wrapper that can carry DC/MODS/etc. inside dmdSec
                 if ($local === 'mets' && str_contains($ns, 'loc.gov/METS')) {
                     return 'mets';
                 }

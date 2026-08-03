@@ -1,5 +1,5 @@
 {{--
-  ICIP cultural-sensitivity select — dropdown populated from the
+  ICIP cultural-sensitivity select - dropdown populated from the
   vocabulary_label_cache for the icip vocabulary, filtered to the seven
   SensitivityLevel narrower concepts.
 
@@ -33,7 +33,7 @@
 @endphp
 
 <select name="{{ $name }}" id="{{ $id ?? $name }}" class="form-select form-select-sm">
-    <option value="">{{ __('— Not classified —') }}</option>
+    <option value="">{{ __('- Not classified -') }}</option>
     @foreach($options as $opt)
         <option value="{{ $opt['uri'] }}" {{ $value === $opt['uri'] ? 'selected' : '' }}>
             {{ $opt['label'] }}

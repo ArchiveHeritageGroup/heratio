@@ -26,7 +26,7 @@
 namespace AhgCore\Support;
 
 /**
- * #1395(E) — strip credential-bearing query-string values before a URL is
+ * #1395(E) - strip credential-bearing query-string values before a URL is
  * persisted to a log/telemetry sink. Some clients pass an API key as `?api=…`
  * (a documented shape for the public + OAI APIs); left raw, that key lands in
  * the request-trace span and `ahg_error_log.url`, recoverable by anyone with
@@ -34,7 +34,7 @@ namespace AhgCore\Support;
  * rest of the URL for debugging.
  *
  * (Application logs only. The web server's own access log still records the
- * raw request line — configure nginx to drop the query string on the OAI/API
+ * raw request line - configure nginx to drop the query string on the OAI/API
  * locations if that surface also matters.)
  */
 class LogRedactor

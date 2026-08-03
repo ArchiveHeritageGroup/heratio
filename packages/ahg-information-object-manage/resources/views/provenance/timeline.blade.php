@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Provenance Timeline — ' . ($io->title ?? ''))
+@section('title', 'Provenance Timeline - ' . ($io->title ?? ''))
 
 @section('content')
 <div class="container py-3">

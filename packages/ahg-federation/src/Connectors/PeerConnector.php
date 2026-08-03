@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PeerConnector — contract for a federation peer that can be queried at search time.
+ * PeerConnector - contract for a federation peer that can be queried at search time.
  *
  * Each registered peer type (oai_pmh, sharepoint_graph_search, atom_local, …) maps
  * to exactly one implementing class. The federation dispatcher loads the connector
@@ -13,7 +13,7 @@
  *   • returning results in the common PeerSearchResult shape
  *
  * Connectors SHOULD honour the $limit argument as a hard cap. Connectors MAY
- * exceed the federation default 5-second timeout — the dispatcher applies the
+ * exceed the federation default 5-second timeout - the dispatcher applies the
  * outer timeout via Guzzle/cURL futures.
  *
  * @phase B
@@ -52,10 +52,10 @@ interface PeerConnector
      * connector for filters it doesn't understand.
      *
      * Valid capability names:
-     *   'full_text_search'  — accepts the $query string
-     *   'metadata_filter'   — accepts any of the $filters keys
-     *   'date_range'        — accepts a date_range filter
-     *   'acl_user_scope'    — applies ACL relative to a specific user
+     *   'full_text_search'  - accepts the $query string
+     *   'metadata_filter'   - accepts any of the $filters keys
+     *   'date_range'        - accepts a date_range filter
+     *   'acl_user_scope'    - applies ACL relative to a specific user
      */
     public function supportsCapability(string $capability): bool;
 

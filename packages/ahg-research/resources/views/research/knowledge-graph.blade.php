@@ -1,4 +1,4 @@
-{{-- Knowledge Graph — cloned from AtoM ahgResearchPlugin/knowledgeGraphSuccess.php --}}
+{{-- Knowledge Graph - cloned from AtoM ahgResearchPlugin/knowledgeGraphSuccess.php --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')

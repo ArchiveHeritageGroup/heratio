@@ -1,12 +1,12 @@
 <?php
 
 /**
- * BerEncoder — BER (Basic Encoding Rules) encode/decode for Z39.50 APDUs.
+ * BerEncoder - BER (Basic Encoding Rules) encode/decode for Z39.50 APDUs.
  *
  * Implements ITU-T X.690 (BER) and ISO 23950 Z39.50 APDU binary encoding.
  *
  * Copyright (C) 2026 Johan Pieterse
- * The Archive Heritage Group (Pty) Ltd — AGPL-3.0
+ * The Archive Heritage Group (Pty) Ltd - AGPL-3.0
  */
 
 namespace AhgZ3950\Services;
@@ -546,7 +546,7 @@ class BerEncoder
         } else {
             // Negative: two's complement. Arithmetic >> floors a negative value
             // at -1 (all-ones), so terminate on -1 once the remaining bits are
-            // all sign bits — otherwise the loop never ends and blows up memory.
+            // all sign bits - otherwise the loop never ends and blows up memory.
             // do/while so value -1 still emits its single 0xff byte (the loop
             // condition is already true on entry for -1).
             $v = $value;

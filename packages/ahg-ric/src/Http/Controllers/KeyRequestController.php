@@ -9,7 +9,7 @@
  * request is queued in openric_key_request and emailed to the admin. The
  * admin reviews + issues with `php artisan openric:issue-key {id}`.
  *
- * Reads on /api/ric/v1 are public — no key needed. This flow is purely for
+ * Reads on /api/ric/v1 are public - no key needed. This flow is purely for
  * acquiring write / delete scope without an out-of-band email thread.
  */
 
@@ -27,7 +27,7 @@ class KeyRequestController extends Controller
 {
     private const MAX_REQUESTS_PER_IP_PER_DAY = 5;
 
-    /** GET /api/ric/v1/keys/request — HTML form */
+    /** GET /api/ric/v1/keys/request - HTML form */
     public function form(Request $request): Response
     {
         $status = $request->query('status');        // submitted / error
@@ -38,7 +38,7 @@ class KeyRequestController extends Controller
         return response($html, 200, ['Content-Type' => 'text/html; charset=utf-8']);
     }
 
-    /** POST /api/ric/v1/keys/request — JSON or form-encoded submit */
+    /** POST /api/ric/v1/keys/request - JSON or form-encoded submit */
     public function submit(Request $request): JsonResponse
     {
         $wantsJson = $request->wantsJson() || $request->header('Content-Type') === 'application/json';
@@ -82,7 +82,7 @@ class KeyRequestController extends Controller
             'created_at'       => now(),
         ]);
 
-        // Notify admin (best-effort — Mail misconfiguration shouldn't 500 the request).
+        // Notify admin (best-effort - Mail misconfiguration shouldn't 500 the request).
         $adminEmail = env('OPENRIC_ADMIN_EMAIL', 'johan@theahg.co.za');
         try {
             $body = self::adminNotificationBody($id, $data, $scopesString, $ip, $request);
@@ -108,7 +108,7 @@ class KeyRequestController extends Controller
         ]);
     }
 
-    /** GET /api/ric/v1/keys/request/{id} — status check (no secret revealed) */
+    /** GET /api/ric/v1/keys/request/{id} - status check (no secret revealed) */
     public function status(int $id): JsonResponse
     {
         $req = DB::table('openric_key_request')->where('id', $id)->first();
@@ -236,7 +236,7 @@ TXT;
     {$banner}
 
     <h2>Request an API key</h2>
-    <p>Reads on <code>/api/ric/v1/*</code> are public — no key required. You only need a key to <strong>create</strong>, <strong>update</strong>, or <strong>delete</strong> entities.</p>
+    <p>Reads on <code>/api/ric/v1/*</code> are public - no key required. You only need a key to <strong>create</strong>, <strong>update</strong>, or <strong>delete</strong> entities.</p>
     <p>Fill in the form below. An admin will review and email you the key if approved, typically within one business day.</p>
 
     <form method="post" action="/api/ric/v1/keys/request" id="key-form">
@@ -257,7 +257,7 @@ TXT;
         <select name="scopes">
           <option value="read,write">read + write (create + update)</option>
           <option value="read,write,delete" selected>read + write + delete</option>
-          <option value="read">read only (same as no key — for testing auth)</option>
+          <option value="read">read only (same as no key - for testing auth)</option>
         </select>
         <div class="hint">Keys can always be revoked later by the admin if abused. Rate limit: 1000 req/hour by default.</div>
       </div>
@@ -269,10 +269,10 @@ TXT;
       <p>Your request goes to <code>{$adminEsc}</code>. The admin runs <code>php artisan openric:issue-key &lt;id&gt;</code> which generates a key and emails it to you. You can then test it against any write endpoint in the <a href="/api/ric/v1/docs">API Explorer</a>.</p>
 
       <h3>I need a key right now for a demo</h3>
-      <p>Email the admin directly and mention the submission ID you receive on this page. For one-off evaluations the <a href="https://capture.openric.org">capture tool</a> can be pointed at your own server if you run one — see the <a href="https://openric.org/guides/getting-started.html">getting-started guide</a>.</p>
+      <p>Email the admin directly and mention the submission ID you receive on this page. For one-off evaluations the <a href="https://capture.openric.org">capture tool</a> can be pointed at your own server if you run one - see the <a href="https://openric.org/guides/getting-started.html">getting-started guide</a>.</p>
 
       <h3>Can I run my own OpenRiC server?</h3>
-      <p>Yes — that's the whole point of the spec. Every OpenRiC-conformant server ships this exact page at <code>/api/ric/v1/keys/request</code>. The reference implementation is AGPL-3.0.</p>
+      <p>Yes - that's the whole point of the spec. Every OpenRiC-conformant server ships this exact page at <code>/api/ric/v1/keys/request</code>. The reference implementation is AGPL-3.0.</p>
     </section>
   </main>
 

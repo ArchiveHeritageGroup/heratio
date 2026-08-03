@@ -61,7 +61,7 @@ class UserBrowseService extends BrowseService
 
     protected function getBaseSelect(): array
     {
-        // Not used — browse() uses raw select for GROUP_CONCAT
+        // Not used - browse() uses raw select for GROUP_CONCAT
         return [];
     }
 

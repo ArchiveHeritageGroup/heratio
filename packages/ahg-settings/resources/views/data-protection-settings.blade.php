@@ -1,5 +1,5 @@
 {{--
-  Data Protection — POPIA / GDPR compliance and data handling settings
+  Data Protection - POPIA / GDPR compliance and data handling settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('data_protection')
 
   @copyright  Johan Pieterse / Plain Sailing

@@ -1,5 +1,5 @@
 {{--
-  Records Management — Review detail + decision form (P2.4)
+  Records Management - Review detail + decision form (P2.4)
 
   @copyright  Johan Pieterse / Plain Sailing Information Systems
   @license    AGPL-3.0-or-later
@@ -50,8 +50,8 @@
           <th class="text-muted">{{ __('Disposal class') }}</th>
           <td>
             @if($review->disposal_class_ref)
-              <code>{{ $review->disposal_class_ref }}</code> — {{ $review->disposal_class_title }}
-              <br><small class="text-muted">Action on disposal: {{ $review->disposal_class_action ?? '—' }} after {{ $review->disposal_class_years ? $review->disposal_class_years . ' year(s)' : 'n/a' }}</small>
+              <code>{{ $review->disposal_class_ref }}</code> - {{ $review->disposal_class_title }}
+              <br><small class="text-muted">Action on disposal: {{ $review->disposal_class_action ?? '-' }} after {{ $review->disposal_class_years ? $review->disposal_class_years . ' year(s)' : 'n/a' }}</small>
             @else
               <em class="text-muted">none</em>
             @endif
@@ -90,15 +90,15 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Decision') }}</label>
               <select name="decision" class="form-select" required>
-                <option value="">— pick a decision —</option>
+                <option value="">- pick a decision -</option>
                 @foreach($decisions as $d)
                   <option value="{{ $d->code }}">{{ $d->label }}</option>
                 @endforeach
               </select>
               <div class="form-text small">
-                <strong>retain_extend / retain_review / no_change</strong> — record stays retained.<br>
-                <strong>dispose</strong> — creates a destruction action in the disposal queue.<br>
-                <strong>transfer</strong> — creates a transfer-to-archives action in the disposal queue.
+                <strong>retain_extend / retain_review / no_change</strong> - record stays retained.<br>
+                <strong>dispose</strong> - creates a destruction action in the disposal queue.<br>
+                <strong>transfer</strong> - creates a transfer-to-archives action in the disposal queue.
               </div>
             </div>
             <div class="mb-3">
@@ -116,7 +116,7 @@
       </div>
     @else
       <div class="alert alert-secondary">
-        <i class="fas fa-lock me-1"></i> Review closed — completed on {{ $review->review_completed_date }}.
+        <i class="fas fa-lock me-1"></i> Review closed - completed on {{ $review->review_completed_date }}.
       </div>
     @endif
   </div>

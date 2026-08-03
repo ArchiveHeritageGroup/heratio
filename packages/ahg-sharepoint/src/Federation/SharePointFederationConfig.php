@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SharePointFederationConfig — resolves SharePoint federated-search configuration
+ * SharePointFederationConfig - resolves SharePoint federated-search configuration
  * from this package's OWN Microsoft 365 tenant store, never from ahg-federation
  * peer config.
  *
@@ -25,7 +25,7 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  *
  * -----------------------------------------------------------------------------
- * Issue #1221 — self-contained SharePoint federated-search config.
+ * Issue #1221 - self-contained SharePoint federated-search config.
  *
  * This class is the single source of truth for "is SharePoint federated search
  * usable on this instance?". It reads from the package's own tenant store

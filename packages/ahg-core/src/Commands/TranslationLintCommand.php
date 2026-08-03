@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TranslationLintCommand — scan blade files for hardcoded UI strings that
+ * TranslationLintCommand - scan blade files for hardcoded UI strings that
  * should be wrapped in __(). Reports candidates ranked by file with concrete
  * line numbers, so the C1 sweep (wrap hardcoded strings) can be driven from
  * data instead of hunches.
@@ -216,7 +216,7 @@ class TranslationLintCommand extends Command
         if (str_contains($text, '@php') && str_contains($text, '__(')) {
             return true;
         }
-        // Brand strings, file formats, acronyms — proper nouns we don't translate
+        // Brand strings, file formats, acronyms - proper nouns we don't translate
         $properNouns = [
             'Heratio', 'AHG', 'OpenRiC', 'RiC', 'AtoM', 'Artefactual', 'ICA',
             'PDF', 'TIFF', 'JPEG', 'PNG', 'GIF', 'WAV', 'MP3', 'MP4', 'CSV',

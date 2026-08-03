@@ -1,4 +1,4 @@
-# AhgPdfTools — Services
+# AhgPdfTools - Services
 
 Services directory for the AhgPdfTools package.
 

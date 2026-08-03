@@ -50,7 +50,7 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted small">
-                        {{ __('Choose what to take with you, then download a self-contained package. It opens in any web browser with no internet or login — add notes, sources, suggestions and files, then bring them back below. Only records you are permitted to see are included.') }}
+                        {{ __('Choose what to take with you, then download a self-contained package. It opens in any web browser with no internet or login - add notes, sources, suggestions and files, then bring them back below. Only records you are permitted to see are included.') }}
                     </p>
 
                     @unless($hasAny)
@@ -138,7 +138,7 @@
                 <div class="card-body small text-muted">
                     <ol class="mb-0 ps-3">
                         <li>{{ __('Pick collections / projects / favourites and download the package.') }}</li>
-                        <li>{{ __('Open index.html in any browser — no internet needed.') }}</li>
+                        <li>{{ __('Open index.html in any browser - no internet needed.') }}</li>
                         <li>{{ __('Add notes, sources, suggestions, files to records.') }}</li>
                         <li>{{ __('Click "Save for sync" → get researcher-sync.json.') }}</li>
                         <li>{{ __('Upload it here to bring everything back.') }}</li>

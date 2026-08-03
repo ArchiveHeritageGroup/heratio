@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AccessService — validate a share-link token and log the access.
+ * AccessService - validate a share-link token and log the access.
  * Mirror of the AtoM-side service.
  *
  * @phase D

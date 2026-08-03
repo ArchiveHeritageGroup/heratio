@@ -13,9 +13,9 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `services` — TODO: implement
-- [ ] `readme` — TODO: implement
-- [ ] `docs_help` — TODO: implement
+- [ ] `services` - TODO: implement
+- [ ] `readme` - TODO: implement
+- [ ] `docs_help` - TODO: implement
 
 ## References
 - docs/help/ (search for `request-publish`)

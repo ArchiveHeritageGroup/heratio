@@ -43,7 +43,7 @@ use Symfony\Component\HttpFoundation\Response;
 class MetadataExportController extends Controller
 {
     /**
-     * Metadata export dashboard — list available formats.
+     * Metadata export dashboard - list available formats.
      */
     public function index()
     {

@@ -2,7 +2,7 @@
 @section('title', 'Containers')
 @section('content')
 @php
-    // accession_allow_container_barcodes setting — when off, the Barcode
+    // accession_allow_container_barcodes setting - when off, the Barcode
     // lookup card and Barcode column are hidden. Stored data persists.
     $barcodesEnabled = app(\AhgAccessionManage\Services\AccessionService::class)->containerBarcodesEnabled();
 @endphp

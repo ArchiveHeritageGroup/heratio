@@ -422,7 +422,7 @@ class LibraryController extends Controller
             'publication_date', 'series_title', 'series_number', 'pagination',
             'dimensions', 'physical_details', 'scope_and_content',
             'contents_note', 'general_note', 'bibliography_note', 'language',
-            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to information_object.icip_sensitivity.
+            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) - persisted to information_object.icip_sensitivity.
             'icip_sensitivity',
         ]);
         $data['creators']     = $request->input('creators', []);
@@ -766,7 +766,7 @@ class LibraryController extends Controller
                 ->orderByDesc('created_at')
                 ->limit(50)->get()->all();
         } catch (\Throwable) {
-            // fail silently — audit table may not exist yet
+            // fail silently - audit table may not exist yet
         }
 
         $type = $req->type ?? LibraryIllService::TYPE_BORROW;

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AccessionIntakeCommand — manage accession intake queue from CLI.
+ * AccessionIntakeCommand - manage accession intake queue from CLI.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -113,7 +113,7 @@ class AccessionIntakeCommand extends Command
             ->where('code', $code)
             ->value('id');
         if (! $statusTermId) {
-            $this->warn("status '{$code}' not in dropdown — recording without term link");
+            $this->warn("status '{$code}' not in dropdown - recording without term link");
         }
         DB::table('accession')->where('id', $id)->update([
             'processing_status_id' => $statusTermId,

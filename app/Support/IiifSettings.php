@@ -13,7 +13,7 @@ use AhgCore\Services\AhgSettingsService;
  *
  * Defaults match the seeded values so a fresh install behaves the same
  * whether or not the operator has visited the form. Empty
- * iiif_server_url means "use the local Cantaloupe proxy at /iiif/3/" —
+ * iiif_server_url means "use the local Cantaloupe proxy at /iiif/3/" -
  * matches the pre-wiring hardcoded behaviour.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems

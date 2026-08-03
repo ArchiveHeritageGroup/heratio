@@ -47,7 +47,7 @@ class DedupeController extends Controller
     }
 
     /**
-     * Dashboard — stats, top pending, recent scans.
+     * Dashboard - stats, top pending, recent scans.
      */
     public function index()
     {
@@ -115,7 +115,7 @@ class DedupeController extends Controller
     }
 
     /**
-     * Browse — paginated duplicate list with filters.
+     * Browse - paginated duplicate list with filters.
      */
     public function browse(Request $request)
     {
@@ -195,7 +195,7 @@ class DedupeController extends Controller
     }
 
     /**
-     * Compare — side-by-side view of two potential duplicates.
+     * Compare - side-by-side view of two potential duplicates.
      */
     public function compare(int $id)
     {
@@ -343,7 +343,7 @@ class DedupeController extends Controller
     }
 
     /**
-     * Rules — list all detection rules.
+     * Rules - list all detection rules.
      */
     public function rules()
     {
@@ -369,7 +369,7 @@ class DedupeController extends Controller
     }
 
     /**
-     * Scan — form to start a new duplicate scan.
+     * Scan - form to start a new duplicate scan.
      */
     public function scan()
     {
@@ -417,7 +417,7 @@ class DedupeController extends Controller
     }
 
     /**
-     * Merge — form to merge two duplicate records.
+     * Merge - form to merge two duplicate records.
      */
     public function merge(int $id)
     {
@@ -670,7 +670,7 @@ class DedupeController extends Controller
     }
 
     /**
-     * Report — monthly stats and method breakdown.
+     * Report - monthly stats and method breakdown.
      */
     public function report()
     {

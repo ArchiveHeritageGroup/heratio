@@ -136,7 +136,7 @@ class BlogAdminController extends Controller
         ]);
     }
 
-    /** heratio#1399 — add a bidirectional link to another article. */
+    /** heratio#1399 - add a bidirectional link to another article. */
     public function linksAdd(Request $request, int $id)
     {
         $this->guard();
@@ -145,14 +145,14 @@ class BlogAdminController extends Controller
         }
         $targetId = \AhgArticles\Services\BlogLinkService::resolveId((string) $request->input('target', ''));
         if (! $targetId) {
-            return back()->with('error', 'Could not find that article — pick one from the list or paste its /articles/… URL.');
+            return back()->with('error', 'Could not find that article - pick one from the list or paste its /articles/… URL.');
         }
         \AhgArticles\Services\BlogLinkService::add($id, $targetId, (string) $request->input('description', ''));
 
         return redirect()->route('admin.articles.edit', $id)->with('success', 'Link added.');
     }
 
-    /** heratio#1399 — remove a link between two articles. */
+    /** heratio#1399 - remove a link between two articles. */
     public function linksRemove(int $id, int $targetId)
     {
         $this->guard();
@@ -164,7 +164,7 @@ class BlogAdminController extends Controller
         return redirect()->route('admin.articles.edit', $id)->with('success', 'Link removed.');
     }
 
-    /** heratio#1399 — persist a drag/arrow-reordered linked-articles order. */
+    /** heratio#1399 - persist a drag/arrow-reordered linked-articles order. */
     public function linksReorder(Request $request, int $id)
     {
         $this->guard();

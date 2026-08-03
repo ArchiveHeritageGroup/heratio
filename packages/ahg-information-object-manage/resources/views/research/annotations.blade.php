@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Annotation Studio — ' . ($io->title ?? ''))
+@section('title', 'Annotation Studio - ' . ($io->title ?? ''))
 
 @section('content')
   @include('ahg-io-manage::partials.feature-header', [
@@ -66,7 +66,7 @@
   @endif
 
   @auth
-  {{-- Add Annotation modal — posts to the existing research.annotations.store endpoint
+  {{-- Add Annotation modal - posts to the existing research.annotations.store endpoint
        which already handles object_id, visibility, tags, etc. via the V1 research_annotation
        table. Per-record context is set by the hidden object_id field. --}}
   <div class="modal fade" id="addAnnotationModal" tabindex="-1">

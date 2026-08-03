@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TranslationMtBatchCommand — batch-translate Heratio-only UI strings via MT.
+ * TranslationMtBatchCommand - batch-translate Heratio-only UI strings via MT.
  *
  * Heratio-only keys are keys present in lang/en.json that do NOT appear in
  * any AtoM XLIFF (the ~2000 RiC Explorer / AI Tools / Privacy / Spectrum /

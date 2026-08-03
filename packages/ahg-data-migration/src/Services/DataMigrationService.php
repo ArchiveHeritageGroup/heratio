@@ -1158,7 +1158,7 @@ class DataMigrationService
     }
 
     // ════════════════════════════════════════════════════════
-    // Issue #740 — Data-migration exports parity helpers
+    // Issue #740 - Data-migration exports parity helpers
     // PSIS twin: atom-ahg-plugins#86
     // ════════════════════════════════════════════════════════
 

@@ -137,7 +137,7 @@ class CartService
 
     public function getCart(?int $userId, ?string $sessionId): \Illuminate\Support\Collection
     {
-        // Reproduction kind only — marketplace listings have their own getter.
+        // Reproduction kind only - marketplace listings have their own getter.
         return DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
             ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
@@ -149,7 +149,7 @@ class CartService
 
     public function getCartCount(?int $userId, ?string $sessionId): int
     {
-        // Combined count across both kinds — used for badge displays.
+        // Combined count across both kinds - used for badge displays.
         return DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
             ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))

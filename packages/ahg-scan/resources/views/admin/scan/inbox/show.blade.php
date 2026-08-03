@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Scan inbox — file #' . $file->id)
+@section('title', 'Scan inbox - file #' . $file->id)
 
 @section('content')
 <h1>Scan file #{{ $file->id }}</h1>
@@ -25,11 +25,11 @@
                 <dl class="row mb-0">
                     <dt class="col-sm-4">Original name</dt><dd class="col-sm-8">{{ $file->original_name }}</dd>
                     <dt class="col-sm-4">Stored path</dt><dd class="col-sm-8"><code>{{ $file->stored_path }}</code></dd>
-                    <dt class="col-sm-4">File size</dt><dd class="col-sm-8">{{ $file->file_size ? number_format($file->file_size) . ' bytes' : '—' }}</dd>
-                    <dt class="col-sm-4">MIME</dt><dd class="col-sm-8">{{ $file->mime_type ?? '—' }}</dd>
-                    <dt class="col-sm-4">SHA-256</dt><dd class="col-sm-8"><small><code>{{ $file->source_hash ?? '—' }}</code></small></dd>
-                    <dt class="col-sm-4">Folder</dt><dd class="col-sm-8"><code>{{ $file->folder_code ?? '—' }}</code> ({{ $file->folder_label ?? '—' }})</dd>
-                    <dt class="col-sm-4">Session</dt><dd class="col-sm-8">{{ $file->session_title ?? '—' }} — sector {{ $file->sector ?? '—' }}, standard {{ $file->standard ?? '—' }}</dd>
+                    <dt class="col-sm-4">File size</dt><dd class="col-sm-8">{{ $file->file_size ? number_format($file->file_size) . ' bytes' : '-' }}</dd>
+                    <dt class="col-sm-4">MIME</dt><dd class="col-sm-8">{{ $file->mime_type ?? '-' }}</dd>
+                    <dt class="col-sm-4">SHA-256</dt><dd class="col-sm-8"><small><code>{{ $file->source_hash ?? '-' }}</code></small></dd>
+                    <dt class="col-sm-4">Folder</dt><dd class="col-sm-8"><code>{{ $file->folder_code ?? '-' }}</code> ({{ $file->folder_label ?? '-' }})</dd>
+                    <dt class="col-sm-4">Session</dt><dd class="col-sm-8">{{ $file->session_title ?? '-' }} - sector {{ $file->sector ?? '-' }}, standard {{ $file->standard ?? '-' }}</dd>
                 </dl>
             </div>
         </div>
@@ -40,13 +40,13 @@
             <div class="card-body">
                 <dl class="row mb-0">
                     <dt class="col-sm-4">IO #</dt><dd class="col-sm-8">{{ $file->resolved_io_id }}</dd>
-                    <dt class="col-sm-4">Title</dt><dd class="col-sm-8">{{ $file->io_title ?? '—' }}</dd>
+                    <dt class="col-sm-4">Title</dt><dd class="col-sm-8">{{ $file->io_title ?? '-' }}</dd>
                     <dt class="col-sm-4">Slug</dt><dd class="col-sm-8">
                         @if($file->io_slug)
                             <a href="{{ url('/' . $file->io_slug) }}">{{ $file->io_slug }}</a>
-                        @else — @endif
+                        @else - @endif
                     </dd>
-                    <dt class="col-sm-4">Digital object #</dt><dd class="col-sm-8">{{ $file->resolved_do_id ?? '—' }}</dd>
+                    <dt class="col-sm-4">Digital object #</dt><dd class="col-sm-8">{{ $file->resolved_do_id ?? '-' }}</dd>
                 </dl>
             </div>
         </div>
@@ -69,10 +69,10 @@
                 @php $colors = ['pending'=>'secondary','processing'=>'primary','done'=>'success','failed'=>'danger','duplicate'=>'warning','quarantined'=>'warning']; @endphp
                 <p><span class="badge bg-{{ $colors[$file->status] ?? 'secondary' }} fs-6">{{ $file->status }}</span></p>
                 <dl class="row mb-0 small">
-                    <dt class="col-sm-5">Stage</dt><dd class="col-sm-7">{{ $file->stage ?? '—' }}</dd>
+                    <dt class="col-sm-5">Stage</dt><dd class="col-sm-7">{{ $file->stage ?? '-' }}</dd>
                     <dt class="col-sm-5">Attempts</dt><dd class="col-sm-7">{{ $file->attempts }}</dd>
                     <dt class="col-sm-5">Created</dt><dd class="col-sm-7">{{ $file->created_at }}</dd>
-                    <dt class="col-sm-5">Completed</dt><dd class="col-sm-7">{{ $file->completed_at ?? '—' }}</dd>
+                    <dt class="col-sm-5">Completed</dt><dd class="col-sm-7">{{ $file->completed_at ?? '-' }}</dd>
                 </dl>
             </div>
         </div>

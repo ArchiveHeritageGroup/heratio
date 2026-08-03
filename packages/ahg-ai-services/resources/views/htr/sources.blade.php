@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Training Data Sources — HTR')
+@section('title', 'Training Data Sources - HTR')
 @section('body-class', 'admin ai-services htr')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
@@ -71,7 +71,7 @@
 {{-- FamilySearch Collections --}}
 <div class="card mb-4">
   <div class="card-header" style="background: var(--ahg-primary); color: white;">
-    <i class="fas fa-tree me-2"></i>{{ __('FamilySearch Collections — SA Vital Records') }}
+    <i class="fas fa-tree me-2"></i>{{ __('FamilySearch Collections - SA Vital Records') }}
   </div>
   <div class="card-body p-0">
     <table class="table table-hover mb-0">
@@ -96,11 +96,11 @@
               <td><span class="badge bg-secondary">{{ $src['region'] ?? 'All' }}</span></td>
               <td>
                 @if($src['doc_type'] === 'type_a')
-                  <span class="badge bg-danger">{{ __('Type A — Deaths') }}</span>
+                  <span class="badge bg-danger">{{ __('Type A - Deaths') }}</span>
                 @elseif($src['doc_type'] === 'type_b')
-                  <span class="badge bg-primary">{{ __('Type B — Registers') }}</span>
+                  <span class="badge bg-primary">{{ __('Type B - Registers') }}</span>
                 @else
-                  <span class="badge bg-info">{{ __('Type C — Narrative') }}</span>
+                  <span class="badge bg-info">{{ __('Type C - Narrative') }}</span>
                 @endif
               </td>
               <td>
@@ -146,7 +146,7 @@
                 <small class="text-muted">{{ $src['description'] }}</small><br>
                 <code class="small">ID: {{ $src['collection_id'] }}</code>
               </td>
-              <td><span class="badge bg-info">{{ __('Type C — Narrative') }}</span></td>
+              <td><span class="badge bg-info">{{ __('Type C - Narrative') }}</span></td>
               <td><span class="fw-bold">{{ $src['downloaded'] ?? 0 }}</span> images</td>
               <td class="text-end">
                 <div class="input-group input-group-sm justify-content-end" style="max-width:240px; margin-left:auto;">

@@ -312,7 +312,7 @@ class FtpService
     }
 
     // =========================================================================
-    // Local mode (no FTP/SFTP — write straight to a server folder)
+    // Local mode (no FTP/SFTP - write straight to a server folder)
     // =========================================================================
 
     protected function localResolveDir(string $relativeDir = ''): string
@@ -407,7 +407,7 @@ class FtpService
         if (! @ftp_login($conn, $this->username, $this->password)) {
             @ftp_close($conn);
 
-            return ['success' => false, 'message' => 'FTP login failed — check credentials'];
+            return ['success' => false, 'message' => 'FTP login failed - check credentials'];
         }
 
         if ($this->passiveMode) {
@@ -512,7 +512,7 @@ class FtpService
     }
 
     /**
-     * FTP mkdir-p — walks each segment of the relative path beneath
+     * FTP mkdir-p - walks each segment of the relative path beneath
      * $this->remotePath and creates it if missing. Ignores already-exists.
      */
     protected function ftpEnsureDir(string $remoteAbs): array
@@ -584,7 +584,7 @@ SFTPEOF";
         if ($exitCode !== 0) {
             $error = implode(' ', $output);
             if (stripos($error, 'Permission denied') !== false) {
-                return ['success' => false, 'message' => 'SFTP authentication failed — check credentials'];
+                return ['success' => false, 'message' => 'SFTP authentication failed - check credentials'];
             }
             if (stripos($error, 'Connection refused') !== false) {
                 return ['success' => false, 'message' => "Connection refused on {$this->host}:{$port}"];
@@ -672,13 +672,13 @@ SFTPEOF";
      * SFTP mkdir-p via interactive sftp + heredoc.
      *
      * Two earlier approaches didn't work:
-     *   1. `ssh ... mkdir -p` — rejected by sftp-only servers
+     *   1. `ssh ... mkdir -p` - rejected by sftp-only servers
      *      ("This service allows sftp connections only.")
-     *   2. `sftp -b <batchfile>` — sets BatchMode=yes implicitly which
+     *   2. `sftp -b <batchfile>` - sets BatchMode=yes implicitly which
      *      forbids password auth (forces pubkey), so sshpass can't feed
      *      the password and we get "Permission denied (publickey,password)".
      *
-     * The pattern that DOES work — and that the existing sftpListFiles uses —
+     * The pattern that DOES work - and that the existing sftpListFiles uses -
      * is interactive sftp piped via heredoc. sshpass intercepts the password
      * prompt; sftp processes the commands as if a user typed them.
      *
@@ -691,14 +691,14 @@ SFTPEOF";
      *                     already existed, ls succeeds. If a real error
      *                     stopped the dir from existing, ls fails and we
      *                     surface that. We don't parse mkdir stdout for
-     *                     errors — SSH_FX_FAILURE is too generic
+     *                     errors - SSH_FX_FAILURE is too generic
      *                     (emitted both for "already exists" and for
      *                     real errors), so trust the dash semantic and
      *                     reach final state via ls instead.
      *
      * Quoting: paths are wrapped in double-quotes inside the SFTP commands.
      * The PHP heredoc terminator is unquoted so {$cumulative} interpolates,
-     * but that means bash also expands $VAR and `cmd` in the body — which is
+     * but that means bash also expands $VAR and `cmd` in the body - which is
      * why sanitizeRelativePath blocks $ and ` (defence in depth). The base
      * $this->remotePath is from settings (trusted) and not user-influenced.
      */
@@ -723,7 +723,7 @@ SFTPEOF";
             $cumulative .= '/'.$seg;
             $lines[] = '-mkdir "'.$cumulative.'"';
         }
-        // Final verification — `cd` into the deepest path. sftp's `cd` is
+        // Final verification - `cd` into the deepest path. sftp's `cd` is
         // silent on success and prints `Couldn't change directory to ...`
         // on failure (with no leading dash, so we DO want to know about
         // failure here). This works for empty dirs too, unlike `ls`.
@@ -765,7 +765,7 @@ SFTPEOF";
             return false;
         };
 
-        // Detect connection-level failure first — if we never reached the
+        // Detect connection-level failure first - if we never reached the
         // remote prompt, no mkdir / ls happened.
         $connected = false;
         foreach ($output as $line) {
@@ -783,7 +783,7 @@ SFTPEOF";
             ];
         }
 
-        // We don't parse mkdir errors at all — SSH_FX_FAILURE ("Failure")
+        // We don't parse mkdir errors at all - SSH_FX_FAILURE ("Failure")
         // is emitted for both "already exists" (the happy path under the
         // dash semantic) and for genuine errors, which made the previous
         // parser surface false positives every time a folder was retried.

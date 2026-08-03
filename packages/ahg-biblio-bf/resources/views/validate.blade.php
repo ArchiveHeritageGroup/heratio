@@ -1,4 +1,4 @@
-{{-- ahg-biblio-bf/validate.blade.php — Validate BIBFRAME RDF --}}
+{{-- ahg-biblio-bf/validate.blade.php - Validate BIBFRAME RDF --}}
 @extends('theme::layouts.1col')
 
 @section('content')

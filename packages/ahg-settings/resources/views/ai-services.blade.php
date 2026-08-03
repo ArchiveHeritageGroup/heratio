@@ -475,7 +475,7 @@
             <i class="fas fa-check-circle me-1"></i>
             <strong>{{ __('Qdrant is running') }}</strong>
             @if($qdrantStatus['version'])
-              &mdash; v{{ $qdrantStatus['version'] }}
+              - v{{ $qdrantStatus['version'] }}
             @endif
           </div>
           @if(!empty($qdrantStatus['collections']))

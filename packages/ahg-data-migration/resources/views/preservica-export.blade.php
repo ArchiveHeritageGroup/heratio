@@ -6,7 +6,7 @@
     <i class="fas fa-3x fa-cloud-download-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Preservica Export') }}</h1>
-      <span class="small text-muted">{{ __('Data Migration — Preservica') }}</span>
+      <span class="small text-muted">{{ __('Data Migration - Preservica') }}</span>
     </div>
   </div>
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">

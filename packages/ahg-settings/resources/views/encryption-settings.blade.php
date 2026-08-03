@@ -1,5 +1,5 @@
 {{--
-  Encryption — XChaCha20 encryption settings
+  Encryption - XChaCha20 encryption settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('encryption')
 
   @copyright  Johan Pieterse / Plain Sailing
@@ -78,7 +78,7 @@
       </div>
     </div>
 
-    {{-- Card 2: Layer 1 — Digital Object Encryption --}}
+    {{-- Card 2: Layer 1 - Digital Object Encryption --}}
     <div class="card mb-4">
       <div class="card-header">
         <h5 class="mb-0"><i class="fas fa-file-shield me-2"></i>{{ __('Layer 1: Digital Object Encryption') }}</h5>
@@ -109,7 +109,7 @@
       </div>
     </div>
 
-    {{-- Card 3: Layer 2 — Database Field Encryption --}}
+    {{-- Card 3: Layer 2 - Database Field Encryption --}}
     <div class="card mb-4">
       <div class="card-header">
         <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Layer 2: Database Field Encryption') }}</h5>

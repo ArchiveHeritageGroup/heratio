@@ -59,7 +59,7 @@ class AiDropdownSeeder
             ['taxonomy' => 'ai_confidence_level', 'taxonomy_label' => 'AI Confidence Level', 'taxonomy_section' => 'ai', 'code' => 'high',      'label' => 'High (75-90%)',    'color' => '#198754', 'sort_order' => 30, 'is_default' => 1],
             ['taxonomy' => 'ai_confidence_level', 'taxonomy_label' => 'AI Confidence Level', 'taxonomy_section' => 'ai', 'code' => 'very_high', 'label' => 'Very High (>90%)', 'color' => '#0d6efd', 'sort_order' => 40, 'is_default' => 0],
 
-            // #1355 — condition-photo type vocabulary. Was hardcoded (and had
+            // #1355 - condition-photo type vocabulary. Was hardcoded (and had
             // drifted apart) in photos.blade.php / annotate.blade.php; the help
             // guide already documents it as Dropdown-Manager-managed.
             ['taxonomy' => 'condition_photo_type', 'taxonomy_label' => 'Condition Photo Type', 'taxonomy_section' => 'condition', 'code' => 'overall', 'label' => 'Overall View',     'color' => '#0d6efd', 'sort_order' => 10,  'is_default' => 1],

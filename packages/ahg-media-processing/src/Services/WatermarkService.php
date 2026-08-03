@@ -141,7 +141,7 @@ class WatermarkService
         }
 
         // Normalise position codes: ahg_dropdown 'watermark_position' codes use
-        // underscores (top_left, tile) and legacy rows used spaces (bottom right) —
+        // underscores (top_left, tile) and legacy rows used spaces (bottom right) -
         // fold all variants onto the hyphenated POSITION_MAP keys (#1351).
         $positionKey = strtolower(str_replace([' ', '_'], '-', trim($position)));
         if ($positionKey === 'tile') {

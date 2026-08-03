@@ -1,6 +1,6 @@
 @extends('theme::layouts.3col')
 
-@section('title', "Caption Tracks — {$doName}")
+@section('title', "Caption Tracks - {$doName}")
 @section('body-class', 'caption-tracks')
 
 @section('sidebar')
@@ -19,9 +19,9 @@
 <p class="text-muted">
     Digital object: <strong>{{ $doName }}</strong>
     @if($tracks->count())
-        &mdash; {{ $tracks->count() }} track(s) configured
+        - {{ $tracks->count() }} track(s) configured
     @else
-        &mdash; no tracks configured
+        - no tracks configured
     @endif
 </p>
 
@@ -86,14 +86,14 @@
                                         @if($track->is_sdh)
                                             <span class="badge bg-warning text-dark" title="{{ __('Subtitle for Deaf and Hard of Hearing') }}">SDH</span>
                                         @else
-                                            <span class="text-muted">—</span>
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($track->is_default)
                                             <span class="badge bg-success">Default</span>
                                         @else
-                                            <span class="text-muted">—</span>
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td>
@@ -107,7 +107,7 @@
                                         @elseif(!empty($track->vtt_content))
                                             <span class="badge bg-info">Inline</span>
                                         @else
-                                            <span class="text-muted">—</span>
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td>
@@ -180,11 +180,11 @@
             <dt class="col-sm-3">Subtitle</dt>
             <dd class="col-sm-9">Dialogue-only text tracks. Suitable for foreign-language dubs or same-language subtitles.</dd>
             <dt class="col-sm-3">Description</dt>
-            <dd class="col-sm-9">Audio description — narrated descriptions of visual elements for blind viewers.</dd>
+            <dd class="col-sm-9">Audio description - narrated descriptions of visual elements for blind viewers.</dd>
             <dt class="col-sm-3">Chapters</dt>
             <dd class="col-sm-9">Chapter markers for navigation within a long-form video.</dd>
             <dt class="col-sm-3">SDH</dt>
-            <dd class="col-sm-9">Subtitles for the Deaf and Hard of Hearing — include speaker identification and sound descriptions.</dd>
+            <dd class="col-sm-9">Subtitles for the Deaf and Hard of Hearing - include speaker identification and sound descriptions.</dd>
             <dt class="col-sm-3">Remote URL</dt>
             <dd class="col-sm-9">Link to an external VTT/SRT file. Content is cached locally on first use or manual fetch.</dd>
         </dl>

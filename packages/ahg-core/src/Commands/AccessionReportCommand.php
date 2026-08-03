@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AccessionReportCommand — accession status / valuation summaries.
+ * AccessionReportCommand - accession status / valuation summaries.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -23,7 +23,7 @@ class AccessionReportCommand extends Command
         {--date-from= : Start date filter}
         {--date-to= : End date filter}';
 
-    protected $description = 'Accession reports — status, valuation, CSV export';
+    protected $description = 'Accession reports - status, valuation, CSV export';
 
     public function handle(): int
     {
@@ -67,7 +67,7 @@ class AccessionReportCommand extends Command
         }
         $this->info('=== accession status report ===');
         foreach ($rows as $r) {
-            $this->line(sprintf('  %-20s %5d   %s — %s', $r->status, $r->n, $r->earliest ?: 'n/a', $r->latest ?: 'n/a'));
+            $this->line(sprintf('  %-20s %5d   %s - %s', $r->status, $r->n, $r->earliest ?: 'n/a', $r->latest ?: 'n/a'));
         }
         $this->info('total: '.(clone $base)->count());
 

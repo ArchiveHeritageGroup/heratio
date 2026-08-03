@@ -10,7 +10,7 @@ class RefreshFacetCacheCommand extends Command
 {
     protected $signature = 'ahg:refresh-facet-cache
         {--facet= : Only rebuild specified facet_type (subjects, places, level, repository, etc.)}
-        {--connection= : Source DB connection — defaults to this DB discovery_db_connection setting, else atom}';
+        {--connection= : Source DB connection - defaults to this DB discovery_db_connection setting, else atom}';
 
     protected $description = 'Rebuild display_facet_cache from this DB own discovery corpus (ahg_settings.discovery_db_connection), or a chosen --connection';
 

@@ -10,12 +10,12 @@ class PopiaBreachCheckCommand extends Command
     protected $signature = 'ahg:popia-breach-check
         {--json : Output report as JSON}';
 
-    protected $description = 'POPIA breach check — flag incidents that need regulator/subject notification (72-hour rule)';
+    protected $description = 'POPIA breach check - flag incidents that need regulator/subject notification (72-hour rule)';
 
     public function handle(): int
     {
         $now = now();
-        // POPIA s22(1) — 72 hours to notify the Regulator after becoming aware.
+        // POPIA s22(1) - 72 hours to notify the Regulator after becoming aware.
         $deadline = $now->copy()->subHours(72);
 
         $rows = DB::table('privacy_breach_incident')

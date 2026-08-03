@@ -1,4 +1,4 @@
-# AhgOai — Services
+# AhgOai - Services
 
 Services directory for the AhgOai package.
 

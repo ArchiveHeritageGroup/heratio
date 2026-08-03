@@ -1,7 +1,7 @@
 <?php
 
 /**
- * OaiPmhConnector — wraps an OAI-PMH peer's JSON search API as a PeerConnector.
+ * OaiPmhConnector - wraps an OAI-PMH peer's JSON search API as a PeerConnector.
  *
  * The existing federation peers expose a JSON search endpoint at
  * federation_peer_search.search_api_url (falling back to base_url/api/search).
@@ -13,7 +13,7 @@
  * JSON and mapping to PeerSearchResult value objects.
  *
  * Equivalent to the legacy `createSearchRequest` + `processPeerResponse` flow
- * in FederatedSearchService — but isolated so the dispatcher can register
+ * in FederatedSearchService - but isolated so the dispatcher can register
  * connectors by peer_type without a giant switch.
  *
  * @phase C

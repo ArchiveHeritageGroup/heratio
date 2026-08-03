@@ -31,7 +31,7 @@ class AhgMuseumServiceProvider extends ServiceProvider
 
         // One-shot seed: when museum_metadata_i18n exists but is empty AND
         // museum_metadata has rows, mirror them into the en culture so the
-        // fallback-aware read path has data to fall back to. Idempotent — runs
+        // fallback-aware read path has data to fall back to. Idempotent - runs
         // once on first request after upgrade and is a no-op thereafter.
         $this->app->booted(function () {
             try {
@@ -45,7 +45,7 @@ class AhgMuseumServiceProvider extends ServiceProvider
                 if ($parentCount === 0) return;
                 \Illuminate\Support\Facades\DB::statement(file_get_contents(__DIR__ . '/../../database/seed_museum_metadata_i18n.sql'));
             } catch (\Throwable $e) {
-                // Boot-time seed is best-effort; log nothing — operators can
+                // Boot-time seed is best-effort; log nothing - operators can
                 // run mysql -u root heratio < .../seed_museum_metadata_i18n.sql by hand.
             }
         });

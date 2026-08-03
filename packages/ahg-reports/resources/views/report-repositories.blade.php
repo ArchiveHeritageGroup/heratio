@@ -1,5 +1,5 @@
 {{--
-  Repository Report — full ISDIAH field dump with column toggles
+  Repository Report - full ISDIAH field dump with column toggles
   Cloned from AtoM ahgReportsPlugin reportRepositorySuccess.blade.php
 
   @copyright  Johan Pieterse / Plain Sailing

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Create provenance_document — supporting-evidence attachments for the
+ * Create provenance_document - supporting-evidence attachments for the
  * per-IO provenance chain (deeds, bills of sale, auction catalogues, customs
  * papers, correspondence, …).
  *
  * Heratio's provenance stack is information-object-keyed (see the
- * consolidate_provenance_stacks migration), so — unlike the AtoM
+ * consolidate_provenance_stacks migration), so - unlike the AtoM
  * ahgProvenancePlugin original which hung documents off provenance_record /
- * provenance_event — we key each document to information_object_id, with an
+ * provenance_event - we key each document to information_object_id, with an
  * optional provenance_entry_id when the document evidences one specific
  * custody link in the chain.
  *

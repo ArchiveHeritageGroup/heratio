@@ -15,7 +15,7 @@ class DoiDeactivateCommand extends Command
         {--list-deleted : List all tombstoned DOIs and exit}
         {--dry-run : Report without writing}';
 
-    protected $description = 'Tombstone (deactivate) a DOI on DataCite — keeps the identifier resolvable but flips event=hide';
+    protected $description = 'Tombstone (deactivate) a DOI on DataCite - keeps the identifier resolvable but flips event=hide';
 
     public function handle(DoiService $svc): int
     {

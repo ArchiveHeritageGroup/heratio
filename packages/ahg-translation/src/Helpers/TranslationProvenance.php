@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TranslationProvenance — query helpers for the ahg_translation_log table.
+ * TranslationProvenance - query helpers for the ahg_translation_log table.
  *
  * The translation modal save flow writes a row to ahg_translation_log every
  * time a human or MT engine writes into a record's *_i18n table. This helper
@@ -74,7 +74,7 @@ class TranslationProvenance
     }
 
     /**
-     * Convenience — true when the field is currently shown as a machine
+     * Convenience - true when the field is currently shown as a machine
      * translation (latest provenance row says source=machine, not yet
      * verified by a human via confirmed=1).
      */

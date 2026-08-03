@@ -1,4 +1,4 @@
-{{-- RiC Context Sidebar — shows related entities when in RiC view mode --}}
+{{-- RiC Context Sidebar - shows related entities when in RiC view mode --}}
 @php
   $viewMode = session('ric_view_mode', config('ric.default_view', 'heratio'));
 @endphp

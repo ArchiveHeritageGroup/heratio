@@ -33,7 +33,7 @@ use Illuminate\Support\Facades\DB;
  * Reads the navigation menu from the `menu` + `menu_i18n` tables
  * and builds a nested tree using MPTT lft/rgt columns.
  *
- * Migrated from the framework MenuService — changed DB import
+ * Migrated from the framework MenuService - changed DB import
  * from Capsule\Manager to Facade.
  */
 class MenuService
@@ -133,7 +133,7 @@ class MenuService
     /**
      * Get the list of plugins visible in the user's nav (issue #40 c5).
      *
-     * Resolution model — DENY-BY-DEFAULT FOR NON-ADMINS:
+     * Resolution model - DENY-BY-DEFAULT FOR NON-ADMINS:
      *
      *   - Anonymous (no user)  → globally enabled set (atom_plugin.is_enabled = 1)
      *   - Admin user           → globally enabled set, minus admin's own DENY
@@ -144,7 +144,7 @@ class MenuService
      *                            Their own user-hide preferences still subtract.
      *
      * `mode='allow'` for a non-admin: explicit opt-in by an admin (or for a
-     * globally-disabled plugin — beta-tester case).
+     * globally-disabled plugin - beta-tester case).
      * `mode='deny'`  for an admin: lets the admin remove a plugin from THEIR
      * own nav (rare, but symmetrical).
      */
@@ -203,7 +203,7 @@ class MenuService
             $effective = array_values(array_diff($allowed, $adminOnly));
         }
 
-        // User-level visibility (clutter reduction) — applies to both admin + user
+        // User-level visibility (clutter reduction) - applies to both admin + user
         try {
             $hidden = DB::table('user_plugin_preference')
                 ->where('user_id', $userId)
@@ -221,13 +221,13 @@ class MenuService
     }
 
     /**
-     * Capability check — can this user reach a plugin's URL?
+     * Capability check - can this user reach a plugin's URL?
      *   - Anonymous          → uses global enabled state only
      *   - Admin              → has all globally enabled plus their own allows
      *                          minus their own denies
      *   - Non-admin          → only plugins explicitly mode='allow' for them
      *
-     * Used by `PluginAccessMiddleware` — 403s requests to plugin URLs the
+     * Used by `PluginAccessMiddleware` - 403s requests to plugin URLs the
      * user has no capability for, regardless of their visibility preference.
      */
     public static function isPluginAccessible(string $name, ?int $userId = null): bool
@@ -254,7 +254,7 @@ class MenuService
             $grant = null;
         }
 
-        // admin_only check fires BEFORE the explicit grant — even an
+        // admin_only check fires BEFORE the explicit grant - even an
         // explicitly-allowed non-admin can't see an admin-only plugin.
         $isAdmin = self::userIsAdmin($userId);
         if (! $isAdmin && in_array($name, self::adminOnlyPlugins(), true)) {
@@ -339,7 +339,7 @@ class MenuService
                 $u = auth()->user();
                 $userId = $u?->id;
             } catch (\Throwable $e) {
-                // auth unavailable (CLI / boot) — fall through to global only.
+                // auth unavailable (CLI / boot) - fall through to global only.
             }
         }
 
@@ -450,7 +450,7 @@ class MenuService
             return $path;
         }
 
-        // Named route — try Laravel route resolution
+        // Named route - try Laravel route resolution
         if (str_starts_with($path, '@')) {
             $routeName = substr($path, 1);
             try {

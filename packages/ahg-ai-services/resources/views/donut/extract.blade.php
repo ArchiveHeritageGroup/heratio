@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Donut — Extract ILM Fields')
+@section('title', 'Donut - Extract ILM Fields')
 @section('body-class', 'admin ai-services donut')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Extract</li></ol></nav>

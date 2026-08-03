@@ -195,7 +195,7 @@ class DerivativeService
             ->first();
 
         if (! $master) {
-            // Maybe the ID is for a derivative — find the master via parent_id
+            // Maybe the ID is for a derivative - find the master via parent_id
             $derivative = DB::table('digital_object')
                 ->where('id', $digitalObjectId)
                 ->first();

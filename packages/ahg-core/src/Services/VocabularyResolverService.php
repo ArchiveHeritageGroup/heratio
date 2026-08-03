@@ -1,7 +1,7 @@
 <?php
 
 /**
- * VocabularyResolverService — resolve preferredLabel / altLabels for a URI in
+ * VocabularyResolverService - resolve preferredLabel / altLabels for a URI in
  * a given culture, with cache → SPARQL → write-through fallback.
  *
  * The proper translation strategy for controlled vocabularies (RiC-O, ISAD,
@@ -60,7 +60,7 @@ class VocabularyResolverService
             }
         }
 
-        // 2) SPARQL — fetch all labels for this URI at once, write through cache
+        // 2) SPARQL - fetch all labels for this URI at once, write through cache
         $allLabels = $this->fetchAllLabelsViaSparql($uri);
         if (! empty($allLabels)) {
             foreach ($allLabels as $lang => $labels) {
@@ -89,7 +89,7 @@ class VocabularyResolverService
 
             return is_array($decoded) ? $decoded : [];
         }
-        // SPARQL miss path same as preferredLabel — populate cache
+        // SPARQL miss path same as preferredLabel - populate cache
         $allLabels = $this->fetchAllLabelsViaSparql($uri);
         foreach ($allLabels as $lang => $labels) {
             $this->writeCache($uri, $lang, $labels['pref'] ?? '', $labels['alt'] ?? []);
@@ -99,7 +99,7 @@ class VocabularyResolverService
     }
 
     /**
-     * Bulk resolution — one SPARQL VALUES query for many URIs at once.
+     * Bulk resolution - one SPARQL VALUES query for many URIs at once.
      *
      * @param  string[]  $uris
      * @return array<string, string> uri => preferred label
@@ -288,7 +288,7 @@ class VocabularyResolverService
     }
 
     /**
-     * Fallback when no label exists anywhere — return the URI's local fragment
+     * Fallback when no label exists anywhere - return the URI's local fragment
      * (after # or last /) humanised (camelCase → spaced, dashes → spaces).
      */
     private function localFragment(string $uri): string

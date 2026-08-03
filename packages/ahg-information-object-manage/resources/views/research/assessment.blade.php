@@ -2,7 +2,7 @@
 @section('sidebar')
     @include('research::research._sidebar', ['sidebarActive' => 'workspace'])
 @endsection
-@section('title', 'Source Assessment — ' . ($io->title ?? ''))
+@section('title', 'Source Assessment - ' . ($io->title ?? ''))
 
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
@@ -154,9 +154,9 @@
             <div class="card-body small text-muted">
                 <p>Source assessment evaluates the reliability and authenticity of archival sources for research purposes.</p>
                 <ul class="mb-0">
-                    <li><strong>{{ __('Primary') }}</strong> — created at the time of the event</li>
-                    <li><strong>{{ __('Secondary') }}</strong> — created after the event using primary sources</li>
-                    <li><strong>{{ __('Tertiary') }}</strong> — compilations of primary and secondary sources</li>
+                    <li><strong>{{ __('Primary') }}</strong> - created at the time of the event</li>
+                    <li><strong>{{ __('Secondary') }}</strong> - created after the event using primary sources</li>
+                    <li><strong>{{ __('Tertiary') }}</strong> - compilations of primary and secondary sources</li>
                 </ul>
             </div>
         </div>

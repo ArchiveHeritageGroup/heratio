@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ServicesCheckCommand — probe every dependent service Heratio relies on
+ * ServicesCheckCommand - probe every dependent service Heratio relies on
  * and report up/down. Designed for cron + alerting:
  *
  *   - exit 0 if everything that's *enabled* is reachable
@@ -9,16 +9,16 @@
  *   - --json for machine consumption
  *   - --alert to send a flash to ahg_alert_log when anything is down
  *
- * Probes (each is best-effort — missing config is treated as "skipped",
+ * Probes (each is best-effort - missing config is treated as "skipped",
  * never as a failure):
- *   MySQL                — heratio default connection ping
- *   Elasticsearch        — GET /
- *   Qdrant               — GET /readyz (vector search)
- *   Ollama (embedding)   — GET /api/tags  (semantic_embedding_url)
- *   Ollama (image LLM)   — GET /api/tags  (voice_local_llm_url)
- *   TripoSR              — GET /health    (when triposr_enabled=1)
- *   IIIF (Cantaloupe)    — GET /iiif/3    (when iiif_server_url set)
- *   AI condition service — GET /health    (when ai_condition_service_url set)
+ *   MySQL                - heratio default connection ping
+ *   Elasticsearch        - GET /
+ *   Qdrant               - GET /readyz (vector search)
+ *   Ollama (embedding)   - GET /api/tags  (semantic_embedding_url)
+ *   Ollama (image LLM)   - GET /api/tags  (voice_local_llm_url)
+ *   TripoSR              - GET /health    (when triposr_enabled=1)
+ *   IIIF (Cantaloupe)    - GET /iiif/3    (when iiif_server_url set)
+ *   AI condition service - GET /health    (when ai_condition_service_url set)
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -133,7 +133,7 @@ class ServicesCheckCommand extends Command
 
     protected function skipped(string $name, string $why): array
     {
-        return ['service' => $name, 'status' => 'skipped', 'target' => '—', 'latency_ms' => null, 'detail' => $why];
+        return ['service' => $name, 'status' => 'skipped', 'target' => '-', 'latency_ms' => null, 'detail' => $why];
     }
 
     protected function ms(float $t0): int

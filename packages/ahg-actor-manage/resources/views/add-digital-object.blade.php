@@ -28,7 +28,7 @@
           <label for="digital_object" class="form-label">{{ __('File') }}</label>
           <input type="file" class="form-control" id="digital_object" name="digital_object" required>
           <div class="form-text">
-            {{ __('An authority record holds a single digital object — typically a portrait or a logo. Delete the existing one before attaching another.') }}
+            {{ __('An authority record holds a single digital object - typically a portrait or a logo. Delete the existing one before attaching another.') }}
           </div>
         </div>
 

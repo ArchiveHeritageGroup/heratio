@@ -1,4 +1,4 @@
-# AhgResearcherManage — Help
+# AhgResearcherManage - Help
 
 Brief help text for the AhgResearcherManage package.
 

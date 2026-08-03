@@ -1,5 +1,5 @@
 {{--
-  Multi-Tenancy — repository-based multi-tenancy settings
+  Multi-Tenancy - repository-based multi-tenancy settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('multi_tenant')
 
   @copyright  Johan Pieterse / Plain Sailing

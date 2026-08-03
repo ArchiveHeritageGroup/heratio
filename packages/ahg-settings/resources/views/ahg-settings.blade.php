@@ -1,4 +1,4 @@
-{{-- AHG Settings landing page — redirects to settings index --}}
+{{-- AHG Settings landing page - redirects to settings index --}}
 @extends('theme::layouts.1col')
 @section('title', 'AHG Plugin Settings')
 @section('body-class', 'admin settings')

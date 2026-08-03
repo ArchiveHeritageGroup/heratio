@@ -17,7 +17,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <h3 class="mb-1" id="next-date">{{ $next_expected ?? '—' }}</h3>
+                    <h3 class="mb-1" id="next-date">{{ $next_expected ?? '-' }}</h3>
                     <p class="text-muted mb-0 small">Next expected issue</p>
                 </div>
             </div>

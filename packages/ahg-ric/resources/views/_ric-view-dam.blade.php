@@ -1,5 +1,5 @@
 {{--
-  RiC View: Digital Asset (DAM item) — file embodiment + record-resource context.
+  RiC View: Digital Asset (DAM item) - file embodiment + record-resource context.
 
   @copyright  Johan Pieterse / Plain Sailing Information Systems
   @license    AGPL-3.0-or-later

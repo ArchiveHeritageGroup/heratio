@@ -263,7 +263,7 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                     @elseif ($isFinalStep && ($originatorId ?? null))
                     <div class="alert alert-info py-2 mb-3">
                         <i class="fas fa-info-circle me-1"></i>
-                        {{ __('Final step — this task will be routed back to the originator for closure.') }}
+                        {{ __('Final step - this task will be routed back to the originator for closure.') }}
                     </div>
                     @endif
                     <form method="post" action="{{ route('ahgspectrum.workflow-transition') }}" class="row g-3" id="workflow-transition-form">
@@ -507,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Lock to originator
             assignSelect.value = originatorId;
             assignSelect.disabled = true;
-            // Disabled fields don't submit — add a hidden input
+            // Disabled fields don't submit - add a hidden input
             var hidden = document.getElementById('assigned-to-hidden');
             if (!hidden) {
                 hidden = document.createElement('input');

@@ -1,5 +1,5 @@
 {{--
-  ahgRecordsManagePlugin — Dashboard
+  ahgRecordsManagePlugin - Dashboard
 
   Single landing surface for the Records Management module. Every RM tool is
   reachable from here. The cards count live data so officers see drift at a glance.
@@ -83,7 +83,7 @@
       <div class="card h-100 border-warning">
         <div class="card-body">
           <h5 class="card-title text-warning"><i class="fas fa-eye me-1"></i> {{ __('Reviews') }}</h5>
-          <p class="card-text text-muted small">Periodic review queue — when retention asks "look again before disposing".</p>
+          <p class="card-text text-muted small">Periodic review queue - when retention asks "look again before disposing".</p>
           <div class="mt-2"><span class="badge bg-warning text-dark">{{ $stats['overdue_reviews'] }}</span> overdue</div>
         </div>
       </div>

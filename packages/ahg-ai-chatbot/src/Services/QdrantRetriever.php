@@ -3,7 +3,7 @@
 /**
  * QdrantRetriever
  *
- * RAG retrieval — searches the Qdrant vector store for information objects
+ * RAG retrieval - searches the Qdrant vector store for information objects
  * relevant to a user query, falls back to Elasticsearch keyword search.
  *
  * Copyright (C) 2026 Johan Pieterse

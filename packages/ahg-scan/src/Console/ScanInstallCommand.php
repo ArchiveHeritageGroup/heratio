@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ScanInstallCommand — Heratio ahg-scan
+ * ScanInstallCommand - Heratio ahg-scan
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -95,7 +95,7 @@ class ScanInstallCommand extends Command
         $this->addColumn('scan_folder', 'created_by',
             'ALTER TABLE scan_folder ADD COLUMN created_by INT NULL AFTER updated_at');
 
-        // P6: retry/backoff — track when we last attempted a file so the
+        // P6: retry/backoff - track when we last attempted a file so the
         // scheduler can compute whether its next-attempt window has elapsed.
         $this->addColumn('ingest_file', 'last_attempt_at',
             'ALTER TABLE ingest_file ADD COLUMN last_attempt_at DATETIME NULL AFTER attempts');
@@ -172,7 +172,7 @@ SQL
     protected function addColumn(string $table, string $column, string $alterSql): void
     {
         if (! Schema::hasTable($table)) {
-            $this->warn("  skip {$table}.{$column} — table missing");
+            $this->warn("  skip {$table}.{$column} - table missing");
 
             return;
         }
@@ -246,7 +246,7 @@ SQL
         $this->line('Dropdowns:');
 
         if (! Schema::hasTable('ahg_dropdown')) {
-            $this->warn('  skip — ahg_dropdown table missing');
+            $this->warn('  skip - ahg_dropdown table missing');
 
             return;
         }

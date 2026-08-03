@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-ai-services — install schema
+-- ahg-ai-services - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgAIPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -399,7 +399,7 @@ CREATE TABLE IF NOT EXISTS ahg_ai_auto_trigger_log (
 -- ============================================================================
 
 INSERT IGNORE INTO ahg_ai_settings (id, feature, setting_key, setting_value) VALUES
-    -- General AI settings (api_url = AHG AI gateway, never a direct node — #1368)
+    -- General AI settings (api_url = AHG AI gateway, never a direct node - #1368)
     (1, 'general', 'api_url', 'https://ai.theahg.co.za/ai/v1'),
     (2, 'general', 'api_key', ''),
     (3, 'general', 'api_timeout', '60'),
@@ -484,7 +484,7 @@ INSERT IGNORE INTO ahg_ner_settings (id, setting_key, setting_value) VALUES
 -- SECTION 10: DEFAULT SEED DATA - ahg_llm_config
 -- ============================================================================
 
--- Default Ollama configuration — routed through the AHG AI gateway, never a
+-- Default Ollama configuration - routed through the AHG AI gateway, never a
 -- direct :11434 node (#1368). The LlmService node-guard rejects a stale node
 -- endpoint_url at runtime regardless, but seed the gateway so fresh installs
 -- are correct out of the box.
@@ -636,7 +636,7 @@ INSERT IGNORE INTO ahg_ai_settings (feature, setting_key, setting_value) VALUES
     ('ocr', 'ocr_premis_events_enabled',         '1');
 
 -- ============================================================================
--- SECTION 7: Issue #667 Phase 1 — quotas, cost tracking, translation memory,
+-- SECTION 7: Issue #667 Phase 1 - quotas, cost tracking, translation memory,
 -- custom NER entities, face detection placeholder
 -- ============================================================================
 

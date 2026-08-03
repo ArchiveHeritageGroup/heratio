@@ -10,7 +10,7 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Z39.50 Server (Phase 4 — ISO 23950 bibliographic target)
+    | Z39.50 Server (Phase 4 - ISO 23950 bibliographic target)
     |--------------------------------------------------------------------------
     |
     | Enable the built-in Z39.50 server to expose the Heratio catalogue

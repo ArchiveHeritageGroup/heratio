@@ -118,7 +118,7 @@
                     {{ $doc['name'] ?: '[Untitled]' }}
                   </a>
                 </td>
-                <td><small>{{ $doc['identifier'] ?: '—' }}</small></td>
+                <td><small>{{ $doc['identifier'] ?: '-' }}</small></td>
                 <td>
                   <span class="badge bg-success">{{ __('Active') }}</span>
                 </td>
@@ -126,7 +126,7 @@
                   @if(!empty($doc['updated_at']))
                     {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y') }}
                   @else
-                    —
+                    -
                   @endif
                 </td>
                 <td class="text-end">

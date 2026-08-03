@@ -18,7 +18,7 @@
       <div class="col-md-6">
         <label class="form-label">{{ __('Linked Vendor') }}</label>
         <select name="vendor_id" class="form-select">
-          <option value="">— none —</option>
+          <option value="">- none -</option>
           @foreach($vendors as $v)
             <option value="{{ $v->id }}" {{ old('vendor_id', $partner->vendor_id)==$v->id ? 'selected' : '' }}>
               {{ $v->name }} ({{ $v->code }})

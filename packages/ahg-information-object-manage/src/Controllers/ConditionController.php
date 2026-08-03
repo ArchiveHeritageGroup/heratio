@@ -362,7 +362,7 @@ class ConditionController extends Controller
     }
 
     /**
-     * AI Condition Assessment — POST JSON endpoint.
+     * AI Condition Assessment - POST JSON endpoint.
      * Calls the AI condition service on server 78.
      */
     public function aiAssess(Request $request)
@@ -391,7 +391,7 @@ class ConditionController extends Controller
         }
 
         // Issue #99: route through VoiceLLMService so the operator's
-        // /admin/ahgSettings/voice_ai choices actually take effect — provider
+        // /admin/ahgSettings/voice_ai choices actually take effect - provider
         // (local/cloud/hybrid), timeout, daily cloud limit, and audit toggle.
         // The previous inline curl block honoured voice_local_llm_url +
         // voice_local_llm_model only; the other 4 keys were ignored.
@@ -525,7 +525,7 @@ class ConditionController extends Controller
     private function resolveAssessor(?int $userId): string
     {
         if (!$userId) {
-            return '—';
+            return '-';
         }
 
         $user = DB::table('user')
@@ -533,7 +533,7 @@ class ConditionController extends Controller
             ->select('username')
             ->first();
 
-        return $user->username ?? '—';
+        return $user->username ?? '-';
     }
 
     /**

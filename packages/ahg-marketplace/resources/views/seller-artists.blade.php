@@ -1,5 +1,5 @@
 {{--
-  Broker artist list — sellers managing multiple artists.
+  Broker artist list - sellers managing multiple artists.
   Receives: $seller, $artists (Collection), $isBroker (bool).
 --}}
 @extends('theme::layouts.1col')
@@ -25,7 +25,7 @@
       Set it to <strong>broker</strong>, <strong>gallery</strong>, or <strong>dealer</strong> on
       <a href="{{ route('ahgmarketplace.seller-profile') }}">your profile</a>
       to enable broker features (artist selector + markup pricing on listings).
-      Adding artists below is allowed regardless &mdash; you just won't see the broker fields on listing forms until your seller type is updated.
+      Adding artists below is allowed regardless - you just won't see the broker fields on listing forms until your seller type is updated.
     </div>
   @endif
 
@@ -66,7 +66,7 @@
                 @endif
               </td>
               <td class="small text-muted">
-                {{ $a->birth_year ?: '?' }} &ndash; {{ $a->death_year ?: 'present' }}
+                {{ $a->birth_year ?: '?' }} - {{ $a->death_year ?: 'present' }}
               </td>
               <td class="small">
                 @if($a->default_markup_type === 'percentage')

@@ -43,7 +43,7 @@ class SettingsController extends Controller
         'i18n_languages' => 'Languages',
         'oai' => 'OAI repository',
         'access_statement' => 'Access statement',
-        // 'federation' removed — controlled by ahgFederationPlugin enable/disable in Plugin Management
+        // 'federation' removed - controlled by ahgFederationPlugin enable/disable in Plugin Management
     ];
 
     private array $scopeIcons = [
@@ -181,7 +181,7 @@ class SettingsController extends Controller
             'i18n_languages' => 'settings.languages',
             'ui_label' => 'settings.interface-labels',
             'oai' => 'settings.oai',
-            'federation' => 'settings.plugins', // federation is plugin-gated — manage via Plugin Management
+            'federation' => 'settings.plugins', // federation is plugin-gated - manage via Plugin Management
         ];
         if (isset($redirectMap[$section])) {
             return redirect()->route($redirectMap[$section]);
@@ -428,7 +428,7 @@ class SettingsController extends Controller
 
         if ($request->isMethod('post')) {
             // Look up the en value for each setting so we can mirror writes
-            // to lang/{culture}.json — keeps /admin/translation/strings in sync
+            // to lang/{culture}.json - keeps /admin/translation/strings in sync
             // with /admin/settings/interface-labels (issue #57 part A).
             $ids = array_keys($request->input('settings', []));
             $enValues = empty($ids) ? collect() : DB::table('setting as s')
@@ -451,7 +451,7 @@ class SettingsController extends Controller
                     try {
                         $uiSvc->setKey($culture, (string) strtr($enKey, ['&nbsp;' => ' ']), (string) $value);
                     } catch (\Throwable $e) {
-                        // best-effort mirror — never block the primary save
+                        // best-effort mirror - never block the primary save
                     }
                 }
             }
@@ -464,7 +464,7 @@ class SettingsController extends Controller
         }
 
         // For each ui_label setting row, return:
-        //   - source value (the en row, always — so editor sees the canonical)
+        //   - source value (the en row, always - so editor sees the canonical)
         //   - target value (the row for the selected culture, or NULL if not yet translated)
         $settings = DB::table('setting as s')
             ->leftJoin('setting_i18n as si_en', function ($j) {
@@ -695,7 +695,7 @@ class SettingsController extends Controller
                 // updateOrInsert, not update: a fresh install has no ahg_settings
                 // theme rows at all, so a plain UPDATE matched nothing and every
                 // theme save silently no-op'd (regenerateThemeCss then re-emitted
-                // the built-in defaults). setting_group must be 'general' — that
+                // the built-in defaults). setting_group must be 'general' - that
                 // is the group regenerateThemeCss() reads.
                 DB::table('ahg_settings')->updateOrInsert(
                     ['setting_key' => $key],
@@ -823,15 +823,15 @@ class SettingsController extends Controller
             ."a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n"
             .".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
             .':root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); '
-              // Legacy bundled-CSS aliases — the AtoM-era theme bundle ships with hardcoded
+              // Legacy bundled-CSS aliases - the AtoM-era theme bundle ships with hardcoded
               // green defaults on a parallel set of variable names (`--ahg-primary-color`,
               // `--ahg-accent-color`, etc.). Aliasing them onto the live theme palette neutralises
-              // every rule that reads them — dropdown-hovers, action bars, toolbars and so on.
+              // every rule that reads them - dropdown-hovers, action bars, toolbars and so on.
               .'--ahg-primary-color: var(--ahg-primary); --ahg-primary-dark: var(--ahg-secondary);'
               .'--ahg-accent-color: var(--ahg-primary); --ahg-accent-dark: var(--ahg-secondary);'
               // The bundle paints `.btn-primary` from `--ahg-button-bg` (its own hardcoded
               // #005837), while this sheet defines `--ahg-btn-bg`. Same colour, different
-              // name — so every primary button stayed green whatever the operator picked.
+              // name - so every primary button stayed green whatever the operator picked.
               .'--ahg-button-bg: var(--ahg-btn-bg); --ahg-button-text: var(--ahg-btn-text);'
               .'--ahg-border-color: #dee2e6;'
               // Bootstrap list-group active state: bundle defaults are #dee2e6 light-grey bg
@@ -840,7 +840,7 @@ class SettingsController extends Controller
               .'--bs-list-group-active-bg: var(--ahg-primary);'
               .'--bs-list-group-active-color: #fff;'
               .'--bs-list-group-active-border-color: var(--ahg-primary);'
-              // Bootstrap 5 "success" subtle tints — re-derive from the configured success
+              // Bootstrap 5 "success" subtle tints - re-derive from the configured success
               // colour (defaults to --ahg-primary). Themes admin's "Success color" field still
               // wins when the operator sets it explicitly.
               .'--bs-success-bg-subtle: color-mix(in srgb, var(--ahg-success) 12%, #fff);'
@@ -853,7 +853,7 @@ class SettingsController extends Controller
             .'.alert-success { background-color: color-mix(in srgb, var(--ahg-success) 12%, #fff) !important; '
               .'border-color: color-mix(in srgb, var(--ahg-success) 35%, #fff) !important; '
               ."color: color-mix(in srgb, var(--ahg-success) 60%, #000) !important; }\n"
-            // Defuse the bundle's aggressive `div[class*=action]` rule — that selector matches
+            // Defuse the bundle's aggressive `div[class*=action]` rule - that selector matches
             // way too broadly (e.g. .actions-row, .row-actions, .action-icons) and was painting
             // every action-related container green. Reset to transparent and let the .actions
             // bar's own grey background remain.
@@ -864,7 +864,7 @@ class SettingsController extends Controller
             ."body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }\n"
             ."#top-bar { background-color: var(--ahg-header-bg) !important; color: var(--ahg-header-text) !important; }\n"
             ."#top-bar, #top-bar .navbar-brand, #top-bar .nav-link, #top-bar .nav-link i { color: var(--ahg-header-text) !important; }\n"
-            // Site description bar — entirely driven by themes settings (no inline-style fallback in master.blade)
+            // Site description bar - entirely driven by themes settings (no inline-style fallback in master.blade)
             .".ahg-description-bar { background-color: var(--ahg-descbar-bg) !important; color: var(--ahg-descbar-text) !important; text-align: var(--ahg-descbar-align, left); }\n"
             .".ahg-description-bar a { color: var(--ahg-descbar-text) !important; text-decoration: underline; }\n"
 
@@ -1045,11 +1045,11 @@ class SettingsController extends Controller
                 } else {
                     $value = $postedSettings[$key] ?? '';
                 }
-                // #1395(D) — a blank write-only secret field means "keep current"; don't wipe it.
+                // #1395(D) - a blank write-only secret field means "keep current"; don't wipe it.
                 if ($this->service->isBlankSecret($key, $value)) {
                     continue;
                 }
-                // #1395(D) — encrypt secrets at rest before persisting.
+                // #1395(D) - encrypt secrets at rest before persisting.
                 $value = $this->service->concealSecret($key, $value);
                 DB::table('ahg_settings')
                     ->where('setting_key', $key)
@@ -1614,7 +1614,7 @@ class SettingsController extends Controller
                 $avg = DB::table('ahg_ai_condition_assessment')->avg('score');
                 $stats['avg_score'] = $avg !== null ? number_format($avg, 1) : '--';
             } catch (\Throwable $e) {
-                // Table may exist but columns differ — keep defaults
+                // Table may exist but columns differ - keep defaults
             }
         }
 
@@ -1663,12 +1663,12 @@ class SettingsController extends Controller
                     ? ($request->has($key) ? '1' : '0')
                     : ($request->input($key, '') ?? '');
 
-                // #1395(D) — a blank write-only secret field means "keep current"; don't wipe it.
+                // #1395(D) - a blank write-only secret field means "keep current"; don't wipe it.
                 if ($this->service->isBlankSecret($key, $value)) {
                     continue;
                 }
 
-                // #1395(D) — encrypt secrets at rest (ai_condition_api_key) before persisting.
+                // #1395(D) - encrypt secrets at rest (ai_condition_api_key) before persisting.
                 $value = $this->service->concealSecret($key, $value);
 
                 DB::table('ahg_settings')->updateOrInsert(
@@ -1854,7 +1854,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Audit Trail Settings — structured card view cloned from AtoM settingsSuccess.php.
+     * Audit Trail Settings - structured card view cloned from AtoM settingsSuccess.php.
      */
     public function auditSettings(Request $request)
     {
@@ -1893,7 +1893,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Background Jobs Settings — structured card view cloned from AtoM @case('jobs').
+     * Background Jobs Settings - structured card view cloned from AtoM @case('jobs').
      */
     public function jobsSettings(Request $request)
     {
@@ -2039,7 +2039,7 @@ class SettingsController extends Controller
         } elseif ($statusFilter === 'resolved') {
             $query->whereNotNull('resolved_at');
         }
-        // 'all' shows both open and resolved — no filter needed
+        // 'all' shows both open and resolved - no filter needed
 
         if ($levelFilter) {
             $query->where('level', $levelFilter);
@@ -2154,7 +2154,7 @@ class SettingsController extends Controller
                     $adminOnly = $action === 'lock-to-admins' ? 1 : 0;
                     DB::table('atom_plugin')->where('name', $pluginName)
                         ->update(['admin_only' => $adminOnly, 'updated_at' => now()]);
-                    $msg = $adminOnly ? 'now admin-only — non-admins will not see it'
+                    $msg = $adminOnly ? 'now admin-only - non-admins will not see it'
                                       : 'available to non-admins (subject to per-user grants)';
 
                     return redirect()->route('settings.plugins')
@@ -2204,7 +2204,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Cron Jobs management page — interactive DB-driven scheduler.
+     * Cron Jobs management page - interactive DB-driven scheduler.
      */
     public function cronJobs(\AhgCore\Services\CronSchedulerService $service)
     {
@@ -2543,11 +2543,11 @@ class SettingsController extends Controller
             $posted = $request->input('settings', []);
             foreach (array_keys($keyDefaults) as $key) {
                 $value = (string) ($posted[$key] ?? $keyDefaults[$key]);
-                // #1395(D) — a blank write-only secret field means "keep current"; don't wipe it.
+                // #1395(D) - a blank write-only secret field means "keep current"; don't wipe it.
                 if ($this->service->isBlankSecret($key, $value)) {
                     continue;
                 }
-                // #1395(D) — encrypt secrets at rest (local_contexts_api_key) before persisting.
+                // #1395(D) - encrypt secrets at rest (local_contexts_api_key) before persisting.
                 $value = $this->service->concealSecret($key, $value);
                 DB::table('icip_config')->updateOrInsert(
                     ['config_key' => $key],
@@ -3333,7 +3333,7 @@ class SettingsController extends Controller
 
     // ─── Page Elements ─────────────────────────────────────────────────
     /**
-     * Default page elements settings — clones AtoM SettingsPageElementsAction.
+     * Default page elements settings - clones AtoM SettingsPageElementsAction.
      * Toggles for logo, title, description, language menu, IO carousel,
      * digital object map, copyright/material filters. Stored in `setting`
      * table by name (no scope), not in element_visibility.
@@ -3519,7 +3519,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Authority Records Settings — structured card view cloned from AtoM @case('authority').
+     * Authority Records Settings - structured card view cloned from AtoM @case('authority').
      */
     public function authority(Request $request)
     {
@@ -3569,7 +3569,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Data Protection Settings — POPIA/GDPR compliance and data handling.
+     * Data Protection Settings - POPIA/GDPR compliance and data handling.
      * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('data_protection').
      */
     public function dataProtectionSettings(Request $request)
@@ -3618,7 +3618,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Encryption Settings — XChaCha20 encryption configuration.
+     * Encryption Settings - XChaCha20 encryption configuration.
      * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('encryption').
      */
     public function encryptionSettings(Request $request)
@@ -3667,7 +3667,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Faces Settings — face detection and recognition.
+     * Faces Settings - face detection and recognition.
      * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('faces').
      */
     public function facesSettings(Request $request)
@@ -3708,7 +3708,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * FTP Settings — FTP/SFTP upload connection settings.
+     * FTP Settings - FTP/SFTP upload connection settings.
      * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('ftp').
      */
     public function ftpSettings(Request $request)
@@ -3748,7 +3748,7 @@ class SettingsController extends Controller
                     ? ($request->has($key) ? '1' : '0')
                     : ($request->input($key, '') ?? '');
 
-                // #1395(D) — encrypt secrets at rest (ftp_password) before persisting.
+                // #1395(D) - encrypt secrets at rest (ftp_password) before persisting.
                 $value = $this->service->concealSecret($key, $value);
 
                 DB::table('ahg_settings')->updateOrInsert(
@@ -3766,7 +3766,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * SharePoint Integration Settings — Mirror of AtoM ahgSettingsPlugin
+     * SharePoint Integration Settings - Mirror of AtoM ahgSettingsPlugin
      *
      * @case('sharepoint'). Backed by ahg/sharepoint package.
      */
@@ -3821,7 +3821,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Fuseki Settings — Fuseki/RIC triplestore connection and sync.
+     * Fuseki Settings - Fuseki/RIC triplestore connection and sync.
      * Cloned from AtoM ahgSettingsPlugin section.blade.php @case('fuseki').
      */
     public function fusekiSettings(Request $request)
@@ -3870,7 +3870,7 @@ class SettingsController extends Controller
                     ? ($request->has($key) ? '1' : '0')
                     : ($request->input($key, '') ?? '');
 
-                // #1395(D) — encrypt secrets at rest (fuseki_password) before persisting.
+                // #1395(D) - encrypt secrets at rest (fuseki_password) before persisting.
                 $value = $this->service->concealSecret($key, $value);
 
                 DB::table('ahg_settings')->updateOrInsert(
@@ -3933,11 +3933,11 @@ class SettingsController extends Controller
                 $value = $isCheckbox
                     ? (isset($posted[$key]) ? 'true' : 'false')
                     : ($posted[$key] ?? '');
-                // #1395(D) — a blank write-only secret field means "keep current"; don't wipe it.
+                // #1395(D) - a blank write-only secret field means "keep current"; don't wipe it.
                 if ($this->service->isBlankSecret($key, $value)) {
                     continue;
                 }
-                // #1395(D) — encrypt secrets at rest (e.g. voice_anthropic_api_key) before persisting.
+                // #1395(D) - encrypt secrets at rest (e.g. voice_anthropic_api_key) before persisting.
                 $value = $this->service->concealSecret($key, $value);
                 DB::table('ahg_settings')->updateOrInsert(
                     ['setting_key' => $key, 'setting_group' => $group],

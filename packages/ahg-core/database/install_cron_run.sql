@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `ahg_cron_missed_run` (
     `resolved_at`   DATETIME NULL COMMENT 'Set when a successful run lands after the miss; NULL while still missing.',
     `created_at`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    -- One open miss row per (command, expected_at) — detector is idempotent
+    -- One open miss row per (command, expected_at) - detector is idempotent
     -- across re-runs of cron:check-missed-runs every 5 minutes.
     UNIQUE KEY `command_expected_uniq` (`command`, `expected_at`),
     KEY `unresolved_idx` (`resolved_at`),

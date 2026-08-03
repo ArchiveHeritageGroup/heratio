@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CsvImportCommand — bulk CSV import for archival descriptions.
+ * CsvImportCommand - bulk CSV import for archival descriptions.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

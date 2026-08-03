@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 
-{{-- Browser tab title (plain text) — split from the visual page header --}}
-@section('title', ($user ? __('Edit user') : __('Add new user')) . ($user ? ' — ' . ($user->authorized_form_of_name ?? $user->username) : ''))
+{{-- Browser tab title (plain text) - split from the visual page header --}}
+@section('title', ($user ? __('Edit user') : __('Add new user')) . ($user ? ' - ' . ($user->authorized_form_of_name ?? $user->username) : ''))
 
 {{-- Visible page header (rendered by 1col layout via @yield('title-block')) --}}
 @section('title-block')
@@ -270,7 +270,7 @@
           <div class="accordion-body">
             @php
               // AtoM stores these properties with camelized names (sfInflector::camelize).
-              // API keys are not language-dependent — read against the property's
+              // API keys are not language-dependent - read against the property's
               // source_culture so the value stays visible after the user switches
               // their UI locale (was previously filtered by app()->getLocale(),
               // which hid the key whenever current locale != generation locale).

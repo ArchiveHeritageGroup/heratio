@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TriposrImportService — moves a TripoSR-generated GLB from staging into an
+ * TriposrImportService - moves a TripoSR-generated GLB from staging into an
  * IO's permanent uploads dir and registers the digital_object + object_3d_model
  * rows. Shared by the artisan command (auto-import) and the web preview flow
  * (after the user clicks Save & attach).
@@ -105,7 +105,7 @@ class TriposrImportService
     }
 
     /**
-     * Discard a staged GLB — used when the user clicks "Discard" in the modal.
+     * Discard a staged GLB - used when the user clicks "Discard" in the modal.
      */
     public function discardStaged(string $glbPath): bool
     {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AuthorityControlService — Subject authority record management for Heratio.
+ * AuthorityControlService - Subject authority record management for Heratio.
  *
  * Provides CRUD operations for library_subject_authority records and the
  * library_item_authority_link pivot. Used by the MARC editor (6XX fields)

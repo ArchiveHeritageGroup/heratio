@@ -46,7 +46,7 @@
                         <div class="mb-3">
                             <label for="target_id" class="form-label">Target <span class="text-danger">*</span></label>
                             <select name="target_id" id="target_id" class="form-select" required>
-                                <option value="">— select target —</option>
+                                <option value="">- select target -</option>
                                 @foreach($targets as $t)
                                     <option value="{{ $t->id }}"
                                             {{ (request('target_id') == $t->id || (isset($targetId) && $targetId == $t->id)) ? 'selected' : '' }}>

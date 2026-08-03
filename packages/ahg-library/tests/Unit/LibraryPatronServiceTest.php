@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LibraryPatronServiceTest — unit tests for LibraryPatronService.
+ * LibraryPatronServiceTest - unit tests for LibraryPatronService.
  *
  * Tests cover:
  *   - generateCardNumber (format + collision uniqueness)
@@ -111,7 +111,7 @@ class LibraryPatronServiceTest extends AhgLibraryTestCase
     // ─── create ─────────────────────────────────────────────────────────
 
     /** When caller omits patron_type, create() should default to
-     *  LibrarySettings::patronDefaultType() — unit test verifies the
+     *  LibrarySettings::patronDefaultType() - unit test verifies the
      *  field is set to 'student' via settings (integration test against
      *  LibrarySettings confirms the real default). */
     public function test_create_applies_settings_defaults(): void
@@ -181,7 +181,7 @@ class LibraryPatronServiceTest extends AhgLibraryTestCase
     {
         $graceDays = 7;
         $cutoff = date('Y-m-d', strtotime("-{$graceDays} days"));
-        // Hard-code expiry date to 2020-01-01 — guaranteed before any recent cutoff.
+        // Hard-code expiry date to 2020-01-01 - guaranteed before any recent cutoff.
         self::$pdo->exec("DELETE FROM library_patron WHERE id = 3");
         self::$pdo->exec("INSERT INTO library_patron (id, card_number, patron_type, first_name, last_name, borrowing_status, max_checkouts, max_renewals, max_holds, membership_start, membership_expiry, created_at, updated_at)
             VALUES (3, 'LIB-26-000003', 'student', 'Alice', 'Lapsed', 'active', 5, 2, 3, date('now'), '2020-01-01', date('now'), date('now'))");
@@ -199,7 +199,7 @@ class LibraryPatronServiceTest extends AhgLibraryTestCase
         $graceDays = 7;
         $cutoff = date('Y-m-d', strtotime("-{$graceDays} days"));
 
-        // membership_expiry 5 days ago — after cutoff (7 days ago), so NOT eligible.
+        // membership_expiry 5 days ago - after cutoff (7 days ago), so NOT eligible.
         self::$pdo->exec("DELETE FROM library_patron WHERE id = 4");
         self::$pdo->exec("INSERT INTO library_patron (id, card_number, patron_type, first_name, last_name, borrowing_status, max_checkouts, max_renewals, max_holds, membership_start, membership_expiry, created_at, updated_at)
             VALUES (4, 'LIB-26-000004', 'student', 'Bob', 'Grace', 'active', 5, 2, 3, date('now'), date('-5 days'), date('now'), date('now'))");

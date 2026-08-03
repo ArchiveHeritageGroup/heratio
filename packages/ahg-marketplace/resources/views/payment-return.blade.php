@@ -23,13 +23,13 @@
             <i class="fas fa-times-circle fa-4x text-warning mb-3"></i>
             <h1 class="h3">{{ __('Payment cancelled') }}</h1>
             <p class="text-muted">
-              You cancelled the payment. The listing has been kept available — you can retry whenever you're ready.
+              You cancelled the payment. The listing has been kept available - you can retry whenever you're ready.
             </p>
           @else
             <i class="fas fa-clock fa-4x text-info mb-3"></i>
             <h1 class="h3">{{ __('Awaiting confirmation') }}</h1>
             <p class="text-muted">
-              Your payment is being processed. PayFast will confirm via webhook shortly &mdash; you'll see the status update on your purchases page.
+              Your payment is being processed. PayFast will confirm via webhook shortly - you'll see the status update on your purchases page.
             </p>
           @endif
 

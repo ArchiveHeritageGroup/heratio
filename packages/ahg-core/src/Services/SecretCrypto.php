@@ -29,7 +29,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Crypt;
 
 /**
- * #1395(D) — encryption-at-rest for integration secrets stored in the settings
+ * #1395(D) - encryption-at-rest for integration secrets stored in the settings
  * tables (`setting`/`setting_i18n`, `ahg_settings`, `icip_config`). A DB dump of
  * those tables must not expose usable API keys / passwords.
  *
@@ -65,7 +65,7 @@ class SecretCrypto
         try {
             return Crypt::decryptString($stored);
         } catch (DecryptException $e) {
-            // Not ciphertext (legacy plaintext / not-yet-backfilled) — pass through.
+            // Not ciphertext (legacy plaintext / not-yet-backfilled) - pass through.
             return $stored;
         }
     }

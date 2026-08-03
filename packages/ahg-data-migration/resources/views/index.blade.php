@@ -25,7 +25,7 @@
     </div>
   @endif
 
-  {{-- Action buttons — btn btn-outline-secondary matching AtoM --}}
+  {{-- Action buttons - btn btn-outline-secondary matching AtoM --}}
   <div class="d-flex flex-wrap gap-2 mb-4">
     <a href="{{ route('data-migration.upload') }}" class="btn btn-outline-secondary">
       <i class="fas fa-upload"></i> {{ __('New Import') }}

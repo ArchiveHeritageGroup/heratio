@@ -12,7 +12,7 @@ class PrivacyJurisdictionCommand extends Command
         {--code= : Specific jurisdiction code (popia, gdpr, ccpa, cdpa, ...); default=all installed}
         {--format=table : Output (table or json)}';
 
-    protected $description = 'Privacy jurisdiction registry — installed regimes + global counts (DSAR, breach, RoPA)';
+    protected $description = 'Privacy jurisdiction registry - installed regimes + global counts (DSAR, breach, RoPA)';
 
     public function handle(): int
     {

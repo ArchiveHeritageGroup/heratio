@@ -1,9 +1,9 @@
 -- ============================================================================
--- Research Plugin — Dropdown Seed
+-- Research Plugin - Dropdown Seed
 -- Run on fresh install: mysql -u root heratio < packages/ahg-research/database/seed_dropdowns.sql
 -- Or via artisan: php artisan ahg:seed-research-dropdowns
 --
--- Uses INSERT IGNORE — safe to run multiple times.
+-- Uses INSERT IGNORE - safe to run multiple times.
 -- ============================================================================
 
 INSERT IGNORE INTO ahg_dropdown (taxonomy, taxonomy_label, taxonomy_section, code, label, color, icon, sort_order, is_active, created_at) VALUES ('assertion_type', 'Assertion Type', 'research', 'biographical', 'Biographical', NULL, NULL, 10, 1, NOW());

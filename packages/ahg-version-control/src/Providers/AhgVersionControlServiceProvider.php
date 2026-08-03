@@ -1,9 +1,9 @@
 <?php
 
 /**
- * AhgVersionControlServiceProvider — service provider for the AHG Version Control package.
+ * AhgVersionControlServiceProvider - service provider for the AHG Version Control package.
  *
- * Phase A — schema only. Migrations are loaded; routes, observers and services
+ * Phase A - schema only. Migrations are loaded; routes, observers and services
  * register in subsequent build phases.
  *
  * Copyright (C) 2026 The Archive and Heritage Group (Pty) Ltd

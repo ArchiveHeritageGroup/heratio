@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
 /**
- * Phase 1 admin UI — index, tenants, drives, mapping.
+ * Phase 1 admin UI - index, tenants, drives, mapping.
  *
  * Mirror of atom-ahg-plugins/ahgSharePointPlugin/modules/sharepoint/actions/actions.class.php.
  */
@@ -67,7 +67,7 @@ class SharePointController extends Controller
 
     public function driveBrowse(Request $request)
     {
-        // TODO: AJAX — given tenantId, GET /sites + drives via Graph; return JSON for picker.
+        // TODO: AJAX - given tenantId, GET /sites + drives via Graph; return JSON for picker.
         return response()->json(['status' => 'not_implemented']);
     }
 
@@ -122,7 +122,7 @@ class SharePointController extends Controller
         return view('ahg-sharepoint::event-detail', ['event' => $event]);
     }
 
-    // ─── Phase 2 (v2 ingest plan) — rules + mapping templates admin ─────
+    // ─── Phase 2 (v2 ingest plan) - rules + mapping templates admin ─────
 
     public function rules()
     {

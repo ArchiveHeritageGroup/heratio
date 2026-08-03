@@ -68,18 +68,18 @@
             <dt class="col-sm-3">{{ __('Type') }}</dt>
             <dd class="col-sm-9">
               <span class="badge {{ ($request->type ?? '') === 'borrow' ? 'bg-primary' : 'bg-success' }}">
-                {{ ucfirst($request->type ?? '—') }}
+                {{ ucfirst($request->type ?? '-') }}
               </span>
             </dd>
 
             <dt class="col-sm-3">{{ __('Title') }}</dt>
-            <dd class="col-sm-9">{{ e($request->title ?? '—') }}</dd>
+            <dd class="col-sm-9">{{ e($request->title ?? '-') }}</dd>
 
             <dt class="col-sm-3">{{ __('Author') }}</dt>
-            <dd class="col-sm-9">{{ e($request->author ?? '—') }}</dd>
+            <dd class="col-sm-9">{{ e($request->author ?? '-') }}</dd>
 
             <dt class="col-sm-3">{{ __('ISBN') }}</dt>
-            <dd class="col-sm-9">{{ e($request->isbn ?? '—') }}</dd>
+            <dd class="col-sm-9">{{ e($request->isbn ?? '-') }}</dd>
 
             @if(!empty($request->issn))
             <dt class="col-sm-3">{{ __('ISSN') }}</dt>
@@ -111,7 +111,7 @@
             <hr class="mt-2 mb-2">
 
             <dt class="col-sm-3">{{ __('Partner Library') }}</dt>
-            <dd class="col-sm-9">{{ e($request->library_name ?? '—') }}</dd>
+            <dd class="col-sm-9">{{ e($request->library_name ?? '-') }}</dd>
 
             @if(!empty($request->library_symbol))
             <dt class="col-sm-3">{{ __('Library Symbol') }}</dt>
@@ -130,11 +130,11 @@
             <hr class="mt-2 mb-2">
 
             <dt class="col-sm-3">{{ __('Requested') }}</dt>
-            <dd class="col-sm-9">{{ $request->request_date ?? '—' }}</dd>
+            <dd class="col-sm-9">{{ $request->request_date ?? '-' }}</dd>
 
             <dt class="col-sm-3">{{ __('Due Date') }}</dt>
             <dd class="col-sm-9 {{ ($request->status ?? '') === 'overdue' ? 'text-danger fw-bold' : '' }}">
-              {{ $request->due_date ?? '—' }}
+              {{ $request->due_date ?? '-' }}
               @if(($request->status ?? '') === 'overdue')
                 <i class="fas fa-exclamation-triangle text-warning ms-1"></i>
               @endif
@@ -148,7 +148,7 @@
                 @elseif(($request->status ?? '') === 'received') bg-success
                 @elseif(($request->status ?? '') === 'returned') bg-success
                 @else bg-secondary @endif">
-                {{ ucfirst(str_replace('_', ' ', $request->status ?? '—')) }}
+                {{ ucfirst(str_replace('_', ' ', $request->status ?? '-')) }}
               </span>
             </dd>
           </dl>
@@ -241,12 +241,12 @@
             <tbody>
               @foreach($audit_log as $entry)
               <tr>
-                <td class="text-muted small">{{ $entry->created_at ?? '—' }}</td>
+                <td class="text-muted small">{{ $entry->created_at ?? '-' }}</td>
                 <td>
                   @if($entry->from_status)
                     <span class="badge bg-secondary">{{ ucfirst($entry->from_status) }}</span>
                   @else
-                    <span class="text-muted">—</span>
+                    <span class="text-muted">-</span>
                   @endif
                 </td>
                 <td>

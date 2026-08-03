@@ -10,7 +10,7 @@
                 <i class="fas fa-sync me-2"></i>SUSHI Harvest
             </h1>
             <p class="text-muted small mb-0">
-                ISO 18626 — fetch COUNTER 5 usage statistics from all active SUSHI partners.
+                ISO 18626 - fetch COUNTER 5 usage statistics from all active SUSHI partners.
             </p>
         </div>
         <a href="{{ route('library.usage') }}" class="btn btn-outline-dark btn-sm">
@@ -85,24 +85,24 @@
                 <div class="card-body p-0">
                     <ol class="mb-0">
                         <li class="p-3 border-bottom">
-                            <strong>Credentials</strong> — partner base URLs, API keys, and customer IDs
+                            <strong>Credentials</strong> - partner base URLs, API keys, and customer IDs
                             are resolved from <code>ahg_settings</code> and/or the
                             <code>library_sushi_subscription</code> table.
                         </li>
                         <li class="p-3 border-bottom">
-                            <strong>SUSHI request</strong> — a standards-compliant JSON body is POSTed to
+                            <strong>SUSHI request</strong> - a standards-compliant JSON body is POSTed to
                             <code>/sushi/v5/reports/{PR|TR|DR}</code>.
                         </li>
                         <li class="p-3 border-bottom">
-                            <strong>Response parsing</strong> — COUNTER 5 JSON metrics are extracted and
+                            <strong>Response parsing</strong> - COUNTER 5 JSON metrics are extracted and
                             normalised into <code>library_usage_stats</code> rows.
                         </li>
                         <li class="p-3 border-bottom">
-                            <strong>Audit trail</strong> — raw JSON responses are stored in
+                            <strong>Audit trail</strong> - raw JSON responses are stored in
                             <code>library_sushi_raw_responses</code> for debugging and reprocessing.
                         </li>
                         <li class="p-3">
-                            <strong>Connection test</strong> — use the
+                            <strong>Connection test</strong> - use the
                             <a href="{{ route('library.usage-subscriptions') }}">Partners page</a>
                             to verify each endpoint before running a full harvest.
                         </li>

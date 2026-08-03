@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ShareLinkInjector — server-side HTML response filter that injects a
+ * ShareLinkInjector - server-side HTML response filter that injects a
  * "Share record" button + Bootstrap 5 modal into IO show pages.
  *
  * Mirrors the AtoM-side ViewLinkInjector listener exactly. Avoids touching
@@ -309,7 +309,7 @@ HTML;
     {
         // Spatie's nonce is read via the request macro `CspNonce` or via the
         // service container key `csp-nonce`. The InjectCspNonces middleware
-        // uses the latter at render time — re-use the same source.
+        // uses the latter at render time - re-use the same source.
         try {
             $nonce = app('csp-nonce');
             if (is_string($nonce) && $nonce !== '') {

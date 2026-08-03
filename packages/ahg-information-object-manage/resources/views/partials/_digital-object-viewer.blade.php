@@ -34,7 +34,7 @@
       $thumbUrl = $thumbObj ? \AhgCore\Services\DigitalObjectService::getUrl($thumbObj) : '';
 
       // Redaction reroute. Non-admin viewers must never see the un-redacted
-      // master — redirect master/reference URLs through the redacted-asset
+      // master - redirect master/reference URLs through the redacted-asset
       // endpoint when there are redactions on file. The endpoint streams
       // the cached/rendered redacted file; admins fall through to original.
       $__hasRedactions = false;
@@ -45,7 +45,7 @@
                   ->whereIn('status', ['applied', 'reviewed', 'pending'])
                   ->exists();
           }
-      } catch (\Throwable $e) { /* table missing — leave flag false */ }
+      } catch (\Throwable $e) { /* table missing - leave flag false */ }
       $__isAdminViewer = auth()->check() && auth()->user()
           && (method_exists(auth()->user(), 'isAdministrator')
               ? auth()->user()->isAdministrator()
@@ -54,13 +54,13 @@
           $__redactedUrl = route('io.privacy.redacted-asset', $io->slug);
           $masterUrl = $__redactedUrl;
           $refUrl    = $__redactedUrl;
-          // Thumbnails stay on the original — they're typically too small to
+          // Thumbnails stay on the original - they're typically too small to
           // contain redactable content, and re-rendering thumbs is expensive.
       }
 
       // Public-viewer gate: a NOT-logged-in visitor must never be handed the
       // master original by the open-in-new-window / full-size / fullscreen /
-      // download controls — only a derivative (reference, else thumbnail).
+      // download controls - only a derivative (reference, else thumbnail).
       // When no derivative exists those controls are HIDDEN rather than falling
       // back to the master. $__derivUrl is the best public-facing derivative;
       // $__openUrl is what the "open/download original" controls point at

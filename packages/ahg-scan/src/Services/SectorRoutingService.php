@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SectorRoutingService — Heratio ahg-scan (P3)
+ * SectorRoutingService - Heratio ahg-scan (P3)
  *
  * Writes sector-specific metadata from a parsed heratioScan sidecar into
  * the appropriate Heratio tables:
@@ -13,7 +13,7 @@
  * Also handles:
  *   - Authority auto-creation (creators) gated by ingest_session.output_create_authorities
  *   - Spectrum workflow auto-entry gated by ingest_session.spectrum_auto_enter
- *   - Controlled-vocab resolution (lookup-only for v1 — missing terms recorded as warnings)
+ *   - Controlled-vocab resolution (lookup-only for v1 - missing terms recorded as warnings)
  *   - DAM augmentation merge into dam_iptc_metadata (sidecar wins over ExifTool)
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
 class SectorRoutingService
 {
     /**
-     * Creation event type — links an IO to an actor as creator.
+     * Creation event type - links an IO to an actor as creator.
      * Confirmed in EsReindexCommand via `->where('type_id', 111)`.
      */
     protected const EVENT_TYPE_CREATION = 111;
@@ -41,7 +41,7 @@ class SectorRoutingService
 
     /**
      * Route a freshly-ingested IO + DO into sector-specific tables based on
-     * the sidecar profile. Safe to call when no sidecar is present — becomes
+     * the sidecar profile. Safe to call when no sidecar is present - becomes
      * a no-op except for archive sector (which is already fully handled by
      * IngestService::ingestFile).
      *
@@ -305,7 +305,7 @@ class SectorRoutingService
 
         $this->upsertMuseumMetadata($ioId, $profile, $warnings, 'museum');
 
-        // Spectrum workflow — opt-in per session (plan §12 Q#7).
+        // Spectrum workflow - opt-in per session (plan §12 Q#7).
         if ((int) ($session->spectrum_auto_enter ?? 0) === 1) {
             $this->enterSpectrumWorkflow($ioId, $profile, $session);
         }
@@ -444,7 +444,7 @@ class SectorRoutingService
 
     /**
      * Find-or-create an actor with the given name. Honours
-     * ingest_session.output_create_authorities — if disabled, returns null
+     * ingest_session.output_create_authorities - if disabled, returns null
      * when not found so the caller can skip/warn.
      */
     protected function findOrCreateActor(string $name, ?string $uri, bool $canCreate): ?int
@@ -462,7 +462,7 @@ class SectorRoutingService
             return null;
         }
 
-        // 2. Auto-create — actor at 'reserved' status (plan §12 Q#8)
+        // 2. Auto-create - actor at 'reserved' status (plan §12 Q#8)
         return DB::transaction(function () use ($name, $uri) {
             $now = now();
             $objectId = DB::table('object')->insertGetId([
@@ -524,7 +524,7 @@ class SectorRoutingService
     }
 
     // ----------------------------------------------------------------
-    // Helpers — node-walkers over the SidecarParser::nodeToArray output
+    // Helpers - node-walkers over the SidecarParser::nodeToArray output
     // ----------------------------------------------------------------
 
     protected function flat($v): ?string
@@ -657,7 +657,7 @@ class SectorRoutingService
             $acq = $this->attr($entry, 'acquisition') ?: '';
             $parts = array_filter([$date, $owner, $acq]);
             if ($parts) {
-                $out[] = implode(' — ', $parts);
+                $out[] = implode(' - ', $parts);
             }
         }
 

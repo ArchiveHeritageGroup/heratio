@@ -1,5 +1,5 @@
 {{--
-  Marketplace Settings — dynamic DB-driven settings grouped by setting_group
+  Marketplace Settings - dynamic DB-driven settings grouped by setting_group
   Cloned from AtoM ahgMarketplacePlugin adminSettingsSuccess.php
 
   @copyright  Johan Pieterse / Plain Sailing

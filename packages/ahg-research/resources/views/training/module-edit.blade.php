@@ -1,4 +1,4 @@
-{{-- #1099 Training — module editor --}}
+{{-- #1099 Training - module editor --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -20,7 +20,7 @@
     <div class="mb-3"><label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
       <input name="title" class="form-control" required value="{{ old('title', $module['title']) }}" autocomplete="off"></div>
     <div class="mb-3"><label class="form-label">{{ __('Curriculum lecture (content source)') }}</label>
-      <select name="lecture_id" class="form-select"><option value="">{{ __('— none / use content below —') }}</option>
+      <select name="lecture_id" class="form-select"><option value="">{{ __('- none / use content below -') }}</option>
         @foreach ($lectures as $l)<option value="{{ $l['id'] }}" @selected((string)old('lecture_id', $module['lecture_id'] ?? '') === (string)$l['id'])>{{ $l['title'] }}</option>@endforeach
       </select></div>
     <div class="mb-3"><label class="form-label">{{ __('Module content (Markdown)') }}</label>

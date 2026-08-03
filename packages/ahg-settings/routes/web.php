@@ -3,7 +3,7 @@
 use AhgSettings\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
-// Dynamic theme CSS — public, no auth needed
+// Dynamic theme CSS - public, no auth needed
 Route::get('/css/ahg-theme-dynamic.css', [SettingsController::class, 'dynamicCss'])->name('settings.dynamic-css');
 
 // Legacy AtoM URL aliases
@@ -151,7 +151,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/settings/ahg/compliance', fn () => redirect('/admin/ahgSettings/compliance')); // legacy redirect
     Route::get('/admin/settings/ahg/ahg_central', fn () => redirect('/admin/ahgSettings/ahgIntegration')); // legacy redirect (heratio#127: AHG Central has a bespoke page)
 
-    // AHG group route — catch-all for generic key-value settings
+    // AHG group route - catch-all for generic key-value settings
     Route::match(['get', 'post'], '/admin/settings/ahg/{group}', [SettingsController::class, 'ahgSection'])->name('settings.ahg');
     Route::match(['get', 'post'], '/admin/settings/{section}', [SettingsController::class, 'section'])->name('settings.section');
     Route::get('/admin/settings', [SettingsController::class, 'index'])->name('settings.index');

@@ -45,10 +45,10 @@ class TradingPartner extends Model
     {
         $cfg = $this->endpoint_config ?? [];
         return match ($this->endpoint_type) {
-            'SFTP'       => 'SFTP — ' . ($cfg['host'] ?? '—') . ':' . ($cfg['port'] ?? 22),
-            'AS2'        => 'AS2 — ' . ($cfg['as2_url'] ?? '—'),
-            'HTTP_HTTPS' => 'HTTP — ' . ($cfg['url'] ?? '—'),
-            'EMAIL'      => 'EMAIL — ' . ($cfg['smtp_host'] ?? '—'),
+            'SFTP'       => 'SFTP - ' . ($cfg['host'] ?? '-') . ':' . ($cfg['port'] ?? 22),
+            'AS2'        => 'AS2 - ' . ($cfg['as2_url'] ?? '-'),
+            'HTTP_HTTPS' => 'HTTP - ' . ($cfg['url'] ?? '-'),
+            'EMAIL'      => 'EMAIL - ' . ($cfg['smtp_host'] ?? '-'),
             'MANUAL'     => 'Manual / batch',
             default      => $this->endpoint_type,
         };

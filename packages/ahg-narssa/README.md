@@ -13,9 +13,9 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `controllers` — TODO: implement
-- [ ] `views` — TODO: implement
-- [ ] `readme` — TODO: implement
+- [ ] `controllers` - TODO: implement
+- [ ] `views` - TODO: implement
+- [ ] `readme` - TODO: implement
 
 ## References
 - docs/help/ (search for `narssa`)

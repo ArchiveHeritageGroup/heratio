@@ -2,14 +2,14 @@ This PR wires Spectrum / Collections settings so saved admin keys are actually c
 
 What this PR implements
 - Added SpectrumSettings helper (packages/ahg-spectrum/src/Services/SpectrumSettings.php) to read spectrum_* keys with defaults.
-- Added EnsureSpectrumEnabled middleware (packages/ahg-spectrum/src/Middleware/EnsureSpectrumEnabled.php) — gates spectrum routes when `spectrum_enabled` is false.
+- Added EnsureSpectrumEnabled middleware (packages/ahg-spectrum/src/Middleware/EnsureSpectrumEnabled.php) - gates spectrum routes when `spectrum_enabled` is false.
 - Registered middleware on the spectrum route group (packages/ahg-spectrum/routes/web.php).
 - Small controller hook in SpectrumController to use SpectrumSettings::isEnabled() and to expose helper methods for defaults.
 - Test scaffold (tests/Feature/SpectrumSettingsTest.php).
 - README note (packages/ahg-spectrum/README.md).
 
 What remains (outstanding tasks)
-1. Prefill defaults in forms (valuation/loan/insurance) — controller helpers are present; view tweaks may be required for UX.
+1. Prefill defaults in forms (valuation/loan/insurance) - controller helpers are present; view tweaks may be required for UX.
 2. Add server-side validators for spectrum_require_photos, spectrum_require_valuation, spectrum_require_insurance on relevant create/update flows.
 3. Hook notification/reminder settings (spectrum_valuation_reminder_days, spectrum_condition_check_interval) into SpectrumNotificationService to enqueue reminders (scaffolded integration points present).
 4. Wire auto-create movement and barcode toggles (deferred/optional).

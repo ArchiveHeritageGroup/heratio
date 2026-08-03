@@ -142,18 +142,18 @@
           <div class="card-body small">
             <p>Borrow (we request):</p>
             <ol class="ps-3">
-              <li><strong>Pending</strong> — awaiting transmission</li>
-              <li><strong>Requested</strong> — request sent to lender</li>
-              <li><strong>Shipped</strong> — item in transit</li>
-              <li><strong>Received</strong> — item received</li>
-              <li><strong>Returned</strong> — item returned to lender</li>
+              <li><strong>Pending</strong> - awaiting transmission</li>
+              <li><strong>Requested</strong> - request sent to lender</li>
+              <li><strong>Shipped</strong> - item in transit</li>
+              <li><strong>Received</strong> - item received</li>
+              <li><strong>Returned</strong> - item returned to lender</li>
               <li class="text-muted">Cancelled / Lost / Unfulfilled (terminal)</li>
             </ol>
             <p class="mt-2">Lend (they request from us):</p>
             <ol class="ps-3">
               <li><strong>Pending</strong></li>
-              <li><strong>Shipped</strong> — item sent to borrower</li>
-              <li><strong>Received</strong> — item returned (terminal)</li>
+              <li><strong>Shipped</strong> - item sent to borrower</li>
+              <li><strong>Received</strong> - item returned (terminal)</li>
             </ol>
           </div>
         </div>

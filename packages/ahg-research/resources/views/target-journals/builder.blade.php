@@ -1,4 +1,4 @@
-{{-- #1107 Target-journal directory — create/edit --}}
+{{-- #1107 Target-journal directory - create/edit --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -48,7 +48,7 @@
     <hr><h2 class="h6">{{ __('Submission rules') }}</h2>
     <div class="row">
       <div class="col-md-4 mb-3"><label class="form-label">{{ __('Reference style') }}</label>
-        <select name="reference_style" class="form-select"><option value="">{{ __('— none —') }}</option>
+        <select name="reference_style" class="form-select"><option value="">{{ __('- none -') }}</option>
           @foreach ($styles as $s)<option value="{{ $s }}" @selected(old('reference_style', $journal['reference_style'] ?? '') === $s)>{{ $s }}</option>@endforeach
         </select></div>
       <div class="col-md-4 mb-3"><label class="form-label">{{ __('Max words') }}</label>

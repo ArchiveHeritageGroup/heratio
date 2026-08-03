@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PrivacyService — Service layer for ahg-privacy
+ * PrivacyService - Service layer for ahg-privacy
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  *
@@ -9,7 +9,7 @@
  *
  * International framing: Heratio's privacy module is jurisdiction-neutral.
  * Jurisdiction-specific rules (POPIA, GDPR, LGPD, PDPA, CCPA, etc) are applied
- * via the pluggable `privacy_config` table — never hardcoded.
+ * via the pluggable `privacy_config` table - never hardcoded.
  *
  * Cloned from PSIS ahgPrivacyPlugin/lib/Service/PrivacyService.php methods:
  *   updateDsar, updateBreach, withdrawConsent,
@@ -321,7 +321,7 @@ class PrivacyService
             }
         }
 
-        // Notification flags are checkboxes — coerce to 0/1.
+        // Notification flags are checkboxes - coerce to 0/1.
         $updates['notification_required'] = isset($data['notification_required']) ? 1 : 0;
         $updates['regulator_notified'] = isset($data['regulator_notified']) ? 1 : 0;
         $updates['subjects_notified'] = isset($data['subjects_notified']) ? 1 : 0;
@@ -373,7 +373,7 @@ class PrivacyService
     }
 
     // =====================================================================
-    //  ROPA (Record of Processing Activity) — approval workflow
+    //  ROPA (Record of Processing Activity) - approval workflow
     // =====================================================================
 
     public function getRopa(int $id): ?object
@@ -557,7 +557,7 @@ class PrivacyService
     }
 
     // =====================================================================
-    //  Email sending (Phase X.9 — cloned from PSIS `sendApprovalEmail`)
+    //  Email sending (Phase X.9 - cloned from PSIS `sendApprovalEmail`)
     // =====================================================================
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AuditLog — capture before/after diffs from service-layer update() calls
+ * AuditLog - capture before/after diffs from service-layer update() calls
  * so the audit-log row written by app/Http/Middleware/AuditLog.php carries
  * a real field-level diff instead of just `{path: ...}`.
  *
@@ -65,7 +65,7 @@ class AuditLog
 
     /**
      * Record the snapshot of an entity about to be deleted. Call this
-     * BEFORE the delete fires — once the row is gone the snapshot is
+     * BEFORE the delete fires - once the row is gone the snapshot is
      * unrecoverable. Payload carries `before` only.
      */
     public static function captureDelete(int $objectId, string $objectType, array $before): void
@@ -87,7 +87,7 @@ class AuditLog
      *   captureMutation($attachmentId, 'accession_attachment', 'delete', ['data' => $row]);
      *
      * The middleware merges the payload into its row; the audit-log view's
-     * raw-payload disclosure renders it. No diff table for these — that's
+     * raw-payload disclosure renders it. No diff table for these - that's
      * fine, the {action: …, data: …} surface tells the auditor what changed.
      */
     public static function captureMutation(int $objectId, string $objectType, string $action, array $payload): void
@@ -100,7 +100,7 @@ class AuditLog
      * Like captureMutation but always writes its own dedicated audit row
      * via writeDirect(), instead of stashing onto the request. Use this
      * for sub-entity edits that fire in the SAME request as a primary
-     * service::update() — the primary already stashes onto request
+     * service::update() - the primary already stashes onto request
      * attributes, and a second stash would silently overwrite it. With
      * this variant the primary service's diff stays intact AND the sub-
      * entity edit gets its own audit row.
@@ -113,7 +113,7 @@ class AuditLog
      * Tradeoff: captureSecondaryMutation rows are written whether or not
      * a request is bound, and don't pick up the IP / user-agent / sensitive-
      * field masking the audit middleware adds (writeDirect sets those to
-     * null) — fine for sub-entity context where the parent row already
+     * null) - fine for sub-entity context where the parent row already
      * carries that metadata.
      */
     public static function captureSecondaryMutation(int $objectId, string $objectType, string $action, array $payload): void

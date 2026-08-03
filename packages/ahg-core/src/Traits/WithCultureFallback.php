@@ -1,12 +1,12 @@
 <?php
 
 /**
- * WithCultureFallback — encapsulates the LEFT-JOIN-current + LEFT-JOIN-fallback
+ * WithCultureFallback - encapsulates the LEFT-JOIN-current + LEFT-JOIN-fallback
  * + COALESCE-per-column pattern used to read translated content from `*_i18n`
  * tables without 404'ing on records that only have a single culture's row.
  *
  * Mirrors AtoM's `cultureFallback => true` option on Propel `__get($name, $opts)`
- * — when the requested culture has no row for a given record, the column value
+ * - when the requested culture has no row for a given record, the column value
  * falls back to the source/default culture (`config('app.fallback_locale', 'en')`).
  *
  * Usage in a service:
@@ -64,7 +64,7 @@ trait WithCultureFallback
     /**
      * Add LEFT JOINs onto $query for current + fallback culture against the
      * given i18n table. Returns the two aliases as a [current, fallback]
-     * tuple — pass them into coalesceI18n() below.
+     * tuple - pass them into coalesceI18n() below.
      *
      * @param  Builder  $query  The query being built (mutated in place).
      * @param  string  $i18nTable  e.g. 'information_object_i18n'

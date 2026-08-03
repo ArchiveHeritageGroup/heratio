@@ -301,7 +301,7 @@ class FtpUploadController extends Controller
         // Count received chunks
         $receivedChunks = count(glob($uploadDir.'/chunk_*'));
 
-        // Not all chunks received yet — acknowledge this chunk
+        // Not all chunks received yet - acknowledge this chunk
         if ($receivedChunks < $totalChunks) {
             return response()->json([
                 'success' => true,
@@ -311,7 +311,7 @@ class FtpUploadController extends Controller
             ]);
         }
 
-        // All chunks received — reassemble and upload
+        // All chunks received - reassemble and upload
         return $this->assembleAndUpload($uploadId, $uploadDir, $fileName, $totalChunks, $relativePath);
     }
 
@@ -423,7 +423,7 @@ class FtpUploadController extends Controller
             fclose($out);
 
             // Split the relative path into dir + filename. Filename always wins
-            // over fileName from the form (defence in depth — the form field
+            // over fileName from the form (defence in depth - the form field
             // could be inconsistent with the actual relative-path basename).
             $remoteFilename = $fileName;
             $relativeDir = '';

@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-api — install schema
+-- ahg-api - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgAPIPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS display_standard_sector (
 );
 
 -- ============================================================================
--- Issue #652 Phase 1 — Idempotency-Key replay cache
+-- Issue #652 Phase 1 - Idempotency-Key replay cache
 -- ============================================================================
 -- Stores the cached response for non-idempotent POST/PUT/PATCH calls so that
 -- a replay with the same Idempotency-Key + same body returns the cached

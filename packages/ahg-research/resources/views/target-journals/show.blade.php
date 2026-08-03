@@ -1,4 +1,4 @@
-{{-- #1107 Target-journal directory — show --}}
+{{-- #1107 Target-journal directory - show --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -24,7 +24,7 @@
 
   @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
-  @if ($journal['subject_scope'])<h2 class="h6 mt-3">{{ __('Scope — what it accepts') }}</h2><p>{{ $journal['subject_scope'] }}</p>@endif
+  @if ($journal['subject_scope'])<h2 class="h6 mt-3">{{ __('Scope - what it accepts') }}</h2><p>{{ $journal['subject_scope'] }}</p>@endif
 
   <h2 class="h6 mt-3">{{ __('Submission rules') }}</h2>
   <table class="table table-sm">

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ProvOSerializer — W3C PROV-O serialisation of preservation events for an
+ * ProvOSerializer - W3C PROV-O serialisation of preservation events for an
  * information object. Emits PROV-JSON (W3C PROV-JSON) which is the canonical
  * lightweight JSON form of the PROV-O ontology.
  *

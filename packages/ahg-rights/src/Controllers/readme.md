@@ -1,4 +1,4 @@
-# AhgRights — Controllers
+# AhgRights - Controllers
 
 Controllers directory for the AhgRights package.
 

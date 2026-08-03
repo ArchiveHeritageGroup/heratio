@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    // Issue #59 Tier 2 — culture-aware dropdowns via the COALESCE helper.
+    // Issue #59 Tier 2 - culture-aware dropdowns via the COALESCE helper.
     $equipmentTypes      = \AhgCore\Services\AhgSettingsService::getDropdownChoices('equipment_type', false);
     $equipmentConditions = \AhgCore\Services\AhgSettingsService::getDropdownChoices('equipment_condition', false);
 @endphp
@@ -161,7 +161,7 @@
 
 {{-- Maintenance History Modal --}}
 <div class="modal fade" id="historyModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-history me-2"></i>Maintenance History — <span id="historyEquipmentName"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-history me-2"></i>Maintenance History - <span id="historyEquipmentName"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body" id="historyBody"><div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div>
 </div></div></div>
 

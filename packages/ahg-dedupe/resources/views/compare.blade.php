@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (confirmBtn) {
         confirmBtn.addEventListener('click', function () {
             if (!confirm('Confirm this as a duplicate pair?')) return;
-            // Confirm uses the same dismiss endpoint pattern — reuse for now
+            // Confirm uses the same dismiss endpoint pattern - reuse for now
             // In production this would be a dedicated confirm endpoint
             alert('Confirm action is not yet implemented. Use the dismiss action or manage via the database.');
         });

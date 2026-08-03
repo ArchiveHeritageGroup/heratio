@@ -103,7 +103,7 @@
                             <label class="form-label">ID Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select name="id_type" class="form-select">
                                 <option value="">-- Select --</option>
-                                {{-- Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper. --}}
+                                {{-- Issue #59 Tier 2 - culture-aware dropdown via the COALESCE helper. --}}
                                 @foreach(\AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('id_type') as $idType)
                                     <option value="{{ $idType->code }}">{{ $idType->label }}</option>
                                 @endforeach

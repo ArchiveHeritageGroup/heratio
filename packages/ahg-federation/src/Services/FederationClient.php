@@ -153,10 +153,10 @@ class FederationClient
      */
     public function hostAllowed(string $baseUrl): bool
     {
-        // #1395(C) — delegate to the shared SsrfGuard. Beyond the literal-IP and
+        // #1395(C) - delegate to the shared SsrfGuard. Beyond the literal-IP and
         // by-name checks this method used to do, the guard RESOLVES the host
         // (A + AAAA) and rejects if ANY resolved IP is private/reserved, and
-        // normalises numeric-integer hosts — closing the DNS-rebind / decimal-IP
+        // normalises numeric-integer hosts - closing the DNS-rebind / decimal-IP
         // blind spot inherited by every caller that delegates here.
         return app(\AhgCore\Services\SsrfGuard::class)->isSafeUrl($baseUrl);
     }

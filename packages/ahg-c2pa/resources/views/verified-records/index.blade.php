@@ -69,7 +69,7 @@
 
 @if($total > 0)
   <p class="text-muted small mb-3">
-    {{ __('Showing') }} {{ number_format($from) }}&ndash;{{ number_format($to) }}
+    {{ __('Showing') }} {{ number_format($from) }}-{{ number_format($to) }}
     {{ __('of') }} {{ number_format($total) }}
     {{ trans_choice('record|records', $total) }}.
   </p>

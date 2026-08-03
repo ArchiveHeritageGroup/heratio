@@ -145,12 +145,12 @@ class FederationService
      */
     public function isEnabled(): bool
     {
-        // The AtoM `setting` table has no `value` column — the value lives in
+        // The AtoM `setting` table has no `value` column - the value lives in
         // setting_i18n keyed by (id, culture). The previous direct
         // ->value('value') call threw SQL 1054 on every invocation, which
         // bubbled up as a 500 from the middleware. Plus the federation_enabled
         // row has scope='federation' (not null) so SettingHelper::get (which
-        // filters whereNull(scope)) misses it — must use ::getScoped.
+        // filters whereNull(scope)) misses it - must use ::getScoped.
         $val = \AhgCore\Services\SettingHelper::getScoped('federation', 'federation_enabled', '1');
         if ($val === '') {
             return false;

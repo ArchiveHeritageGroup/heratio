@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CopyCataloguingService — Z39.50 copy cataloguing bridge for Heratio.
+ * CopyCataloguingService - Z39.50 copy cataloguing bridge for Heratio.
  *
  * Wraps Z3950Service to search remote Z39.50 targets (MARC21/USMARC),
  * parses results via Marc21DecoderService, and imports records via
@@ -269,7 +269,7 @@ class CopyCataloguingService
                  'publication_info', 'physical_description', 'notes',
                  'electronic_access', 'rda', 'identifiers'];
 
-        // Delegate to MarcEditorController's groupParsedFields logic — rebuild inline
+        // Delegate to MarcEditorController's groupParsedFields logic - rebuild inline
         $control = $parsed['control'] ?? [];
 
         // Leader

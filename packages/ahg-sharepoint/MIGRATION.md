@@ -1,6 +1,6 @@
-# MIGRATION — SharePoint federated search into `ahg-sharepoint` (issue #1221)
+# MIGRATION - SharePoint federated search into `ahg-sharepoint` (issue #1221)
 
-> Status: **Step 2 of N — connector now self-contained + WORKING inside
+> Status: **Step 2 of N - connector now self-contained + WORKING inside
 > `ahg-sharepoint`; the only remaining change is operator-only (the `/opt`
 > dispatcher patch + promotion + re-lock + AtoM mirror).**
 >
@@ -9,9 +9,9 @@
 > registry, all inside `packages/ahg-sharepoint/`. It changed **no** file in
 > `ahg-federation` and **no** file under `/opt/ahg-sp-integration/F3/`. The one
 > unavoidable upstream edit (extensible dispatcher) is written as an
-> operator-only patch in [`cutover.patch`](cutover.patch) — see step C below.
+> operator-only patch in [`cutover.patch`](cutover.patch) - see step C below.
 >
-> See "Step 2 — DONE vs remaining" near the end for the current state.
+> See "Step 2 - DONE vs remaining" near the end for the current state.
 
 ## Why
 
@@ -45,9 +45,9 @@ dispatcher (it adds the `PeerConnector` dispatch path to `FederatedSearchService
 The copy of `FederatedSearchService.php` currently deployed in the live
 `packages/ahg-federation/` is the **pre-F3** build and has **no** connector
 dispatch and **no** reference to any SharePoint connector. So today there is no
-live SharePoint federated-search path to break — the relocation is forward-only.
+live SharePoint federated-search path to break - the relocation is forward-only.
 
-## Classification — what is SharePoint-specific vs general
+## Classification - what is SharePoint-specific vs general
 
 ### Moves into `ahg-sharepoint` (SharePoint-specific)
 
@@ -55,7 +55,7 @@ live SharePoint federated-search path to break — the relocation is forward-onl
 | --- | --- |
 | `F3/heratio/src/Connectors/SharePointGraphConnector.php` (ns `AhgFederation\Connectors`) | **Moves** here, re-namespaced to `AhgSharePoint\Federation`. Already copied as inert scaffold in step 1. |
 | The `'sharepoint_graph_search' => SharePointGraphConnector::class` arm of `FederatedSearchService::connectorClassFor()` | **Moves** out of the hard-coded match in `ahg-federation` and is contributed by `ahg-sharepoint` via a registry hook (see "Cutover", step C). |
-| SharePoint-type config fields in `ahg-federation/resources/views/edit-peer.blade.php` (tenant_id / default_site_ids / default_drive_ids / max_results_per_query for `peer_type=sharepoint_graph_search`) | **The SharePoint sub-fields** become a partial owned by `ahg-sharepoint`; the generic peer form stays in `ahg-federation`. `edit-peer.blade.php` is **locked** — user unlock required before this final edit. |
+| SharePoint-type config fields in `ahg-federation/resources/views/edit-peer.blade.php` (tenant_id / default_site_ids / default_drive_ids / max_results_per_query for `peer_type=sharepoint_graph_search`) | **The SharePoint sub-fields** become a partial owned by `ahg-sharepoint`; the generic peer form stays in `ahg-federation`. `edit-peer.blade.php` is **locked** - user unlock required before this final edit. |
 | Microsoft Graph dependency (`AhgSharePoint\Services\GraphClientService`) | Already lives in this package. No move needed; the relocated connector now sits next to its dependency instead of reaching across packages. |
 
 ### Stays in `ahg-federation` (general federation)
@@ -72,15 +72,15 @@ live SharePoint federated-search path to break — the relocation is forward-onl
 | `resources/views/edit-peer.blade.php` (generic peer fields) | General peer form chrome. |
 | Union catalogue, loans, join-network, Europeana EDM, harvest | Entirely unrelated to SharePoint. |
 
-## What step 1 added (this scaffold — all inert)
+## What step 1 added (this scaffold - all inert)
 
 Under `packages/ahg-sharepoint/src/Federation/`:
 
-- `PeerConnector.php` — local copy of the general contract (new namespace
+- `PeerConnector.php` - local copy of the general contract (new namespace
   `AhgSharePoint\Federation`), so the connector below is self-contained and does
   not `use` anything from `ahg-federation`.
-- `PeerSearchResult.php` — local copy of the general value object.
-- `SharePointGraphConnector.php` — the relocated connector, re-namespaced to
+- `PeerSearchResult.php` - local copy of the general value object.
+- `SharePointGraphConnector.php` - the relocated connector, re-namespaced to
   `AhgSharePoint\Federation\SharePointGraphConnector`, depending on this
   package's own `GraphClientService`.
 
@@ -93,7 +93,7 @@ the scaffold.
 
 ## Contract placement decision (resolve at cutover)
 
-Two valid end states — pick ONE; never run both:
+Two valid end states - pick ONE; never run both:
 
 1. **Single shared contract (recommended).** Delete the local
    `AhgSharePoint\Federation\PeerConnector` + `PeerSearchResult` copies and have
@@ -114,7 +114,7 @@ Pre-req: confirm with the user that F3 federated search is being promoted from
 the `/opt/.../F3/` reference into the live tree, because that is the first time
 any SharePoint connector becomes live.
 
-- **A. Unlock the locked F3 files** (user runs these — never the agent):
+- **A. Unlock the locked F3 files** (user runs these - never the agent):
   ```bash
   cd /usr/share/nginx/heratio
   ./bin/unlock packages/ahg-federation/src/Services/FederatedSearchService.php \
@@ -123,16 +123,16 @@ any SharePoint connector becomes live.
                packages/ahg-federation/src/Connectors/
   ```
   (`packages/ahg-federation/src/Connectors/` is locked even though it does not
-  yet exist on disk — it is a forward-declared lock for when the F3 connectors
+  yet exist on disk - it is a forward-declared lock for when the F3 connectors
   land.)
 
 - **B. Promote the F3 dispatcher + general connectors into the live tree.**
   Copy from `/opt/.../F3/heratio/src/` into `packages/ahg-federation/src/`:
   - `Connectors/PeerConnector.php`, `Connectors/PeerSearchResult.php`,
     `Connectors/OaiPmhConnector.php`, `Connectors/AtomElasticsearchConnector.php`
-    (general — these STAY in ahg-federation)
+    (general - these STAY in ahg-federation)
   - `Services/FederatedSearchService.php` (the connector-dispatch version)
-  Do **not** copy `Connectors/SharePointGraphConnector.php` into ahg-federation —
+  Do **not** copy `Connectors/SharePointGraphConnector.php` into ahg-federation -
   it now lives in this package.
 
 - **C. Make `connectorClassFor()` extensible** instead of hard-coding the
@@ -145,10 +145,10 @@ any SharePoint connector becomes live.
   ```
   Result: the SharePoint FQCN never appears in `ahg-federation` source.
 
-  **Status (step 2):** the `ahg-sharepoint` HALF is **DONE** — its provider now
+  **Status (step 2):** the `ahg-sharepoint` HALF is **DONE** - its provider now
   publishes the registry entry into `config('federation.connectors')`
-  (`AhgSharePointServiceProvider::register()`). The `ahg-federation` HALF — making
-  the dispatcher *read* that registry — is the one genuinely-unavoidable
+  (`AhgSharePointServiceProvider::register()`). The `ahg-federation` HALF - making
+  the dispatcher *read* that registry - is the one genuinely-unavoidable
   locked + NO-PUSH change, and is therefore written as an **operator-only** patch
   in [`cutover.patch`](cutover.patch) for application to the canonical
   `/opt/ahg-sp-integration/F3/heratio/src/Services/FederatedSearchService.php`.
@@ -172,7 +172,7 @@ any SharePoint connector becomes live.
   `View::composer`-injected partial, the unlocked-caller pattern). Keep the
   generic peer chrome in `ahg-federation`.
 
-  **Status (step 2):** the unlocked-caller injection is **DONE** — the locked
+  **Status (step 2):** the unlocked-caller injection is **DONE** - the locked
   `edit-peer.blade.php` was NOT edited. `AhgSharePointServiceProvider::boot()`
   registers a `View::composer('ahg-federation::edit-peer', …)` that injects
   `$sharepointConfigured`, `$sharepointTenantOptions`, and
@@ -194,7 +194,7 @@ any SharePoint connector becomes live.
   unchanged; confirm a `sharepoint_graph_search` peer dispatches to
   `AhgSharePoint\Federation\SharePointGraphConnector`; run the federation tests.
 
-## Step 2 — DONE vs remaining
+## Step 2 - DONE vs remaining
 
 ### DONE in this package (pushable, all inside `packages/ahg-sharepoint/`)
 
@@ -215,25 +215,25 @@ any SharePoint connector becomes live.
   `GET /sharepoint/federated-search` (rendered) and
   `GET /sharepoint/federated-search.json` (JSON) + view
   `ahg-sharepoint::federated-search`. Runs a real Graph search from a tenant in
-  the package store. Distinct prefix from `/federation/*` — no route collision.
+  the package store. Distinct prefix from `/federation/*` - no route collision.
 - **Degrade-when-unconfigured.** `SharePointFederationConfig::isConfigured()`
   guards everything and never throws (missing table / unreachable DB / no tenant
   all resolve to "not configured"). The runner returns
   `SharePointFederationRunResult::notConfigured()` and the UI/JSON render an
-  honest "SharePoint not configured" state with HTTP 200 — never a 500.
+  honest "SharePoint not configured" state with HTTP 200 - never a 500.
 - **Locked-blade config injection without editing it.** A
   `View::composer('ahg-federation::edit-peer', …)` in `boot()` injects SharePoint
   tenant options into the locked peer-edit view. The locked/NO-PUSH
   `edit-peer.blade.php` is untouched.
 
-### Remaining — OPERATOR-ONLY (locked + NO-PUSH; cannot be pushed from here)
+### Remaining - OPERATOR-ONLY (locked + NO-PUSH; cannot be pushed from here)
 
 - **The `/opt` dispatcher patch (step C, ahg-federation half).** Apply
   [`cutover.patch`](cutover.patch) to the canonical
   `/opt/ahg-sp-integration/F3/heratio/src/Services/FederatedSearchService.php` to
   make `connectorClassFor()` registry-first and drop the SharePoint literal.
 - **Promote F3 into the live tree (step B)** + **collapse to the single shared
-  contract (step D, option 1)** + **re-lock (step F)** — all operator-run, in
+  contract (step D, option 1)** + **re-lock (step F)** - all operator-run, in
   order, per the locked-paths workflow.
 - **AtoM-AHG parity mirror (step G)** under
   `/usr/share/nginx/archive/atom-ahg-plugins/` from

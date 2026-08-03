@@ -1,5 +1,5 @@
 {{--
-  Catalogue Report — cloned from AtoM libraryReports/catalogueSuccess.php
+  Catalogue Report - cloned from AtoM libraryReports/catalogueSuccess.php
   @copyright  Johan Pieterse / Plain Sailing
   @license    AGPL-3.0-or-later
 --}}

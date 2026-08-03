@@ -1,4 +1,4 @@
-# AhgRadManage — Db
+# AhgRadManage - Db
 
 Database directory for the AhgRadManage package.
 

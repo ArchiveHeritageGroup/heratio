@@ -40,7 +40,7 @@
   </form>
 
   {{-- Breadcrumb of the BROWSED parent's ancestors. Click any rung to jump
-       there — same pattern as PSIS's move template. --}}
+       there - same pattern as PSIS's move template. --}}
   @if(!empty($breadcrumb) || !empty($browsedParent))
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">

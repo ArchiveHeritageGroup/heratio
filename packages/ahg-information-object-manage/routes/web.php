@@ -22,16 +22,16 @@ use AhgInformationObjectManage\Controllers\SlugController;
 use AhgInformationObjectManage\Controllers\FindingAidActionsController;
 use Illuminate\Support\Facades\Route;
 
-// Media routes — read-only transcription/snippet views are public
+// Media routes - read-only transcription/snippet views are public
 Route::get('/media/transcription/{id}/vtt', [MediaController::class, 'transcriptionVtt'])->name('media.transcription.vtt')->where('id', '[0-9]+');
 Route::get('/media/transcription/{id}/srt', [MediaController::class, 'transcriptionSrt'])->name('media.transcription.srt')->where('id', '[0-9]+');
 Route::get('/media/transcription/{id}', [MediaController::class, 'transcriptionJson'])->name('media.transcription.json')->where('id', '[0-9]+');
 Route::get('/media/snippets/{id}', [MediaController::class, 'snippetsList'])->name('media.snippets.list')->where('id', '[0-9]+');
-// GET /media/snippets — list snippets by digital_object_id query param (legacy AtoM URL)
+// GET /media/snippets - list snippets by digital_object_id query param (legacy AtoM URL)
 Route::get('/media/snippets', [MediaController::class, 'snippetsListByQuery'])->name('media.snippets.listByQuery');
 Route::get('/media/export-snippet', [MediaController::class, 'exportSnippet'])->name('media.export-snippet');
 
-// Media routes — mutating actions require auth + ACL
+// Media routes - mutating actions require auth + ACL
 Route::middleware('auth')->group(function () {
     Route::delete('/media/transcription/{id}', [MediaController::class, 'transcriptionDelete'])->name('media.transcription.delete')->middleware('acl:delete')->where('id', '[0-9]+');
     Route::post('/media/extract/{id}', [MediaController::class, 'extract'])->name('media.extract')->middleware('acl:update')->where('id', '[0-9]+');
@@ -97,7 +97,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/informationobject/browse/hierarchyData', [HierarchyDataController::class, 'data'])
     ->name('informationobject.browse.hierarchyData');
 
-// Redacted asset — public on purpose (non-admin viewers must reach this).
+// Redacted asset - public on purpose (non-admin viewers must reach this).
 // The controller does its own admin/non-admin gating: admins are served
 // the original, non-admins get the cached/rendered redacted file.
 Route::get('/privacy/redacted-asset/{slug}', [PrivacyController::class, 'redactedAsset'])->name('io.privacy.redacted-asset');
@@ -141,7 +141,7 @@ Route::get('/informationobject/{slug}/export/provo', [ExportController::class, '
 Route::get('/informationobject/{slug}/export/csv', [ExportController::class, 'csv'])->name('informationobject.export.csv');
 Route::get('/informationobject/{slug}/export/rico', [ExportController::class, 'ricJsonLd'])->name('informationobject.export.rico');
 
-// OCR text export (#665 Phase 3) — 4 formats per IO. Each route 404s when
+// OCR text export (#665 Phase 3) - 4 formats per IO. Each route 404s when
 // the IO has no rows in iiif_ocr_text.
 Route::get('/informationobject/{slug}/export/ocr/txt', [ExportController::class, 'ocrTxt'])->name('informationobject.export.ocr.txt');
 Route::get('/informationobject/{slug}/export/ocr/alto', [ExportController::class, 'ocrAlto'])->name('informationobject.export.ocr.alto');
@@ -188,7 +188,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/informationobject/{slug}/findingaid/download', [FindingAidController::class, 'download'])->name('informationobject.findingaid.download');
     Route::post('/informationobject/{slug}/findingaid/delete', [FindingAidController::class, 'delete'])->name('informationobject.findingaid.delete')->middleware('acl:delete');
 
-    // Collections Management — Provenance (write operations require auth)
+    // Collections Management - Provenance (write operations require auth)
     Route::post('/provenance/{slug}/overview', [ProvenanceController::class, 'updateOverview'])->name('io.provenance.overview')->middleware('acl:update');
     Route::post('/provenance/{slug}/store', [ProvenanceController::class, 'store'])->name('io.provenance.store')->middleware('acl:create');
     Route::put('/provenance/{id}/update', [ProvenanceController::class, 'update'])->name('io.provenance.update')->middleware('acl:update')->where('id', '[0-9]+');
@@ -198,7 +198,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/provenance/{slug}/document', [ProvenanceController::class, 'storeDocument'])->name('io.provenance.document.store')->middleware('acl:create');
     Route::delete('/provenance/document/{id}', [ProvenanceController::class, 'destroyDocument'])->name('io.provenance.document.delete')->middleware('acl:delete')->where('id', '[0-9]+');
 
-    // Collections Management — Condition
+    // Collections Management - Condition
     Route::get('/condition/{slug}', [ConditionController::class, 'index'])->name('io.condition');
     Route::get('/condition/{slug}/create', [ConditionController::class, 'create'])->name('io.condition.create');
     Route::post('/condition/{slug}/store', [ConditionController::class, 'store'])->name('io.condition.store')->middleware('acl:create');
@@ -263,14 +263,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/informationobject/{slug}/multiFileUpload/store', [DigitalObjectController::class, 'multiFileUploadStore'])->name('io.multiFileUpload.store')->middleware('acl:create');
     // Batch title-review step shown after a multiFileUpload import (GET form + POST save).
     Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpdate', [DigitalObjectController::class, 'multiFileUpdate'])->name('informationobject.multiFileUpdate')->middleware('acl:create');
-    // Bulk folder upload — accepts digital_objects[] + relative_paths[] and
+    // Bulk folder upload - accepts digital_objects[] + relative_paths[] and
     // mirrors the folder structure as child IOs each with their own master DO.
     Route::post('/{slug}/object/addDigitalObject/bulk', [DigitalObjectController::class, 'bulkUpload'])
         ->name('io.digitalobject.bulk-upload')
         ->middleware('acl:create')
         ->where('slug', '[a-z0-9][a-z0-9-]*');
     Route::delete('/digitalobject/{id}', [DigitalObjectController::class, 'delete'])->name('io.digitalobject.delete')->middleware('acl:delete')->where('id', '[0-9]+');
-    // Per-representation delete — removes only the chosen reference/thumbnail
+    // Per-representation delete - removes only the chosen reference/thumbnail
     // row without cascading to the master (matches PSIS's behaviour).
     Route::delete('/digitalobject/representation/{id}', [DigitalObjectController::class, 'representationDelete'])->name('io.digitalobject.representation.delete')->middleware('acl:delete')->where('id', '[0-9]+');
     Route::put('/digitalobject/{id}', [DigitalObjectController::class, 'update'])->name('io.digitalobject.update')->middleware('acl:update')->where('id', '[0-9]+');
@@ -306,7 +306,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/digitalobject/{id}/delete', [DigitalObjectController::class, 'delete'])->whereNumber('id')->middleware('acl:delete');
 });
 
-// Provenance read routes — sector-neutral: provenance is keyed by
+// Provenance read routes - sector-neutral: provenance is keyed by
 // information_object_id, so it works for EVERY sector's record (archival
 // description, accession, museum, gallery, library, heritage, …), not just
 // cultural objects. `io.provenance` now resolves to /{slug}/provenance, so all
@@ -316,7 +316,7 @@ Route::get('/{slug}/provenance', [ProvenanceController::class, 'index'])->name('
 Route::get('/{slug}/cco/provenance', [ProvenanceController::class, 'index'])->name('io.provenance.cco');
 Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
 Route::get('/provenance/{slug}/export-csv', [ProvenanceController::class, 'exportCsv'])->name('io.provenance.exportCsv');
-// Supporting-document download — public docs are anonymous, the rest need auth
+// Supporting-document download - public docs are anonymous, the rest need auth
 // (gate enforced in the controller).
 Route::get('/provenance/document/{id}/download', [ProvenanceController::class, 'downloadDocument'])->name('io.provenance.document.download')->where('id', '[0-9]+');
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ArchaeologyController — collections management UI for archaeological
+ * ArchaeologyController - collections management UI for archaeological
  * sites and finds.
  *
  * Read and browse only at this stage. Creating and editing records goes through

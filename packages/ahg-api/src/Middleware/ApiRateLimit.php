@@ -16,7 +16,7 @@ class ApiRateLimit
     {
         $apiKeyId = $request->attributes->get('api_key_id');
         if (! $apiKeyId) {
-            return $next($request); // Session auth — no rate limiting
+            return $next($request); // Session auth - no rate limiting
         }
 
         $apiKey = DB::table('ahg_api_key')->where('id', $apiKeyId)->first();

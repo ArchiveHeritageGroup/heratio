@@ -210,7 +210,7 @@
                         <span class="text-muted">{{ __('Anonymous') }}</span>
                       @endif
                       @if($entry->entity_title)
-                        <span class="text-muted mx-1">&mdash;</span>
+                        <span class="text-muted mx-1">-</span>
                         <span>{{ \Illuminate\Support\Str::limit($entry->entity_title, 60) }}</span>
                       @endif
                       @if($entry->entity_type)

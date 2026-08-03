@@ -389,7 +389,7 @@ class RicSerializationService
             $agent['rico:performs'] = $functions;
         }
 
-        // Occupation — structured rico:Occupation nodes (issue #660 Phase 1),
+        // Occupation - structured rico:Occupation nodes (issue #660 Phase 1),
         // with legacy single-string actor.occupation as a fallback for instances
         // that have not yet migrated their occupation data.
         $occupations = $this->getOccupationsForActor($actorId);
@@ -876,7 +876,7 @@ class RicSerializationService
     {
         $culture = app()->getLocale() ?: 'en';
 
-        // ISCAP security tables are optional — only present when the security
+        // ISCAP security tables are optional - only present when the security
         // extension is installed. Skip the join when they're absent (mirrors
         // the guard already in getAccessRestrictions for icip_access_restriction).
         $security = null;
@@ -1417,7 +1417,7 @@ class RicSerializationService
     }
 
     // =========================================================================
-    // THING SERIALIZATION (boxes, containers — rico:Thing)
+    // THING SERIALIZATION (boxes, containers - rico:Thing)
     // =========================================================================
 
     /**

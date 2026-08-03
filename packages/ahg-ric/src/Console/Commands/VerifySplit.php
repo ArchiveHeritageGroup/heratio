@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Http;
  *
  * Write tests create-and-delete a throwaway Place so the DB state is
  * restored after a successful run. If a write fails midway, the Place may
- * linger — grep `name="ric:verify-split smoke test"` to find and delete.
+ * linger - grep `name="ric:verify-split smoke test"` to find and delete.
  *
  * Usage:
  *   php artisan ric:verify-split               # uses env config
@@ -49,7 +49,7 @@ class VerifySplit extends Command
         $this->key = $this->option('key') ?: config('ric.service_key');
 
         $this->info("Base URL: {$this->base}");
-        $this->info('Mode: ' . ($this->key ? 'external (X-API-Key)' : 'in-process (session-less — reads only unless RIC_SERVICE_API_KEY is set)'));
+        $this->info('Mode: ' . ($this->key ? 'external (X-API-Key)' : 'in-process (session-less - reads only unless RIC_SERVICE_API_KEY is set)'));
         $this->line('');
 
         // READS
@@ -62,13 +62,13 @@ class VerifySplit extends Command
         $this->check('relations (list)', 'GET', '/relations?per_page=3', fn($b) => isset($b['data']));
         $this->check('relation-types', 'GET', '/relation-types', fn($b) => isset($b['items']));
 
-        // Known-id probes — best-effort. If the server has no Place id 912150 these will fail gracefully.
+        // Known-id probes - best-effort. If the server has no Place id 912150 these will fail gracefully.
         $this->check('hierarchy/912150', 'GET', '/hierarchy/912150');
         $this->check('entities/912150/info', 'GET', '/entities/912150/info');
         $this->check('relations-for/912150', 'GET', '/relations-for/912150', fn($b) => isset($b['outgoing']));
         $this->check('graph?uri=/place/912150', 'GET', '/graph?uri=/place/912150&depth=1', fn($b) => !empty($b['openric:nodes'] ?? []));
 
-        // WRITES — create + delete a Place.
+        // WRITES - create + delete a Place.
         if (!$this->option('no-writes')) {
             if (!$this->key) {
                 $this->warn('Skipping writes: no API key. Pass --key=… or set RIC_SERVICE_API_KEY.');

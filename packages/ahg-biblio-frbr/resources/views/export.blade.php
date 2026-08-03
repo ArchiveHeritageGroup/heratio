@@ -1,4 +1,4 @@
-{{-- ahg-biblio-frbr/export.blade.php — FRBR export UI --}}
+{{-- ahg-biblio-frbr/export.blade.php - FRBR export UI --}}
 @extends('theme::layouts.1col')
 
 @section('content')
@@ -33,8 +33,8 @@
                 @foreach($works as $work)
                   <option value="{{ $work->id }}"
                     {{ old('work_id') == $work->id ? 'selected' : '' }}>
-                    {{ $work->id }} &mdash; {{ $work->title }}
-                    @if($work->author) &mdash; {{ $work->author }} @endif
+                    {{ $work->id }} - {{ $work->title }}
+                    @if($work->author) - {{ $work->author }} @endif
                   </option>
                 @endforeach
               </select>

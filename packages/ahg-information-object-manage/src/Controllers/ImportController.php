@@ -95,7 +95,7 @@ class ImportController extends Controller
 
         return redirect()
             ->route($slug ? 'informationobject.show' : 'informationobject.browse', $slug ? ['slug' => $slug] : [])
-            ->with('success', "Import queued: {$objectType} ({$type}) — file: {$file->getClientOriginalName()}. Processing will begin shortly.");
+            ->with('success', "Import queued: {$objectType} ({$type}) - file: {$file->getClientOriginalName()}. Processing will begin shortly.");
     }
 
     /**
@@ -112,7 +112,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Process CSV validation — read headers and validate against expected columns per type.
+     * Process CSV validation - read headers and validate against expected columns per type.
      */
     public function validateCsvProcess(Request $request)
     {
@@ -139,7 +139,7 @@ class ImportController extends Controller
                 ->withErrors(['file' => 'The CSV file appears to be empty.']);
         }
 
-        // Parse headers — handle BOM and trim whitespace
+        // Parse headers - handle BOM and trim whitespace
         $headerLine = preg_replace('/^\xEF\xBB\xBF/', '', $headerLine);
         $headers = str_getcsv(trim($headerLine));
         $headers = array_map('trim', $headers);
@@ -164,7 +164,7 @@ class ImportController extends Controller
                 $results[] = [
                     'column' => $header,
                     'status' => 'invalid',
-                    'message' => 'Unrecognized column — will be ignored during import',
+                    'message' => 'Unrecognized column - will be ignored during import',
                 ];
             }
         }
@@ -172,7 +172,7 @@ class ImportController extends Controller
         // Check for missing required columns
         $presentHeaders = array_column($results, 'column');
         // typeOfEntity (AtoM official) and entityType (legacy alias) are
-        // interchangeable — a CSV using either satisfies the requirement.
+        // interchangeable - a CSV using either satisfies the requirement.
         if (in_array('entityType', $presentHeaders, true) && !in_array('typeOfEntity', $presentHeaders, true)) {
             $presentHeaders[] = 'typeOfEntity';
         }
@@ -227,7 +227,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Process SKOS import — validate file and queue import job.
+     * Process SKOS import - validate file and queue import job.
      */
     public function skosImportProcess(Request $request)
     {

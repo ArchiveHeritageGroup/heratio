@@ -139,11 +139,11 @@ class OdrlService
 
         if ($permitted === null) {
             if (empty($policies)) {
-                // No policies defined for this target — allow by default
+                // No policies defined for this target - allow by default
                 $permitted = true;
                 $rationale = "No policies defined for {$targetType}:{$targetId}. Access allowed by default.";
             } else {
-                // Policies exist but none matched this researcher — deny
+                // Policies exist but none matched this researcher - deny
                 $permitted = false;
                 $rationale = "Policies exist for {$targetType}:{$targetId} but none permit action \"{$action}\" for researcher #{$researcherId}.";
             }
@@ -168,7 +168,7 @@ class OdrlService
     }
 
     /**
-     * Quick check — returns true/false without logging to audit table.
+     * Quick check - returns true/false without logging to audit table.
      * Use this in middleware/views to check access without side effects.
      */
     public function isPermitted(string $targetType, int $targetId, ?int $researcherId, string $action): bool
@@ -202,7 +202,7 @@ class OdrlService
             }
         }
 
-        // Policies exist but none matched — deny
+        // Policies exist but none matched - deny
         return false;
     }
 
@@ -210,7 +210,7 @@ class OdrlService
      * Gate a raw digital-object fetch (download/stream) the same way the IO show
      * page is gated (#1347): resolve the digital_object to its parent archival
      * description (IO) and evaluate the ODRL policy for the current user, so a
-     * restricted/embargoed dataset's binaries are inaccessible directly — not
+     * restricted/embargoed dataset's binaries are inaccessible directly - not
      * merely unlinked from the landing page. Parity with OdrlPolicyMiddleware:
      * admins (group 100) bypass, and an unresolvable target IO is allowed (no
      * policy to enforce). An open dataset carries no prohibition, so isPermitted
@@ -227,7 +227,7 @@ class OdrlService
 
         $objectId = (int) DB::table('digital_object')->where('id', $digitalObjectId)->value('object_id');
         if (! $objectId) {
-            return true; // no resolvable target IO — nothing to enforce
+            return true; // no resolvable target IO - nothing to enforce
         }
 
         $researcherId = $user

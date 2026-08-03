@@ -34,7 +34,7 @@ class HierarchyQueryService
     ];
 
     /**
-     * heratio#1398 — batch ancestor lookup for the whole set of $nodeIds in a
+     * heratio#1398 - batch ancestor lookup for the whole set of $nodeIds in a
      * SINGLE query, instead of one ancestorIds() call (2-3 queries + a slow
      * lft/rgt range scan) PER node. This is the N+1 that dominates a full
      * es-reindex; batching it is the biggest per-record win.
@@ -42,7 +42,7 @@ class HierarchyQueryService
      * Fast path: a populated closure table (one indexed IN query).
      * Fallback: a single nested-set self-join over the batch (correct for the
      * one AtoM tree). For very large corpora, build the closure
-     * (`ahg:build-closure`) so the fast path applies — the range self-join is
+     * (`ahg:build-closure`) so the fast path applies - the range self-join is
      * O(tree) per node and does not scale to millions.
      *
      * @param  list<int>  $nodeIds
@@ -74,7 +74,7 @@ class HierarchyQueryService
             return $result;
         }
 
-        // Nested-set fallback — ONE self-join for the whole batch (vs a per-node
+        // Nested-set fallback - ONE self-join for the whole batch (vs a per-node
         // walk). Ancestors are nodes that strictly contain the node's lft/rgt.
         $op1 = $includeSelf ? '<=' : '<';
         $op2 = $includeSelf ? '>=' : '>';

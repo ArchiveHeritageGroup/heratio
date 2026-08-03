@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TapJsonProcessors — Laravel logging-tap class. Attached to the 'json'
+ * TapJsonProcessors - Laravel logging-tap class. Attached to the 'json'
  * channel in config/logging.php via the `tap` config key. Walks the
  * channel's handlers and registers RequestContextProcessor on each so
  * every JSON record gets the request-scoped extras.

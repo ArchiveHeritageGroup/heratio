@@ -1,6 +1,6 @@
 {{--
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems / AGPL v3+
-  OCAP overlay — disabled state.
+  OCAP overlay - disabled state.
 --}}
 @extends('theme::layouts.1col')
 

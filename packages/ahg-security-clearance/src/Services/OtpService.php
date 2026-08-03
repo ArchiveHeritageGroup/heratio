@@ -1,13 +1,13 @@
 <?php
 
 /**
- * OtpService — email + SMS one-time-password MFA backend for Heratio
+ * OtpService - email + SMS one-time-password MFA backend for Heratio
  * (issue #722).
  *
  * Sister service to TotpService (#690) and WebAuthnService (#721). A user
  * may enrol any combination of email and SMS destinations, each modelled
  * as a row in ahg_otp_factor. Codes are 6-digit numeric, SHA-256-hashed
- * at rest in ahg_otp_challenge — the plaintext only ever leaves the
+ * at rest in ahg_otp_challenge - the plaintext only ever leaves the
  * service in the email body or SMS body, never in storage or logs.
  *
  * Safety rails:
@@ -348,7 +348,7 @@ class OtpService
 
     /**
      * Look up the factor row by user + id. Returns null if the row belongs
-     * to a different user — protects against IDOR via factor_id tampering.
+     * to a different user - protects against IDOR via factor_id tampering.
      */
     private function factorRow(int $userId, int $factorId): ?object
     {

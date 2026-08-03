@@ -1,5 +1,5 @@
 {{--
-  Face Detection — face detection and recognition settings
+  Face Detection - face detection and recognition settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('faces')
 
   @copyright  Johan Pieterse / Plain Sailing

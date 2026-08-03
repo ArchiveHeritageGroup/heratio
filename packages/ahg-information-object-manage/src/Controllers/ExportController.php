@@ -335,7 +335,7 @@ class ExportController extends Controller
             abort(404);
         }
 
-        return ''; // unreachable — abort() throws — but keeps the return type honest
+        return ''; // unreachable - abort() throws - but keeps the return type honest
     }
 
     /**
@@ -473,7 +473,7 @@ class ExportController extends Controller
             $xml .= "  <typeOfResource>" . $this->e($levelName) . "</typeOfResource>\n";
         }
 
-        // Origin info — #662 Phase 2 adds publisher, dateIssued (event 114),
+        // Origin info - #662 Phase 2 adds publisher, dateIssued (event 114),
         // dateCreated (event 111), and placeOfPublication.
         $hasOrigin = false;
         $originXml = "  <originInfo>\n";
@@ -549,7 +549,7 @@ class ExportController extends Controller
             $xml .= "  <abstract>" . $this->e($io->scope_and_content) . "</abstract>\n";
         }
 
-        // mods:note — #662 Phase 2 general note
+        // mods:note - #662 Phase 2 general note
         if (!empty($modsNote)) {
             $xml .= "  <note type=\"general\">" . $this->e($modsNote) . "</note>\n";
         }
@@ -1053,7 +1053,7 @@ class ExportController extends Controller
 
     private function buildDcXml($io, $repository, $events, $creators, $subjects, $places, $genres, $levelName, $languages, string $culture): string
     {
-        // Phase 1 of #662 — Dublin Core qualified element variants.
+        // Phase 1 of #662 - Dublin Core qualified element variants.
         // The xmlns:dcterms was already declared; now we actually emit
         // `dcterms:*` refinements alongside the basic `dc:*` elements:
         //   - dcterms:created  / dcterms:issued / dcterms:modified  (from event.type_id)
@@ -1098,7 +1098,7 @@ class ExportController extends Controller
             }
             $xml .= "  <dc:date>" . $this->e($dateVal) . "</dc:date>\n";
             // dcterms:created (creation, event.type_id=111) vs
-            // dcterms:issued (publication, event.type_id=114) — qualified
+            // dcterms:issued (publication, event.type_id=114) - qualified
             // refinements of dc:date. Other event types fall through to
             // dc:date only.
             $typeId = (int) ($event->type_id ?? 0);
@@ -1133,7 +1133,7 @@ class ExportController extends Controller
 
         $xml .= "  <dc:source>" . $this->e(url('/' . $io->slug)) . "</dc:source>\n";
 
-        // dcterms:isPartOf — parent IO URL when this is a child in a hierarchy
+        // dcterms:isPartOf - parent IO URL when this is a child in a hierarchy
         if (!empty($io->parent_id) && (int) $io->parent_id !== 1) {
             $parentSlug = DB::table('slug')->where('object_id', $io->parent_id)->value('slug');
             if ($parentSlug) {

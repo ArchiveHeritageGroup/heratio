@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SharePointFederationRunner — self-contained entry point that runs a SharePoint
+ * SharePointFederationRunner - self-contained entry point that runs a SharePoint
  * federated search from inside ahg-sharepoint, without any ahg-federation peer
  * row or dispatcher.
  *
@@ -25,13 +25,13 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  *
  * -----------------------------------------------------------------------------
- * Issue #1221 — self-contained SharePoint federated-search runner.
+ * Issue #1221 - self-contained SharePoint federated-search runner.
  *
  * This is the package-owned way to actually execute a SharePoint search. It
  * resolves a tenant from the package's own store (via SharePointFederationConfig),
  * builds a synthetic peer row, binds the relocated SharePointGraphConnector, and
  * returns a normalised RunResult. A future ahg-federation dispatcher does NOT
- * call this runner — it instantiates the connector class directly via the
+ * call this runner - it instantiates the connector class directly via the
  * connector registry this package publishes (see AhgSharePointServiceProvider).
  * This runner exists so the package is independently useful and testable.
  *

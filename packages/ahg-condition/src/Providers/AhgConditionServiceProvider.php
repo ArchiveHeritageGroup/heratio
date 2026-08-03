@@ -22,7 +22,7 @@ class AhgConditionServiceProvider extends ServiceProvider
         try {
             \AhgCondition\Services\AiDropdownSeeder::seed();
         } catch (\Throwable $e) {
-            // No DB or partial schema — seeder retries on next boot.
+            // No DB or partial schema - seeder retries on next boot.
         }
     }
 }

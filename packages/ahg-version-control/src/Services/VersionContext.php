@@ -1,7 +1,7 @@
 <?php
 
 /**
- * VersionContext — request-scoped flags that govern automatic version capture.
+ * VersionContext - request-scoped flags that govern automatic version capture.
  *
  * Mirror of the AtoM-side service at
  *   atom-ahg-plugins/ahgVersionControlPlugin/lib/Services/VersionContext.php

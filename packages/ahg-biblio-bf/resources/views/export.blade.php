@@ -1,4 +1,4 @@
-{{-- ahg-biblio-bf/export.blade.php — Export BIBFRAME RDF --}}
+{{-- ahg-biblio-bf/export.blade.php - Export BIBFRAME RDF --}}
 @extends('theme::layouts.1col')
 
 @section('content')
@@ -23,7 +23,7 @@
         <div class="mb-3">
           <label for="work_id" class="form-label">{{ __('Single work') }}</label>
           <select class="form-select" name="work_id" id="work_id">
-            <option value="">— Select a work —</option>
+            <option value="">- Select a work -</option>
             @foreach($works as $w)
               <option value="{{ $w->id }}">{{ $w->title }} ({{ $w->author ?? 'no author' }})</option>
             @endforeach
@@ -43,7 +43,7 @@
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="batch" id="batch" value="1">
           <label class="form-check-label" for="batch">
-            Batch mode — return all works as JSON
+            Batch mode - return all works as JSON
           </label>
         </div>
       </div>

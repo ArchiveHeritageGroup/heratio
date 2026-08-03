@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Provenance History — ' . ($io->title ?? ''))
+@section('title', 'Provenance History - ' . ($io->title ?? ''))
 
 @section('content')
 @php $ov = $overview ?? null; @endphp
@@ -307,7 +307,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Research Status') }}</label>
               <select name="research_status" class="form-select">
-                <option value="">—</option>
+                <option value="">-</option>
                 @foreach($researchStatuses as $k => $label)
                   <option value="{{ $k }}" @selected(old('research_status', $ov->research_status ?? '') === $k)>{{ $label }}</option>
                 @endforeach
@@ -339,7 +339,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Current Status') }}</label>
               <select name="current_status" class="form-select">
-                <option value="">—</option>
+                <option value="">-</option>
                 @foreach($currentStatuses as $k => $label)
                   <option value="{{ $k }}" @selected(old('current_status', $ov->current_status ?? '') === $k)>{{ $label }}</option>
                 @endforeach
@@ -348,7 +348,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Custody Type') }}</label>
               <select name="custody_type" class="form-select">
-                <option value="">—</option>
+                <option value="">-</option>
                 @foreach($custodyTypes as $k => $label)
                   <option value="{{ $k }}" @selected(old('custody_type', $ov->custody_type ?? '') === $k)>{{ $label }}</option>
                 @endforeach
@@ -357,7 +357,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Certainty Level') }}</label>
               <select name="certainty_level" class="form-select">
-                <option value="">—</option>
+                <option value="">-</option>
                 @foreach($certaintyLevels as $k => $label)
                   <option value="{{ $k }}" @selected(old('certainty_level', $ov->certainty_level ?? '') === $k)>{{ $label }}</option>
                 @endforeach
@@ -386,8 +386,8 @@
               <div class="mb-3">
                 <label class="form-label">{{ __('Result') }}</label>
                 <select name="nazi_era_provenance_clear" class="form-select">
-                  <option value="">{{ __('— Select —') }}</option>
-                  <option value="1" @selected((string) old('nazi_era_provenance_clear', $ov->nazi_era_provenance_clear ?? '') === '1')>{{ __('Clear — no issues found') }}</option>
+                  <option value="">{{ __('- Select -') }}</option>
+                  <option value="1" @selected((string) old('nazi_era_provenance_clear', $ov->nazi_era_provenance_clear ?? '') === '1')>{{ __('Clear - no issues found') }}</option>
                   <option value="0" @selected((string) old('nazi_era_provenance_clear', $ov->nazi_era_provenance_clear ?? '') === '0')>{{ __('Requires investigation') }}</option>
                 </select>
               </div>

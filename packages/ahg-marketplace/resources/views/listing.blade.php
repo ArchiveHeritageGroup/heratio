@@ -1,5 +1,5 @@
 {{--
-  Marketplace — Public Listing Detail
+  Marketplace - Public Listing Detail
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.
@@ -189,7 +189,7 @@
                 Complete the purchase below to keep it.
               @else
                 <i class="fas fa-lock me-1"></i>
-                <strong>{{ __('Reserved by another buyer') }}</strong> &mdash; hold released
+                <strong>{{ __('Reserved by another buyer') }}</strong> - hold released
                 <span data-countdown="{{ $reservation->expires_at }}">{{ \Carbon\Carbon::parse($reservation->expires_at)->diffForHumans() }}</span>.
               @endif
             </div>

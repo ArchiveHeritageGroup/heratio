@@ -92,7 +92,7 @@
     </div>
     @endif {{-- end Collections Management package check --}}
 
-    {{-- Digital Preservation (OAIS) — gated by ahgPreservationPlugin --}}
+    {{-- Digital Preservation (OAIS) - gated by ahgPreservationPlugin --}}
     @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgPreservationPlugin'))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
@@ -164,10 +164,10 @@
           </a>
           <div id="aiAnimateForm" class="collapse">
             <form action="{{ route('image-ar.generate', ['ioId' => $io->id]) }}" method="POST"
-                  onsubmit="return confirm('Send to AI server ({{ $aiDefaults['server_url'] }})?\n\nModel: {{ $aiDefaults['model'] }}\nFrames: {{ $aiDefaults['num_frames'] }} @ {{ $aiDefaults['fps'] }} fps\n\nOn the 8 GB GPU this can take 3–8 minutes. The page will sit and wait.');"
+                  onsubmit="return confirm('Send to AI server ({{ $aiDefaults['server_url'] }})?\n\nModel: {{ $aiDefaults['model'] }}\nFrames: {{ $aiDefaults['num_frames'] }} @ {{ $aiDefaults['fps'] }} fps\n\nOn the 8 GB GPU this can take 3-8 minutes. The page will sit and wait.');"
                   class="p-2 border-top">
               @csrf
-              <label class="form-label small mb-1">{{ __('Prompt (optional — used by CogVideoX/WAN, ignored by SVD)') }}</label>
+              <label class="form-label small mb-1">{{ __('Prompt (optional - used by CogVideoX/WAN, ignored by SVD)') }}</label>
               <textarea name="prompt" rows="2" class="form-control form-control-sm mb-2"
                         placeholder="{{ __('e.g. the elephant walks slowly forward, the egret on its back lifts off and flies right') }}">{{ $aiDefaults['prompt'] }}</textarea>
               <div class="row g-1 mb-2">
@@ -177,7 +177,7 @@
                 </div>
                 <div class="col-6">
                   <label class="form-label small mb-0">{{ __('Motion') }}</label>
-                  <input type="number" name="motion_bucket_id" value="{{ $aiDefaults['motion_bucket_id'] }}" min="1" max="255" class="form-control form-control-sm" title="{{ __('SVD motion strength 1–255') }}">
+                  <input type="number" name="motion_bucket_id" value="{{ $aiDefaults['motion_bucket_id'] }}" min="1" max="255" class="form-control form-control-sm" title="{{ __('SVD motion strength 1-255') }}">
                 </div>
               </div>
               <button type="submit" class="btn btn-sm btn-primary w-100">
@@ -201,7 +201,7 @@
         <i class="fas fa-user-shield me-1"></i> {{ __('Privacy & PII') }}
       </div>
       <div class="list-group list-group-flush">
-        {{-- PII scanning is AI/NER-powered — hide when AI isn't enabled (plugin off or no API key). Visual Redaction + Dashboard are non-AI and always show. --}}
+        {{-- PII scanning is AI/NER-powered - hide when AI isn't enabled (plugin off or no API key). Visual Redaction + Dashboard are non-AI and always show. --}}
         @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgAIPlugin') && ($aiConfigured ?? false))
         <a href="{{ route('io.privacy.scan', $io->id) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-search me-1"></i> {{ __('Scan for PII') }}
@@ -334,7 +334,7 @@
     @if($levelName)<span class="text-muted">{{ $levelName }}</span>@endif
     @if($io->identifier){{ $io->identifier }} - @endif
     {{ $io->title ?: '[Untitled]' }}
-    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b) — visible to anyone
+    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b) - visible to anyone
          who can see the title; lets viewers know up-front whether the item
          carries access restrictions before they engage with it. --}}
     @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $io->icip_sensitivity ?? null])
@@ -482,7 +482,7 @@
     @include('ahg-ric::_ric-view-io', ['io' => $io])
   @else
 
-  {{-- TTS (Text-to-Speech) controls — only for text-heavy archival descriptions, not museum/3D/media objects --}}
+  {{-- TTS (Text-to-Speech) controls - only for text-heavy archival descriptions, not museum/3D/media objects --}}
   @if((!empty($io->scope_and_content) || !empty($io->archival_history) || !empty($io->arrangement))
       && (!isset($digitalObjects) || !($digitalObjects['master'] ?? null)
           || !in_array(\AhgCore\Services\DigitalObjectService::getMediaType($digitalObjects['master']), ['video', 'audio', 'other'])))
@@ -538,7 +538,7 @@
         <i class="fas fa-comment"></i>
       </a>
 
-      {{-- Request to Publish (uses cart route — gated by cart plugin) --}}
+      {{-- Request to Publish (uses cart route - gated by cart plugin) --}}
       @if($cartEnabled && $hasDigitalObject)
         <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-white" title="{{ __('Request to Publish') }}" data-bs-toggle="tooltip">
           <i class="fas fa-paper-plane"></i>
@@ -731,7 +731,7 @@
         @if($embargoData)
           <div class="alert alert-danger d-flex align-items-center mb-3">
             <i class="fas fa-ban me-2 fa-lg"></i>
-            <div><strong>{{ __('Under Embargo') }}</strong> — {{ ucfirst($embargoData->embargo_type ?? 'full') }} embargo since {{ $embargoData->start_date }}
+            <div><strong>{{ __('Under Embargo') }}</strong> - {{ ucfirst($embargoData->embargo_type ?? 'full') }} embargo since {{ $embargoData->start_date }}
               @if($embargoData->end_date) until {{ $embargoData->end_date }} @else (no end date) @endif
             </div>
           </div>
@@ -825,9 +825,9 @@
                 </div>
                 <small class="text-muted">
                   @if($entry->start_date && $entry->end_date)
-                    {{ $entry->start_date }} &ndash; {{ $entry->end_date }}
+                    {{ $entry->start_date }} - {{ $entry->end_date }}
                   @elseif($entry->start_date)
-                    {{ $entry->start_date }} &ndash; present
+                    {{ $entry->start_date }} - present
                   @elseif($entry->end_date)
                     until {{ $entry->end_date }}
                   @endif
@@ -901,7 +901,7 @@
 
   @endif {{-- end heratio/ric view mode --}}
 
-  {{-- RiC Explorer Panel + RiC Context — only visible in RiC view mode --}}
+  {{-- RiC Explorer Panel + RiC Context - only visible in RiC view mode --}}
   @if(\AhgRic\Services\RicViewModeService::isRic('information_object', $io->id))
     @include('ahg-ric::_ric-panel', ['resourceId' => $io->id])
 
@@ -933,7 +933,7 @@
       // endpoint for non-admin viewers when there are redactions on file.
       // The endpoint generates the redacted file on-the-fly (cached after the
       // first call) and streams it. Admins always get the original.
-      // Thumbnails stay on the original URL — they're typically too small to
+      // Thumbnails stay on the original URL - they're typically too small to
       // hold redactable content, and re-rendering them is wasteful.
       $__doIsAdmin = auth()->check() && auth()->user()
           && (method_exists(auth()->user(), 'isAdministrator')
@@ -947,7 +947,7 @@
                   ->whereIn('status', ['applied', 'reviewed', 'pending'])
                   ->exists();
           }
-      } catch (\Throwable $e) { /* table missing — leave flag false */ }
+      } catch (\Throwable $e) { /* table missing - leave flag false */ }
       if ($__doHasRedactions && !$__doIsAdmin) {
           $__redactedUrl = route('io.privacy.redacted-asset', $io->slug);
           $doMasterUrl = $__redactedUrl;
@@ -1233,7 +1233,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted small mb-3">Named Entity Recognition — extract persons, organizations, places, dates from <strong>{{ $io->title ?? 'this record' }}</strong></p>
+        <p class="text-muted small mb-3">Named Entity Recognition - extract persons, organizations, places, dates from <strong>{{ $io->title ?? 'this record' }}</strong></p>
 
         {{-- Extract button --}}
         <div class="text-center mb-3" id="nerExtractSection">
@@ -1457,7 +1457,7 @@
     ];
   @endphp
 
-  {{-- Side-by-side translator (manual) — separate from the multi-step MT wizard #translateModal below. --}}
+  {{-- Side-by-side translator (manual) - separate from the multi-step MT wizard #translateModal below. --}}
   @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
       && \AhgCore\Services\AclService::check($io, 'translate'))
     @include('ahg-translation::_translate-sbs', ['objectId' => $io->id])
@@ -1518,7 +1518,7 @@
           </div>
           {{-- Step 2 --}}
           <div id="translate-step2" style="display:none;">
-            <div class="alert alert-warning py-2 mb-3"><i class="fas fa-eye me-1"></i><strong>{{ __('Review Translations') }}</strong> — Edit if needed, then click "Approve & Save".</div>
+            <div class="alert alert-warning py-2 mb-3"><i class="fas fa-eye me-1"></i><strong>{{ __('Review Translations') }}</strong> - Edit if needed, then click "Approve & Save".</div>
             <div id="translatePreview"></div>
           </div>
           <div class="mt-3"><div class="alert py-2 mb-0" id="translateStatus" style="display:none;"></div></div>
@@ -1631,7 +1631,7 @@
   })();
   </script>
 
-  {{-- TripoSR preview modal — auto-opens when session has a staged preview for this IO --}}
+  {{-- TripoSR preview modal - auto-opens when session has a staged preview for this IO --}}
   @php
     $triposrPreview = session('triposr_preview');
     $hasTriposrPreview = $triposrPreview && (int) ($triposrPreview['io_id'] ?? 0) === (int) $io->id;
@@ -1642,7 +1642,7 @@
         <div class="modal-content">
           <div class="modal-header bg-warning bg-opacity-25">
             <h5 class="modal-title" id="triposrPreviewModalLabel">
-              <i class="fas fa-cube me-2 text-warning"></i> 3D preview &mdash; review before saving
+              <i class="fas fa-cube me-2 text-warning"></i> 3D preview - review before saving
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
           </div>
@@ -1650,13 +1650,13 @@
             @if(!empty($triposrPreview['is_demo']))
               <div class="alert alert-info small mb-3">
                 <i class="fas fa-flask me-1"></i>
-                <strong>{{ __('Demo placeholder') }}</strong> &mdash;
+                <strong>{{ __('Demo placeholder') }}</strong> -
                 {{ __('the TripoSR backend is currently unavailable, so this is a bundled cube standing in for what a real generation would produce. Real GPU/AI generation is on its way.') }}
               </div>
             @else
               <div class="alert alert-warning small mb-3">
                 <i class="fas fa-flask me-1"></i>
-                {{ __('AI-generated reconstruction. Review the preview below — geometry is approximate. Click Save to attach it as a 3D model on this object, or Discard to throw it away.') }}
+                {{ __('AI-generated reconstruction. Review the preview below - geometry is approximate. Click Save to attach it as a 3D model on this object, or Discard to throw it away.') }}
               </div>
             @endif
             <div style="height:420px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;">

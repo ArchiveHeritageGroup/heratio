@@ -15,9 +15,9 @@ use Illuminate\Routing\Controller;
  * sharepoint_subscription.client_state.
  *
  * Two flows:
- *   1. Subscription validation handshake — Graph GETs ?validationToken=...
+ *   1. Subscription validation handshake - Graph GETs ?validationToken=...
  *      We MUST echo it as text/plain 200 within 10s.
- *   2. Notification delivery — Graph POSTs JSON {value:[{...},{...}]}
+ *   2. Notification delivery - Graph POSTs JSON {value:[{...},{...}]}
  *      Validate clientState, INSERT sharepoint_event, enqueue
  *      IngestSharePointEventJob, return 202.
  *

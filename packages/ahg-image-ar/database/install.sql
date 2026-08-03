@@ -1,4 +1,4 @@
--- ahg-image-ar — schema install
+-- ahg-image-ar - schema install
 -- One row per IO holding the AI-generated MP4 + the inputs that produced it.
 
 CREATE TABLE IF NOT EXISTS `object_image_ar` (

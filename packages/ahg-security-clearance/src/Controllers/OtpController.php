@@ -1,7 +1,7 @@
 <?php
 
 /**
- * OtpController — HTTP layer for email + SMS OTP MFA (issue #722).
+ * OtpController - HTTP layer for email + SMS OTP MFA (issue #722).
  *
  * Sister controller to WebAuthnController (#721) and the TOTP slice on
  * SecurityClearanceController (#690). Routes live under
@@ -72,7 +72,7 @@ class OtpController extends Controller
         ]);
     }
 
-    /** POST — create a pending factor and send the first code. */
+    /** POST - create a pending factor and send the first code. */
     public function enrol(Request $request)
     {
         $request->validate([
@@ -118,7 +118,7 @@ class OtpController extends Controller
         ]);
     }
 
-    /** POST — validate the first code. */
+    /** POST - validate the first code. */
     public function verifyEnrolment(Request $request, int $factor)
     {
         $request->validate(['code' => 'required|string|size:6']);
@@ -154,7 +154,7 @@ class OtpController extends Controller
         ])->with('info', __('If 60 seconds have passed since the last send, a new code is on its way.'));
     }
 
-    /** Management UI — enrolled factors with delete + verify timestamp. */
+    /** Management UI - enrolled factors with delete + verify timestamp. */
     public function list(Request $request)
     {
         $factors = $this->otp->factorsFor((int) auth()->id());
@@ -165,7 +165,7 @@ class OtpController extends Controller
         ]);
     }
 
-    /** POST — delete a single factor (ownership-checked inside the service). */
+    /** POST - delete a single factor (ownership-checked inside the service). */
     public function delete(Request $request, int $factor)
     {
         $this->otp->deleteFactor((int) auth()->id(), $factor);
@@ -192,7 +192,7 @@ class OtpController extends Controller
     }
 
     /**
-     * POST /assert/begin — send a code to the chosen verified factor.
+     * POST /assert/begin - send a code to the chosen verified factor.
      * Renders the same verify page with a flag so the JS surface knows
      * the code has been dispatched.
      */
@@ -218,7 +218,7 @@ class OtpController extends Controller
         ])->with('info', __('A verification code has been sent.'));
     }
 
-    /** POST /assert/complete — validate the code and clear the MFA gate. */
+    /** POST /assert/complete - validate the code and clear the MFA gate. */
     public function assertComplete(Request $request)
     {
         $request->validate([

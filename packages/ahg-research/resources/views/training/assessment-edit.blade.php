@@ -1,4 +1,4 @@
-{{-- #1099 Training — assessment (quiz) builder --}}
+{{-- #1099 Training - assessment (quiz) builder --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -15,7 +15,7 @@
 @endphp
 <div class="container py-3" style="max-width: 860px;">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0"><i class="fas fa-clipboard-check text-primary me-2"></i>{{ __('Assessment') }} — {{ $course['title'] }}</h1>
+    <h1 class="h3 mb-0"><i class="fas fa-clipboard-check text-primary me-2"></i>{{ __('Assessment') }} - {{ $course['title'] }}</h1>
     <a href="{{ route('research.training.show', $course['id']) }}" class="btn atom-btn-white">{{ __('Back') }}</a>
   </div>
   @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
@@ -29,7 +29,7 @@
         <input type="number" name="pass_mark" class="form-control" min="0" max="100" value="{{ $assessment['pass_mark'] ?? '' }}"></div>
     </div>
 
-    <p class="text-muted small">{{ __('Enter the question and 2–4 options; select the correct answer. Leave a question blank to skip it.') }}</p>
+    <p class="text-muted small">{{ __('Enter the question and 2-4 options; select the correct answer. Leave a question blank to skip it.') }}</p>
 
     @foreach ($rows as $i => $row)
       @php $opts = array_pad((array) ($row['options'] ?? []), 4, ''); @endphp

@@ -37,7 +37,7 @@
             <i class="fas fa-copy me-1"></i>{{ __('Copy') }}
           </button>
         </div>
-        <p class="mb-2">{{ __('Please save this reference number — you will need it to track the status of your request.') }}</p>
+        <p class="mb-2">{{ __('Please save this reference number - you will need it to track the status of your request.') }}</p>
       @else
         <div class="alert alert-warning mb-0">
           <i class="fas fa-exclamation-triangle me-2"></i>{{ __('No reference number was provided. If you have just submitted a request and reached this page directly, please refer to the confirmation email or contact the data protection officer.') }}

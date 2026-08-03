@@ -1,4 +1,4 @@
-{{-- Spectrum Phase C2 — cross-procedure chain rules admin --}}
+{{-- Spectrum Phase C2 - cross-procedure chain rules admin --}}
 @extends('theme::layouts.1col')
 
 @section('title', __('Museum procedure chain rules'))

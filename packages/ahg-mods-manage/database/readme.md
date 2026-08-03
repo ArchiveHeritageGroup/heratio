@@ -1,4 +1,4 @@
-# AhgModsManage — Db
+# AhgModsManage - Db
 
 Database directory for the AhgModsManage package.
 

@@ -43,7 +43,7 @@
       <div class="col-md-4">
         <label class="form-label">{{ __('EDI Trading Partner') }}</label>
         <select name="trading_partner_id" class="form-select">
-          <option value="">— none —</option>
+          <option value="">- none -</option>
           @foreach($partners as $tp)
             <option value="{{ $tp->id }}" {{ old('trading_partner_id')==$tp->id ? 'selected' : '' }}>
               {{ $tp->edi_partner_code }} ({{ $tp->edi_type }})
@@ -57,7 +57,7 @@
       <div class="col-md-4">
         <label class="form-label">{{ __('Responder Library') }}</label>
         <select name="responder_library_id" class="form-select">
-          <option value="">— unknown —</option>
+          <option value="">- unknown -</option>
           @foreach($vendors as $v)
             <option value="{{ $v->id }}" {{ old('responder_library_id')==$v->id ? 'selected' : '' }}>
               {{ $v->name }}

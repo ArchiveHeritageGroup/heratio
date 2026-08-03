@@ -327,7 +327,7 @@ class RetentionController extends Controller
         }
 
         return redirect()->route('records.schedules.show', $id)
-            ->with('error', 'Cannot delete disposal class — records are still assigned to it.');
+            ->with('error', 'Cannot delete disposal class - records are still assigned to it.');
     }
 
     /**

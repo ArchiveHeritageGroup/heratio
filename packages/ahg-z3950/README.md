@@ -1,4 +1,4 @@
-# ahg-z3950 — Z39.50 Client and Server
+# ahg-z3950 - Z39.50 Client and Server
 
 Z39.50 client (search) and server (expose Heratio catalogue over Z39.50) for the Heratio library ecosystem.
 
@@ -8,10 +8,10 @@ Implements the Z39.50 information retrieval protocol using the `yaz` PHP extensi
 
 ## Features
 
-- **Client** — connect to any Z39.50 target, run searchable queries using bib-1 attribute set, import results into Heratio.
-- **Server** — serve Heratio catalogue records on a configurable port (default: 9999) as a Z39.50 server.
-- **Admin UI** — manage target profiles, view connection logs, track query stats.
-- **MARCMaker import** — parse Z39.55 returned records in USMARC/MARC21 format and persist into Heratio.
+- **Client** - connect to any Z39.50 target, run searchable queries using bib-1 attribute set, import results into Heratio.
+- **Server** - serve Heratio catalogue records on a configurable port (default: 9999) as a Z39.50 server.
+- **Admin UI** - manage target profiles, view connection logs, track query stats.
+- **MARCMaker import** - parse Z39.55 returned records in USMARC/MARC21 format and persist into Heratio.
 
 ## Routes
 
@@ -46,6 +46,6 @@ Implements the Z39.50 information retrieval protocol using the `yaz` PHP extensi
 
 ## Related packages
 
-- `ahg-biblio-bf` — BIBFRAME 2.0 ingest/export
-- `ahg-biblio-frbr` — FRBR conceptual model
-- `ahg-library` — base library package (KBART, COUNTER/SUSHI)
+- `ahg-biblio-bf` - BIBFRAME 2.0 ingest/export
+- `ahg-biblio-frbr` - FRBR conceptual model
+- `ahg-library` - base library package (KBART, COUNTER/SUSHI)

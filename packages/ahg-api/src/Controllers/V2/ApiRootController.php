@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 class ApiRootController extends BaseApiController
 {
     /**
-     * GET /api/v2 — API index with all available endpoints.
+     * GET /api/v2 - API index with all available endpoints.
      */
     public function index(): JsonResponse
     {

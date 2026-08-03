@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Generate Summary — ' . ($io->title ?? ''))
+@section('title', 'Generate Summary - ' . ($io->title ?? ''))
 
 @section('content')
   @include('ahg-io-manage::partials.feature-header', [

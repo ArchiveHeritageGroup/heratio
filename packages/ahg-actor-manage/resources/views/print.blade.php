@@ -4,7 +4,7 @@
 @section('record-title', $actor->authorized_form_of_name ?? '[Untitled]')
 @section('record-type')
   @if($entityTypeName) {{ $entityTypeName }} @endif
-  @if($actor->description_identifier) &mdash; {{ $actor->description_identifier }} @endif
+  @if($actor->description_identifier) - {{ $actor->description_identifier }} @endif
 @endsection
 
 @section('content')

@@ -1,6 +1,6 @@
 {
     "name": "ahg/security-clearance",
-    "description": "Security clearance management for Heratio — clearances, compartments, classification, 2FA, audit trail",
+    "description": "Security clearance management for Heratio - clearances, compartments, classification, 2FA, audit trail",
     "type": "library",
     "require": {
         "ahg/core": "@dev"

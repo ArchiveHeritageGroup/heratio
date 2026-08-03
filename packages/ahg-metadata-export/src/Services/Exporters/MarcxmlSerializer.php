@@ -13,7 +13,7 @@
  *   005  date of latest transaction (object.updated_at, YYYYMMDDhhmmss.f)
  *   040  cataloguing source
  *   041  language code (from object_term_relation taxonomy 7)
- *   1XX  main entry — first creator (100 personal, 110 corporate, 111 meeting)
+ *   1XX  main entry - first creator (100 personal, 110 corporate, 111 meeting)
  *   245  title statement
  *   264  publication info (repository + dates)
  *   300  physical description (extent_and_medium)

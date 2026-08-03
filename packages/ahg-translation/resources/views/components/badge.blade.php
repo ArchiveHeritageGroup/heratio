@@ -1,18 +1,18 @@
 {{--
-  AI-disclosure badge — renders next to a record field whose value was
+  AI-disclosure badge - renders next to a record field whose value was
   machine-translated and not yet human-verified. Mirrors the proposal in
   issue #36 Phase 4.
 
   Two ways to use, depending on whether you've already pre-loaded provenance
   for the record (recommended for show pages with many fields):
 
-  1) Pre-loaded — controller passes $translationSources (associative array
+  1) Pre-loaded - controller passes $translationSources (associative array
      ['title' => 'machine', 'scope_and_content' => 'human', ...]) into the
      view. In each field row:
 
        @include('ahg-translation::components.badge', ['source' => $translationSources['title'] ?? null])
 
-  2) Lazy lookup per field — costs one DB query per render. Use only on
+  2) Lazy lookup per field - costs one DB query per render. Use only on
      pages with few fields:
 
        @include('ahg-translation::components.badge', ['objectId' => $io->id, 'culture' => app()->getLocale(), 'field' => 'title'])

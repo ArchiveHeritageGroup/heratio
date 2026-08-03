@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * F1 Phase A — create information_object_share_token + _share_access.
+ * F1 Phase A - create information_object_share_token + _share_access.
  *
  * Runs the package install.sql via DB::unprepared (handles multi-statement
  * + comments natively). This is the source-of-truth + mirror approach we

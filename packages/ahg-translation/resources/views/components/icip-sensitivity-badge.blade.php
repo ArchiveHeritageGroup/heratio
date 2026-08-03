@@ -1,5 +1,5 @@
 {{--
-  ICIP cultural-sensitivity badge — renders the localised label for a
+  ICIP cultural-sensitivity badge - renders the localised label for a
   museum object's icip_sensitivity URI.
 
   Usage:
@@ -15,7 +15,7 @@
         $svc = app(\AhgCore\Services\VocabularyResolverService::class);
         $label = $svc->preferredLabel($uri, app()->getLocale());
         $fragment = str_contains($uri, '#') ? substr($uri, strrpos($uri, '#') + 1) : $uri;
-        // Severity colour map — keyed on the fragment so the badge style
+        // Severity colour map - keyed on the fragment so the badge style
         // doesn't depend on the localised label.
         $colourMap = [
             'Open'                    => 'bg-success',
@@ -32,7 +32,7 @@
 
 @if($uri ?? null)
     <span class="badge {{ $cls }} ms-1 icip-sensitivity-badge"
-          title="{{ __('ICIP cultural-sensitivity classification') }} — {{ $uri }}"
+          title="{{ __('ICIP cultural-sensitivity classification') }} - {{ $uri }}"
           data-bs-toggle="tooltip">
         <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>{{ $label }}
     </span>

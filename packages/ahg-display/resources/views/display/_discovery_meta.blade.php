@@ -1,5 +1,5 @@
 {{--
-  GLAM Browser – _discovery_meta.blade.php
+  GLAM Browser - _discovery_meta.blade.php
   Per-result discovery metadata footer (relevance score, match reasons, explanation)
 --}}
 @php

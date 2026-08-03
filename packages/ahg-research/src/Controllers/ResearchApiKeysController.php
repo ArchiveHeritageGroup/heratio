@@ -75,7 +75,7 @@ class ResearchApiKeysController extends Controller
                     $request->input('expires_at') ?: null
                 );
                 return redirect()->route('research.apiKeys')
-                    ->with('success', 'API key generated successfully. <br><code id="apiKeyValue" class="user-select-all fs-6">' . e($result['key']) . '</code><br><small class="text-muted">Copy this key now — it will not be shown again.</small>');
+                    ->with('success', 'API key generated successfully. <br><code id="apiKeyValue" class="user-select-all fs-6">' . e($result['key']) . '</code><br><small class="text-muted">Copy this key now - it will not be shown again.</small>');
             }
             if ($action === 'revoke') {
                 $this->service->revokeApiKey((int) $request->input('key_id'), $researcher->id);

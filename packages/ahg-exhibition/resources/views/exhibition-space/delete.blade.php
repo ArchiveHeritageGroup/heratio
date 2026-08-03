@@ -1,4 +1,4 @@
-{{-- heratio#146 — Exhibition space delete confirmation --}}
+{{-- heratio#146 - Exhibition space delete confirmation --}}
 @extends('theme::layouts.1col')
 
 @section('title', __('Delete :name', ['name' => $space->name]))

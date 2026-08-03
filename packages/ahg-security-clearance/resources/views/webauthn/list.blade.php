@@ -20,7 +20,7 @@
           @endif
 
           <p class="text-muted">
-            {{ __('Passkeys let you sign in with a hardware key (e.g. YubiKey) or your device biometric (Touch ID, Windows Hello). They sit alongside your authenticator-app code — either factor can satisfy two-factor sign-in.') }}
+            {{ __('Passkeys let you sign in with a hardware key (e.g. YubiKey) or your device biometric (Touch ID, Windows Hello). They sit alongside your authenticator-app code - either factor can satisfy two-factor sign-in.') }}
           </p>
 
           @if(empty($credentials))

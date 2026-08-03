@@ -167,7 +167,7 @@ class InformationObjectBrowseService extends BrowseService
         // Copyright status filter: filter by rights.copyright_status_id linked to IO
         if (!empty($this->activeFilters['copyright_status_id'])) {
             $copyrightStatusId = (int) $this->activeFilters['copyright_status_id'];
-            // Check if the requested status is "Unknown" (term id 352) — includes records with no rights record
+            // Check if the requested status is "Unknown" (term id 352) - includes records with no rights record
             $unknownTermId = DB::table('term')
                 ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
                 ->where('term.taxonomy_id', 69)
@@ -472,7 +472,7 @@ class InformationObjectBrowseService extends BrowseService
                             ->where('note_i18n.content', 'LIKE', $like);
                     });
                 } else {
-                    // "Any field" — search all columns + related tables
+                    // "Any field" - search all columns + related tables
                     $q->where(function ($inner) use ($like, $fieldMap) {
                         foreach ($fieldMap as $col) {
                             $inner->orWhere($col, 'LIKE', $like);

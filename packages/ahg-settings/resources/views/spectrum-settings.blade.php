@@ -1,5 +1,5 @@
 {{--
-  Spectrum / Collections — collections management settings
+  Spectrum / Collections - collections management settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('spectrum')
 
   @copyright  Johan Pieterse / Plain Sailing

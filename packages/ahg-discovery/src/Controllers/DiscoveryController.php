@@ -49,7 +49,7 @@ class DiscoveryController extends Controller
     private ?string $discoveryConn = null;
 
     /**
-     * Cached fusion-config block — merge weights + RRF k + hierarchical-tier scores +
+     * Cached fusion-config block - merge weights + RRF k + hierarchical-tier scores +
      * multi-source bonus. Loaded once per controller instance from ahg_settings
      * (group=discovery, keys ahg_discovery_weight_*, ahg_discovery_rrf_k, etc.).
      * Issue #21.
@@ -63,7 +63,7 @@ class DiscoveryController extends Controller
     private array $termIdCache = [];
 
     /**
-     * Default fusion weights — replicate the AtoM ResultMerger constants so
+     * Default fusion weights - replicate the AtoM ResultMerger constants so
      * a fresh install with no settings rows behaves identically to pre-#21.
      */
     private const FUSION_DEFAULTS = [
@@ -85,7 +85,7 @@ class DiscoveryController extends Controller
      *
      * Names are matched case-insensitively against term_i18n.name in the en
      * culture. Pass synonyms (e.g. ['Subfonds', 'Sub-fonds']) to handle the
-     * AtoM/Heratio orthography drift — the lookup unions them all.
+     * AtoM/Heratio orthography drift - the lookup unions them all.
      *
      * @return int[] term IDs (may be empty if no matches)
      */
@@ -158,17 +158,17 @@ class DiscoveryController extends Controller
             // rrf_k is integer; cast back
             $cfg['rrf_k'] = (int) $cfg['rrf_k'];
         } catch (\Throwable $e) {
-            // Settings unreadable — defaults stand.
+            // Settings unreadable - defaults stand.
         }
 
         return $this->fusionConfig = $cfg;
     }
 
     /**
-     * Connection name for non-ES strategies — entity NER lookups, hierarchical
+     * Connection name for non-ES strategies - entity NER lookups, hierarchical
      * walks, and enrich/group joins. Reads ahg_settings.discovery_db_connection;
      * defaults to 'atom' (the ANC corpus). Falls back to the framework default
-     * connection if the requested one is missing — e.g. fresh installs without
+     * connection if the requested one is missing - e.g. fresh installs without
      * an `atom` DB will keep working in degraded mode (smaller heratio sample).
      *
      * Issue #14.
@@ -184,7 +184,7 @@ class DiscoveryController extends Controller
         try {
             return DB::connection($this->discoveryConn);
         } catch (\Throwable $e) {
-            // Configured connection missing — degrade to default rather than fatal.
+            // Configured connection missing - degrade to default rather than fatal.
             return DB::connection();
         }
     }
@@ -328,7 +328,7 @@ class DiscoveryController extends Controller
         }
 
         // Ablation switch (#28): explicit strategies list overrides mode-based gating.
-        // ?strategies=keyword,entity,hierarchical,vector — comma-separated whitelist.
+        // ?strategies=keyword,entity,hierarchical,vector - comma-separated whitelist.
         // Absent → fall back to legacy mode mapping (full back-compat).
         $enabledStrategies = self::resolveEnabledStrategies(
             $request->input('strategies'),
@@ -352,7 +352,7 @@ class DiscoveryController extends Controller
 
         // Cache key includes the resolved strategies list so two ablation configs
         // never read each other's cached responses. ?nocache=1 bypasses the cache
-        // entirely — used by the eval harness (#17) and verify twin (#20B) to
+        // entirely - used by the eval harness (#17) and verify twin (#20B) to
         // measure the actual retrieval pipeline rather than cached responses.
         $bypassCache = $request->boolean('nocache');
         $strategiesKey = implode(',', $enabledStrategies);
@@ -368,7 +368,7 @@ class DiscoveryController extends Controller
 
         // Per-strategy telemetry capture. All 5 retrieval-strategy keys are
         // pre-populated with {hits:[], ms:0} so the JSON schema is stable
-        // across configs — disabled strategies still appear in the log row
+        // across configs - disabled strategies still appear in the log row
         // with zero hits/ms instead of being absent.
         $strategyResults = [
             'keyword' => ['hits' => [], 'ms' => 0],
@@ -378,7 +378,7 @@ class DiscoveryController extends Controller
             'image' => ['hits' => [], 'ms' => 0],
         ];
 
-        // Step 1: Query Expansion (always — not a retrieval strategy, just preprocessing)
+        // Step 1: Query Expansion (always - not a retrieval strategy, just preprocessing)
         $t0 = microtime(true);
         $expanded = $this->expandQuery($query);
         $strategyResults['expansion'] = ['hits' => [], 'ms' => (int) ((microtime(true) - $t0) * 1000)];
@@ -399,7 +399,7 @@ class DiscoveryController extends Controller
             $strategyResults['entity'] = ['hits' => $entityResults, 'ms' => (int) ((microtime(true) - $t0) * 1000)];
         }
 
-        // Step 3b: Vector similarity via Qdrant — failure is silent (returns []).
+        // Step 3b: Vector similarity via Qdrant - failure is silent (returns []).
         $vectorResults = [];
         if (in_array('vector', $enabledStrategies, true)) {
             $t0 = microtime(true);
@@ -473,7 +473,7 @@ class DiscoveryController extends Controller
             $this->putInCache($cacheKey, $query, $response);
         }
 
-        // Rich telemetry — captures per-strategy timings + ranks for ablation.
+        // Rich telemetry - captures per-strategy timings + ranks for ablation.
         try {
             $logId = app(\AhgDiscovery\Services\DiscoveryQueryLogger::class)->logQuery([
                 'query' => $query,
@@ -586,7 +586,7 @@ class DiscoveryController extends Controller
             ->limit(5)->get();
         $suggestions = $suggestions->merge($ios);
 
-        // Actor names — authority records carry no native publication-status row
+        // Actor names - authority records carry no native publication-status row
         // (status type 158/160 applies to information_object only), so there is no
         // clean published-gate join. Per #1367, suppress actor suggestions for anon
         // (require auth) rather than risk leaking draft-linked authority records.
@@ -645,7 +645,7 @@ class DiscoveryController extends Controller
             $sessionId !== '' ? $sessionId : null
         );
 
-        // Legacy path — older callers that only pass query+session and no log_id.
+        // Legacy path - older callers that only pass query+session and no log_id.
         // Falls through to a query-text match for back-compat. New rows now
         // record clicked_at as well as clicked_object.
         if (! $ok && $query !== '' && $sessionId !== '') {
@@ -894,7 +894,7 @@ class DiscoveryController extends Controller
     // =====================================================================
 
     /**
-     * #1367 — active multi-tenant repository scope (null when not enforced / admin
+     * #1367 - active multi-tenant repository scope (null when not enforced / admin
      * / single-tenant). Mirrors ahg-search's ElasticsearchService so discovery
      * can't surface another tenant's records on a multi-tenant install.
      */
@@ -906,7 +906,7 @@ class DiscoveryController extends Controller
     }
 
     /**
-     * #1367 — shared ES filter clauses for IO queries: guest published-only
+     * #1367 - shared ES filter clauses for IO queries: guest published-only
      * (publicationStatusId 160) + the active tenant (repository.id), matching
      * ahg-search's field names on the qubitinformationobject index.
      */
@@ -937,7 +937,7 @@ class DiscoveryController extends Controller
                     ->orWhere('ioi.scope_and_content', 'like', "%{$query}%");
             });
 
-        // Guests see only published records (status 158/160) — discovery search must
+        // Guests see only published records (status 158/160) - discovery search must
         // not leak unpublished records to anon (#1367).
         if (! auth()->check()) {
             $base->whereExists(function ($s) {
@@ -947,7 +947,7 @@ class DiscoveryController extends Controller
             });
         }
 
-        // #1367 — multi-tenant scope: restrict to the active tenant's repository.
+        // #1367 - multi-tenant scope: restrict to the active tenant's repository.
         if (($repoId = $this->tenantRepoId()) !== null) {
             $base->where('io.repository_id', $repoId);
         }
@@ -1211,7 +1211,7 @@ class DiscoveryController extends Controller
      *
      * Previous implementation was a MySQL `LIKE %term%` scan with hand-rolled
      * relevance scoring (~240 ms cold, 176 ms warm against atom 455k rows).
-     * ES on the same query lands in 6–9 ms wall time per the Apr-2026 status doc.
+     * ES on the same query lands in 6-9 ms wall time per the Apr-2026 status doc.
      *
      * If Elasticsearch is unreachable, returns []; the rest of the pipeline
      * (entity, hierarchical, vector) keeps running.
@@ -1245,7 +1245,7 @@ class DiscoveryController extends Controller
                             ],
                         ]],
                         // Guests: published-only (publicationStatusId 160); + active
-                        // tenant (repository.id) — mirrors ahg-search's
+                        // tenant (repository.id) - mirrors ahg-search's
                         // ElasticsearchService so discovery can't leak drafts or
                         // cross-tenant records (#1367).
                         'filter' => $this->esBaseFilters(),
@@ -1280,16 +1280,16 @@ class DiscoveryController extends Controller
 
             return $hits;
         } catch (\Throwable $e) {
-            // ES unavailable — let the pipeline carry on with the other strategies.
+            // ES unavailable - let the pipeline carry on with the other strategies.
             return [];
         }
     }
 
     /**
-     * NER Entity search — Elasticsearch BM25 over the denormalised
+     * NER Entity search - Elasticsearch BM25 over the denormalised
      * `nerEntityValues` field on `heratio_qubitinformationobject`.
      *
-     * Issue #24 — replaces the prior MySQL `LIKE %term%` over the 9.79M-row
+     * Issue #24 - replaces the prior MySQL `LIKE %term%` over the 9.79M-row
      * `ahg_ner_entity` table (28 s warm) with an ES bool/should query that
      * lands in tens of milliseconds. The denormalisation is built by
      * `bin/discovery-ner-reindex.php`; status filter ('approved' / 'pending')
@@ -1327,7 +1327,7 @@ class DiscoveryController extends Controller
 
         try {
             $es = app(\AhgSearch\Services\ElasticsearchService::class);
-            // term on nerEntityValues.raw — non-tokenised exact match against
+            // term on nerEntityValues.raw - non-tokenised exact match against
             // the keyword subfield of each entity label. The previous
             // bool/should of match_phrase + match was a token-OR that pulled
             // in any document sharing any token with the query (e.g. "South
@@ -1370,7 +1370,7 @@ class DiscoveryController extends Controller
                     }
                 }
                 if (empty($matchedValues)) {
-                    // Fallback if highlighter is disabled — pull the source values.
+                    // Fallback if highlighter is disabled - pull the source values.
                     $vals = $hit['_source']['nerEntityValues'] ?? [];
                     if (is_array($vals)) {
                         $matchedValues = array_slice($vals, 0, 5);
@@ -1396,10 +1396,10 @@ class DiscoveryController extends Controller
      * Migrated from AhgDiscovery\Services\HierarchicalStrategy.
      */
     /**
-     * Hierarchical walk — find siblings + children-of-fonds for the top N
+     * Hierarchical walk - find siblings + children-of-fonds for the top N
      * results from keyword/entity. Issue #29: was 1 + 20 sibling + up to 20
      * children = up to 41 round-trips per request (~412 ms warm). Now
-     * batches into 3 IN-clause queries — the parent_id index does the work
+     * batches into 3 IN-clause queries - the parent_id index does the work
      * once instead of N times.
      *
      * Per-parent cap of 5 siblings / 10 children is preserved post-fetch in
@@ -1442,7 +1442,7 @@ class DiscoveryController extends Controller
                 }
             }
 
-            // Q2: siblings — ONE query for all parent_ids at once.
+            // Q2: siblings - ONE query for all parent_ids at once.
             // Per-parent cap (5) is enforced in PHP after the fetch since
             // ROW_NUMBER() partitioning would complicate the query plan.
             $siblingsByParent = [];
@@ -1466,7 +1466,7 @@ class DiscoveryController extends Controller
                 }
             }
 
-            // Q3: children of high-level walk targets — ONE query for all of them.
+            // Q3: children of high-level walk targets - ONE query for all of them.
             $childrenByParent = [];
             if (! empty($highLevelNodeIds)) {
                 $childRows = $db->table('information_object')
@@ -1520,7 +1520,7 @@ class DiscoveryController extends Controller
 
     /**
      * Resolve the level-of-description term IDs that count as "high-level"
-     * for hierarchical walks (siblings + children-of-fonds). Issue #22 —
+     * for hierarchical walks (siblings + children-of-fonds). Issue #22 -
      * runtime taxonomy lookup with synonym support so atom/AtoM orthography
      * differences don't silently drop fonds-level matches.
      */
@@ -1536,9 +1536,9 @@ class DiscoveryController extends Controller
         ]);
         if (empty($ids)) {
             // Hard fallback: AtoM-derived constants. Will silently misbehave on
-            // a fresh install where these IDs aren't fonds-level — log a warning.
+            // a fresh install where these IDs aren't fonds-level - log a warning.
             \Illuminate\Support\Facades\Log::warning(
-                'DiscoveryController::getHighLevelIds() — no high-level terms in taxonomy 34; '
+                'DiscoveryController::getHighLevelIds() - no high-level terms in taxonomy 34; '
                 .'falling back to AtoM-default IDs. This is incorrect on this install.'
             );
 
@@ -1698,7 +1698,7 @@ class DiscoveryController extends Controller
             ->whereIn('io.id', $ids)->whereNotNull('io.repository_id')
             ->get()->pluck('repository', 'id');
 
-        // Thumbnail digital_object usage — taxonomy 47 ('Digital Object Usages').
+        // Thumbnail digital_object usage - taxonomy 47 ('Digital Object Usages').
         // Issue #22: was hardcoded to 142; now resolved by name with the AtoM
         // default as fallback so first install on a stock AtoM keeps working.
         $thumbnailUsageId = $this->termId(47, ['Thumbnail'], 142);

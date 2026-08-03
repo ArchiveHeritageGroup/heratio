@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\DB;
  * Middleware to enforce ODRL policies on archival descriptions.
  *
  * Usage in routes:
- *   ->middleware('odrl:use')           — checks 'use' action
- *   ->middleware('odrl:reproduce')     — checks 'reproduce' action
- *   ->middleware('odrl:distribute')    — checks 'distribute' action
+ *   ->middleware('odrl:use')           - checks 'use' action
+ *   ->middleware('odrl:reproduce')     - checks 'reproduce' action
+ *   ->middleware('odrl:distribute')    - checks 'distribute' action
  *
  * The middleware resolves the archival description ID from:
  *   1. Route parameter 'slug' (looks up slug → object_id)
@@ -37,7 +37,7 @@ class OdrlPolicyMiddleware
         // Resolve the archival description ID
         $objectId = $this->resolveObjectId($request);
         if (!$objectId) {
-            return $next($request); // Can't determine target — allow
+            return $next($request); // Can't determine target - allow
         }
 
         // Check if any policies exist for this object

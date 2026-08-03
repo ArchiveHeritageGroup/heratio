@@ -5,7 +5,7 @@
 --}}
 @extends('theme::layouts.1col')
 
-@section('title', 'Edit ' . str_replace('_', ' ', $entityType) . ' — ' . ($template->name ?? 'Template'))
+@section('title', 'Edit ' . str_replace('_', ' ', $entityType) . ' - ' . ($template->name ?? 'Template'))
 
 @section('content')
 <div class="container my-3">

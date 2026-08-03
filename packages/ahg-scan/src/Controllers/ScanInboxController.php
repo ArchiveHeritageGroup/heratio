@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ScanInboxController — Heratio ahg-scan
+ * ScanInboxController - Heratio ahg-scan
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -111,7 +111,7 @@ class ScanInboxController extends Controller
     }
 
     /**
-     * Restore a quarantined file — move it back to pending so the retry
+     * Restore a quarantined file - move it back to pending so the retry
      * path picks it up. The file contents may still be in the quarantine
      * folder; the path is left intact so stageResolveDestination can
      * locate it on next run.
@@ -135,7 +135,7 @@ class ScanInboxController extends Controller
     }
 
     /**
-     * Bulk operations — retry or discard many files in one request.
+     * Bulk operations - retry or discard many files in one request.
      * Accepts `ids[]` array and an `action` form field.
      */
     public function bulk(Request $request)
@@ -185,7 +185,7 @@ class ScanInboxController extends Controller
     }
 
     /**
-     * Release rights hold — resume the pipeline from the point it stopped
+     * Release rights hold - resume the pipeline from the point it stopped
      * (deriving + indexing only, skipping re-resolve which would dedupe).
      */
     public function releaseRights(int $id)

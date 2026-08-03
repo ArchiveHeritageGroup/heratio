@@ -140,7 +140,7 @@ class DisplayTypeDetector
     }
 
     /**
-     * Detect sector from display_standard_id — most authoritative indicator.
+     * Detect sector from display_standard_id - most authoritative indicator.
      */
     protected static function detectByDisplayStandard(?int $displayStandardId): ?string
     {

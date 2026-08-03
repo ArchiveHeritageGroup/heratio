@@ -1,7 +1,7 @@
 <?php
 
 /**
- * VendorStatusService — resolve vendor transaction status display config.
+ * VendorStatusService - resolve vendor transaction status display config.
  *
  * Source of truth: ahg_dropdown taxonomy 'vendor_transaction_status'
  * (label + color come from the DB row; icon comes from the row when set,
@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Schema;
 
 class VendorStatusService
 {
-    /** UX fallback icons — overridden by ahg_dropdown.icon or metadata.icon when set. */
+    /** UX fallback icons - overridden by ahg_dropdown.icon or metadata.icon when set. */
     protected const ICON_FALLBACK = [
         'pending_approval' => 'clock',
         'approved' => 'check',

@@ -718,7 +718,7 @@ class WarcCaptureService
             return $fail(__('Capture is unavailable: the HTTP client is not installed.'));
         }
 
-        // #1395(C) — follow redirects MANUALLY so every hop (the initial URL and
+        // #1395(C) - follow redirects MANUALLY so every hop (the initial URL and
         // each redirect target) is re-validated by the shared SSRF guard before
         // we connect. cURL's own CURLOPT_FOLLOWLOCATION would validate only the
         // first URL, letting a 30x rebind to 169.254.169.254 / a private host.
@@ -747,7 +747,7 @@ class WarcCaptureService
             }
 
             // The exact request line + headers we send (recorded verbatim in the WARC
-            // `request` record — the FINAL hop's request is the one paired with the
+            // `request` record - the FINAL hop's request is the one paired with the
             // stored response). We send a minimal, honest header set.
             $reqHeaders = [
                 'GET '.$path.' HTTP/1.1',
@@ -767,7 +767,7 @@ class WarcCaptureService
             curl_setopt_array($ch, [
                 CURLOPT_URL => $current,
                 CURLOPT_HTTPGET => true,
-                CURLOPT_FOLLOWLOCATION => false, // #1395(C) — we follow manually, re-guarding each hop
+                CURLOPT_FOLLOWLOCATION => false, // #1395(C) - we follow manually, re-guarding each hop
                 CURLOPT_CONNECTTIMEOUT => self::HTTP_CONNECT_TIMEOUT_SECONDS,
                 CURLOPT_TIMEOUT => self::HTTP_TIMEOUT_SECONDS,
                 CURLOPT_HTTPHEADER => [
@@ -798,7 +798,7 @@ class WarcCaptureService
             $errno = curl_errno($ch);
             $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
             // With FOLLOWLOCATION off, cURL exposes the (absolute-resolved) URL it
-            // WOULD have followed here — use it as the next hop after re-guarding.
+            // WOULD have followed here - use it as the next hop after re-guarding.
             $nextUrl = (string) curl_getinfo($ch, CURLINFO_REDIRECT_URL);
             curl_close($ch);
 
@@ -871,7 +871,7 @@ class WarcCaptureService
             return $fail('total capture budget exhausted');
         }
 
-        // #1395(C) — full SSRF guard (DNS-resolve + per-IP + decimal-host) on the
+        // #1395(C) - full SSRF guard (DNS-resolve + per-IP + decimal-host) on the
         // subresource URL, on top of the same-host check the caller already did.
         try {
             app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($url);
@@ -907,7 +907,7 @@ class WarcCaptureService
         curl_setopt_array($ch, [
             CURLOPT_URL => $url,
             CURLOPT_HTTPGET => true,
-            // #1395(C) — do NOT auto-follow: a subresource that 30x-redirects
+            // #1395(C) - do NOT auto-follow: a subresource that 30x-redirects
             // (potentially off-host to an internal address) is skipped cleanly by
             // the non-2xx check below rather than followed past the SSRF guard.
             CURLOPT_FOLLOWLOCATION => false,

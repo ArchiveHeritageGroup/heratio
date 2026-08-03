@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ImageArController — Heratio
+ * ImageArController - Heratio
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -102,7 +102,7 @@ class ImageArController extends Controller
         ]);
 
         session()->flash('notice', sprintf(
-            __('Animation generated — %d KB in %.0f s (model %s).'),
+            __('Animation generated - %d KB in %.0f s (model %s).'),
             (int) ($stats['size'] / 1024),
             $stats['generation_secs'],
             $stats['model']
@@ -112,7 +112,7 @@ class ImageArController extends Controller
     }
 
     /**
-     * #1361 — gated MP4 delivery. The AR MP4 lives under the static nginx alias
+     * #1361 - gated MP4 delivery. The AR MP4 lives under the static nginx alias
      * /uploads/ar/, so it was directly fetchable regardless of the parent IO's
      * publication status. This route applies the guest published-status gate
      * (status type_id=158/status_id=160) + the ODRL prohibition, then hands the

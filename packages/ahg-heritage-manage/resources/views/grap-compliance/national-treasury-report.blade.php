@@ -73,7 +73,7 @@
             <select name="standard" class="form-select form-select-sm">
               <option value="">{{ __('All') }}</option>
               @foreach($standards ?? [] as $std)
-                <option value="{{ $std->code }}" {{ ($standardFilter ?? '') === $std->code ? 'selected' : '' }}>{{ $std->code }} — {{ $std->name }}</option>
+                <option value="{{ $std->code }}" {{ ($standardFilter ?? '') === $std->code ? 'selected' : '' }}>{{ $std->code }} - {{ $std->name }}</option>
               @endforeach
             </select>
           </div>

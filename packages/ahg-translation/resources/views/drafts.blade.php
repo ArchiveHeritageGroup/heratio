@@ -161,7 +161,7 @@
                       <span class="badge bg-secondary">{{ $d->status }}</span>
                     @endif
                   </td>
-                  <td><small>{{ $d->created_by_email ?? '—' }}</small></td>
+                  <td><small>{{ $d->created_by_email ?? '-' }}</small></td>
                   <td><small class="text-muted">{{ \Carbon\Carbon::parse($d->created_at)->diffForHumans() }}</small></td>
                   <td class="text-end">
                     @if($d->status === 'draft')

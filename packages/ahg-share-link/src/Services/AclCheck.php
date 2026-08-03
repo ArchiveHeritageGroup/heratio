@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AclCheck — share-link permission helper. Mirror of the AtoM-side service.
+ * AclCheck - share-link permission helper. Mirror of the AtoM-side service.
  *
  * @phase C
  */

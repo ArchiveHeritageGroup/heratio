@@ -13,8 +13,8 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `db` — TODO: implement
-- [ ] `readme` — TODO: implement
+- [ ] `db` - TODO: implement
+- [ ] `readme` - TODO: implement
 
 ## References
 - docs/help/ (search for `function-manage`)

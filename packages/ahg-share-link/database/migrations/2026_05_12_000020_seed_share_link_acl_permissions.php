@@ -1,20 +1,20 @@
 <?php
 
 /**
- * F1 Phase I — seed default ACL permissions for share-link actions.
+ * F1 Phase I - seed default ACL permissions for share-link actions.
  *
  * Idempotent: each INSERT is guarded by NOT EXISTS, so re-running migrations
  * doesn't duplicate rows. Mirrors the install-time seed in
  * `packages/ahg-share-link/database/seed-acl-permissions.sql`.
  *
  * Default grant matrix (AtoM/Heratio standard group ids):
- *   100 administrator   — bypass in AclCheck, no row needed
- *   101 editor          — create + list_all + revoke_others
- *   102 contributor     — create only
- *   103 translator      — none
+ *   100 administrator   - bypass in AclCheck, no row needed
+ *   101 editor          - create + list_all + revoke_others
+ *   102 contributor     - create only
+ *   103 translator      - none
  *
  * `share_link.create_classified` and `share_link.create_unlimited_expiry`
- * are intentionally NOT granted to any default group — admin only.
+ * are intentionally NOT granted to any default group - admin only.
  *
  * @phase I
  */
@@ -27,7 +27,7 @@ return new class extends Migration
     public function up(): void
     {
         if (! DB::getSchemaBuilder()->hasTable('acl_permission')) {
-            // Heratio without legacy AtoM tables — silently skip.
+            // Heratio without legacy AtoM tables - silently skip.
             return;
         }
 

@@ -106,7 +106,7 @@ class ModsManageController extends Controller
         // ── GET: load related data for the form ──
         $dropdowns = $this->getFormDropdowns($culture);
 
-        // Events (dates) — left-join event_i18n so events without an i18n
+        // Events (dates) - left-join event_i18n so events without an i18n
         // row (e.g. creation events created from the IO edit form) still
         // appear in the form.
         $events = DB::table('event')
@@ -318,7 +318,7 @@ class ModsManageController extends Controller
             ]);
         }
 
-        // Publication event (type 114) — also carries the publisher actor
+        // Publication event (type 114) - also carries the publisher actor
         $publicationEventId = null;
         if ($publicationDateDisplay !== '' || $publicationIso !== null || $publisherActorId !== null) {
             $publicationEventId = DB::table('object')->insertGetId([
@@ -470,7 +470,7 @@ class ModsManageController extends Controller
                 );
             }
 
-            // #662 Phase 2: originInfo — creation + publication events,
+            // #662 Phase 2: originInfo - creation + publication events,
             // publisher (actor or free-text via property), placeOfPublication.
             $this->saveOriginInfo((int) $ioId, $request, $culture);
 

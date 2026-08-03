@@ -1,5 +1,5 @@
 {{--
-  IIIF Viewer — image viewer and annotation settings
+  IIIF Viewer - image viewer and annotation settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('iiif')
 
   @copyright  Johan Pieterse / Plain Sailing

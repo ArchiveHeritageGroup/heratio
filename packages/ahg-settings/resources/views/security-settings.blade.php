@@ -1,5 +1,5 @@
 {{--
-  Security & Access Control — password policy, lockout, session security
+  Security & Access Control - password policy, lockout, session security
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('security')
 
   @copyright  Johan Pieterse / Plain Sailing
@@ -150,13 +150,13 @@
         <div class="alert alert-info mb-0">
           <h6><i class="fas fa-shield-alt me-2"></i>{{ __('Active Security Features') }}</h6>
           <ul class="mb-0 mt-2">
-            <li><strong>{{ __('Session Fixation Prevention') }}</strong> — Session ID regenerated on login</li>
-            <li><strong>{{ __('CSRF Protection') }}</strong> — Enforced on all state-changing requests</li>
-            <li><strong>{{ __('Security Headers') }}</strong> — HSTS, X-Frame-Options, Permissions-Policy</li>
-            <li><strong>{{ __('HttpOnly Cookies') }}</strong> — Session cookies inaccessible to JavaScript</li>
-            <li><strong>{{ __('Bell-LaPadula MAC') }}</strong> — Simple Security + Star Property</li>
-            <li><strong>{{ __('SSRF Protection') }}</strong> — DNS pre-resolution, private IP blocking</li>
-            <li><strong>{{ __('XXE Protection') }}</strong> — LIBXML_NONET on all XML parsing</li>
+            <li><strong>{{ __('Session Fixation Prevention') }}</strong> - Session ID regenerated on login</li>
+            <li><strong>{{ __('CSRF Protection') }}</strong> - Enforced on all state-changing requests</li>
+            <li><strong>{{ __('Security Headers') }}</strong> - HSTS, X-Frame-Options, Permissions-Policy</li>
+            <li><strong>{{ __('HttpOnly Cookies') }}</strong> - Session cookies inaccessible to JavaScript</li>
+            <li><strong>{{ __('Bell-LaPadula MAC') }}</strong> - Simple Security + Star Property</li>
+            <li><strong>{{ __('SSRF Protection') }}</strong> - DNS pre-resolution, private IP blocking</li>
+            <li><strong>{{ __('XXE Protection') }}</strong> - LIBXML_NONET on all XML parsing</li>
           </ul>
           <hr>
           <p class="mb-0 small text-muted">Standards: OWASP Top 10 (2021), ISO 27001:2022, Bell-LaPadula, POPIA Section 19</p>

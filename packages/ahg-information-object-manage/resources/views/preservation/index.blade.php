@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Preservation Packages — ' . ($io->title ?? 'Untitled'))
+@section('title', 'Preservation Packages - ' . ($io->title ?? 'Untitled'))
 
 @section('content')
 <div class="container py-4">
@@ -230,10 +230,10 @@
               <tbody>
                 @foreach($packageFiles as $f)
                   <tr>
-                    <td>{{ $f->sequence ?? '—' }}</td>
+                    <td>{{ $f->sequence ?? '-' }}</td>
                     <td><code class="small">{{ $f->relative_path ?? $f->file_name }}</code></td>
-                    <td class="small">{{ $f->mime_type ?? '—' }}</td>
-                    <td class="text-end">{{ isset($f->file_size) ? formatBytes($f->file_size) : '—' }}</td>
+                    <td class="small">{{ $f->mime_type ?? '-' }}</td>
+                    <td class="text-end">{{ isset($f->file_size) ? formatBytes($f->file_size) : '-' }}</td>
                     <td><span class="badge bg-light text-dark">{{ $f->object_role ?? 'payload' }}</span></td>
                   </tr>
                 @endforeach
@@ -319,13 +319,13 @@
                   <td>
                     <strong>{{ $aip->filename ?? $aip->name ?? 'Unnamed package' }}</strong>
                     <br>
-                    <small class="text-muted"><code>{{ $aip->uuid ?? '—' }}</code></small>
+                    <small class="text-muted"><code>{{ $aip->uuid ?? '-' }}</code></small>
                   </td>
                   <td><span class="badge {{ $typeBadgeClass }}">{{ $packageTypeUpper }}</span></td>
                   <td><span class="badge {{ $statusBadgeClass }}">{{ ucfirst($aip->status ?? 'Unknown') }}</span></td>
-                  <td>{{ $aip->object_count ?? '—' }}</td>
-                  <td>{{ isset($aip->size_on_disk) ? formatBytes($aip->size_on_disk) : '—' }}</td>
-                  <td>{{ $aip->created_at ?? '—' }}</td>
+                  <td>{{ $aip->object_count ?? '-' }}</td>
+                  <td>{{ isset($aip->size_on_disk) ? formatBytes($aip->size_on_disk) : '-' }}</td>
+                  <td>{{ $aip->created_at ?? '-' }}</td>
                   <td class="text-end">
                     <div class="btn-group btn-group-sm" role="group">
                       <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?view={{ $aip->id }}" class="btn atom-btn-white" title="{{ __('View package') }}">
@@ -370,10 +370,10 @@
               <tbody>
                 @foreach($premisObjects as $po)
                   <tr>
-                    <td><code>{{ $po->puid ?? '—' }}</code></td>
-                    <td>{{ $po->mime_type ?? '—' }}</td>
-                    <td>{{ isset($po->size) ? formatBytes($po->size) : '—' }}</td>
-                    <td>{{ $po->date_ingested ?? '—' }}</td>
+                    <td><code>{{ $po->puid ?? '-' }}</code></td>
+                    <td>{{ $po->mime_type ?? '-' }}</td>
+                    <td>{{ isset($po->size) ? formatBytes($po->size) : '-' }}</td>
+                    <td>{{ $po->date_ingested ?? '-' }}</td>
                     <td class="text-end">
                       <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?premis={{ $po->id ?? '' }}" class="btn btn-sm atom-btn-white" title="{{ __('View PREMIS events') }}">
                         <i class="fas fa-eye"></i>

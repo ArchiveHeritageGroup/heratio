@@ -4,7 +4,7 @@
 {{-- RiC Relation Editor Widget --}}
 @php
     $recordId = $recordId ?? null;
-    // Issue #59 Tier 2 — culture-aware dropdowns via the COALESCE helper.
+    // Issue #59 Tier 2 - culture-aware dropdowns via the COALESCE helper.
     $ricRelationTypes   = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('ric_relation_type');
     $ricCertaintyLevels = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('certainty_level');
 @endphp
@@ -12,7 +12,7 @@
 <div id="ric-relation-editor">
     <p class="small text-muted mb-2">
         <i class="fas fa-link me-1"></i>
-        {!! __('Predicate vocabulary follows the :openric mapping — each relation written here also serialises as canonical :rico in the RDF/JSON-LD/Turtle exports.', [
+        {!! __('Predicate vocabulary follows the :openric mapping - each relation written here also serialises as canonical :rico in the RDF/JSON-LD/Turtle exports.', [
             'openric' => '<a href="https://openric.org/spec/mapping.html" target="_blank" rel="noopener">OpenRiC</a>',
             'rico'    => '<code>rico:*</code>',
         ]) !!}
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 certainty: r.certainty || '',
                 evidence: r.evidence || ''
             }));
-            // Only outgoing relations are editable — inverse side comes with a system-inserted mirror.
+            // Only outgoing relations are editable - inverse side comes with a system-inserted mirror.
             const editBtn = r.direction === 'outgoing'
                 ? `<button class="btn btn-sm btn-outline-primary me-1" data-rel-payload="${payload}" onclick="ricEditRelation(this)" title="Edit"><i class="fas fa-edit"></i></button>`
                 : '';
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // ------------------------------------------------------------
-    // Self-load — if no one else has called renderRelations yet, fetch now.
+    // Self-load - if no one else has called renderRelations yet, fetch now.
     // ------------------------------------------------------------
     function loadRelations() {
         if (!recordId) return;

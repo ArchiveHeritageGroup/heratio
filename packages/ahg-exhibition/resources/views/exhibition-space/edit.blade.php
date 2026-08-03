@@ -1,4 +1,4 @@
-{{-- heratio#146 — Exhibition space create/edit --}}
+{{-- heratio#146 - Exhibition space create/edit --}}
 @extends('theme::layouts.1col')
 
 @php $isNew = ($space === null); @endphp

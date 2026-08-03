@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Bulk Annotate — HTR Training')
+@section('title', 'Bulk Annotate - HTR Training')
 @section('body-class', 'admin ai htr')
 
 @push('css')
@@ -99,7 +99,7 @@
   <div class="col-md-4">
     <div class="card">
       <div class="card-header py-1" style="background:var(--ahg-primary);color:#fff">
-        <span class="small">{{ __('Fields — draw box for each in order') }}</span>
+        <span class="small">{{ __('Fields - draw box for each in order') }}</span>
       </div>
       <div class="card-body p-2 ba-sidebar" id="ba-fields"></div>
     </div>
@@ -137,7 +137,7 @@
 @push('js')
 <script>
 (function() {
-  // Dynamic columns — populated from spreadsheet headers on load
+  // Dynamic columns - populated from spreadsheet headers on load
   let COLUMNS = [];
   const HIDE_COLUMNS = ['Birth Year (Estimated)', 'Birth Year', 'Event Type'];
   const COLORS = ['#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#ffeaa7','#dfe6e9','#fd79a8','#6c5ce7','#00b894'];

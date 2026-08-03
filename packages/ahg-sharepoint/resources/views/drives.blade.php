@@ -25,8 +25,8 @@
         @foreach ($drives as $d)
             <tr>
                 <td class="fw-semibold">{{ $d->site_title ?: $d->site_url }}</td>
-                <td>{{ $d->drive_name ?? '—' }}</td>
-                <td class="small text-muted">{{ $d->tenant_name ?? '—' }}</td>
+                <td>{{ $d->drive_name ?? '-' }}</td>
+                <td class="small text-muted">{{ $d->tenant_name ?? '-' }}</td>
                 <td><span class="badge bg-secondary">{{ $d->sector }}</span></td>
                 <td>
                     @if ($d->ingest_enabled)
@@ -35,7 +35,7 @@
                         <span class="badge bg-light text-dark border">{{ __('Disabled') }}</span>
                     @endif
                 </td>
-                <td class="small text-muted">{{ $d->last_full_sync_at ?? '—' }}</td>
+                <td class="small text-muted">{{ $d->last_full_sync_at ?? '-' }}</td>
                 <td class="text-end">
                     <a class="btn btn-sm btn-outline-secondary" href="{{ route('sharepoint.drives.mapping', ['id' => $d->id]) }}">{{ __('Mapping') }}</a>
                 </td>

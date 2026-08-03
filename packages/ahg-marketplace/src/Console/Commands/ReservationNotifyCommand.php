@@ -1,8 +1,8 @@
 <?php
 
 /**
- * ReservationNotifyCommand — drives the 6-hour, 1-hour and expiry email
- * reminders for marketplace reservations. Schedule via cron every ~10–15
+ * ReservationNotifyCommand - drives the 6-hour, 1-hour and expiry email
+ * reminders for marketplace reservations. Schedule via cron every ~10-15
  * minutes; idempotent because each message is gated by a flag on the row.
  *
  * Copyright (C) 2026 Johan Pieterse

@@ -32,9 +32,9 @@
                     <dt class="col-sm-3">{{ __('Title') }}</dt>
                     <dd class="col-sm-9">{{ $copy->title ?? __('(untitled)') }}</dd>
                     <dt class="col-sm-3">{{ __('Call Number') }}</dt>
-                    <dd class="col-sm-9">{{ $copy->call_number ?? '—' }}</dd>
+                    <dd class="col-sm-9">{{ $copy->call_number ?? '-' }}</dd>
                     <dt class="col-sm-3">{{ __('Shelf Location') }}</dt>
-                    <dd class="col-sm-9">{{ $copy->shelf_location ?? '—' }}</dd>
+                    <dd class="col-sm-9">{{ $copy->shelf_location ?? '-' }}</dd>
                     <dt class="col-sm-3">{{ __('Status') }}</dt>
                     <dd class="col-sm-9">
                         @if(($copy->copy_status ?? '') === 'available')

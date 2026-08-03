@@ -1,7 +1,7 @@
 <?php
 
 /**
- * QdrantIndexCommand — rebuilds the Qdrant vector index from the
+ * QdrantIndexCommand - rebuilds the Qdrant vector index from the
  * information_object catalogue.
  *
  * For each row:
@@ -71,7 +71,7 @@ class QdrantIndexCommand extends Command
         $this->line("  qdrant:        {$qdrantUrl}");
         $this->line("  batch / dry?:  {$batchSize} / " . ($dryRun ? 'YES' : 'no'));
 
-        // Pre-flight — confirm both backends are reachable (embedding via gateway).
+        // Pre-flight - confirm both backends are reachable (embedding via gateway).
         if (! $this->ping($embeddingBase . '/ollama/api/version', 2000, $embeddingKey)) {
             $this->error('Embedding gateway unreachable: ' . $embeddingBase);
             return self::FAILURE;
@@ -84,7 +84,7 @@ class QdrantIndexCommand extends Command
         // Determine vector size by embedding a probe string.
         $probe = $this->embed($embeddingBase, $embeddingModel, 'probe', $embeddingKey);
         if ($probe === null) {
-            $this->error('Probe embedding failed — check the embedding model is pulled.');
+            $this->error('Probe embedding failed - check the embedding model is pulled.');
             return self::FAILURE;
         }
         $vectorSize = count($probe);

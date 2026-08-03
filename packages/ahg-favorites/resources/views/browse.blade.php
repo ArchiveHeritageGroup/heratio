@@ -468,7 +468,7 @@
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-upload me-2"></i>{{ __('Import Favorites') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <div class="mb-3"><label class="form-label">Upload CSV <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="file" name="file" class="form-control" accept=".csv,.txt"><small class="text-muted">{{ __('CSV must contain a "slug" or "reference_code" column.') }}</small></div>
-          <div class="text-center text-muted my-2">&mdash; or &mdash;</div>
+          <div class="text-center text-muted my-2">- or -</div>
           <div class="mb-3"><label class="form-label">Paste Slugs <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="slugs" class="form-control" rows="4" placeholder="{{ __('One slug per line, or comma-separated...') }}"></textarea></div>
         </div>
         <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-upload me-1"></i>{{ __('Import') }}</button></div>

@@ -36,7 +36,7 @@ return new class extends Migration
     {
         // Use a raw MODIFY COLUMN statement so we can change UNSIGNED → SIGNED
         // without Laravel's Blueprint trying to auto-detect the direction.
-        // Each statement is guarded with a conditional so it is idempotent —
+        // Each statement is guarded with a conditional so it is idempotent -
         // safe to re-run on any environment.
 
         // ── ai_operator_attestation.user_id ─────────────────────────────────
@@ -44,7 +44,7 @@ return new class extends Migration
             $type = $this->getColumnType('ai_operator_attestation', 'user_id');
 
             if ($type === 'bigint') {
-                // Already signed — nothing to do.
+                // Already signed - nothing to do.
             } else {
                 // UNSIGNED BIGINT → signed BIGINT (no auto_increment, not null)
                 DB::statement(
@@ -58,7 +58,7 @@ return new class extends Migration
             $type = $this->getColumnType('ai_oversight_policy', 'halted_by_user_id');
 
             if ($type === 'bigint') {
-                // Already signed — nothing to do.
+                // Already signed - nothing to do.
             } else {
                 DB::statement(
                     'ALTER TABLE `ai_oversight_policy` MODIFY COLUMN `halted_by_user_id` BIGINT NULL DEFAULT NULL'
@@ -71,7 +71,7 @@ return new class extends Migration
             $type = $this->getColumnType('ai_review_decision', 'reviewer_user_id');
 
             if ($type === 'bigint') {
-                // Already signed — nothing to do.
+                // Already signed - nothing to do.
             } else {
                 DB::statement(
                     'ALTER TABLE `ai_review_decision` MODIFY COLUMN `reviewer_user_id` BIGINT NOT NULL'
@@ -84,7 +84,7 @@ return new class extends Migration
             $type = $this->getColumnType('ai_review_decision', 'countersigner_user_id');
 
             if ($type === 'bigint') {
-                // Already signed — nothing to do.
+                // Already signed - nothing to do.
             } else {
                 DB::statement(
                     'ALTER TABLE `ai_review_decision` MODIFY COLUMN `countersigner_user_id` BIGINT NULL DEFAULT NULL'
@@ -98,7 +98,7 @@ return new class extends Migration
      *
      * Revert BIGINT SIGNED → BIGINT UNSIGNED for the four columns.
      * This is the original (broken) state that triggered MySQL error 3780
-     * on PSIS installs — included for completeness only.
+     * on PSIS installs - included for completeness only.
      */
     public function down(): void
     {
@@ -155,11 +155,11 @@ return new class extends Migration
         );
 
         if (! $result) {
-            // Fallback — assume unsigned so we attempt the alter.
+            // Fallback - assume unsigned so we attempt the alter.
             return 'bigint unsigned';
         }
 
-        // COLUMN_TYPE may be "bigint unsigned" or "bigint(20) unsigned" — strip any size/precision.
+        // COLUMN_TYPE may be "bigint unsigned" or "bigint(20) unsigned" - strip any size/precision.
         $type = preg_replace('/\(.*\)/', '', $result->COLUMN_TYPE);
         $type = trim($type);
 

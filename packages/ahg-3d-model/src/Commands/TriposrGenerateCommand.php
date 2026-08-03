@@ -1,8 +1,8 @@
 <?php
 
 /**
- * TriposrGenerateCommand — call the TripoSR API to convert a 2D image into a
- * 3D GLB mesh. By default, the result is "imported" — copied into the IO's
+ * TriposrGenerateCommand - call the TripoSR API to convert a 2D image into a
+ * 3D GLB mesh. By default, the result is "imported" - copied into the IO's
  * upload dir and registered as a digital_object + object_3d_model row.
  *
  * Pass --no-import to keep the result in a temp location (used by the
@@ -31,7 +31,7 @@ class TriposrGenerateCommand extends Command
         {--image= : Path to the source image on disk}
         {--object-id= : Information object id to import the result into}
         {--import : Persist the result to the IO storage dir + DB (default)}
-        {--no-import : Save to temp dir only — return the path}
+        {--no-import : Save to temp dir only - return the path}
         {--remove-bg= : Override remove_bg (defaults to admin setting)}
         {--resolution= : Override marching cubes resolution (defaults to admin setting)}
         {--texture : Force bake_texture on (defaults to admin setting)}
@@ -44,7 +44,7 @@ class TriposrGenerateCommand extends Command
 
     public function handle(): int
     {
-        // Health/preload/stats sub-modes — defer to dedicated commands when present
+        // Health/preload/stats sub-modes - defer to dedicated commands when present
         if ($this->option('health')) {
             return $this->call('ahg:triposr-health');
         }
@@ -90,7 +90,7 @@ class TriposrGenerateCommand extends Command
         $removeBg = filter_var(($bgOption !== null && $bgOption !== '') ? $bgOption : ($cfg['triposr_remove_bg'] ?? '1'), FILTER_VALIDATE_BOOLEAN);
         $bakeTexture = $this->option('texture') || ((string) ($cfg['triposr_bake_texture'] ?? '0')) === '1';
 
-        // Output path — staging in temp until the caller commits via --import
+        // Output path - staging in temp until the caller commits via --import
         $stagingDir = sys_get_temp_dir().'/heratio-triposr';
         if (! is_dir($stagingDir)) {
             @mkdir($stagingDir, 0775, true);
@@ -131,14 +131,14 @@ class TriposrGenerateCommand extends Command
         if ($err || $httpCode !== 200 || ! $body) {
             $msg = $err ?: ('HTTP '.$httpCode);
 
-            // Demo-mode fallback — if admin opted in, serve a bundled placeholder
+            // Demo-mode fallback - if admin opted in, serve a bundled placeholder
             // GLB cube so the preview/save UX still works while the real backend
             // is unavailable (Ollama-vs-TripoSR GPU contention, server down, etc.).
             $demoOn = ((string) ($cfg['triposr_demo_mode'] ?? '0')) === '1';
             $sample = __DIR__.'/../../resources/sample-cube.glb';
             if ($demoOn && is_file($sample)) {
                 if (@copy($sample, $outFile)) {
-                    $this->warn('TripoSR backend unreachable — using bundled demo placeholder ('
+                    $this->warn('TripoSR backend unreachable - using bundled demo placeholder ('
                         .basename($sample).'). Real GPU/AI generation is on its way.');
                     if ($this->option('no-import')) {
                         $this->line('TRIPOSR_OUTPUT='.$outFile);
@@ -158,10 +158,10 @@ class TriposrGenerateCommand extends Command
 
             $detail = '';
             if ($httpCode === 404) {
-                $detail = ' — endpoint /generate not found at '.$apiBase
+                $detail = ' - endpoint /generate not found at '.$apiBase
                     .'. Set the correct TripoSR API URL on /admin/3d-models/settings (or switch to "Remote GPU Server" mode if your TripoSR runs elsewhere).';
             } elseif ($httpCode === 0 || stripos($msg, 'timed out') !== false || stripos($msg, 'could not connect') !== false) {
-                $detail = ' — could not reach '.$apiBase
+                $detail = ' - could not reach '.$apiBase
                     .'. Verify the host is up and the port is reachable from this server (firewall, nginx, etc.).';
             }
             $this->error('TripoSR call failed: '.$msg.$detail);
@@ -176,7 +176,7 @@ class TriposrGenerateCommand extends Command
 
         $this->info('Generated: '.$outFile);
 
-        // --no-import — leave the file in staging for the caller (web preview flow)
+        // --no-import - leave the file in staging for the caller (web preview flow)
         if ($this->option('no-import')) {
             $this->line('TRIPOSR_OUTPUT='.$outFile); // parseable marker for callers
 

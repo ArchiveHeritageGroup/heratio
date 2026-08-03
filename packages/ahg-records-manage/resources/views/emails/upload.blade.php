@@ -1,5 +1,5 @@
 {{--
-  Records Management — Upload .eml form (P2.6)
+  Records Management - Upload .eml form (P2.6)
   @copyright Johan Pieterse / Plain Sailing Information Systems
   @license   AGPL-3.0-or-later
 --}}
@@ -39,7 +39,7 @@
           <li>EML is parsed (headers + body, multipart text/html, attachment counts).</li>
           <li>Original file is saved under the configured storage path for forensic preservation.</li>
           <li>A row is written to <code>rm_email_capture</code> with the parsed values.</li>
-          <li>Duplicate detection by <code>Message-ID</code> — re-uploading is idempotent.</li>
+          <li>Duplicate detection by <code>Message-ID</code> - re-uploading is idempotent.</li>
           <li>You then classify the email to a file plan node and optionally declare it as a record.</li>
         </ol>
       </div>

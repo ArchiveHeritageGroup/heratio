@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ThreeDMultiangleCommand — render a turntable MP4 from an existing
+ * ThreeDMultiangleCommand - render a turntable MP4 from an existing
  * object_3d_model row by sending its GLB to the TripoSR server's
  * /render-turntable endpoint, then storing the resulting MP4 alongside
  * the GLB and updating the row.
@@ -77,7 +77,7 @@ class ThreeDMultiangleCommand extends Command
         }
 
         if ($this->option('dry-run')) {
-            $this->info("DRY RUN — would render turntable from {$glbPath}");
+            $this->info("DRY RUN - would render turntable from {$glbPath}");
 
             return 0;
         }

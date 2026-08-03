@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Extract Entities (NER) — ' . ($io->title ?? 'Untitled'))
+@section('title', 'Extract Entities (NER) - ' . ($io->title ?? 'Untitled'))
 
 @section('content')
 <div class="container py-4">
@@ -8,7 +8,7 @@
   @include('ahg-io-manage::partials.feature-header', [
     'icon' => 'fas fa-brain',
     'featureTitle' => 'Extract Entities (NER)',
-    'featureDescription' => 'Named Entity Recognition — extract persons, organizations, places, dates',
+    'featureDescription' => 'Named Entity Recognition - extract persons, organizations, places, dates',
   ])
 
   {{-- IO Title Header --}}
@@ -106,7 +106,7 @@ function displayResults(entities, count, time) {
 }
 
 function approveAll() {
-    alert('Approve All — will be processed on the Review Dashboard');
+    alert('Approve All - will be processed on the Review Dashboard');
     window.location.href = '{{ route('io.ai.review') }}';
 }
 </script>

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Finding Aid Job — generates EAD XML (and optionally PDF) for an information object.
+ * Finding Aid Job - generates EAD XML (and optionally PDF) for an information object.
  *
  * Migrated from arFindingAidJob. Uses the same EAD generation logic as ExportController.
  * Saves output to public/downloads/finding-aid-{id}.xml and optionally .pdf.
@@ -53,7 +53,7 @@ class FindingAidJob implements ShouldQueue
             }
 
             if ($io->parent_id == 1 || ! $io->parent_id) {
-                // This is a top-level description — proceed
+                // This is a top-level description - proceed
             }
 
             // Gather all data needed for EAD generation
@@ -244,7 +244,7 @@ class FindingAidJob implements ShouldQueue
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{$title} — Finding Aid</title>
+    <title>{$title} - Finding Aid</title>
     <style>
         body { font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6; }
         h1 { border-bottom: 2px solid #333; padding-bottom: 10px; }

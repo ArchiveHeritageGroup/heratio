@@ -25,7 +25,7 @@ class AuthorityFunctionSyncCommand extends Command
         }
 
         // Actor↔function links typically use a relation type from taxonomy 39 (Actor Relation Types).
-        // We don't strictly need the type filter to find orphans — just check FK validity.
+        // We don't strictly need the type filter to find orphans - just check FK validity.
         $orphanedSubjects = $db->table('relation as r')
             ->leftJoin('actor as a', 'a.id', '=', 'r.subject_id')
             ->whereNull('a.id')

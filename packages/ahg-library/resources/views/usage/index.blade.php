@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Usage Statistics — ' . $reportType)
+@section('title', 'Usage Statistics - ' . $reportType)
 
 @section('content')
 <div class="container py-4">
@@ -16,7 +16,7 @@
             <p class="text-muted small mb-0">
                 COUNTER 5 aggregated statistics
                 @if($fromDate && $toDate)
-                    &mdash; {{ \Carbon\Carbon::parse($fromDate)->format('M Y') }}
+                    - {{ \Carbon\Carbon::parse($fromDate)->format('M Y') }}
                     to {{ \Carbon\Carbon::parse($toDate)->format('M Y') }}
                 @endif
             </p>
@@ -48,21 +48,21 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link @if($reportType === 'PR') active @endif" data-bs-toggle="tab"
                     data-bs-target="#tab-pr" type="button" role="tab">
-                PR — Platform
+                PR - Platform
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link @if($reportType === 'TR') active @endif"
                href="{{ route('library.usage.title-report', ['from' => $fromDate, 'to' => $toDate]) }}"
                role="tab">
-                TR — Title
+                TR - Title
             </a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link @if($reportType === 'DR') active @endif"
                href="{{ route('library.usage-dr', ['from' => $fromDate, 'to' => $toDate]) }}"
                role="tab">
-                DR — Database
+                DR - Database
             </a>
         </li>
     </ul>
@@ -151,7 +151,7 @@
                                     <tr>
                                         <td><strong>{{ $periodRow['label'] }}</strong></td>
                                         @foreach($periodRow['data'] as $count)
-                                            <td class="text-end">{{ $count > 0 ? number_format($count) : '—' }}</td>
+                                            <td class="text-end">{{ $count > 0 ? number_format($count) : '-' }}</td>
                                         @endforeach
                                     </tr>
                                 @endforeach
@@ -179,7 +179,7 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span>
                                         <code>{{ $sub['partner_code'] }}</code>
-                                        &mdash; {{ $sub['base_url'] }}
+                                        - {{ $sub['base_url'] }}
                                     </span>
                                     <span class="badge bg-success">Active</span>
                                 </li>

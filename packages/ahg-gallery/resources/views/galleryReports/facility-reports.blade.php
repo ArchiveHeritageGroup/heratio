@@ -1,5 +1,5 @@
 {{--
-  Facility Reports — cloned from AtoM galleryReports/facilityReportsSuccess.php
+  Facility Reports - cloned from AtoM galleryReports/facilityReportsSuccess.php
   @copyright  Johan Pieterse / Plain Sailing
   @license    AGPL-3.0-or-later
 --}}

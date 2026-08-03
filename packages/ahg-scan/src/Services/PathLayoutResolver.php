@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PathLayoutResolver — Heratio ahg-scan
+ * PathLayoutResolver - Heratio ahg-scan
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -56,7 +56,7 @@ class PathLayoutResolver
         }
 
         if (count($parts) === 2) {
-            // <parent_slug>/<identifier>.ext — single-file item
+            // <parent_slug>/<identifier>.ext - single-file item
             $stem = pathinfo($parts[1], PATHINFO_FILENAME);
 
             return [

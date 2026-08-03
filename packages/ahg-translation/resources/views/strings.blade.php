@@ -18,7 +18,7 @@
     <div>
       <h1 class="h3 mb-1"><i class="fas fa-language me-2"></i>{{ __('UI string translations') }}</h1>
       <p class="small text-muted mb-0">
-        {{ __('Edit lang/{locale}.json files inline. Changes apply immediately on next request — no view-cache rebuild needed.') }}
+        {{ __('Edit lang/{locale}.json files inline. Changes apply immediately on next request - no view-cache rebuild needed.') }}
       </p>
     </div>
     <div class="d-flex gap-2">
@@ -41,7 +41,7 @@
       <div class="form-check form-check-inline mb-0">
         <input class="form-check-input" type="checkbox" id="ui-strings-request-review">
         <label class="form-check-label" for="ui-strings-request-review">
-          <i class="fas fa-user-check me-1"></i>{{ __('Request second review') }} —
+          <i class="fas fa-user-check me-1"></i>{{ __('Request second review') }} -
           <span class="text-muted">{{ __('queue my changes for another admin to approve instead of applying immediately.') }}</span>
         </label>
       </div>
@@ -49,7 +49,7 @@
   @else
     <div class="alert alert-info py-2 small mb-3">
       <i class="fas fa-info-circle me-1"></i>
-      {{ __('You are saving as Editor — your changes will be queued for an Administrator to review and apply. They will not appear on the live site until approved.') }}
+      {{ __('You are saving as Editor - your changes will be queued for an Administrator to review and apply. They will not appear on the live site until approved.') }}
     </div>
   @endif
 
@@ -70,7 +70,7 @@
         <div class="col-md-3">
           <label class="form-label form-label-sm mb-0">{{ __('Missing in') }}</label>
           <select name="missing" class="form-select form-select-sm">
-            <option value="">{{ __('— any —') }}</option>
+            <option value="">{{ __('- any -') }}</option>
             @foreach($allLocales as $code)
               @if($code === 'en') @continue @endif
               <option value="{{ $code }}" {{ ($missing ?? '') === $code ? 'selected' : '' }}>{{ $code }}</option>
@@ -95,8 +95,8 @@
   {{-- Stats --}}
   <p class="small text-muted">
     {{ __(':total keys', ['total' => number_format($matrix['total'] ?? 0)]) }}
-    @if($missing) — {{ __('missing in :code', ['code' => $missing]) }} @endif
-    @if($contains) — {{ __('matching ":q"', ['q' => $contains]) }} @endif
+    @if($missing) - {{ __('missing in :code', ['code' => $missing]) }} @endif
+    @if($contains) - {{ __('matching ":q"', ['q' => $contains]) }} @endif
     @if(!empty($changedSince)) - {{ __('changed since :date', ['date' => $changedSince]) }} @endif
   </p>
 
@@ -293,7 +293,7 @@
             .then(function (d) {
               if (d && d.ok && d.translated) {
                 input.value = d.translated;
-                status.textContent = 'MT suggestion — review then save';
+                status.textContent = 'MT suggestion - review then save';
                 input.dispatchEvent(new Event('input', { bubbles: true })); // trigger debounced save
               } else {
                 status.textContent = '✗ MT failed: ' + ((d && d.error) || 'unknown');

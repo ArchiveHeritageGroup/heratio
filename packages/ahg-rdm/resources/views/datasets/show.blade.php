@@ -29,7 +29,7 @@
 @if ($dataset->status === 'scanning')
   <div class="alert alert-info d-flex align-items-center">
     <span class="spinner-border spinner-border-sm me-2"></span>
-    {{ __('POPIA scan in progress — reload this page in a moment to see the findings.') }}
+    {{ __('POPIA scan in progress - reload this page in a moment to see the findings.') }}
   </div>
 @endif
 
@@ -38,7 +38,7 @@
     <div class="row g-2 small">
       <div class="col-md-3"><span class="text-muted">{{ __('Status') }}:</span>
         <span class="badge" style="background:{{ $statusColor }}">{{ $statusLabel }}</span></div>
-      <div class="col-md-4"><span class="text-muted">{{ __('Project') }}:</span> {{ $dataset->project_title ?? '—' }}</div>
+      <div class="col-md-4"><span class="text-muted">{{ __('Project') }}:</span> {{ $dataset->project_title ?? '-' }}</div>
       <div class="col-md-3"><span class="text-muted">{{ __('POPIA verdict') }}:</span>
         @if ($dataset->verdict)
           <span class="badge" style="background:{{ $verdictColors[$dataset->verdict] ?? '#6c757d' }}">{{ $dataset->verdict }}</span>
@@ -92,7 +92,7 @@
             <label class="form-label small mb-0">{{ __('Link an existing plan') }}</label>
             <select name="dmp_id" class="form-select form-select-sm" required>
               @foreach ($dmp['plans'] as $p)
-                <option value="{{ $p['id'] }}">{{ $p['title'] }} — {{ $p['status'] }}</option>
+                <option value="{{ $p['id'] }}">{{ $p['title'] }} - {{ $p['status'] }}</option>
               @endforeach
             </select>
           </div>
@@ -104,7 +104,7 @@
         @csrf
         <div class="col-md-6">
           <label class="form-label small mb-0">{{ __('Create a new DMP') }}</label>
-          <input type="text" name="new_title" class="form-control form-control-sm" placeholder="{{ __('e.g.') }} DMP — {{ \Illuminate\Support\Str::limit($dataset->title, 40) }}">
+          <input type="text" name="new_title" class="form-control form-control-sm" placeholder="{{ __('e.g.') }} DMP - {{ \Illuminate\Support\Str::limit($dataset->title, 40) }}">
         </div>
         <div class="col-md-3">
           <label class="form-label small mb-0">{{ __('Funder') }} <span class="text-muted">({{ __('optional') }})</span></label>
@@ -123,7 +123,7 @@
 @if ($dataset->verdict)
 {{-- Human gate (#1340): disposition + the open-access block. --}}
 <div class="card mb-3 border-warning">
-  <div class="card-header fw-bold bg-warning-subtle"><i class="fas fa-gavel me-1"></i>{{ __('Human gate — disposition') }}</div>
+  <div class="card-header fw-bold bg-warning-subtle"><i class="fas fa-gavel me-1"></i>{{ __('Human gate - disposition') }}</div>
   <div class="card-body">
     <p class="small mb-2">
       {{ __('Unresolved findings') }}: <strong>{{ $gate['pending'] }}</strong> ·
@@ -148,7 +148,7 @@
         <label for="disposition" class="form-label small mb-0">{{ __('Apply disposition') }}</label>
         <select name="disposition" id="disposition" class="form-select form-select-sm">
           @foreach ($dispositions as $d)
-            <option value="{{ $d->code }}" @disabled($d->code === 'release' && ! $gate['can_release'])>{{ $d->label }}@if ($d->code === 'release' && ! $gate['can_release']) — {{ __('blocked') }}@endif</option>
+            <option value="{{ $d->code }}" @disabled($d->code === 'release' && ! $gate['can_release'])>{{ $d->label }}@if ($d->code === 'release' && ! $gate['can_release']) - {{ __('blocked') }}@endif</option>
           @endforeach
         </select>
       </div>
@@ -165,7 +165,7 @@
 <div class="card mb-3">
   <div class="card-header fw-bold d-flex justify-content-between">
     <span><i class="fas fa-user-shield me-1"></i>{{ __('POPIA scan findings') }}</span>
-    <span class="small text-muted">{{ __('AI/regex findings are suggestions — confirm or dismiss each (provenance is recorded)') }}</span>
+    <span class="small text-muted">{{ __('AI/regex findings are suggestions - confirm or dismiss each (provenance is recorded)') }}</span>
   </div>
   <div class="card-body p-0">
     <table class="table table-sm mb-0 align-middle">
@@ -204,7 +204,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="6" class="text-center text-success py-3"><i class="fas fa-check-circle me-1"></i>{{ __('No PII detected — verdict CLEAR.') }}</td></tr>
+          <tr><td colspan="6" class="text-center text-success py-3"><i class="fas fa-check-circle me-1"></i>{{ __('No PII detected - verdict CLEAR.') }}</td></tr>
         @endforelse
       </tbody>
     </table>
@@ -239,7 +239,7 @@
           <tr>
             <td>{{ $f->original_name }}</td>
             <td class="small text-muted">IO #{{ $f->io_id }}</td>
-            <td class="small text-muted">{{ $f->do_id ? 'DO #'.$f->do_id : '—' }}</td>
+            <td class="small text-muted">{{ $f->do_id ? 'DO #'.$f->do_id : '-' }}</td>
           </tr>
         @empty
           <tr><td colspan="3" class="text-center text-muted py-4">{{ __('No files deposited yet.') }}</td></tr>

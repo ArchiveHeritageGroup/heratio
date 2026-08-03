@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AclCheck — version-control permission helper. Mirror of the AtoM-side service.
+ * AclCheck - version-control permission helper. Mirror of the AtoM-side service.
  *
  * @phase K
  */

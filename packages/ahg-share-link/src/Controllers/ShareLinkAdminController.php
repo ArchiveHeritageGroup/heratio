@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ShareLinkAdminController — admin index of all share links.
+ * ShareLinkAdminController - admin index of all share links.
  *
  * Routes (registered in routes/web.php):
  *   GET /admin/share-links       → index
@@ -87,7 +87,7 @@ class ShareLinkAdminController extends Controller
     }
 
     /**
-     * POST /admin/share-links/{id}/revoke — revoke an active token.
+     * POST /admin/share-links/{id}/revoke - revoke an active token.
      *
      * Permission: must have share_link.list_all to be on the admin page at all;
      * RevokeService enforces own-vs-others gating internally.

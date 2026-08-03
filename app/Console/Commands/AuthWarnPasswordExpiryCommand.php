@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * auth:warn-password-expiry — email users whose password expires in the
+ * auth:warn-password-expiry - email users whose password expires in the
  * next security_password_expiry_warn_days days.
  *
  * Closes the expiry-notify half of audit issue #90. Skips silently when
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Mail;
  * is 0 (expiry disabled). Scheduled daily from AppServiceProvider::boot.
  *
  * The "warn email" content is a reuse of PasswordResetMail (it already
- * carries a reset URL + username) — the user receives a password-reset
+ * carries a reset URL + username) - the user receives a password-reset
  * link they can use immediately rather than waiting until lockout.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
@@ -32,13 +32,13 @@ class AuthWarnPasswordExpiryCommand extends Command
     public function handle(): int
     {
         if (! SecuritySettings::passwordExpiryNotify()) {
-            $this->info('security_password_expiry_notify is false — skipping.');
+            $this->info('security_password_expiry_notify is false - skipping.');
 
             return self::SUCCESS;
         }
 
         if (! SecuritySettings::passwordExpiryEnabled()) {
-            $this->info('Password expiry disabled (password_expiry_days <= 0) — skipping.');
+            $this->info('Password expiry disabled (password_expiry_days <= 0) - skipping.');
 
             return self::SUCCESS;
         }

@@ -34,7 +34,7 @@ var miradorConfig = {
 // The bundle-compiled annotation plugin (mirador-annotation-editor, wired
 // in tools/mirador-build/src/index.js) dereferences config.annotation.adapter
 // unconditionally during init, so the annotation block must always be
-// defined (#1397). Mirror the adapter wiring from ahg-iiif-viewer.js —
+// defined (#1397). Mirror the adapter wiring from ahg-iiif-viewer.js -
 // HeratioAnnotationAdapter is exposed on window by the same bundle; fall
 // back to a no-op adapter if a stale bundle ever omits it.
 miradorConfig.annotation = {

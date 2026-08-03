@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Z3950ServerServiceTest — unit tests for Z3950ServerService.
+ * Z3950ServerServiceTest - unit tests for Z3950ServerService.
  *
  * Tests cover:
  *   - parsePqf (simple terms, attribute searches, boolean operators, @attr 1=N shorthand)
@@ -17,7 +17,7 @@
  * Note: executeSearch() requires a database connection; it is tested
  * via integration tests against a seeded SQLite in-memory database.
  *
- * Copyright (C) 2026 Johan Pieterse — AGPL-3.0
+ * Copyright (C) 2026 Johan Pieterse - AGPL-3.0
  */
 
 namespace AhgZ3950\Tests\Unit;

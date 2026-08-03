@@ -35,7 +35,7 @@ use Illuminate\Support\Str;
 class DropdownController extends Controller
 {
     /**
-     * Section labels for taxonomy grouping — matches AtoM ahgDropdownPlugin.
+     * Section labels for taxonomy grouping - matches AtoM ahgDropdownPlugin.
      */
     protected array $sectionLabels = [
         'access_research' => 'Access & Research',
@@ -63,7 +63,7 @@ class DropdownController extends Controller
     ];
 
     /**
-     * Section icons — matches AtoM ahgDropdownPlugin.
+     * Section icons - matches AtoM ahgDropdownPlugin.
      */
     protected array $sectionIcons = [
         'access_research' => 'fa-book-reader',

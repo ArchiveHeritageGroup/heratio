@@ -146,12 +146,12 @@
     $addTile('Theme Configuration',   'fa-palette',            'Customize appearance, colours, logo, branding, and custom CSS', 'settings.themes');
     $addTile('Reading Room',          'fa-book-reader',        'Researcher registration and reading room settings', 'research.dashboard', 'success');
     $addTile('Default page elements', 'fa-th-large',           'Toggle logo, title, description, language menu, digital object carousel and map, copyright and material filters', 'settings.page-elements');
-    $addTile('Cron Jobs',             'fa-clock',              'Manage scheduled tasks — enable/disable, edit schedules, run now', 'settings.cron-jobs', 'secondary', 'Manage Jobs', 'fa-clock');
+    $addTile('Cron Jobs',             'fa-clock',              'Manage scheduled tasks - enable/disable, edit schedules, run now', 'settings.cron-jobs', 'secondary', 'Manage Jobs', 'fa-clock');
     $addTile('Error Log',             'fa-exclamation-triangle','View and manage application error logs', 'settings.error-log', 'danger', 'View Logs', 'fa-bug');
     $addTile('Plugin Management',     'fa-puzzle-piece',       'Manage installed packages and plugins', 'settings.plugins', 'info', 'View Plugins', 'fa-plug');
 
-    // Heritage Landing — public-facing /heritage page (hero slides, search placeholder, suggested searches)
-    $addTile('Heritage Landing',      'fa-landmark',           'Public /heritage landing page — hero gallery, tagline, suggested searches', 'heritage.admin-config', 'info', 'Configure', 'fa-cog');
+    // Heritage Landing - public-facing /heritage page (hero slides, search placeholder, suggested searches)
+    $addTile('Heritage Landing',      'fa-landmark',           'Public /heritage landing page - hero gallery, tagline, suggested searches', 'heritage.admin-config', 'info', 'Configure', 'fa-cog');
 
     // AtoM-parity tiles
     $addTile('Heritage Accounting',   'fa-landmark',           'Multi-standard heritage asset accounting settings (GRAP, FRS, GASB, PSAS)', 'heritage.admin', 'warning', 'Admin', 'fa-tools');
@@ -167,9 +167,9 @@
     $addTile('E-Commerce',            'fa-store',              'Shopping cart, product pricing, payment gateway and order management', 'cart.admin.settings', 'success');
     $addTile('Order Management',      'fa-shopping-bag',       'View and manage customer orders', 'cart.admin.orders', 'success', 'Manage');
     $addTile('Preservation & Backup', 'fa-cloud-upload-alt',   'Configure backup replication targets, verify integrity, and manage preservation', 'settings.section', 'success', 'Configure', 'fa-cog', 'preservation');
-    $addTile('Archivematica Integration', 'fa-archive',        'Connect to an Archivematica instance — receive DIPs (access copies) and drive preservation transfers', 'settings.archivematica', 'success');
+    $addTile('Archivematica Integration', 'fa-archive',        'Connect to an Archivematica instance - receive DIPs (access copies) and drive preservation transfers', 'settings.archivematica', 'success');
 
-    // 9 tiles missing from AtoM parity (all have existing routes — were sidebar-only)
+    // 9 tiles missing from AtoM parity (all have existing routes - were sidebar-only)
     $addTile('Accession Management',   'fa-inbox',              'Intake workflow, numbering, appraisal, container and rights settings', 'settings.ahg.accession');
     $addTile('Data Protection',        'fa-user-shield',        'POPIA / GDPR compliance and data handling', 'settings.ahg.data_protection', 'warning');
     $addTile('Encryption',             'fa-lock',               'Field-level encryption and key management', 'settings.ahg.encryption', 'danger');
@@ -179,7 +179,7 @@
     $addTile('AI Condition Assessment','fa-robot',               'AI-powered damage detection and condition scoring for archival materials', 'settings.ai-condition', 'info');
     $addTile('Audit Trail',           'fa-history',             'View change history and user activity logs', 'acl.audit-log');
     $addTile('Background Jobs',       'fa-tasks',              'Job queue, concurrent limits, timeout, retry, cleanup, and failure notifications', 'settings.ahg.jobs');
-    $addTile('AI Services',           'fa-brain',              'NER, Summarization, Spell Check — processing mode and field mappings', 'settings.ai-services');
+    $addTile('AI Services',           'fa-brain',              'NER, Summarization, Spell Check - processing mode and field mappings', 'settings.ai-services');
     $addTile('ICIP Settings',         'fa-shield-alt',         'Indigenous Cultural and Intellectual Property management settings', 'settings.icip-settings', 'warning');
     $addTile('Marketplace',           'fa-store-alt',          'Commission rates, listing fees, currencies, payout rules, and platform configuration', 'ahgmarketplace.admin-settings', 'success');
     $addTile('Sector Numbering',      'fa-hashtag',            'Configure unique numbering schemes per GLAM/DAM sector', 'settings.sector-numbering');

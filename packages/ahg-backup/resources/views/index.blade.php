@@ -108,9 +108,9 @@
                   <br><small class="text-muted">
                     {{ ucfirst($schedule['frequency'] ?? 'daily') }}
                     @if(($schedule['frequency'] ?? '') === 'weekly' && isset($schedule['day_of_week']))
-                      &mdash; {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][(int)$schedule['day_of_week']] ?? '' }}
+                      - {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][(int)$schedule['day_of_week']] ?? '' }}
                     @elseif(($schedule['frequency'] ?? '') === 'monthly' && isset($schedule['day_of_month']))
-                      &mdash; Day {{ (int)$schedule['day_of_month'] }}
+                      - Day {{ (int)$schedule['day_of_month'] }}
                     @endif
                     @ {{ substr($schedule['time'] ?? '02:00', 0, 5) }}
                     &middot; {{ (int)($schedule['retention_days'] ?? 30) }}d retention

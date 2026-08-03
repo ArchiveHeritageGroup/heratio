@@ -115,7 +115,7 @@ class SruService
             })
             // Catalogue scoping: SRU exposes the public library catalogue only.
             ->where('information_object.source_standard', 'library')
-            // #1379: published-status gate — SRU is an unauthenticated public
+            // #1379: published-status gate - SRU is an unauthenticated public
             // dissemination endpoint, so only disseminate IOs whose publication
             // status (status type_id=158) is "published" (status_id=160). Mirrors
             // the OAI/discovery published gate; prevents draft/unpublished records

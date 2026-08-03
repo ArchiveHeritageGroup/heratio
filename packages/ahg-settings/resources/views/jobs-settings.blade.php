@@ -1,6 +1,6 @@
 {{--
-  Background Jobs Settings — cloned from AtoM section.blade.php @case('jobs')
-  Copyright (C) 2026 Johan Pieterse — Plain Sailing Information Systems
+  Background Jobs Settings - cloned from AtoM section.blade.php @case('jobs')
+  Copyright (C) 2026 Johan Pieterse - Plain Sailing Information Systems
   AGPL-3.0-or-later
 --}}
 @extends('theme::layouts.2col')

@@ -66,11 +66,11 @@ class SushiService
      *
      * Reads from ahg_settings (same namespace as ILL OCLC settings since
      * SUSHI is typically bundled with ILL systems in SA library consortia):
-     *   library_sushi_partner  — e.g. 'naz', 'sabinet', 'dals', 'custom'
-     *   library_sushi_base_url — root SUSHI URL
-     *   library_sushi_api_key   — API key / bearer token
-     *   library_sushi_customer_id — customer/institution code
-     *   library_sushi_requestor_id — individual requestor identifier
+     *   library_sushi_partner  - e.g. 'naz', 'sabinet', 'dals', 'custom'
+     *   library_sushi_base_url - root SUSHI URL
+     *   library_sushi_api_key   - API key / bearer token
+     *   library_sushi_customer_id - customer/institution code
+     *   library_sushi_requestor_id - individual requestor identifier
      *
      * For custom partners the base_url and credentials come from the
      * library_sushi_subscription table entries this service manages.
@@ -211,7 +211,7 @@ class SushiService
                 ->post($endpoint, $body);
 
             if (! $response->successful()) {
-                Log::warning("SushiService: HTTP {$response->status()} from {$endpoint} — {$response->body()}");
+                Log::warning("SushiService: HTTP {$response->status()} from {$endpoint} - {$response->body()}");
                 return null;
             }
 
@@ -238,7 +238,7 @@ class SushiService
             return $decoded;
 
         } catch (\Throwable $e) {
-            Log::error("SushiService: exception fetching {$endpoint} — {$e->getMessage()}");
+            Log::error("SushiService: exception fetching {$endpoint} - {$e->getMessage()}");
             return null;
         }
     }
@@ -409,7 +409,7 @@ class SushiService
                 'fetched_at'     => now(),
             ]);
         } catch (\Throwable) {
-            // Fail silently — raw storage is audit-only, not load-bearing
+            // Fail silently - raw storage is audit-only, not load-bearing
         }
     }
 

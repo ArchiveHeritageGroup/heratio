@@ -53,7 +53,7 @@
     </div>
   </div>
 
-  {{-- Related items (children) — DAM-specific, kept for legacy reasons --}}
+  {{-- Related items (children) - DAM-specific, kept for legacy reasons --}}
   @if($relatedItems->isNotEmpty())
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
@@ -302,7 +302,7 @@
 
   @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $asset->id, 'slug' => $asset->slug, 'title' => $asset->title, 'hideNer' => true, 'hideRights' => true, 'hideProvenance' => true, 'hideExport' => true])
 
-  {{-- Place / Subject / Name access points — moved to bottom of right block per user request 2026-05-03 --}}
+  {{-- Place / Subject / Name access points - moved to bottom of right block per user request 2026-05-03 --}}
   @include('ahg-core::_place-access-points', ['resource' => $asset, 'sidebar' => true])
   @include('ahg-core::_subject-access-points', ['resource' => $asset, 'sidebar' => true])
   @include('ahg-core::_name-access-points', ['resource' => $asset, 'sidebar' => true])
@@ -313,9 +313,9 @@
 
 @section('content')
 
-  {{-- Full IIIF / Mirador / OpenSeadragon viewer — same partial that the IO
+  {{-- Full IIIF / Mirador / OpenSeadragon viewer - same partial that the IO
        show page uses. Auto-detects TIFF/JP2 (Cantaloupe IIIF), IIIF manifests
-       (Mirador), audio/video, PDF, and plain raster. Partial expects $io —
+       (Mirador), audio/video, PDF, and plain raster. Partial expects $io -
        pass $asset under that name since DAM/Gallery/IO all share the IO row
        shape underneath. --}}
   @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $asset, 'digitalObjects' => $digitalObjects, 'childThumbnails' => $childThumbnails ?? collect(), 'childThumbnailTotal' => $childThumbnailTotal ?? 0])
@@ -323,7 +323,7 @@
   @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core', 'entityType' => 'dam', 'objectId' => $asset->id])
   @if(\AhgRic\Services\RicViewModeService::isRic('dam', $asset->id))
     @include('ahg-ric::_ric-view-dam', ['asset' => $asset])
-    {{-- RiC Entities Panel — only renders when RiC view-mode toggle is on,
+    {{-- RiC Entities Panel - only renders when RiC view-mode toggle is on,
          matching the Archive (IO) show-page behaviour. --}}
     @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
       @include('ahg-ric::_ric-entities-panel', ['record' => $asset, 'recordType' => 'instantiation'])
@@ -642,7 +642,7 @@
             <div class="d-flex justify-content-between align-items-start mb-1">
               <div>
                 <strong>{{ $h->format_type }}</strong>
-                @if($h->format_details) <span class="text-muted">— {{ $h->format_details }}</span>@endif
+                @if($h->format_details) <span class="text-muted">- {{ $h->format_details }}</span>@endif
                 @if($h->is_primary) <span class="badge bg-success ms-1">{{ __('Primary') }}</span>@endif
               </div>
               @if($h->condition_status)
@@ -703,7 +703,7 @@
             @endif
             @if($l->person_name || $l->person_role)
               <div class="text-muted">
-                {{ $l->person_name }}@if($l->person_role) — {{ $l->person_role }}@endif
+                {{ $l->person_name }}@if($l->person_role) - {{ $l->person_role }}@endif
               </div>
             @endif
             @if($l->description)
@@ -847,7 +847,7 @@
             <li><hr class="dropdown-divider"></li>
             <li>
               <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ahgTranslateSbsModal-{{ $asset->id }}">
-                <i class="fas fa-language me-2"></i>{{ __('Translate (labels — side-by-side)') }}
+                <i class="fas fa-language me-2"></i>{{ __('Translate (labels - side-by-side)') }}
               </a>
             </li>
             @if($hasMm)

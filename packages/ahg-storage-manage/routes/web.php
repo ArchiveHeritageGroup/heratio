@@ -4,7 +4,7 @@ use AhgStorageManage\Controllers\StorageController;
 use AhgStorageManage\Controllers\StrongroomController;
 use Illuminate\Support\Facades\Route;
 
-// Physical storage locations + security levels are staff-only — require auth on
+// Physical storage locations + security levels are staff-only - require auth on
 // the read surface so anon can't map the building/vault layout (#1364).
 Route::get('/physicalobject/browse', [StorageController::class, 'browse'])->name('physicalobject.browse')->middleware('auth');
 
@@ -38,7 +38,7 @@ Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])
     ->where('slug', '(?!browse|add|autocomplete|box-list|boxList|holdingsReportExport|link-to|unlink)[a-z0-9][a-z0-9-]*');
 
 // ---------------------------------------------------------------------------
-// heratio#144 — Strongroom space allocation (rebuild 2026-05-23).
+// heratio#144 - Strongroom space allocation (rebuild 2026-05-23).
 // Mirrors the PSIS Symfony pattern shipped in atom-ahg-plugins v3.40.0:
 // standalone CRUD only, no physicalobject-form integration.
 // ---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-{{-- #1099 Training — completion certificate --}}
+{{-- #1099 Training - completion certificate --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')

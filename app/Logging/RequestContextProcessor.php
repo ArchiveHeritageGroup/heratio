@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RequestContextProcessor — Monolog processor that injects request-scoped
+ * RequestContextProcessor - Monolog processor that injects request-scoped
  * context (request_id, user_id, tenant_id, http.method, http.uri) into
  * every log record.
  *
@@ -26,7 +26,7 @@ class RequestContextProcessor implements ProcessorInterface
     {
         $context = $record->extra;
 
-        // Request ID — populated by RequestIdMiddleware via app('request.id').
+        // Request ID - populated by RequestIdMiddleware via app('request.id').
         // Falls back to '-' for CLI / queue worker / boot-time logs.
         try {
             if (app()->bound('request.id')) {
@@ -35,7 +35,7 @@ class RequestContextProcessor implements ProcessorInterface
                 $context['request_id'] = '-';
             }
         } catch (\Throwable $e) {
-            // Container not built yet (very early boot) — skip
+            // Container not built yet (very early boot) - skip
         }
 
         // User ID + role (when auth is bound)
@@ -48,7 +48,7 @@ class RequestContextProcessor implements ProcessorInterface
                 }
             }
         } catch (\Throwable $e) {
-            // No auth context — skip
+            // No auth context - skip
         }
 
         // Tenant ID (when multi-tenancy resolved)
@@ -60,7 +60,7 @@ class RequestContextProcessor implements ProcessorInterface
                 }
             }
         } catch (\Throwable $e) {
-            // Multi-tenancy not active — skip
+            // Multi-tenancy not active - skip
         }
 
         // HTTP method + path (web requests only)
@@ -73,10 +73,10 @@ class RequestContextProcessor implements ProcessorInterface
                 }
             }
         } catch (\Throwable $e) {
-            // Not a web request (CLI / queue) — skip
+            // Not a web request (CLI / queue) - skip
         }
 
-        // Hostname + process ID — useful for multi-instance deployments
+        // Hostname + process ID - useful for multi-instance deployments
         if (!isset($context['host'])) {
             $context['host'] = gethostname() ?: 'unknown';
         }

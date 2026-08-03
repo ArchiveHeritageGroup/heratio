@@ -28,7 +28,7 @@
 <div class="alert alert-info small d-flex align-items-center">
   <i class="fas fa-info-circle me-2"></i>
   <div>{{ __('This grid is for fast batch review + CSV. For image-overlay correction (drag boxes, AI-read each field, save a reusable layout per form type), use') }}
-    <a href="{{ route('admin.ai.htr.fsOverlay') }}">{{ __('FS Overlay') }}</a> {{ __('— select a "FamilySearch Data Safe — Scotland …" form type there.') }}</div>
+    <a href="{{ route('admin.ai.htr.fsOverlay') }}">{{ __('FS Overlay') }}</a> {{ __('- select a "FamilySearch Data Safe - Scotland …" form type there.') }}</div>
 </div>
 
 <div class="card mb-3">
@@ -132,17 +132,17 @@
   async function loadRow(tr) {
     curRow = tr;
     const src = tr.dataset.src || '';
-    $('fs-preview-cap').textContent = src + ' — reading…';
+    $('fs-preview-cap').textContent = src + ' - reading…';
     try {
       const d = await fetchImageFields(src);
-      if (!d.success) { $('fs-preview-cap').textContent = src + ' — ' + (d.error || 'load failed'); return; }
+      if (!d.success) { $('fs-preview-cap').textContent = src + ' - ' + (d.error || 'load failed'); return; }
       fillRow(tr, d.row);
       if (d.image_url) {
         $('fs-preview').src = d.image_url + '&_=' + Date.now();
         $('fs-preview').style.display = 'block';
       }
       $('fs-preview-cap').textContent = src;
-    } catch (e) { $('fs-preview-cap').textContent = src + ' — error: ' + e.message; }
+    } catch (e) { $('fs-preview-cap').textContent = src + ' - error: ' + e.message; }
   }
 
   function renderGrid(columns, rows) {
@@ -178,7 +178,7 @@
       if (!d.success) { status(d.error || 'Failed'); return; }
       renderGrid(d.columns, d.rows);
       $('fs-readall').disabled = d.total === 0;
-      status(d.total + ' image(s) — click a row to read it, or "Read all".');
+      status(d.total + ' image(s) - click a row to read it, or "Read all".');
     } catch (e) { status('Error: ' + e.message); }
   });
 

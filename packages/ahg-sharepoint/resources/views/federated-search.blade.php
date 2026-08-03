@@ -1,5 +1,5 @@
 {{--
-  SharePoint federated search — package-owned admin UI (issue #1221).
+  SharePoint federated search - package-owned admin UI (issue #1221).
 
   Copyright (C) 2026 Johan Pieterse
   Plain Sailing Information Systems

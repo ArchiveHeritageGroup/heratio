@@ -269,7 +269,7 @@ class IngestController extends Controller
     }
 
     /**
-     * SharePoint AJAX browse endpoint — proxies to SharePointBrowserService.
+     * SharePoint AJAX browse endpoint - proxies to SharePointBrowserService.
      */
     public function browseSharePoint(Request $request, int $id)
     {
@@ -591,7 +591,7 @@ class IngestController extends Controller
 
         // Any POST to this route triggers the commit runner. The existing
         // commit view's "Start Commit" button posts without a form_action
-        // field — treat that as the default start action. `form_action=status`
+        // field - treat that as the default start action. `form_action=status`
         // is reserved for the AJAX progress poll.
         if ($request->isMethod('post') && $request->input('form_action') !== 'status') {
             try {
@@ -620,7 +620,7 @@ class IngestController extends Controller
                     ]);
                     \AhgIngest\Jobs\IngestCommitJob::dispatch($id);
                     return redirect()->route('ingest.commit', $id)
-                        ->with('notice', "Commit dispatched to queue ({$rowCount} rows) — this page will auto-refresh as progress lands.");
+                        ->with('notice', "Commit dispatched to queue ({$rowCount} rows) - this page will auto-refresh as progress lands.");
                 }
 
                 $runner = app(\AhgIngest\Services\IngestCommitRunner::class);

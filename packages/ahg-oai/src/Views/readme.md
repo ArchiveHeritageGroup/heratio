@@ -1,4 +1,4 @@
-# AhgOai — Views
+# AhgOai - Views
 
 Views directory for the AhgOai package.
 

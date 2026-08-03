@@ -1,4 +1,4 @@
-{{-- #1105 Journal builder — show / table of contents --}}
+{{-- #1105 Journal builder - show / table of contents --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -52,7 +52,7 @@
         <strong>
           @if ($issue['id'])
             {{ trim(($issue['volume'] ? 'Vol '.$issue['volume'] : '').' '.($issue['number'] ? 'No '.$issue['number'] : '')) ?: __('Issue') }}
-            @if($issue['title']) — {{ $issue['title'] }}@endif
+            @if($issue['title']) - {{ $issue['title'] }}@endif
             @if($issue['issue_date']) <small class="text-muted">({{ $issue['issue_date'] }})</small>@endif
           @else
             {{ __('Unassigned articles') }}

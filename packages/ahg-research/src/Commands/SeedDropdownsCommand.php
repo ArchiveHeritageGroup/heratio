@@ -33,7 +33,7 @@ class SeedDropdownsCommand extends Command
                 DB::statement($stmt);
                 $count++;
             } catch (\Exception $e) {
-                // INSERT IGNORE handles duplicates — other errors should be reported
+                // INSERT IGNORE handles duplicates - other errors should be reported
                 if (!str_contains($e->getMessage(), 'Duplicate entry')) {
                     $this->warn('  Skipped: ' . substr($stmt, 0, 80) . '... (' . $e->getMessage() . ')');
                 }

@@ -1,10 +1,10 @@
 {{--
-  RM Classification Rule — detail + dry-run test (P4.2)
+  RM Classification Rule - detail + dry-run test (P4.2)
   @copyright Johan Pieterse / Plain Sailing Information Systems
   @license   AGPL-3.0-or-later
 --}}
 @extends('theme::layouts.1col')
-@section('title', 'Rule #' . $rule->id . ' — ' . $rule->name)
+@section('title', 'Rule #' . $rule->id . ' - ' . $rule->name)
 @section('body-class', 'admin records classification show')
 
 @section('content')
@@ -31,8 +31,8 @@
         <tr><th class="text-muted">{{ __('Pattern') }}</th><td><code>{{ $rule->match_pattern }}</code></td></tr>
         <tr><th class="text-muted">{{ __('Priority') }}</th><td>{{ $rule->priority }}</td></tr>
         <tr><th class="text-muted">{{ __('Apply on') }}</th><td>{{ $rule->apply_on }}</td></tr>
-        <tr><th class="text-muted">{{ __('File plan node') }}</th><td>{{ $rule->fileplan_code ?? '?' }} — {{ $rule->fileplan_title ?? '?' }}</td></tr>
-        <tr><th class="text-muted">{{ __('Disposal class') }}</th><td>@if($rule->disposal_class_ref){{ $rule->disposal_class_ref }} — {{ $rule->disposal_class_title }}@else<em class="text-muted">inherit from node</em>@endif</td></tr>
+        <tr><th class="text-muted">{{ __('File plan node') }}</th><td>{{ $rule->fileplan_code ?? '?' }} - {{ $rule->fileplan_title ?? '?' }}</td></tr>
+        <tr><th class="text-muted">{{ __('Disposal class') }}</th><td>@if($rule->disposal_class_ref){{ $rule->disposal_class_ref }} - {{ $rule->disposal_class_title }}@else<em class="text-muted">inherit from node</em>@endif</td></tr>
         @if($rule->description)<tr><th class="text-muted">{{ __('Description') }}</th><td><small>{!! nl2br(e($rule->description)) !!}</small></td></tr>@endif
         <tr><th class="text-muted">{{ __('Created') }}</th><td><small>{{ $rule->created_at }}</small></td></tr>
       </table>

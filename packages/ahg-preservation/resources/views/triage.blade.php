@@ -56,13 +56,13 @@
                 <td>
                   @if($it['slug'])<a href="/{{ $it['slug'] }}" target="_blank" rel="noopener">{{ $it['title'] }}</a>@else{{ $it['title'] }}@endif
                 </td>
-                <td class="small">{{ ucfirst($it['rating'] ?? '—') }}</td>
-                <td class="small">{{ ucfirst($it['priority'] ?? '—') }}</td>
-                <td class="small text-muted">{{ $it['assessed'] ?? '—' }}</td>
+                <td class="small">{{ ucfirst($it['rating'] ?? '-') }}</td>
+                <td class="small">{{ ucfirst($it['priority'] ?? '-') }}</td>
+                <td class="small text-muted">{{ $it['assessed'] ?? '-' }}</td>
                 <td class="small {{ $it['overdue'] ? 'text-danger fw-bold' : 'text-muted' }}">
-                  {{ $it['next_check'] ?? '—' }}@if($it['overdue']) <i class="fas fa-clock" title="{{ __('Overdue') }}"></i>@endif
+                  {{ $it['next_check'] ?? '-' }}@if($it['overdue']) <i class="fas fa-clock" title="{{ __('Overdue') }}"></i>@endif
                 </td>
-                <td class="small text-muted">{{ $it['recommendation'] ?: '—' }}</td>
+                <td class="small text-muted">{{ $it['recommendation'] ?: '-' }}</td>
               </tr>
             @endforeach
           </tbody>

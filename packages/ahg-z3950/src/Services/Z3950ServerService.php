@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Z3950ServerService — Z39.50 server implementation (ISO 23950).
+ * Z3950ServerService - Z39.50 server implementation (ISO 23950).
  *
  * Handles: Init, Search, Present, Close, DeleteResultSet APDUs.
  * BER encoding/decoding via BerEncoder.
  * Query: prefix query format (PQF) parsed into SQL WHERE clauses.
  *
  * Copyright (C) 2026 Johan Pieterse
- * The Archive Heritage Group (Pty) Ltd — AGPL-3.0
+ * The Archive Heritage Group (Pty) Ltd - AGPL-3.0
  */
 
 namespace AhgZ3950\Services;
@@ -578,9 +578,9 @@ class Z3950ServerService
         $boolean = ($query['boolean'] ?? 'AND') === 'OR' ? 'OR' : 'AND';
         $limit   = max(1, (int) ($query['maxRecords'] ?? 10));
 
-        // #1379 — disseminate from the gated main catalogue (published-only),
+        // #1379 - disseminate from the gated main catalogue (published-only),
         // NOT an ungated external `library`/library_marc_records store (which has
-        // no information_object/status linkage and no defined DB connection — it
+        // no information_object/status linkage and no defined DB connection - it
         // always threw and returned empty, leaving the server non-functional). We
         // now share SruService's published gate so SRU and Z39.50 have one source
         // of truth and neither can disseminate draft/unpublished records.
@@ -670,7 +670,7 @@ class Z3950ServerService
     }
 
     /**
-     * #1379 — build the minimal leader/controlfield/datafield record shape that
+     * #1379 - build the minimal leader/controlfield/datafield record shape that
      * buildMarc21() concatenates, from a gated catalogue row. (Matches the prior
      * stub's fidelity; the point of this method is that the SOURCE is now the
      * published-gated main catalogue, not an ungated MARC store.)

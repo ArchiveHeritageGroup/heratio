@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'PII Scan Results — ' . ($io->title ?? ''))
+@section('title', 'PII Scan Results - ' . ($io->title ?? ''))
 
 @section('content')
 <div class="container py-4">
@@ -34,7 +34,7 @@
   </div>
 
   @php
-    // Scan result data — default to empty if not provided
+    // Scan result data - default to empty if not provided
     $scanResult = $scanResult ?? null;
     $entities = $scanResult->entities ?? [];
     $riskScore = $scanResult->risk_score ?? 0;
@@ -129,7 +129,7 @@
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0"><i class="fas fa-tachometer-alt me-1"></i> {{ __('Risk Score') }}</h6>
-        <span class="badge bg-{{ $riskColor }} fs-6">{{ $riskScore }}/100 &mdash; {{ $riskLabel }}</span>
+        <span class="badge bg-{{ $riskColor }} fs-6">{{ $riskScore }}/100 - {{ $riskLabel }}</span>
       </div>
       <div class="progress" style="height: 12px;">
         <div class="progress-bar bg-{{ $riskColor }}"

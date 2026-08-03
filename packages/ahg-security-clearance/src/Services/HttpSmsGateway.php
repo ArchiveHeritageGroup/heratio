@@ -1,18 +1,18 @@
 <?php
 
 /**
- * HttpSmsGateway — sends OTP SMS via a generic HTTP POST endpoint.
+ * HttpSmsGateway - sends OTP SMS via a generic HTTP POST endpoint.
  *
  * Configuration (read from ahg_settings, group 'security'):
- *   sms_http_endpoint   — full URL of the provider HTTP API.
- *   sms_http_token      — optional Bearer token; sent as Authorization
+ *   sms_http_endpoint   - full URL of the provider HTTP API.
+ *   sms_http_token      - optional Bearer token; sent as Authorization
  *                         header when present.
- *   sms_http_to_field   — form field name for the destination phone
+ *   sms_http_to_field   - form field name for the destination phone
  *                         (default: "to").
- *   sms_http_body_field — form field name for the message body
- *                         (default: "body" / "text" — leave as "body"
+ *   sms_http_body_field - form field name for the message body
+ *                         (default: "body" / "text" - leave as "body"
  *                         unless your provider differs).
- *   sms_http_method     — POST (default) or GET.
+ *   sms_http_method     - POST (default) or GET.
  *
  * Returns false on any non-2xx response or transport error.
  *

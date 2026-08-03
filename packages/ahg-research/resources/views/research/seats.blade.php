@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    // Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper.
+    // Issue #59 Tier 2 - culture-aware dropdown via the COALESCE helper.
     $seatTypes = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('seat_type');
 @endphp
 @if(session('success'))

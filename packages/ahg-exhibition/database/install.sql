@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-exhibition — install schema
+-- ahg-exhibition - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgExhibitionPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -441,7 +441,7 @@ CREATE TABLE IF NOT EXISTS `exhibition_media` (
 
 
 -- ============================================================================
--- heratio#146 — front-of-house space allocation (exhibition spaces + placements)
+-- heratio#146 - front-of-house space allocation (exhibition spaces + placements)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS ahg_exhibition_space (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

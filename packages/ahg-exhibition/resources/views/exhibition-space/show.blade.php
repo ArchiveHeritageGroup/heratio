@@ -1,4 +1,4 @@
-{{-- heratio#146 — Exhibition space show + placement timeline --}}
+{{-- heratio#146 - Exhibition space show + placement timeline --}}
 @extends('theme::layouts.1col')
 
 @section('title', $space->name)
@@ -39,8 +39,8 @@
       <div class="card mb-3">
         <div class="card-header"><strong>{{ __('Location') }}</strong></div>
         <div class="card-body">
-          <p class="mb-1"><small class="text-muted">{{ __('Building') }}</small><br>{{ $space->building ?: '—' }}</p>
-          <p class="mb-1"><small class="text-muted">{{ __('Floor') }}</small><br>{{ $space->floor ?: '—' }}</p>
+          <p class="mb-1"><small class="text-muted">{{ __('Building') }}</small><br>{{ $space->building ?: '-' }}</p>
+          <p class="mb-1"><small class="text-muted">{{ __('Floor') }}</small><br>{{ $space->floor ?: '-' }}</p>
         </div>
       </div>
       <div class="card mb-3">
@@ -124,8 +124,8 @@
                         @endif
                       </td>
                       <td>{{ (float) $p->size_units_used }}</td>
-                      <td>{{ $p->starts_at ?: '—' }}</td>
-                      <td>{{ $p->ends_at ?: '—' }}</td>
+                      <td>{{ $p->starts_at ?: '-' }}</td>
+                      <td>{{ $p->ends_at ?: '-' }}</td>
                       <td><small class="text-muted">{{ $p->notes }}</small></td>
                       @auth
                       <td>

@@ -1,5 +1,5 @@
 @extends('theme::layouts.2col')
-@section('title', __('Museum Data') . ' — ' . ($io->title ?? $io->slug))
+@section('title', __('Museum Data') . ' - ' . ($io->title ?? $io->slug))
 
 @section('sidebar')
   {{-- Quick Info Card --}}

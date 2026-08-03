@@ -213,7 +213,7 @@ class StatisticsService
      * Aggregate raw events from `ahg_usage_event` into `ahg_statistics_daily`.
      * Groups by (event_date, event_type, object_type, repository_id, country_code)
      * and upserts one row per combination with total/unique/auth/bot counts.
-     * Heratio-specific — PSIS stats plugin has a different pipeline.
+     * Heratio-specific - PSIS stats plugin has a different pipeline.
      *
      * @return array{rows: int, dates: int}
      */

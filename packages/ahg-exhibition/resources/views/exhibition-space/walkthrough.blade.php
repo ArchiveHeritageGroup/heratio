@@ -1,7 +1,7 @@
-{{-- heratio#1138 — Digital Twin: first-person 3D walkthrough (Phase 3, Three.js). --}}
+{{-- heratio#1138 - Digital Twin: first-person 3D walkthrough (Phase 3, Three.js). --}}
 @extends('theme::layouts.1col')
 
-@section('title', __('3D Walkthrough') . ' — ' . $space->name)
+@section('title', __('3D Walkthrough') . ' - ' . $space->name)
 @section('body-class', 'exhibition-space walkthrough-3d')
 
 @section('content')
@@ -36,7 +36,7 @@
           @if($eventCtx)
           {{-- #1192 live-opening banner: shown when a ticket holder enters via the join link. --}}
           <div id="wtEventBanner" style="position:absolute;top:0;left:0;right:0;z-index:11;background:linear-gradient(90deg,#6f42c1,#d63384);color:#fff;font:13px/1.4 system-ui,sans-serif;padding:6px 12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.4);">
-            <i class="fas fa-broadcast-tower me-1"></i>{{ __('You are in the live opening') }} <strong>{{ $eventCtx['title'] }}</strong>@if($eventCtx['host']) — {{ __('hosted by') }} {{ $eventCtx['host'] }}@endif
+            <i class="fas fa-broadcast-tower me-1"></i>{{ __('You are in the live opening') }} <strong>{{ $eventCtx['title'] }}</strong>@if($eventCtx['host']) - {{ __('hosted by') }} {{ $eventCtx['host'] }}@endif
           </div>
           @endif
           @endisset
@@ -138,7 +138,7 @@
             <div id="wtLiveBody"></div>
           </div>
           <div id="wtMinimap" class="bg-dark text-white p-2 rounded" style="position:absolute;top:46px;right:8px;z-index:7;width:260px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.5);">
-            <div class="d-flex justify-content-between align-items-center mb-1"><span class="small fw-bold"><i class="fas fa-map me-1"></i>{{ __('Building — tap a room to enter') }}</span><button type="button" id="wtMiniClose" class="btn-close btn-close-white btn-sm" aria-label="{{ __('Close') }}"></button></div>
+            <div class="d-flex justify-content-between align-items-center mb-1"><span class="small fw-bold"><i class="fas fa-map me-1"></i>{{ __('Building - tap a room to enter') }}</span><button type="button" id="wtMiniClose" class="btn-close btn-close-white btn-sm" aria-label="{{ __('Close') }}"></button></div>
             <div id="wtMiniSvg"></div>
           </div>
           <div id="roomHelp" class="bg-dark text-white p-3 rounded small" style="position:absolute;top:46px;right:8px;z-index:6;max-width:260px;display:none;">
@@ -2815,13 +2815,13 @@
         if (followBtn) followBtn.style.display = 'block';
         followTarget = (following && tour.x != null) ? { x: tour.x, z: tour.z } : null;
         if (following && tour.focus_object_id && tour.focus_object_id !== lastFocusSeen) { lastFocusSeen = tour.focus_object_id; var st = stopByIo(tour.focus_object_id); if (st) flyTo(st); }
-        if (banner) { banner.textContent = (following ? '{{ __('Following') }} ' : '{{ __('Guided tour live:') }} ') + (tour.docent_name || 'Docent') + (tour.msg ? (' — ' + tour.msg) : ''); banner.style.display = 'block'; }
+        if (banner) { banner.textContent = (following ? '{{ __('Following') }} ' : '{{ __('Guided tour live:') }} ') + (tour.docent_name || 'Docent') + (tour.msg ? (' - ' + tour.msg) : ''); banner.style.display = 'block'; }
       } else {
         if (followBtn) followBtn.style.display = 'none';
         following = false; followTarget = null;
         if (banner) banner.style.display = 'none';
       }
-      if (CAN_DOCENT && myTourActive && banner) { banner.textContent = '{{ __('You are leading a tour') }}' + (myDocentMsg ? (' — ' + myDocentMsg) : ''); banner.style.display = 'block'; }
+      if (CAN_DOCENT && myTourActive && banner) { banner.textContent = '{{ __('You are leading a tour') }}' + (myDocentMsg ? (' - ' + myDocentMsg) : ''); banner.style.display = 'block'; }
     }
     function wtBeat() {
       var pos = controls.object.position, rm = findRoomAtWorld(pos.x, pos.z, null);

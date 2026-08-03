@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Donut — Document Understanding')
+@section('title', 'Donut - Document Understanding')
 @section('body-class', 'admin ai-services donut')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item active">Donut</li></ol></nav>
@@ -80,7 +80,7 @@
         <h5>{{ __('Donut (Document Understanding Transformer)') }}</h5>
         <ul>
           <li>End-to-end: image in, structured JSON out</li>
-          <li>No separate OCR step — the model reads and understands form layout</li>
+          <li>No separate OCR step - the model reads and understands form layout</li>
           <li>Fine-tuned on your {{ $health['total_annotations'] ?? 0 }} annotated SA vital records</li>
           <li>Extracts: <code>FS_RECORD_TYPE</code>, <code>EVENT_YEAR_ORIG</code>, <code>EVENT_PLACE_ORIG</code></li>
         </ul>

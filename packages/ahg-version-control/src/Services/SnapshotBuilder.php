@@ -1,14 +1,14 @@
 <?php
 
 /**
- * SnapshotBuilder — pure-function service that produces a canonical JSON
+ * SnapshotBuilder - pure-function service that produces a canonical JSON
  * snapshot of an entity's full state for the version history.
  *
  * Mirror of the AtoM-side service at
  *   atom-ahg-plugins/ahgVersionControlPlugin/lib/Services/SnapshotBuilder.php
  *
  * Identical column names, same deterministic ordering, byte-equivalent output
- * for the same underlying data. Read-only — never writes.
+ * for the same underlying data. Read-only - never writes.
  *
  * @phase B
  */

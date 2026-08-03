@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
- * heratio#1399 — classify information objects into GLAM object types
+ * heratio#1399 - classify information objects into GLAM object types
  * (archive/library/museum/gallery/dam/universal), stored in
  * `display_object_config.object_type`. Records with no explicit signal default
  * to `archive` (an archive with no type IS archive).
@@ -24,7 +24,7 @@ class DisplayAutoDetectCommand extends Command
     protected $signature = 'ahg:display-auto-detect
         {--repository= : Only process IOs in this repository_id}
         {--limit=0 : Max IOs to process this run (0 = all unclassified)}
-        {--bulk-archive : Fast path — classify every unclassified IO as "archive" in one query, skipping per-record detection (homogeneous archives / large corpora)}
+        {--bulk-archive : Fast path - classify every unclassified IO as "archive" in one query, skipping per-record detection (homogeneous archives / large corpora)}
         {--dry-run : Report how many IOs are unclassified without writing}';
 
     protected $description = 'Auto-detect GLAM object types for IOs with no display_object_config classification (defaults to archive)';

@@ -151,7 +151,7 @@ class AhgSettingsService
     }
 
     // ========================================================================
-    // DROPDOWN — Column Mapping (ahg_dropdown_column_map)
+    // DROPDOWN - Column Mapping (ahg_dropdown_column_map)
     // ========================================================================
 
     /**
@@ -223,7 +223,7 @@ class AhgSettingsService
     }
 
     // ========================================================================
-    // DROPDOWN — Validation
+    // DROPDOWN - Validation
     // ========================================================================
 
     /**
@@ -321,7 +321,7 @@ class AhgSettingsService
     }
 
     // ========================================================================
-    // DROPDOWN — Choices & Labels
+    // DROPDOWN - Choices & Labels
     // ========================================================================
 
     /**
@@ -340,7 +340,7 @@ class AhgSettingsService
     /**
      * Get dropdown choices as [code => label] for a taxonomy.
      *
-     * Issue #59 Tier 1 — labels come from ahg_dropdown_i18n (current culture)
+     * Issue #59 Tier 1 - labels come from ahg_dropdown_i18n (current culture)
      * with an en fallback and a parent-table fallback, all via COALESCE. If
      * ahg_dropdown_i18n is missing (fresh install), the COALESCE collapses to
      * the parent ahg_dropdown.label so callers see no behaviour change.
@@ -370,7 +370,7 @@ class AhgSettingsService
     /**
      * Get dropdown choices with full attributes (code, label, color, icon, etc.).
      *
-     * Issue #59 Tier 1 — culture-aware label via the same COALESCE pattern as
+     * Issue #59 Tier 1 - culture-aware label via the same COALESCE pattern as
      * getDropdownChoices(). All other columns (code, color, icon, sort_order,
      * is_default, metadata) come from the parent ahg_dropdown row unchanged.
      */
@@ -392,7 +392,7 @@ class AhgSettingsService
     }
 
     /**
-     * Issue #59 Tier 1 — shared culture-aware base query for ahg_dropdown.
+     * Issue #59 Tier 1 - shared culture-aware base query for ahg_dropdown.
      *
      * LEFT JOINs ahg_dropdown_i18n in the current locale + 'en' fallback, then
      * SELECTs `code` plus a COALESCE'd `label` field that resolves to:
@@ -401,7 +401,7 @@ class AhgSettingsService
      *   3. ahg_dropdown.label             (parent / source-culture cache)
      *
      * Schema::hasTable() guards the JOIN so callers on installs without the
-     * i18n table still get the parent label — no exception, no behaviour change.
+     * i18n table still get the parent label - no exception, no behaviour change.
      *
      * Pass extra columns via $extraSelect to round out the SELECT list. The
      * `code` column is always included; `label` is the COALESCE'd alias.
@@ -456,7 +456,7 @@ class AhgSettingsService
             return null;
         }
 
-        // Issue #59 Tier 1 — culture-aware label via the same COALESCE base
+        // Issue #59 Tier 1 - culture-aware label via the same COALESCE base
         // query as getDropdownChoices(). Returns the parent label when no i18n
         // row exists (or when ahg_dropdown_i18n hasn't been installed yet).
         try {
@@ -526,7 +526,7 @@ class AhgSettingsService
     }
 
     // ========================================================================
-    // DROPDOWN — Statistics
+    // DROPDOWN - Statistics
     // ========================================================================
 
     /**

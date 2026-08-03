@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LibraryHoldExpiryCommand — expire unfulfilled holds past expiry_date.
+ * LibraryHoldExpiryCommand - expire unfulfilled holds past expiry_date.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

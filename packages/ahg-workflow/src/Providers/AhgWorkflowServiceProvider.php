@@ -24,7 +24,7 @@ class AhgWorkflowServiceProvider extends ServiceProvider
             $this->commands([
                 \AhgWorkflow\Console\Commands\SeedSpectrumCommand::class,
                 \AhgWorkflow\Console\Commands\SpectrumOverdueCommand::class,
-                // Phase 3 of #674 — daily overdue-task notification sweep.
+                // Phase 3 of #674 - daily overdue-task notification sweep.
                 \AhgWorkflow\Console\Commands\WorkflowNotifyOverdueCommand::class,
             ]);
 

@@ -13,11 +13,11 @@
     @foreach ($mappings as $m)
         <tr>
             <td>{{ $m->id }}</td>
-            <td class="small">{{ $m->aad_upn ?? '—' }}</td>
-            <td class="small">{{ $m->aad_email ?? '—' }}</td>
+            <td class="small">{{ $m->aad_upn ?? '-' }}</td>
+            <td class="small">{{ $m->aad_email ?? '-' }}</td>
             <td>{{ $m->atom_user_id }}</td>
             <td><span class="badge bg-secondary">{{ $m->created_by }}</span></td>
-            <td>{{ $m->last_seen_at ?? '—' }}</td>
+            <td>{{ $m->last_seen_at ?? '-' }}</td>
             <td><a class="btn btn-sm btn-outline-secondary" href="{{ route('sharepoint.user-mapping.edit', ['id' => $m->id]) }}">{{ __('Edit') }}</a></td>
         </tr>
     @endforeach

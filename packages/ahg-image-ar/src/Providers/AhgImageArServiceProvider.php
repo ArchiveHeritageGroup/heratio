@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AhgImageArServiceProvider — Heratio
+ * AhgImageArServiceProvider - Heratio
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems

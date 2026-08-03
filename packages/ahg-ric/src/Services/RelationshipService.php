@@ -318,7 +318,7 @@ SPARQL;
     }
 
     /**
-     * Get timeline context for an entity — dates and events.
+     * Get timeline context for an entity - dates and events.
      */
     public function getTimelineContext(int $entityId): array
     {

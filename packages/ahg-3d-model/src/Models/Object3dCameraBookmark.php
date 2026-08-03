@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Camera bookmark for a 3D model.
  *
- * One row per saved viewpoint. user_id NULL means "shared" — visible to
+ * One row per saved viewpoint. user_id NULL means "shared" - visible to
  * everybody who can see the model. Otherwise the bookmark belongs to the
  * user that created it.
  *

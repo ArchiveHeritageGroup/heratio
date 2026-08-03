@@ -1,5 +1,5 @@
 {{--
-  My Bids — listing of the user's bids and any auctions they've won.
+  My Bids - listing of the user's bids and any auctions they've won.
   Receives: $bids (collection), $total, $page, $limit, $wonAuctions (collection).
 --}}
 @extends('theme::layouts.1col')
@@ -11,7 +11,7 @@
 
   <h1 class="mb-4"><i class="fas fa-gavel me-2 text-primary"></i> {{ __('My Bids &amp; Wins') }}</h1>
 
-  {{-- Auctions you've won — pay-now CTA --}}
+  {{-- Auctions you've won - pay-now CTA --}}
   @if(count($wonAuctions))
     <div class="card mb-4 border-success">
       <div class="card-header bg-success bg-opacity-10 fw-bold">

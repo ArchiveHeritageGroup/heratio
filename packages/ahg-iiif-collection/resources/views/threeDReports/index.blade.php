@@ -1,5 +1,5 @@
 {{--
-  3D Object Reports Dashboard — cloned from PSIS (atom-ahg-plugins/ahgIiifPlugin/threeDReports/indexSuccess.php).
+  3D Object Reports Dashboard - cloned from PSIS (atom-ahg-plugins/ahgIiifPlugin/threeDReports/indexSuccess.php).
   @author Johan Pieterse
   @copyright Plain Sailing
   @license AGPL-3.0-or-later

@@ -8,7 +8,7 @@
 
   <h1><i class="fas fa-layer-group"></i> {{ __('Batch Rights Operations') }}</h1>
 
-{{-- Cloned from PSIS extendedRights/batchSuccess.blade.php — preserves the 3-step structure --}}
+{{-- Cloned from PSIS extendedRights/batchSuccess.blade.php - preserves the 3-step structure --}}
 <form method="POST" action="{{ route('ext-rights-admin.batch-store') }}" id="batch-rights-form">
   @csrf
 

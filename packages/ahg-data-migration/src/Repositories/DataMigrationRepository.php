@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DataMigrationRepository — thin facade over DataMigrationService that maps
+ * DataMigrationRepository - thin facade over DataMigrationService that maps
  * the controller's repository-style API (getStats, getMappings, getRecentJobs,
  * queueImportJob, etc.) onto the service's method shape.
  *

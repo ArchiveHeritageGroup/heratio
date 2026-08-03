@@ -1,5 +1,5 @@
 {{--
-  Integrity — fixity verification, notifications, and quick links
+  Integrity - fixity verification, notifications, and quick links
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('integrity')
 
   @copyright  Johan Pieterse / Plain Sailing

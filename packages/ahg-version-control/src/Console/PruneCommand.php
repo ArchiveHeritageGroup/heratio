@@ -3,7 +3,7 @@
 /**
  * php artisan ahg:version-prune [--entity=…] [--retain-count=N] [--retain-days=N] [--dry-run]
  *
- * Phase M — apply retention rules to version history.
+ * Phase M - apply retention rules to version history.
  *
  * Keep rules (a version is KEPT if any are true):
  *   - version_number = 1 (baseline always kept)
@@ -56,7 +56,7 @@ class PruneCommand extends Command
         ));
 
         if ($retainCount <= 0 && $retainDays <= 0) {
-            $this->warn('Both retention rules are 0 — nothing to do.');
+            $this->warn('Both retention rules are 0 - nothing to do.');
 
             return self::SUCCESS;
         }
@@ -66,9 +66,9 @@ class PruneCommand extends Command
                 ? ['table' => 'actor_version', 'fk' => 'actor_id']
                 : ['table' => 'information_object_version', 'fk' => 'information_object_id'];
 
-            $this->line("prune: {$entityType} — scanning…");
+            $this->line("prune: {$entityType} - scanning…");
             $deleted = $this->prune($cfg['table'], $cfg['fk'], $retainCount, $retainDays, $dryRun);
-            $this->info("prune: {$entityType} — ".($dryRun ? 'would prune' : 'pruned')." {$deleted} row(s)");
+            $this->info("prune: {$entityType} - ".($dryRun ? 'would prune' : 'pruned')." {$deleted} row(s)");
         }
 
         return self::SUCCESS;

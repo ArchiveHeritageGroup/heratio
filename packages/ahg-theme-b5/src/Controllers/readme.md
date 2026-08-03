@@ -1,4 +1,4 @@
-# AhgThemeB5 — Controllers
+# AhgThemeB5 - Controllers
 
 Controllers directory for the AhgThemeB5 package.
 

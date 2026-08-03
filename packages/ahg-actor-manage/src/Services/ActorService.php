@@ -62,7 +62,7 @@ class ActorService
      */
     public function getById(int $id): ?object
     {
-        // Culture-fallback i18n joins via WithCultureFallback trait — keeps
+        // Culture-fallback i18n joins via WithCultureFallback trait - keeps
         // the ai_cur / ai_fb alias names so the SELECT below stays readable.
         $actor = DB::table('actor')
             ->join('object', 'actor.id', '=', 'object.id')
@@ -945,7 +945,7 @@ class ActorService
                 DB::table('actor')->where('id', $id)->update($actorUpdate);
             }
 
-            // 2. Update actor_i18n (ISAAR fields) — upsert
+            // 2. Update actor_i18n (ISAAR fields) - upsert
             $i18nFields = [
                 'authorized_form_of_name', 'dates_of_existence', 'history', 'places',
                 'legal_status', 'functions', 'mandates', 'internal_structures',

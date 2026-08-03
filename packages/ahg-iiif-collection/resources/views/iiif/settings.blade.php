@@ -1,6 +1,6 @@
 {{--
-  Carousel Settings — cloned from AtoM ahgIiifPlugin/iiif/settingsSuccess.php
-  Copyright (C) 2026 Johan Pieterse — Plain Sailing Information Systems
+  Carousel Settings - cloned from AtoM ahgIiifPlugin/iiif/settingsSuccess.php
+  Copyright (C) 2026 Johan Pieterse - Plain Sailing Information Systems
   AGPL-3.0-or-later
 --}}
 @extends('theme::layouts.2col')

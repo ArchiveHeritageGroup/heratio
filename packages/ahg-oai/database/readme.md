@@ -1,4 +1,4 @@
-# AhgOai — Db
+# AhgOai - Db
 
 Database directory for the AhgOai package.
 

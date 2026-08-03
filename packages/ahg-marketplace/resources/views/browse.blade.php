@@ -1,5 +1,5 @@
 {{--
-  Marketplace — Public Browse
+  Marketplace - Public Browse
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
       badge.textContent = next;
       badge.style.display = next > 0 ? '' : 'none';
     }
-    // Floating left-edge tab (#cart-tab-btn) — set data-count so the CSS
+    // Floating left-edge tab (#cart-tab-btn) - set data-count so the CSS
     // hide/show kicks in, update the inner badge text, refresh the title.
     var tab = document.getElementById('cart-tab-btn');
     if (tab) {
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   bindCartFormHandlers(document);
 
-  // Heart toggle — Bootstrap text-danger / text-secondary on the <i> drives the
+  // Heart toggle - Bootstrap text-danger / text-secondary on the <i> drives the
   // visual state, with .is-on as a backup hook for the optional CSS layer.
   // We don't rely on Font Awesome `far` (regular) at all.
   var csrf = document.querySelector('meta[name="csrf-token"]');

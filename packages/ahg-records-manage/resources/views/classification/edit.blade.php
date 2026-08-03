@@ -1,5 +1,5 @@
 {{--
-  RM Classification Rule — create / edit form (P4.2)
+  RM Classification Rule - create / edit form (P4.2)
   @copyright Johan Pieterse / Plain Sailing Information Systems
   @license   AGPL-3.0-or-later
 --}}
@@ -40,7 +40,7 @@
   <div class="col-md-4">
     <label class="form-label">{{ __('Rule type') }}</label>
     <select name="rule_type" class="form-select" required>
-      <option value="">— pick type —</option>
+      <option value="">- pick type -</option>
       @foreach($ruleTypes as $rt)
         <option value="{{ $rt->code }}" @selected(old('rule_type', $rule->rule_type ?? '')===$rt->code)>{{ $rt->label }}</option>
       @endforeach
@@ -52,7 +52,7 @@
     <div class="form-text small">
       <strong>folder_path / mime_type:</strong> regex (e.g. <code>^/Projects/</code>, <code>^application/pdf</code>).<br>
       <strong>workspace / department:</strong> exact (case-insensitive) match.<br>
-      <strong>tag:</strong> comma-separated tag list — any one tag match fires.<br>
+      <strong>tag:</strong> comma-separated tag list - any one tag match fires.<br>
       <strong>metadata:</strong> <code>key=value</code> against the document's custom metadata.
     </div>
   </div>
@@ -60,10 +60,10 @@
   <div class="col-md-6">
     <label class="form-label">{{ __('Target file plan node') }}</label>
     <select name="fileplan_node_id" class="form-select" required>
-      <option value="">— pick a node —</option>
+      <option value="">- pick a node -</option>
       @foreach($fileplanNodes as $n)
         <option value="{{ $n->id }}" @selected(old('fileplan_node_id', $rule->fileplan_node_id ?? '')==$n->id)>
-          {{ str_repeat('— ', $n->depth) }}{{ $n->code }} — {{ $n->title }}
+          {{ str_repeat('- ', $n->depth) }}{{ $n->code }} - {{ $n->title }}
         </option>
       @endforeach
     </select>
@@ -71,9 +71,9 @@
   <div class="col-md-6">
     <label class="form-label">{{ __('Disposal class (optional override)') }}</label>
     <select name="disposal_class_id" class="form-select">
-      <option value="">— inherit from node —</option>
+      <option value="">- inherit from node -</option>
       @foreach($disposalClasses as $dc)
-        <option value="{{ $dc->id }}" @selected(old('disposal_class_id', $rule->disposal_class_id ?? '')==$dc->id)>{{ $dc->class_ref }} — {{ $dc->title }}</option>
+        <option value="{{ $dc->id }}" @selected(old('disposal_class_id', $rule->disposal_class_id ?? '')==$dc->id)>{{ $dc->class_ref }} - {{ $dc->title }}</option>
       @endforeach
     </select>
   </div>
@@ -82,7 +82,7 @@
     <label class="form-label">{{ __('Apply on') }}</label>
     <select name="apply_on" class="form-select">
       <option value="declare" @selected(old('apply_on', $rule->apply_on ?? 'declare')==='declare')>declare (run when record is declared)</option>
-      <option value="upload"  @selected(old('apply_on', $rule->apply_on ?? '')==='upload')>upload (run on document upload — needs DM)</option>
+      <option value="upload"  @selected(old('apply_on', $rule->apply_on ?? '')==='upload')>upload (run on document upload - needs DM)</option>
       <option value="both"    @selected(old('apply_on', $rule->apply_on ?? '')==='both')>both</option>
     </select>
   </div>

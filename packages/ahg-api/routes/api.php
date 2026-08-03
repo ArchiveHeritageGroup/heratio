@@ -111,7 +111,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Open Memory Protocol — public Linked-Data graph endpoint (north-star #1204)
+| Open Memory Protocol - public Linked-Data graph endpoint (north-star #1204)
 |--------------------------------------------------------------------------
 | A small crawlable open-data protocol around the heritage graph:
 |
@@ -202,7 +202,7 @@ Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(funct
 
 /*
 |--------------------------------------------------------------------------
-| Endangered-heritage register — /api/v1/endangered (north-star #1205)
+| Endangered-heritage register - /api/v1/endangered (north-star #1205)
 |--------------------------------------------------------------------------
 | The federation EXPOSE side of the "race against loss". A PUBLIC, read-only
 | JSON view of THIS instance's PUBLISHED at-risk register, so PEER instances can
@@ -239,18 +239,18 @@ Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(funct
 
 /*
 |--------------------------------------------------------------------------
-| Zero-knowledge discovery — /.well-known/void (root path, NOT /api/v1)
+| Zero-knowledge discovery - /.well-known/void (root path, NOT /api/v1)
 |--------------------------------------------------------------------------
 | The single URL a standards-aware crawler dereferences when it knows nothing
 | about this host. Returns a VoID/DCAT dataset description in Turtle that
 | links to the graph front door, the JSON-LD @context, the crawl seed/index,
-| and the XML sitemap — so discovery -> sitemap -> per-entity crawl is a
+| and the XML sitemap - so discovery -> sitemap -> per-entity crawl is a
 | connected path.
 |
 | Registered at the ROOT (this routes file is loaded without a group prefix).
 | The path is multi-segment and begins with ".well-known", so it cannot be
 | captured by the single-segment /{slug} catch-all (its regex is
-| ^(?!...)[a-z0-9][a-z0-9-]*$ — no leading dot, no slash). RDF browsers that
+| ^(?!...)[a-z0-9][a-z0-9-]*$ - no leading dot, no slash). RDF browsers that
 | ask for ".../void.ttl" get the same document.
 */
 
@@ -264,18 +264,18 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Public-website SEO surfaces — /sitemap.xml + /robots.txt (root path)
+| Public-website SEO surfaces - /sitemap.xml + /robots.txt (root path)
 |--------------------------------------------------------------------------
 | Search-engine discoverability for the PUBLIC RECORD pages (the canonical
 | single-segment /{slug} archival-record views) plus the key static public
 | pages (home, /glam/browse, /explore, /open-data, /reconstructions, /verify
-| — only those whose routes are registered).
+| - only those whose routes are registered).
 |
 |   GET /sitemap.xml  - an XML sitemap of the public record pages. A
 |                       <sitemapindex> over ?page=N child <urlset>s when the
 |                       published count exceeds one file's cap, else a single
 |                       <urlset>. Each url carries <loc> + <lastmod> + a
-|                       <changefreq>. Streamed (keyset slice) — never loads the
+|                       <changefreq>. Streamed (keyset slice) - never loads the
 |                       whole catalogue into memory. application/xml.
 |   GET /robots.txt   - allow public content, disallow /admin and the private
 |                       prefixes, and advertise the sitemap. text/plain.
@@ -287,7 +287,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 | Registered at the ROOT (this routes file is loaded without a group prefix).
 | "sitemap.xml" and "robots.txt" each contain a dot, so the single-segment
 | /{slug} archival-record catch-all (constraint '[a-z0-9][a-z0-9-]*$', no dot)
-| can NEVER capture them — they bind here, before the catch-all. Note: nginx's
+| can NEVER capture them - they bind here, before the catch-all. Note: nginx's
 | static-file whitelist does not include .xml/.txt, so both reach Laravel.
 */
 
@@ -300,7 +300,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Linked-Data crawl sitemap — /sitemap-data*.xml (north-star #1204)
+| Linked-Data crawl sitemap - /sitemap-data*.xml (north-star #1204)
 |--------------------------------------------------------------------------
 | Search-engine + Linked-Open-Data discoverability for the dereferenceable
 | ENTITY IDENTITY URIs (the /id/... surfaces served by EntityController,
@@ -319,15 +319,15 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 |
 | Each per-type sitemap is bounded + paginated (?page=N), capped at 50000 URLs
 | per file (the sitemaps.org ceiling); the index lists every page. Each <loc>
-| is the /id/... URI built with url() — never a hardcoded host. Read-only;
+| is the /id/... URI built with url() - never a hardcoded host. Read-only;
 | PUBLIC (no auth); published-only for records (drafts never exposed); and
-| resilient — an empty corpus still yields a valid empty <urlset> / minimal
+| resilient - an empty corpus still yields a valid empty <urlset> / minimal
 | index, never a 500. Permissive open CORS via api.cors.
 |
 | Registered at the ROOT (this routes file is loaded without a group prefix).
 | Each path is a single segment that CONTAINS A DOT ("sitemap-data.xml",
 | "sitemap-data-records.xml", …), so the single-segment /{slug} archival-record
-| catch-all (constraint '[a-z0-9][a-z0-9-]*$', no dot) can NEVER capture them —
+| catch-all (constraint '[a-z0-9][a-z0-9-]*$', no dot) can NEVER capture them -
 | they bind here, before the catch-all. nginx's static-file whitelist does not
 | include these names, so all four reach Laravel.
 */
@@ -345,12 +345,12 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Public content-syndication feeds — /feed.atom + /feed.rss (root path)
+| Public content-syndication feeds - /feed.atom + /feed.rss (root path)
 |--------------------------------------------------------------------------
 | A small recency-window syndication surface over the PUBLISHED catalogue,
 | complementing /sitemap.xml (whole catalogue, for indexing) and the bulk
 | dataset export. Where the sitemap is "everything", these feeds are "what
-| changed recently" — the surface a reader, an aggregator, or a change-watching
+| changed recently" - the surface a reader, an aggregator, or a change-watching
 | agent subscribes to.
 |
 |   GET /feed.atom  - Atom 1.0 feed of the most recently UPDATED published
@@ -367,7 +367,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 | Registered at the ROOT (this routes file is loaded without a group prefix).
 | "feed.atom" / "feed.rss" each contain a dot, so the single-segment /{slug}
 | archival-record catch-all (constraint '[a-z0-9][a-z0-9-]*$', no dot) can
-| NEVER capture them — they bind here, before the catch-all. Note: nginx's
+| NEVER capture them - they bind here, before the catch-all. Note: nginx's
 | static-file whitelist does not include .atom/.rss, so both reach Laravel.
 */
 
@@ -517,7 +517,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Content-negotiated entity endpoint — /id/{slug} (+ /data/{slug}) (north-star #1204)
+| Content-negotiated entity endpoint - /id/{slug} (+ /data/{slug}) (north-star #1204)
 |--------------------------------------------------------------------------
 | Every published record gets a single, stable, dereferenceable Linked-Data
 | identity. The format is chosen by the Accept header:
@@ -534,7 +534,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 | Read-only; permissive open-data CORS.
 |
 | CATCH-ALL SAFETY: the single-segment /{slug} archival-record catch-all (in
-| ahg-information-object-manage, constraint '[a-z0-9][a-z0-9-]*$' — ONE segment,
+| ahg-information-object-manage, constraint '[a-z0-9][a-z0-9-]*$' - ONE segment,
 | no slash) can NEVER capture a TWO-segment path. "/id/{slug}" and
 | "/data/{slug}" are two segments, so they bind here regardless of load order.
 | The {slug} wildcard is constrained to the slug grammar so it cannot swallow a
@@ -654,7 +654,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| "Cite this record" bibliographic export — /cite/{idOrSlug}(.bib|.ris|.json|.dc.xml)
+| "Cite this record" bibliographic export - /cite/{idOrSlug}(.bib|.ris|.json|.dc.xml)
 |--------------------------------------------------------------------------
 | Standard bibliographic citation formats for ONE published archival record, so
 | a researcher can drop a reference straight into a reference manager:
@@ -723,7 +723,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| IIIF Presentation API 3.0 Manifest — /iiif-presentation/{idOrSlug}/manifest.json
+| IIIF Presentation API 3.0 Manifest - /iiif-presentation/{idOrSlug}/manifest.json
 |--------------------------------------------------------------------------
 | A valid IIIF Presentation 3.0 Manifest for ONE published archival record, so
 | any IIIF viewer (Mirador, Universal Viewer) opens the record's images and any
@@ -764,7 +764,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| METS export per record — /mets/{idOrSlug}.xml
+| METS export per record - /mets/{idOrSlug}.xml
 |--------------------------------------------------------------------------
 | A valid METS 1.12 (Library of Congress) XML wrapper for ONE published
 | archival record, the standard archival-interchange container used to exchange
@@ -809,12 +809,12 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Open Memory Protocol capabilities document — /open-data/protocol (#1204)
+| Open Memory Protocol capabilities document - /open-data/protocol (#1204)
 |--------------------------------------------------------------------------
 | The machine-discoverable INDEX of every open-data surface: VoID, the graph
 | dataset front door + per-entity graph, the new /id/{slug} entity endpoint,
 | the JSON-LD @context, the crawl seed, the bulk dataset dumps, OAI-PMH, the
-| sitemaps, the syndication feeds, and the OpenAPI spec + Swagger UI — each
+| sitemaps, the syndication feeds, and the OpenAPI spec + Swagger UI - each
 | with its URL (url()-based) and media types. One fetch tells an agent how to
 | consume everything else.
 |
@@ -946,7 +946,7 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Controlled vocabularies as SKOS concept schemes — /vocabularies + /vocabulary (#1204)
+| Controlled vocabularies as SKOS concept schemes - /vocabularies + /vocabulary (#1204)
 |--------------------------------------------------------------------------
 | Heratio's controlled vocabularies (authorities) published the standard
 | linked-data way: as SKOS concept schemes. Where /id/term/{slug} dereferences
@@ -1037,14 +1037,14 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 
 Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'api.idempotency'])->group(function () {
 
-    // Information Objects — READ
+    // Information Objects - READ
     Route::get('informationobjects/search', [InformationObjectApiController::class, 'search']);
     Route::get('informationobjects/tree/{slug}', [InformationObjectApiController::class, 'tree']);
     Route::get('informationobjects/{slug}/digitalobject', [InformationObjectApiController::class, 'digitalObject']);
     Route::get('informationobjects', [InformationObjectApiController::class, 'index']);
     Route::get('informationobjects/{slug}', [InformationObjectApiController::class, 'show']);
 
-    // Information Objects — CRUD (authenticated)
+    // Information Objects - CRUD (authenticated)
     Route::middleware('api.auth:write')->group(function () {
         Route::post('informationobjects', [InformationObjectApiController::class, 'store']);
         Route::put('informationobjects/{slug}', [InformationObjectApiController::class, 'update']);
@@ -1052,12 +1052,12 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'a
     Route::delete('informationobjects/{slug}', [InformationObjectApiController::class, 'destroy'])
         ->middleware('api.auth:delete');
 
-    // Actors — READ
+    // Actors - READ
     Route::get('actors/search', [ActorApiController::class, 'search']);
     Route::get('actors', [ActorApiController::class, 'index']);
     Route::get('actors/{slug}', [ActorApiController::class, 'show']);
 
-    // Actors — CRUD (authenticated)
+    // Actors - CRUD (authenticated)
     Route::middleware('api.auth:write')->group(function () {
         Route::post('actors', [ActorApiController::class, 'store']);
         Route::put('actors/{slug}', [ActorApiController::class, 'update']);
@@ -1195,21 +1195,21 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'a
 
 Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit', 'api.log', 'api.etag', 'api.idempotency'])->group(function () {
 
-    // Root — endpoint listing
+    // Root - endpoint listing
     Route::get('/', [ApiRootController::class, 'index'])->withoutMiddleware('api.auth:read');
 
     // Exhibitions (#1280) - v2 READ mirror; writes are on the v1 resource.
     Route::get('exhibitions', [V2ExhibitionController::class, 'index']);
     Route::get('exhibitions/{slug}', [V2ExhibitionController::class, 'show']);
 
-    // Descriptions — full CRUD
+    // Descriptions - full CRUD
     Route::get('descriptions', [DescriptionController::class, 'index']);
     Route::get('descriptions/{slug}', [DescriptionController::class, 'show']);
     Route::post('descriptions', [DescriptionController::class, 'store'])->middleware('api.auth:write');
     Route::match(['put', 'patch'], 'descriptions/{slug}', [DescriptionController::class, 'update'])->middleware('api.auth:write');
     Route::delete('descriptions/{slug}', [DescriptionController::class, 'destroy'])->middleware('api.auth:delete');
 
-    // Authorities — full CRUD
+    // Authorities - full CRUD
     Route::get('authorities', [AuthorityController::class, 'index']);
     Route::get('authorities/{slug}', [AuthorityController::class, 'show']);
     Route::post('authorities', [AuthorityController::class, 'store'])->middleware('api.auth:write');
@@ -1356,7 +1356,7 @@ Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function 
 
 /*
 |--------------------------------------------------------------------------
-| API 404 Fallback — catch unmatched /api/* requests
+| API 404 Fallback - catch unmatched /api/* requests
 |--------------------------------------------------------------------------
 */
 
@@ -1371,6 +1371,6 @@ Route::fallback(function (\Illuminate\Http\Request $request) {
     }
     // Route::fallback() is global, not api-scoped. Without this, any non-api
     // unmatched URL fell into the closure's null return and rendered as
-    // empty 200 (issue #41 — /admin/typo, /admin/dashboard, etc.).
+    // empty 200 (issue #41 - /admin/typo, /admin/dashboard, etc.).
     abort(404);
 })->middleware('api.cors');

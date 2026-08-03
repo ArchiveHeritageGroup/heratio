@@ -1,5 +1,5 @@
 {{--
-  Text-to-Speech — read-aloud accessibility settings
+  Text-to-Speech - read-aloud accessibility settings
   Cloned from AtoM ahgSettingsPlugin ttsSuccess.php
 
   @copyright  Johan Pieterse / Plain Sailing

@@ -288,7 +288,7 @@ class HeritageController extends Controller
     }
 
     /**
-     * Heritage timeline — shows all periods or redirects to browse with date filter.
+     * Heritage timeline - shows all periods or redirects to browse with date filter.
      */
     public function timeline(Request $request)
     {
@@ -399,7 +399,7 @@ class HeritageController extends Controller
     }
 
     /**
-     * Heritage creators — redirects to actor browse.
+     * Heritage creators - redirects to actor browse.
      */
     public function creators()
     {
@@ -456,7 +456,7 @@ class HeritageController extends Controller
     }
 
     /**
-     * Heritage explore — redirects to GLAM browse with category filter.
+     * Heritage explore - redirects to GLAM browse with category filter.
      */
     public function explore(Request $request)
     {
@@ -639,7 +639,7 @@ class HeritageController extends Controller
     }
 
     /**
-     * Heritage trending — redirects to GLAM browse sorted by popularity.
+     * Heritage trending - redirects to GLAM browse sorted by popularity.
      */
     public function trending()
     {
@@ -647,7 +647,7 @@ class HeritageController extends Controller
     }
 
     /**
-     * Heritage login — redirects to the login page.
+     * Heritage login - redirects to the login page.
      */
     public function login()
     {
@@ -1430,7 +1430,7 @@ class HeritageController extends Controller
     }
 
     /**
-     * Contributor logout — clear session and redirect to landing.
+     * Contributor logout - clear session and redirect to landing.
      */
     public function contributorLogout()
     {
@@ -1534,7 +1534,7 @@ class HeritageController extends Controller
      * from the single-row heritage_landing_config table + heritage_hero_slide
      * rows; POST validates + upserts the config row. Closes #78.
      *
-     * The hero-slide CRUD lives at /heritage/admin/hero-slides — this form
+     * The hero-slide CRUD lives at /heritage/admin/hero-slides - this form
      * surfaces the existing rows for context only.
      */
     public function adminConfig(Request $request)

@@ -60,7 +60,7 @@ class SpectrumProcedureCatalog
 
     /**
      * Look up a label for a code. Returns the code itself if not found
-     * (defensive — never null), or empty string when no code is supplied.
+     * (defensive - never null), or empty string when no code is supplied.
      */
     public static function label(?string $code): string
     {
@@ -73,7 +73,7 @@ class SpectrumProcedureCatalog
 
     /**
      * Normalise a code coming from form input. Returns null if blank or
-     * unknown — i.e. silently drops invalid codes rather than persisting
+     * unknown - i.e. silently drops invalid codes rather than persisting
      * garbage.
      */
     public static function normalize(?string $code): ?string

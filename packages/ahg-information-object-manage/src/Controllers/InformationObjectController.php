@@ -77,7 +77,7 @@ class InformationObjectController extends Controller
      * Notes on nested-set: AtoM/Heratio terms across all taxonomies share a
      * single nested-set tree rooted at term id=110 in this install. Doing a
      * full lft/rgt shift on every "type a new subject" action would touch
-     * thousands of rows, so we leave lft/rgt NULL — the autocomplete and
+     * thousands of rows, so we leave lft/rgt NULL - the autocomplete and
      * access-point browse paths both filter by taxonomy_id and don't need
      * the nested-set encoding for flat taxonomies.
      */
@@ -206,7 +206,7 @@ class InformationObjectController extends Controller
         $culture = app()->getLocale();
         $fallback = config('app.fallback_locale', 'en');
 
-        // Main information object — culture-fallback pattern: prefer requested
+        // Main information object - culture-fallback pattern: prefer requested
         // culture, fall back to default locale so records authored in another
         // language still render instead of 404'ing.
         $io = DB::table('information_object')
@@ -264,7 +264,7 @@ class InformationObjectController extends Controller
             ->first();
 
         if (!$io) {
-            // Slug may belong to a different entity — check object table and redirect
+            // Slug may belong to a different entity - check object table and redirect
             $slugRow = DB::table('slug')->where('slug', $slug)->first();
             if ($slugRow) {
                 $className = DB::table('object')->where('id', $slugRow->object_id)->value('class_name');
@@ -380,7 +380,7 @@ class InformationObjectController extends Controller
                 ->value('name');
         }
 
-        // Repository (direct or inherited from nearest ancestor — matching AtoM behaviour)
+        // Repository (direct or inherited from nearest ancestor - matching AtoM behaviour)
         $repository = null;
         $repoId = $io->repository_id;
         if (!$repoId && $io->parent_id && $io->parent_id != 1) {
@@ -439,7 +439,7 @@ class InformationObjectController extends Controller
                 ->toArray();
         }
 
-        // Creators (events where type_id = 111 = creation) — include history and entity type
+        // Creators (events where type_id = 111 = creation) - include history and entity type
         $creators = DB::table('event')
             ->join('actor', 'event.actor_id', '=', 'actor.id')
             ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
@@ -600,7 +600,7 @@ class InformationObjectController extends Controller
             ->select('term_i18n.name', 'slug.slug')
             ->get();
 
-        // Name access points (via relation table — actors linked as name access points)
+        // Name access points (via relation table - actors linked as name access points)
         $nameAccessPoints = DB::table('relation')
             ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
             ->leftJoin('slug', 'relation.object_id', '=', 'slug.object_id')
@@ -632,7 +632,7 @@ class InformationObjectController extends Controller
             ->select('term_i18n.name')
             ->get();
 
-        // Publication status (from status table — type_id=158 is publication status)
+        // Publication status (from status table - type_id=158 is publication status)
         $publicationStatus = null;
         $publicationStatusId = null;
         $statusRow = DB::table('status')
@@ -810,7 +810,7 @@ class InformationObjectController extends Controller
 
         // Visual redactions (PSIS parity). Non-admin viewers see the redacted
         // version: black rectangles overlaid on the preview image at the
-        // coordinates the cataloguer drew. Admins see the un-redacted view —
+        // coordinates the cataloguer drew. Admins see the un-redacted view -
         // matches PdfRedactionService::canBypassRedaction() in PSIS.
         $visualRedactions = collect();
         $canBypassRedaction = (bool) (auth()->check() && auth()->user()
@@ -863,7 +863,7 @@ class InformationObjectController extends Controller
             }
         } catch (\Throwable $e) { /* sidecar table missing in some installs */ }
 
-        // Finding aid link — check if a finding aid file exists for the collection root
+        // Finding aid link - check if a finding aid file exists for the collection root
         $findingAid = null;
         $collectionRootId = $io->id;
         $collectionRootSlug = $io->slug;
@@ -938,7 +938,7 @@ class InformationObjectController extends Controller
             ->get();
         $relatedMaterialDescriptions = $relatedBySubject->merge($relatedByObject)->unique('id');
 
-        // Museum metadata (CCO fields) — present when this IO has a museum_metadata row.
+        // Museum metadata (CCO fields) - present when this IO has a museum_metadata row.
         // Culture-aware: per-culture overrides in museum_metadata_i18n with en fallback.
         $museumMetadata = [];
         try {
@@ -947,7 +947,7 @@ class InformationObjectController extends Controller
             // museum_metadata table may not exist in all installs
         }
 
-        // Provenance chain (from provenance_entry table — CCO custody history)
+        // Provenance chain (from provenance_entry table - CCO custody history)
         $provenanceEntries = collect();
         try {
             $provenanceEntries = DB::table('provenance_entry')
@@ -958,7 +958,7 @@ class InformationObjectController extends Controller
             // provenance_entry table may not exist in all installs
         }
 
-        // Previous sibling (only if lft is set — records without nested set values have no siblings)
+        // Previous sibling (only if lft is set - records without nested set values have no siblings)
         $prevSibling = null;
         $nextSibling = null;
         if ($io->lft !== null) {
@@ -1002,7 +1002,7 @@ class InformationObjectController extends Controller
             ->orderBy('term_i18n.name')
             ->select('term.id', 'term_i18n.name')
             ->get();
-        // If taxonomy 67 yields nothing, fallback — check if terms exist under another id
+        // If taxonomy 67 yields nothing, fallback - check if terms exist under another id
         if ($displayStandardOptions->isEmpty()) {
             $displayStandardOptions = collect([
                 (object) ['id' => null, 'name' => 'ISAD(G)'],
@@ -1018,7 +1018,7 @@ class InformationObjectController extends Controller
             $sourceLanguageName = \Locale::getDisplayLanguage($io->source_culture, $culture);
         }
 
-        // Keymap entries (for Administration area — source name from imports)
+        // Keymap entries (for Administration area - source name from imports)
         $keymapEntries = collect();
         try {
             $keymapEntries = DB::table('keymap')
@@ -1118,7 +1118,7 @@ class InformationObjectController extends Controller
                         return redirect()->route($targetRoute, $slug);
                     }
                 } catch (\Exception $e) {
-                    // Sector route not available — fall through to ISAD view
+                    // Sector route not available - fall through to ISAD view
                 }
             }
         }
@@ -1265,7 +1265,7 @@ class InformationObjectController extends Controller
     }
 
     /**
-     * AI Describe — uses vision model (llava) if image exists, else text LLM.
+     * AI Describe - uses vision model (llava) if image exists, else text LLM.
      */
     public function aiDescribe(Request $request, int $id)
     {
@@ -1277,11 +1277,11 @@ class InformationObjectController extends Controller
             ->where('id', $id)->where('culture', $culture)->first();
         $title = $io->title ?? 'Untitled';
 
-        // Check for digital object (any usage — master=140, external=166, etc.)
+        // Check for digital object (any usage - master=140, external=166, etc.)
         $master = DB::table('digital_object')
             ->where('object_id', $id)->orderBy('usage_id')->first();
 
-        // External embed — not describable by AI
+        // External embed - not describable by AI
         if ($master && $master->path && (str_contains($master->path, 'http://') || str_contains($master->path, 'https://'))) {
             return response()->json([
                 'success' => true,
@@ -1340,10 +1340,10 @@ class InformationObjectController extends Controller
                 ]);
             }
             // VoiceLLMService failure (Ollama unreachable, daily limit hit,
-            // bad cloud key, etc.) — fall through to text LLM fallback below.
+            // bad cloud key, etc.) - fall through to text LLM fallback below.
         }
 
-        // Text LLM fallback — describe from title and metadata
+        // Text LLM fallback - describe from title and metadata
         try {
             $svc = new \AhgAiServices\Services\LlmService();
             $context = ($io->scope_and_content ?? '') . ' ' . ($io->extent_and_medium ?? '');
@@ -1679,7 +1679,7 @@ class InformationObjectController extends Controller
             ->select('term.id', 'term_i18n.name')
             ->get();
 
-        // Display standard options (taxonomy_id = 52 — descriptive standards)
+        // Display standard options (taxonomy_id = 52 - descriptive standards)
         // Taxonomy 70 = "Information object templates" (AtoM
         // INFORMATION_OBJECT_TEMPLATE_ID): ISAD(G), Dublin Core, MODS, RAD,
         // DACS, Museum (CCO), Photo/DAM, Gallery, Library. Was wrongly pointed
@@ -1771,7 +1771,7 @@ class InformationObjectController extends Controller
     {
         $culture = app()->getLocale();
 
-        // Legacy AtoM-style ?storage=1 query param — that flag means "Link
+        // Legacy AtoM-style ?storage=1 query param - that flag means "Link
         // physical storage", not "edit the description". Forward to the
         // physical-storage UI so old bookmarks / external links still work.
         if (request()->has('storage') && (int) request()->query('storage') === 1) {
@@ -1779,7 +1779,7 @@ class InformationObjectController extends Controller
         }
 
         // LEFT JOIN i18n on (id, culture) so the edit form still renders when
-        // the target culture has no row yet — translator sees empty fields and
+        // the target culture has no row yet - translator sees empty fields and
         // can populate them. INNER JOIN here would 404 on every untranslated
         // record opened with ?sf_culture=<new-locale>.
         $io = DB::table('information_object')
@@ -1849,7 +1849,7 @@ class InformationObjectController extends Controller
         // Scope the level-of-description options to THIS record's sector.
         $dropdowns = $this->getFormDropdowns($culture, $this->resolveIoSector((int) $io->id, $io->level_of_description_id ?? null));
 
-        // Museum metadata (CCO fields) — present when this IO has a museum_metadata row
+        // Museum metadata (CCO fields) - present when this IO has a museum_metadata row
         $museumMetadata = [];
         try {
             $mmRow = DB::table('museum_metadata')
@@ -1862,7 +1862,7 @@ class InformationObjectController extends Controller
             // museum_metadata table may not exist in all installs
         }
 
-        // Events (dates) — multi-row with type, date display, start/end, actor
+        // Events (dates) - multi-row with type, date display, start/end, actor
         $events = DB::table('event')
             ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
             ->where('event.object_id', $io->id)
@@ -1981,7 +1981,7 @@ class InformationObjectController extends Controller
         $scriptsOfDescription = collect();
         if ($scriptsOfDescriptionRaw) { $decoded = @unserialize($scriptsOfDescriptionRaw, ['allowed_classes' => false]); if (is_array($decoded)) { $scriptsOfDescription = collect($decoded); } }
 
-        // Related material descriptions (relation type 176 — same id as save +
+        // Related material descriptions (relation type 176 - same id as save +
         // show paths). Pull both directions: this IO can appear as either
         // subject or object of the relation; the form needs both.
         $relatedBySubject = DB::table('relation')
@@ -2051,7 +2051,7 @@ class InformationObjectController extends Controller
         $io->update_descendants_default     = (int) ($sec->update_descendants_default ?? 0);
         $io->watermark_type_id              = $sec->watermark_type_id              ?? null;
 
-        // Watermark Settings — uses the canonical PSIS object_watermark_setting
+        // Watermark Settings - uses the canonical PSIS object_watermark_setting
         // table so global tools (DerivativeWatermarkService etc.) see the same
         // shape Heratio writes. Custom_watermark feeds the "Or use Custom..."
         // dropdown (global rows + this object's own rows).
@@ -2125,7 +2125,7 @@ class InformationObjectController extends Controller
         // Clear any leftover _old_input from a previous duplicate attempt so
         // the regular Add New form opens blank. Earlier code put source-record
         // data into _old_input via session()->put() (a sticky write, not a
-        // flash), and that data persisted across requests — pre-filling
+        // flash), and that data persisted across requests - pre-filling
         // unrelated Add New pages with the previous duplicate's values.
         // forget() + put([]) belt-and-braces in case the session driver caches
         // the key separately; save() forces an immediate write-back to storage.
@@ -2201,7 +2201,7 @@ class InformationObjectController extends Controller
                 app(\AhgCore\Services\ClosureMaintenanceService::class)
                     ->addNode('information_object', (int) $newObjId, (int) $newParent);
 
-                // Copy all i18n fields verbatim — title gets " (copy)" appended
+                // Copy all i18n fields verbatim - title gets " (copy)" appended
                 // so the cataloguer can spot the duplicate at a glance.
                 $i18nFields = [
                     'title', 'alternate_title', 'edition', 'extent_and_medium',
@@ -2219,7 +2219,7 @@ class InformationObjectController extends Controller
                 $i18nInsert['title'] = trim(($source->title ?? '(untitled)') . ' (copy)');
                 DB::table('information_object_i18n')->insert($i18nInsert);
 
-                // Slug — uniquify based on the new title.
+                // Slug - uniquify based on the new title.
                 $base = \Illuminate\Support\Str::slug($i18nInsert['title']) ?: ('record-' . $newObjId);
                 $slug = $base; $n = 1;
                 while (DB::table('slug')->where('slug', $slug)->exists()) {
@@ -2249,7 +2249,7 @@ class InformationObjectController extends Controller
 
                 return redirect()
                     ->route('informationobject.edit', $slug)
-                    ->with('success', 'Draft duplicate created — review and save to publish.');
+                    ->with('success', 'Draft duplicate created - review and save to publish.');
             }
         }
 
@@ -2257,7 +2257,7 @@ class InformationObjectController extends Controller
         // browse) so the level dropdown matches; otherwise defaults to archive.
         $dropdowns = $this->getFormDropdowns($culture, request()->query('sector'));
 
-        // Watermark Settings — only the global pool of custom watermarks
+        // Watermark Settings - only the global pool of custom watermarks
         // is meaningful on a brand-new IO (no per-object rows yet).
         $customWatermarks = collect();
         try {
@@ -2313,7 +2313,7 @@ class InformationObjectController extends Controller
             abort(403, 'You do not have permission to edit this record.');
         }
 
-        // Snapshot before — this controller writes the IO directly rather
+        // Snapshot before - this controller writes the IO directly rather
         // than calling InformationObjectService::update, so the v1.52.23
         // service-level wrap doesn't fire for the main archival edit form.
         // Capture before/after explicitly so /admin/acl/audit-log surfaces
@@ -2332,7 +2332,7 @@ class InformationObjectController extends Controller
         ];
 
         // Only update source_standard and display_standard_id when explicitly submitted
-        // (AtoM only sets these conditionally — writing them unconditionally causes DB delta mismatches)
+        // (AtoM only sets these conditionally - writing them unconditionally causes DB delta mismatches)
         if ($request->has('source_standard')) {
             $ioUpdate['source_standard'] = $request->input('source_standard');
         }
@@ -2340,7 +2340,7 @@ class InformationObjectController extends Controller
             $ioUpdate['display_standard_id'] = $request->input('display_standard_id') ?: null;
         }
 
-        // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — canonical column on information_object.
+        // ICIP cultural-sensitivity URI (issue #36 Phase 2b) - canonical column on information_object.
         if ($request->has('icip_sensitivity')) {
             $icip = $request->input('icip_sensitivity');
             $ioUpdate['icip_sensitivity'] = ($icip === '' ? null : $icip);
@@ -2936,7 +2936,7 @@ class InformationObjectController extends Controller
         if ($request->has('relatedDescriptions')) {
             // Drop existing outbound relations of this type from this IO so the
             // form is the source of truth. Inbound (where this IO is object)
-            // are managed from the other record's edit page — leave them alone.
+            // are managed from the other record's edit page - leave them alone.
             $oldRelIds = DB::table('relation')
                 ->where('subject_id', $ioId)
                 ->where('type_id', 176)
@@ -3243,7 +3243,7 @@ class InformationObjectController extends Controller
             'slug' => $slug,
         ]);
 
-        // Watermark Settings — same canonical write path as update(). Triggers
+        // Watermark Settings - same canonical write path as update(). Triggers
         // when any watermark field is present so a brand-new IO can be saved
         // with watermark wiring already in place.
         if ($request->has('watermark_enabled') || $request->hasFile('new_watermark_file')
@@ -3320,15 +3320,15 @@ class InformationObjectController extends Controller
      * target IO. Called by store() when the form was submitted with a hidden
      * copy_from input. Covers:
      *   - alternativeIdentifiers (property)
-     *   - events (event + event_i18n) — all event types incl. type-111 creators
-     *   - notes (note + note_i18n) — all 4 note types managed in the form
+     *   - events (event + event_i18n) - all event types incl. type-111 creators
+     *   - notes (note + note_i18n) - all 4 note types managed in the form
      *   - language / script / languageOfDescription / scriptOfDescription
      *     (PHP-serialized property arrays)
      *   - languageNote (free-text property)
      *   - access points: subjects (35), places (42), genres (78), names (relation 161)
      *   - related descriptions (relation 176)
      *   - watermark settings (object_watermark_setting; custom_watermark left
-     *     pointing at the source's row — global custom watermarks are shared
+     *     pointing at the source's row - global custom watermarks are shared
      *     anyway, and per-object customs would need re-uploading to be useful).
      *   - security panel (ahg_io_security row).
      * The source is read culture-by-culture for i18n rows; we replicate the
@@ -3426,7 +3426,7 @@ class InformationObjectController extends Controller
         }
 
         // ---- Language / script / langOfDescription / scriptOfDescription
-        //      / languageNote — copy the property row verbatim.
+        //      / languageNote - copy the property row verbatim.
         foreach (['language', 'script', 'languageOfDescription', 'scriptOfDescription', 'languageNote'] as $propName) {
             $val = DB::table('property')
                 ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
@@ -3493,7 +3493,7 @@ class InformationObjectController extends Controller
             ]);
         }
 
-        // ---- Related descriptions (relation type 176) — outbound from source ----
+        // ---- Related descriptions (relation type 176) - outbound from source ----
         $relIoIds = DB::table('relation')
             ->where('subject_id', $srcId)->where('type_id', 176)
             ->pluck('object_id')->all();
@@ -3715,7 +3715,7 @@ class InformationObjectController extends Controller
                       ->with('workflow_start_url', route('workflow.dashboard'));
                 }
             } catch (\Exception $e) {
-                // Workflow package not available — allow publish
+                // Workflow package not available - allow publish
             }
         }
 
@@ -3805,7 +3805,7 @@ class InformationObjectController extends Controller
         $ioId = $record->id;
         $width = $record->rgt - $record->lft + 1;
 
-        // Snapshot before delete — controller-direct delete bypasses
+        // Snapshot before delete - controller-direct delete bypasses
         // InformationObjectService::delete (which v1.52.24 wrapped).
         \AhgCore\Support\AuditLog::captureDelete((int) $ioId, 'information_object', \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $ioId, app()->getLocale()));
 
@@ -3910,7 +3910,7 @@ class InformationObjectController extends Controller
             }
         }
 
-        // Handle POST — redirect to report generation
+        // Handle POST - redirect to report generation
         if ($request->isMethod('post')) {
             $reportKey = $request->input('report');
             if ($reportKey && array_key_exists($reportKey, $reportTypes)) {
@@ -4516,7 +4516,7 @@ class InformationObjectController extends Controller
         }
         if (!$browsedParent) abort(404);
 
-        // Breadcrumb: ancestors of the BROWSED parent (PSIS pattern — lets the
+        // Breadcrumb: ancestors of the BROWSED parent (PSIS pattern - lets the
         // cataloguer walk back up from where they're currently looking).
         $breadcrumb = [];
         $cursorParentId = $browsedParent->parent_id;
@@ -4621,7 +4621,7 @@ class InformationObjectController extends Controller
             return back()->withErrors(['parent' => 'New parent not found.']);
         }
 
-        // Descendant guard via lft/rgt — covers any nesting depth.
+        // Descendant guard via lft/rgt - covers any nesting depth.
         if ($ioRow->lft !== null && $ioRow->rgt !== null
             && $newParent->lft !== null && $newParent->rgt !== null
             && $newParent->lft >= $ioRow->lft && $newParent->rgt <= $ioRow->rgt) {
@@ -4655,7 +4655,7 @@ class InformationObjectController extends Controller
                 DB::table('information_object')->where('lft', '>', $oldRgt)->decrement('lft', $size);
                 DB::table('information_object')->where('rgt', '>', $oldRgt)->decrement('rgt', $size);
 
-                // 3) Re-fetch the destination's rgt — it may have shifted from step 2.
+                // 3) Re-fetch the destination's rgt - it may have shifted from step 2.
                 $destRgt = (int) DB::table('information_object')->where('id', $newParentId)->value('rgt');
 
                 // Open a gap at the destination (insertion point = destRgt).

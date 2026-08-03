@@ -1,4 +1,4 @@
-# AhgModsManage — Services
+# AhgModsManage - Services
 
 Services directory for the AhgModsManage package.
 

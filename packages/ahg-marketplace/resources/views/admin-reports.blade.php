@@ -1,5 +1,5 @@
 {{--
- | Heratio — Marketplace Admin Reports
+ | Heratio - Marketplace Admin Reports
  |
  | @author    Johan Pieterse <johan@theahg.co.za>
  | @copyright 2026 Plain Sailing (Pty) Ltd t/a The Archive and Heritage Group

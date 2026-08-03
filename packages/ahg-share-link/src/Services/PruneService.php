@@ -5,16 +5,16 @@ namespace AhgShareLink\Services;
 use Illuminate\Support\Facades\DB;
 
 /**
- * PruneService — retention pruning for share-link tables.
+ * PruneService - retention pruning for share-link tables.
  *
  * Two independent sweeps:
  *
- *   1. token_retain_days        — delete `information_object_share_token`
+ *   1. token_retain_days        - delete `information_object_share_token`
  *                                  rows where expires_at < now - N days
  *                                  OR revoked_at < now - N days.
  *                                  CASCADE removes their access rows.
  *
- *   2. access_log_retain_days   — delete `information_object_share_access`
+ *   2. access_log_retain_days   - delete `information_object_share_access`
  *                                  rows where accessed_at < now - M days,
  *                                  regardless of parent token state. Lets
  *                                  the access log self-trim while keeping
@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\DB;
  * A summary row is written to ahg_audit_log with
  *   action='share_link_prune'.
  *
- * Each run is idempotent — a no-op run is safe.
+ * Each run is idempotent - a no-op run is safe.
  *
  * @phase H
  */

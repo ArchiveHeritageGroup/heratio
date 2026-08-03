@@ -18,7 +18,7 @@ class AuditRetentionCommand extends Command
     public function handle(): int
     {
         if (! Schema::hasTable('ahg_audit_retention_policy')) {
-            $this->warn('ahg_audit_retention_policy missing — falling back to global default 365d on audit_log only.');
+            $this->warn('ahg_audit_retention_policy missing - falling back to global default 365d on audit_log only.');
 
             return $this->fallbackPurge(365);
         }
@@ -36,7 +36,7 @@ class AuditRetentionCommand extends Command
             $table = $p->log_type;
 
             if (! Schema::hasTable($table)) {
-                $this->warn("  [{$table}] table does not exist — skipping.");
+                $this->warn("  [{$table}] table does not exist - skipping.");
 
                 continue;
             }
@@ -46,7 +46,7 @@ class AuditRetentionCommand extends Command
                   : (Schema::hasColumn($table, 'logged_at') ? 'logged_at'
                   : (Schema::hasColumn($table, 'occurred_at') ? 'occurred_at' : null));
             if (! $tsCol) {
-                $this->warn("  [{$table}] no recognisable timestamp column — skipping.");
+                $this->warn("  [{$table}] no recognisable timestamp column - skipping.");
 
                 continue;
             }

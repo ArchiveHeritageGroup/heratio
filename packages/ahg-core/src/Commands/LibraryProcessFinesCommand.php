@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LibraryProcessFinesCommand — accrue / record overdue fines per loan_rule.
+ * LibraryProcessFinesCommand - accrue / record overdue fines per loan_rule.
  *
  * For every overdue checkout (status=overdue, return_date NULL) compute
  * elapsed days × loan_rule.fine_per_day capped at fine_cap, then upsert

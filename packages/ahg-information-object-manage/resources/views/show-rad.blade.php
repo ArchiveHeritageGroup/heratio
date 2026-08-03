@@ -1,9 +1,9 @@
 {{--
   ============================================================================
-  Heratio archival-record show template — RAD (Rules for Archival
+  Heratio archival-record show template - RAD (Rules for Archival
   Description, Canadian Council of Archives, 1990 + 2008 revisions).
 
-  Issue #98 Phase 2 — uses ahg_io_rad sidecar for RAD-specific elements
+  Issue #98 Phase 2 - uses ahg_io_rad sidecar for RAD-specific elements
   (GMD, Statement of Responsibility, Specific Material Designation,
   Publisher's Series, Standard Number) not stored in Heratio's
   information_object_i18n schema. Honours the AtoM-seeded element_visibility
@@ -11,7 +11,7 @@
   rad_material_specific_details_area / rad_dates_of_creation_area /
   rad_physical_description_area / rad_publishers_series_area /
   rad_archival_description_area / rad_notes_area / rad_standard_number_area /
-  rad_access_points_area / rad_description_control_area — see
+  rad_access_points_area / rad_description_control_area - see
   packages/ahg-settings/resources/views/visible-elements.blade.php).
 
   Field mapping:
@@ -28,15 +28,15 @@
     1.5A Extent                           | $io->extent_and_medium
     1.5B Specific material designation    | $radExt->specific_material_designation (sidecar) cross-ref
     1.5D Other physical details           | $io->physical_characteristics
-    1.6A Publisher's series — title       | $radExt->publisher_series_title (sidecar)
-    1.6B Publisher's series — statement   | $radExt->publisher_series_statement (sidecar)
-    1.6E Publisher's series — ISSN        | $radExt->publisher_series_issn (sidecar)
-    1.6F Publisher's series — numbering   | $radExt->publisher_series_numbering (sidecar)
+    1.6A Publisher's series - title       | $radExt->publisher_series_title (sidecar)
+    1.6B Publisher's series - statement   | $radExt->publisher_series_statement (sidecar)
+    1.6E Publisher's series - ISSN        | $radExt->publisher_series_issn (sidecar)
+    1.6F Publisher's series - numbering   | $radExt->publisher_series_numbering (sidecar)
     1.7B1 Custodial history               | $io->archival_history
     1.7B2 Scope and content               | $io->scope_and_content
     1.7C  Notes (general)                 | $notes (type_id=125)
-    1.7D  Conservation note               | (no Heratio field — flagged)
-    1.7D  Rights note                     | (no Heratio field — flagged; rights area handles separately)
+    1.7D  Conservation note               | (no Heratio field - flagged)
+    1.7D  Rights note                     | (no Heratio field - flagged; rights area handles separately)
     1.8   Standard number area            | $radExt->standard_number_type +
                                           | $radExt->standard_number_value (sidecar)
     Access points (subjects/places/etc.)  | reuses access-points-area partial
@@ -197,10 +197,10 @@
               <li>
                 {{ $event->date_display ?? '' }}
                 @if($event->start_date || $event->end_date)
-                  @if(!$event->date_display) ({{ $event->start_date ?? '?' }} – {{ $event->end_date ?? '?' }})@endif
+                  @if(!$event->date_display) ({{ $event->start_date ?? '?' }} - {{ $event->end_date ?? '?' }})@endif
                 @endif
                 @if($event->type_id && isset($eventTypeNames[$event->type_id]))
-                  <span class="text-muted small">— {{ $eventTypeNames[$event->type_id] }}</span>
+                  <span class="text-muted small">- {{ $eventTypeNames[$event->type_id] }}</span>
                 @endif
               </li>
             @endforeach
@@ -354,7 +354,7 @@
     @endif
   @endif
 
-  {{-- ========== 1.7C Notes (RAD General notes — reuse ISAD partial) ========== --}}
+  {{-- ========== 1.7C Notes (RAD General notes - reuse ISAD partial) ========== --}}
   @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('rad_notes_area'))
     @include('ahg-information-object-manage::partials.sections.notes-area')
   @endif

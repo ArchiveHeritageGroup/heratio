@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LibrarySerialExpectedCommand — pre-create expected library_serial_issue
+ * LibrarySerialExpectedCommand - pre-create expected library_serial_issue
  * rows for the next N months on each active subscription.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems

@@ -129,7 +129,7 @@
                 <div class="mb-3">
                   <label for="repo-select" class="form-label">{{ __('Repository') }}</label>
                   <select class="form-select" name="repo" id="repo-select">
-                    <option value="">{{ __('— Any —') }}</option>
+                    <option value="">{{ __('- Any -') }}</option>
                     @if(isset($repositories))
                       @foreach($repositories as $repo)
                         <option value="{{ $repo->id }}"{{ request('repo') == $repo->id ? ' selected' : '' }}>
@@ -165,7 +165,7 @@
                 <div class="mb-3">
                   <label for="level-filter-select" class="form-label">{{ __('Level of description') }}</label>
                   <select class="form-select" name="level" id="level-filter-select">
-                    <option value="">{{ __('— Any —') }}</option>
+                    <option value="">{{ __('- Any -') }}</option>
                     @if(isset($levelsOfDescription))
                       @foreach($levelsOfDescription as $lod)
                         <option value="{{ $lod->id }}"{{ request('level') == $lod->id ? ' selected' : '' }}>
@@ -181,7 +181,7 @@
                 <div class="mb-3">
                   <label for="has-digital-select" class="form-label">{{ __('Digital objects') }}</label>
                   <select class="form-select" name="hasDigital" id="has-digital-select">
-                    <option value="">{{ __('— Any —') }}</option>
+                    <option value="">{{ __('- Any -') }}</option>
                     <option value="1"{{ request('hasDigital') === '1' ? ' selected' : '' }}>{{ __('Yes') }}</option>
                     <option value="0"{{ request('hasDigital') === '0' ? ' selected' : '' }}>{{ __('No') }}</option>
                   </select>
@@ -192,7 +192,7 @@
                 <div class="mb-3">
                   <label for="sector-filter-select" class="form-label">{{ __('Sector') }}</label>
                   <select class="form-select" name="type" id="sector-filter-select">
-                    <option value="">{{ __('— Any —') }}</option>
+                    <option value="">{{ __('- Any -') }}</option>
                     <option value="archive"{{ request('type') === 'archive' ? ' selected' : '' }}>{{ __('Archive') }}</option>
                     <option value="library"{{ request('type') === 'library' ? ' selected' : '' }}>{{ __('Library') }}</option>
                     <option value="museum"{{ request('type') === 'museum' ? ' selected' : '' }}>{{ __('Museum') }}</option>
@@ -208,7 +208,7 @@
                 <div class="mb-3">
                   <label for="copyright-status-select" class="form-label">{{ __('Copyright status') }}</label>
                   <select class="form-select" name="copyrightStatus" id="copyright-status-select">
-                    <option value="">{{ __('— Any —') }}</option>
+                    <option value="">{{ __('- Any -') }}</option>
                     @if(isset($copyrightStatuses))
                       @foreach($copyrightStatuses as $cs)
                         <option value="{{ $cs->id }}"{{ request('copyrightStatus') == $cs->id ? ' selected' : '' }}>
@@ -224,7 +224,7 @@
                 <div class="mb-3">
                   <label for="finding-aid-select" class="form-label">{{ __('Finding aid') }}</label>
                   <select class="form-select" name="findingAidStatus" id="finding-aid-select">
-                    <option value="">{{ __('— Any —') }}</option>
+                    <option value="">{{ __('- Any -') }}</option>
                     <option value="yes"{{ request('findingAidStatus') === 'yes' ? ' selected' : '' }}>{{ __('Yes') }}</option>
                     <option value="no"{{ request('findingAidStatus') === 'no' ? ' selected' : '' }}>{{ __('No') }}</option>
                   </select>

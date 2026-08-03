@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AhgRecordsManageServiceProvider — boots the Records Management module.
+ * AhgRecordsManageServiceProvider - boots the Records Management module.
  *
  * On first boot, runs install.sql + seed_dropdowns.sql if a sentinel row is
  * missing (the canonical Heratio package install pattern, idempotent + safe to
@@ -67,7 +67,7 @@ class AhgRecordsManageServiceProvider extends ServiceProvider
                 }
             }
         } catch (\Throwable $e) {
-            // Never block boot on install failure — log and continue.
+            // Never block boot on install failure - log and continue.
             Log::warning('ahg-records-manage boot install skipped: '.$e->getMessage());
         }
     }

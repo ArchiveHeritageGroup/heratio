@@ -1,7 +1,7 @@
-{{-- heratio#1147 — Conservation forecast (simulation & prediction). --}}
+{{-- heratio#1147 - Conservation forecast (simulation & prediction). --}}
 @extends('theme::layouts.1col')
 
-@section('title', __('Conservation forecast') . ' — ' . $space->name)
+@section('title', __('Conservation forecast') . ' - ' . $space->name)
 @section('body-class', 'exhibition-space forecast')
 
 @section('content')
@@ -101,15 +101,15 @@
             @php $badge = ['ok'=>'success','warn'=>'warning','alert'=>'danger','none'=>'secondary'][$r['risk']] ?? 'secondary'; @endphp
             <tr>
               <td>{{ $r['name'] }}</td>
-              <td class="text-end">{{ $r['avg_lux'] !== null ? $r['avg_lux'] : '—' }}</td>
-              <td class="text-end">{{ $r['lux_target'] !== null ? (int) $r['lux_target'] : '—' }}</td>
-              <td class="text-end">{{ $r['annual_dose'] !== null ? number_format($r['annual_dose']) : '—' }}</td>
+              <td class="text-end">{{ $r['avg_lux'] !== null ? $r['avg_lux'] : '-' }}</td>
+              <td class="text-end">{{ $r['lux_target'] !== null ? (int) $r['lux_target'] : '-' }}</td>
+              <td class="text-end">{{ $r['annual_dose'] !== null ? number_format($r['annual_dose']) : '-' }}</td>
               <td class="text-end">{{ number_format($r['budget']) }}</td>
-              <td class="text-end">{{ $r['pct_of_budget'] !== null ? $r['pct_of_budget'].'%' : '—' }}</td>
-              <td class="text-end">{{ $r['days_to_budget'] !== null ? number_format($r['days_to_budget']) : '—' }}</td>
+              <td class="text-end">{{ $r['pct_of_budget'] !== null ? $r['pct_of_budget'].'%' : '-' }}</td>
+              <td class="text-end">{{ $r['days_to_budget'] !== null ? number_format($r['days_to_budget']) : '-' }}</td>
               <td><span class="badge bg-{{ $badge }}">{{ strtoupper($r['risk']) }}</span></td>
               <td class="text-end">
-                {{ $r['avg_visitors'] !== null ? $r['avg_visitors'] : '—' }} / {{ $r['peak_visitors'] !== null ? (int) $r['peak_visitors'] : '—' }}
+                {{ $r['avg_visitors'] !== null ? $r['avg_visitors'] : '-' }} / {{ $r['peak_visitors'] !== null ? (int) $r['peak_visitors'] : '-' }}
                 @if($r['capacity'] !== null)<small class="text-muted"> ({{ (int) $r['capacity'] }})</small>@endif
               </td>
             </tr>
@@ -141,7 +141,7 @@
         '{{ __('Budget') }}: ' + budget.toLocaleString() + ' &middot; ' +
         '<b>' + pct.toFixed(1) + '%</b> {{ __('of budget') }} ' +
         '<span class="badge bg-' + risk[0] + '">' + risk[1] + '</span> &middot; ' +
-        '{{ __('Reaches budget in') }} <b>' + (days != null ? days.toLocaleString() + ' {{ __('display-days') }}' : '—') + '</b>';
+        '{{ __('Reaches budget in') }} <b>' + (days != null ? days.toLocaleString() + ' {{ __('display-days') }}' : '-') + '</b>';
     }
     ['wLux', 'wHours', 'wTarget'].forEach(function (id) { document.getElementById(id).addEventListener('input', calc); });
     calc();

@@ -38,7 +38,7 @@ class DescriptionController extends BaseApiController
             ->where('io.id', '!=', 1)
             ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED);
 
-        // #1384/#1389 — ICIP/TK + ODRL gate (fail-closed) on top of publication
+        // #1384/#1389 - ICIP/TK + ODRL gate (fail-closed) on top of publication
         app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, 'io.id');
 
         if ($repo = $request->get('repository')) {
@@ -101,9 +101,9 @@ class DescriptionController extends BaseApiController
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
             ->where('ioi.culture', $this->culture)
-            // #1384/#1389 — never resolve an ICIP/TK- or ODRL-restricted record
+            // #1384/#1389 - never resolve an ICIP/TK- or ODRL-restricted record
             ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
-            // #1391 — published only (v2 show previously had NO publication gate)
+            // #1391 - published only (v2 show previously had NO publication gate)
             ->whereExists(function ($q) {
                 $q->select(DB::raw(1))->from('status')
                     ->whereColumn('status.object_id', 'io.id')

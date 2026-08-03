@@ -264,7 +264,7 @@ class ActorController extends Controller
             // function_object table may not exist
         }
 
-        // Parent actor (hierarchical actors — parent_id=3 is ROOT)
+        // Parent actor (hierarchical actors - parent_id=3 is ROOT)
         $parentActor = null;
         if ($actor->parent_id && $actor->parent_id != 3) {
             $parentActor = DB::table('actor')
@@ -631,7 +631,7 @@ class ActorController extends Controller
             'functions', 'mandates', 'internal_structures', 'general_context',
             'rules', 'sources', 'revision_history', 'maintenance_notes',
             'contacts', 'other_names',
-            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to actor.icip_sensitivity.
+            // ICIP cultural-sensitivity URI (issue #36 Phase 2b) - persisted to actor.icip_sensitivity.
             'icip_sensitivity',
         ]);
 
@@ -892,7 +892,7 @@ class ActorController extends Controller
     // ── External Authority Reconciliation ────────────────────────────
 
     /**
-     * GET /actor/{slug}/reconcile — show reconciliation results for an actor.
+     * GET /actor/{slug}/reconcile - show reconciliation results for an actor.
      */
     public function reconcile(string $slug)
     {
@@ -920,7 +920,7 @@ class ActorController extends Controller
     }
 
     /**
-     * POST /actor/{slug}/reconcile/link — link an actor to an external ID.
+     * POST /actor/{slug}/reconcile/link - link an actor to an external ID.
      */
     public function reconcileLink(Request $request, string $slug)
     {
@@ -1655,13 +1655,13 @@ class ActorController extends Controller
     }
 
     // =========================================================================
-    // #743 actorEvents — chronological event listing
+    // #743 actorEvents - chronological event listing
     // =========================================================================
 
     /**
      * Lazy-load endpoint for the per-actor event chronology.
      *
-     * Returns either HTML (default — used by the related-resources panel on
+     * Returns either HTML (default - used by the related-resources panel on
      * actor/{slug}/edit) or JSON when ?format=json. Sorted oldest first by
      * start_date, falling back to event id when no date is available.
      *
@@ -1758,7 +1758,7 @@ class ActorController extends Controller
     }
 
     // =========================================================================
-    // #743 slugPreview — AJAX slug preview while typing authorized form of name
+    // #743 slugPreview - AJAX slug preview while typing authorized form of name
     // =========================================================================
 
     /**

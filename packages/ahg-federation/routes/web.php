@@ -50,7 +50,7 @@ Route::middleware([EnsureFederationEnabled::class])->prefix('federation')->group
 Route::middleware(['auth', 'admin', EnsureFederationEnabled::class])->group(function () {
     Route::post('/admin/federation/api/test-peer', [FederationController::class, 'testPeer'])->name('federation.api.testPeer');
     Route::post('/admin/federation/harvest', [FederationController::class, 'runHarvest'])->name('federation.api.harvest');
-    // GET /admin/federation/harvest/ — legacy page URL (AtoM used admin prefix)
+    // GET /admin/federation/harvest/ - legacy page URL (AtoM used admin prefix)
     Route::get('/admin/federation/harvest', [FederationController::class, 'harvest'])->name('federation.harvest.legacy');
 });
 

@@ -2146,7 +2146,7 @@ CREATE TABLE IF NOT EXISTS `research_offline_sync_log` (
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 -- ===========================================================================
--- #1105 Journal builder — institutional journal publication (journal → issues →
+-- #1105 Journal builder - institutional journal publication (journal → issues →
 -- articles → TOC/publish) AND manuscript workspace (article formatted to an
 -- external target journal, ref #1107 research_target_journal).
 -- ===========================================================================
@@ -2216,7 +2216,7 @@ CREATE TABLE IF NOT EXISTS `research_journal_article` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ===========================================================================
--- #1105 Lecture builder — curriculum content (feeds the #1099 training
+-- #1105 Lecture builder - curriculum content (feeds the #1099 training
 -- curriculum), public talk/lecture records (speaker, schedule, recording),
 -- and standalone lecture authoring (ordered sections + media + resources).
 -- ===========================================================================
@@ -2276,7 +2276,7 @@ CREATE TABLE IF NOT EXISTS `research_lecture_resource` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ===========================================================================
--- #1107 Target-journal directory — journals to publish TO, each with scope +
+-- #1107 Target-journal directory - journals to publish TO, each with scope +
 -- submission rules. Seeded for the SA market from the DHET accredited list
 -- (accreditation_market='ZA') but the core is jurisdiction-neutral; other
 -- markets seed from DOAJ / Scopus / Web of Science / ERIH-PLUS.

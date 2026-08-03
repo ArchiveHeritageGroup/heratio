@@ -135,7 +135,7 @@
                 </td>
                 <td class="small">
                     @if($r['start_date'] !== '' || $r['end_date'] !== '')
-                        {{ e($r['start_date'] !== '' ? $r['start_date'] : '?') }} &ndash; {{ e($r['end_date'] !== '' ? $r['end_date'] : '?') }}
+                        {{ e($r['start_date'] !== '' ? $r['start_date'] : '?') }} - {{ e($r['end_date'] !== '' ? $r['end_date'] : '?') }}
                     @else
                         <span class="text-muted">-</span>
                     @endif

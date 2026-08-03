@@ -52,7 +52,7 @@ class SpectrumOverdueCommand extends Command
                     $row->task_id, $row->object_id, $row->spectrum_procedure, $row->created_at
                 ));
             }
-            $this->warn('DRY RUN — no notifications written.');
+            $this->warn('DRY RUN - no notifications written.');
 
             return self::SUCCESS;
         }

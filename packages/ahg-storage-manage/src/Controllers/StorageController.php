@@ -440,7 +440,7 @@ class StorageController extends Controller
     }
 
     /**
-     * Link Physical Storage — single page to manage container links for an IO.
+     * Link Physical Storage - single page to manage container links for an IO.
      */
     public function linkTo(Request $request, string $slug)
     {
@@ -460,7 +460,7 @@ class StorageController extends Controller
         }
 
         // Current linked containers (subject = record, object = physical object,
-        // type 151 = HAS_PHYSICAL_OBJECT — matches linkToStore() + the IO show).
+        // type 151 = HAS_PHYSICAL_OBJECT - matches linkToStore() + the IO show).
         $linked = DB::table('relation')
             ->join('physical_object', 'relation.object_id', '=', 'physical_object.id')
             ->leftJoin('physical_object_i18n', function ($j) use ($culture) {
@@ -501,7 +501,7 @@ class StorageController extends Controller
     }
 
     /**
-     * Store container link — link existing or create new.
+     * Store container link - link existing or create new.
      */
     public function linkToStore(Request $request, string $slug)
     {
@@ -524,7 +524,7 @@ class StorageController extends Controller
                     ->exists();
                 if (! $exists) {
                     // relation.id is a class-table-inheritance column (= object.id),
-                    // not auto-increment — pre-create a QubitRelation object row and
+                    // not auto-increment - pre-create a QubitRelation object row and
                     // use its id (mirrors AccessionService::linkDonor). Without this
                     // the insert fails: "Field 'id' doesn't have a default value".
                     $relationId = DB::table('object')->insertGetId([
@@ -536,7 +536,7 @@ class StorageController extends Controller
                     DB::table('relation')->insert([
                         'id' => $relationId,
                         // HAS_PHYSICAL_OBJECT (151): subject = the record,
-                        // object = the physical object — the direction/type both
+                        // object = the physical object - the direction/type both
                         // the IO show "Physical storage" section and the container
                         // view read. Was wrongly type 161 ("name access points")
                         // with reversed ends, so the box showed up as a nameless
@@ -596,7 +596,7 @@ class StorageController extends Controller
                 'status' => 'active',
             ], fn ($v) => $v !== null));
 
-            // Link to IO — relation.id is a CTI column (= object.id); create a
+            // Link to IO - relation.id is a CTI column (= object.id); create a
             // QubitRelation object row and use its id.
             $relationId = DB::table('object')->insertGetId([
                 'class_name' => 'QubitRelation',
@@ -621,7 +621,7 @@ class StorageController extends Controller
      */
     public function unlink(Request $request, int $relationId)
     {
-        // #1395(A) — the `relation` table is generic (creator links, access
+        // #1395(A) - the `relation` table is generic (creator links, access
         // points, …); scope this delete to physical-object CONTAINER links
         // (type_id = 151) only, so an operator cannot delete arbitrary relation
         // rows system-wide by iterating relationId.

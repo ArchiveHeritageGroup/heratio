@@ -1,4 +1,4 @@
-{{-- #1099 Training — courses index --}}
+{{-- #1099 Training - courses index --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -23,7 +23,7 @@
         @foreach ($courses as $c)
         <tr>
           <td><a href="{{ route('research.training.show', $c['id']) }}">{{ $c['title'] }}</a>@if($c['language'])<span class="badge bg-light text-dark ms-1">{{ $c['language'] }}</span>@endif</td>
-          <td class="text-muted">{{ $c['audience'] ?: '—' }}</td>
+          <td class="text-muted">{{ $c['audience'] ?: '-' }}</td>
           <td>{{ $c['pass_mark'] }}%</td>
           <td><span class="badge bg-{{ $c['status'] === 'published' ? 'success' : ($c['status'] === 'archived' ? 'secondary' : 'warning text-dark') }}">{{ ucfirst($c['status']) }}</span></td>
           <td class="text-end">

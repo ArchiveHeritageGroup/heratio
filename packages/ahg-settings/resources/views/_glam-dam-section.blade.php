@@ -1,4 +1,4 @@
-{{-- GLAM/DAM Section partial — shows sector-specific settings --}}
+{{-- GLAM/DAM Section partial - shows sector-specific settings --}}
 <div class="card mb-4">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff;">
     <h5 class="mb-0"><i class="fas {{ $sectionIcon ?? 'fa-archive' }} me-2"></i>{{ $sectionLabel ?? 'GLAM/DAM Section' }}</h5>

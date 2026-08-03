@@ -32,7 +32,7 @@
         @forelse ($rows as $r)
             <tr>
                 <td>{{ $r->library_item_id }}</td>
-                <td>{{ $r->title ?? '—' }}</td>
+                <td>{{ $r->title ?? '-' }}</td>
                 <td><span class="badge bg-{{ $r->mode === 'force_group' ? 'success' : 'warning' }}">{{ $r->mode }}</span></td>
                 <td><code>{{ $r->override_key }}</code></td>
                 <td><small>{{ $r->reason }}</small></td>

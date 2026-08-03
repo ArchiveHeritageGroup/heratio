@@ -1,5 +1,5 @@
 {{--
-  Ingestion Manager — Heratio
+  Ingestion Manager - Heratio
   Migrated from AtoM ahgIngestPlugin ingest/indexSuccess.php
 
   Copyright (C) 2026 Johan Pieterse

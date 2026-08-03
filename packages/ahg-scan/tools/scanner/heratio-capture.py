@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-heratio-capture.py — terminal capture helper for Heratio.
+heratio-capture.py - terminal capture helper for Heratio.
 
 A pragmatic alternative to a full Tauri/Electron desktop app: a text-based
 UI that walks an archivist through browsing destinations and uploading
@@ -17,7 +17,7 @@ Interactive mode (default):
 One-shot mode (for scripts / VueScan post-scan hook):
     heratio-capture.py --parent-slug=fonds-smith --identifier=ARC-001 FILE.tiff
 
-Config file (~/.heratio-scan.conf) supported — same format as the other
+Config file (~/.heratio-scan.conf) supported - same format as the other
 wrapper scripts (KEY=value lines).
 
 Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
@@ -55,7 +55,7 @@ def prompt(message: str, default: str = '') -> str:
 
 
 def choose_parent(base: str, key: str) -> dict | None:
-    query = prompt("Search parent (identifier, title, slug — blank to skip)")
+    query = prompt("Search parent (identifier, title, slug - blank to skip)")
     if not query:
         return None
     r = requests.get(
@@ -71,7 +71,7 @@ def choose_parent(base: str, key: str) -> dict | None:
         return None
     for i, row in enumerate(rows[:20]):
         identifier = f" [{row['identifier']}]" if row.get('identifier') else ""
-        print(f"  {i+1:2d}. {row['title']}{identifier} — /{row['slug']}")
+        print(f"  {i+1:2d}. {row['title']}{identifier} - /{row['slug']}")
     sel = prompt(f"Pick 1-{min(20, len(rows))}", "1")
     try:
         idx = int(sel) - 1
@@ -125,7 +125,7 @@ def get_status(base: str, key: str, token: str) -> dict:
 
 
 def interactive() -> int:
-    print("Heratio Capture — terminal helper (Ctrl-C to quit at any time)")
+    print("Heratio Capture - terminal helper (Ctrl-C to quit at any time)")
     base = prompt("Heratio URL", os.environ.get('HERATIO_URL', 'https://heratio.theahg.co.za'))
     key = os.environ.get('HERATIO_API_KEY') or prompt("API key (scan:write)")
     if not base or not key:

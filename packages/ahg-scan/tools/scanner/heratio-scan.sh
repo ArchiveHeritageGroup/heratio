@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# heratio-scan.sh — upload a scanned file to Heratio via the Scan API.
+# heratio-scan.sh - upload a scanned file to Heratio via the Scan API.
 #
 # Designed to be called from a scanner application's "post-scan" hook
 # (e.g. NAPS2's External tool, SANE's scanadf script).
@@ -12,7 +12,7 @@
 #   HERATIO_SECTOR         archive (default) | library | gallery | museum
 #   HERATIO_STANDARD       isadg (default) | marc21 | lido | spectrum | ...
 #
-# Config file (optional): ~/.heratio-scan.conf — KEY=value lines, shell-sourced.
+# Config file (optional): ~/.heratio-scan.conf - KEY=value lines, shell-sourced.
 #
 # Usage:
 #   heratio-scan.sh <file-to-upload> [identifier] [title] [sidecar.xml]

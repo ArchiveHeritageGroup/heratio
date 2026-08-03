@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ImageArCommand — Heratio
+ * ImageArCommand - Heratio
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -102,7 +102,7 @@ class ImageArCommand extends Command
         $mp4Web = '/uploads/ar/'.$ioId.'/'.$mp4Filename;
 
         $this->info(sprintf(
-            "Sending to AI server (%s, model=%s, %d frames @ %d fps, motion=%d)…\nThis can take 3–8 minutes on the 8 GB card.",
+            "Sending to AI server (%s, model=%s, %d frames @ %d fps, motion=%d)…\nThis can take 3-8 minutes on the 8 GB card.",
             $opts['server_url'], $opts['model'], $opts['num_frames'], $opts['fps'], $opts['motion_bucket_id']
         ));
 
@@ -134,7 +134,7 @@ class ImageArCommand extends Command
             'updated_at' => now(),
         ]);
 
-        $this->info(sprintf('Done — %d KB in %.0f s at %s', (int) ($stats['size'] / 1024), $stats['generation_secs'], $mp4Web));
+        $this->info(sprintf('Done - %d KB in %.0f s at %s', (int) ($stats['size'] / 1024), $stats['generation_secs'], $mp4Web));
 
         return 0;
     }

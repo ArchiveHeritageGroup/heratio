@@ -60,7 +60,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $l->due_date ?? '—' }}
+                                        {{ $l->due_date ?? '-' }}
                                     </td>
                                     <td class="text-center">
                                         @if($daysLeft !== null)

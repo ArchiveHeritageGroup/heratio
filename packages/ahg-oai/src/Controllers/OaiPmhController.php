@@ -396,7 +396,7 @@ class OaiPmhController extends Controller
         $xml .= '      </oai-identifier>'."\n";
         $xml .= '    </description>'."\n";
 
-        // <friends> container — OAI-PMH friends.xsd lists other OAI repos this
+        // <friends> container - OAI-PMH friends.xsd lists other OAI repos this
         // server knows about. Sourced from ahg-federation's federation_peer
         // table: active peers with peer_type='oai_pmh' and a base_url.
         // Empty <friends> is permitted; we just omit the element when the
@@ -596,7 +596,7 @@ class OaiPmhController extends Controller
             ->select('io.id', 'io.oai_local_identifier', 'ioi.title')
             ->orderBy('io.id');
 
-        // #1384/#1389 — ICIP/TK + ODRL gate (fail-closed) on top of publication
+        // #1384/#1389 - ICIP/TK + ODRL gate (fail-closed) on top of publication
         app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, 'io.id');
 
         if ((string) $this->setting('oai_additional_sets_enabled', '0') !== '1') {
@@ -692,7 +692,7 @@ class OaiPmhController extends Controller
             ]);
             $xml .= '    <resumptionToken>'.$token.'</resumptionToken>'."\n";
         } else {
-            // Live records exhausted — bridge to deleted-records phase if
+            // Live records exhausted - bridge to deleted-records phase if
             // any tombstones fall in this from/until range.
             $hasTombstones = ! empty($this->getTombstones($from, $until, 0, 1));
             if ($hasTombstones) {
@@ -830,7 +830,7 @@ class OaiPmhController extends Controller
 
     /**
      * Render a page of tombstone records (status="deleted") for ListRecords.
-     * Per spec, deleted records have only a <header> — no <metadata> wrapper.
+     * Per spec, deleted records have only a <header> - no <metadata> wrapper.
      */
     private function listRecordsDeleted(Request $request, int $cursor, ?string $from, ?string $until, ?string $set, string $metadataPrefix, int $pageSize): Response
     {
@@ -881,7 +881,7 @@ class OaiPmhController extends Controller
             return $this->errorResponse($request, 'idDoesNotExist');
         }
 
-        // Tombstone check first — a deleted record exists in OAI's view
+        // Tombstone check first - a deleted record exists in OAI's view
         // even though it no longer exists in information_object. Return
         // <header status="deleted"> with no metadata per spec.
         $tomb = $this->getTombstone($oaiLocalId);
@@ -909,7 +909,7 @@ class OaiPmhController extends Controller
             })
             ->where('io.oai_local_identifier', '=', $oaiLocalId)
             ->where('st.status_id', '=', 160)
-            // #1384/#1389 — ICIP/TK + ODRL gate (fail-closed) on top of publication
+            // #1384/#1389 - ICIP/TK + ODRL gate (fail-closed) on top of publication
             ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
             ->where('io.parent_id', '!=', null)
             ->select(
@@ -1040,7 +1040,7 @@ class OaiPmhController extends Controller
             }
         }
 
-        // #1384/#1389 — layer ICIP/TK + ODRL confidentiality gates on top of the
+        // #1384/#1389 - layer ICIP/TK + ODRL confidentiality gates on top of the
         // publication join above, via the central fail-closed DisclosureGate.
         app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, 'io.id');
 
@@ -1070,7 +1070,7 @@ class OaiPmhController extends Controller
 
     /**
      * Render a tombstone <header status="deleted"> for an oai_local_identifier.
-     * Per OAI-PMH 2.0 deleted-record records have only the header — no
+     * Per OAI-PMH 2.0 deleted-record records have only the header - no
      * setSpec (we don't track which set a deleted record belonged to) and
      * no <metadata> wrapper. The datestamp is the deletion timestamp.
      */
@@ -1207,7 +1207,7 @@ class OaiPmhController extends Controller
             $xml .= '          <dc:description>'.$this->esc(strip_tags($record->scope_and_content)).'</dc:description>'."\n";
         }
 
-        // dc:publisher — from events (publishers)
+        // dc:publisher - from events (publishers)
         $publishers = DB::table('event as e')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('e.actor_id', '=', 'ai.id')
@@ -1225,7 +1225,7 @@ class OaiPmhController extends Controller
             }
         }
 
-        // dc:contributor — from events (contribution)
+        // dc:contributor - from events (contribution)
         $contributors = DB::table('event as e')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('e.actor_id', '=', 'ai.id')
@@ -1243,7 +1243,7 @@ class OaiPmhController extends Controller
             }
         }
 
-        // dc:date — from events (creation dates)
+        // dc:date - from events (creation dates)
         $dates = DB::table('event')
             ->where('object_id', '=', $record->id)
             ->where('type_id', '=', 111)
@@ -1279,7 +1279,7 @@ class OaiPmhController extends Controller
             }
         }
 
-        // dc:type — level of description
+        // dc:type - level of description
         if (! empty($record->level_of_description_id)) {
             $levelTerm = DB::table('term_i18n')
                 ->where('id', '=', $record->level_of_description_id)
@@ -1291,12 +1291,12 @@ class OaiPmhController extends Controller
             }
         }
 
-        // dc:format — from extent_and_medium
+        // dc:format - from extent_and_medium
         if (! empty($record->extent_and_medium)) {
             $xml .= '          <dc:format>'.$this->esc(strip_tags($record->extent_and_medium)).'</dc:format>'."\n";
         }
 
-        // dc:identifier — URL and reference code
+        // dc:identifier - URL and reference code
         $slug = DB::table('slug')
             ->where('object_id', '=', $record->id)
             ->value('slug');
@@ -1309,7 +1309,7 @@ class OaiPmhController extends Controller
             $xml .= '          <dc:identifier>'.$this->esc($record->identifier).'</dc:identifier>'."\n";
         }
 
-        // dc:source — location of originals
+        // dc:source - location of originals
         if (! empty($record->location_of_originals)) {
             $xml .= '          <dc:source>'.$this->esc(strip_tags($record->location_of_originals)).'</dc:source>'."\n";
         }
@@ -1319,7 +1319,7 @@ class OaiPmhController extends Controller
             $xml .= '          <dc:language>'.$this->esc($record->source_culture).'</dc:language>'."\n";
         }
 
-        // dc:relation — repository
+        // dc:relation - repository
         if (! empty($record->repository_id)) {
             $repo = DB::table('actor_i18n')
                 ->where('id', '=', $record->repository_id)
@@ -1338,7 +1338,7 @@ class OaiPmhController extends Controller
             }
         }
 
-        // dc:coverage — places from object_term_relation (place taxonomy = 42)
+        // dc:coverage - places from object_term_relation (place taxonomy = 42)
         $places = DB::table('object_term_relation as otr')
             ->join('term as t', 'otr.term_id', '=', 't.id')
             ->join('term_i18n as ti', function ($join) {

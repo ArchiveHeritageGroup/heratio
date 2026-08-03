@@ -1,7 +1,7 @@
 <?php
 
 /**
- * StatisticsAggregateCommand — roll ahg_usage_event into daily/monthly buckets.
+ * StatisticsAggregateCommand - roll ahg_usage_event into daily/monthly buckets.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

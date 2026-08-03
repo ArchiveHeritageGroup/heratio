@@ -114,7 +114,7 @@ class KbartRemoteService
     public function fetchAllActiveFeeds(): array
     {
         if (! $this->isAutoImportEnabled()) {
-            Log::info('KbartRemoteService: auto-import disabled — skipping fetch run.');
+            Log::info('KbartRemoteService: auto-import disabled - skipping fetch run.');
             return [];
         }
 
@@ -194,7 +194,7 @@ class KbartRemoteService
         $lockKey = 'kbart_remote:' . $feedId;
 
         if (Cache::has($lockKey)) {
-            Log::warning("KbartRemoteService: feed #{$feedId} ({$name}) is already being fetched — skipping.");
+            Log::warning("KbartRemoteService: feed #{$feedId} ({$name}) is already being fetched - skipping.");
             return [
                 'feed_id' => $feedId,
                 'name' => $name,
@@ -264,7 +264,7 @@ class KbartRemoteService
                 ));
             }
 
-            Log::info("KbartRemoteService: fetched feed #{$feedId} ({$name}) — {$count} rows written, +{$diff['added']} / -{$diff['removed']}.");
+            Log::info("KbartRemoteService: fetched feed #{$feedId} ({$name}) - {$count} rows written, +{$diff['added']} / -{$diff['removed']}.");
 
             return [
                 'feed_id' => $feedId,
@@ -276,7 +276,7 @@ class KbartRemoteService
             ];
 
         } catch (\Throwable $e) {
-            Log::error("KbartRemoteService: fetch failed for feed #{$feedId} ({$name}) — {$e->getMessage()}");
+            Log::error("KbartRemoteService: fetch failed for feed #{$feedId} ({$name}) - {$e->getMessage()}");
             $this->logImport($feedId, 'fail', 0, 0, 0, 0, null, $e->getMessage(), (int) round((microtime(true) - $startMs) * 1000));
             $this->notify('failure', $feedId, $name, $e->getMessage());
             return $this->recordFailure($feedId, $e->getMessage(), $url);
@@ -502,7 +502,7 @@ class KbartRemoteService
             return $body !== '' ? $body : null;
 
         } catch (\Throwable $e) {
-            Log::error("KbartRemoteService: fetch exception for {$url} — {$e->getMessage()}");
+            Log::error("KbartRemoteService: fetch exception for {$url} - {$e->getMessage()}");
             return null;
         }
     }

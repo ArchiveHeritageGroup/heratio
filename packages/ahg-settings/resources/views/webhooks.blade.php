@@ -1,5 +1,5 @@
 {{--
-  Webhooks — event-based webhook management
+  Webhooks - event-based webhook management
   Cloned from AtoM ahgSettingsPlugin webhooksSuccess.php
 
   @copyright  Johan Pieterse / Plain Sailing
@@ -46,7 +46,7 @@
                 <tr>
                   <td><strong>{{ $webhook->name }}</strong></td>
                   <td><code class="small">{{ Str::limit($webhook->url, 40) }}</code></td>
-                  <td class="small">{{ $webhook->user_name ?? $webhook->user_id ?? '—' }}</td>
+                  <td class="small">{{ $webhook->user_name ?? $webhook->user_id ?? '-' }}</td>
                   <td>
                     @foreach($webhook->events ?? [] as $event)
                       <span class="badge bg-{{ match($event) { 'item.created' => 'success', 'item.updated' => 'primary', 'item.deleted' => 'danger', default => 'secondary' } }}">{{ $event }}</span>

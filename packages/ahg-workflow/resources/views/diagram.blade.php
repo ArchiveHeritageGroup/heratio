@@ -1,4 +1,4 @@
-{{-- heratio#143 Phase 1 — workflow diagram view --}}
+{{-- heratio#143 Phase 1 - workflow diagram view --}}
 @extends('theme::layouts.1col')
 
 @section('title', __('Diagram: :name', ['name' => $workflow->name]))

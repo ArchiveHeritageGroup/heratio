@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DiscoveryPruneCommand — bound the growth of ahg_discovery_log so query
+ * DiscoveryPruneCommand - bound the growth of ahg_discovery_log so query
  * telemetry capture can be left on for real users without the table running
  * away. Implements GitHub issue #19.
  *
@@ -102,7 +102,7 @@ class DiscoveryPruneCommand extends Command
                 "SHOW INDEXES FROM ahg_discovery_log WHERE Column_name = 'created_at'"
             );
             if (empty($indexes)) {
-                $this->warn('No index on ahg_discovery_log.created_at — pruning will full-scan. Recommend: ALTER TABLE ahg_discovery_log ADD INDEX idx_created (created_at).');
+                $this->warn('No index on ahg_discovery_log.created_at - pruning will full-scan. Recommend: ALTER TABLE ahg_discovery_log ADD INDEX idx_created (created_at).');
             }
         } catch (\Throwable $e) {
             // SHOW INDEXES against a missing table is already handled upstream.

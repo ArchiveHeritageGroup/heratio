@@ -73,9 +73,9 @@
                     <div>
                         <label for="element_set" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Element set') }}</label>
                         <select id="element_set" name="element_set" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
-                            <option value="F">{{ __('F — Full') }}</option>
-                            <option value="B">{{ __('B — Brief') }}</option>
-                            <option value="S">{{ __('S — Suggested') }}</option>
+                            <option value="F">{{ __('F - Full') }}</option>
+                            <option value="B">{{ __('B - Brief') }}</option>
+                            <option value="S">{{ __('S - Suggested') }}</option>
                         </select>
                     </div>
                 </div>

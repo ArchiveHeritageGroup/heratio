@@ -18,7 +18,7 @@ class BackupCleanupCommand extends Command
     {
         $backupsDir = rtrim((string) config('heratio.backups_path', base_path('backups')), '/');
         if (! is_dir($backupsDir)) {
-            $this->info("[backup-cleanup] {$backupsDir} does not exist — nothing to clean.");
+            $this->info("[backup-cleanup] {$backupsDir} does not exist - nothing to clean.");
 
             return self::SUCCESS;
         }

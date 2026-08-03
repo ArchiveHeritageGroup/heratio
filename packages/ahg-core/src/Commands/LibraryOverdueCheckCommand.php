@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LibraryOverdueCheckCommand — flip 'active' checkouts past due to 'overdue'
+ * LibraryOverdueCheckCommand - flip 'active' checkouts past due to 'overdue'
  * and optionally enqueue patron notifications.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems

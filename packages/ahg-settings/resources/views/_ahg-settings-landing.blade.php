@@ -1,4 +1,4 @@
-{{-- AHG Settings Landing partial — settings tile grid --}}
+{{-- AHG Settings Landing partial - settings tile grid --}}
 <div class="row">
   @foreach($sections ?? [] as $key => $section)
     <div class="col-lg-4 col-md-6 mb-4">

@@ -1,4 +1,4 @@
-{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems — johan@plainsailingisystems.co.za
+{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems - johan@plainsailingisystems.co.za
      This file is part of Heratio. Licensed under the GNU Affero General Public License v3+. --}}
 @extends('theme::layouts.1col')
 
@@ -27,7 +27,7 @@
     @if (!$hasJobTable)
         <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>
-            The <code>tiff_pdf_merge_job</code> table is not present in this install — the merge-job module has not been provisioned yet.
+            The <code>tiff_pdf_merge_job</code> table is not present in this install - the merge-job module has not been provisioned yet.
         </div>
     @endif
 

@@ -1,4 +1,4 @@
-{{-- Spectrum Reports Dashboard — cloned from AtoM spectrumReports/indexSuccess.blade.php. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
+{{-- Spectrum Reports Dashboard - cloned from AtoM spectrumReports/indexSuccess.blade.php. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
 @extends('theme::layouts.2col')
 @section('title', 'Museum Procedures Reports Dashboard')
 @section('body-class', 'admin spectrum-reports')

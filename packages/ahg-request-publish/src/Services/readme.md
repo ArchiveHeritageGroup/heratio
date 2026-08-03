@@ -1,4 +1,4 @@
-# AhgRequestPublish — Services
+# AhgRequestPublish - Services
 
 Services directory for the AhgRequestPublish package.
 

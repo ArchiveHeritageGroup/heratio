@@ -22,7 +22,7 @@
         <i class="fas fa-3x {{ $groupIcon }} me-3" aria-hidden="true"></i>
         <div class="d-flex flex-column">
           <h1 class="mb-0">{{ $groupLabel }}</h1>
-          <span class="small text-muted">AHG settings &mdash; {{ $settings->count() }} {{ Str::plural('setting', $settings->count()) }}</span>
+          <span class="small text-muted">AHG settings - {{ $settings->count() }} {{ Str::plural('setting', $settings->count()) }}</span>
         </div>
       </div>
 

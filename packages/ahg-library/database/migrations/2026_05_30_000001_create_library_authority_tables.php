@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Completes the library_subject_authority and creates library_item_authority_link.
-     * Idempotent — handles the table created by the partial batch-22 run.
+     * Idempotent - handles the table created by the partial batch-22 run.
      *
      * Batch-22 state: id, heading, lc_label, rda_label, authorized_form,
      * heading_normalized, heading_type, source, lcsh_id, lcsh_uri,

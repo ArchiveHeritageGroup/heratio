@@ -260,10 +260,10 @@ class ExportCidocGraphCommand extends Command
             ->where('type_id', self::STATUS_TYPE_PUBLICATION)
             ->where('status_id', self::PUBLICATION_STATUS_PUBLISHED)
             ->where('object_id', '>', max(1, $lastId)) // root id 1 excluded
-            // #1384/#1389 — exclude ICIP/TK + ODRL-restricted records from the graph
+            // #1384/#1389 - exclude ICIP/TK + ODRL-restricted records from the graph
             ->whereNotIn('object_id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds());
 
-        // #1388 — and community-protocol-restricted records.
+        // #1388 - and community-protocol-restricted records.
         if (! empty($this->protocolRestrictedIds)) {
             $query->whereNotIn('object_id', $this->protocolRestrictedIds);
         }

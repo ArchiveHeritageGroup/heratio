@@ -133,7 +133,7 @@
                 <td class="small">{{ $row->institution }}</td>
                 <td class="text-end">{{ (int) $row->total }}</td>
                 <td class="text-end">@if ((int) $row->flagged > 0)<span class="badge bg-danger">{{ (int) $row->flagged }}</span>@else <span class="text-muted">0</span>@endif</td>
-                <td class="text-end">@if ($d['has_dmp'])<span class="text-info">{{ (int) $row->dmp }}</span>@else <span class="text-muted">—</span>@endif</td>
+                <td class="text-end">@if ($d['has_dmp'])<span class="text-info">{{ (int) $row->dmp }}</span>@else <span class="text-muted">-</span>@endif</td>
               </tr>
             @empty
               <tr><td colspan="4" class="text-center text-muted py-3">{{ __('No datasets yet.') }}</td></tr>
@@ -153,7 +153,7 @@
             @forelse ($d['backlog_list'] as $row)
               <tr>
                 <td class="small"><a href="{{ route('rdm.datasets.show', $row->id) }}">{{ \Illuminate\Support\Str::limit($row->title, 32) }}</a></td>
-                <td>@if ($row->verdict)<span class="badge bg-{{ $row->verdict === 'SPECIAL_CATEGORY' ? 'danger' : 'warning' }} text-dark">{{ $row->verdict }}</span>@else —@endif</td>
+                <td>@if ($row->verdict)<span class="badge bg-{{ $row->verdict === 'SPECIAL_CATEGORY' ? 'danger' : 'warning' }} text-dark">{{ $row->verdict }}</span>@else -@endif</td>
                 <td class="text-end"><span class="badge bg-warning text-dark">{{ (int) $row->pending }}</span></td>
               </tr>
             @empty
@@ -178,8 +178,8 @@
             <td class="small"><a href="{{ route('rdm.datasets.show', $row->id) }}">{{ \Illuminate\Support\Str::limit($row->title, 40) }}</a></td>
             <td class="small text-muted">{{ $row->status }}</td>
             <td>@if ($row->verdict)<span class="badge" style="background:{{ $verdictColors[$row->verdict] ?? '#6c757d' }}">{{ $row->verdict }}</span>@else <span class="text-muted small">{{ __('not scanned') }}</span>@endif</td>
-            <td class="small">{{ $row->disposition ?? '—' }}</td>
-            <td class="small">@if ($row->doi)<code>{{ $row->doi }}</code>@else <span class="text-muted">—</span>@endif</td>
+            <td class="small">{{ $row->disposition ?? '-' }}</td>
+            <td class="small">@if ($row->doi)<code>{{ $row->doi }}</code>@else <span class="text-muted">-</span>@endif</td>
             <td class="small text-muted">{{ \Illuminate\Support\Str::limit((string) $row->created_at, 10, '') }}</td>
           </tr>
         @empty

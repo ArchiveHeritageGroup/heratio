@@ -57,7 +57,7 @@
                                     @if ($item->certificate_id)
                                         <a href="{{ route('records.disposal.verify', $item->id) }}">View</a>
                                     @else
-                                        &mdash;
+                                        -
                                     @endif
                                 </td>
                                 <td>

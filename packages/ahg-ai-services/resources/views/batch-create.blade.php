@@ -60,7 +60,7 @@
       <div class="mb-3">
         <label for="repositoryId" class="form-label">{{ __('Repository') }}</label>
         <select class="form-select" id="repositoryId" name="repository_id">
-          <option value="">{{ __('— Select a repository —') }}</option>
+          <option value="">{{ __('- Select a repository -') }}</option>
           @foreach(($repositories ?? collect()) as $repo)
             <option value="{{ $repo->id }}">{{ $repo->name }}</option>
           @endforeach

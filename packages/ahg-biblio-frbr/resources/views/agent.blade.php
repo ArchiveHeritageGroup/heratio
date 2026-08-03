@@ -1,4 +1,4 @@
-{{-- ahg-biblio-frbr/agent.blade.php — FRBR agent browser --}}
+{{-- ahg-biblio-frbr/agent.blade.php - FRBR agent browser --}}
 @extends('theme::layouts.1col')
 
 @section('content')
@@ -9,14 +9,14 @@
     <span class="badge bg-secondary">Agents</span>
   </div>
   <p class="text-muted small mb-4">
-    Browse the agent authority used in FRBR records &mdash; creators, contributors,
+    Browse the agent authority used in FRBR records - creators, contributors,
     editors, illustrators, and other responsible parties.
   </p>
 
   <div class="card">
     <div class="card-header">
       <i class="bi bi-person me-1"></i>
-      Agent Authority &mdash; {{ $agents->total() ?? $agents->count() }} total
+      Agent Authority - {{ $agents->total() ?? $agents->count() }} total
     </div>
     <div class="table-responsive">
       <table class="table table-sm table-striped mb-0">
@@ -54,7 +54,7 @@
                 @if($agent->created_at)
                   {{ \Carbon\Carbon::parse($agent->created_at)->format('j M Y') }}
                 @else
-                  &mdash;
+                  -
                 @endif
               </td>
             </tr>

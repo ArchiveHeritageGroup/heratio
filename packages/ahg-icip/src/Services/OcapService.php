@@ -80,7 +80,7 @@ class OcapService
     {
         $reasons = [];
 
-        // Ownership — is there at least one community linked via consent or restriction?
+        // Ownership - is there at least one community linked via consent or restriction?
         $ownership = self::STATUS_NA;
         if (Schema::hasTable('icip_consent')) {
             $hasOwnerLink = DB::table('icip_consent')
@@ -93,7 +93,7 @@ class OcapService
             }
         }
 
-        // Control — consent status
+        // Control - consent status
         $control = self::STATUS_NA;
         if (Schema::hasTable('icip_consent')) {
             $latest = DB::table('icip_consent')
@@ -120,7 +120,7 @@ class OcapService
             }
         }
 
-        // Access — at least one restriction defined OR consent granted with no restrictions
+        // Access - at least one restriction defined OR consent granted with no restrictions
         $access = self::STATUS_NA;
         if (Schema::hasTable('icip_access_restriction')) {
             $hasRestrictions = DB::table('icip_access_restriction')

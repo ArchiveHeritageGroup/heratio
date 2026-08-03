@@ -1,5 +1,5 @@
 {{--
-  RiC entity-type pill — renders the preferred label for a rico:* type in the
+  RiC entity-type pill - renders the preferred label for a rico:* type in the
   current culture, resolved via VocabularyResolverService against the RiC-O
   ontology loaded into Fuseki (issue #36 Phase 1+2). Falls back to the URI
   fragment if Fuseki is offline or the cache is empty.

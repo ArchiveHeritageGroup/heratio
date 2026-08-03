@@ -14,7 +14,7 @@ class PortableImportCommand extends Command
         {--culture=en : Default culture for unmatched i18n}
         {--user-id=1 : User id to credit the import to}';
 
-    protected $description = 'Import a portable package — extract, validate manifest, queue ingest';
+    protected $description = 'Import a portable package - extract, validate manifest, queue ingest';
 
     public function handle(): int
     {
@@ -48,7 +48,7 @@ class PortableImportCommand extends Command
         }
         $manifestPath = rtrim((string) $extractDir, '/').'/manifest.json';
         if (! is_readable($manifestPath)) {
-            $this->error("manifest.json missing in {$extractDir} — package invalid.");
+            $this->error("manifest.json missing in {$extractDir} - package invalid.");
 
             return self::FAILURE;
         }

@@ -9,8 +9,8 @@
         <div>
             <h2 class="mb-0">{{ __('Z39.50 Search Results') }}</h2>
             <p class="text-muted small mb-0">
-                Target: <strong>{{ $targetName }}</strong> —
-                Query: <em>"{{ $query }}"</em> —
+                Target: <strong>{{ $targetName }}</strong> -
+                Query: <em>"{{ $query }}"</em> -
                 {{ $count }} record(s) found
             </p>
         </div>
@@ -53,15 +53,15 @@
                             <div class="accordion-body">
                                 <dl class="row small mb-3">
                                     <dt class="col-md-3 text-muted">Control (001)</dt>
-                                    <dd class="col-md-9 font-monospace"><code>{{ $rec['control_001'] ?: '—' }}</code></dd>
+                                    <dd class="col-md-9 font-monospace"><code>{{ $rec['control_001'] ?: '-' }}</code></dd>
                                     <dt class="col-md-3 text-muted">ISBN</dt>
-                                    <dd class="col-md-9">{{ $rec['isbn'] ?: '—' }}</dd>
+                                    <dd class="col-md-9">{{ $rec['isbn'] ?: '-' }}</dd>
                                     <dt class="col-md-3 text-muted">ISSN</dt>
-                                    <dd class="col-md-9">{{ $rec['issn'] ?: '—' }}</dd>
+                                    <dd class="col-md-9">{{ $rec['issn'] ?: '-' }}</dd>
                                     <dt class="col-md-3 text-muted">Publisher</dt>
-                                    <dd class="col-md-9">{{ $rec['publisher'] ?: '—' }}</dd>
+                                    <dd class="col-md-9">{{ $rec['publisher'] ?: '-' }}</dd>
                                     <dt class="col-md-3 text-muted">Date</dt>
-                                    <dd class="col-md-9">{{ $rec['pub_date'] ?: '—' }}</dd>
+                                    <dd class="col-md-9">{{ $rec['pub_date'] ?: '-' }}</dd>
                                 </dl>
                                 <div class="d-flex gap-2">
                                     <form method="POST" action="{{ route('library.marc-copy-cataloguing.preview') }}">

@@ -1,10 +1,10 @@
 -- ============================================================================
--- ahg-core — user_plugin_grant  (issue #40 c5: admin capability layer)
+-- ahg-core - user_plugin_grant  (issue #40 c5: admin capability layer)
 -- ============================================================================
 -- Layered with user_plugin_preference (created in migration 001):
 --
---   user_plugin_grant       — "what is this user ALLOWED to use"  (admin sets)
---   user_plugin_preference  — "what does this user CHOOSE to see" (user sets)
+--   user_plugin_grant       - "what is this user ALLOWED to use"  (admin sets)
+--   user_plugin_preference  - "what does this user CHOOSE to see" (user sets)
 --
 -- Visibility resolution (in MenuService::isPluginEnabled):
 --   1. globally enabled (atom_plugin.is_enabled = 1)              [admin]
@@ -12,9 +12,9 @@
 --   3. NOT user-hidden (user_plugin_preference.is_hidden = 1)     [user]
 --
 -- Mode column lets admins say:
---   'allow'     — user IS allowed (overrides default-deny if mode=deny)
---   'deny'      — user is NOT allowed regardless of global state
---   'inherit'   — fall back to global (the default; row absence = inherit)
+--   'allow'     - user IS allowed (overrides default-deny if mode=deny)
+--   'deny'      - user is NOT allowed regardless of global state
+--   'inherit'   - fall back to global (the default; row absence = inherit)
 --
 -- A row is only stored when mode != 'inherit', so the table stays small.
 -- ============================================================================

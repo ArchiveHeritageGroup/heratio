@@ -1,4 +1,4 @@
-{{-- Spectrum Phase C1 — collection-wide compliance dashboard --}}
+{{-- Spectrum Phase C1 - collection-wide compliance dashboard --}}
 @extends('theme::layouts.1col')
 
 @section('title', __('Museum procedure compliance dashboard'))

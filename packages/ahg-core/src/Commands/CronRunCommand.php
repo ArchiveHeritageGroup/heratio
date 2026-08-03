@@ -88,7 +88,7 @@ class CronRunCommand extends Command
         $result = $service->runSingle($schedule);
 
         $icon = $result['status'] === 'success' ? 'OK' : 'FAIL';
-        $this->line("[{$icon}] {$result['slug']} ({$result['duration_ms']}ms) — next run: {$result['next_run']}");
+        $this->line("[{$icon}] {$result['slug']} ({$result['duration_ms']}ms) - next run: {$result['next_run']}");
 
         return $result['status'] === 'success' ? self::SUCCESS : self::FAILURE;
     }

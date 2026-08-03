@@ -23,7 +23,7 @@ class PrivacyScanPiiCommand extends Command
         $since = $this->option('since');
         $dry = (bool) $this->option('dry-run');
 
-        // Conservative regex set — false positives are tolerable since results land in
+        // Conservative regex set - false positives are tolerable since results land in
         // privacy_redaction_cache for human review, not auto-redaction.
         $patterns = [
             'sa_id' => '/\b\d{6}[ ]?\d{4}[ ]?\d{3}\b/',                     // SA 13-digit ID

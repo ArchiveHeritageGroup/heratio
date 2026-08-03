@@ -10,7 +10,7 @@
                 <i class="fas fa-database me-2"></i>Database Usage Report (DR)
             </h1>
             <p class="text-muted small mb-0">
-                COUNTER 5 Database Report &mdash;
+                COUNTER 5 Database Report -
                 @if($fromDate && $toDate)
                     {{ \Carbon\Carbon::parse($fromDate)->format('M Y') }}
                     to {{ \Carbon\Carbon::parse($toDate)->format('M Y') }}
@@ -91,7 +91,7 @@
             </div>
             <div class="card-footer small text-muted">
                 Report generated {{ now()->format('d M Y H:i') }} &middot;
-                Period: {{ $fromDate ?? '—' }} to {{ $toDate ?? '—' }}
+                Period: {{ $fromDate ?? '-' }} to {{ $toDate ?? '-' }}
             </div>
         </div>
     @endif

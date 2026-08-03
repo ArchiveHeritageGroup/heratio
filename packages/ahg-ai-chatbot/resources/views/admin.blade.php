@@ -1,7 +1,7 @@
 {{-- Chatbot admin dashboard --}}
 @extends('layouts/admin')
 
-@section('title', 'Chatbot — Admin')
+@section('title', 'Chatbot - Admin')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -82,7 +82,7 @@
                                         {{ number_format($row['grounding_score'], 3) }}
                                     </span>
                                 </td>
-                                <td class="small">{{ $row['model'] ?? '–' }}</td>
+                                <td class="small">{{ $row['model'] ?? '-' }}</td>
                                 <td class="small" style="max-width: 400px;">
                                     <span class="text-truncate d-inline-block" style="max-width: 380px;">
                                         {{ Str::limit($row['content'], 120) }}

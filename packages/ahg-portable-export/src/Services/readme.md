@@ -1,4 +1,4 @@
-# AhgPortableExport — Services
+# AhgPortableExport - Services
 
 Services directory for the AhgPortableExport package.
 

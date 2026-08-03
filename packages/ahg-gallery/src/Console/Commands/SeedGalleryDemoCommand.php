@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SeedGalleryDemoCommand — seeds the 22 demo AI-generated gallery PNGs
+ * SeedGalleryDemoCommand - seeds the 22 demo AI-generated gallery PNGs
  * shipped under docs/.
  *
  * Copyright (C) 2026 Johan Pieterse
@@ -123,7 +123,7 @@ class SeedGalleryDemoCommand extends Command
                 'materials' => 'Oil on canvas',
                 'palette' => 'Deep red, navy blue, gold, stone beige, soft green',
                 'mood' => 'Noble, calm, symbolic, refined, contemplative',
-                'description' => 'A formal Renaissance-inspired portrait of a noblewoman standing beneath a stone arcade. Rich deep red and dark blue garments with gold detailing suggest status, refinement and learning. She holds white lilies and a book — purity and inner reflection — against an open arch revealing a calm landscape with distant buildings, hills and sky.',
+                'description' => 'A formal Renaissance-inspired portrait of a noblewoman standing beneath a stone arcade. Rich deep red and dark blue garments with gold detailing suggest status, refinement and learning. She holds white lilies and a book - purity and inner reflection - against an open arch revealing a calm landscape with distant buildings, hills and sky.',
             ],
             [
                 'n' => 10, 'file' => 'Gallery Item 10.png',
@@ -281,7 +281,7 @@ class SeedGalleryDemoCommand extends Command
                 'edition' => 'Limited Edition of 18',
                 'palette' => 'Patinated bronze, deep umber, gold',
                 'mood' => 'Mythic, watchful, soaring',
-                'description' => 'Poised between earth and wind, Sky Sentinel embodies the eternal mythicality of ancient skies. Its form captures the moment before flight — muscles coiled, wings unfolding, vision set beyond horizon and time. A tribute to the unseen guardians of deep time, it speaks to freedom, instinct, and the vast silence that shaped a world long before our own. A symbol of courage, perspective, and the enduring spirit of the wild.',
+                'description' => 'Poised between earth and wind, Sky Sentinel embodies the eternal mythicality of ancient skies. Its form captures the moment before flight - muscles coiled, wings unfolding, vision set beyond horizon and time. A tribute to the unseen guardians of deep time, it speaks to freedom, instinct, and the vast silence that shaped a world long before our own. A symbol of courage, perspective, and the enduring spirit of the wild.',
             ],
             [
                 'n' => 23, 'file' => 'Gallery Item 23.png',
@@ -324,7 +324,7 @@ class SeedGalleryDemoCommand extends Command
                 'dimensions' => '28 x 24 x 41 cm (small) / 75 x 36 x 104 cm (large)',
                 'palette' => 'Bronze, blue-green patina',
                 'mood' => 'Aspirational, renewing, luminous',
-                'description' => 'Tidal Ascent captures the instant of breaking through — where effort meets liberation. The swimmer rises with power and grace, propelled by inner strength and the rhythm of the tide. A celebration of aspiration, renewal, and the pull toward light.',
+                'description' => 'Tidal Ascent captures the instant of breaking through - where effort meets liberation. The swimmer rises with power and grace, propelled by inner strength and the rhythm of the tide. A celebration of aspiration, renewal, and the pull toward light.',
             ],
             [
                 'n' => 30, 'file' => 'Gallery Item 30.png',
@@ -334,7 +334,7 @@ class SeedGalleryDemoCommand extends Command
                 'dimensions' => '30 x 27 x 25 cm (small) / 76 x 36 x 31 cm (large)',
                 'palette' => 'Stone white, warm brass',
                 'mood' => 'Fluid, weightless, focused',
-                'description' => 'Understream Figure embodies the quiet power of flow and focus beneath the surface. In a state of weightless harmony, the swimmer becomes one with the current — guided by intuition, meeting purpose, ascent unstoppable.',
+                'description' => 'Understream Figure embodies the quiet power of flow and focus beneath the surface. In a state of weightless harmony, the swimmer becomes one with the current - guided by intuition, meeting purpose, ascent unstoppable.',
             ],
         ];
     }
@@ -360,7 +360,7 @@ class SeedGalleryDemoCommand extends Command
             $sourcePath = $sourceDir . '/' . $item['file'];
 
             if (!file_exists($sourcePath)) {
-                $this->warn("[{$identifier}] Source file missing: {$sourcePath} — skipping");
+                $this->warn("[{$identifier}] Source file missing: {$sourcePath} - skipping");
                 $errors++;
                 continue;
             }
@@ -370,15 +370,15 @@ class SeedGalleryDemoCommand extends Command
                 ->value('id');
 
             if ($existingId && !$force) {
-                $this->line("[{$identifier}] Already seeded (IO #{$existingId}) — skipping");
+                $this->line("[{$identifier}] Already seeded (IO #{$existingId}) - skipping");
                 $skipped++;
                 continue;
             }
 
             $scope = $item['description']
-                . "\n\n— Style: {$item['style']}"
-                . (isset($item['palette']) ? "\n— Palette: {$item['palette']}" : '')
-                . (isset($item['mood']) ? "\n— Feeling: {$item['mood']}" : '');
+                . "\n\n- Style: {$item['style']}"
+                . (isset($item['palette']) ? "\n- Palette: {$item['palette']}" : '')
+                . (isset($item['mood']) ? "\n- Feeling: {$item['mood']}" : '');
 
             $payload = [
                 'identifier' => $identifier,
@@ -399,13 +399,13 @@ class SeedGalleryDemoCommand extends Command
                 'style' => $item['style'],
                 'materials' => $item['materials'] ?? null,
                 'dimensions' => $item['dimensions'] ?? null,
-                'rights_type' => 'AI-generated content — non-authoritative',
+                'rights_type' => 'AI-generated content - non-authoritative',
                 'cataloger_name' => 'gallery:seed-demo',
                 'cataloging_date' => now()->format('Y-m-d'),
             ];
 
             if ($dryRun) {
-                $this->info("[{$identifier}] DRY RUN — would create '{$item['title']}' from {$item['file']}");
+                $this->info("[{$identifier}] DRY RUN - would create '{$item['title']}' from {$item['file']}");
                 continue;
             }
 

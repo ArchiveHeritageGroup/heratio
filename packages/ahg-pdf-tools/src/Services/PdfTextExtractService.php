@@ -258,7 +258,7 @@ class PdfTextExtractService
         ]);
 
         // Create property
-        // AtoM `property` has no created_at/updated_at — timestamps live on `object`.
+        // AtoM `property` has no created_at/updated_at - timestamps live on `object`.
         DB::table('property')->insert([
             'id' => $objectId,
             'object_id' => $digitalObjectId,

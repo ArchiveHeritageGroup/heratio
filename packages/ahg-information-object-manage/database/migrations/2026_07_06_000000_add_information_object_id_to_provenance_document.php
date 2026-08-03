@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
  * Fix: ProvenanceService::getDocuments() queries provenance_document by
  * information_object_id, but the consolidate_provenance_stacks migration
  * retired provenance_record and left provenance_document with only
- * provenance_record_id / provenance_event_id — so the column never existed and
+ * provenance_record_id / provenance_event_id - so the column never existed and
  * the /provenance page 500'd ("Unknown column 'information_object_id'").
  *
  * This adds the per-IO link column and backfills it from the retired record
@@ -31,7 +31,7 @@ return new class extends Migration
             });
         }
 
-        // Backfill only where the legacy link columns actually exist — the
+        // Backfill only where the legacy link columns actually exist - the
         // provenance_document schema varies across instances (some have
         // provenance_record_id / provenance_event_id, some don't).
         $retiredUsable = Schema::hasTable('provenance_record_retired')

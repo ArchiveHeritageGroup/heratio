@@ -571,7 +571,7 @@
           <div class="accordion-body">
             {{-- Mirrors the PSIS / ahgMuseumPlugin _watermarkSettings.php template.
                  No object_watermark_setting row exists yet for a brand-new IO,
-                 so every field defaults — store() picks up the values via the
+                 so every field defaults - store() picks up the values via the
                  same save block edit() uses. --}}
             @php
               $wmEnabled       = old('watermark_enabled', 0) ? 1 : 0;
@@ -772,7 +772,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Generate identifier handler lives in the compiled theme bundle (Webpack
   // module 7269), keyed off the data-generate-identifier-url attribute on the
-  // button. We deliberately don't bind a second handler here — having two
+  // button. We deliberately don't bind a second handler here - having two
   // listeners on the same click was racing with the bundle's success callback
   // and clearing the field. See attribute set above.
 

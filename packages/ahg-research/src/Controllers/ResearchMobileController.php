@@ -167,7 +167,7 @@ class ResearchMobileController extends Controller
         $this->offline->createPackage($researcher, $userId, 'mixed', 0, $title, $slugs);
 
         return redirect()->route('research.mobileHome')
-            ->with('success', __('Your offline package is being prepared — it will appear below to download in a moment.'));
+            ->with('success', __('Your offline package is being prepared - it will appear below to download in a moment.'));
     }
 
     /**
@@ -233,7 +233,7 @@ class ResearchMobileController extends Controller
         }
         $msg = __('Synced :n change(s) back into your research.', ['n' => $r['applied']]);
         if ($detail) {
-            $msg .= ' — '.implode(', ', $detail);
+            $msg .= ' - '.implode(', ', $detail);
         }
         if ($r['conflicts']) {
             $msg .= ' ('.$r['conflicts'].' '.__('could not be applied').')';

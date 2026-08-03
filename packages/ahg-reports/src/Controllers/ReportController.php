@@ -520,7 +520,7 @@ class ReportController extends Controller
         $availablePlaces = $placeTerms->pluck('name', 'id')->toArray();
         $availableLevels = $levels->pluck('name', 'id')->toArray();
 
-        // previewData (PSIS format) — only populated on explicit preview request
+        // previewData (PSIS format) - only populated on explicit preview request
         $previewData = null;
         if ($request->input('preview')) {
             $headers = [

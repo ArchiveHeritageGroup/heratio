@@ -1,5 +1,5 @@
 {{--
-  Loans Report — cloned from AtoM galleryReports/loansSuccess.php
+  Loans Report - cloned from AtoM galleryReports/loansSuccess.php
   @copyright  Johan Pieterse / Plain Sailing
   @license    AGPL-3.0-or-later
 --}}

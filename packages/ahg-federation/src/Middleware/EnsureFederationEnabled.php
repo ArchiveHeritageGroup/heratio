@@ -24,7 +24,7 @@ class EnsureFederationEnabled
     public function handle(Request $request, Closure $next)
     {
         if (! $this->service->isEnabled()) {
-            // Feature is disabled — present 404 to avoid exposing plugin UI.
+            // Feature is disabled - present 404 to avoid exposing plugin UI.
             abort(404);
         }
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RightsEnforcementService — Heratio ahg-scan (P4)
+ * RightsEnforcementService - Heratio ahg-scan (P4)
  *
  * Applies sidecar-declared rights at ingest:
  *   <rightsStatement uri="...">  → object_rights_statement (+ rights_statement create-if-missing)
@@ -93,7 +93,7 @@ class RightsEnforcementService
         $needsReview = false;
         if (! empty($session->security_classification_id) && ! $anythingApplied) {
             $needsReview = true;
-            $warnings[] = 'Session has a security classification but sidecar supplied no rights block — held for review.';
+            $warnings[] = 'Session has a security classification but sidecar supplied no rights block - held for review.';
         }
 
         return ['needsReview' => $needsReview, 'warnings' => $warnings];
@@ -299,7 +299,7 @@ class RightsEnforcementService
                 'updated_at' => now(),
             ]);
         } else {
-            $warnings[] = "ODRL policy '{$slugOrId}' is not a template id — slug resolution requires a named-policy registry (P7).";
+            $warnings[] = "ODRL policy '{$slugOrId}' is not a template id - slug resolution requires a named-policy registry (P7).";
         }
     }
 
@@ -340,7 +340,7 @@ class RightsEnforcementService
             ->value('donor.id');
 
         if (! $donorId) {
-            // Don't auto-create donor here — creating a rights-holder record
+            // Don't auto-create donor here - creating a rights-holder record
             // has stronger implications than a plain actor. Caller gets a
             // warning via return-value; we just skip.
             return;

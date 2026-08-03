@@ -54,7 +54,7 @@ Route::prefix('admin/icip')->middleware(['web', 'auth', 'audit.icip'])->group(fu
     // Acknowledgement
     Route::post('/acknowledge', [\AhgIcip\Controllers\IcipController::class, 'acknowledge'])->name('ahgicip.acknowledge')->middleware('acl:create');
 
-    // OCAP overlay (pluggable per-market — Ownership, Control, Access, Possession)
+    // OCAP overlay (pluggable per-market - Ownership, Control, Access, Possession)
     Route::get('/ocap', [\AhgIcip\Controllers\IcipController::class, 'ocapDashboard'])->name('ahgicip.ocap');
     Route::match(['get', 'post'], '/ocap/settings', [\AhgIcip\Controllers\IcipController::class, 'ocapSettings'])->name('ahgicip.ocap-settings');
     Route::post('/ocap/io-possession', [\AhgIcip\Controllers\IcipController::class, 'ocapSetPossession'])->name('ahgicip.ocap-set-possession')->middleware('acl:update');

@@ -1,5 +1,5 @@
 {{--
-  Archival Description Report — full ISAD(G) field dump with column toggles
+  Archival Description Report - full ISAD(G) field dump with column toggles
   Cloned from AtoM ahgReportsPlugin reportInformationObjectSuccess.blade.php
 
   @copyright  Johan Pieterse / Plain Sailing

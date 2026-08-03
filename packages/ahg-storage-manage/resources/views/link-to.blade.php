@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Link Physical Storage — ' . ($io->title ?? ''))
+@section('title', 'Link Physical Storage - ' . ($io->title ?? ''))
 @section('body-class', 'edit physicalobject')
 
 @section('content')

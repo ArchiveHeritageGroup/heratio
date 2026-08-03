@@ -26,11 +26,11 @@ class AppServiceProvider extends ServiceProvider
         $this->callAfterResolving('router', function ($router) {
             $router->get('/sru', [\AhgZ3950\Controllers\SruController::class, 'handle'])
                 ->name('sru.handle');
-            // #1379: the z3950 dashboard lists configured remote-target host/port/db —
+            // #1379: the z3950 dashboard lists configured remote-target host/port/db -
             // staff-only, was anon-public. Gate under web+auth (was bare).
             $router->get('/z3950', [\AhgZ3950\Controllers\Z3950Controller::class, 'index'])
                 ->middleware(['web', 'auth'])->name('z3950.index');
-            // /metrics (ahg-observability Prometheus scrape) — bare, NO 'web'
+            // /metrics (ahg-observability Prometheus scrape) - bare, NO 'web'
             // middleware (controller auths via bearer token / allow-listed IP).
             // Pre-registered here so it beats the slug catch-all, which would
             // otherwise eat /metrics and 404 it (#1137). Unnamed to avoid a
@@ -104,7 +104,7 @@ class AppServiceProvider extends ServiceProvider
         // so an attacker who rotates IPs still hits the username throttle.
         RateLimiter::for('login', function (Request $request) {
             $ip = (string) $request->ip();
-            // #1395(E) — the login form posts 'email' (LoginController reads
+            // #1395(E) - the login form posts 'email' (LoginController reads
             // input('email')); the previous input('username') was always empty,
             // collapsing the per-account limiter into one shared bucket.
             $username = (string) $request->input('email', '');

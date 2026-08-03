@@ -10,7 +10,7 @@ class NmmzReportCommand extends Command
     protected $signature = 'ahg:nmmz-report
         {--format=table : Output (table or json)}';
 
-    protected $description = 'Zimbabwe NMMZ monuments report — dashboard stats + compliance status';
+    protected $description = 'Zimbabwe NMMZ monuments report - dashboard stats + compliance status';
 
     public function handle(NmmzService $svc): int
     {

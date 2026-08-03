@@ -71,7 +71,7 @@ class DamService
             ->tap(fn ($q) => $this->joinI18nWithFallback($q, 'information_object_i18n', 'io', aliasPrefix: 'i18n'))
             ->leftJoin('dam_iptc_metadata as iptc', 'io.id', '=', 'iptc.object_id')
             ->where('io.id', $id)
-            // Guests see only published assets (status 158/160) — draft-leak fix (#1358).
+            // Guests see only published assets (status 158/160) - draft-leak fix (#1358).
             ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s) {
                 $s->select(DB::raw(1))->from('status as pub_st')
                     ->whereColumn('pub_st.object_id', 'io.id')
@@ -180,7 +180,7 @@ class DamService
             })
             ->leftJoin('dam_iptc_metadata as iptc', 'io.id', '=', 'iptc.object_id');
 
-        // Guests see only published assets (status 158/160) — draft-leak fix (#1358).
+        // Guests see only published assets (status 158/160) - draft-leak fix (#1358).
         if (! auth()->check()) {
             $baseQuery->whereExists(function ($s) {
                 $s->select(DB::raw(1))->from('status as pub_st')
@@ -496,7 +496,7 @@ class DamService
                 'property_release_status', 'property_release_id',
                 'artwork_title', 'artwork_creator', 'artwork_date',
                 'artwork_source', 'artwork_copyright',
-                // Production credits — JSON array of {role, name} pairs.
+                // Production credits - JSON array of {role, name} pairs.
                 'contributors_json',
             ];
 

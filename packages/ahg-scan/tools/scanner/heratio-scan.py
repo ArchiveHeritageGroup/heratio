@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-heratio-scan.py — upload a scanned file to Heratio via the Scan API.
+heratio-scan.py - upload a scanned file to Heratio via the Scan API.
 
 Cross-platform; needs only the Python standard library + `requests`.
 

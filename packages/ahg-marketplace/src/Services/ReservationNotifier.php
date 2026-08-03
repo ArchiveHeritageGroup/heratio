@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ReservationNotifier — sends emails for reservation lifecycle events to
+ * ReservationNotifier - sends emails for reservation lifecycle events to
  * the buyer (always) and the seller (when they have notifications enabled).
  *
  * Trigger points:

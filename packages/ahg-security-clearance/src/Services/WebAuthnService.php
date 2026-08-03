@@ -1,19 +1,19 @@
 <?php
 
 /**
- * WebAuthnService — FIDO2 / WebAuthn / passkey MFA backend for Heratio (issue
+ * WebAuthnService - FIDO2 / WebAuthn / passkey MFA backend for Heratio (issue
  * #721).
  *
  * Wraps web-auth/webauthn-lib ^5.3 with the ahg_webauthn_credential table.
  * Provides per-user enrolment (registration) and login-time assertion. Lives
- * alongside TotpService (issue #690) — a user can enrol either factor, or
+ * alongside TotpService (issue #690) - a user can enrol either factor, or
  * both. The LoginController + RequireMfaCompletion middleware decide which
  * factor to present at sign-in.
  *
  * The library expects a "credential source repository" so it can look up a
  * stored credential during assertion and persist a new one after attestation.
  * We implement that repository inline against the ahg_webauthn_credential
- * table — credentials are serialised to JSON via Symfony Serializer
+ * table - credentials are serialised to JSON via Symfony Serializer
  * (the library ships the SerializerFactory that builds a normaliser stack for
  * its DTOs) and stored as a blob.
  *
@@ -93,7 +93,7 @@ class WebAuthnService
     public function __construct()
     {
         // The library's "no-framework" wiring: build an AttestationStatementSupportManager
-        // (we accept "none" attestation only — every browser/platform passkey
+        // (we accept "none" attestation only - every browser/platform passkey
         // supports it and we don't need MDS-backed verification for a self-hosted
         // archival platform), then hand it to the serializer factory.
         $this->attestationManager = AttestationStatementSupportManager::create();

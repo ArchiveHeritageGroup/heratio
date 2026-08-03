@@ -40,7 +40,7 @@ class LegacyApiController extends Controller
     }
 
     /**
-     * GET/POST /api/search/io — Legacy IO search.
+     * GET/POST /api/search/io - Legacy IO search.
      */
     public function searchIo(Request $request): JsonResponse
     {
@@ -89,7 +89,7 @@ class LegacyApiController extends Controller
     }
 
     /**
-     * GET/POST /api/autocomplete/glam — GLAM autocomplete for search boxes.
+     * GET/POST /api/autocomplete/glam - GLAM autocomplete for search boxes.
      */
     public function autocompleteGlam(Request $request): JsonResponse
     {
@@ -152,7 +152,7 @@ class LegacyApiController extends Controller
     }
 
     /**
-     * GET /api/export-preview — Export statistics.
+     * GET /api/export-preview - Export statistics.
      *
      * If ?collection= is provided, returns collection-specific stats + hierarchy.
      * Otherwise returns global counts.
@@ -307,9 +307,9 @@ class LegacyApiController extends Controller
     }
 
     /**
-     * GET /api/reports/pending-counts — Counts for UI badges.
+     * GET /api/reports/pending-counts - Counts for UI badges.
      *
-     * Ported from AtoM apiReportsPendingCountsAction — returns counts for
+     * Ported from AtoM apiReportsPendingCountsAction - returns counts for
      * access requests, loans, condition alerts, valuation alerts, pending
      * approvals, clearance expiry, draft descriptions, and failed jobs.
      */

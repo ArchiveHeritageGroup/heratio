@@ -168,12 +168,12 @@
                         </span>
                       </div>
                     @else
-                      &mdash;
+                      -
                     @endif
                   </td>
                   <td>{{ $run->started_at ? \Carbon\Carbon::parse($run->started_at)->format('Y-m-d H:i') : '' }}</td>
                   <td>{{ $run->completed_at ? \Carbon\Carbon::parse($run->completed_at)->format('Y-m-d H:i') : '' }}</td>
-                  <td>{{ $run->duration ?? '&mdash;' }}</td>
+                  <td>{{ $run->duration ?? '-' }}</td>
                 </tr>
               @endforeach
             </tbody>

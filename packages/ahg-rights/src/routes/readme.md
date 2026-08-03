@@ -1,4 +1,4 @@
-# AhgRights — Routes
+# AhgRights - Routes
 
 Routes directory for the AhgRights package.
 

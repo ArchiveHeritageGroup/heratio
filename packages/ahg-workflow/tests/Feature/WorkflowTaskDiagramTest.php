@@ -76,7 +76,7 @@ class WorkflowTaskDiagramTest extends TestCase
         $wfId = $this->makeWorkflow();
         $sId1 = $this->makeStep($wfId, 'Step 1', 1);
 
-        // Two tasks on the same step — one approved (resubmitted) then rejected.
+        // Two tasks on the same step - one approved (resubmitted) then rejected.
         $this->makeTask($wfId, $sId1, objectId: 42, status: 'completed', decision: 'approved');
         $task2Id = $this->makeTask($wfId, $sId1, objectId: 42, status: 'completed', decision: 'rejected');
 
@@ -91,7 +91,7 @@ class WorkflowTaskDiagramTest extends TestCase
         $sId1 = $this->makeStep($wfId, 'Step 1', 1);
         $sId2 = $this->makeStep($wfId, 'Step 2', 2);
 
-        // Object 100 finished step 1 — should NOT mark step 1 completed when we view object 200.
+        // Object 100 finished step 1 - should NOT mark step 1 completed when we view object 200.
         $this->makeTask($wfId, $sId1, objectId: 100, status: 'completed', decision: 'approved');
 
         $task200 = $this->makeTask($wfId, $sId1, objectId: 200, status: 'pending', decision: 'pending');
@@ -112,7 +112,7 @@ class WorkflowTaskDiagramTest extends TestCase
         $taskA = $this->makeTask($wfA, $sA1, objectId: 42, status: 'pending', decision: 'pending');
 
         $payload = $this->svc->renderForTask($taskA);
-        // Workflow A's step 1 is current — workflow B's history must not leak in.
+        // Workflow A's step 1 is current - workflow B's history must not leak in.
         $this->assertSame('current', $payload['statusMap'][$sA1]);
         $this->assertArrayNotHasKey($sB1, $payload['statusMap']);
     }

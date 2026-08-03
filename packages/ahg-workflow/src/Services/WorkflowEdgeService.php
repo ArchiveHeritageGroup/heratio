@@ -130,7 +130,7 @@ class WorkflowEdgeService
             return $errors;
         }
 
-        // Cycle detection — DFS-based.
+        // Cycle detection - DFS-based.
         $adj = [];
         foreach ($edges as $e) {
             $adj[(int) $e['from_step_id']][] = (int) $e['to_step_id'];

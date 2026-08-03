@@ -1,4 +1,4 @@
-{{-- ahg-biblio-bf/import.blade.php — Import BIBFRAME RDF --}}
+{{-- ahg-biblio-bf/import.blade.php - Import BIBFRAME RDF --}}
 @extends('theme::layouts.1col')
 
 @section('content')

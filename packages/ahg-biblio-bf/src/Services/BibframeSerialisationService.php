@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BibframeSerialisationService — BIBFRAME Turtle / JSON-LD / RDF/XML export.
+ * BibframeSerialisationService - BIBFRAME Turtle / JSON-LD / RDF/XML export.
  *
  * Converts catalogue records (library_item) to BIBFRAME 2.0 RDF in three
  * serialisation formats:
@@ -170,7 +170,7 @@ class BibframeSerialisationService
     }
 
     /**
-     * Serialise to RDF/XML — delegates to existing BibframeService for canonical
+     * Serialise to RDF/XML - delegates to existing BibframeService for canonical
      * RDF/XML output (this method is an alias for that path).
      *
      * @param int $workId  library_item.id of the work's representative item

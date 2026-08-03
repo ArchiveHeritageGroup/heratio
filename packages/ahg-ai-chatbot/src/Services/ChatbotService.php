@@ -4,10 +4,10 @@
  * ChatbotService
  *
  * RAG-grounded chatbot engine. Orchestrates:
- *   1. retrieveCatalogue(query)  — Qdrant/KM retrieval
- *   2. buildRagPrompt(query, hits, history) — compose system + user prompt
- *   3. dispatch(userMessage, ...) — GuardrailService → LlmService → InferenceLogger
- *   4. saveMessage(...)          — persist to ahg_ai_chatbot_message
+ *   1. retrieveCatalogue(query)  - Qdrant/KM retrieval
+ *   2. buildRagPrompt(query, hits, history) - compose system + user prompt
+ *   3. dispatch(userMessage, ...) - GuardrailService → LlmService → InferenceLogger
+ *   4. saveMessage(...)          - persist to ahg_ai_chatbot_message
  *
  * Copyright (C) 2026 Johan Pieterse
  * AGPL-3.0
@@ -175,7 +175,7 @@ class ChatbotService
         // Inject catalogue context if records were retrieved
         $contextBlock = '';
         if (!empty($records)) {
-            $lines = ["SOURCES — extracted from the Heratio catalogue:\n"];
+            $lines = ["SOURCES - extracted from the Heratio catalogue:\n"];
             foreach (array_slice($records, 0, $this->maxContext) as $i => $rec) {
                 $num = $i + 1;
                 // #1208 soft blend: flag a cross-language source so the model (and its
@@ -292,7 +292,7 @@ class ChatbotService
     }
 
     /**
-     * Base system prompt — archival-specialist persona with source-citation
+     * Base system prompt - archival-specialist persona with source-citation
      * and grounding rules.
      */
     private function baseSystemPrompt(): string

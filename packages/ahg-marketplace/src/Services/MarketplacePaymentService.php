@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MarketplacePaymentService — PayFast gateway integration for the
+ * MarketplacePaymentService - PayFast gateway integration for the
  * Heratio Marketplace.
  *
  * Reads PayFast credentials from ahg_ecommerce_settings (id=1).
@@ -143,7 +143,7 @@ class MarketplacePaymentService
             return false;
         }
 
-        // 2. Source IP (skip in sandbox — PayFast sandbox doesn't publish a stable IP list)
+        // 2. Source IP (skip in sandbox - PayFast sandbox doesn't publish a stable IP list)
         if (!$this->isSandbox() && !$this->isPayFastIp($sourceIp)) {
             Log::warning('[PayFast ITN] source IP not in PayFast list', ['ip' => $sourceIp]);
             return false;

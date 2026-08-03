@@ -8,10 +8,10 @@
  * in multiple RDF serialisations, and basic structural validation.
  *
  * BIBFRAME 2.0 model (Library of Congress):
- *   Work — a distinct intellectual or artistic creation
- *   Instance — a specific realisation of a Work (edition, format)
- *   Item — a concrete copy of an Instance
- *   Agent — a person or corporate body associated with a Work
+ *   Work - a distinct intellectual or artistic creation
+ *   Instance - a specific realisation of a Work (edition, format)
+ *   Item - a concrete copy of an Instance
+ *   Agent - a person or corporate body associated with a Work
  *
  * Conversion path (see BiblioWorkRepository for the projection):
  *   Heratio library_item work_key cluster → BIBFRAME Work
@@ -574,9 +574,9 @@ XML;
     {
         return match ($format) {
             'rdfxml', 'xml' => $rdf,
-            'turtle'  => "# Turtle serialisation — requires EasyRdf or equivalent.\n# Returned as RDF/XML for now.\n" . $rdf,
-            'ntriples' => "# N-Triples serialisation — requires EasyRdf or equivalent.\n" . $rdf,
-            'json-ld' => "# JSON-LD serialisation — requires EasyRdf or equivalent.\n" . $rdf,
+            'turtle'  => "# Turtle serialisation - requires EasyRdf or equivalent.\n# Returned as RDF/XML for now.\n" . $rdf,
+            'ntriples' => "# N-Triples serialisation - requires EasyRdf or equivalent.\n" . $rdf,
+            'json-ld' => "# JSON-LD serialisation - requires EasyRdf or equivalent.\n" . $rdf,
             default   => $rdf,
         };
     }

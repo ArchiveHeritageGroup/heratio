@@ -1,5 +1,5 @@
 -- ============================================================================
--- ahg-scan — Install SQL
+-- ahg-scan - Install SQL
 --
 -- Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
 -- Licensed under the GNU Affero General Public License v3.

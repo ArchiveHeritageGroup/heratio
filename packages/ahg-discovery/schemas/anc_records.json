@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://heratio.theahg.co.za/schemas/qdrant/anc_records.json",
-  "title": "Qdrant payload — anc_records",
+  "title": "Qdrant payload - anc_records",
   "description": "Vector index of ANC corpus information_object rows. One point per IO. Vector is a 384-dim text embedding (default model: all-minilm) of the IO's title + scope_and_content. Hosted at http://localhost:6333/collections/anc_records. Issue #23.",
   "type": "object",
   "additionalProperties": false,
@@ -15,7 +15,7 @@
     "title": {
       "type": "string",
       "minLength": 1,
-      "description": "information_object_i18n.title (en culture) — embedded into the vector."
+      "description": "information_object_i18n.title (en culture) - embedded into the vector."
     },
     "parent_id": {
       "type": "integer",
@@ -50,7 +50,7 @@
     "consumers": [
       "AhgSearch\\Services\\VectorSearchService::search()",
       "AhgDiscovery\\Services\\Search\\VectorSearchStrategy::search()",
-      "AhgDiscovery\\Controllers\\DiscoveryController::search() — when ?strategies includes 'vector'"
+      "AhgDiscovery\\Controllers\\DiscoveryController::search() - when ?strategies includes 'vector'"
     ]
   }
 }

@@ -66,7 +66,7 @@ class AnalysisBridgeController extends Controller
         if (! $project) {
             abort(404, 'Project not found');
         }
-        // #1395(G) — a project is private to its owner, collaborators and admins;
+        // #1395(G) - a project is private to its owner, collaborators and admins;
         // reject cross-project access (IDOR on analysis results / downloads).
         $isAdmin = \AhgCore\Services\AclService::canAdmin((int) Auth::id());
         $isOwner = (int) ($project->owner_id ?? 0) === (int) ($researcher->id ?? 0);

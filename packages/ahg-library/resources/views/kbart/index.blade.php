@@ -12,7 +12,7 @@
                 <i class="fas fa-table me-2"></i>{{ __('KBART Knowledge Base') }}
             </h1>
             <p class="text-muted small mb-0">
-                NISO KBART (ANSI/NISO Z39.83) — import, export, and manage your library title knowledge base.
+                NISO KBART (ANSI/NISO Z39.83) - import, export, and manage your library title knowledge base.
             </p>
             </div>
         </div>

@@ -1,4 +1,4 @@
-{{-- ahg-biblio-bf/agent.blade.php — Browse BIBFRAME Agents --}}
+{{-- ahg-biblio-bf/agent.blade.php - Browse BIBFRAME Agents --}}
 @extends('theme::layouts.1col')
 
 @section('content')

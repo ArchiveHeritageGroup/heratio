@@ -1,4 +1,4 @@
-{{-- #1099 Training — learner takes the assessment --}}
+{{-- #1099 Training - learner takes the assessment --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -9,7 +9,7 @@
 
 @section('content')
 <div class="container py-3" style="max-width: 760px;">
-  <h1 class="h3 mb-1">{{ __('Assessment') }} — {{ $course['title'] }}</h1>
+  <h1 class="h3 mb-1">{{ __('Assessment') }} - {{ $course['title'] }}</h1>
   <p class="text-muted">{{ $enrol['learner_name'] ?: ('#'.$enrol['id']) }} · {{ __('Pass mark') }} {{ $course['pass_mark'] }}%</p>
 
   @if(!$allDone)

@@ -11,7 +11,7 @@ class IcipCheckExpiryCommand extends Command
         {--days=90 : Warn about consents expiring within N days}
         {--auto-restrict : Automatically apply icip_access_restriction for expired consents}';
 
-    protected $description = 'Check ICIP consent expiry — Indigenous Cultural and Intellectual Property consent lifecycle';
+    protected $description = 'Check ICIP consent expiry - Indigenous Cultural and Intellectual Property consent lifecycle';
 
     public function handle(): int
     {

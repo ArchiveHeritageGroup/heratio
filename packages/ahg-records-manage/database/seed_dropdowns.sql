@@ -1,4 +1,4 @@
--- ahgRecordsManagePlugin — dropdown seed
+-- ahgRecordsManagePlugin - dropdown seed
 --
 -- Adds the controlled-vocabulary entries the RM module reads from ahg_dropdown.
 -- Idempotent (INSERT IGNORE on the unique (taxonomy, code) pair).
@@ -6,7 +6,7 @@
 -- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
 -- License: AGPL-3.0-or-later
 
--- Disposal action codes — what happens at end of retention.
+-- Disposal action codes - what happens at end of retention.
 INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `sort_order`, `is_active`) VALUES
   ('rm_disposal_action', 'Disposal Action', 'records', 'destroy',          'Destroy',                       10, 1),
   ('rm_disposal_action', 'Disposal Action', 'records', 'transfer_archives','Transfer to archives',          20, 1),
@@ -14,7 +14,7 @@ INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_secti
   ('rm_disposal_action', 'Disposal Action', 'records', 'review',           'Review at end of retention',    40, 1),
   ('rm_disposal_action', 'Disposal Action', 'records', 'transfer_external','Transfer to external custodian',50, 1);
 
--- Retention trigger codes — when the retention clock starts.
+-- Retention trigger codes - when the retention clock starts.
 INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `sort_order`, `is_active`) VALUES
   ('rm_retention_trigger', 'Retention Trigger', 'records', 'creation_date',     'Date of creation',                10, 1),
   ('rm_retention_trigger', 'Retention Trigger', 'records', 'closure_date',      'Date the file is closed',         20, 1),
@@ -52,8 +52,8 @@ INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_secti
 
 -- Review schedule decision codes (P2.4).
 INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `sort_order`, `is_active`) VALUES
-  ('rm_review_decision', 'Review Decision', 'records', 'retain_extend', 'Retain — extend retention', 10, 1),
-  ('rm_review_decision', 'Review Decision', 'records', 'retain_review', 'Retain — schedule next review', 20, 1),
+  ('rm_review_decision', 'Review Decision', 'records', 'retain_extend', 'Retain - extend retention', 10, 1),
+  ('rm_review_decision', 'Review Decision', 'records', 'retain_review', 'Retain - schedule next review', 20, 1),
   ('rm_review_decision', 'Review Decision', 'records', 'dispose',       'Trigger disposal action',    30, 1),
   ('rm_review_decision', 'Review Decision', 'records', 'transfer',      'Transfer to archives',       40, 1),
   ('rm_review_decision', 'Review Decision', 'records', 'no_change',     'No change',                  50, 1);

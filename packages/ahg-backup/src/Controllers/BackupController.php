@@ -507,7 +507,7 @@ class BackupController extends Controller
      * surfaces in Johan's bell + toast + chime on ai.theahg.co.za.
      *
      * Fails silently (log + skip) if the inbox directory does not
-     * exist on this host — must NOT crash the surrounding backup
+     * exist on this host - must NOT crash the surrounding backup
      * action.
      */
     private function dispatchWorkbenchNotification(string $username, string $title, string $message, string $eventType): void
@@ -600,7 +600,7 @@ class BackupController extends Controller
      */
     /**
      * Backup dumps are the entire DB (all PII) and restore overwrites it +
-     * untars over the codebase — administrators only, NOT the editor-inclusive
+     * untars over the codebase - administrators only, NOT the editor-inclusive
      * `admin`/canAdmin gate the route group uses (#1383).
      */
     private function requireAdministrator(): void
@@ -623,7 +623,7 @@ class BackupController extends Controller
             'backup_notify_on_failure' => 'nullable|boolean',
         ]);
 
-        // #1383: never let backups land in a web-served directory — repointing
+        // #1383: never let backups land in a web-served directory - repointing
         // backup_path into /uploads or public/ would expose full-PII DB dumps to anon.
         $newPath = rtrim((string) $request->input('backup_path'), '/');
         foreach (array_filter([rtrim((string) config('heratio.uploads_path'), '/'), rtrim(public_path(), '/')]) as $webRoot) {
@@ -708,7 +708,7 @@ class BackupController extends Controller
 
         // #1383: server-side typed confirmation. A restore is irreversible and
         // overwrites live data, so it must not proceed on the client-side JS
-        // confirm alone — the POST must carry the exact phrase the operator
+        // confirm alone - the POST must carry the exact phrase the operator
         // typed. Absent/mismatched => 422, no restore performed.
         if ((string) $request->input('confirm_phrase') !== 'RESTORE') {
             return response()->json([

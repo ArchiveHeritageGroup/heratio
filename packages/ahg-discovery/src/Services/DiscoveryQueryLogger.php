@@ -1,16 +1,16 @@
 <?php
 
 /**
- * DiscoveryQueryLogger — captures per-query telemetry for the Discovery
+ * DiscoveryQueryLogger - captures per-query telemetry for the Discovery
  * pipeline into ahg_discovery_log so ablation analysis is essentially free.
  *
  * Per query the logger records:
- *   strategy_breakdown JSON  — {vector:{hits, ms, top_ids[]}, keyword:{...}, entity:{...}, ...}
- *   pre_merge_ranks    JSON  — {keyword:[ids], vector:[ids], ...} ordered as each strategy returned
- *   post_merge_ranks   JSON  — final user-facing order after merge+enrich
- *   response_ms              — total wall time
- *   expanded_terms     text  — query expansion as a JSON-encoded array
- *   keywords           JSON  — original + expansion words
+ *   strategy_breakdown JSON  - {vector:{hits, ms, top_ids[]}, keyword:{...}, entity:{...}, ...}
+ *   pre_merge_ranks    JSON  - {keyword:[ids], vector:[ids], ...} ordered as each strategy returned
+ *   post_merge_ranks   JSON  - final user-facing order after merge+enrich
+ *   response_ms              - total wall time
+ *   expanded_terms     text  - query expansion as a JSON-encoded array
+ *   keywords           JSON  - original + expansion words
  *
  * Then on click-through ({@see logClick()}) it sets clicked_object + clicked_at.
  * Dwell time is set client-side via a follow-up beacon on page-leave.

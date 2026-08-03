@@ -1,5 +1,5 @@
 {{--
-  Physical Storage Report — browse physical storage objects
+  Physical Storage Report - browse physical storage objects
   Cloned from AtoM ahgReportsPlugin reportPhysicalStorageSuccess.blade.php
 
   @copyright  Johan Pieterse / Plain Sailing

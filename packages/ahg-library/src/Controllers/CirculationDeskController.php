@@ -47,7 +47,7 @@ class CirculationDeskController extends Controller
 
     /**
      * GET /library-manage/circulation
-     * Circulation desk home — scan input and active loans summary.
+     * Circulation desk home - scan input and active loans summary.
      */
     public function index(Request $request)
     {

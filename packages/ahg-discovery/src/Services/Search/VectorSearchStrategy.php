@@ -1,7 +1,7 @@
 <?php
 
 /**
- * VectorSearchStrategy — semantic similarity via Qdrant.
+ * VectorSearchStrategy - semantic similarity via Qdrant.
  *
  * Wraps {@see \AhgSearch\Services\VectorSearchService} so the Discovery pipeline
  * can ablation-test vector contributions independently. Returns hits in the

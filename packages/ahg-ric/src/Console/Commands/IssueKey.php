@@ -148,7 +148,7 @@ class IssueKey extends Command
         <tr><td style="padding:28px 32px 8px;">
           <h1 style="margin:0 0 12px;font-size:22px;font-weight:600;">Your API key has been issued</h1>
           <p style="margin:0 0 16px;line-height:1.5;color:#374151;">
-            Request approved for <strong>{$emailEsc}</strong>. Keep this key safe — treat it like a password.
+            Request approved for <strong>{$emailEsc}</strong>. Keep this key safe - treat it like a password.
           </p>
         </td></tr>
         <tr><td style="padding:0 32px;">
@@ -215,10 +215,10 @@ Send it in the `X-API-Key` header. Example:
        -d '{"title":"My first record"}' \\
        {$base}/records
 
-Or try it interactively at {$base}/docs — paste this key into the
+Or try it interactively at {$base}/docs - paste this key into the
 Authorize dialog.
 
-Treat this key like a password — store it in a secret manager, don't
+Treat this key like a password - store it in a secret manager, don't
 commit it to a repo. If it leaks, reply and we'll revoke it.
 
 Documentation: https://openric.org/guides/getting-started.html

@@ -2,7 +2,7 @@
 
 @section('content')
 @php
-  // Cloned from PSIS ropaViewSuccess — the original instantiated a PrivacyService directly;
+  // Cloned from PSIS ropaViewSuccess - the original instantiated a PrivacyService directly;
   // heratio doesn't have that class yet, so we fall back to empty collections and standard auth().
   $rawBases = $lawfulBases ?? [];
   $isOfficer = auth()->check() && method_exists(auth()->user(), 'isAdministrator') && auth()->user()->isAdministrator();

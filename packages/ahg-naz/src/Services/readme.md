@@ -1,4 +1,4 @@
-# AhgNaz — Services
+# AhgNaz - Services
 
 Services directory for the AhgNaz package.
 

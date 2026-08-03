@@ -146,7 +146,7 @@
                   {{ e($r->patron_id) }}
                 </a>
               @else
-                <span class="text-muted">—</span>
+                <span class="text-muted">-</span>
               @endif
             </td>
             <td>{{ $r->request_date }}</td>
@@ -156,7 +156,7 @@
                   {{ $r->due_date }}
                 </span>
               @else
-                <span class="text-muted">—</span>
+                <span class="text-muted">-</span>
               @endif
             </td>
             <td>

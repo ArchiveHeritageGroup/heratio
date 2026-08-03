@@ -40,39 +40,39 @@ use Illuminate\Support\Facades\Schema;
  * Covers all 24 AtoM ahgSecurityClearancePlugin actions:
  *
  * securityClearance module:
- *   1. index         — List all users and their clearances
- *   2. view          — View single user clearance details
- *   3. grant         — Grant or update clearance (POST)
- *   4. revoke        — Revoke clearance (POST)
- *   5. bulkGrant     — Bulk grant clearances (POST)
- *   6. revokeAccess  — Revoke object access grant (POST)
- *   7. dashboard     — Security dashboard with stats
- *   8. report        — Security reports
- *   9. compartments  — Compartments management
- *  10. twoFactor     — 2FA verification page
- *  11. verifyTwoFactor — 2FA verify POST
- *  12. setupTwoFactor — 2FA setup page (QR code)
- *  13. confirmTwoFactor — Confirm 2FA setup POST
- *  14. sendEmailCode — Send 2FA code via email (JSON)
- *  15. removeTwoFactor — Admin: remove user 2FA
- *  16. securityCompliance — Security compliance dashboard
- *  17. user          — User clearance management by slug
- *  18. watermarkSettings — Watermark settings
+ *   1. index         - List all users and their clearances
+ *   2. view          - View single user clearance details
+ *   3. grant         - Grant or update clearance (POST)
+ *   4. revoke        - Revoke clearance (POST)
+ *   5. bulkGrant     - Bulk grant clearances (POST)
+ *   6. revokeAccess  - Revoke object access grant (POST)
+ *   7. dashboard     - Security dashboard with stats
+ *   8. report        - Security reports
+ *   9. compartments  - Compartments management
+ *  10. twoFactor     - 2FA verification page
+ *  11. verifyTwoFactor - 2FA verify POST
+ *  12. setupTwoFactor - 2FA setup page (QR code)
+ *  13. confirmTwoFactor - Confirm 2FA setup POST
+ *  14. sendEmailCode - Send 2FA code via email (JSON)
+ *  15. removeTwoFactor - Admin: remove user 2FA
+ *  16. securityCompliance - Security compliance dashboard
+ *  17. user          - User clearance management by slug
+ *  18. watermarkSettings - Watermark settings
  *
  * security module:
- *  19. accessRequests  — List pending access requests
- *  20. approveRequest  — Approve request (POST)
- *  21. denyRequest     — Deny request (POST)
- *  22. viewRequest     — View single request
+ *  19. accessRequests  - List pending access requests
+ *  20. approveRequest  - Approve request (POST)
+ *  21. denyRequest     - Deny request (POST)
+ *  22. viewRequest     - View single request
  *
  * securityAudit module:
- *  23. auditDashboard  — Audit dashboard
- *  24. auditIndex      — Audit log index with filters
- *  25. auditExport     — Export audit log as CSV
- *  26. auditObjectAccess — Object access audit
+ *  23. auditDashboard  - Audit dashboard
+ *  24. auditIndex      - Audit log index with filters
+ *  25. auditExport     - Export audit log as CSV
+ *  26. auditObjectAccess - Object access audit
  *
  * accessFilter module:
- *  27. denied          — Access denied page
+ *  27. denied          - Access denied page
  */
 class SecurityClearanceController extends Controller
 {
@@ -94,7 +94,7 @@ class SecurityClearanceController extends Controller
     // =========================================================================
 
     /**
-     * #1 — List all users and their clearances.
+     * #1 - List all users and their clearances.
      * AtoM: securityClearance/executeIndex
      */
     public function index()
@@ -115,7 +115,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #2 — View single user's clearance details.
+     * #2 - View single user's clearance details.
      * AtoM: securityClearance/executeView
      */
     public function view(int $id)
@@ -135,7 +135,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #3 — Grant or update clearance (POST).
+     * #3 - Grant or update clearance (POST).
      * AtoM: securityClearance/executeGrant
      */
     public function grant(Request $request)
@@ -164,7 +164,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #4 — Revoke clearance (POST).
+     * #4 - Revoke clearance (POST).
      * AtoM: securityClearance/executeRevoke
      */
     public function revoke(Request $request, int $id)
@@ -179,7 +179,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #5 — Bulk grant clearances (POST).
+     * #5 - Bulk grant clearances (POST).
      * AtoM: securityClearance/executeBulkGrant
      */
     public function bulkGrant(Request $request)
@@ -205,7 +205,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #6 — Revoke object access grant (POST).
+     * #6 - Revoke object access grant (POST).
      * AtoM: securityClearance/executeRevokeAccess
      */
     public function revokeAccess(Request $request, int $id)
@@ -220,7 +220,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #7 — Security Dashboard.
+     * #7 - Security Dashboard.
      * AtoM: securityClearance/executeDashboard
      */
     public function dashboard()
@@ -234,7 +234,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #8 — Security Reports.
+     * #8 - Security Reports.
      * AtoM: securityClearance/executeReport
      */
     public function report(Request $request)
@@ -246,7 +246,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #9 — Compartments management.
+     * #9 - Compartments management.
      * AtoM: securityClearance/executeCompartments
      */
     public function compartments()
@@ -258,7 +258,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #9b — Compartment access grants.
+     * #9b - Compartment access grants.
      */
     public function compartmentAccess()
     {
@@ -268,10 +268,10 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #10 — 2FA verification page.
+     * #10 - 2FA verification page.
      * AtoM: securityClearance/executeTwoFactor
      *
-     * Updated for issue #721 — if both TOTP + WebAuthn are enrolled the user
+     * Updated for issue #721 - if both TOTP + WebAuthn are enrolled the user
      * picks at the chooser; passkey-only goes straight to verifyPage; TOTP-
      * only keeps the original behaviour (this view).
      */
@@ -284,7 +284,7 @@ class SecurityClearanceController extends Controller
         $hasOtp = $this->otp->userHasOtp($userId);
         $forceTotp = (bool) $request->query('force_totp');
 
-        // Issue #721 / #722 — when more than one factor is enrolled, route
+        // Issue #721 / #722 - when more than one factor is enrolled, route
         // through the chooser unless the user explicitly picked TOTP from
         // it (?force_totp=1). Single-factor users go straight to the
         // matching verify page so they never see an irrelevant chooser.
@@ -325,7 +325,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #11 — 2FA verification POST.
+     * #11 - 2FA verification POST.
      * Accepts a 6-digit TOTP code OR a single-use recovery code; on success,
      * clears the post-login pending_mfa session flag and creates the
      * security_2fa_session marker so subsequent requests aren't re-prompted.
@@ -370,7 +370,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #12 — 2FA setup page (begins enrolment, renders QR + secret).
+     * #12 - 2FA setup page (begins enrolment, renders QR + secret).
      * Generates a pending TOTP secret (enabled_at IS NULL) and passes the
      * otpauth QR data-URI + secret to the view. Idempotent: each visit
      * regenerates the pending secret until the user confirms.
@@ -400,7 +400,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #13 — Confirm 2FA setup POST.
+     * #13 - Confirm 2FA setup POST.
      * Validates the first TOTP code against the pending secret. On success
      * the secret becomes active, a batch of recovery codes is minted, and
      * the codes are flashed to the recovery-codes view for one-time display.
@@ -424,7 +424,7 @@ class SecurityClearanceController extends Controller
 
         return redirect()->route('security-clearance.recovery-codes', ['return' => $returnUrl])
             ->with('mfa_recovery_codes', $result['recovery_codes'])
-            ->with('success', __('Two-factor authentication is now active. Save your recovery codes — they will not be shown again.'));
+            ->with('success', __('Two-factor authentication is now active. Save your recovery codes - they will not be shown again.'));
     }
 
     /**
@@ -463,12 +463,12 @@ class SecurityClearanceController extends Controller
 
         return redirect()->route('security-clearance.recovery-codes', ['return' => $returnUrl])
             ->with('mfa_recovery_codes', $codes)
-            ->with('success', __('New recovery codes generated. Save them — your previous codes are no longer valid.'));
+            ->with('success', __('New recovery codes generated. Save them - your previous codes are no longer valid.'));
     }
 
     /**
      * User-initiated MFA disable. Requires a current TOTP code or recovery
-     * code to confirm the user still has the second factor — guards against
+     * code to confirm the user still has the second factor - guards against
      * an attacker with a stolen session removing MFA without the factor.
      */
     public function disableTwoFactor(Request $request)
@@ -500,7 +500,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #14 — Send 2FA code via email (JSON).
+     * #14 - Send 2FA code via email (JSON).
      * AtoM: securityClearance/executeSendEmailCode
      */
     public function sendEmailCode(Request $request)
@@ -525,7 +525,7 @@ class SecurityClearanceController extends Controller
             ]);
         }
 
-        $subject = 'Heratio — Your verification code';
+        $subject = 'Heratio - Your verification code';
         $body = "Your two-factor verification code is: {$code}\n\nThis code expires in 10 minutes.\n\nIf you did not request this code, please ignore this email.";
         $headers = 'From: noreply@'.($request->getHost() ?? 'localhost')."\r\n"
                  ."Content-Type: text/plain; charset=UTF-8\r\n";
@@ -539,7 +539,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #15 — Admin: Remove 2FA enrollment for a user.
+     * #15 - Admin: Remove 2FA enrollment for a user.
      * Used when a user has lost both their authenticator AND every recovery
      * code. Admin overrides via this endpoint; the audit log records who
      * cleared whom.
@@ -558,7 +558,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #16 — Security Compliance Dashboard.
+     * #16 - Security Compliance Dashboard.
      * AtoM: securityClearance/executeSecurityCompliance
      */
     public function securityCompliance()
@@ -570,7 +570,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #17 — User clearance management by slug.
+     * #17 - User clearance management by slug.
      * AtoM: securityClearance/userAction
      */
     public function user(string $slug)
@@ -597,7 +597,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #17b — User clearance management POST (update/revoke).
+     * #17b - User clearance management POST (update/revoke).
      */
     public function userUpdate(Request $request, string $slug)
     {
@@ -637,7 +637,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #18 — Watermark Settings.
+     * #18 - Watermark Settings.
      * AtoM: securityClearance/watermarkSettingsAction
      */
     public function watermarkSettings()
@@ -687,7 +687,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #18b — Watermark Settings POST.
+     * #18b - Watermark Settings POST.
      */
     public function watermarkSettingsStore(Request $request)
     {
@@ -798,7 +798,7 @@ class SecurityClearanceController extends Controller
     // =========================================================================
 
     /**
-     * #19 — Access Requests list.
+     * #19 - Access Requests list.
      * AtoM: security/executeAccessRequests
      */
     public function accessRequests(Request $request)
@@ -817,7 +817,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #20 — Approve request (POST).
+     * #20 - Approve request (POST).
      * AtoM: security/executeApproveRequest
      */
     public function approveRequest(Request $request, int $id)
@@ -833,7 +833,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #21 — Deny request (POST).
+     * #21 - Deny request (POST).
      * AtoM: security/executeDenyRequest
      */
     public function denyRequest(Request $request, int $id)
@@ -848,7 +848,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #22 — View single request.
+     * #22 - View single request.
      * AtoM: security/executeViewRequest
      */
     public function viewRequest(int $id)
@@ -880,7 +880,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * Submit access request (POST) — for authenticated users.
+     * Submit access request (POST) - for authenticated users.
      */
     public function submitAccessRequest(Request $request)
     {
@@ -905,7 +905,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * My Requests — user's own requests.
+     * My Requests - user's own requests.
      */
     public function myRequests()
     {
@@ -979,7 +979,7 @@ class SecurityClearanceController extends Controller
     // =========================================================================
 
     /**
-     * #23 — Audit Dashboard.
+     * #23 - Audit Dashboard.
      * AtoM: securityAudit/executeDashboard
      */
     public function auditDashboard(Request $request)
@@ -1031,7 +1031,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #24 — Audit Log Index with filters.
+     * #24 - Audit Log Index with filters.
      * AtoM: securityAudit/executeIndex
      */
     public function auditIndex(Request $request)
@@ -1065,7 +1065,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #25 — Export audit log as CSV.
+     * #25 - Export audit log as CSV.
      * AtoM: securityAudit/executeExport
      */
     public function auditExport()
@@ -1095,7 +1095,7 @@ class SecurityClearanceController extends Controller
     }
 
     /**
-     * #26 — Object Access Audit.
+     * #26 - Object Access Audit.
      * AtoM: securityAudit/executeObjectAccess
      */
     public function auditObjectAccess(Request $request)

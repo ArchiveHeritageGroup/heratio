@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SeedSpectrumCommand — installs the Spectrum 5.1 procedure starter pack:
+ * SeedSpectrumCommand - installs the Spectrum 5.1 procedure starter pack:
  * 21 workflows tagged with `spectrum_procedure`, each with paraphrased
  * canonical steps.
  *
@@ -26,7 +26,7 @@ class SeedSpectrumCommand extends Command
         {--only=* : Install only specific procedure codes (e.g. --only=object_entry --only=cataloguing)}
         {--dry-run : Show what would change without writing anything}';
 
-    protected $description = 'Install the museum procedure starter pack — 21 workflows with paraphrased canonical steps.';
+    protected $description = 'Install the museum procedure starter pack - 21 workflows with paraphrased canonical steps.';
 
     public function handle(): int
     {
@@ -49,10 +49,10 @@ class SeedSpectrumCommand extends Command
         $onlyCodes = array_filter((array) $this->option('only'));
 
         if ($dryRun) {
-            $this->warn('DRY RUN — no DB writes will be made.');
+            $this->warn('DRY RUN - no DB writes will be made.');
         }
         if ($overwrite) {
-            $this->warn('OVERWRITE mode — existing Spectrum workflow steps will be REPLACED. Hand-customised steps for those procedures will be lost.');
+            $this->warn('OVERWRITE mode - existing Spectrum workflow steps will be REPLACED. Hand-customised steps for those procedures will be lost.');
         }
         if (! empty($onlyCodes)) {
             $this->info('Limited to: '.implode(', ', $onlyCodes));
@@ -94,11 +94,11 @@ class SeedSpectrumCommand extends Command
         $existing = DB::table('ahg_workflow')->where('spectrum_procedure', $code)->first();
 
         if ($existing === null) {
-            // CREATE — workflow doesn't exist yet
+            // CREATE - workflow doesn't exist yet
             if ($dryRun) {
                 return ['action' => 'created', 'icon' => '+', 'message' => 'would CREATE workflow + '.count($procedure['steps'] ?? []).' steps'];
             }
-            // Spectrum#B v1.65.1 — wrap create+steps in a transaction so a mid-insert
+            // Spectrum#B v1.65.1 - wrap create+steps in a transaction so a mid-insert
             // failure (e.g. column truncation) doesn't leave behind a partial workflow.
             [$workflowId, $stepCount] = DB::transaction(function () use ($code, $procedure) {
                 $wfId = $this->createWorkflow($code, $procedure);
@@ -112,10 +112,10 @@ class SeedSpectrumCommand extends Command
 
         // EXISTS
         if (! $overwrite) {
-            return ['action' => 'skipped', 'icon' => '=', 'message' => "exists (id={$existing->id}), no --overwrite — skipping"];
+            return ['action' => 'skipped', 'icon' => '=', 'message' => "exists (id={$existing->id}), no --overwrite - skipping"];
         }
 
-        // OVERWRITE — update metadata + replace steps
+        // OVERWRITE - update metadata + replace steps
         if ($dryRun) {
             $existingStepCount = DB::table('ahg_workflow_step')->where('workflow_id', $existing->id)->count();
 

@@ -225,7 +225,7 @@
                     <div class="text-muted">
                       By {{ $entry->performer_name ?? $entry->username ?? 'System' }}
                       @if($entry->from_status || $entry->to_status)
-                        &mdash; {{ $entry->from_status ?? '?' }} &rarr; {{ $entry->to_status ?? '?' }}
+                        - {{ $entry->from_status ?? '?' }} &rarr; {{ $entry->to_status ?? '?' }}
                       @endif
                     </div>
                     @if($entry->comment)

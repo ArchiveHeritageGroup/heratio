@@ -11,7 +11,7 @@ Route::get('/help/context', [HelpController::class, 'context'])->name('help.cont
 Route::get('/help/category/{category}', [HelpController::class, 'category'])->name('help.category');
 Route::get('/help/article/{slug}', [HelpController::class, 'article'])->name('help.article');
 
-// Article cross-link manager — heratio#1399. Gated on auth to match the
+// Article cross-link manager - heratio#1399. Gated on auth to match the
 // help admin convention (HelpArticleService::isAdmin() = any logged-in user).
 Route::middleware('auth')->group(function () {
     Route::get('/help/article/{slug}/links', [HelpController::class, 'manageLinks'])->name('help.article.links');

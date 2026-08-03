@@ -1,4 +1,4 @@
-# AhgRights — Services
+# AhgRights - Services
 
 Services directory for the AhgRights package.
 

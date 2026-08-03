@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RicOccupation — Eloquent model for the rico:Occupation entity.
+ * RicOccupation - Eloquent model for the rico:Occupation entity.
  *
  * Models a role/profession/position held by an actor over a time-span
  * (ISAAR(CPF) section 5.2.6 + RiC-O semantics).

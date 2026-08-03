@@ -4,13 +4,13 @@
  * KbartoController - KBART knowledge-base import/export HTTP layer.
  *
  * Wraps KbartService to expose:
- *   GET  /library-manage/kbart              — landing page
- *   GET  /library-manage/kbart/export       — download TSV
- *   GET  /library-manage/kbart/export-csv   — alias
- *   GET  /library-manage/kbart/import       — import form (retains context after commit error)
- *   POST /library-manage/kbart/preview      — preview TSV before committing
- *   POST /library-manage/kbart/commit       — commit import
- *   GET  /library-manage/kbart/template     — blank KBART template
+ *   GET  /library-manage/kbart              - landing page
+ *   GET  /library-manage/kbart/export       - download TSV
+ *   GET  /library-manage/kbart/export-csv   - alias
+ *   GET  /library-manage/kbart/import       - import form (retains context after commit error)
+ *   POST /library-manage/kbart/preview      - preview TSV before committing
+ *   POST /library-manage/kbart/commit       - commit import
+ *   GET  /library-manage/kbart/template     - blank KBART template
  *
  * Copyright (C) 2026 Johan Pieterse
  *

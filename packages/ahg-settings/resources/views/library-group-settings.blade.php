@@ -1,5 +1,5 @@
 {{--
-  Library Settings — loan rules, circulation, patrons, OPAC, holds, ISBN
+  Library Settings - loan rules, circulation, patrons, OPAC, holds, ISBN
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('library')
 
   @copyright  Johan Pieterse / Plain Sailing

@@ -172,7 +172,7 @@
                     <option value="website">{{ __('Website') }}</option><option value="thesis">{{ __('Thesis') }}</option><option value="archival">{{ __('Archival') }}</option><option value="other">{{ __('Other') }}</option>
                 </select></div>
             </div>
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('Archive Item ID') }}</label><input type="number" class="form-control" name="object_id" placeholder="{{ __('Optional — link to archive item') }}"></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">{{ __('Archive Item ID') }}</label><input type="number" class="form-control" name="object_id" placeholder="{{ __('Optional - link to archive item') }}"></div></div>
         </div>
         <div class="mb-3"><label class="form-label">{{ __('Notes') }}</label><textarea class="form-control" name="notes" rows="2"></textarea></div>
     </div>
@@ -246,7 +246,7 @@
             <label class="form-label">{{ __('Upload File') }}</label>
             <input type="file" name="import_file" class="form-control" accept=".bib,.ris,.txt">
         </div>
-        <div class="text-center text-muted my-2">&mdash; or &mdash;</div>
+        <div class="text-center text-muted my-2">- or -</div>
         <div class="mb-3">
             <label class="form-label">{{ __('Paste Content') }}</label>
             <textarea name="import_content" class="form-control" rows="6" placeholder="{{ __('Paste BibTeX or RIS content here...') }}"></textarea>

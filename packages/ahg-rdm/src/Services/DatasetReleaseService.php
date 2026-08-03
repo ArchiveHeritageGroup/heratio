@@ -111,7 +111,7 @@ class DatasetReleaseService
      * genuine DataCite registration happens only when the active ahg_doi_config
      * targets a production environment (real prefix + prod endpoint + creds);
      * every other environment ('test'/dev/demo) stays dry-run, so off-prod never
-     * registers real DOIs. Default is therefore OFF — flipping ahg_doi_config
+     * registers real DOIs. Default is therefore OFF - flipping ahg_doi_config
      * .environment to production (once real creds land) is an ops action, no
      * code change. The live path is idempotent inside DoiService (an existing
      * minted DOI is returned, not re-registered).

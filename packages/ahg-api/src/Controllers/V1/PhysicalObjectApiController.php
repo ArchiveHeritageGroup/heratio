@@ -87,7 +87,7 @@ class PhysicalObjectApiController extends Controller
     }
 
     /**
-     * POST /api/v1/physicalobjects — Create a new physical object.
+     * POST /api/v1/physicalobjects - Create a new physical object.
      */
     public function store(Request $request): JsonResponse
     {

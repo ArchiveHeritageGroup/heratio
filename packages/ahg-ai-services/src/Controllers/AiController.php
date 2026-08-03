@@ -279,7 +279,7 @@ class AiController extends Controller
                 $mtTimeout = (int) $this->llmService->getAiSetting('translate', 'mt.timeout_seconds', '60');
                 $sourceLang = $this->llmService->getAiSetting('translate', 'translation_source_lang', 'en');
                 // The MT adapter at 127.0.0.1:5004 routes to different model
-                // backends based on the `provider` field — ollama-adapter,
+                // backends based on the `provider` field - ollama-adapter,
                 // nllb, opus-mt, etc. Pass it through so the operator's pick
                 // on /admin/ahgSettings/translate is honoured. Empty string
                 // means "let the adapter decide".
@@ -2003,7 +2003,7 @@ class AiController extends Controller
         try {
             $base = rtrim($apiUrl, '/');
             if ($pdfPath) {
-                // PDF: multipart upload to /ner/extract-pdf — the API host
+                // PDF: multipart upload to /ner/extract-pdf - the API host
                 // can't see our local filesystem, so we send the file bytes.
                 $response = \Illuminate\Support\Facades\Http::timeout(120)
                     ->withHeaders(['X-API-Key' => $apiKey])
@@ -2022,7 +2022,7 @@ class AiController extends Controller
             if (!is_array($body)) return ['success' => false, 'error' => 'non-JSON response'];
 
             // The upstream API returns {success, entities:{PERSON,ORG,GPE,DATE}}
-            // but the UI expects entity_count too — compute it here so we
+            // but the UI expects entity_count too - compute it here so we
             // don't show "0 entities found" when the API found some.
             if (!isset($body['entity_count']) && !empty($body['entities']) && is_array($body['entities'])) {
                 $body['entity_count'] = array_sum(array_map(
@@ -2611,11 +2611,11 @@ class AiController extends Controller
         }
     }
 
-    // TODO: wire ai_condition_service_url setting — use AhgSettingsService::get('ai_condition_service_url', 'http://192.168.0.78:5000') when condition API call is built
-    // TODO: wire ai_condition_api_key setting — use AhgSettingsService::get('ai_condition_api_key', '') when condition API call is built
-    // TODO: wire ai_condition_min_confidence setting — use (float) AhgSettingsService::get('ai_condition_min_confidence', '0.5') when condition result filtering is built
-    // TODO: wire ai_condition_overlay_enabled setting — use AhgSettingsService::getBool('ai_condition_overlay_enabled', true) when overlay generation is built
-    // TODO: wire ai_condition_notify_grade setting — use AhgSettingsService::get('ai_condition_notify_grade', 'poor') when grade notification is built
+    // TODO: wire ai_condition_service_url setting - use AhgSettingsService::get('ai_condition_service_url', 'http://192.168.0.78:5000') when condition API call is built
+    // TODO: wire ai_condition_api_key setting - use AhgSettingsService::get('ai_condition_api_key', '') when condition API call is built
+    // TODO: wire ai_condition_min_confidence setting - use (float) AhgSettingsService::get('ai_condition_min_confidence', '0.5') when condition result filtering is built
+    // TODO: wire ai_condition_overlay_enabled setting - use AhgSettingsService::getBool('ai_condition_overlay_enabled', true) when overlay generation is built
+    // TODO: wire ai_condition_notify_grade setting - use AhgSettingsService::get('ai_condition_notify_grade', 'poor') when grade notification is built
 
     public function conditionAssess(Request $request)
     {
@@ -2872,7 +2872,7 @@ class AiController extends Controller
     public function conditionView(int $id) { return view('ahg-ai-services::condition-view', ['record' => (object)['id'=>$id]]); }
 
     /* ------------------------------------------------------------------ */
-    /*  HTR — Vital Records Handwritten Text Recognition                  */
+    /*  HTR - Vital Records Handwritten Text Recognition                  */
     /* ------------------------------------------------------------------ */
 
     public function htrDashboard()
@@ -3085,10 +3085,10 @@ PY;
     }
 
     /**
-     * Skip an image — move it to a rework/ folder for later review.
+     * Skip an image - move it to a rework/ folder for later review.
      */
     /**
-     * Crop OCR — recognize text in a bounding box region of an image.
+     * Crop OCR - recognize text in a bounding box region of an image.
      * Used by the annotate UI for hybrid pre-fill.
      */
     public function htrCropOcr(Request $request)
@@ -3125,7 +3125,7 @@ PY;
     }
 
     /**
-     * Bulk Annotate — page view.
+     * Bulk Annotate - page view.
      */
     public function htrBulkAnnotate()
     {
@@ -3133,7 +3133,7 @@ PY;
     }
 
     /**
-     * FS Overlay Annotate — overlay field labels on document images.
+     * FS Overlay Annotate - overlay field labels on document images.
      * Cloned from bulk-annotate for overlay positioning tests.
      */
     public function htrFsOverlay()
@@ -3142,7 +3142,7 @@ PY;
     }
 
     /**
-     * FS Overlay — save field positions per form type (server-side, shared across PCs).
+     * FS Overlay - save field positions per form type (server-side, shared across PCs).
      */
     public function htrFsOverlaySavePositions(Request $request)
     {
@@ -3199,7 +3199,7 @@ PY;
     }
 
     /**
-     * FS Overlay — load field positions for a form type.
+     * FS Overlay - load field positions for a form type.
      */
     public function htrFsOverlayLoadPositions(Request $request)
     {
@@ -3230,7 +3230,7 @@ PY;
     }
 
     /**
-     * Serve an auto-cropped image — removes black borders (book binding, dark edges).
+     * Serve an auto-cropped image - removes black borders (book binding, dark edges).
      * Scans pixel brightness from each edge to find the white form area.
      */
     public function htrServeCroppedImage(Request $request)
@@ -3359,7 +3359,7 @@ PY;
                         $leftOfGap[] = $getBrightness($im, min($checkX, $w - 1), min($sy, $h - 1));
                     }
                     if ($getMedian($leftOfGap) > $threshold) {
-                        // Found the gap — crop here
+                        // Found the gap - crop here
                         $right = $x;
                         break;
                     }
@@ -3437,7 +3437,7 @@ PY;
     }
 
     /**
-     * FS Overlay — manual crop: user draws a rectangle, server crops and replaces the cached image.
+     * FS Overlay - manual crop: user draws a rectangle, server crops and replaces the cached image.
      */
     public function htrFsOverlayManualCrop(Request $request)
     {
@@ -3515,7 +3515,7 @@ PY;
     }
 
     /**
-     * FS Overlay — recognise text in annotated field regions using the fine-tuned HTR model.
+     * FS Overlay - recognise text in annotated field regions using the fine-tuned HTR model.
      * Crops each field from the image, sends to HTR service, returns recognised text.
      */
     public function htrFsOverlayRecognise(Request $request)
@@ -3624,7 +3624,7 @@ for label, text in queries.items():
         match_words = set(match['name'].lower().split())
         added_words = match_words - input_words
         if added_words and match.get('match_type') != 'exact':
-            # Match adds words — only accept if very high confidence
+            # Match adds words - only accept if very high confidence
             if match.get('confidence', 0) < 0.85:
                 out[label] = None
                 continue
@@ -3652,7 +3652,7 @@ PY;
                     @unlink($tmpPy);
 
                     $matches = json_decode(trim($output ?: '{}'), true) ?: [];
-                    // Only attach match info as metadata — never overwrite the raw OCR text
+                    // Only attach match info as metadata - never overwrite the raw OCR text
                     // This data is for LLM training, so the original text must be preserved
                     foreach ($matches as $label => $match) {
                         if ($match && isset($results[$label])) {
@@ -3672,7 +3672,7 @@ PY;
     }
 
     /**
-     * FS Overlay — OCR the form labels to find their positions on the image.
+     * FS Overlay - OCR the form labels to find their positions on the image.
      * Runs Tesseract with TSV output, matches words against field names.
      */
     public function htrFsOverlayOcr(Request $request)
@@ -3716,7 +3716,7 @@ PY;
             $parts = explode("\t", $line);
             if (count($parts) < 12 || empty(trim($parts[11]))) continue;
             $conf = (float)$parts[10];
-            if ($conf < 15) continue; // low threshold — rely on left-side scoring to prefer printed labels over handwriting
+            if ($conf < 15) continue; // low threshold - rely on left-side scoring to prefer printed labels over handwriting
             $words[] = [
                 'text' => trim($parts[11]),
                 'left' => (int)$parts[6],
@@ -3727,7 +3727,7 @@ PY;
             ];
         }
 
-        // Fields to skip entirely — not useful for annotation
+        // Fields to skip entirely - not useful for annotation
         $skipFields = ['Event Type', 'Birth Year', 'Relationship to Head of Household', 'Occupation', 'Cause of Death'];
 
         // Build a map of field label keywords → positions
@@ -3774,7 +3774,7 @@ PY;
                 'max_y_pct' => 0.50,
             ],
             'Event Year' => [
-                // The printed "18__" / "19__" / "20__" year box — far right on the Date of Death line
+                // The printed "18__" / "19__" / "20__" year box - far right on the Date of Death line
                 'phrases' => [],
                 'words' => ['18', '19', '20'],
                 'min_x_pct' => 0.60,
@@ -3783,7 +3783,7 @@ PY;
             ],
             'Residence Place' => [
                 // Item 11a on the 1894 form: "Duration of last Illness"
-                // OCR often misses "of" and "last" — add short phrases
+                // OCR often misses "of" and "last" - add short phrases
                 'phrases' => ['duration of last illness', 'duration of last', 'duration illness', 'duration of illness', 'duur van laaste siekte', 'duur van laatste ziekte', 'duur van siekte'],
                 'words' => ['duration', 'duur'],
                 'context' => ['illness', 'siekte', 'last', 'laaste'],
@@ -3841,7 +3841,7 @@ PY;
             ],
         ];
 
-        // Get image dimensions — use CROPPED image if available (OCR runs on cropped)
+        // Get image dimensions - use CROPPED image if available (OCR runs on cropped)
         $cacheDir = storage_path('app/cropped-cache');
         $cacheKey = md5($imagePath . @filemtime($imagePath));
         $croppedPath = "{$cacheDir}/{$cacheKey}.jpg";
@@ -3893,10 +3893,10 @@ PY;
                     if (stripos($lineText, $phrase) !== false) {
                         // Find the first word of the phrase in this line
                         foreach ($line as $w) {
-                            // Y-position filter — skip header and fine print
+                            // Y-position filter - skip header and fine print
                             if ($imgHeight > 0 && $w['top'] > $imgHeight * $maxYPctVal) continue;
                             if ($imgHeight > 0 && $w['top'] < $imgHeight * $minYPctVal) continue;
-                            // Left-side preference — labels are on the left half
+                            // Left-side preference - labels are on the left half
                             if ($imgWidth > 0 && $w['left'] > $imgWidth * 0.55) continue;
                             if (stripos(strtolower($w['text']), $phraseWords[0]) !== false) {
                                 // Compute bounding box spanning all phrase words
@@ -3938,7 +3938,7 @@ PY;
                 }
             }
 
-            // Strategy 1.5: Numbered label — find "8." or "12." near a keyword
+            // Strategy 1.5: Numbered label - find "8." or "12." near a keyword
             // SA death certificates have numbered fields: "8. Date of Death", "12. Duration of last Illness"
             $numberedLabel = $config['numbered_label'] ?? null;
             $maxYPct = $maxYPctVal;
@@ -3946,7 +3946,7 @@ PY;
             $minXPctField = $config['min_x_pct'] ?? 0.0;
             if (!$bestMatch && $numberedLabel) {
                 foreach ($words as $word) {
-                    // Look for the number label — flexible matching
+                    // Look for the number label - flexible matching
                     $wClean = rtrim(rtrim($word['text'], '.'), ':');
                     // Strip trailing quote marks too (OCR artifact: '2."')
                     $wClean = rtrim($wClean, '"\'');
@@ -3959,14 +3959,14 @@ PY;
                     // Skip if outside valid Y range (header or fine print)
                     if ($imgHeight > 0 && $word['top'] > $imgHeight * $maxYPct) continue;
                     if ($imgHeight > 0 && $word['top'] < $imgHeight * $minYPct) continue;
-                    // Found the number — the answer region is to its right on the same line
+                    // Found the number - the answer region is to its right on the same line
                     // Find the rightmost keyword on this line to get the full label span
                     $labelEnd = $word['left'] + $word['width'];
                     foreach ($words as $other) {
                         if (abs($other['top'] - $word['top']) > 20) continue;
                         if ($other['left'] <= $word['left']) continue;
                         $labelEnd = max($labelEnd, $other['left'] + $other['width']);
-                        // Stop scanning after 500px — don't include handwritten answer
+                        // Stop scanning after 500px - don't include handwritten answer
                         if ($other['left'] - $word['left'] > 500) break;
                     }
                     $bestMatch = [
@@ -4064,7 +4064,7 @@ PY;
 
                 // Box starts right after the label text ends
                 // Label width = just the matched word, not extended
-                // Cap label width — for display only, keep it tight to the actual word
+                // Cap label width - for display only, keep it tight to the actual word
                 $bestMatch['width'] = min($bestMatch['width'], 10 * $mm); // cap at 10mm
 
                 if ($fieldName === 'Name') {
@@ -4268,7 +4268,7 @@ PY;
     }
 
     /**
-     * Bulk Annotate — load folder + spreadsheet data.
+     * Bulk Annotate - load folder + spreadsheet data.
      * Scans for .xlsx/.csv in folder, parses, matches with images.
      */
     public function htrBulkAnnotateLoad(Request $request)
@@ -4287,10 +4287,10 @@ PY;
 
         $selectedSpreadsheet = $request->input('spreadsheet', '');
 
-        // No spreadsheets found — operate in image-only mode
+        // No spreadsheets found - operate in image-only mode
         if (empty($spreadsheets)) {
             if (!$selectedSpreadsheet && $selectedSpreadsheet !== '__none__') {
-                // Return empty spreadsheet list — frontend will offer "No spreadsheet" option
+                // Return empty spreadsheet list - frontend will offer "No spreadsheet" option
                 return response()->json([
                     'success' => true,
                     'spreadsheets' => [],
@@ -4471,7 +4471,7 @@ PY;
                     }
                     $mapped['Place of Marriage'] = $placeParts[0] ?? '';
                     $mapped['Province'] = $placeParts[1] ?? '';
-                    // District left empty — OCR only
+                    // District left empty - OCR only
                     $mapped['District'] = '';
                     $mapped['Husband Name'] = $fields['Name'] ?? '';
                     $mapped['Husband Race'] = '';
@@ -4563,7 +4563,7 @@ PY;
     }
 
     /**
-     * Bulk Annotate — save annotation + move image to processed.
+     * Bulk Annotate - save annotation + move image to processed.
      */
     public function htrBulkAnnotateSave(Request $request)
     {
@@ -4585,7 +4585,7 @@ PY;
             'marriage' => ['type' => 'Marriage Records', 'id' => '1000006'],
         ];
         $rt = $rtMap[$eventType] ?? ['type' => 'Death Records', 'id' => '1000015'];
-        // Spreadsheet imports are always registers (type_b) — church death/birth/marriage registers
+        // Spreadsheet imports are always registers (type_b) - church death/birth/marriage registers
         $docType = 'type_b';
 
         // Extract year from Event Date
@@ -4684,7 +4684,7 @@ PY;
             @rename($imagePath, "{$processedDir}/{$fname}");
         }
 
-        // Check if all images are processed — if so, move CSV too
+        // Check if all images are processed - if so, move CSV too
         $remainingImages = glob("{$folder}/*.{jpg,jpeg,png,tif}", GLOB_BRACE);
         $csvMoved = false;
         if (empty($remainingImages)) {
@@ -4948,7 +4948,7 @@ PY;
         $exts = ['jpg','jpeg','png','tif','tiff','bmp','webp'];
         $files = [];
 
-        // Recursive scan — includes subfolders but skips 'processed' folders
+        // Recursive scan - includes subfolders but skips 'processed' folders
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($resolved, \RecursiveDirectoryIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::LEAVES_ONLY
@@ -5085,7 +5085,7 @@ PY;
         $imgPath = $destDir . '/' . $filename;
         $this->cropAnnotatedFields($imgPath, $annotations, $cropsDir, $filename);
 
-        // Also try remote HTR service (non-blocking — local save is the source of truth)
+        // Also try remote HTR service (non-blocking - local save is the source of truth)
         $result = $this->htrService->saveAnnotation($fullPath, $type, $annotations);
         if ($result === null) {
             $result = ['success' => true, 'saved_locally' => true];
@@ -5109,7 +5109,7 @@ PY;
                     $result['moved_to'] = $moved ? $processedDir . '/' . basename($serverPath) : null;
                 }
             } catch (\Exception $e) {
-                // Don't fail the save if we can't move — annotation is already saved
+                // Don't fail the save if we can't move - annotation is already saved
                 \Log::warning('Could not move to processed: ' . $e->getMessage());
             }
         }
@@ -5224,7 +5224,7 @@ PY;
 
         $base = pathinfo($sourceFilename, PATHINFO_FILENAME);
 
-        // Parse annotations — handle both flat array and nested [{fields:[...]}] format
+        // Parse annotations - handle both flat array and nested [{fields:[...]}] format
         $fields = [];
         foreach ($annotations as $ann) {
             if (isset($ann['fields'])) {
@@ -5238,7 +5238,7 @@ PY;
 
         if (empty($fields)) return;
 
-        // Use Python/Pillow to crop — single script call for all fields
+        // Use Python/Pillow to crop - single script call for all fields
         $crops = [];
         foreach ($fields as $i => $field) {
             $bbox = $field['bbox'] ?? [];
@@ -5290,7 +5290,7 @@ PY;
     }
 
     // =====================================================================
-    // Donut — Document Understanding (FamilySearch ILM Field Extraction)
+    // Donut - Document Understanding (FamilySearch ILM Field Extraction)
     // =====================================================================
 
     /**

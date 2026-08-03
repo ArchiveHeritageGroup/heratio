@@ -19,7 +19,7 @@ Route::middleware('admin')->group(function () {
 // Legacy URL alias: /admin/menus → /admin/menu/browse
 Route::get('/admin/menus', fn () => redirect('/admin/menu/browse', 301));
 
-// Legacy AtoM URL aliases — redirect to real Laravel auth routes
+// Legacy AtoM URL aliases - redirect to real Laravel auth routes
 Route::middleware(['web'])->group(function () {
     Route::get('/cas/login', fn () => redirect()->route('login'));
     Route::get('/oidc/login', fn () => redirect()->route('login'));

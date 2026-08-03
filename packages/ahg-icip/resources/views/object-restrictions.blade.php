@@ -62,7 +62,7 @@
                       <br>
                       <small class="text-muted">
                         Period: {{ !empty($restriction->start_date) ? \Carbon\Carbon::parse($restriction->start_date)->format('j M Y') : 'Start' }}
-                        &ndash;
+                        -
                         {{ !empty($restriction->end_date) ? \Carbon\Carbon::parse($restriction->end_date)->format('j M Y') : 'Indefinite' }}
                       </small>
                     @endif

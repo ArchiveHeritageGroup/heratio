@@ -671,7 +671,7 @@ class PrivacyController extends Controller
         if (! isset($juris[$jurisdiction])) {
             $jurisdiction = array_key_first($juris) ?: 'popia';
         }
-        // #72: response window comes from DataProtectionSettings — for popia
+        // #72: response window comes from DataProtectionSettings - for popia
         // the dp_popia_response_days override wins; for other jurisdictions
         // the helper falls through to privacy_jurisdiction.dsar_days.
         $dsarDays = DataProtectionSettings::responseDaysFor($jurisdiction);
@@ -1152,7 +1152,7 @@ class PrivacyController extends Controller
      *
      * Cloned from PSIS ahgPrivacyPlugin privacyAdmin::executePaiaList.
      * PAIA is a South-Africa-specific regime so this view lives inside the
-     * jurisdiction-pluggable privacy module — it is never loaded into the
+     * jurisdiction-pluggable privacy module - it is never loaded into the
      * international core.
      */
     public function paiaList(Request $request)
@@ -1411,7 +1411,7 @@ class PrivacyController extends Controller
     }
 
     // =====================================================================
-    //  POST handlers (Phase X.2 — cloned from PSIS privacyAdmin actions)
+    //  POST handlers (Phase X.2 - cloned from PSIS privacyAdmin actions)
     // =====================================================================
 
     public function dsarUpdate(Request $request)

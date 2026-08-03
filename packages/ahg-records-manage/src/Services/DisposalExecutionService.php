@@ -14,7 +14,7 @@ class DisposalExecutionService
      */
     public function executeDestroy(int $disposalActionId, int $userId): array
     {
-        // #1374: irreversible record destruction is administrators-only — not the
+        // #1374: irreversible record destruction is administrators-only - not the
         // EDITOR-inclusive canAdmin gate the route group uses.
         if (! AclService::isAdministrator()) {
             return ['success' => false, 'error' => 'Record destruction is restricted to administrators.'];
@@ -30,7 +30,7 @@ class DisposalExecutionService
         }
 
         // Separation of duties (#1374): the executor may not be the approver or the
-        // legal-clearer — the destruction certificate must be a four-eyes act.
+        // legal-clearer - the destruction certificate must be a four-eyes act.
         if (in_array((int) $userId, [(int) $action->approved_by, (int) $action->legal_cleared_by], true)) {
             return ['success' => false, 'error' => 'Separation of duties: destruction must be executed by someone other than the approver or legal-clearer.'];
         }
@@ -171,9 +171,9 @@ class DisposalExecutionService
 
         $ioId = $action->information_object_id;
 
-        // P3.6 — Transfer to archives: build a BagIt AIP via OaisLifecycleService BEFORE
+        // P3.6 - Transfer to archives: build a BagIt AIP via OaisLifecycleService BEFORE
         // we mark the disposal as executed, so a build failure aborts the whole transition.
-        // External transfers (action_type='transfer_external') skip the bag — they're handed
+        // External transfers (action_type='transfer_external') skip the bag - they're handed
         // off to a third party out-of-band; the AIP is only meaningful when the destination is
         // the in-house preservation store.
         $aipResult = null;
@@ -256,7 +256,7 @@ class DisposalExecutionService
     }
 
     /**
-     * Execute retain — mark as permanently retained.
+     * Execute retain - mark as permanently retained.
      */
     public function executeRetain(int $disposalActionId, int $userId, string $reason): array
     {

@@ -1,4 +1,4 @@
-# AhgMetadataExport — Services
+# AhgMetadataExport - Services
 
 Services directory for the AhgMetadataExport package.
 

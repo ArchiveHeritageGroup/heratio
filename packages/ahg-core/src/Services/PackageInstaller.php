@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Heratio — PackageInstaller
+ * Heratio - PackageInstaller
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing iSystems
  * Licensed under AGPL-3.0-or-later. See LICENSE.
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Auto-install / sentinel-gated runner for a Heratio package's database/install.sql.
  *
- * Standalone install plan §6 stage 9 + Phase 1 #6 — every Heratio package that
+ * Standalone install plan §6 stage 9 + Phase 1 #6 - every Heratio package that
  * ships a database/install.sql can have it idempotently loaded:
  *
  *   - On a fresh install the canonical path is `bin/install` running every
@@ -41,10 +41,10 @@ class PackageInstaller
      * Run a package's install.sql.
      *
      * Two modes:
-     *   $force = false  — sentinel-gated. Skip if the file's first CREATE
+     *   $force = false  - sentinel-gated. Skip if the file's first CREATE
      *                     TABLE target already exists. Cheap, intended for
      *                     per-request safety-net auto-install.
-     *   $force = true   — always run. Idempotent because every file uses
+     *   $force = true   - always run. Idempotent because every file uses
      *                     CREATE TABLE IF NOT EXISTS / INSERT IGNORE.
      *                     Used by `heratio:install-bootstrap` and bin/install
      *                     so seed-only packages and packages whose first
@@ -115,7 +115,7 @@ class PackageInstaller
      *
      * Pattern is install*.sql (not just install.sql) so per-feature schema
      * splits like install_voice_usage.sql / install_template_extensions.sql /
-     * install_i18n.sql get swept too — otherwise those tables only land via
+     * install_i18n.sql get swept too - otherwise those tables only land via
      * service-provider boot hooks during a web request, which never happens
      * in the CI artifact build. Sort naturally puts install.sql before
      * install_*.sql per package because '.' < '_' in ASCII; cross-package
@@ -140,11 +140,11 @@ class PackageInstaller
             // the same package both appear in the result map.
             $reportKey = $fileLabel === 'install.sql' ? $packageName : "{$packageName}/{$fileLabel}";
             $didRun = self::autoInstall($packageRoot, $force, $sqlFile);
-            // Stash the per-package error string when we skipped — surfaces in
+            // Stash the per-package error string when we skipped - surfaces in
             // the verbose listing of `heratio:install-bootstrap` so CI can see
             // why a package didn't install (otherwise the warning is hidden in
             // storage/logs/laravel.log which CI doesn't expose).
-            $files[$reportKey] = $didRun ? 'installed' : ('skipped — '.self::$lastError);
+            $files[$reportKey] = $didRun ? 'installed' : ('skipped - '.self::$lastError);
             $didRun ? $ran++ : $skipped++;
         }
 

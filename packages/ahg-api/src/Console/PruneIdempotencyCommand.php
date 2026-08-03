@@ -30,7 +30,7 @@ class PruneIdempotencyCommand extends Command
     public function handle(): int
     {
         if (! Schema::hasTable('ahg_api_idempotency_key')) {
-            $this->warn('ahg_api_idempotency_key table missing — nothing to prune.');
+            $this->warn('ahg_api_idempotency_key table missing - nothing to prune.');
 
             return self::SUCCESS;
         }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RebuildTitleSortCommand — rebuild the information_object_title_sort sidecar.
+ * RebuildTitleSortCommand - rebuild the information_object_title_sort sidecar.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * License: AGPL-3.0-or-later
@@ -47,7 +47,7 @@ class RebuildTitleSortCommand extends Command
         ));
 
         if ($rows === 0) {
-            $this->warn('Zero rows written — browse will fall back to the unindexed ORDER BY.');
+            $this->warn('Zero rows written - browse will fall back to the unindexed ORDER BY.');
         }
 
         return self::SUCCESS;

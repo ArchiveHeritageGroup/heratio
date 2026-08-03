@@ -268,7 +268,7 @@ class AhgIcipServiceProvider extends ServiceProvider
      * Idempotent OCAP overlay schema migration.
      *
      * OCAP® (Ownership, Control, Access, Possession) is a First Nations data-sovereignty
-     * framework. Pluggable per market — disabled by default unless icip_config has
+     * framework. Pluggable per market - disabled by default unless icip_config has
      * `ocap_enabled = 1`. Adds two columns:
      *   - icip_community.ocap_assertion (JSON)         which of the 4 principles the community asserts
      *   - icip_object_summary.possession_assertion     which party holds possession ('community' | 'repository' | 'shared' | null)
@@ -288,7 +288,7 @@ class AhgIcipServiceProvider extends ServiceProvider
                     DB::table('icip_config')->insert([
                         'config_key' => 'ocap_enabled',
                         'config_value' => '0',
-                        'description' => 'Enable OCAP® overlay (Ownership, Control, Access, Possession). Pluggable per-market — typical First Nations data sovereignty markets: Canada (CAN), Australia (AUS), Aotearoa (NZL).',
+                        'description' => 'Enable OCAP® overlay (Ownership, Control, Access, Possession). Pluggable per-market - typical First Nations data sovereignty markets: Canada (CAN), Australia (AUS), Aotearoa (NZL).',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);

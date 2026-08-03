@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DonorRemindersCommand — dispatch due donor agreement reminders.
+ * DonorRemindersCommand - dispatch due donor agreement reminders.
  *
  * Issue #1262. Previously this command marked reminders as sent and wrote
  * a reminder-log row with a hardcoded outcome, but never dispatched any
@@ -12,11 +12,11 @@
  * next run retries.
  *
  * Recipient resolution (first non-empty wins):
- *   1. reminder.notification_recipients  — explicit comma/newline/semicolon
+ *   1. reminder.notification_recipients  - explicit comma/newline/semicolon
  *      separated email list set when the reminder was created.
- *   2. donor actor contact email          — contact_information.email for the
+ *   2. donor actor contact email          - contact_information.email for the
  *      agreement's actor_id (else donor_id), most-recent primary contact.
- *   3. ahg_settings.dp_notify_email / jobs_notify_email — internal staff
+ *   3. ahg_settings.dp_notify_email / jobs_notify_email - internal staff
  *      fallback so a review-due reminder still reaches someone.
  *
  * Schema note: the live tables differ from the original command's

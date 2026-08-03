@@ -47,7 +47,7 @@
                 @if (! empty($report['control_number']))
                     (001: {{ $report['control_number'] }})
                 @endif
-                &mdash; <strong>{{ (int) ($report['conflict_count'] ?? 0) }} conflict(s)</strong> to resolve.
+                - <strong>{{ (int) ($report['conflict_count'] ?? 0) }} conflict(s)</strong> to resolve.
             @else
                 No master record matched the incoming 001 control number.
                 A commit would create a new record; every field is reported as an addition.

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class SyncController extends BaseApiController
 {
     /**
-     * GET /api/v2/sync/changes — Get changes since a given timestamp.
+     * GET /api/v2/sync/changes - Get changes since a given timestamp.
      */
     public function changes(Request $request): JsonResponse
     {
@@ -90,7 +90,7 @@ class SyncController extends BaseApiController
     }
 
     /**
-     * POST /api/v2/sync/batch — Batch sync operations from mobile.
+     * POST /api/v2/sync/batch - Batch sync operations from mobile.
      */
     public function batch(Request $request): JsonResponse
     {

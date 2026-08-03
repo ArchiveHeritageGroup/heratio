@@ -19,7 +19,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <strong>yaz</strong> extension loaded — Z39.50 client is ready.
+                    <strong>yaz</strong> extension loaded - Z39.50 client is ready.
                 </div>
             @else
                 <div class="flex items-center gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm">

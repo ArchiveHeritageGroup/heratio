@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TranslationCoverageCommand — per-locale coverage report.
+ * TranslationCoverageCommand - per-locale coverage report.
  *
  * Output: a table per locale showing total keys, translated keys (non-identity),
  * and what % of the Heratio codebase __() keys are covered. Use this to see at

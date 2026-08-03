@@ -1,4 +1,4 @@
-{{-- #1105 Lecture builder — create/edit lecture --}}
+{{-- #1105 Lecture builder - create/edit lecture --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')
@@ -49,7 +49,7 @@
 
     @if ($t === 'curriculum')
     <div class="mb-3"><label class="form-label">{{ __('Curriculum reference') }}</label>
-      <input name="curriculum_ref" class="form-control" value="{{ old('curriculum_ref', $lecture['curriculum_ref'] ?? '') }}" placeholder="{{ __('e.g. Session 4 — Cataloguing (training curriculum #1099)') }}">
+      <input name="curriculum_ref" class="form-control" value="{{ old('curriculum_ref', $lecture['curriculum_ref'] ?? '') }}" placeholder="{{ __('e.g. Session 4 - Cataloguing (training curriculum #1099)') }}">
       <div class="form-text">{{ __('Links this lecture to a training-curriculum session (#1099) until that module ships.') }}</div>
     </div>
     @endif

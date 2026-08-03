@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Schema;
 class SpectrumWorkflowService
 {
     /**
-     * Procedure trigger chains — which procedures are auto-started
+     * Procedure trigger chains - which procedures are auto-started
      * when a given procedure reaches its final state.
      *
      * Source: Spectrum 5.1 procedure relationships + AtoM ahgSpectrumWorkflowService.
@@ -204,7 +204,7 @@ class SpectrumWorkflowService
             ->first();
 
         if (!$existing) {
-            return true; // Never started — can start
+            return true; // Never started - can start
         }
 
         $currentState = $existing->current_state;
@@ -214,7 +214,7 @@ class SpectrumWorkflowService
             return true;
         }
 
-        // Already in progress — don't re-trigger
+        // Already in progress - don't re-trigger
         return false;
     }
 

@@ -3,7 +3,7 @@
 use AhgPortableExport\Controllers\PortableExportController;
 use Illuminate\Support\Facades\Route;
 
-// #1357 — anonymous, token-gated public download of a shared bundle. Deliberately
+// #1357 - anonymous, token-gated public download of a shared bundle. Deliberately
 // OUTSIDE the admin group (a share link is meant to be opened by a recipient who
 // isn't logged in). Safety: a 128-bit token in the path, expiry + optional
 // download cap + a published-only gate enforced in share(), plus a throttle to
@@ -28,11 +28,11 @@ Route::middleware('admin')->group(function () {
     Route::post('/portable-export/api/delete', [PortableExportController::class, 'apiDelete'])->name('portable-export.api.delete');
     Route::post('/portable-export/api/token', [PortableExportController::class, 'apiToken'])->name('portable-export.api.token');
 
-    // #1357 tidy — legacy AtoM-style URLs (/portableExport/*) now 301-redirect to
+    // #1357 tidy - legacy AtoM-style URLs (/portableExport/*) now 301-redirect to
     // the canonical /portable-export/* handlers, so old bookmarks and the seeded
     // admin menu item ('portableExport/index') keep working without a duplicate
     // handler. The old POST /portableExport/export alias (a passthrough to
-    // apiStart) is dropped — the wizard posts to /portable-export/api/start.
+    // apiStart) is dropped - the wizard posts to /portable-export/api/start.
     Route::redirect('/portableExport/index', '/portable-export', 301);
     Route::redirect('/portableExport/import', '/portable-export/import', 301);
 });

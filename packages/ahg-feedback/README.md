@@ -13,8 +13,8 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `services` — TODO: implement
-- [ ] `readme` — TODO: implement
+- [ ] `services` - TODO: implement
+- [ ] `readme` - TODO: implement
 
 ## References
 - docs/help/ (search for `feedback`)

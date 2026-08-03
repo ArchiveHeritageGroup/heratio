@@ -1,7 +1,7 @@
 <?php
 
 /**
- * OaiHarvestCommand — harvest an OAI-PMH endpoint into oai_harvest history.
+ * OaiHarvestCommand - harvest an OAI-PMH endpoint into oai_harvest history.
  *
  * Loops ListRecords with resumptionToken, captures one staging row per
  * record under a temporary table (oai_harvested_record), and updates the

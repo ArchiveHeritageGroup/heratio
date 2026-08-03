@@ -1,5 +1,5 @@
 {{--
-  Marketplace — My Favourites (listings the current user has hearted)
+  Marketplace - My Favourites (listings the current user has hearted)
 
   Cloned shell from my-following.blade.php; listing-card grid mirrors browse.blade.php.
 --}}
@@ -143,7 +143,7 @@
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Heart toggle — same as browse.blade.php; on this page un-favouriting also
+  // Heart toggle - same as browse.blade.php; on this page un-favouriting also
   // hides the card so the list stays consistent with what's saved.
   var csrf = document.querySelector('meta[name="csrf-token"]');
   document.querySelectorAll('.fav-toggle').forEach(function (btn) {

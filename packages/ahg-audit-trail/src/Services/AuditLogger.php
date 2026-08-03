@@ -1,9 +1,9 @@
 <?php
 
 /**
- * AuditLogger — write rows to ahg_audit_log with proper old/new value capture.
+ * AuditLogger - write rows to ahg_audit_log with proper old/new value capture.
  *
- * Phase 4 of issue #676 — the schema has `old_values`, `new_values`,
+ * Phase 4 of issue #676 - the schema has `old_values`, `new_values`,
  * `changed_fields` JSON columns but until now most write sites left them
  * NULL. This helper makes it trivial for callers to populate them.
  *
@@ -89,14 +89,14 @@ class AuditLogger
     ): ?int {
         // Compute changed_fields = keys where value differs. Honours scalar
         // comparison + nested arrays (json_encode compare). Skips keys that
-        // are identical in both — keeps the diff payload small.
+        // are identical in both - keeps the diff payload small.
         $changed = $this->changedKeys($oldValues, $newValues);
         if (empty($changed) && empty($metadata)) {
-            // Nothing actually changed — caller probably hit submit without
+            // Nothing actually changed - caller probably hit submit without
             // edits. Skip the audit row to avoid noise.
             return null;
         }
-        // Restrict payloads to ONLY the changed fields — keeps the audit
+        // Restrict payloads to ONLY the changed fields - keeps the audit
         // table compact + makes diffs easy to read.
         $oldDiff = array_intersect_key($oldValues, array_flip($changed));
         $newDiff = array_intersect_key($newValues, array_flip($changed));
@@ -191,7 +191,7 @@ class AuditLogger
      * Compare two associative arrays and return the keys whose values
      * differ. Nested arrays are compared by JSON encoding so the same
      * data in a different order is treated as DIFFERENT (that's the
-     * correct behaviour for audit purposes — re-ordering may itself be
+     * correct behaviour for audit purposes - re-ordering may itself be
      * meaningful).
      */
     public function changedKeys(array $old, array $new): array
@@ -218,7 +218,7 @@ class AuditLogger
             return null;
         }
         try {
-            // Resolve the actor. #1404 — user_id is FK'd to `user`(id), so it may
+            // Resolve the actor. #1404 - user_id is FK'd to `user`(id), so it may
             // ONLY ever hold an id resolved from the staff ('web') guard. A second
             // / non-staff guard's principal (a public claimant, an API consumer, a
             // service account) lives in an unrelated id-space; writing its id here
@@ -243,7 +243,7 @@ class AuditLogger
                     $userEmail = $actor->email ?? null;
                 }
             } catch (\Throwable $e) {
-                // No auth context (CLI / queue) — leave nulls
+                // No auth context (CLI / queue) - leave nulls
             }
             $ip = null;
             $ua = null;

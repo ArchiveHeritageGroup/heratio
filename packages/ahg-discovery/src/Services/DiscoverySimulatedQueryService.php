@@ -1,18 +1,18 @@
 <?php
 
 /**
- * DiscoverySimulatedQueryService — generates a reproducible, ground-truthed
+ * DiscoverySimulatedQueryService - generates a reproducible, ground-truthed
  * query corpus for ablation analysis without waiting on real users or LLM
  * paraphrase. Issue #11 (paper deliverable).
  *
  * Four deterministic generators, default totals matching the issue body:
- *   A. title-derived (n=30) — pick IOs, use title slice as query, ground truth = source IO
- *   B. subject-AP    (n=40) — top subject terms (taxonomy 35), ground truth = all IOs tagged with that term
- *   C. scope-NP      (n=20) — rule-based noun-phrase from scope_and_content; ground truth = source IO
- *   D. typo/abbrev   (n=10) — curated SA/ANC variant pairs; ground truth = canonical-form match set
+ *   A. title-derived (n=30) - pick IOs, use title slice as query, ground truth = source IO
+ *   B. subject-AP    (n=40) - top subject terms (taxonomy 35), ground truth = all IOs tagged with that term
+ *   C. scope-NP      (n=20) - rule-based noun-phrase from scope_and_content; ground truth = source IO
+ *   D. typo/abbrev   (n=10) - curated SA/ANC variant pairs; ground truth = canonical-form match set
  *
  * All four run without Ollama; C is the slot to swap when LLM paraphrase
- * comes online (becomes C.2 — out of scope until GPU returns).
+ * comes online (becomes C.2 - out of scope until GPU returns).
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
  * @license    AGPL-3.0-or-later
@@ -96,7 +96,7 @@ class DiscoverySimulatedQueryService
             return [];
         }
 
-        // Sample non-trivial titles — exclude the bulk-loaded BOX/FLR/ITEM
+        // Sample non-trivial titles - exclude the bulk-loaded BOX/FLR/ITEM
         // identifier-style titles which are essentially identifier strings.
         $rows = DB::connection('atom')->select(
             "SELECT i.id, i18n.title
@@ -178,7 +178,7 @@ class DiscoverySimulatedQueryService
 
     /**
      * C. Scope noun-phrase (rule-based). Pull IOs whose scope_and_content has
-     * a 2–4 word capitalised noun phrase, use that as the query.
+     * a 2-4 word capitalised noun phrase, use that as the query.
      * Ground truth = the source IO (paraphrase-style retrieval target).
      */
     private function scopeNpQueries(int $n): array
@@ -219,14 +219,14 @@ class DiscoverySimulatedQueryService
     }
 
     /**
-     * Rule-based noun phrase extractor — finds 2–4 consecutive capitalised
+     * Rule-based noun phrase extractor - finds 2-4 consecutive capitalised
      * words that aren't all-caps stop noise. Cheap stand-in for spaCy's NP
      * chunker; paper's "scope-NP" generator slot.
      */
     private function extractNounPhrase(string $text): ?string
     {
         $text = strip_tags($text);
-        // 2–4 capitalised words in a row; first word ≥3 chars.
+        // 2-4 capitalised words in a row; first word ≥3 chars.
         if (! preg_match_all('/\b([A-Z][a-z]{2,}(?:\s+[A-Z][a-z]+){1,3})\b/u', $text, $matches)) {
             return null;
         }
@@ -245,14 +245,14 @@ class DiscoverySimulatedQueryService
         if (empty($candidates)) {
             return null;
         }
-        // Deterministic pick: shortest 2–3 word phrase (better signal-to-noise).
+        // Deterministic pick: shortest 2-3 word phrase (better signal-to-noise).
         usort($candidates, fn ($a, $b) => str_word_count($a) <=> str_word_count($b));
 
         return $candidates[0];
     }
 
     /**
-     * D. Typo / abbreviation queries. Static curated list — each row picks a
+     * D. Typo / abbreviation queries. Static curated list - each row picks a
      * variant, ground truth = IOs whose title or scope mentions any
      * canonical or variant form (recall target across morphological drift).
      */

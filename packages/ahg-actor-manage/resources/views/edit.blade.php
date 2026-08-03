@@ -802,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-  // Field help popups — simple custom implementation
+  // Field help popups - simple custom implementation
   document.addEventListener('click', function(e) {
     var btn = e.target.closest('.ahg-field-help');
     // Close any open popup when clicking elsewhere

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate tests/__fixtures__/sample.marc21 — a valid ISO 2709 binary MARC21 record.
+Generate tests/__fixtures__/sample.marc21 - a valid ISO 2709 binary MARC21 record.
 
 ISO 2709 layout:
   Bytes 0-23   : Leader (24 bytes)
@@ -12,7 +12,7 @@ from the base address (the first byte of the data area).
 """
 
 def build_marc21():
-    # (tag, raw field content — RTF 0x1E is appended by this script)
+    # (tag, raw field content - RTF 0x1E is appended by this script)
     # 008 field MUST be exactly 40 bytes (ISO 2709 §5.2.1):
     #   pos  0-5  : date entered on file (YYMMdd = 6)
     #   pos  6    : type of date (s = single, r = reprint, etc.)

@@ -35,7 +35,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Classification Level') }}</label>
               <select name="classification_id" class="form-select" required>
-                <option value="0">— Revoke —</option>
+                <option value="0">- Revoke -</option>
                 @foreach($classifications ?? [] as $cl)
                   <option value="{{ $cl->id }}" style="color: {{ $cl->color ?? '#333' }}">{{ e($cl->name) }} (Level {{ $cl->level }})</option>
                 @endforeach
@@ -126,7 +126,7 @@
               @endif
             </td>
             <td>{{ e($user->granted_by_name ?? '') }}</td>
-            <td>{{ $user->expires_at ?? '—' }}</td>
+            <td>{{ $user->expires_at ?? '-' }}</td>
             <td>
               <button class="btn btn-sm btn-outline-primary grant-btn"
                       data-user-id="{{ $user->id }}"

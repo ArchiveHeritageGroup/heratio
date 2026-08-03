@@ -205,11 +205,11 @@
                             </div>
                             <div class="mb-3">
                                 <label for="sp_site" class="form-label">{{ __('Site') }}</label>
-                                <select class="form-select" id="sp_site"><option value="">— Loading sites... —</option></select>
+                                <select class="form-select" id="sp_site"><option value="">- Loading sites... -</option></select>
                             </div>
                             <div class="mb-3">
                                 <label for="sp_drive" class="form-label">{{ __('Drive (document library)') }}</label>
-                                <select class="form-select" id="sp_drive" disabled><option value="">— Select a site first —</option></select>
+                                <select class="form-select" id="sp_drive" disabled><option value="">- Select a site first -</option></select>
                                 <input type="hidden" name="sp_drive_id" id="sp_drive_id_hidden">
                                 <input type="hidden" name="sp_drive_name" id="sp_drive_name_hidden">
                                 <input type="hidden" name="sp_site_id" id="sp_site_id_hidden">
@@ -353,9 +353,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadSites() {
-        spSite.innerHTML = '<option value="">— Loading sites... —</option>';
+        spSite.innerHTML = '<option value="">- Loading sites... -</option>';
         fetchSP({ op: 'sites', tenant_id: spTenant.value }).then(function (json) {
-            spSite.innerHTML = '<option value="">— Select site —</option>';
+            spSite.innerHTML = '<option value="">- Select site -</option>';
             (json.sites || []).forEach(function (s) {
                 var o = document.createElement('option');
                 o.value = s.id;
@@ -369,9 +369,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadDrives() {
         if (!spSite.value) { spDrive.disabled = true; return; }
         spDrive.disabled = true;
-        spDrive.innerHTML = '<option value="">— Loading drives... —</option>';
+        spDrive.innerHTML = '<option value="">- Loading drives... -</option>';
         fetchSP({ op: 'drives', tenant_id: spTenant.value, site_id: spSite.value }).then(function (json) {
-            spDrive.innerHTML = '<option value="">— Select drive —</option>';
+            spDrive.innerHTML = '<option value="">- Select drive -</option>';
             (json.drives || []).forEach(function (d) {
                 var o = document.createElement('option');
                 o.value = d.id;
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderChildren(parentEl, items) {
         parentEl.innerHTML = '';
-        if (!items.length) { parentEl.innerHTML = '<small class="text-muted">— empty —</small>'; return; }
+        if (!items.length) { parentEl.innerHTML = '<small class="text-muted">- empty -</small>'; return; }
         var ul = document.createElement('ul');
         ul.style.listStyle = 'none'; ul.style.paddingLeft = '1rem';
         items.forEach(function (it) {

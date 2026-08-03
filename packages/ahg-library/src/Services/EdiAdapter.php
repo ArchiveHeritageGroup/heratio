@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * EdiAdapter — EDI/EANCOM message dispatcher for library trading partners.
+ * EdiAdapter - EDI/EANCOM message dispatcher for library trading partners.
  *
  * Supports endpoint types: SFTP, AS2, HTTP/HTTPS, EMAIL, MANUAL.
  * Builds message payloads for: EANCOM S93/S94, UN/EDIFACT ILL, X12 850.
@@ -159,7 +159,7 @@ class EdiAdapter
         $title = $this->truncate($request->title ?? '', 300);
         $bgm = "BGM+24+{$bgmRef}+AC'";
 
-        // NAD segments — requester / responder
+        // NAD segments - requester / responder
         $requester = $request->requesterLibrary;
         $responder = $request->responderLibrary;
 
@@ -215,7 +215,7 @@ class EdiAdapter
 
     protected function buildEdifact(IllRequest $request): array
     {
-        // UN/EDIFACT — same structure as EANCOM but without EANCOM qualifier in UNB
+        // UN/EDIFACT - same structure as EANCOM but without EANCOM qualifier in UNB
         $result = $this->buildEancom($request);
         $result['type'] = 'UN/EDIFACT';
         // Strip the UNOC:3 qualifier for pure EDIFACT
@@ -303,7 +303,7 @@ class EdiAdapter
         }
 
         if ($tp->test_mode) {
-            Log::info('[EdiAdapter] TEST mode — message not sent', [
+            Log::info('[EdiAdapter] TEST mode - message not sent', [
                 'partner' => $tp->edi_partner_code,
                 'ill'     => $request->ill_number,
             ]);

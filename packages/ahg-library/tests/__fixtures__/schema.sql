@@ -1,4 +1,4 @@
--- schema.sql — minimal SQLite schema for ahg-library unit tests.
+-- schema.sql - minimal SQLite schema for ahg-library unit tests.
 -- Mirrors the Heratio MySQL library schema columns used by
 -- LibraryCirculationService and LibraryPatronService.
 

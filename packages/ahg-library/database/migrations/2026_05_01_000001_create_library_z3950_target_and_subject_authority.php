@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Create library_z3950_target — Z39.50 server configuration for copy
+     * Create library_z3950_target - Z39.50 server configuration for copy
      * cataloguing. Idempotent: fully skips if table already exists (may have
      * been created by batch 22 of the failed partial run).
      *
      * NOTE: library_subject_authority, library_item_authority_link, and the
      * RDA 336/337/338 columns on library_item are created by
-     * 2026_05_30_* sibling migrations instead — each concern in its own file.
+     * 2026_05_30_* sibling migrations instead - each concern in its own file.
      */
     public function up(): void
     {

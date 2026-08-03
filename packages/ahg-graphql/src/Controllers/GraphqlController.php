@@ -56,7 +56,7 @@ class GraphqlController extends Controller
 
     /**
      * SECURITY (#1378): does the current caller get to see drafts / private /
-     * non-public rows? Mirrors the ahg-annotations #1365 model — admin/editor
+     * non-public rows? Mirrors the ahg-annotations #1365 model - admin/editor
      * (AclService::canAdmin) bypasses the publication/visibility filters; every
      * other authenticated caller is clamped to published/public (+ own) rows.
      */
@@ -105,7 +105,7 @@ class GraphqlController extends Controller
     }
 
     /**
-     * GraphQL Playground — interactive IDE.
+     * GraphQL Playground - interactive IDE.
      */
     public function playground()
     {
@@ -115,7 +115,7 @@ class GraphqlController extends Controller
     }
 
     /**
-     * GraphQL endpoint — processes queries.
+     * GraphQL endpoint - processes queries.
      */
     public function execute(Request $request)
     {
@@ -209,7 +209,7 @@ class GraphqlController extends Controller
         // (private/collaborators/public). Non-admin callers only ever see
         // public projects; admins/editors see all. owner_id references
         // research_researcher.id (not the auth user id), so there is no
-        // trustworthy auth-user->owner mapping to widen this — mirror the
+        // trustworthy auth-user->owner mapping to widen this - mirror the
         // ahg-annotations #1365 "safe subset" (public + admin) here too.
         if (! $this->callerIsAdmin()) {
             $q->where('p.visibility', 'public');
@@ -287,7 +287,7 @@ class GraphqlController extends Controller
             //   - authenticated non-admin: public OR own (created_by = id);
             //   - anonymous: public only.
             // 'project' rows stay hidden from non-owners (same deferral the
-            // #1365 fix documents — no trustworthy project-membership lookup).
+            // #1365 fix documents - no trustworthy project-membership lookup).
             if (! $this->callerIsAdmin()) {
                 $userId = Auth::id();
                 if (Auth::check()) {
@@ -492,7 +492,7 @@ class GraphqlController extends Controller
                 'io.level_of_description_id', 'ioi.title', 'ioi.scope_and_content', 'slug.slug');
 
         // SECURITY (#1378): non-admin callers only see Published records
-        // (status.type_id=158, status_id=160) — a draft IO is never disclosed.
+        // (status.type_id=158, status_id=160) - a draft IO is never disclosed.
         $this->scopePublished($q, 'io');
 
         $io = $q->first();

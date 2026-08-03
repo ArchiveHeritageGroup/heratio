@@ -1,5 +1,5 @@
 {{--
-  Audit Trail — Browse (cloned from ahgAuditTrailPlugin/browseSuccess.php)
+  Audit Trail - Browse (cloned from ahgAuditTrailPlugin/browseSuccess.php)
 
   Copyright (C) 2026 Johan Pieterse
   Plain Sailing Information Systems

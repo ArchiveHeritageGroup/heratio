@@ -1,7 +1,7 @@
 <?php
 
 /**
- * IssueService — runs every guard, generates a token, persists the row,
+ * IssueService - runs every guard, generates a token, persists the row,
  * dual-writes to ahg_audit_log. Mirror of the AtoM-side service.
  *
  * @phase C

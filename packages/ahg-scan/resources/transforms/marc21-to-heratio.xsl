@@ -4,7 +4,7 @@
 
   Transforms a MARC21 slim-XML <record> into a heratioScan sidecar envelope.
   Handles both individual <record> documents and <collection><record/> wrappers
-  (first record wins in the collection case — one sidecar describes one IO).
+  (first record wins in the collection case - one sidecar describes one IO).
 
   Common MARC21 fields mapped:
     001         → identifier (as fallback when 020/022 absent)

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * OrcidSyncCommand — pull ORCID Works for all linked researchers.
+ * OrcidSyncCommand - pull ORCID Works for all linked researchers.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

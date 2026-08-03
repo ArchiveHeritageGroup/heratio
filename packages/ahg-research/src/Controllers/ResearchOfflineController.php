@@ -10,12 +10,12 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Researcher-facing offline packages (Phase 1–2).
+ * Researcher-facing offline packages (Phase 1-2).
  *
  * Lets a researcher take one of their own groups (project / collection /
  * workspace / favourites folder) offline as an editable portable bundle, track
  * its build, and download it. Everything is scoped to the logged-in researcher
- * and — via the underlying portable-export ACL/disclosure gate — to the records
+ * and - via the underlying portable-export ACL/disclosure gate - to the records
  * they are permitted to see.
  */
 class ResearchOfflineController extends Controller

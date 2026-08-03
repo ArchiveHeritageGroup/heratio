@@ -17,7 +17,7 @@ class NestedSetRebuildCommand extends Command
     {
         $table = (string) $this->option('model');
         if (! in_array($table, ['information_object', 'term'], true)) {
-            $this->error("Refusing to rebuild '{$table}' — only information_object and term are supported.");
+            $this->error("Refusing to rebuild '{$table}' - only information_object and term are supported.");
 
             return self::FAILURE;
         }

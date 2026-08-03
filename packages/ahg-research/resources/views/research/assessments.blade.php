@@ -46,7 +46,7 @@
                         @if($score > 0)
                             <span class="fw-bold text-{{ $score >= 70 ? 'success' : ($score >= 40 ? 'warning' : 'danger') }}">{{ $score }}</span>
                         @else
-                            <span class="text-muted">—</span>
+                            <span class="text-muted">-</span>
                         @endif
                     </td>
                     <td><small>{{ e($a->researcher_name ?? '') }}</small></td>

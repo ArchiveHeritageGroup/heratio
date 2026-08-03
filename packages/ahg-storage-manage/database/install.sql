@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-storage-manage — install schema
+-- ahg-storage-manage - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgStorageManagePlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- on 2026-04-30. Heratio standalone install - Phase 1 #3.
 --
 -- Transforms applied:
 --   - DROP TABLE/VIEW statements removed
@@ -17,7 +17,7 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ============================================================================
--- heratio#144 — Strongroom space allocation (2026-05-23, rebuild).
+-- heratio#144 - Strongroom space allocation (2026-05-23, rebuild).
 -- ============================================================================
 -- Models a strongroom as its own entity (own table, own slug, own CRUD), not a
 -- physical_object subtype. Physical objects link to a strongroom via the join

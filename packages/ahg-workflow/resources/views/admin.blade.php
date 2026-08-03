@@ -64,7 +64,7 @@
     </div>
   </div>
 
-  {{-- Spectrum#A — filter UI (no-op if no procedures defined) --}}
+  {{-- Spectrum#A - filter UI (no-op if no procedures defined) --}}
   @if(!empty($spectrumProcedures ?? []))
     <form method="GET" action="{{ route('workflow.admin') }}" class="d-flex flex-wrap gap-2 align-items-end mb-3">
       <div class="flex-grow-1" style="max-width: 28rem;">
@@ -126,7 +126,7 @@
                     @if(!empty($wf->spectrum_procedure) && isset($spectrumProcedures[$wf->spectrum_procedure]))
                       <span class="badge bg-info text-dark"><i class="fas fa-university me-1"></i>{{ $spectrumProcedures[$wf->spectrum_procedure] }}</span>
                     @else
-                      <span class="text-muted small">—</span>
+                      <span class="text-muted small">-</span>
                     @endif
                   </td>
                   <td><span class="badge bg-info">{{ $wf->step_count }}</span></td>

@@ -1,4 +1,4 @@
-{{-- ISAD(G) — Notes area (#98 Phase 1: extracted as a partial so DACS / RAD / MODS
+{{-- ISAD(G) - Notes area (#98 Phase 1: extracted as a partial so DACS / RAD / MODS
      templates can include or omit it). Inherits $io / $notes / $alternativeIdentifiers
      from the parent show template's scope (Laravel @include inherits parent vars). --}}
 @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_notes_area'))

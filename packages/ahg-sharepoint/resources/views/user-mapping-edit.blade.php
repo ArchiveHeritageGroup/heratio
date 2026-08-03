@@ -6,11 +6,11 @@
 @if ($mapping !== null)
     <dl class="row">
         <dt class="col-sm-3">AAD oid</dt><dd class="col-sm-9 small text-muted">{{ $mapping->aad_object_id }}</dd>
-        <dt class="col-sm-3">UPN</dt><dd class="col-sm-9">{{ $mapping->aad_upn ?? '—' }}</dd>
-        <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ $mapping->aad_email ?? '—' }}</dd>
+        <dt class="col-sm-3">UPN</dt><dd class="col-sm-9">{{ $mapping->aad_upn ?? '-' }}</dd>
+        <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ $mapping->aad_email ?? '-' }}</dd>
         <dt class="col-sm-3">{{ __('Heratio user id') }}</dt><dd class="col-sm-9">{{ $mapping->atom_user_id }}</dd>
         <dt class="col-sm-3">{{ __('Created by') }}</dt><dd class="col-sm-9">{{ $mapping->created_by }}</dd>
-        <dt class="col-sm-3">{{ __('Last seen') }}</dt><dd class="col-sm-9">{{ $mapping->last_seen_at ?? '—' }}</dd>
+        <dt class="col-sm-3">{{ __('Last seen') }}</dt><dd class="col-sm-9">{{ $mapping->last_seen_at ?? '-' }}</dd>
     </dl>
     <form method="post" onsubmit="return confirm('{{ __('Delete this mapping? The Heratio user account is NOT deleted.') }}');">
         @csrf

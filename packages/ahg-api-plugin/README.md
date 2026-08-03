@@ -13,10 +13,10 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `services` — TODO: implement
-- [ ] `db` — TODO: implement
-- [ ] `readme` — TODO: implement
-- [ ] `docs_help` — TODO: implement
+- [ ] `services` - TODO: implement
+- [ ] `db` - TODO: implement
+- [ ] `readme` - TODO: implement
+- [ ] `docs_help` - TODO: implement
 
 ## References
 - docs/help/ (search for `api-plugin`)

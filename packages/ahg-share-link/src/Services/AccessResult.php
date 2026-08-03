@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AccessResult — outcome of a recipient access validation. Mirror of the
+ * AccessResult - outcome of a recipient access validation. Mirror of the
  * AtoM-side service.
  *
  * @phase D

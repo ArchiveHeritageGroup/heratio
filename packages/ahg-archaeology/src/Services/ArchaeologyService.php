@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ArchaeologyService — reads and writes the archaeology collections tables.
+ * ArchaeologyService - reads and writes the archaeology collections tables.
  *
  * Sites and finds are extensions of `information_object`, so titles, scope,
  * hierarchy and ACL come from the descriptive record and only domain fields

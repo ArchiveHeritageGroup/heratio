@@ -3,7 +3,7 @@
 @endonce
 {{-- RiC Entity Creation Modal --}}
 @php
-    // Issue #59 Tier 2 — culture-aware dropdowns via the COALESCE helper.
+    // Issue #59 Tier 2 - culture-aware dropdowns via the COALESCE helper.
     $ricDropdowns = [
         'ric_activity_type' => \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('ric_activity_type'),
         'ric_place_type'    => \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('ric_place_type'),
@@ -157,7 +157,7 @@ function ricSetEntityType(type) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Wire the four Add buttons in _ric-entities-panel — their inline
+    // Wire the four Add buttons in _ric-entities-panel - their inline
     // onclick= attrs are blocked by CSP (script-src nonce makes browsers
     // ignore unsafe-inline incl. event handler attributes), so without this
     // the modal always opens with the default 'activity' fields regardless
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!data.title) { alert('Title is required'); return; }
         }
 
-        // POST /api/ric/v1/{type-plural} for the entity (LOCAL Heratio — writes
+        // POST /api/ric/v1/{type-plural} for the entity (LOCAL Heratio - writes
         // never go cross-origin to OpenRiC; per the separation plan ric_*
         // tables live here and OpenRiC is read-only public). Then if a
         // link-to-record was specified, POST /api/ric/v1/relations. Both

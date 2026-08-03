@@ -50,7 +50,7 @@ class RepositoryBrowseService extends BrowseService
 
     protected function getBaseSelect(): array
     {
-        // i18n columns via COALESCE(cur, fb) — see WithCultureFallback.
+        // i18n columns via COALESCE(cur, fb) - see WithCultureFallback.
         return [
             'repository.id',
             DB::raw('COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name) AS name'),

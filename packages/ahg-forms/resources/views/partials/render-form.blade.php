@@ -77,7 +77,7 @@
                     @break
                   @case('select')
                     <select id="fld-{{ $field->id }}" name="fields[{{ $name }}]" class="form-select" {{ $req }} {{ $ro }}>
-                      <option value="">— Select —</option>
+                      <option value="">- Select -</option>
                       @foreach($opts as $optVal => $optLabel)
                         <option value="{{ is_int($optVal) ? $optLabel : $optVal }}" @selected((string)$val === (string)(is_int($optVal) ? $optLabel : $optVal))>
                           {{ is_array($optLabel) ? ($optLabel['label'] ?? $optLabel['value'] ?? '') : $optLabel }}

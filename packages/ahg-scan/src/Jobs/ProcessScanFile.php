@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ProcessScanFile — Heratio ahg-scan
+ * ProcessScanFile - Heratio ahg-scan
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -62,7 +62,7 @@ class ProcessScanFile implements ShouldQueue
     }
 
     /**
-     * Synchronous entry point — usable from the queue, from the CLI, and
+     * Synchronous entry point - usable from the queue, from the CLI, and
      * from the admin "Retry" action.
      */
     public static function runSync(int $fileId, ?int $folderId = null): void
@@ -100,7 +100,7 @@ class ProcessScanFile implements ShouldQueue
             self::stageMeta($fileId);
             self::stageSectorRouting($fileId);
             if (self::stageRights($fileId)) {
-                // needsReview was returned — hold the file, skip derivatives/indexing.
+                // needsReview was returned - hold the file, skip derivatives/indexing.
                 return;
             }
             self::stageDeriving($fileId);
@@ -131,7 +131,7 @@ class ProcessScanFile implements ShouldQueue
             ]);
             self::dispositionFailure($fileId, $folder, $e->getMessage());
 
-            // Send a notification only on the *final* failure — after
+            // Send a notification only on the *final* failure - after
             // max_attempts retries have been exhausted. Early failures are
             // retried by the scheduler with exponential backoff.
             $currentAttempts = (int) (DB::table('ingest_file')->where('id', $fileId)->value('attempts') ?? 0);
@@ -162,7 +162,7 @@ class ProcessScanFile implements ShouldQueue
 
         // Prefer clamscan (standalone, runs as PHP user so it can read
         // staged files in the PHP-user-owned staging dir). Fall back to
-        // clamdscan (daemon — faster but needs the daemon's user to have
+        // clamdscan (daemon - faster but needs the daemon's user to have
         // traverse permission on the staging path).
         $clamsc = trim((string) @shell_exec('command -v clamscan 2>/dev/null'));
         $clamd = trim((string) @shell_exec('command -v clamdscan 2>/dev/null'));
@@ -191,7 +191,7 @@ class ProcessScanFile implements ShouldQueue
             throw new \RuntimeException('Virus scan detected threat: '.($threat ?: 'unknown').' (exit '.$exitCode.')');
         }
         if ($exitCode !== 0) {
-            // ClamAV error — not a clean PASS, but also not a known infection. Fail safe: abort.
+            // ClamAV error - not a clean PASS, but also not a known infection. Fail safe: abort.
             throw new \RuntimeException('Virus scanner error (exit '.$exitCode.'): '.substr(implode("\n", $output), 0, 500));
         }
         // Exit 0 = clean; proceed. preservation_virus_scan recording is P4 scope
@@ -239,7 +239,7 @@ class ProcessScanFile implements ShouldQueue
      * Extract embedded metadata (EXIF / IPTC / XMP / document props) into
      * preservation_checksum + digital_object_metadata + media_metadata +
      * dam_iptc_metadata. Runs after IO/DO creation so the target tables
-     * have their FK targets in place. ExifTool is optional — absence is
+     * have their FK targets in place. ExifTool is optional - absence is
      * logged, never fatal.
      */
     protected static function stageMeta(int $fileId): void
@@ -254,7 +254,7 @@ class ProcessScanFile implements ShouldQueue
         try {
             \AhgCore\Services\DigitalObjectService::extractMetadataForMaster((int) $file->resolved_do_id);
         } catch (\Throwable $e) {
-            // Non-fatal — metadata extraction failure shouldn't roll back a
+            // Non-fatal - metadata extraction failure shouldn't roll back a
             // successful ingest. Log and continue.
             Log::warning('[ahg-scan] metadata extraction failed for DO '.$file->resolved_do_id.': '.$e->getMessage());
         }
@@ -326,7 +326,7 @@ class ProcessScanFile implements ShouldQueue
             }
         }
 
-        // 1b. Inline metadata JSON (Scan API's `metadata` form field) — already
+        // 1b. Inline metadata JSON (Scan API's `metadata` form field) - already
         // stashed on ingest_file.sidecar_json when no XML sidecar was uploaded.
         // Lower priority than a real sidecar but higher than path-layout.
         if (empty($meta['parent_id']) && ! empty($file->sidecar_json)) {
@@ -334,7 +334,7 @@ class ProcessScanFile implements ShouldQueue
             if (is_array($inline) && empty($inline['_warnings'])) {
                 // Heuristic: treat as a flat meta dict if it has no nested
                 // sidecar envelope markers. Parser output has keys like
-                // sector/rights/digital_object — inline metadata is flat.
+                // sector/rights/digital_object - inline metadata is flat.
                 if (! isset($inline['rights']) && ! isset($inline['digital_object'])) {
                     foreach (['parent_id', 'identifier', 'title', 'scope_and_content',
                         'level_of_description_id', 'repository_id', 'source_standard',
@@ -489,14 +489,14 @@ class ProcessScanFile implements ShouldQueue
                 $session
             );
             if (! empty($warnings)) {
-                // Append to any existing error_message (kept as "soft warnings" — the pipeline succeeds).
+                // Append to any existing error_message (kept as "soft warnings" - the pipeline succeeds).
                 DB::table('ingest_file')->where('id', $fileId)->update([
                     'error_message' => trim(($file->error_message ? $file->error_message."\n" : '')."[sector warnings]\n".implode("\n", $warnings)),
                 ]);
             }
         } catch (\Throwable $e) {
             Log::warning('[ahg-scan] sector routing failed for ingest_file '.$fileId.': '.$e->getMessage());
-            // Non-fatal — the base IO/DO are already created.
+            // Non-fatal - the base IO/DO are already created.
         }
     }
 
@@ -586,7 +586,7 @@ class ProcessScanFile implements ShouldQueue
 
     /**
      * Run HTR / OCR when the session's process_ocr flag is set AND the
-     * master is an image or PDF. Hands off to AhgAiServices\HtrService —
+     * master is an image or PDF. Hands off to AhgAiServices\HtrService -
      * failure is non-fatal; OCR is a best-effort enhancement, not a
      * gating requirement.
      */
@@ -664,7 +664,7 @@ class ProcessScanFile implements ShouldQueue
                 '--id' => (int) $file->resolved_io_id,
             ]);
         } catch (\Throwable $e) {
-            // Non-fatal — ES unavailable just means the record is searchable
+            // Non-fatal - ES unavailable just means the record is searchable
             // after the next scheduled reindex. Log and continue.
             Log::info('[ahg-scan] ES index skipped for IO '.$file->resolved_io_id.': '.$e->getMessage());
         }
@@ -672,7 +672,7 @@ class ProcessScanFile implements ShouldQueue
 
     /**
      * Build SIP / AIP / DIP packages according to the session's
-     * output_generate_* flags. Per-file packaging — one IO = one set
+     * output_generate_* flags. Per-file packaging - one IO = one set
      * of packages. Failure here does NOT roll back the successful ingest.
      */
     protected static function stagePackaging(int $fileId): void
@@ -740,7 +740,7 @@ class ProcessScanFile implements ShouldQueue
             return; // already moved by IngestService into uploads canonical location
         }
 
-        // Also move the paired sidecar (if one exists and we own it) — but only
+        // Also move the paired sidecar (if one exists and we own it) - but only
         // after the LAST file sharing that sidecar has been processed. For
         // simplicity, move it together with the current file on success; if
         // other siblings still need it, they'll be resolved to 'duplicate' by

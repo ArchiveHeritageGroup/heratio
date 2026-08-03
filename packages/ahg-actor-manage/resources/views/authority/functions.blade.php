@@ -59,7 +59,7 @@
               </td>
               <td>
                 {{ e($link->date_from ?? '') }}
-                @if ($link->date_from || $link->date_to) &ndash; @endif
+                @if ($link->date_from || $link->date_to) - @endif
                 {{ e($link->date_to ?? '') }}
               </td>
               <td><small>{{ e($link->notes ?? '') }}</small></td>

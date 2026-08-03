@@ -77,7 +77,7 @@ class SharePointUserMappingService
         //      role = configurable default (default 'editor').
         //   3. Return user.id.
         throw new \RuntimeException(
-            'SharePointUserMappingService::createHeratioUser not implemented yet — '
+            'SharePointUserMappingService::createHeratioUser not implemented yet - '
             .'wire to Heratio\'s user provisioning service in ahg-acl.'
         );
     }

@@ -1,5 +1,5 @@
 {{--
-  Accession Management — intake workflow, numbering, appraisal, container and rights settings
+  Accession Management - intake workflow, numbering, appraisal, container and rights settings
   Cloned from AtoM ahgSettingsPlugin section.blade.php @case('accession')
 
   @copyright  Johan Pieterse / Plain Sailing

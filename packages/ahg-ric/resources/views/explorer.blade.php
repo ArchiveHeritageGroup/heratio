@@ -12,7 +12,7 @@
     <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('RiC Explorer') }}</h1>
-      <span class="small text-muted">{{ __('Records in Contexts &mdash; Graph Visualization') }}</span>
+      <span class="small text-muted">{{ __('Records in Contexts - Graph Visualization') }}</span>
     </div>
   </div>
 
@@ -398,7 +398,7 @@
     }
   });
 
-  // Auto-load entity from URL parameter ?id=X — or fall back to the global
+  // Auto-load entity from URL parameter ?id=X - or fall back to the global
   // overview graph if no id is supplied. Without this fallback, the page just
   // shows a "click Overview" placeholder and looks empty by default.
   var urlParams = new URLSearchParams(window.location.search);

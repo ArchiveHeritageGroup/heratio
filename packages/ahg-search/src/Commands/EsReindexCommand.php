@@ -28,8 +28,8 @@ class EsReindexCommand extends Command
         {--index= : Reindex a specific index (informationobject, actor, term, repository). Omit for all.}
         {--id= : Reindex a single object by id (requires --index)}
         {--id-range= : Only reindex ids in the inclusive range "lo,hi" (informationobject). Used for sharding.}
-        {--workers=1 : heratio#1398 — parallel worker processes to shard the informationobject reindex across (N× throughput).}
-        {--bulk-mode : heratio#1398 — put the target index in bulk-load mode (refresh_interval=-1, replicas=0) for the run, then restore + refresh. Implied when --workers>1.}
+        {--workers=1 : heratio#1398 - parallel worker processes to shard the informationobject reindex across (N× throughput).}
+        {--bulk-mode : heratio#1398 - put the target index in bulk-load mode (refresh_interval=-1, replicas=0) for the run, then restore + refresh. Implied when --workers>1.}
         {--shards= : Primary shards to create the index with when it does not exist (size for the corpus; 8M ≈ 5-10).}
         {--no-progress : Suppress the progress bar (used by parallel workers so their output does not collide).}
         {--clone-from= : Clone mapping and data from an existing prefix (e.g. archive_) instead of building from MySQL}
@@ -97,7 +97,7 @@ class EsReindexCommand extends Command
                 continue;
             }
 
-            // heratio#1398 — parallel-shard the big informationobject index across
+            // heratio#1398 - parallel-shard the big informationobject index across
             // worker processes. Small indices (actor/term/repository) stay inline.
             if ($key === 'informationobject' && $workers > 1
                 && $this->option('id-range') === null && ! $this->option('id')) {
@@ -355,7 +355,7 @@ class EsReindexCommand extends Command
         $range = $this->parseIdRange();
         $noProgress = (bool) $this->option('no-progress');
 
-        // heratio#1398 — single-worker bulk mode (the parallel path manages it in
+        // heratio#1398 - single-worker bulk mode (the parallel path manages it in
         // the parent; leaf workers carry --id-range and must NOT touch it).
         $manageBulk = $this->option('bulk-mode') && $range === null && ! $onlyId;
         if ($manageBulk) {
@@ -382,7 +382,7 @@ class EsReindexCommand extends Command
             ->chunk($this->batchSize, function ($rows) use ($index, $bar) {
                 $ids = $rows->pluck('id')->toArray();
 
-                // heratio#1398 — batch the ancestor lookup for the whole chunk
+                // heratio#1398 - batch the ancestor lookup for the whole chunk
                 // (one query) instead of ancestorIds() per row (the dominant N+1).
                 $ancestorsById = app(\AhgCore\Services\HierarchyQueryService::class)
                     ->batchAncestorIds('information_object', $ids);
@@ -527,7 +527,7 @@ class EsReindexCommand extends Command
                     $do = $digitalObjects[$row->id] ?? null;
                     $repo = $repos[$row->repository_id] ?? null;
 
-                    // Build creators array — merge AtoM-style event creators with
+                    // Build creators array - merge AtoM-style event creators with
                     // library_item_creator rows (each library author becomes an actor
                     // via LibraryService::resolveOrCreateActor on save). Names from
                     // pre-actor-link library rows are still emitted as a string-only
@@ -976,7 +976,7 @@ class EsReindexCommand extends Command
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    //  heratio#1398 — parallelism, sharding + bulk-load helpers
+    //  heratio#1398 - parallelism, sharding + bulk-load helpers
     // ─────────────────────────────────────────────────────────────────────
 
     /** Parse --id-range "lo,hi" into [int,int], or null. */
@@ -1080,7 +1080,7 @@ class EsReindexCommand extends Command
         $hierarchy = app(\AhgCore\Services\HierarchyQueryService::class);
         if (! $hierarchy->closureReady('information_object', 1)
             && DB::table('information_object')->where('id', '!=', 1)->count() > 500000) {
-            $this->warn('  Ancestor closure not populated — run `ahg:build-closure` first for large corpora (the nested-set fallback does not scale to millions).');
+            $this->warn('  Ancestor closure not populated - run `ahg:build-closure` first for large corpora (the nested-set fallback does not scale to millions).');
         }
 
         $min = (int) DB::table('information_object')->where('id', '!=', 1)->min('id');
@@ -1136,6 +1136,6 @@ class EsReindexCommand extends Command
             $count = Http::get("{$this->host}/{$index}/_count")->json()['count'] ?? 0;
         } catch (\Throwable $e) {
         }
-        $this->info("  Parallel reindex complete — {$index} now has {$count} docs.");
+        $this->info("  Parallel reindex complete - {$index} now has {$count} docs.");
     }
 }

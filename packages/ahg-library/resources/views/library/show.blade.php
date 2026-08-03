@@ -794,7 +794,7 @@
   @php
     $culture = app()->getLocale();
 
-    // PREMIS rights (base — authoritative source)
+    // PREMIS rights (base - authoritative source)
     $premisRights = \Illuminate\Support\Facades\DB::table('rights')
         ->join('relation', function ($j) use ($item) {
             $j->on('rights.id', '=', 'relation.subject_id')
@@ -821,7 +821,7 @@
             return $r;
         });
 
-    // Extended rights (supplements PREMIS — CC license, TK labels, usage conditions)
+    // Extended rights (supplements PREMIS - CC license, TK labels, usage conditions)
     $extRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
         ? \Illuminate\Support\Facades\DB::table('extended_rights as er')
             ->leftJoin('extended_rights_i18n as eri', function ($j) use ($culture) {
@@ -871,7 +871,7 @@
         <div class="alert alert-danger d-flex align-items-center mb-3">
           <i class="fas fa-ban me-2 fa-lg"></i>
           <div>
-            <strong>{{ __('Under Embargo') }}</strong> — {{ ucfirst($embargo->embargo_type ?? 'full') }} embargo since {{ $embargo->start_date }}
+            <strong>{{ __('Under Embargo') }}</strong> - {{ ucfirst($embargo->embargo_type ?? 'full') }} embargo since {{ $embargo->start_date }}
             @if($embargo->end_date) until {{ $embargo->end_date }} @else (no end date) @endif
           </div>
         </div>
@@ -914,7 +914,7 @@
           @if($pr->copyright_note)<dt class="col-sm-4">Copyright note</dt><dd class="col-sm-8">{{ $pr->copyright_note }}</dd>@endif
         @endforeach
 
-        {{-- CC License (extended only — no PREMIS equivalent) --}}
+        {{-- CC License (extended only - no PREMIS equivalent) --}}
         @if($extCcName)
           <dt class="col-sm-4">Creative Commons</dt><dd class="col-sm-8">{{ $extCcName }}</dd>
         @endif
@@ -930,12 +930,12 @@
           @if($pr->statute_note)<dt class="col-sm-4">Statute note</dt><dd class="col-sm-8">{{ $pr->statute_note }}</dd>@endif
         @endforeach
 
-        {{-- Usage conditions (extended only — no PREMIS equivalent) --}}
+        {{-- Usage conditions (extended only - no PREMIS equivalent) --}}
         @if($extRights && ($extRights->usage_conditions ?? null))
           <dt class="col-sm-4">Usage conditions</dt><dd class="col-sm-8">{{ $extRights->usage_conditions }}</dd>
         @endif
 
-        {{-- Copyright notice (extended only — no PREMIS equivalent) --}}
+        {{-- Copyright notice (extended only - no PREMIS equivalent) --}}
         @if($extRights && ($extRights->copyright_notice ?? null))
           <dt class="col-sm-4">Copyright notice</dt><dd class="col-sm-8">{{ $extRights->copyright_notice }}</dd>
         @endif
@@ -1302,7 +1302,7 @@
     @endauth
   </div>
 
-  {{-- Actions card removed — actions are in the bottom bar --}}
+  {{-- Actions card removed - actions are in the bottom bar --}}
 
   {{-- ISBN Barcode --}}
   @php
@@ -1801,7 +1801,7 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small mb-3">Named Entity Recognition — extract persons, organizations, places, dates from <strong>{{ $item->title ?? 'this record' }}</strong></p>
+          <p class="text-muted small mb-3">Named Entity Recognition - extract persons, organizations, places, dates from <strong>{{ $item->title ?? 'this record' }}</strong></p>
           <div class="text-center mb-3" id="nerExtractSection">
             <button type="button" class="btn btn-primary btn-lg" id="nerExtractBtn">
               <i class="fas fa-brain me-2"></i>{{ __('Extract Entities') }}

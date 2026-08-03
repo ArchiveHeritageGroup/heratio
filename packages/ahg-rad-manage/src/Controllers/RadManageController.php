@@ -188,7 +188,7 @@ class RadManageController extends Controller
             ->select('relation.object_id as actor_id', 'actor_i18n.authorized_form_of_name as name')
             ->get();
 
-        // Material type terms (taxonomy 50 — RAD-specific)
+        // Material type terms (taxonomy 50 - RAD-specific)
         $materialTypes = DB::table('object_term_relation')
             ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
@@ -449,7 +449,7 @@ class RadManageController extends Controller
                 }
             }
 
-            // Material type (taxonomy 50 — RAD-specific)
+            // Material type (taxonomy 50 - RAD-specific)
             if ($request->has('materialTypeIds')) {
                 DB::table('object_term_relation')
                     ->where('object_id', $ioId)
@@ -618,7 +618,7 @@ class RadManageController extends Controller
             ->select('term.id', 'term_i18n.name')
             ->get();
 
-        // Material type options (taxonomy 50 — RAD-specific)
+        // Material type options (taxonomy 50 - RAD-specific)
         $materialTypeOptions = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->where('term.taxonomy_id', 50)

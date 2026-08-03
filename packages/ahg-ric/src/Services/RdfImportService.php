@@ -36,11 +36,11 @@ use Illuminate\Support\Facades\DB;
  * - The TTL parser is intentionally minimal: it covers PREFIX/@prefix declarations,
  *   IRIs (full + prefixed + relative <…>), literals with language tags and datatypes,
  *   and ; , . separators. It does *not* cover RDF collections () or full blank-node
- *   graphs ([ ... ]) — those round-trip via JSON-LD (preferred for complex docs).
+ *   graphs ([ ... ]) - those round-trip via JSON-LD (preferred for complex docs).
  * - JSON-LD parsing handles flat or @graph-style docs with @id / @type / @value.
  * - RDF-XML parsing covers the typed-node form with rdf:about / rdf:resource / rdf:datatype.
  * - Mapping is predicate-driven and table-aware. Unknown predicates are reported but
- *   ignored on commit — they show up under "unmapped" in the dry-run summary.
+ *   ignored on commit - they show up under "unmapped" in the dry-run summary.
  */
 class RdfImportService
 {
@@ -434,7 +434,7 @@ class RdfImportService
             }
 
             if ($c === '.' || $c === ';' || $c === ',') {
-                // Disambiguate "." inside numbers like 3.14 — only treat as separator if next is space/EOF
+                // Disambiguate "." inside numbers like 3.14 - only treat as separator if next is space/EOF
                 $next = $s[$i + 1] ?? '';
                 if ($c === '.' && ctype_digit($next)) {
                     $j = $i; while ($j < $len && (ctype_digit($s[$j]) || $s[$j] === '.')) $j++;
@@ -465,7 +465,7 @@ class RdfImportService
         $tok = $tokens[$i];
         $i++;
 
-        // Quoted literal — may already include @lang or ^^datatype suffix
+        // Quoted literal - may already include @lang or ^^datatype suffix
         if (strlen($tok) > 0 && ($tok[0] === '"' || $tok[0] === "'")) {
             return $this->splitTtlLiteral($tok);
         }
@@ -640,7 +640,7 @@ class RdfImportService
                 }
             }
         }
-        // Fallback — try via node's own namespace map
+        // Fallback - try via node's own namespace map
         $own = $node->getNamespaces(false);
         if ($own) {
             $uri = reset($own);

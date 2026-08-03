@@ -26,7 +26,7 @@ AUTHORITY_LINKER="${SCRIPT_DIR}/../tools/ric_authority_linker.py"
 SHACL_VALIDATOR="${SCRIPT_DIR}/../tools/ric_shacl_validator.py"
 SHACL_SHAPES="${SCRIPT_DIR}/../tools/ric_shacl_shapes.ttl"
 
-# Fuseki connection — prefer RIC_FUSEKI_* (new), fall back to FUSEKI_* (legacy).
+# Fuseki connection - prefer RIC_FUSEKI_* (new), fall back to FUSEKI_* (legacy).
 FUSEKI_URL="${RIC_FUSEKI_URL:-${FUSEKI_URL:-http://localhost:3030}}"
 FUSEKI_DATASET="${RIC_FUSEKI_DATASET:-${FUSEKI_DATASET:-ric}}"
 FUSEKI_USER="${RIC_FUSEKI_USER:-${FUSEKI_USER:-admin}}"
@@ -36,13 +36,13 @@ BACKUP_DIR="${BACKUP_DIR:-/var/backups/fuseki}"
 EXTRACT_DIR="${EXTRACT_DIR:-/tmp/ric_extract}"
 LOG_FILE="${LOG_FILE:-/var/log/ric_sync.log}"
 
-# Post-sync TDB2 compaction — reclaims dead space so /ric never re-bloats.
+# Post-sync TDB2 compaction - reclaims dead space so /ric never re-bloats.
 # TDB2 never reclaims in place: every load (and even CLEAR ALL) appends, so
 # without this the store grows unbounded until queries thrash (272G incident).
 COMPACT_AFTER_SYNC="${RIC_COMPACT_AFTER_SYNC:-true}"
 COMPACT_POLL_TIMEOUT="${RIC_COMPACT_POLL_TIMEOUT:-3600}"
 
-# Source DB — prefer RIC_SOURCE_DB_* (jurisdiction-neutral), fall back to
+# Source DB - prefer RIC_SOURCE_DB_* (jurisdiction-neutral), fall back to
 # ATOM_DB_* (legacy hybrid-install names). The Python extractor still reads
 # the ATOM_DB_* names, so we export both sets pointing at the same values.
 SOURCE_DB_HOST="${RIC_SOURCE_DB_HOST:-${ATOM_DB_HOST:-localhost}}"
@@ -241,7 +241,7 @@ clear_triplestore() {
     log "Triplestore cleared"
 }
 
-# Compact the TDB2 store to reclaim dead space. TDB2 never reclaims in place —
+# Compact the TDB2 store to reclaim dead space. TDB2 never reclaims in place -
 # every load (and even CLEAR ALL) appends, so without periodic compaction the
 # /ric store grows unbounded until queries thrash (the 272G bloat incident).
 # Online compaction writes a fresh generation of live triples only; deleteOld
@@ -261,14 +261,14 @@ compact_triplestore() {
 
     taskid=$(printf '%s' "$body" | grep -oE '"taskId"[[:space:]]*:[[:space:]]*"[0-9]+"' | grep -oE '[0-9]+' | head -1)
     if [ -z "$taskid" ]; then
-        log "Compaction started (no task id returned) — not polling."
+        log "Compaction started (no task id returned) - not polling."
         return 0
     fi
 
     # Poll the specific task for its "finished" field. Jena does NOT remove a
     # completed Compact task from /$/tasks, so we must detect completion via the
     # "finished" timestamp, not the task's absence. Never fail the sync over a
-    # slow compaction — the data load already succeeded.
+    # slow compaction - the data load already succeeded.
     local waited=0 detail
     while [ "$waited" -lt "$COMPACT_POLL_TIMEOUT" ]; do
         detail=$(curl -s -u "${FUSEKI_USER}:${FUSEKI_PASS}" "${FUSEKI_URL}/$/tasks/${taskid}")
@@ -283,7 +283,7 @@ compact_triplestore() {
         sleep 15
         waited=$((waited + 15))
     done
-    log "Compaction still running after ${COMPACT_POLL_TIMEOUT}s; left running in background — check ${FUSEKI_URL}/\$/tasks/${taskid}"
+    log "Compaction still running after ${COMPACT_POLL_TIMEOUT}s; left running in background - check ${FUSEKI_URL}/\$/tasks/${taskid}"
     return 0
 }
 

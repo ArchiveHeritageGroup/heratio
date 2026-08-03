@@ -1,4 +1,4 @@
-{{-- Landing page widget partial — a single settings card tile --}}
+{{-- Landing page widget partial - a single settings card tile --}}
 <div class="col-lg-4 col-md-6 mb-4">
   <a href="{{ $widgetUrl ?? '#' }}" class="text-decoration-none">
     <div class="card h-100 shadow-sm settings-tile {{ isset($widgetBorder) ? 'border-' . $widgetBorder : '' }}">

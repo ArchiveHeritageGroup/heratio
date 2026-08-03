@@ -3,7 +3,7 @@
 use AhgSharePoint\Controllers\SharePointPushController;
 use Illuminate\Support\Facades\Route;
 
-// Phase 2.B — Manual push endpoints. AAD bearer auth (validated in controller).
+// Phase 2.B - Manual push endpoints. AAD bearer auth (validated in controller).
 // Mounted at /api/v2/sharepoint/push/* by the service provider's Route::prefix('api').
 //
 // CSRF must be excluded for these (Laravel's VerifyCsrfToken).
@@ -17,4 +17,4 @@ Route::prefix('v2/sharepoint/push')
         Route::get('/jobs/{id}', [SharePointPushController::class, 'job'])->whereNumber('id')->name('sharepoint.push.job');
     });
 
-// Phase 3 — M365-side connector feed (placeholder; routes added when shipped).
+// Phase 3 - M365-side connector feed (placeholder; routes added when shipped).

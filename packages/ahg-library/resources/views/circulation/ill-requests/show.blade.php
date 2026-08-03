@@ -88,30 +88,30 @@
         <table class="table table-sm mb-0">
           <tbody>
             <tr><th class="w-25">{{ __('Type') }}</th><td><span class="badge bg-primary">{{ $ill->type }}</span> @if($ill->request_type) {{ $ill->request_type }} @endif</td></tr>
-            <tr><th>{{ __('Protocol') }}</th><td>{{ $ill->borrowing_protocol ?? '—' }}</td></tr>
-            <tr><th>{{ __('Material') }}</th><td>{{ $ill->material_type ?? '—' }}</td></tr>
+            <tr><th>{{ __('Protocol') }}</th><td>{{ $ill->borrowing_protocol ?? '-' }}</td></tr>
+            <tr><th>{{ __('Material') }}</th><td>{{ $ill->material_type ?? '-' }}</td></tr>
             <tr><th>{{ __('Title') }}</th><td>{{ $ill->title }}</td></tr>
-            <tr><th>{{ __('Author') }}</th><td>{{ $ill->author ?: '—' }}</td></tr>
-            <tr><th>{{ __('ISBN') }}</th><td>{{ $ill->isbn ?: '—' }}</td></tr>
-            <tr><th>{{ __('ISSN') }}</th><td>{{ $ill->issn ?: '—' }}</td></tr>
-            <tr><th>{{ __('Publisher') }}</th><td>{{ $ill->publisher ?: '—' }}</td></tr>
-            <tr><th>{{ __('Year') }}</th><td>{{ $ill->publication_year ?: '—' }}</td></tr>
-            <tr><th>{{ __('Volume / Issue / Pages') }}</th><td>{{ [$ill->volume, $ill->issue, $ill->pages] | array_filter | join(' / ') ?: '—' }}</td></tr>
-            <tr><th>{{ __('Citation') }}</th><td>{{ $ill->citation ?: '—' }}</td></tr>
-            <tr><th>{{ __('Library') }}</th><td>{{ $ill->library_name ?: '—' }}</td></tr>
-            <tr><th>{{ __('Symbol') }}</th><td><code>{{ $ill->library_symbol ?: '—' }}</code></td></tr>
-            <tr><th>{{ __('Request Date') }}</th><td>{{ $ill->request_date ?: '—' }}</td></tr>
-            <tr><th>{{ __('Needed By') }}</th><td class="{{ $ill->needed_by_date && \Carbon\Carbon::parse($ill->needed_by_date)->isPast() ? 'text-danger fw-bold' : '' }}">{{ $ill->needed_by_date ?: '—' }}</td></tr>
-            <tr><th>{{ __('Due Date') }}</th><td class="{{ $ill->due_date && \Carbon\Carbon::parse($ill->due_date)->isPast() && !in_array($ill->status, ['returned','lost']) ? 'text-danger fw-bold' : '' }}">{{ $ill->due_date ?: '—' }}</td></tr>
-            <tr><th>{{ __('Cost') }}</th><td>{{ $ill->cost_currency && $ill->cost_amount ? $ill->cost_currency . ' ' . number_format($ill->cost_amount, 2) : '—' }}</td></tr>
-            <tr><th>{{ __('Shipping') }}</th><td>{{ $ill->shipping_method ?: '—' }}</td></tr>
+            <tr><th>{{ __('Author') }}</th><td>{{ $ill->author ?: '-' }}</td></tr>
+            <tr><th>{{ __('ISBN') }}</th><td>{{ $ill->isbn ?: '-' }}</td></tr>
+            <tr><th>{{ __('ISSN') }}</th><td>{{ $ill->issn ?: '-' }}</td></tr>
+            <tr><th>{{ __('Publisher') }}</th><td>{{ $ill->publisher ?: '-' }}</td></tr>
+            <tr><th>{{ __('Year') }}</th><td>{{ $ill->publication_year ?: '-' }}</td></tr>
+            <tr><th>{{ __('Volume / Issue / Pages') }}</th><td>{{ [$ill->volume, $ill->issue, $ill->pages] | array_filter | join(' / ') ?: '-' }}</td></tr>
+            <tr><th>{{ __('Citation') }}</th><td>{{ $ill->citation ?: '-' }}</td></tr>
+            <tr><th>{{ __('Library') }}</th><td>{{ $ill->library_name ?: '-' }}</td></tr>
+            <tr><th>{{ __('Symbol') }}</th><td><code>{{ $ill->library_symbol ?: '-' }}</code></td></tr>
+            <tr><th>{{ __('Request Date') }}</th><td>{{ $ill->request_date ?: '-' }}</td></tr>
+            <tr><th>{{ __('Needed By') }}</th><td class="{{ $ill->needed_by_date && \Carbon\Carbon::parse($ill->needed_by_date)->isPast() ? 'text-danger fw-bold' : '' }}">{{ $ill->needed_by_date ?: '-' }}</td></tr>
+            <tr><th>{{ __('Due Date') }}</th><td class="{{ $ill->due_date && \Carbon\Carbon::parse($ill->due_date)->isPast() && !in_array($ill->status, ['returned','lost']) ? 'text-danger fw-bold' : '' }}">{{ $ill->due_date ?: '-' }}</td></tr>
+            <tr><th>{{ __('Cost') }}</th><td>{{ $ill->cost_currency && $ill->cost_amount ? $ill->cost_currency . ' ' . number_format($ill->cost_amount, 2) : '-' }}</td></tr>
+            <tr><th>{{ __('Shipping') }}</th><td>{{ $ill->shipping_method ?: '-' }}</td></tr>
             <tr><th>{{ __('Renewals') }}</th><td>{{ $ill->renewal_count }} / {{ $ill->max_renewals ?? 2 }}</td></tr>
             @if($ill->edi_message_id)
               <tr><th>{{ __('EDI Message ID') }}</th><td><code>{{ $ill->edi_message_id }}</code></td></tr>
             @endif
             @if($ill->closed_at)
               <tr><th>{{ __('Closed At') }}</th><td>{{ $ill->closed_at }}</td></tr>
-              <tr><th>{{ __('Closed Reason') }}</th><td>{{ $ill->closed_reason ?: '—' }}</td></tr>
+              <tr><th>{{ __('Closed Reason') }}</th><td>{{ $ill->closed_reason ?: '-' }}</td></tr>
             @endif
             @if($ill->staff_note)
               <tr><th>{{ __('Staff Notes') }}</th><td><small>{!! nl2br(e($ill->staff_note)) !!}</small></td></tr>

@@ -1,11 +1,11 @@
 <?php
 
 /**
- * VocabularyMirrorCommand — fetch an upstream SKOS/RDF vocabulary dump,
+ * VocabularyMirrorCommand - fetch an upstream SKOS/RDF vocabulary dump,
  * cache it locally under data/vocabularies/{vocab}.{ext}, and (optionally)
  * chain into ahg:vocabulary-import to load it into Fuseki + prime the cache.
  *
- * Phase 3 of issue #36 / issue #37. Generic across vocabularies — used for
+ * Phase 3 of issue #36 / issue #37. Generic across vocabularies - used for
  * LCSH (https://id.loc.gov/download), LCNAF, Getty AAT, and any other
  * upstream that publishes a SKOS dump over HTTP(S).
  *
@@ -41,12 +41,12 @@ class VocabularyMirrorCommand extends Command
 {
     protected $signature = 'ahg:vocabulary-mirror
                             {source : URL or local path to RDF/Turtle/RDF-XML/N-Triples (.gz allowed for URLs)}
-                            {--vocabulary= : Short name (lcsh, lcnaf, aat, …) — required}
+                            {--vocabulary= : Short name (lcsh, lcnaf, aat, …) - required}
                             {--format=ntriples : RDF format hint passed to vocabulary-import}
                             {--target-dir= : Local mirror dir (default: data/vocabularies/)}
                             {--rate-limit= : Max bytes/sec for download (e.g. 1M, 500k). Honoured via curl --limit-rate.}
                             {--force : Redownload even if local mirror is current}
-                            {--no-import : Fetch only — do not chain into ahg:vocabulary-import}
+                            {--no-import : Fetch only - do not chain into ahg:vocabulary-import}
                             {--dry-run : Probe remote + report what would happen, do not write}';
 
     protected $description = 'Mirror an upstream SKOS/RDF vocabulary dump locally and optionally import it';
@@ -103,10 +103,10 @@ class VocabularyMirrorCommand extends Command
         if ($isUrl) {
             $needsFetch = $force || $this->remoteIsNewer($source, $mirrorPath);
             if (! $needsFetch) {
-                $this->info('Local mirror is current — skipping download (use --force to override).');
+                $this->info('Local mirror is current - skipping download (use --force to override).');
             } else {
                 if ($dryRun) {
-                    $this->warn('DRY RUN — would download '.$source.' to '.$mirrorPath);
+                    $this->warn('DRY RUN - would download '.$source.' to '.$mirrorPath);
                 } else {
                     $ok = $this->downloadWithCurl($source, $mirrorPath, $rateLimit);
                     if (! $ok) {
@@ -115,7 +115,7 @@ class VocabularyMirrorCommand extends Command
                 }
             }
         } else {
-            // Local source — verify it exists and (in real-run) make sure the
+            // Local source - verify it exists and (in real-run) make sure the
             // mirror path points at it. If the source is already inside the
             // target dir, no-op; otherwise copy.
             if (! is_file($source)) {
@@ -127,7 +127,7 @@ class VocabularyMirrorCommand extends Command
             $absMirror = realpath($mirrorPath) ?: $mirrorPath;
             if ($absSource !== $absMirror) {
                 if ($dryRun) {
-                    $this->warn("DRY RUN — would copy {$source} to {$mirrorPath}");
+                    $this->warn("DRY RUN - would copy {$source} to {$mirrorPath}");
                 } else {
                     if (! @copy($source, $mirrorPath)) {
                         $this->error("Copy failed: {$source} → {$mirrorPath}");
@@ -142,7 +142,7 @@ class VocabularyMirrorCommand extends Command
         }
 
         if ($dryRun) {
-            $this->warn('DRY RUN — skipping ahg:vocabulary-import.');
+            $this->warn('DRY RUN - skipping ahg:vocabulary-import.');
 
             return self::SUCCESS;
         }
@@ -231,7 +231,7 @@ class VocabularyMirrorCommand extends Command
             $cmd[] = '--limit-rate';
             $cmd[] = $rateLimit;
         }
-        // Resume support — only works if the partial exists from a previous run.
+        // Resume support - only works if the partial exists from a previous run.
         if (is_file($tmp)) {
             $cmd[] = '-C';
             $cmd[] = '-';

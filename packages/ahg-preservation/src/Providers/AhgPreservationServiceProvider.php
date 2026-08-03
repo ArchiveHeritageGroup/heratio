@@ -237,7 +237,7 @@ class AhgPreservationServiceProvider extends ServiceProvider
     /**
      * Idempotently register the scheduled-fixity entry in cron_schedule.
      *
-     * Runs once per app boot if the entry is missing — keeps fresh installs
+     * Runs once per app boot if the entry is missing - keeps fresh installs
      * (and overlay-installs onto existing AtoM DBs) from needing manual setup.
      */
     protected function bootCronRegistration(): void

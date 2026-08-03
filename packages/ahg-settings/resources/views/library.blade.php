@@ -1,6 +1,6 @@
 {{--
   Library Settings stub
-  Copyright (C) 2026 Johan Pieterse — Plain Sailing Information Systems
+  Copyright (C) 2026 Johan Pieterse - Plain Sailing Information Systems
   AGPL-3.0-or-later
 --}}
 @extends('theme::layouts.2col')

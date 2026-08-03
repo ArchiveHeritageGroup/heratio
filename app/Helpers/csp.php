@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Global csp_nonce() helper — returns the per-request nonce string emitted
+ * Global csp_nonce() helper - returns the per-request nonce string emitted
  * by spatie/laravel-csp, or '' if CSP is disabled / nonce not bound.
  *
  * The package binds `csp-nonce` as a singleton in the container, so every
@@ -10,7 +10,7 @@
  * Content-Security-Policy header, otherwise the script is blocked.
  *
  * Heratio retains a substantial number of AtoM-port views that already
- * call csp_nonce() — this helper lets them Just Work without each view
+ * call csp_nonce() - this helper lets them Just Work without each view
  * checking function_exists().
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems

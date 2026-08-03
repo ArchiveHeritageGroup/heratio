@@ -1,9 +1,9 @@
 <?php
 
 /**
- * ShareLinkRecipientController — anonymous landing for share-link recipients.
+ * ShareLinkRecipientController - anonymous landing for share-link recipients.
  *
- * Route: GET /share/{token} (registered WITHOUT auth middleware — the token
+ * Route: GET /share/{token} (registered WITHOUT auth middleware - the token
  * is the credential).
  *
  * @phase D

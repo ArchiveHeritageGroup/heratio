@@ -17,7 +17,7 @@ Route::middleware('auth')->group(function () {
 
     // #1267: persist an existing-donor selection from the "Related donor"
     // modal. Links / unlinks the donor↔accession relation
-    // (subject=accession, object=donor, type=RELATION_DONOR) — the same
+    // (subject=accession, object=donor, type=RELATION_DONOR) - the same
     // representation AccessionService::getDonors() reads back on show/edit.
     // These power the modal's add-existing + delete-row actions when the
     // save isn't routed through the full accession update (e.g. an
@@ -72,11 +72,11 @@ Route::middleware('admin')->group(function () {
 });
 
 // Accession records hold donor contact PII (address/email/phone) + acquisition
-// terms and have no publication-status concept — staff-only. Gate the show page
+// terms and have no publication-status concept - staff-only. Gate the show page
 // under auth so anon can't read donor PII (#1381, web twin of #1370/#1377).
 Route::get('/accession/{slug}', [AccessionController::class, 'show'])->name('accession.show')->middleware('auth');
 
-// Donor typeahead/lookup for the accession edit form — gate under auth so anon
+// Donor typeahead/lookup for the accession edit form - gate under auth so anon
 // can't enumerate donor names/ids (#1381).
 Route::middleware(['web', 'auth'])->group(function () {
 

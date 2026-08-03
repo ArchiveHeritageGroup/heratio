@@ -13,10 +13,10 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `views` — TODO: implement
-- [ ] `db` — TODO: implement
-- [ ] `readme` — TODO: implement
-- [ ] `docs_help` — TODO: implement
+- [ ] `views` - TODO: implement
+- [ ] `db` - TODO: implement
+- [ ] `readme` - TODO: implement
+- [ ] `docs_help` - TODO: implement
 
 ## References
 - docs/help/ (search for `media-streaming`)

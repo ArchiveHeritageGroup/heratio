@@ -266,7 +266,7 @@
                 <input type="number" step="any" class="form-control" name="real_depth" value="{{ old('real_depth', $model->real_depth ?? '') }}"></div>
               <div class="col-md-3"><label class="form-label small">{{ __('Units') }}</label>
                 <select class="form-select" name="dimension_unit">
-                  <option value="">&mdash;</option>
+                  <option value="">-</option>
                   @foreach(($dropdowns['model_3d_units'] ?? []) as $o)
                     <option value="{{ $o->code }}" @selected(($model->dimension_unit ?? '')===$o->code)>{{ $o->label }}</option>
                   @endforeach
@@ -275,7 +275,7 @@
                 <input type="text" class="form-control" name="scale_note" placeholder="{{ __('e.g. 1:1') }}" value="{{ old('scale_note', $model->scale_note ?? '') }}"></div>
               <div class="col-md-4"><label class="form-label small">{{ __('Coordinate system') }}</label>
                 <select class="form-select" name="coordinate_system">
-                  <option value="">&mdash;</option>
+                  <option value="">-</option>
                   @foreach(($dropdowns['model_3d_coordinate_system'] ?? []) as $o)
                     <option value="{{ $o->code }}" @selected(($model->coordinate_system ?? '')===$o->code)>{{ $o->label }}</option>
                   @endforeach
@@ -290,7 +290,7 @@
                 <input type="text" class="form-control" value="{{ $model->format_version ?? '' }}" readonly></div>
               <div class="col-md-3"><label class="form-label small">{{ __('Compression') }}</label>
                 <select class="form-select" name="compression">
-                  <option value="">&mdash;</option>
+                  <option value="">-</option>
                   @foreach(($dropdowns['model_3d_compression'] ?? []) as $o)
                     <option value="{{ $o->code }}" @selected(($model->compression ?? '')===$o->code)>{{ $o->label }}</option>
                   @endforeach
@@ -312,7 +312,7 @@
             <div class="row g-2 mb-3">
               <div class="col-md-4"><label class="form-label small">{{ __('Capture method') }}</label>
                 <select class="form-select" name="capture_method">
-                  <option value="">&mdash;</option>
+                  <option value="">-</option>
                   @foreach(($dropdowns['model_3d_capture_method'] ?? []) as $o)
                     <option value="{{ $o->code }}" @selected(($model->capture_method ?? '')===$o->code)>{{ $o->label }}</option>
                   @endforeach
@@ -345,7 +345,7 @@
                 <input type="text" class="form-control" name="derivation_note" placeholder="{{ __('raw scan → master → access') }}" value="{{ old('derivation_note', $model->derivation_note ?? '') }}"></div>
               <div class="col-md-4"><label class="form-label small">{{ __('Model licence') }}</label>
                 <select class="form-select" name="model_license">
-                  <option value="">&mdash;</option>
+                  <option value="">-</option>
                   @foreach(($dropdowns['model_3d_licence'] ?? []) as $o)
                     <option value="{{ $o->code }}" @selected(($model->model_license ?? '')===$o->code)>{{ $o->label }}</option>
                   @endforeach

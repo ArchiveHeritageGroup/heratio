@@ -1,4 +1,4 @@
-{{-- RiC View: Physical Storage — instantiation carrier context --}}
+{{-- RiC View: Physical Storage - instantiation carrier context --}}
 @php
   $culture = app()->getLocale();
 

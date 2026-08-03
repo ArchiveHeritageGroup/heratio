@@ -30,13 +30,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
- * API Plugin Controller — admin interface for searching information objects via API.
+ * API Plugin Controller - admin interface for searching information objects via API.
  * Migrated from ahgAPIPlugin.
  */
 class ApiPluginController extends Controller
 {
     /**
-     * Search information objects — admin search interface.
+     * Search information objects - admin search interface.
      */
     public function searchInformationObjects(Request $request)
     {

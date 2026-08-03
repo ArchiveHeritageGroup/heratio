@@ -1,8 +1,8 @@
 -- ============================================================================
--- ahg-sharepoint — install schema
+-- ahg-sharepoint - install schema
 -- ============================================================================
 -- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgSharePointPlugin/database/install.sql
--- on 2026-05-10. Heratio standalone install — Phase 1.
+-- on 2026-05-10. Heratio standalone install - Phase 1.
 --
 -- Transforms applied (matching ahg-ingest convention):
 --   - DROP TABLE/VIEW statements removed

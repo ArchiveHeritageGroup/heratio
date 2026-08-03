@@ -33,7 +33,7 @@
             {!! $bodyHtml !!}
         </div>
 
-        {{-- Linked articles (bidirectional) — above Guides & Templates. heratio#1399 --}}
+        {{-- Linked articles (bidirectional) - above Guides & Templates. heratio#1399 --}}
         @if(!empty($related))
             <div class="card shadow-sm mt-5">
                 <div class="card-header d-flex align-items-center">

@@ -39,7 +39,7 @@
 @elseif(! $entity)
   <div class="alert alert-warning">
     <i class="fas fa-question-circle me-2"></i>
-    Could not load entity {{ $type }}#{{ $id }} — the serializer returned an empty result.
+    Could not load entity {{ $type }}#{{ $id }} - the serializer returned an empty result.
   </div>
 @elseif($result['valid'] && empty($result['errors']) && empty($result['warnings']))
   <div class="card border-success mb-3">
@@ -102,6 +102,6 @@
 <div class="mt-4 small text-muted">
   Full SHACL graph-shape validation requires the <code>pyshacl</code> + <code>rdflib</code> Python packages on the host.
   Without them, only mandatory-fields and referential-integrity checks run. See
-  <a href="{{ url('/help/article/shacl-validation-howto') }}">SHACL validation — how to install &amp; extend</a>.
+  <a href="{{ url('/help/article/shacl-validation-howto') }}">SHACL validation - how to install &amp; extend</a>.
 </div>
 @endsection

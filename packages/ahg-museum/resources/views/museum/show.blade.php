@@ -4,7 +4,7 @@
 @section('body-class', 'view museum')
 
 {{-- ============================================================ --}}
-{{-- LEFT SIDEBAR — full AtoM contextMenu equivalent (cloned from --}}
+{{-- LEFT SIDEBAR - full AtoM contextMenu equivalent (cloned from --}}
 {{-- IO show; museum objects are IOs so io.* routes resolve)      --}}
 {{-- ============================================================ --}}
 @section('sidebar')
@@ -228,7 +228,7 @@
 
   @endauth
 
-  {{-- Access points (subject / name / place) — sidebar mode --}}
+  {{-- Access points (subject / name / place) - sidebar mode --}}
   @include('ahg-core::_subject-access-points', ['resource' => $museum, 'sidebar' => true])
   @include('ahg-core::_place-access-points', ['resource' => $museum, 'sidebar' => true])
   @include('ahg-core::_name-access-points', ['resource' => $museum, 'sidebar' => true])
@@ -256,7 +256,7 @@
     @if($museum->work_type)<span class="text-muted">{{ $museum->work_type }}</span> @endif
     @if($museum->identifier){{ $museum->identifier }} - @endif
     {{ $museum->title ?: '[Untitled]' }}
-    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b) — visible to anyone
+    {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b) - visible to anyone
          who can see the title; lets viewers know up-front whether the item
          carries access restrictions before they engage with it. --}}
     @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $museum->icip_sensitivity ?? null])
@@ -396,7 +396,7 @@
       </button>
     @endif
 
-    {{-- Favourites — @auth + plugin gate --}}
+    {{-- Favourites - @auth + plugin gate --}}
     @auth
       @if($favouritesEnabled)
         @if($favoriteId)
@@ -414,21 +414,21 @@
       @endif
     @endauth
 
-    {{-- Feedback — public, plugin-gated --}}
+    {{-- Feedback - public, plugin-gated --}}
     @if($feedbackEnabled)
       <a href="{{ url('/feedback/submit/' . $museum->slug) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Item Feedback') }}" data-bs-toggle="tooltip">
         <i class="fas fa-comment"></i>
       </a>
     @endif
 
-    {{-- Request to Publish — public, plugin-gated, requires DO --}}
+    {{-- Request to Publish - public, plugin-gated, requires DO --}}
     @if($requestToPublishEnabled && $hasDigitalObject)
       <a href="{{ url('/request-to-publish/' . $museum->slug) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Request to Publish') }}" data-bs-toggle="tooltip">
         <i class="fas fa-paper-plane"></i>
       </a>
     @endif
 
-    {{-- Cart — public, plugin-gated, requires DO --}}
+    {{-- Cart - public, plugin-gated, requires DO --}}
     @if($cartEnabled && $hasDigitalObject)
       @if($cartId)
         <a href="{{ route('cart.browse') }}" class="btn btn-sm btn-outline-success" title="{{ __('Go to Cart') }}" data-bs-toggle="tooltip">
@@ -441,7 +441,7 @@
       @endif
     @endif
 
-    {{-- Loan — @auth + plugin gate --}}
+    {{-- Loan - @auth + plugin gate --}}
     @auth
       @if($loanEnabled)
         <a href="{{ route('loan.create', ['type' => 'out', 'sector' => 'museum', 'object_id' => $museum->id]) }}" class="btn btn-sm btn-outline-warning" title="{{ __('New Loan') }}" data-bs-toggle="tooltip">
@@ -655,7 +655,7 @@
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Date range') }}</h3>
           <div>
             @if($museum->creation_date_earliest){{ $museum->creation_date_earliest }}@endif
-            @if($museum->creation_date_earliest && $museum->creation_date_latest) &ndash; @endif
+            @if($museum->creation_date_earliest && $museum->creation_date_latest) - @endif
             @if($museum->creation_date_latest){{ $museum->creation_date_latest }}@endif
           </div>
         </div>

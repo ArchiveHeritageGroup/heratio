@@ -33,7 +33,7 @@ use Illuminate\Support\Facades\Log;
  * Triggers + monitors local-LLM QLoRA fine-tuning via the AHG AI gateway.
  *
  * Routes through https://ai.theahg.co.za/ai/v1/llm-finetune/* (gateway passthrough
- * to the node-side trainer on the GPU node) — never a bare node URL, per the
+ * to the node-side trainer on the GPU node) - never a bare node URL, per the
  * standing no-bypass rule. The trainer builds the dataset (KM Q&A + release notes
  * + session logs), trains a non-destructive QLoRA adapter over Qwen3-8B, eval-gates
  * it, and (optionally) promotes it. No model is ever removed.
@@ -111,7 +111,7 @@ class LlmFinetuneService
                 return $value;
             }
         } catch (\Throwable $e) {
-            // settings tables not migrated yet — fall through to default
+            // settings tables not migrated yet - fall through to default
         }
         return $default;
     }

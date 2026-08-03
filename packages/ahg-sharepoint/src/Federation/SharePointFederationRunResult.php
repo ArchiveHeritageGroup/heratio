@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SharePointFederationRunResult — value object returned by SharePointFederationRunner.
+ * SharePointFederationRunResult - value object returned by SharePointFederationRunner.
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -23,7 +23,7 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  *
  * -----------------------------------------------------------------------------
- * Issue #1221 — three honest states for a SharePoint federated run:
+ * Issue #1221 - three honest states for a SharePoint federated run:
  *   - notConfigured(): no tenant on this instance; render a clean empty state.
  *   - failed():        a tenant exists but the Graph call errored; show message.
  *   - ok():            results (possibly empty) returned successfully.

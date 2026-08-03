@@ -50,8 +50,8 @@ class ConditionController extends Controller
     }
 
     /**
-     * Risk Assessment dashboard — at-risk condition checks (poor + critical).
-     * New page (no AtoM equivalent — built per project requirement to surface
+     * Risk Assessment dashboard - at-risk condition checks (poor + critical).
+     * New page (no AtoM equivalent - built per project requirement to surface
      * heritage objects requiring conservation attention).
      */
     public function risk(Request $request)
@@ -92,7 +92,7 @@ class ConditionController extends Controller
     }
 
     /**
-     * GET /condition/check — list recent condition checks (JSON).
+     * GET /condition/check - list recent condition checks (JSON).
      * Legacy AtoM base-path alias.
      */
     public function checkIndex(Request $request)

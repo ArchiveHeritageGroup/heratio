@@ -1,4 +1,4 @@
--- #98 Phase 2 — sidecar tables + MODS element_visibility flags for the
+-- #98 Phase 2 - sidecar tables + MODS element_visibility flags for the
 -- DACS / RAD / MODS show templates.
 --
 -- Heratio's information_object + information_object_i18n base tables come
@@ -8,24 +8,24 @@
 --
 -- Existing DACS / RAD area-level element_visibility flags (seeded by
 -- AtoM and listed in packages/ahg-settings/resources/views/visible-elements.blade.php)
--- are reused unchanged — show-dacs.blade.php and show-rad.blade.php
+-- are reused unchanged - show-dacs.blade.php and show-rad.blade.php
 -- honour `dacs_identity_area` / `dacs_content_area` / `rad_title_responsibility_area`
 -- / etc. via SettingHelper::checkFieldVisibility(). MODS has no AtoM-
 -- precedent so its flags are added by this script + a matching
 -- 'mods_headings' / 'mods_elements' block in visible-elements.blade.php.
 
 -- ============================================================
--- DACS sidecar — three elements not stored in IO i18n schema
+-- DACS sidecar - three elements not stored in IO i18n schema
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `ahg_io_dacs` (
     `information_object_id` INT NOT NULL,
-    -- DACS 4.2 — physical access (separate from 4.3 Technical Access);
+    -- DACS 4.2 - physical access (separate from 4.3 Technical Access);
     -- AtoM/Heratio's physical_characteristics column collapses both.
     `physical_access_note`  TEXT NULL,
-    -- DACS 4.3 — technical access (e.g. "requires 16mm projector",
+    -- DACS 4.3 - technical access (e.g. "requires 16mm projector",
     -- "MARC reader needed", etc.).
     `technical_access_note` TEXT NULL,
-    -- DACS 6.4 — formal publication notes (separate from "related
+    -- DACS 6.4 - formal publication notes (separate from "related
     -- archival materials" 6.3, which is also rendered).
     `publication_note`      TEXT NULL,
     `created_at`            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -36,26 +36,26 @@ CREATE TABLE IF NOT EXISTS `ahg_io_dacs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- RAD sidecar — General Material Designation, Statement of
+-- RAD sidecar - General Material Designation, Statement of
 -- Responsibility, Publisher's Series, Standard Number
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `ahg_io_rad` (
     `information_object_id`              INT NOT NULL,
-    -- RAD 1.1B — General Material Designation (e.g. "[textual record]",
+    -- RAD 1.1B - General Material Designation (e.g. "[textual record]",
     -- "[sound recording]", "[moving image]").
     `general_material_designation`       VARCHAR(120) NULL,
-    -- RAD 1.1F — Statement of Responsibility (creator/compiler attribution
+    -- RAD 1.1F - Statement of Responsibility (creator/compiler attribution
     -- in formal RAD form, e.g. "/ photographs by Jane Doe").
     `statement_of_responsibility`        TEXT NULL,
-    -- RAD 1.5B — Specific Material Designation (refines GMD;
+    -- RAD 1.5B - Specific Material Designation (refines GMD;
     -- e.g. "85 photographic prints").
     `specific_material_designation`      VARCHAR(255) NULL,
-    -- RAD 1.6 — Publisher's Series Area
+    -- RAD 1.6 - Publisher's Series Area
     `publisher_series_title`             VARCHAR(255) NULL,
     `publisher_series_statement`         TEXT NULL,
     `publisher_series_issn`              VARCHAR(40) NULL,
     `publisher_series_numbering`         VARCHAR(120) NULL,
-    -- RAD 1.8 — Standard Number Area (ISBN/ISSN/etc.)
+    -- RAD 1.8 - Standard Number Area (ISBN/ISSN/etc.)
     `standard_number_type`               VARCHAR(20) NULL,
     `standard_number_value`              VARCHAR(60) NULL,
     `created_at`                         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -66,16 +66,16 @@ CREATE TABLE IF NOT EXISTS `ahg_io_rad` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- MODS sidecar — typeOfResource, genre, physicalDescription,
+-- MODS sidecar - typeOfResource, genre, physicalDescription,
 -- abstract, classification, recordInfo
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `ahg_io_mods` (
     `information_object_id`            INT NOT NULL,
-    -- MODS <typeOfResource> — controlled vocab: "text", "cartographic",
+    -- MODS <typeOfResource> - controlled vocab: "text", "cartographic",
     -- "notated music", "sound recording", "still image", "moving image",
     -- "three dimensional object", "software, multimedia", "mixed material".
     `type_of_resource`                 VARCHAR(40) NULL,
-    -- MODS <genre> — free-text or AAT/LCGFT vocab (e.g. "manuscripts (documents)",
+    -- MODS <genre> - free-text or AAT/LCGFT vocab (e.g. "manuscripts (documents)",
     -- "field recordings", "oral histories").
     `genre`                            VARCHAR(255) NULL,
     -- MODS <physicalDescription> sub-elements
@@ -85,17 +85,17 @@ CREATE TABLE IF NOT EXISTS `ahg_io_mods` (
     -- this for derivatives; cataloguers may also assert the originating
     -- format here.
     `internet_media_type`              VARCHAR(120) NULL,
-    -- MODS <digitalOrigin> — "born digital" | "reformatted digital" |
+    -- MODS <digitalOrigin> - "born digital" | "reformatted digital" |
     -- "digitized microfilm" | "digitized other analog"
     `digital_origin`                   VARCHAR(40) NULL,
-    -- MODS <abstract> — distinct from $io->scope_and_content; abstracts
+    -- MODS <abstract> - distinct from $io->scope_and_content; abstracts
     -- are typically shorter "preview" summaries.
     `abstract`                         TEXT NULL,
     -- MODS <tableOfContents>
     `table_of_contents`                TEXT NULL,
     -- MODS <targetAudience>
     `target_audience`                  VARCHAR(255) NULL,
-    -- MODS <classification> — LCC / DDC / NLM / SuDocs etc.
+    -- MODS <classification> - LCC / DDC / NLM / SuDocs etc.
     `classification_authority`         VARCHAR(40) NULL,
     `classification_value`             VARCHAR(255) NULL,
     -- MODS <recordInfo>
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `ahg_io_mods` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- MODS element_visibility flags — DACS + RAD already seeded by
+-- MODS element_visibility flags - DACS + RAD already seeded by
 -- AtoM (see visible-elements.blade.php). MODS is new to Heratio.
 -- ============================================================
 INSERT IGNORE INTO `setting` (`scope`, `name`, `editable`, `deleteable`, `source_culture`) VALUES

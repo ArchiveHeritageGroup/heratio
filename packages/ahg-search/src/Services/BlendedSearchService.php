@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BlendedSearchService — fuses keyword (Elasticsearch / MySQL FULLTEXT) results
+ * BlendedSearchService - fuses keyword (Elasticsearch / MySQL FULLTEXT) results
  * with vector (Qdrant) results via Reciprocal Rank Fusion (RRF).
  *
  * RRF formula:  score(d) = Σ 1 / (k + rank(d))
@@ -46,7 +46,7 @@ class BlendedSearchService
     {
         $keywordIds = array_values(array_unique(array_map('intval', $keywordIds)));
 
-        // Vector branch — pull a candidate pool ordered by similarity.
+        // Vector branch - pull a candidate pool ordered by similarity.
         $vectorIds = [];
         $vectorMap = []; // id => raw similarity score
         $usedVector = false;
@@ -65,7 +65,7 @@ class BlendedSearchService
             }
         }
 
-        // If vector branch is dead, return keyword-as-is — no degradation.
+        // If vector branch is dead, return keyword-as-is - no degradation.
         if (! $usedVector) {
             $scores = [];
             foreach ($keywordIds as $rank => $id) {

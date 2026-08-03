@@ -80,7 +80,7 @@
               <span class="badge bg-{{ $r->type === 'borrow' ? 'primary' : 'info' }}">{{ $r->type }}</span>
               @if($r->request_type)<br><small class="text-muted">{{ $r->request_type }}</small>@endif
             </td>
-            <td><small>{{ $r->borrowing_protocol ?? '—' }}</small></td>
+            <td><small>{{ $r->borrowing_protocol ?? '-' }}</small></td>
             <td>
               <span class="badge bg-{{ $r->status === 'overdue' ? 'danger' : ($r->status === 'received' ? 'success' : 'secondary') }}">
                 {{ ucfirst($r->status) }}
@@ -92,14 +92,14 @@
                   {{ $r->due_date }}
                 </small>
               @else
-                <small class="text-muted">—</small>
+                <small class="text-muted">-</small>
               @endif
             </td>
             <td>
               @if($r->needed_by_date)
                 <small>{{ $r->needed_by_date }}</small>
               @else
-                <small class="text-muted">—</small>
+                <small class="text-muted">-</small>
               @endif
             </td>
             <td>

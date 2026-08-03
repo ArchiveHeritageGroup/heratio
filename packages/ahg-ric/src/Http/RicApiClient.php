@@ -27,7 +27,7 @@ use RuntimeException;
 
 /**
  * Every data-access method in Heratio's RiC admin controllers should go
- * through here. The class speaks HTTP — either to an external RiC service
+ * through here. The class speaks HTTP - either to an external RiC service
  * (via X-API-Key, when config('ric.api_url') is set) or to the in-process
  * /api/ric/v1 routes on the same host.
  *
@@ -94,7 +94,7 @@ class RicApiClient
         return $this->handle($this->client()->delete($url), "DELETE {$path}");
     }
 
-    // --- Typed helpers — mirror the public /api/ric/v1 surface -----
+    // --- Typed helpers - mirror the public /api/ric/v1 surface -----
 
     public function health(): array { return $this->get('/health'); }
     public function vocabulary(): array { return $this->get('/vocabulary'); }

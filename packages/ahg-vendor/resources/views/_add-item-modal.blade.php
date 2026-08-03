@@ -2,7 +2,7 @@
   Add/Link GLAM item modal for a vendor transaction.
 
   Vars:
-    $transactionRaw (object) — must expose ->id and ->currency.
+    $transactionRaw (object) - must expose ->id and ->currency.
                                 Currency falls back to 'ZAR' if absent.
 
   Backend: routes the form POST to ahgvendor.add-transaction-item, which
@@ -23,7 +23,7 @@
     $currencyCode = $transactionRaw->currency ?? 'ZAR';
     $nonce = csp_nonce() ?? '';
 
-    // Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper.
+    // Issue #59 Tier 2 - culture-aware dropdown via the COALESCE helper.
     $conditionGrades = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('condition_grade');
 @endphp
 <div class="modal fade" id="addItemModal" tabindex="-1">
@@ -77,7 +77,7 @@
                         <div class="col-md-4 mb-3">
                             <label class="form-label" for="condition_before_rating">{{ __('Condition rating') }}</label>
                             <select name="condition_before_rating" id="condition_before_rating" class="form-select">
-                                <option value="">{{ __('— select —') }}</option>
+                                <option value="">{{ __('- select -') }}</option>
                                 @foreach ($conditionGrades as $g)
                                     <option value="{{ $g->code }}">{{ $g->label }}</option>
                                 @endforeach

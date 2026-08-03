@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Schema;
 class TiffPdfMergeController extends Controller
 {
     /**
-     * TIFF/PDF Merge tool index — form to create a new merge job.
+     * TIFF/PDF Merge tool index - form to create a new merge job.
      */
     public function index(Request $request)
     {

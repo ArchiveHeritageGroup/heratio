@@ -95,9 +95,9 @@
                                 <dt class="col-sm-4">{{ __('Title') }}</dt>
                                 <dd class="col-sm-8"><strong>{{ $scanResult->title ?: __('(untitled)') }}</strong></dd>
                                 <dt class="col-sm-4">{{ __('Call Number') }}</dt>
-                                <dd class="col-sm-8">{{ $scanResult->call_number ?: '—' }}</dd>
+                                <dd class="col-sm-8">{{ $scanResult->call_number ?: '-' }}</dd>
                                 <dt class="col-sm-4">{{ __('Shelf Location') }}</dt>
-                                <dd class="col-sm-8">{{ $scanResult->shelf_location ?: '—' }}</dd>
+                                <dd class="col-sm-8">{{ $scanResult->shelf_location ?: '-' }}</dd>
                                 <dt class="col-sm-4">{{ __('Barcode') }}</dt>
                                 <dd class="col-sm-8"><code>{{ $scanResult->barcode }}</code></dd>
                                 <dt class="col-sm-4">{{ __('Status') }}</dt>

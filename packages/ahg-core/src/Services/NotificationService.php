@@ -1,7 +1,7 @@
 <?php
 
 /**
- * NotificationService — generic, user_id-keyed in-app notifications.
+ * NotificationService - generic, user_id-keyed in-app notifications.
  *
  * Canonical writer for the ahg_notification table. Domain-specific tables
  * that already exist (research_notification, spectrum_notification) keep
@@ -9,7 +9,7 @@
  *
  * Admin recipients resolve through acl_user_group (group_id 100 = administrator
  * per the canonical Heratio convention; matches SpectrumNotificationService).
- * Group 99 is "authenticated" (every logged-in user) — never use that for admin lookups.
+ * Group 99 is "authenticated" (every logged-in user) - never use that for admin lookups.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.

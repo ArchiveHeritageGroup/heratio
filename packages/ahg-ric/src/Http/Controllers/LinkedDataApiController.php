@@ -82,7 +82,7 @@ class LinkedDataApiController extends Controller
         $limit = min($request->get('limit', 50), 200);
         $type = $request->get('type'); // person, corporate body, family
 
-        // Culture filter — accept ?culture=fr|nl|de|etc.; fall back to app locale.
+        // Culture filter - accept ?culture=fr|nl|de|etc.; fall back to app locale.
         $culture = $this->resolveCulture($request);
         $query = \DB::table('actor as a')
             ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
@@ -166,7 +166,7 @@ class LinkedDataApiController extends Controller
         $level = $request->get('level'); // fonds, series, file, item
         $culture = $this->resolveCulture($request);
 
-        // Filter every _i18n join by culture — without this, one IO row with
+        // Filter every _i18n join by culture - without this, one IO row with
         // three translations appears three times (a regression seen in v0.2.x).
         $query = \DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
@@ -314,7 +314,7 @@ class LinkedDataApiController extends Controller
             }
         }
 
-        // Content negotiation — ?format= takes precedence over Accept.
+        // Content negotiation - ?format= takes precedence over Accept.
         $format = strtolower((string) $request->query('format', ''));
         if (!$format) {
             $accept = strtolower((string) $request->header('Accept', ''));
@@ -513,7 +513,7 @@ class LinkedDataApiController extends Controller
 
     /**
      * GET /api/ric/v1/rules
-     * List RiC-native Rules (mandates, laws, policies) — paginated.
+     * List RiC-native Rules (mandates, laws, policies) - paginated.
      */
     public function listRules(Request $request): JsonResponse
     {
@@ -1350,7 +1350,7 @@ class LinkedDataApiController extends Controller
 
     /**
      * Build a subgraph for a date / event entity. Shape:
-     *   date-node  ←(rico:hasBeginningDate/hasEndDate/hasDate)—  parent entity
+     *   date-node  ←(rico:hasBeginningDate/hasEndDate/hasDate)-  parent entity
      * where the parent is the information_object (event.object_id) or the
      * actor (event.actor_id) the date is attached to. Uses the event's
      * type term for the predicate label (Creation, Birth, Death, etc.).
@@ -1370,7 +1370,7 @@ class LinkedDataApiController extends Controller
         // Human label for the date node.
         $start = $event->start_date ?: '';
         $end   = $event->end_date ?: '';
-        $dateLabel = trim(($start && $end && $start !== $end) ? "{$start} – {$end}" : ($start ?: $end ?: ('Date ' . $event->id)));
+        $dateLabel = trim(($start && $end && $start !== $end) ? "{$start} - {$end}" : ($start ?: $end ?: ('Date ' . $event->id)));
         $typeLabel = $event->type_name ?: 'Date';
         $fullLabel = $typeLabel . ($dateLabel ? ": {$dateLabel}" : '');
 
@@ -1444,7 +1444,7 @@ class LinkedDataApiController extends Controller
     }
 
     // ================================================================
-    // API-1 READ GAPS — endpoints added per docs/ric-api-read-gaps.md
+    // API-1 READ GAPS - endpoints added per docs/ric-api-read-gaps.md
     // ================================================================
 
     /**
@@ -1654,8 +1654,8 @@ class LinkedDataApiController extends Controller
             $i18nTable = "ric_{$type}_i18n";
             $labelCol = $type === 'rule' ? 'title' : ($type === 'instantiation' ? 'title' : 'name');
             // Use the canonical plural ('activities', not 'activitys') so the
-            // JS in _ric-entities-panel.blade.php — which reads data.activities
-            // — actually finds the array. The blind {$type}s pluralization
+            // JS in _ric-entities-panel.blade.php - which reads data.activities
+            // - actually finds the array. The blind {$type}s pluralization
             // here used to silently produce data.activitys, leaving the count
             // stuck at 0 even when activities were saved + linked correctly.
             $result[self::pluralEntityType($type)] = DB::table('relation as r')
@@ -1812,12 +1812,12 @@ class LinkedDataApiController extends Controller
     }
 
     // ================================================================
-    // API-2 WRITE SURFACE — gated by api.auth:write middleware on the route.
+    // API-2 WRITE SURFACE - gated by api.auth:write middleware on the route.
     // ================================================================
 
     /**
      * Resolve the culture for a list query. Accepts ?culture=xx where xx is
-     * a 2–5 char locale (en, fr, nl, de-DE, …). Falls back to the app's
+     * a 2-5 char locale (en, fr, nl, de-DE, …). Falls back to the app's
      * default locale. Prevents injection via a strict regex.
      */
     private function resolveCulture(Request $request): string
@@ -2221,7 +2221,7 @@ class LinkedDataApiController extends Controller
     /**
      * POST /api/ric/v1/upload
      * Multipart file upload. Returns {id, url, mime, size, filename}.
-     * The url is publicly reachable — nginx serves /uploads/ directly.
+     * The url is publicly reachable - nginx serves /uploads/ directly.
      */
     public function uploadContent(Request $request): JsonResponse
     {
@@ -2233,7 +2233,7 @@ class LinkedDataApiController extends Controller
             return response()->json(['error' => 'invalid_file', 'message' => $file->getErrorMessage()], 422);
         }
 
-        // Capture file metadata BEFORE move() — once the temp file moves,
+        // Capture file metadata BEFORE move() - once the temp file moves,
         // SplFileInfo's stat-based methods (getSize / getMimeType) fail.
         $origName = $file->getClientOriginalName();
         $origMime = $file->getClientMimeType() ?: ($file->getMimeType() ?: 'application/octet-stream');
@@ -2255,13 +2255,13 @@ class LinkedDataApiController extends Controller
         }
         $file->move(dirname($absPath), basename($absPath));
 
-        // Build public URL — nginx serves storage/app/uploads/* at /uploads/*.
+        // Build public URL - nginx serves storage/app/uploads/* at /uploads/*.
         $publicBase = rtrim(config('app.url'), '/');
         $url = $publicBase . '/uploads/' . $relative;
 
         // Record a row in digital_object so the file is discoverable alongside
         // RiC entities. AtoM's schema: digital_object.id is not auto-increment
-        // — it's a foreign key into object(id) for class-table inheritance. So
+        // - it's a foreign key into object(id) for class-table inheritance. So
         // we insert an object row first (class_name=QubitDigitalObject), then
         // use its id for the digital_object row.
         $digitalObjectId = null;

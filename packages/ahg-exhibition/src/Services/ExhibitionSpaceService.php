@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ExhibitionSpaceService - heratio#146 — front-of-house space allocation.
+ * ExhibitionSpaceService - heratio#146 - front-of-house space allocation.
  *
  * Mirrors StrongroomService but adds date-bounded placements: capacity
  * conflicts only matter when date ranges overlap. Optional FK to a curated

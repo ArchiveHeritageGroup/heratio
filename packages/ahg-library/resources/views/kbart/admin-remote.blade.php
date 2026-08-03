@@ -78,7 +78,7 @@
                                         {{ \Illuminate\Support\Str::limit($feed->url, 40) }}
                                     </a>
                                 </td>
-                                <td>{{ $feed->vendor ?: '—' }}</td>
+                                <td>{{ $feed->vendor ?: '-' }}</td>
                                 <td>
                                     @if($feed->active)
                                         <span class="badge bg-success">Active</span>
@@ -97,7 +97,7 @@
                                     @if($feed->last_fetch_at)
                                         {{ number_format($feed->last_row_count) }}
                                     @else
-                                        <span class="text-muted">—</span>
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td>
@@ -116,7 +116,7 @@
                                             </span>
                                         @endif
                                     @else
-                                        <span class="text-muted">—</span>
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td>

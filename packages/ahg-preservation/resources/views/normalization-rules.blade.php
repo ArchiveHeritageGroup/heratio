@@ -22,7 +22,7 @@
         @if(($missingToolRules ?? 0) > 0)
         <div class="alert alert-warning py-2 mb-3">
           <i class="fas fa-triangle-exclamation me-1"></i>
-          <strong>{{ $missingToolRules }}</strong> {{ __('active rule(s) reference a tool that is not installed on this host — those formats are silently skipped on ingest.') }}
+          <strong>{{ $missingToolRules }}</strong> {{ __('active rule(s) reference a tool that is not installed on this host - those formats are silently skipped on ingest.') }}
         </div>
         @endif
         <div class="d-flex flex-wrap gap-2">
@@ -102,7 +102,7 @@
       <tbody>
         @forelse($rules as $r)
         <tr>
-          <td><code>{{ $r->source_mime ?: $r->source_pronom ?: '—' }}</code></td>
+          <td><code>{{ $r->source_mime ?: $r->source_pronom ?: '-' }}</code></td>
           <td><span class="badge bg-{{ $r->purpose === 'access' ? 'info' : 'success' }}">{{ $r->purpose }}</span></td>
           <td>{{ $r->target_format }} <span class="text-muted">.{{ $r->target_ext }}</span></td>
           <td>

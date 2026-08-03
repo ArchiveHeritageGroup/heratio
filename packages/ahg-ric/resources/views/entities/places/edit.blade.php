@@ -32,7 +32,7 @@
                 <option value="{{ $p->id }}" {{ (string)($entity->parent_id ?? '') === (string)$p->id ? 'selected' : '' }}>{{ $p->name ?: '(unnamed)' }}</option>
             @endforeach
         </select>
-        <div class="form-text">For building hierarchies — e.g. city inside province inside country.</div>
+        <div class="form-text">For building hierarchies - e.g. city inside province inside country.</div>
     </div>
     <div class="mb-3"><label class="form-label">{{ __('Address') }}</label><textarea name="address" class="form-control" rows="2">{{ $entity->address ?? '' }}</textarea></div>
     <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="3">{{ $entity->description ?? '' }}</textarea></div>

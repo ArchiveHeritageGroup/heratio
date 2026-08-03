@@ -1,14 +1,14 @@
 <?php
 
 /**
- * VersionController — list + show + diff actions for the version-history UI.
+ * VersionController - list + show + diff actions for the version-history UI.
  *
  * Routes:
  *   GET  /version-control/{entity}/{id}             → list
  *   GET  /version-control/{entity}/{id}/{number}    → show
  *   GET  /version-control/{entity}/{id}/diff/{v1}/{v2} → diff (Phase G renders the UI)
  *
- * @phase F (list + show) — diff scaffolded for Phase G
+ * @phase F (list + show) - diff scaffolded for Phase G
  */
 
 namespace AhgVersionControl\Controllers;
@@ -150,7 +150,7 @@ class VersionController extends Controller
     }
 
     /**
-     * Phase K — gate the action on a version.* ACL permission. 403 on failure.
+     * Phase K - gate the action on a version.* ACL permission. 403 on failure.
      */
     private function requireAclAction(string $action): void
     {
@@ -163,7 +163,7 @@ class VersionController extends Controller
 
     /**
      * #1373: reading version history/diffs exposes full record snapshots. When the
-     * record is classified, the reader must meet its clearance — the same gate
+     * record is classified, the reader must meet its clearance - the same gate
      * restore() applies (object_security_classification + ClearanceCheck), so a
      * version.list holder can't read snapshots of a record they couldn't view live.
      */

@@ -17,7 +17,7 @@ class CleanupLoginAttemptsCommand extends Command
     public function handle(): int
     {
         if (! Schema::hasTable('login_attempt')) {
-            $this->warn('login_attempt table missing — nothing to do.');
+            $this->warn('login_attempt table missing - nothing to do.');
 
             return self::SUCCESS;
         }

@@ -9,7 +9,7 @@
 
 @extends('theme::layouts.1col')
 
-@section('title', 'Semantic Search — Settings')
+@section('title', 'Semantic Search - Settings')
 
 @section('content')
 <div class="container-fluid py-4">

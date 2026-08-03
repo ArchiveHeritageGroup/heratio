@@ -13,7 +13,7 @@
       <thead><tr><th>{{ __('Document Type') }}</th><th>{{ __('Annotations') }}</th><th>{{ __('Minimum Required') }}</th><th>{{ __('Status') }}</th></tr></thead>
       <tbody>
       @php
-        $types = ['type_a' => 'Type A — Death Certificate', 'type_b' => 'Type B — Register', 'type_c' => 'Type C — Narrative'];
+        $types = ['type_a' => 'Type A - Death Certificate', 'type_b' => 'Type B - Register', 'type_c' => 'Type C - Narrative'];
         $canTrain = false;
         $totalAnnotations = 0;
       @endphp

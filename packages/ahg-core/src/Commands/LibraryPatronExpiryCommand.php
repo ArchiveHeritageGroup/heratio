@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LibraryPatronExpiryCommand — mark patrons as 'expired' once membership
+ * LibraryPatronExpiryCommand - mark patrons as 'expired' once membership
  * end-date + grace has passed.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems

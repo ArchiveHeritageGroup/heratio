@@ -4,7 +4,7 @@
  * WorkflowDesignerSaveTest - heratio#143 Phase 3 designer save endpoint tests.
  *
  * Covers the HTTP contract of POST /workflow/{id}/designer/save (without
- * exercising the JS canvas — those would need browser tests).
+ * exercising the JS canvas - those would need browser tests).
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * Licensed under the GNU Affero General Public License v3.0 or later.
@@ -87,7 +87,7 @@ class WorkflowDesignerSaveTest extends TestCase
         ])->assertOk();
         $this->assertCount(2, $this->edges->getEdges($wfId));
 
-        // Second save: 1 edge — old two must be gone
+        // Second save: 1 edge - old two must be gone
         $this->withoutMiddleware()->postJson(route('workflow.designer.save', $wfId), [
             'edges' => [
                 ['from_step_id' => $s1, 'to_step_id' => $s3],

@@ -85,7 +85,7 @@ class ArchivematicaDashboardClient
      * @param string        $type  transfer type (standard|zipfile|dspace|...)
      * @param array<string> $paths one or more source paths. Each is sent as
      *                             base64("{transfer_source_location_uuid}:{path}")
-     *                             — the SS *location* UUID, per the Dashboard API
+     *                             - the SS *location* UUID, per the Dashboard API
      *                             contract (the pipeline is implied by the
      *                             authenticated Dashboard).
      * @param string|null   $pipelineUuid retained for signature compatibility;
@@ -102,13 +102,13 @@ class ArchivematicaDashboardClient
         ?string $accession = null
     ): array {
         // The path prefix is the Transfer Source LOCATION uuid (from the SS), NOT
-        // the pipeline uuid — encoding the pipeline uuid made AM fail to resolve a
+        // the pipeline uuid - encoding the pipeline uuid made AM fail to resolve a
         // location and reply "No path provided".
         $locationUuid = (string) config('archivematica.am_transfer_source_location_uuid', '');
         if ($locationUuid === '') {
             throw new RuntimeException(
                 'Archivematica transfer source location UUID is not configured '
-                . '(am_transfer_source_location_uuid — from the SS Locations page).'
+                . '(am_transfer_source_location_uuid - from the SS Locations page).'
             );
         }
 
@@ -189,7 +189,7 @@ class ArchivematicaDashboardClient
     /**
      * List transfers awaiting approval. start_transfer copies the payload into the
      * watched dir asynchronously, so a transfer only becomes approvable once it
-     * appears here — callers poll this before approveTransfer().
+     * appears here - callers poll this before approveTransfer().
      *
      * @return array<int,array<string,mixed>> each e.g. {type, directory, uuid}
      */

@@ -8,7 +8,7 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ============================================================
--- 1. ric_place — First-class Place entity
+-- 1. ric_place - First-class Place entity
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `ric_place` (
     `id` INT NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `ric_place_i18n` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 2. ric_rule — Mandate/Rule/Regulation entity
+-- 2. ric_rule - Mandate/Rule/Regulation entity
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `ric_rule` (
     `id` INT NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `ric_rule_i18n` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 3. ric_activity — Activity entity (richer than AtoM event)
+-- 3. ric_activity - Activity entity (richer than AtoM event)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `ric_activity` (
     `id` INT NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `ric_activity_i18n` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 4. ric_instantiation — Rich Instantiation metadata
+-- 4. ric_instantiation - Rich Instantiation metadata
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `ric_instantiation` (
     `id` INT NOT NULL,
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `ric_instantiation_i18n` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 5. ric_relation_meta — RiC predicate metadata on relations
+-- 5. ric_relation_meta - RiC predicate metadata on relations
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `ric_relation_meta` (
     `relation_id` INT NOT NULL COMMENT 'FK to relation.id (which is FK to object.id)',

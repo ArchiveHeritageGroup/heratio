@@ -302,11 +302,11 @@ class AccessionController extends Controller
 
         // Surface the accession_require_donor_agreement and
         // accession_require_appraisal settings as a "Finalisation
-        // requirements" panel — list of human-readable strings naming
+        // requirements" panel - list of human-readable strings naming
         // each criterion still missing. Empty array = all gates passed.
         $finalisationBlockers = $this->service->finalisationBlockers($accession->id);
 
-        // Workflow row from accession_v2 — used to render the current
+        // Workflow row from accession_v2 - used to render the current
         // status badge + decide whether to show the Finalise button.
         $workflow = DB::table('accession_v2')
             ->where('accession_id', $accession->id)
@@ -335,7 +335,7 @@ class AccessionController extends Controller
     }
 
     /**
-     * Finalise an accession — moves accession_v2.status to 'accepted' and
+     * Finalise an accession - moves accession_v2.status to 'accepted' and
      * stamps accepted_at. Refuses the transition when any finalisationBlockers
      * (driven by the accession_require_donor_agreement + accession_require_appraisal
      * settings) are unmet, or when the accession is already accepted/rejected.
@@ -366,7 +366,7 @@ class AccessionController extends Controller
         if ($current === 'rejected') {
             return redirect()
                 ->route('accession.show', $slug)
-                ->with('error', 'A rejected accession cannot be finalised — clear the rejection first.');
+                ->with('error', 'A rejected accession cannot be finalised - clear the rejection first.');
         }
 
         $this->service->upsertWorkflow($accession->id, [
@@ -383,8 +383,8 @@ class AccessionController extends Controller
      * Materialise a new InformationObject from this accession. Copies
      * basic metadata across (title + identifier + scope_and_content),
      * links the new IO to the accession via the relation table
-     * (RELATION_ACCESSION = 167), and — when the
-     * accession_rights_inheritance_enabled setting is on —
+     * (RELATION_ACCESSION = 167), and - when the
+     * accession_rights_inheritance_enabled setting is on -
      * propagates the accession's PREMIS rights down via
      * inheritRightsToIo(). This is the caller the rights-inheritance
      * helper was waiting for; with this route in place all seven
@@ -405,7 +405,7 @@ class AccessionController extends Controller
 
         // Link the new IO to the accession (relation: subject=IO, object=accession).
         // The relation table re-uses the object table's id (Qubit class-table
-        // inheritance) — pre-create a QubitRelation object row and use its id.
+        // inheritance) - pre-create a QubitRelation object row and use its id.
         $relationId = DB::table('object')->insertGetId([
             'class_name' => 'QubitRelation',
             'created_at' => now(),
@@ -419,7 +419,7 @@ class AccessionController extends Controller
             'source_culture' => app()->getLocale(),
         ]);
 
-        // Honour accession_rights_inheritance_enabled — inheritRightsToIo
+        // Honour accession_rights_inheritance_enabled - inheritRightsToIo
         // is a no-op when the setting is off.
         $rightsApplied = $this->service->inheritRightsToIo($accession->id, $newIoId);
 
@@ -657,7 +657,7 @@ class AccessionController extends Controller
      * donor_id / donor_slug). The modal lives inside the accession <form>, so
      * its donor_* inputs arrive on the accession save. Returns the new donor
      * id, or null when there is no name to create from. Contact details are
-     * optional — saveContacts() skips an all-empty contact row.
+     * optional - saveContacts() skips an all-empty contact row.
      */
     /**
      * Map one donor entry (an element of the donors[] array, or the legacy

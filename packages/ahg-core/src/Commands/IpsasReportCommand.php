@@ -10,7 +10,7 @@ class IpsasReportCommand extends Command
     protected $signature = 'ahg:ipsas-report
         {--format=table : Output (table or json)}';
 
-    protected $description = 'IPSAS heritage asset report — dashboard stats + compliance status';
+    protected $description = 'IPSAS heritage asset report - dashboard stats + compliance status';
 
     public function handle(IpsasService $svc): int
     {

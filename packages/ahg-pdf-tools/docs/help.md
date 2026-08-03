@@ -1,4 +1,4 @@
-# AhgPdfTools — Help
+# AhgPdfTools - Help
 
 Brief help text for the AhgPdfTools package.
 

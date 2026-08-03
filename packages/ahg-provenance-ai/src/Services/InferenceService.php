@@ -302,7 +302,7 @@ class InferenceService
      * Phase 3a: build the RDF-Star annotation for an inference and write it
      * to Fuseki via SparqlUpdateService.
      *
-     * Turtle shape (per ADR-0002 sec 2 — RDF-Star meta-assertion on the
+     * Turtle shape (per ADR-0002 sec 2 - RDF-Star meta-assertion on the
      * generated triple):
      *
      *   <<:target :field "<output-hash>">> prov:wasGeneratedBy :inference ;

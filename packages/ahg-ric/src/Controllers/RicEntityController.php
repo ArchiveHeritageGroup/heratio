@@ -77,7 +77,7 @@ class RicEntityController extends Controller
 
             if ($external) {
                 if (!$serviceKey) {
-                    \Illuminate\Support\Facades\Log::error('[callRicApi] RIC_API_URL set but RIC_SERVICE_API_KEY missing — cannot authenticate external call.');
+                    \Illuminate\Support\Facades\Log::error('[callRicApi] RIC_API_URL set but RIC_SERVICE_API_KEY missing - cannot authenticate external call.');
                     return null;
                 }
                 $client = $client->withHeaders(['X-API-Key' => $serviceKey]);
@@ -114,7 +114,7 @@ class RicEntityController extends Controller
     // ================================================================
 
     // ================================================================
-    // AJAX ADMIN WRAPPERS — REMOVED 2026-04-18.
+    // AJAX ADMIN WRAPPERS - REMOVED 2026-04-18.
     //
     // Every Blade view now calls /api/ric/v1/* directly; the admin
     // /entity-api/* routes + their controller methods are gone. The
@@ -272,7 +272,7 @@ class RicEntityController extends Controller
         $data = $request->all();
         $data['entity_type'] = rtrim($type, 's');
 
-        // #1392 — authorization is enforced by the route (admin + acl:update).
+        // #1392 - authorization is enforced by the route (admin + acl:update).
         // Mutate directly; the service maps explicit columns (no mass-assignment).
         match ($type) {
             'places' => $this->service->updatePlace($entity->id, $data),
@@ -335,7 +335,7 @@ class RicEntityController extends Controller
         $data = $request->all();
         $data['entity_type'] = rtrim($type, 's');
 
-        // #1392 — authorization is enforced by the route (admin + acl:create).
+        // #1392 - authorization is enforced by the route (admin + acl:create).
         // Mutate directly; the service maps explicit columns (no mass-assignment).
         try {
             $id = match ($type) {
@@ -356,7 +356,7 @@ class RicEntityController extends Controller
     }
 
     /**
-     * Global browse of every relation (G8 — standalone relations page).
+     * Global browse of every relation (G8 - standalone relations page).
      */
     public function browseRelations(Request $request)
     {
@@ -430,7 +430,7 @@ class RicEntityController extends Controller
             abort(404);
         }
 
-        // #1392 — authorization is enforced by the route (admin + acl:delete).
+        // #1392 - authorization is enforced by the route (admin + acl:delete).
         // Mutate directly; no fail-open API-first/degrade-to-direct fallthrough.
         match ($type) {
             'places' => $this->service->deletePlace($entity->id),
@@ -444,11 +444,11 @@ class RicEntityController extends Controller
             ->with('success', ucfirst(rtrim($type, 's')) . ' deleted successfully.');
     }
 
-    // dropdownChoices AJAX method removed 2026-04-18 — callers now use
+    // dropdownChoices AJAX method removed 2026-04-18 - callers now use
     // GET /api/ric/v1/vocabulary/{taxonomy} on the public API.
 
     /**
-     * Public: GET /ric-api/relations/types — relation-type vocabulary as JSON.
+     * Public: GET /ric-api/relations/types - relation-type vocabulary as JSON.
      *
      * The route bound here had no controller method (Call to undefined method
      * -> 500); the service already exposes the vocabulary. Optional ?domain=

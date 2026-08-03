@@ -12,7 +12,7 @@ class MuseumExhibitionCommand extends Command
         {--check : Check exhibition schedule (default)}
         {--process : Flip status on exhibitions whose start_date or end_date passed}';
 
-    protected $description = 'Manage museum exhibition schedule — auto-open/auto-close based on dates';
+    protected $description = 'Manage museum exhibition schedule - auto-open/auto-close based on dates';
 
     public function handle(): int
     {

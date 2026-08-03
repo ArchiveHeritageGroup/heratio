@@ -87,7 +87,7 @@ class RdfImportController extends Controller
     }
 
     /**
-     * GET /api/sparql — read-only SPARQL proxy to the configured Fuseki endpoint.
+     * GET /api/sparql - read-only SPARQL proxy to the configured Fuseki endpoint.
      * Blocks UPDATE / INSERT / DELETE / LOAD / DROP / CLEAR / CREATE keywords.
      */
     public function sparqlProxy(Request $request)
@@ -97,7 +97,7 @@ class RdfImportController extends Controller
             return response()->json(['error' => 'Missing query parameter or body.'], 400);
         }
 
-        // Defence in depth — only SELECT / ASK / CONSTRUCT / DESCRIBE allowed
+        // Defence in depth - only SELECT / ASK / CONSTRUCT / DESCRIBE allowed
         if (preg_match('/\b(INSERT|DELETE|LOAD|DROP|CLEAR|CREATE|MOVE|COPY|ADD)\b/i', $query)) {
             return response()->json(['error' => 'Update operations are not permitted on this endpoint.'], 403);
         }

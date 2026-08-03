@@ -5,7 +5,7 @@
  *
  * Admin/builder: courses, modules (lecture-linked), assessment, enrolment.
  * Learner: work modules, take the assessment, earn a certificate. Institution-
- * neutral — roles/cohort/languages/pass-mark are all data. Auth'd /research group.
+ * neutral - roles/cohort/languages/pass-mark are all data. Auth'd /research group.
  *
  * @author    Johan Pieterse
  * @copyright Plain Sailing Information Systems
@@ -294,7 +294,7 @@ class ResearchTrainingController extends Controller
 
         $msg = __('You scored :s%.', ['s' => $result['score']]);
         if ($result['passed'] && ! empty($result['certificate_no'])) {
-            $msg .= ' '.__('Passed — certificate :c issued.', ['c' => $result['certificate_no']]);
+            $msg .= ' '.__('Passed - certificate :c issued.', ['c' => $result['certificate_no']]);
         } elseif ($result['passed'] && empty($result['all_modules_done'])) {
             $msg .= ' '.__('Passed the assessment, but complete all modules to be certified.');
         } else {

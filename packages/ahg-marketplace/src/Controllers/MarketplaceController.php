@@ -821,7 +821,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * GET /marketplace/my-favourites — dedicated page for the user's hearted
+     * GET /marketplace/my-favourites - dedicated page for the user's hearted
      * listings. Equivalent to /marketplace/browse?favourites=1 but with its
      * own breadcrumb / title / empty-state, mirroring my-bids / my-following.
      */
@@ -1469,7 +1469,7 @@ class MarketplaceController extends Controller
 
         $result = $this->service->getUserBids($userId, $limit, $offset);
 
-        // Auctions the user has won — surfaced separately so they can pay
+        // Auctions the user has won - surfaced separately so they can pay
         $wonAuctions = DB::table('marketplace_auction as a')
             ->join('marketplace_listing as l', 'l.id', '=', 'a.listing_id')
             ->leftJoin('marketplace_transaction as t', function ($j) use ($userId) {
@@ -1512,7 +1512,7 @@ class MarketplaceController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────────
-    //  Phase X.3 — POST handlers cloned from PSIS marketplace actions
+    //  Phase X.3 - POST handlers cloned from PSIS marketplace actions
     // ─────────────────────────────────────────────────────────────────
 
     /**
@@ -1804,7 +1804,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Unified marketplace registration landing — lets a user pick whether they
+     * Unified marketplace registration landing - lets a user pick whether they
      * want to register as a buyer (no extra signup beyond their Heratio
      * account) or as a seller (full seller profile).
      */
@@ -1820,7 +1820,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Buyer-side "register" entry: there's no separate buyer table — any
+     * Buyer-side "register" entry: there's no separate buyer table - any
      * authenticated user can buy, place offers, and bid. This route ensures
      * the user is signed in (auth middleware), flashes a confirmation, and
      * sends them to the marketplace browse page.
@@ -1828,12 +1828,12 @@ class MarketplaceController extends Controller
     public function buyerStart(Request $request)
     {
         $this->requireAuth($request);
-        session()->flash('notice', "You're all set. Browse the marketplace below — your Heratio account is your buyer account.");
+        session()->flash('notice', "You're all set. Browse the marketplace below - your Heratio account is your buyer account.");
         return redirect()->route('ahgmarketplace.browse');
     }
 
     // =========================================================================
-    //  PAYMENT (PayFast) — buy-now, auction-win, ITN, return URLs
+    //  PAYMENT (PayFast) - buy-now, auction-win, ITN, return URLs
     // =========================================================================
 
     /**
@@ -1946,7 +1946,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * PayFast ITN webhook (server-to-server). No CSRF, no auth — verified
+     * PayFast ITN webhook (server-to-server). No CSRF, no auth - verified
      * via PayFast's signature + source-IP + server-to-server validate.
      */
     public function payfastNotify(Request $request, MarketplacePaymentService $payments)
@@ -2070,7 +2070,7 @@ class MarketplaceController extends Controller
         return view('marketplace::payment-return', $this->resolveReturnContext($key, false));
     }
 
-    /** Buyer cancelled at PayFast — return to listing with a retry option. */
+    /** Buyer cancelled at PayFast - return to listing with a retry option. */
     public function paymentCancel(Request $request)
     {
         $key = (string) $request->input('txn');
@@ -2157,7 +2157,7 @@ class MarketplaceController extends Controller
     }
 
     // =========================================================================
-    //  RESERVATIONS — 12-hour holds, max 2 per user per 24h
+    //  RESERVATIONS - 12-hour holds, max 2 per user per 24h
     // =========================================================================
 
     public function reserveListing(Request $request, int $listingId)
@@ -2171,7 +2171,7 @@ class MarketplaceController extends Controller
                 ? \Carbon\Carbon::instance($result['expires_at'])
                 : \Carbon\Carbon::parse((string) $result['expires_at']);
             session()->flash('notice', sprintf(
-                'Reserved for 12 hours. Hold expires at %s — Buy Now to complete the purchase.',
+                'Reserved for 12 hours. Hold expires at %s - Buy Now to complete the purchase.',
                 $expiresAt->format('Y-m-d H:i')
             ));
         } else {
@@ -2191,7 +2191,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * POST /marketplace/api/{listingId}/favourite — toggle the user's
+     * POST /marketplace/api/{listingId}/favourite - toggle the user's
      * favourite for a listing. Returns JSON {favourited: bool}.
      */
     public function toggleFavouriteApi(Request $request, int $listingId)
@@ -2205,7 +2205,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * /marketplace/my-licences — buyer's licence agreements (active + expired).
+     * /marketplace/my-licences - buyer's licence agreements (active + expired).
      */
     public function myLicences(Request $request)
     {
@@ -2216,7 +2216,7 @@ class MarketplaceController extends Controller
     }
 
     // =========================================================================
-    //  BROKER — manage artists the seller represents
+    //  BROKER - manage artists the seller represents
     // =========================================================================
 
     public function sellerArtists(Request $request)
@@ -2579,7 +2579,7 @@ class MarketplaceController extends Controller
             }
         }
 
-        // Broker mode — when an artist is selected, compute price from base + markup
+        // Broker mode - when an artist is selected, compute price from base + markup
         $artistId = (int) $request->input('artist_id', 0) ?: null;
         $artistBasePrice = $request->filled('artist_base_price') ? (float) $request->input('artist_base_price') : null;
         $markupType = $request->input('markup_type') ?: null;
@@ -2631,7 +2631,7 @@ class MarketplaceController extends Controller
             'shipping_international_price' => $request->input('shipping_international_price') ? (float) $request->input('shipping_international_price') : null,
         ];
 
-        // Licence template fields — only when listing_type=licence
+        // Licence template fields - only when listing_type=licence
         if ($request->input('listing_type') === 'licence') {
             $data['requires_shipping'] = 0;
             $data['is_physical'] = 0;
@@ -2782,7 +2782,7 @@ class MarketplaceController extends Controller
 
         $newType = $request->input('listing_type', $listing->listing_type);
 
-        // Broker mode — recompute price from base + markup if seller passes them
+        // Broker mode - recompute price from base + markup if seller passes them
         $artistId = (int) $request->input('artist_id', 0) ?: null;
         $artistBasePrice = $request->filled('artist_base_price') ? (float) $request->input('artist_base_price') : null;
         $markupType = $request->input('markup_type') ?: null;
@@ -2828,7 +2828,7 @@ class MarketplaceController extends Controller
             'shipping_international_price' => $request->input('shipping_international_price') ? (float) $request->input('shipping_international_price') : null,
         ];
 
-        // Licence template fields — write when listing is a licence; clear when changing away
+        // Licence template fields - write when listing is a licence; clear when changing away
         if ($newType === 'licence') {
             $data['requires_shipping'] = 0;
             $data['is_physical'] = 0;
@@ -2845,7 +2845,7 @@ class MarketplaceController extends Controller
             $data['licence_template_max_copies'] = $request->filled('licence_template_max_copies')
                 ? (int) $request->input('licence_template_max_copies') : null;
         } elseif ($listing->listing_type === 'licence' && $newType !== 'licence') {
-            // Switching away from licence — wipe template (existing agreements are unaffected)
+            // Switching away from licence - wipe template (existing agreements are unaffected)
             $data['licence_template_type'] = null;
             $data['licence_template_duration_days'] = null;
             $data['licence_template_scope'] = null;

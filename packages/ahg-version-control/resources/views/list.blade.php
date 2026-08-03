@@ -69,9 +69,9 @@
                 @endif
             </td>
             <td>{{ $v->created_at }}</td>
-            <td>{{ $v->created_by_username ?? '—' }}</td>
+            <td>{{ $v->created_by_username ?? '-' }}</td>
             <td>
-                {{ $v->change_summary ?: '—' }}
+                {{ $v->change_summary ?: '-' }}
                 @if((int) $v->is_restore === 1 && $v->restored_from_version)
                     <div class="restored-from">↩ {{ sprintf(__('Restored from v%d'), (int) $v->restored_from_version) }}</div>
                 @endif
@@ -83,7 +83,7 @@
                     <span class="badge badge-changes">{{ sprintf(__('%d field(s)'), $changedCount) }}</span>
                     <div><code class="fields">{{ implode(', ', array_slice((array) $changed, 0, 3)) }}{{ $changedCount > 3 ? '…' : '' }}</code></div>
                 @else
-                    <span class="text-muted">—</span>
+                    <span class="text-muted">-</span>
                 @endif
             </td>
             <td><a class="btn btn-sm btn-outline-secondary" href="{{ $detailUrl }}">{{ __('View') }}</a></td>

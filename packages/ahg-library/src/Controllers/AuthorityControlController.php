@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AuthorityControlController — Subject authority CRUD for Heratio.
+ * AuthorityControlController - Subject authority CRUD for Heratio.
  *
  * Routes:
  *   GET  /library-manage/authority               → index

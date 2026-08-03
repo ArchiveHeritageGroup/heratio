@@ -1,5 +1,5 @@
 {{--
-  Compliance — regulatory compliance settings (Heratio extra)
+  Compliance - regulatory compliance settings (Heratio extra)
 
   @copyright  Johan Pieterse / Plain Sailing
   @license    AGPL-3.0-or-later
@@ -36,7 +36,7 @@
         <p class="text-muted mb-3">Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the @if(\Illuminate\Support\Facades\Route::has('privacy.dashboard'))<a href="{{ route('privacy.dashboard') }}">Privacy Compliance module</a>@else Privacy Compliance module @endif.</p>
 
         @php
-          // Hide internal {audit_last_pruned_*} stamps from the form — they're
+          // Hide internal {audit_last_pruned_*} stamps from the form - they're
           // derived state written by the pruner, not user-editable.
           $internal = ['audit_last_pruned_at', 'audit_last_pruned_rows'];
           $lastPrunedAt = $settings['audit_last_pruned_at'] ?? null;
@@ -48,7 +48,7 @@
               <i class="fas fa-clock me-1"></i>
               Audit log pruner runs daily at 03:30. 0 disables pruning.
               @if($lastPrunedAt)
-                <br><span class="text-muted">Last run: {{ $lastPrunedAt }} — {{ (int) $lastPrunedRows }} row(s) removed.</span>
+                <br><span class="text-muted">Last run: {{ $lastPrunedAt }} - {{ (int) $lastPrunedRows }} row(s) removed.</span>
               @else
                 <br><span class="text-muted">Has not run yet.</span>
               @endif

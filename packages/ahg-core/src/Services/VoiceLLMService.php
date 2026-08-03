@@ -63,7 +63,7 @@ class VoiceLLMService
      * @param  array  $opts  Optional overrides:
      *                       - 'temperature' (float)
      *                       - 'media_type' (e.g. 'image/jpeg' for cloud vision; defaults to image/jpeg)
-     *                       - 'max_tokens' (int, cloud only — Anthropic requires this)
+     *                       - 'max_tokens' (int, cloud only - Anthropic requires this)
      * @return array{ok:bool,text:string,provider:string,model:string,error:?string,http_status:int,latency_ms:int}
      */
     public function chat(string $prompt, ?string $imageBase64 = null, array $opts = []): array
@@ -242,7 +242,7 @@ class VoiceLLMService
                 'text' => '',
                 'provider' => 'cloud',
                 'model' => $model,
-                'error' => 'voice_anthropic_api_key is empty — cannot call cloud LLM',
+                'error' => 'voice_anthropic_api_key is empty - cannot call cloud LLM',
                 'http_status' => 0,
             ];
         }

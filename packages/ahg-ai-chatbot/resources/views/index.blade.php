@@ -1,7 +1,7 @@
 {{-- Chatbot UI --}}
 @extends('layouts/admin')
 
-@section('title', __('chatbot.title') ?? 'Chatbot — Heratio')
+@section('title', __('chatbot.title') ?? 'Chatbot - Heratio')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -56,8 +56,8 @@
             @endif
         </div>
         <div class="col-md-4 text-end">
-            <span class="badge bg-secondary me-1" id="model-badge">model: –</span>
-            <span class="badge bg-info" id="grounding-badge">grounding: –</span>
+            <span class="badge bg-secondary me-1" id="model-badge">model: -</span>
+            <span class="badge bg-info" id="grounding-badge">grounding: -</span>
             <button class="btn btn-outline-secondary btn-sm ms-2" id="reset-btn" title="{{ __('Clear conversation') }}">
                 <i class="fas fa-trash-alt"></i> Clear
             </button>
@@ -405,9 +405,9 @@
         .then(function () {
             chatMessages.querySelectorAll('.d-flex').forEach(function (el) { el.remove(); });
             chatMessages.appendChild(typingIndicator);
-            groundingBadge.textContent = 'grounding: –';
+            groundingBadge.textContent = 'grounding: -';
             groundingBadge.className = 'badge bg-info';
-            modelBadge.textContent = 'model: –';
+            modelBadge.textContent = 'model: -';
         });
     });
 

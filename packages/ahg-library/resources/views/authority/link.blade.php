@@ -40,7 +40,7 @@
                         Library Item <span class="text-danger">*</span>
                     </label>
                     <select name="library_item_id" id="library_item_id" class="form-select" required>
-                        <option value="">— select library item —</option>
+                        <option value="">- select library item -</option>
                         @if(isset($items) && $items->count())
                             @foreach($items as $item)
                                 <option value="{{ $item->id }}">
@@ -72,15 +72,15 @@
                 <div class="mb-3">
                     <label for="source_tag" class="form-label">{{ __('Source MARC Tag') }}</label>
                     <select name="source_tag" id="source_tag" class="form-select">
-                        <option value="650">650 — Topical subject</option>
-                        <option value="651">651 — Geographic name subject</option>
-                        <option value="655">655 — Genre/Form subject</option>
-                        <option value="656">656 — Occupation subject</option>
-                        <option value="657">657 — Function subject</option>
-                        <option value="658">658 — Main entry-subject</option>
-                        <option value="600">600 — Personal name subject</option>
-                        <option value="610">610 — Corporate name subject</option>
-                        <option value="611">611 — Meeting name subject</option>
+                        <option value="650">650 - Topical subject</option>
+                        <option value="651">651 - Geographic name subject</option>
+                        <option value="655">655 - Genre/Form subject</option>
+                        <option value="656">656 - Occupation subject</option>
+                        <option value="657">657 - Function subject</option>
+                        <option value="658">658 - Main entry-subject</option>
+                        <option value="600">600 - Personal name subject</option>
+                        <option value="610">610 - Corporate name subject</option>
+                        <option value="611">611 - Meeting name subject</option>
                     </select>
                     <div class="form-text">The MARC tag where this heading appears in the record.</div>
                 </div>

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * IngestCommitRunner — Heratio ingest
+ * IngestCommitRunner - Heratio ingest
  *
  * Walks the ingest_row rows for a given session, applies each row's
  * mapped data to create an information_object (and optionally attach a
@@ -9,7 +9,7 @@
  * packager when session flags request SIP/AIP/DIP output.
  *
  * Closes the long-standing gap where the wizard's Commit step had no
- * actual runner — clicking "Approve → Commit" previously just flipped
+ * actual runner - clicking "Approve → Commit" previously just flipped
  * the session status to 'commit' and sat waiting for a job nobody
  * created. This is that job.
  *
@@ -121,7 +121,7 @@ class IngestCommitRunner
             }
         }
 
-        // Packaging stage — run the OAIS packager for every new IO when the
+        // Packaging stage - run the OAIS packager for every new IO when the
         // session has any output_generate_* flag set.
         $packageBuild = [
             'sip' => !empty($session->output_generate_sip),
@@ -182,7 +182,7 @@ class IngestCommitRunner
         $data = $row->enriched_data ?: $row->data;
         $fields = is_string($data) ? (json_decode($data, true) ?: []) : (array) $data;
 
-        // Normalise common field names — the wizard exports either
+        // Normalise common field names - the wizard exports either
         // camelCase (ingest wizard's own) or snake_case (DB style).
         $title = $fields['title'] ?? $fields['Title'] ?? $row->title ?? 'Untitled';
         $identifier = $fields['identifier'] ?? $fields['Identifier'] ?? null;
@@ -204,7 +204,7 @@ class IngestCommitRunner
 
         // Path supplied AND file exists → create IO + attach DO via the same
         // streaming entry point the scanner uses.
-        // #1395(G) — LFI guard: an operator-supplied digital_object_path (CSV field)
+        // #1395(G) - LFI guard: an operator-supplied digital_object_path (CSV field)
         // must resolve INSIDE the ingest uploads base, never an arbitrary server
         // file such as /etc/passwd. Out-of-base paths are dropped, not attached.
         if ($digitalObjectPath) {
@@ -238,7 +238,7 @@ class IngestCommitRunner
             return ['io_id' => $result['io_id'], 'do_id' => $result['do_id']];
         }
 
-        // No digital object — create the IO only.
+        // No digital object - create the IO only.
         $ioId = \AhgInformationObjectManage\Services\InformationObjectService::create($meta, 'en');
         // #109: text-only AI steps still run when there's no DO (NER /
         // summarize / spellcheck / translate operate on the IO's text
@@ -481,7 +481,7 @@ class IngestCommitRunner
 
     /**
      * Resolve a level-of-description label (e.g. "Item", "Series") to a
-     * term_id. Prefers the canonical AtoM taxonomy (ids around 238–245).
+     * term_id. Prefers the canonical AtoM taxonomy (ids around 238-245).
      */
     protected function resolveLod(string $label): ?int
     {

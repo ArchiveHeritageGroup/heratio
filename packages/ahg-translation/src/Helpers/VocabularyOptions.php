@@ -1,11 +1,11 @@
 <?php
 
 /**
- * VocabularyOptions — list narrower SKOS concepts of a top-level URI as
+ * VocabularyOptions - list narrower SKOS concepts of a top-level URI as
  * (uri, label) pairs in the current culture, for populating select dropdowns
  * from the vocabulary_label_cache.
  *
- * Issue #36 Phase 2b — supports the ICIP sensitivity dropdown (and any other
+ * Issue #36 Phase 2b - supports the ICIP sensitivity dropdown (and any other
  * vocabulary-driven dropdown that needs hierarchical narrower-than queries).
  *
  * Reads exclusively from MySQL cache; no Fuseki round-trip. Cache is primed
@@ -60,7 +60,7 @@ class VocabularyOptions
 
     /**
      * Filter to a known set of URIs (use when you want only the children of a
-     * specific top-concept and you know the URI list — typical for sensitivity
+     * specific top-concept and you know the URI list - typical for sensitivity
      * level pickers, etc.).
      *
      * @param  string[]  $uris

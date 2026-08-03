@@ -19,7 +19,7 @@
 
         <div class="alert alert-warning small mb-3">
           <i class="fas fa-info-circle me-1"></i>
-          E-commerce mode is currently <strong>disabled</strong>. No payment is being charged &mdash;
+          E-commerce mode is currently <strong>disabled</strong>. No payment is being charged -
           this is a preview of what a real sale would look like.
         </div>
 
@@ -84,7 +84,7 @@
 
   modalEl.addEventListener('show.bs.modal', function (event) {
     var trigger = event.relatedTarget;
-    // Treat empty string the same as missing — defensive against blade output of
+    // Treat empty string the same as missing - defensive against blade output of
     // {{ $listing->title ?? '' }} when title is null. Caller is expected to pass
     // a non-empty title; we only fall through to "Sample listing" when truly absent.
     function attr(t, name) {
@@ -95,7 +95,7 @@
     var price     = attr(trigger, 'data-dummy-price')      || '6500.00';
     var curr      = attr(trigger, 'data-dummy-currency')   || 'ZAR';
     var listingId = attr(trigger, 'data-dummy-listing-id');
-    // Optional CSS selector — when present, submit that form once Stage 3 hits.
+    // Optional CSS selector - when present, submit that form once Stage 3 hits.
     // Used by the cart's "Demo Sale" button to actually clear the cart and
     // create demo marketplace_transaction rows server-side.
     var submitSel = trigger && trigger.getAttribute('data-demo-submit');

@@ -110,7 +110,7 @@
                       {{ $agreement->agreement_number }}
                     </a>
                   </td>
-                  <td>{{ $agreement->title ?? '—' }}</td>
+                  <td>{{ $agreement->title ?? '-' }}</td>
                   <td>
                     @if(!empty($agreement->donor_name))
                       @if(!empty($agreement->donor_slug))
@@ -119,17 +119,17 @@
                         {{ $agreement->donor_name }}
                       @endif
                     @else
-                      —
+                      -
                     @endif
                   </td>
-                  <td><small>{{ $agreement->type_name ?? '—' }}</small></td>
+                  <td><small>{{ $agreement->type_name ?? '-' }}</small></td>
                   <td><span class="badge bg-{{ $color }}">{{ ucfirst(str_replace('_', ' ', $agreement->status ?? '')) }}</span></td>
-                  <td>{{ !empty($agreement->agreement_date) ? \Carbon\Carbon::parse($agreement->agreement_date)->format('j M Y') : '—' }}</td>
+                  <td>{{ !empty($agreement->agreement_date) ? \Carbon\Carbon::parse($agreement->agreement_date)->format('j M Y') : '-' }}</td>
                   <td>
                     @if(!empty($agreement->expiry_date))
                       <span class="{{ $textClass }}">{{ \Carbon\Carbon::parse($agreement->expiry_date)->format('j M Y') }}</span>
                     @else
-                      —
+                      -
                     @endif
                   </td>
                   <td class="text-end">

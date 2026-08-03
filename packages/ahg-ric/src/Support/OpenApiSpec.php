@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * OpenAPI 3.0 spec for the OpenRiC Viewing + Write API. Consumed by:
- *   - LinkedDataApiController::openapi()  — JSON at /api/ric/v1/openapi.json
+ *   - LinkedDataApiController::openapi()  - JSON at /api/ric/v1/openapi.json
  *   - The /api/ric/v1/docs Swagger UI page
  *   - openric.org/api-explorer/ (static copy checked into openric-spec)
  *
@@ -47,13 +47,13 @@ class OpenApiSpec
                 ['name' => 'Discovery', 'description' => 'API info, health, vocabulary, OpenAPI spec.'],
                 ['name' => 'Agents',    'description' => 'rico:Agent / Person / CorporateBody / Family (ISAAR-CPF).'],
                 ['name' => 'Records',   'description' => 'rico:Record / RecordSet (ISAD archival descriptions).'],
-                ['name' => 'Places',    'description' => 'rico:Place — geographic / topographical entities.'],
-                ['name' => 'Rules',     'description' => 'rico:Rule — mandates, legislation, policies.'],
-                ['name' => 'Activities','description' => 'rico:Activity — production / accumulation events.'],
-                ['name' => 'Instantiations', 'description' => 'rico:Instantiation — carriers of bitstreams (files, images).'],
+                ['name' => 'Places',    'description' => 'rico:Place - geographic / topographical entities.'],
+                ['name' => 'Rules',     'description' => 'rico:Rule - mandates, legislation, policies.'],
+                ['name' => 'Activities','description' => 'rico:Activity - production / accumulation events.'],
+                ['name' => 'Instantiations', 'description' => 'rico:Instantiation - carriers of bitstreams (files, images).'],
                 ['name' => 'Repositories', 'description' => 'rico:Repository / Custodian (ISDIAH).'],
                 ['name' => 'Functions',    'description' => 'rico:Function (ISDF).'],
-                ['name' => 'Relations', 'description' => 'rico:Relation — typed links between entities.'],
+                ['name' => 'Relations', 'description' => 'rico:Relation - typed links between entities.'],
                 ['name' => 'Graph',     'description' => 'Subgraph walks + full SPARQL.'],
                 ['name' => 'Uploads',   'description' => 'Multipart file upload.'],
                 ['name' => 'Harvest',   'description' => 'OAI-PMH v2.0 harvester endpoint.'],
@@ -129,11 +129,11 @@ class OpenApiSpec
                     ['200' => self::successResp(), '404' => self::errorResp()], 'RecordUpdate', true),
                 'delete' => self::op('Records', 'Delete record (refuses if has descendants)', [$idPath],
                     ['200' => self::successResp(), '404' => self::errorResp(),
-                     '409' => ['description' => 'Has descendants — delete/re-parent them first.']], null, true),
+                     '409' => ['description' => 'Has descendants - delete/re-parent them first.']], null, true),
             ],
         ];
 
-        // Places / Rules / Activities / Instantiations — similar-shaped CRUD
+        // Places / Rules / Activities / Instantiations - similar-shaped CRUD
         foreach ([
             ['Places', 'places', 'Place'],
             ['Rules', 'rules', 'Rule'],
@@ -173,7 +173,7 @@ class OpenApiSpec
                 ['200' => self::successResp(), '404' => self::errorResp()], 'RepositoryUpdate', true),
             'delete' => self::op('Repositories', 'Delete repository (refuses if owns records)', [$idPath],
                 ['200' => self::successResp(), '404' => self::errorResp(),
-                 '409' => ['description' => 'Repository owns information_objects — re-assign first.']], null, true),
+                 '409' => ['description' => 'Repository owns information_objects - re-assign first.']], null, true),
         ];
         $paths['/functions'] = [
             'get'  => self::op('Functions', 'List functions', $listParams, $okJsonLd),
@@ -230,7 +230,7 @@ class OpenApiSpec
             ['200' => ['description' => 'openric:Subgraph',
                 'content' => ['application/ld+json' => ['schema' => ['$ref' => '#/components/schemas/Subgraph']]]]])];
         $paths['/sparql'] = ['get' => array_merge(
-            self::op('Graph', '⚠ EXPERIMENTAL — SPARQL query endpoint',
+            self::op('Graph', '⚠ EXPERIMENTAL - SPARQL query endpoint',
                 [['name' => 'query', 'in' => 'query', 'required' => true, 'schema' => ['type' => 'string']]], $okJsonLd),
             ['description' => 'Experimental and optional. The reference implementation currently returns a stub response. Not part of the conformance-required surface. May be removed or replaced with a proper triplestore-backed endpoint in a future release.',
              'deprecated' => false])];
@@ -311,7 +311,7 @@ class OpenApiSpec
             'post' => self::op('Keys', 'Submit a key request', [],
                 ['201' => ['description' => 'Accepted',
                     'content' => ['application/json' => ['schema' => ['$ref' => '#/components/schemas/KeyRequestAccepted']]]],
-                 '429' => ['description' => 'Rate-limited — too many requests from your IP in the last 24h.']],
+                 '429' => ['description' => 'Rate-limited - too many requests from your IP in the last 24h.']],
                 'KeyRequest'),
         ];
         $paths['/keys/request/{id}'] = ['get' => self::op('Keys', 'Check request status (no secret revealed)',
@@ -405,7 +405,7 @@ class OpenApiSpec
 
             'AgentCreate' => ['type' => 'object', 'required' => ['name'], 'properties' => [
                 'name' => ['type' => 'string', 'description' => 'Authorised form of name'],
-                'entity_type_id' => ['type' => 'integer', 'description' => 'Term id — Person / CorporateBody / Family'],
+                'entity_type_id' => ['type' => 'integer', 'description' => 'Term id - Person / CorporateBody / Family'],
                 'description_identifier' => ['type' => 'string'],
                 'parent_id' => ['type' => 'integer'],
                 'dates_of_existence' => ['type' => 'string'], 'history' => ['type' => 'string'],
@@ -506,7 +506,7 @@ class OpenApiSpec
             'KeyRequestStatus' => ['type' => 'object', 'properties' => [
                 'id' => ['type' => 'integer'],
                 'status' => ['type' => 'string', 'enum' => ['pending', 'approved', 'denied', 'revoked']],
-                'email' => ['type' => 'string', 'description' => 'Masked — only prefix visible.'],
+                'email' => ['type' => 'string', 'description' => 'Masked - only prefix visible.'],
                 'requested_scopes' => ['type' => 'string'],
                 'created_at' => ['type' => 'string', 'format' => 'date-time'],
                 'reviewed_at' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true]]],

@@ -383,7 +383,7 @@ foreach ($collection->items as $item) {
 </div>
 
 @auth
-{{-- SortableJS — required by the drag-handle row reordering below --}}
+{{-- SortableJS - required by the drag-handle row reordering below --}}
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

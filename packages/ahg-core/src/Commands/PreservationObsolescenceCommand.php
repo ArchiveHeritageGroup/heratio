@@ -11,7 +11,7 @@ class PreservationObsolescenceCommand extends Command
         {--limit=100 : Max high-risk format objects to list}
         {--format=table : Output format (table or json)}';
 
-    protected $description = 'Format obsolescence report — at-risk PRONOM IDs and their object counts';
+    protected $description = 'Format obsolescence report - at-risk PRONOM IDs and their object counts';
 
     public function handle(PreservationService $svc): int
     {

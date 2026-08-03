@@ -274,7 +274,7 @@ class PrivacyController extends Controller
     }
 
     /**
-     * POST /privacy/redaction/{slug}/save — persist the regions drawn by
+     * POST /privacy/redaction/{slug}/save - persist the regions drawn by
      * the user. The client sends the FULL list (no per-region ids), so we
      * treat it as a replace-all: delete the IO's existing redactions, then
      * insert the new set. Returns JSON for the AJAX caller.
@@ -333,7 +333,7 @@ class PrivacyController extends Controller
                         // file's native dimensions independent of zoom.
                         'normalized'        => (int) ($r['normalized'] ?? 0) === 1 ? 1 : 0,
                         'source'            => 'manual',
-                        // Auto-promote on save — there is no editor/admin
+                        // Auto-promote on save - there is no editor/admin
                         // approval workflow; the user who saves *is* the admin
                         // and the rectangle takes effect for non-admin viewers
                         // immediately. Was 'pending' for a workflow that
@@ -442,7 +442,7 @@ class PrivacyController extends Controller
         }
         if (!$master) abort(404);
 
-        // Admins bypass the redactor — return the original file.
+        // Admins bypass the redactor - return the original file.
         if ($isAdmin) {
             return $this->streamOriginal($master);
         }
@@ -452,7 +452,7 @@ class PrivacyController extends Controller
         if (!$redactedPath || !file_exists($redactedPath)) {
             // render() returns null for BOTH "no regions on file" (safe to
             // serve the original) AND "regions exist but rendering failed"
-            // (must NOT serve the original — that leaks the very content we
+            // (must NOT serve the original - that leaks the very content we
             // redact). Distinguish them so we fail CLOSED on a render failure
             // instead of silently leaking, and log accurately.
             $hasRegions = \Schema::hasTable('privacy_visual_redaction')
@@ -461,7 +461,7 @@ class PrivacyController extends Controller
                     ->whereIn('status', ['applied', 'reviewed', 'pending'])
                     ->exists();
             if ($hasRegions) {
-                \Log::error('[redaction] render FAILED for an IO with regions on file — refusing to serve the original (fail-closed). Check the redaction-cache dir is www-data-writable.', ['io_id' => $io->id]);
+                \Log::error('[redaction] render FAILED for an IO with regions on file - refusing to serve the original (fail-closed). Check the redaction-cache dir is www-data-writable.', ['io_id' => $io->id]);
                 abort(503, 'This record has redactions that could not be applied right now. Please try again later or contact the institution.');
             }
             \Log::info('[redaction] no regions on file; serving original', ['io_id' => $io->id]);
@@ -477,7 +477,7 @@ class PrivacyController extends Controller
 
     private function streamOriginal(object $master)
     {
-        // Same resolver as RedactionRenderService — the web-facing path field
+        // Same resolver as RedactionRenderService - the web-facing path field
         // starts with /uploads/r/ which has to be stripped before joining
         // with config('heratio.uploads_path').
         $uploads = rtrim(config('heratio.uploads_path', '/mnt/nas/heratio/archive'), '/');

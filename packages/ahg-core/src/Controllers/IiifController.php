@@ -39,7 +39,7 @@ use Illuminate\Http\Request;
  * consumer (e.g. a settings sync from a SPA shell).
  *
  * Response shape matches IiifSettings::payload() exactly so the JSON +
- * window-global stay in lockstep. No auth gate — the values are entirely
+ * window-global stay in lockstep. No auth gate - the values are entirely
  * presentation policy and already publicly leaked through the viewer's
  * rendered HTML, so no information disclosure risk.
  */

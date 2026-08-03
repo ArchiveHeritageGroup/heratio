@@ -56,7 +56,7 @@ class AuthorityNerPipelineCommand extends Command
             if (! $dry) {
                 DB::table('ahg_ner_authority_stub')->insert([
                     'ner_entity_id' => $c->id,
-                    'actor_id' => 0,                  // placeholder — set when admin promotes the stub
+                    'actor_id' => 0,                  // placeholder - set when admin promotes the stub
                     'source_object_id' => $c->object_id,
                     'entity_type' => $c->entity_type,
                     'entity_value' => mb_substr($c->entity_value, 0, 500),

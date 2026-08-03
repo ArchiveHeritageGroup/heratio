@@ -1,4 +1,4 @@
--- ahgTimeLimitedShareLinkPlugin — Phase I seed
+-- ahgTimeLimitedShareLinkPlugin - Phase I seed
 --
 -- Idempotent ACL grants for the 5 share-link permissions.
 -- Group ids (AtoM defaults):
@@ -16,7 +16,7 @@
 --
 -- Run via: mysql archive < seed-acl-permissions.sql
 
--- editor (101) — create + list_all + revoke_others
+-- editor (101) - create + list_all + revoke_others
 INSERT INTO acl_permission (user_id, group_id, object_id, action, grant_deny, created_at, updated_at)
 SELECT NULL, 101, NULL, 'share_link.create', 1, NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM acl_permission WHERE group_id=101 AND action='share_link.create');
@@ -29,7 +29,7 @@ INSERT INTO acl_permission (user_id, group_id, object_id, action, grant_deny, cr
 SELECT NULL, 101, NULL, 'share_link.revoke_others', 1, NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM acl_permission WHERE group_id=101 AND action='share_link.revoke_others');
 
--- contributor (102) — create only
+-- contributor (102) - create only
 INSERT INTO acl_permission (user_id, group_id, object_id, action, grant_deny, created_at, updated_at)
 SELECT NULL, 102, NULL, 'share_link.create', 1, NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM acl_permission WHERE group_id=102 AND action='share_link.create');

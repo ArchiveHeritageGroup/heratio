@@ -1,4 +1,4 @@
-{{-- Hotspots Report — cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
+{{-- Hotspots Report - cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
 @extends('theme::layouts.2col')
 @section('title', 'Hotspots Report')
 @section('body-class', 'admin three-d-reports hotspots')

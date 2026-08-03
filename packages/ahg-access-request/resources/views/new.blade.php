@@ -126,10 +126,10 @@
                         <div class="mb-3">
                             <label for="urgency" class="form-label">Urgency <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="urgency" name="urgency">
-                                <option value="low" {{ old('urgency') === 'low' ? 'selected' : '' }}>{{ __('Low — no fixed deadline') }}</option>
-                                <option value="normal" {{ (old('urgency') ?? 'normal') === 'normal' ? 'selected' : '' }}>{{ __('Normal — within standard turnaround') }}</option>
-                                <option value="high" {{ old('urgency') === 'high' ? 'selected' : '' }}>{{ __('High — needed soon') }}</option>
-                                <option value="urgent" {{ old('urgency') === 'urgent' ? 'selected' : '' }}>{{ __('Urgent — needed ASAP') }}</option>
+                                <option value="low" {{ old('urgency') === 'low' ? 'selected' : '' }}>{{ __('Low - no fixed deadline') }}</option>
+                                <option value="normal" {{ (old('urgency') ?? 'normal') === 'normal' ? 'selected' : '' }}>{{ __('Normal - within standard turnaround') }}</option>
+                                <option value="high" {{ old('urgency') === 'high' ? 'selected' : '' }}>{{ __('High - needed soon') }}</option>
+                                <option value="urgent" {{ old('urgency') === 'urgent' ? 'selected' : '' }}>{{ __('Urgent - needed ASAP') }}</option>
                             </select>
                             <div class="form-text">Helps reviewers prioritise the queue.</div>
                         </div>

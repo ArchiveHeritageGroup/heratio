@@ -49,7 +49,7 @@ class SeedSpectrumCommandTest extends TestCase
         $firstCount = DB::table('ahg_workflow')->whereNotNull('spectrum_procedure')->count();
         $firstSteps = DB::table('ahg_workflow_step')->count();
 
-        // Second run — without --overwrite, nothing should change
+        // Second run - without --overwrite, nothing should change
         $this->artisan('workflow:seed-spectrum')->assertSuccessful();
         $this->assertSame($firstCount, DB::table('ahg_workflow')->whereNotNull('spectrum_procedure')->count());
         $this->assertSame($firstSteps, DB::table('ahg_workflow_step')->count());

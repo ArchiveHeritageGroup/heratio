@@ -1,5 +1,5 @@
 {{--
-  Accession Report — browse accessions with column toggles
+  Accession Report - browse accessions with column toggles
   Cloned from AtoM ahgReportsPlugin reportAccessionSuccess.blade.php
 
   @copyright  Johan Pieterse / Plain Sailing

@@ -145,7 +145,7 @@
                 <input type="radio" class="btn-check" name="destination" id="dest-download" value="download">
                 <label class="btn btn-outline-primary" for="dest-download">
                   <i class="fas fa-cloud-arrow-down me-1"></i>{{ __('Download (large)') }}
-                  <br><small class="fw-normal">{{ __('Streamed ZIP to your PC — no size limit') }}</small>
+                  <br><small class="fw-normal">{{ __('Streamed ZIP to your PC - no size limit') }}</small>
                 </label>
                 <input type="radio" class="btn-check" name="destination" id="dest-folder" value="folder">
                 <label class="btn btn-outline-primary" for="dest-folder">
@@ -156,7 +156,7 @@
               <div id="destination-path-wrap" class="mt-2" style="display:none;">
                 <label for="destination_path" class="form-label small mb-1">{{ __('Target folder on the server (e.g. a mounted drive)') }}</label>
                 <input type="text" class="form-control" id="destination_path" name="destination_path" placeholder="/mnt/usb-drive/heratio-export">
-                <div class="form-text">{{ __('The bundle is written straight to this directory — it must already exist and be writable by the server. No ZIP, no size cap.') }}</div>
+                <div class="form-text">{{ __('The bundle is written straight to this directory - it must already exist and be writable by the server. No ZIP, no size cap.') }}</div>
               </div>
             </div>
           </div>
@@ -678,7 +678,7 @@
     var brand = [];
     if (document.getElementById('branding-title').value) brand.push(document.getElementById('branding-title').value);
     if (document.getElementById('branding-subtitle').value) brand.push(document.getElementById('branding-subtitle').value);
-    document.getElementById('review-branding').textContent = brand.length > 0 ? brand.join(' — ') : 'Default';
+    document.getElementById('review-branding').textContent = brand.length > 0 ? brand.join(' - ') : 'Default';
   }
 
   // ─── Start export ─────────────────────────────────────────────

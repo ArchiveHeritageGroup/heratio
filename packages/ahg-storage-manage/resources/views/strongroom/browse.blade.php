@@ -1,4 +1,4 @@
-{{-- heratio#144 — Strongroom browse (rebuild 2026-05-23) --}}
+{{-- heratio#144 - Strongroom browse (rebuild 2026-05-23) --}}
 @extends('theme::layouts.1col')
 
 @section('title', 'Strongrooms')

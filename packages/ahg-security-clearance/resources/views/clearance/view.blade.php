@@ -1,6 +1,6 @@
 @extends('ahg-theme-b5::layout')
 
-@section('title', 'User Clearance — ' . e($targetUser->authorized_form_of_name ?? $targetUser->username ?? ''))
+@section('title', 'User Clearance - ' . e($targetUser->authorized_form_of_name ?? $targetUser->username ?? ''))
 
 @section('content')
 <div class="container-fluid mt-3">
@@ -55,7 +55,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Classification Level') }}</label>
               <select name="classification_id" class="form-select" required>
-                <option value="0">— Revoke —</option>
+                <option value="0">- Revoke -</option>
                 @foreach($classifications ?? [] as $cl)
                   <option value="{{ $cl->id }}" {{ ($clearance->classification_id ?? 0) == $cl->id ? 'selected' : '' }}
                           style="color: {{ $cl->color ?? '#333' }}">

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Z3950ServerCommand — Start the Z39.50 server daemon.
+ * Z3950ServerCommand - Start the Z39.50 server daemon.
  *
  * Usage:
  *   php artisan z3950:server [--host=HOST] [--port=PORT] [--timeout=SECONDS]
@@ -36,7 +36,7 @@
  *   sudo systemctl enable --now z3950-server
  *
  * Copyright (C) 2026 Johan Pieterse
- * The Archive Heritage Group (Pty) Ltd — AGPL-3.0
+ * The Archive Heritage Group (Pty) Ltd - AGPL-3.0
  */
 
 namespace AhgZ3950\Commands;

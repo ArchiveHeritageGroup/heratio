@@ -455,7 +455,7 @@ class LibraryService
 
         $id = $item->id;
 
-        // Snapshot before — for security_audit_log before/after diff.
+        // Snapshot before - for security_audit_log before/after diff.
         $auditBefore = $this->auditSnapshot($id);
 
         DB::transaction(function () use ($id, $data) {
@@ -580,7 +580,7 @@ class LibraryService
 
         // Snapshot after the transaction commits, then capture the diff
         // for the audit log. The middleware merges it into the row it
-        // writes for this request — see app/Http/Middleware/AuditLog.php
+        // writes for this request - see app/Http/Middleware/AuditLog.php
         // and packages/ahg-core/src/Support/AuditLog.php.
         $auditAfter = $this->auditSnapshot($id);
         \AhgCore\Support\AuditLog::captureEdit($id, 'library_item', $auditBefore, $auditAfter);
@@ -758,7 +758,7 @@ class LibraryService
 
         $id = $item->id;
 
-        // Snapshot before the delete fires — once the row is gone the
+        // Snapshot before the delete fires - once the row is gone the
         // captured payload is the only record of what was there.
         \AhgCore\Support\AuditLog::captureDelete((int) $id, 'library_item', $this->auditSnapshot((int) $id));
 

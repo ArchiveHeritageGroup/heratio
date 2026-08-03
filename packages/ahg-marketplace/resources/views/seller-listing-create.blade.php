@@ -1,5 +1,5 @@
 {{--
-  Marketplace — Create New Listing (seller form)
+  Marketplace - Create New Listing (seller form)
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
   This file is part of Heratio. AGPL-3.0-or-later.
@@ -180,14 +180,14 @@
     <div class="card mb-4 border-info">
       <div class="card-header fw-semibold bg-info bg-opacity-10">
         <i class="fas fa-palette me-1 text-info"></i> {{ __('Broker / Artist') }}
-        <span class="small text-muted ms-1">{{ __('— select an artist from your roster to apply markup pricing') }}</span>
+        <span class="small text-muted ms-1">{{ __('- select an artist from your roster to apply markup pricing') }}</span>
       </div>
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
             <label for="artist_id" class="form-label">{{ __('Artist') }}</label>
             <select id="artist_id" name="artist_id" class="form-select">
-              <option value="">{{ __('— Not on behalf of an artist (sell as yourself)') }}</option>
+              <option value="">{{ __('- Not on behalf of an artist (sell as yourself)') }}</option>
               @foreach($brokerArtists as $bA)
                 <option value="{{ $bA->id }}"
                         data-markup-type="{{ $bA->default_markup_type }}"
@@ -226,7 +226,7 @@
         </div>
         <div class="mt-2 small">
           <span class="text-muted">{{ __('Computed listing price:') }}</span>
-          <strong id="markup-preview" class="text-info">—</strong>
+          <strong id="markup-preview" class="text-info">-</strong>
           <span class="text-muted">{{ __('(overrides the manual price below)') }}</span>
         </div>
       </div>
@@ -252,7 +252,7 @@
       }
       function recompute() {
         var b = parseFloat(base.value || '0');
-        if (!b) { preview.textContent = '—'; return; }
+        if (!b) { preview.textContent = '-'; return; }
         var v = parseFloat(val.value || '0');
         var t = type.value;
         var p = b;
@@ -284,11 +284,11 @@
         <small class="text-muted">{{ __('Choose Licence to sell rights to use the work (digital deliverable, no shipping).') }}</small>
       </div>
 
-      {{-- Licence terms — shown only when listing_type=licence --}}
+      {{-- Licence terms - shown only when listing_type=licence --}}
       <div class="card mb-3 border-warning" id="licence-terms-card" style="display:none;">
         <div class="card-header bg-warning bg-opacity-10 fw-semibold">
           <i class="fas fa-file-contract me-1 text-warning"></i> {{ __('Licence terms') }}
-          <span class="small text-muted ms-1">{{ __('— a signed agreement is generated for the buyer on payment') }}</span>
+          <span class="small text-muted ms-1">{{ __('- a signed agreement is generated for the buyer on payment') }}</span>
         </div>
         <div class="card-body">
           <div class="row g-3">

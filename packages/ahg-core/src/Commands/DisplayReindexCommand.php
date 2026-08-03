@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DisplayReindexCommand — rebuild the GLAM browse facet cache.
+ * DisplayReindexCommand - rebuild the GLAM browse facet cache.
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems

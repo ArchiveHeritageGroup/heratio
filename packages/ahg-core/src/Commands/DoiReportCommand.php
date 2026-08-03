@@ -11,7 +11,7 @@ class DoiReportCommand extends Command
         {--type=summary : Report type (summary, errors, recent)}
         {--format=table : Output format (table or json)}';
 
-    protected $description = 'DOI status report — counts by status, queue depth, recent log';
+    protected $description = 'DOI status report - counts by status, queue depth, recent log';
 
     public function handle(DoiService $svc): int
     {

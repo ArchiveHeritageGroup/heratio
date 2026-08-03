@@ -187,7 +187,7 @@
               <i class="fas fa-user-check me-1 text-success"></i>
               @if($inf['reviewer']){{ __('Reviewed by') }} <span class="fw-semibold">{{ $inf['reviewer'] }}</span>@endif
               @if($inf['reviewed_at']) <span class="text-muted">({{ $inf['reviewed_at'] }})</span>@endif
-              @if($inf['review_reason']) <span class="text-muted">&mdash; {{ $inf['review_reason'] }}</span>@endif
+              @if($inf['review_reason']) <span class="text-muted">- {{ $inf['review_reason'] }}</span>@endif
             </div>
           @endif
         </div>

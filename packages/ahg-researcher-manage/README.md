@@ -13,8 +13,8 @@
 > TODO: List implemented features
 
 ## What's missing (TODO)
-- [ ] `readme` — TODO: implement
-- [ ] `docs_help` — TODO: implement
+- [ ] `readme` - TODO: implement
+- [ ] `docs_help` - TODO: implement
 
 ## References
 - docs/help/ (search for `researcher-manage`)

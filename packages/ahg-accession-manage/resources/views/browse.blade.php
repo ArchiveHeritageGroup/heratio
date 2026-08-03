@@ -45,7 +45,7 @@
           <tr>
             <td class="w-20">
               <a href="{{ route('accession.show', $doc['slug']) }}">
-                {{ $doc['identifier'] ?: '—' }}
+                {{ $doc['identifier'] ?: '-' }}
               </a>
             </td>
             <td>

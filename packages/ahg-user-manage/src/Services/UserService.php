@@ -188,7 +188,7 @@ class UserService
     {
         // Cultures are stored as one row per culture under scope='i18n_languages',
         // mirroring the /set-locale route handler. (Earlier implementation looked
-        // for a single serialised row with name='i18n_languages' — that shape
+        // for a single serialised row with name='i18n_languages' - that shape
         // never existed in this DB, so the call always fell through to [$culture].)
         $cultures = DB::table('setting')
             ->where('scope', 'i18n_languages')

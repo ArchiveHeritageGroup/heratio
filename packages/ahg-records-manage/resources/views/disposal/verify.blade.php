@@ -11,7 +11,7 @@
 
     <div class="card mb-3">
         <div class="card-header">
-            <strong>Disposal Action #{{ $action->id }}</strong> &mdash;
+            <strong>Disposal Action #{{ $action->id }}</strong> -
             {{ $action->io_title ?? 'Untitled (IO #' . $action->information_object_id . ')' }}
         </div>
         <div class="card-body">

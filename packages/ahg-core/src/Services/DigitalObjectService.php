@@ -50,7 +50,7 @@ class DigitalObjectService
     const MEDIA_OTHER = 139;
 
     // Upload base directory
-    /** @deprecated Use config('heratio.uploads_path') — kept as fallback only */
+    /** @deprecated Use config('heratio.uploads_path') - kept as fallback only */
     const UPLOAD_DIR = '/mnt/nas/heratio/archive';
 
     /**
@@ -449,7 +449,7 @@ class DigitalObjectService
     /**
      * Link an external URL (HTTP/HTTPS/FTP) as a digital object.
      *
-     * No file is moved — the row stores the URL in `path` and the rendered name
+     * No file is moved - the row stores the URL in `path` and the rendered name
      * in `name`. Recognised media hosts (Sketchfab/YouTube/Vimeo) are tagged as
      * MEDIA_OTHER so the read-side renders an external-link icon.
      */
@@ -816,7 +816,7 @@ class DigitalObjectService
             }
         }
 
-        // ExifTool extraction — optional; if not installed, skip without failing.
+        // ExifTool extraction - optional; if not installed, skip without failing.
         $binary = trim((string) @shell_exec('command -v exiftool 2>/dev/null'));
         if ($binary === '') {
             Log::info('[DigitalObjectService] exiftool not found; skipping metadata extraction for DO '.$masterId);
@@ -978,7 +978,7 @@ class DigitalObjectService
     }
 
     /**
-     * Write the IPTC-rich per-IO row. Keyed on object_id (unique) — one row
+     * Write the IPTC-rich per-IO row. Keyed on object_id (unique) - one row
      * per information_object, populated on the first DO. Subsequent DOs on
      * the same IO don't overwrite unless they carry fresh IPTC values.
      */
@@ -1128,7 +1128,7 @@ class DigitalObjectService
         if (! $raw) {
             return null;
         }
-        // ExifTool emits "2026:04:24 07:27:42" — convert to ISO date.
+        // ExifTool emits "2026:04:24 07:27:42" - convert to ISO date.
         if (preg_match('/^(\d{4}):(\d{2}):(\d{2})/', $raw, $m)) {
             return "{$m[1]}-{$m[2]}-{$m[3]}";
         }

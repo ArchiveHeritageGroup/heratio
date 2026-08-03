@@ -112,7 +112,7 @@ class PreservationController extends Controller
     }
 
     /**
-     * POST /preservation/{slug}/{id}/update — saves the edit form for a
+     * POST /preservation/{slug}/{id}/update - saves the edit form for a
      * single preservation_package row. Whitelisted to name / description /
      * status so users can't poke at uuid / type / checksums.
      */
@@ -348,7 +348,7 @@ class PreservationController extends Controller
     }
 
     /**
-     * POST /preservation/{slug}/{id}/export — BagIt-export an existing
+     * POST /preservation/{slug}/{id}/export - BagIt-export an existing
      * preservation_package row. Reuses the linked preservation_package_object
      * rows + their digital_object source files; writes a BagIt 1.0 zip to
      * storage/app/preservation/<uuid>.zip and stamps export_path + status.

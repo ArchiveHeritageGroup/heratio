@@ -1,5 +1,5 @@
 @extends('theme::layout_2col')
-@section('title', 'Cite this Record — ' . ($io->title ?? ''))
+@section('title', 'Cite this Record - ' . ($io->title ?? ''))
 
 @section('sidebar')
   @include('research::research._sidebar', ['sidebarActive' => 'bibliographies'])
@@ -72,7 +72,7 @@
             <h5 class="mb-0">{{ $data['name'] }}</h5>
           </div>
           <div class="card-body">
-            {{-- #1395(B) — escape at sink: citation text is assembled from raw title/creator/repository --}}
+            {{-- #1395(B) - escape at sink: citation text is assembled from raw title/creator/repository --}}
             <p class="citation-text" id="cite-{{ $style }}">{{ $data['text'] }}</p>
           </div>
           <div class="card-footer">

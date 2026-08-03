@@ -284,7 +284,7 @@
                                     <span class="badge bg-{{ $entry->type === 'workflow' ? 'info' : 'secondary' }}">{{ ucfirst($entry->type) }}</span>
                                     <strong>{{ ucfirst(str_replace('_', ' ', $entry->action)) }}</strong>
                                     @if ($entry->description)
-                                        &mdash; {{ $entry->description }}
+                                        - {{ $entry->description }}
                                     @endif
                                 </div>
                                 <div class="text-muted small">

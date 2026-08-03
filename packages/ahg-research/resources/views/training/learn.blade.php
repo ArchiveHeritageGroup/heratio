@@ -1,4 +1,4 @@
-{{-- #1099 Training — learner view --}}
+{{-- #1099 Training - learner view --}}
 @extends('theme::layouts.2col')
 
 @section('sidebar')

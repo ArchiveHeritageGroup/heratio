@@ -1,5 +1,5 @@
 {{--
-  Embedded GLAM Browse – browse-embedded.blade.php
+  Embedded GLAM Browse - browse-embedded.blade.php
   Migrated from AtoM browseEmbeddedSuccess.php (ahgDisplayPlugin)
   Returns facets + results without full page layout (for AJAX/landing page embedding)
 --}}

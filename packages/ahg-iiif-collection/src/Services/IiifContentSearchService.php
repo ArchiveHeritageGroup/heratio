@@ -297,7 +297,7 @@ class IiifContentSearchService
         return DB::table('information_object as io')
             ->join('slug as s', 'io.id', '=', 's.object_id')
             ->where('s.slug', $slug)
-            // Guests can content-search published objects only (status 158/160) —
+            // Guests can content-search published objects only (status 158/160) -
             // don't leak OCR full-text of unpublished records to anon (#1363).
             ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s2) {
                 $s2->select(DB::raw(1))->from('status as pub_st')

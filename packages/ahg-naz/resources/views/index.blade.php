@@ -1,4 +1,4 @@
-{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems — johan@plainsailingisystems.co.za
+{{-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems - johan@plainsailingisystems.co.za
      This file is part of Heratio. Heratio is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License v3+. --}}
 @extends('theme::layouts.1col')
@@ -16,7 +16,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-landmark me-2"></i>{{ __('NAZ Compliance Dashboard') }}</h1>
-            <p class="text-muted">National Archives of Zimbabwe Act [Chapter 25:06] &mdash; 25-Year Rule</p>
+            <p class="text-muted">National Archives of Zimbabwe Act [Chapter 25:06] - 25-Year Rule</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.reports') }}" class="btn atom-btn-outline-primary">
@@ -258,7 +258,7 @@
                     <h6><i class="fas fa-gavel me-2"></i>{{ __('Key Legislation Reference') }}</h6>
                     <div class="row">
                         <div class="col-md-4">
-                            <strong>{{ __('Section 10 &mdash; Closure Period:') }}</strong>
+                            <strong>{{ __('Section 10 - Closure Period:') }}</strong>
                             <p class="mb-0 small text-muted">Records closed for {{ $config['closure_period_years'] }} years from date of creation</p>
                         </div>
                         <div class="col-md-4">

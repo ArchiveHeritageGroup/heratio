@@ -9,9 +9,9 @@ Status: very good
 ## 1) What exists today (code-grounded facts)
 
 - Tables and storage
-  - ai_provenance — central table used across the product to record AI call provenance (provider, prompt, response, confidence, accepted/rejected).
-  - research_activity_log — research-side action log for human actions (where present).
-  - research_ai_disclosure_log / research_ai_suggestions — per-slice logs referenced by some flows.
+  - ai_provenance - central table used across the product to record AI call provenance (provider, prompt, response, confidence, accepted/rejected).
+  - research_activity_log - research-side action log for human actions (where present).
+  - research_ai_disclosure_log / research_ai_suggestions - per-slice logs referenced by some flows.
 
 - Key files and call sites (examples)
   - Writing Studio AI-draft endpoint: packages/ahg-research/src/Controllers/WritingStudioController.php (aiDraft / aiSuggest endpoints).
@@ -157,7 +157,7 @@ Below are recommended enhancements grouped by priority. Each includes where to c
 ## 5) Minimal implementation plan (first 2 days)
 
 Day 1 (safety + foundation)
-- Add ResearchAuditService and ResearchAiService::recordAiCall. Replace 3–4 high-impact controller spots (Writing Studio, Bibliography enrichment, Question Builder) to use the new helpers.
+- Add ResearchAuditService and ResearchAiService::recordAiCall. Replace 3-4 high-impact controller spots (Writing Studio, Bibliography enrichment, Question Builder) to use the new helpers.
 - Add ai_provenance assertions in a single new feature test per slice.
 
 Day 2 (UI & exports)

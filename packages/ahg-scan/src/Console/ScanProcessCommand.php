@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ScanProcessCommand — Heratio ahg-scan
+ * ScanProcessCommand - Heratio ahg-scan
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -22,7 +22,7 @@ class ScanProcessCommand extends Command
 {
     protected $signature = 'ahg:scan-process
         {--file= : ingest_file.id to process}
-        {--folder= : scan_folder.code — process all pending rows in its session}
+        {--folder= : scan_folder.code - process all pending rows in its session}
         {--limit=50 : Max files per run}';
 
     protected $description = 'Process pending scan files through the ingest pipeline (synchronous)';

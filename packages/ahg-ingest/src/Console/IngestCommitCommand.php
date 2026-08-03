@@ -1,7 +1,7 @@
 <?php
 
 /**
- * IngestCommitCommand — Heratio ingest
+ * IngestCommitCommand - Heratio ingest
  *
  * Kicks the wizard commit runner for one session. Usable from a queue
  * worker or cron; also invoked directly by the web controller when an

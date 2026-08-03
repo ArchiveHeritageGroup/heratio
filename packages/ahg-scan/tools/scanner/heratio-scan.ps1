@@ -1,4 +1,4 @@
-# heratio-scan.ps1 — upload a scanned file to Heratio via the Scan API.
+# heratio-scan.ps1 - upload a scanned file to Heratio via the Scan API.
 #
 # Designed for VueScan / NAPS2 "After save" hooks on Windows.
 #

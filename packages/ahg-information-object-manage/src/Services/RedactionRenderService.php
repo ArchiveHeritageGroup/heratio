@@ -112,7 +112,7 @@ class RedactionRenderService
         // An IO can have multiple parent_id IS NULL rows (e.g. a PDF master AND
         // a JPG preview that was uploaded as a separate "master"). The PDF that
         // the redactions reference might not be the row MySQL returns first
-        // without an ORDER BY — that intermittently swapped which file we
+        // without an ORDER BY - that intermittently swapped which file we
         // looked at and the redactions silently disappeared. Prefer the master
         // referenced by the redaction rows; otherwise fall back to oldest by id.
         $referenced = DB::table('digital_object as d')
@@ -136,7 +136,7 @@ class RedactionRenderService
     private function resolveAbsolutePath(object $master): ?string
     {
         // Heratio stores files under config('heratio.uploads_path') and the
-        // web-facing path field starts with /uploads/r/ — strip that prefix
+        // web-facing path field starts with /uploads/r/ - strip that prefix
         // when computing the filesystem path. AtoM legacy data sometimes
         // uses /uploads/ without the /r/ segment.
         $uploads = rtrim(config('heratio.uploads_path', '/mnt/nas/heratio/archive'), '/');
@@ -170,7 +170,7 @@ class RedactionRenderService
 
     private function loadRegions(int $ioId, int $masterId): array
     {
-        // Filter by object_id only — the show page's redaction banner / asset
+        // Filter by object_id only - the show page's redaction banner / asset
         // reroute also use object_id, so the renderer must agree with them.
         // Filtering by digital_object_id used to silently drop the regions when
         // getMaster() returned a different (sibling) master row.
@@ -204,7 +204,7 @@ class RedactionRenderService
 
     private function regionsHash(array $regions): string
     {
-        // Stable ordering — same regions in same order produce same hash.
+        // Stable ordering - same regions in same order produce same hash.
         return hash('sha256', json_encode($regions));
     }
 

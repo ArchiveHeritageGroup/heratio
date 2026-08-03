@@ -1,7 +1,7 @@
-{{-- heratio#1138 — Digital Twin: virtual collection builder (Phase 1). --}}
+{{-- heratio#1138 - Digital Twin: virtual collection builder (Phase 1). --}}
 @extends('theme::layouts.1col')
 
-@section('title', __('Digital Twin Builder') . ' — ' . $space->name)
+@section('title', __('Digital Twin Builder') . ' - ' . $space->name)
 @section('body-class', 'exhibition-space builder')
 
 @section('content')
@@ -1292,7 +1292,7 @@
       fetch(URLS.placements).then(function (r) { return r.json(); }).then(function (d) {
         if (!d.ok) { loadingTxt.text('{{ __('Could not load wall.') }}'); wvLayer.draw(); return; }
         var items = d.placements.filter(function (p) { return p.wall_or_zone === wvWall; });
-        // Items assigned to this wall via "Hang on wall" have no u/v yet — give
+        // Items assigned to this wall via "Hang on wall" have no u/v yet - give
         // them a starting spot along the wall and persist it so they show up.
         var fresh = 0;
         items.forEach(function (p) {
@@ -1307,7 +1307,7 @@
         // #1140: do NOT force-separate items that share a spot - stacking is now intentional
         // (new objects already get distinct default spots above; the walkthrough layers same-spot
         // objects so they fan out and stay selectable). wvDeOverlap kept for reference, not called.
-        if (!items.length) { loadingTxt.text('{{ __('No objects on this wall yet — search to add.') }}'); wvLayer.draw(); return; }
+        if (!items.length) { loadingTxt.text('{{ __('No objects on this wall yet - search to add.') }}'); wvLayer.draw(); return; }
         var pending = items.length;
         function ready() { pending--; if (pending <= 0) { loadingTxt.destroy(); wvLayer.draw(); } }
         items.forEach(function (p) { wvAddNode(p, ready); });
@@ -1466,7 +1466,7 @@
         .then(function (r) { return r.json(); }).then(function (d) {
           var items = (d && d.items) || [];
           if (hdr) hdr.textContent = (io ? '{{ __('Suggestions for selection') }}' : '{{ __('AI suggestions') }}') + ' (' + items.length + ')';
-          if (!items.length) { el.innerHTML = '<div class="text-muted">' + (io ? '{{ __('No suggestions for this object.') }}' : '{{ __('No suggestions yet — run AI recommendations.') }}') + '</div>'; return; }
+          if (!items.length) { el.innerHTML = '<div class="text-muted">' + (io ? '{{ __('No suggestions for this object.') }}' : '{{ __('No suggestions yet - run AI recommendations.') }}') + '</div>'; return; }
           el.innerHTML = '';
           items.forEach(function (it) {
             var row = document.createElement('div'); row.className = 'd-flex align-items-start gap-2 mb-2 pb-1 border-bottom';

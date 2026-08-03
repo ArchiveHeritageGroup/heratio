@@ -1,4 +1,4 @@
-{{-- heratio#144 — Strongroom create/edit (single form, $room null = create) --}}
+{{-- heratio#144 - Strongroom create/edit (single form, $room null = create) --}}
 @extends('theme::layouts.1col')
 
 @php $isNew = ($room === null); @endphp

@@ -40,7 +40,7 @@ Mirrors the OAI-PMH publication-status filter exactly:
 
 ## Tombstones
 
-Sourced from `oai_deleted_record` — the same table the OAI-PMH
+Sourced from `oai_deleted_record` - the same table the OAI-PMH
 `php artisan oai:mark-deleted` worker populates. ResourceSync and OAI report
 the same deletion set.
 

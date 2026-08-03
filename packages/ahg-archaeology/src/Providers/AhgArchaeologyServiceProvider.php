@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AhgArchaeologyServiceProvider — archaeology collections management.
+ * AhgArchaeologyServiceProvider - archaeology collections management.
  *
  * Registered explicitly in bootstrap/providers.php with a PSR-4 autoload entry
  * in the root composer.json, following ahg-articles and ahg-marketing. That

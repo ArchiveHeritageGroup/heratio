@@ -32,7 +32,7 @@ VIEWS="front back left right top detail"
 
 if [ -n "$BLENDER" ]; then
     echo "Using Blender: $BLENDER"
-    # Snap Blender can't run as www-data (home dir restriction) — use sudo
+    # Snap Blender can't run as www-data (home dir restriction) - use sudo
     if [ "$(id -u)" -ne 0 ] && sudo -n "$BLENDER" --version >/dev/null 2>&1; then
         sudo "$BLENDER" --background --python "$SCRIPT_DIR/render_multiangle.py" -- "$INPUT" "$OUTPUT_DIR" "$SIZE" 2>&1 | grep -v "^Blender\|^Read\|^Fra:\|^Color management"
         # Fix ownership back to www-data (need sudo since files are owned by root)

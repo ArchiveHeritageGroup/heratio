@@ -59,7 +59,7 @@
                         <td>
                             <span class="badge bg-{{ match($m->status ?? '') { 'approved' => 'success', 'completed' => 'success', 'rejected' => 'danger', default => 'warning' } }}">{{ ucfirst(str_replace('_', ' ', $m->status ?? 'pending')) }}</span>
                         </td>
-                        <td class="small">{{ $m->due_date ?? '—' }}</td>
+                        <td class="small">{{ $m->due_date ?? '-' }}</td>
                         <td class="small">{{ $m->created_at ?? '' }}</td>
                         <td>
                             <div class="d-flex gap-1">

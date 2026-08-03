@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'OPAC — ' . __('Online Public Access Catalogue'))
+@section('title', 'OPAC - ' . __('Online Public Access Catalogue'))
 
 @php
     // Helpers
@@ -41,8 +41,8 @@
 
     $sortOptions = [
         'relevance'   => __('Relevance'),
-        'title_asc'   => __('Title A–Z'),
-        'title_desc'  => __('Title Z–A'),
+        'title_asc'   => __('Title A-Z'),
+        'title_desc'  => __('Title Z-A'),
         'year_desc'   => __('Newest first'),
         'year_asc'    => __('Oldest first'),
         'popular'     => __('Most borrowed'),
@@ -383,7 +383,7 @@
                                         @if($item->publisher)
                                             <span class="text-muted">{{ $item->publisher }}</span>
                                             @if($item->publication_year)
-                                                <span class="text-muted"> — </span>
+                                                <span class="text-muted"> - </span>
                                             @endif
                                         @endif
                                         @if($item->publication_year)

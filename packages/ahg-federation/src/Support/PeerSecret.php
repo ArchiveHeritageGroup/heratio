@@ -5,7 +5,7 @@ namespace AhgFederation\Support;
 use Illuminate\Support\Facades\Crypt;
 
 /**
- * #1380 — at-rest encryption for federation peer credentials
+ * #1380 - at-rest encryption for federation peer credentials
  * (federation_peer.api_key, federation_peer_search.search_api_key).
  *
  * Keys are wrapped with Laravel's Crypt (APP_KEY / AES-256) before they

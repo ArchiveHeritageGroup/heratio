@@ -12,7 +12,7 @@ class CdpaLicenseCheckCommand extends Command
         {--mark-sent : Set renewal_reminder_sent=1 on rows in the window}
         {--report : Print expiring + expired list}';
 
-    protected $description = 'Zimbabwe CDPA — flag licenses approaching expiry, optionally mark renewal_reminder_sent';
+    protected $description = 'Zimbabwe CDPA - flag licenses approaching expiry, optionally mark renewal_reminder_sent';
 
     public function handle(): int
     {

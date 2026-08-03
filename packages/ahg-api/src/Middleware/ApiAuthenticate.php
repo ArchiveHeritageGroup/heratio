@@ -14,7 +14,7 @@ class ApiAuthenticate
      */
     public function handle(Request $request, Closure $next, string ...$requiredScopes)
     {
-        // Session auth. #1395(A) — a session user only receives write/delete/
+        // Session auth. #1395(A) - a session user only receives write/delete/
         // batch/publish scopes if they are an admin; everyone else is read-only.
         // Previously ANY authenticated user (incl. a self-registered researcher)
         // got the full scope set, enabling unauthorised CRUD via the api routes
@@ -24,7 +24,7 @@ class ApiAuthenticate
             $request->attributes->set('api_key_id', null);
             $request->attributes->set('api_user_id', $userId);
 
-            // #1395(A) — grant API scopes by the user's ACL capability, not by the
+            // #1395(A) - grant API scopes by the user's ACL capability, not by the
             // mere fact of being logged in. A self-registered researcher (no
             // create grant) is read-only; contributors/editors who may catalogue
             // get write (and delete/publish where their role allows); admins get

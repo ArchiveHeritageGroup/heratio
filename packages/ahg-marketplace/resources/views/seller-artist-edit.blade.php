@@ -60,7 +60,7 @@
   </div>
 
   <div class="card mb-3">
-    <div class="card-header fw-bold"><i class="fas fa-address-book me-1"></i> {{ __('Contact (private — not shown publicly)') }}</div>
+    <div class="card-header fw-bold"><i class="fas fa-address-book me-1"></i> {{ __('Contact (private - not shown publicly)') }}</div>
     <div class="card-body">
       <div class="row g-3">
         <div class="col-md-4">
@@ -109,7 +109,7 @@
           <input type="number" step="0.01" min="0" max="100" name="default_commission_split" class="form-control"
                  value="{{ old('default_commission_split', $a->default_commission_split ?? '') }}"
                  placeholder="{{ __('e.g. 70') }}">
-          <small class="text-muted">{{ __('Optional — what % of net revenue the artist receives.') }}</small>
+          <small class="text-muted">{{ __('Optional - what % of net revenue the artist receives.') }}</small>
         </div>
       </div>
     </div>

@@ -55,7 +55,7 @@ class RdmDemoCommand extends Command
         // references it. Skips cleanly when the DMP slice isn't installed.
         if ($projectId) {
             $dmpId = app(\AhgRdm\Services\DmpLinkService::class)->createAndLink($datasetId, [
-                'title'         => 'DMP — POPIA RDM Demo Study',
+                'title'         => 'DMP - POPIA RDM Demo Study',
                 'funder'        => 'NRF',
                 'contact_name'  => 'Demo PI',
                 'contact_email' => 'demo.pi@up.ac.za',

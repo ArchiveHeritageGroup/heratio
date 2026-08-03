@@ -1,7 +1,7 @@
 <?php
 
 /**
- * IntegrityReportCommand — fixity / verification rollups.
+ * IntegrityReportCommand - fixity / verification rollups.
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -133,7 +133,7 @@ class IntegrityReportCommand extends Command
         $rows = DB::table('integrity_dead_letter')->orderByDesc('id')->limit(50)->get();
         $this->info("=== dead-letter ({$rows->count()}) ===");
         foreach ($rows as $r) {
-            $this->line(sprintf('  #%-6d %s — %s', $r->id, $r->failed_at ?? '', mb_strimwidth((string) ($r->reason ?? ''), 0, 80, '..')));
+            $this->line(sprintf('  #%-6d %s - %s', $r->id, $r->failed_at ?? '', mb_strimwidth((string) ($r->reason ?? ''), 0, 80, '..')));
         }
 
         return self::SUCCESS;

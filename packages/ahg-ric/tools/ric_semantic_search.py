@@ -208,7 +208,7 @@ def parse_query(query):
         return 'level', {'level': q}
     
     # Date range
-    m = re.search(r'(?:from|between|dated?)\s+(\d{4})(?:\s*[-–to]+\s*(\d{4}))?', q)
+    m = re.search(r'(?:from|between|dated?)\s+(\d{4})(?:\s*[--to]+\s*(\d{4}))?', q)
     if m:
         return 'date', {'start': m.group(1), 'end': m.group(2) or m.group(1)}
     

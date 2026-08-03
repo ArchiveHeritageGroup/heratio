@@ -1,5 +1,5 @@
 {{--
-  Authority Record Report — browse actor records with filters
+  Authority Record Report - browse actor records with filters
   Cloned from AtoM ahgReportsPlugin reportAuthorityRecordSuccess.blade.php
 
   @copyright  Johan Pieterse / Plain Sailing

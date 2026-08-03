@@ -60,7 +60,7 @@
       <xsl:when test="$recId != ''"><identifier><xsl:value-of select="$recId"/></identifier></xsl:when>
     </xsl:choose>
 
-    <!-- Title (main titleInfo only — skip alternatives for v1) -->
+    <!-- Title (main titleInfo only - skip alternatives for v1) -->
     <xsl:variable name="mainTitle" select="*[local-name()='titleInfo' and not(@type)][1]"/>
     <xsl:variable name="anyTitle"  select="(*[local-name()='titleInfo'])[1]"/>
     <xsl:variable name="titleNode" select="($mainTitle | $anyTitle)[1]"/>

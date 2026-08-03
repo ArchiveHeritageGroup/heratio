@@ -30,11 +30,11 @@ $map = [
             <td>{{ $ev->id }}</td>
             <td>{{ $ev->received_at }}</td>
             <td>{{ $ev->drive_id }}</td>
-            <td class="small text-muted">{{ $ev->sp_item_id ?? '—' }}</td>
+            <td class="small text-muted">{{ $ev->sp_item_id ?? '-' }}</td>
             <td>{{ $ev->change_type }}</td>
             <td><span class="badge bg-{{ $map[$ev->status] ?? 'secondary' }}">{{ $ev->status }}</span></td>
             <td>{{ $ev->attempts }}</td>
-            <td>{{ $ev->information_object_id ?? '—' }}</td>
+            <td>{{ $ev->information_object_id ?? '-' }}</td>
             <td><a href="{{ route('sharepoint.events.detail', ['id' => $ev->id]) }}" class="btn btn-sm btn-outline-secondary">{{ __('Detail') }}</a></td>
         </tr>
     @endforeach

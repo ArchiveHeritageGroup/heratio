@@ -101,8 +101,8 @@
                         <tr class="{{ $gapClass }}">
                             <td>{{ e($h['issue']->volume ?? '') }}</td>
                             <td><code>{{ e($h['issue']->issue_number ?? '') }}</code></td>
-                            <td>{{ $h['issue']->issue_date ? \Carbon\Carbon::parse($h['issue']->issue_date)->format('d M Y') : '—' }}</td>
-                            <td>{{ $h['issue']->received_at ? \Carbon\Carbon::parse($h['issue']->received_at)->format('d M Y') : '—' }}</td>
+                            <td>{{ $h['issue']->issue_date ? \Carbon\Carbon::parse($h['issue']->issue_date)->format('d M Y') : '-' }}</td>
+                            <td>{{ $h['issue']->received_at ? \Carbon\Carbon::parse($h['issue']->received_at)->format('d M Y') : '-' }}</td>
                             <td>
                                 @if(($h['issue']->status ?? '') === 'received')
                                     <span class="badge bg-success">received</span>
@@ -118,7 +118,7 @@
                                         {{ $gapDays }}d
                                     </span>
                                 @else
-                                    <span class="text-muted">—</span>
+                                    <span class="text-muted">-</span>
                                 @endif
                             </td>
                         </tr>

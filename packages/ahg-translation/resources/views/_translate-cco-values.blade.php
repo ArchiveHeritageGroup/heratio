@@ -3,7 +3,7 @@
 
   Translates per-record content stored in museum_metadata. Each save writes a
   row in museum_metadata_i18n keyed on (museum_metadata.id, culture). Distinct
-  from the SBS modal which only handles UI labels — opening this modal makes
+  from the SBS modal which only handles UI labels - opening this modal makes
   it impossible to confuse the two surfaces.
 
   Usage from a show.blade.php (only renders when the IO has a museum_metadata row):
@@ -94,7 +94,7 @@
 
         <div class="alert alert-warning small mb-3 py-2">
           <strong><i class="fas fa-info-circle me-1"></i>{{ __('You are editing record CONTENT, not field labels.') }}</strong><br>
-          {{ __('Each row\'s "Source" column shows the value currently stored on this record (e.g. "Painting" for the work_type field). Translate that value into the target culture and Save. To translate the field LABELS themselves (e.g. "Work type" → "Werktipe"), use the Translate (side-by-side) modal — that\'s a different surface saved into lang/{locale}.json.') }}
+          {{ __('Each row\'s "Source" column shows the value currently stored on this record (e.g. "Painting" for the work_type field). Translate that value into the target culture and Save. To translate the field LABELS themselves (e.g. "Work type" → "Werktipe"), use the Translate (side-by-side) modal - that\'s a different surface saved into lang/{locale}.json.') }}
         </div>
 
         <div class="row g-2 align-items-end mb-3">
@@ -140,7 +140,7 @@
             <label class="form-check-label small" for="cco-show-empty-{{ $objectId }}">
               <i class="fas fa-eye me-1"></i>{{ __('Show fields with no en value (full schema)') }}
             </label>
-            <div class="small text-muted">{{ __('Default hides them — empty source = nothing to translate.') }}</div>
+            <div class="small text-muted">{{ __('Default hides them - empty source = nothing to translate.') }}</div>
           </div>
           <div class="form-check form-switch">
             <input class="form-check-input cco-only-empty-target" type="checkbox" id="cco-only-empty-tgt-{{ $objectId }}" data-object-id="{{ $objectId }}">
@@ -159,7 +159,7 @@
                   <tr>
                     <th style="width:18%;">{{ __('Field') }}</th>
                     <th style="width:38%;"><span class="badge bg-light text-dark cco-src-label" data-object-id="{{ $objectId }}">en</span> {{ __('Source value') }}</th>
-                    <th style="width:38%;"><span class="badge bg-light text-dark cco-tgt-label" data-object-id="{{ $objectId }}">{{ $ccoDefaultTarget }}</span> {{ __('Target — edit here') }}</th>
+                    <th style="width:38%;"><span class="badge bg-light text-dark cco-tgt-label" data-object-id="{{ $objectId }}">{{ $ccoDefaultTarget }}</span> {{ __('Target - edit here') }}</th>
                     <th style="width:6%;"></th>
                   </tr>
                 </thead>
@@ -188,7 +188,7 @@
       <div class="modal-footer flex-wrap gap-2">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
         <a href="{{ route('ahgtranslation.drafts') }}" class="btn btn-outline-warning" target="_blank">
-          <i class="fas fa-clipboard-check me-1"></i>{{ __('Translation workflow — record drafts queue') }}
+          <i class="fas fa-clipboard-check me-1"></i>{{ __('Translation workflow - record drafts queue') }}
         </a>
       </div>
     </div>
@@ -328,7 +328,7 @@
               // marked in the field and stays marked once saved into
               // museum_metadata_i18n. Strip it later when an admin confirms.
               tgtArea.value = (d.translated.indexOf('[AI]') === 0 ? d.translated : '[AI] ' + d.translated);
-              status.innerHTML = '<span class="text-info">MT suggestion — review then save</span>';
+              status.innerHTML = '<span class="text-info">MT suggestion - review then save</span>';
             } else {
               status.innerHTML = '<span class="text-danger">✗ MT failed: ' + ((d && d.error) || 'unknown') + '</span>';
             }

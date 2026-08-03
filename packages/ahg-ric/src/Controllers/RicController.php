@@ -153,7 +153,7 @@ class RicController extends Controller
     }
 
     /**
-     * RiC Dashboard — index page.
+     * RiC Dashboard - index page.
      */
     public function index()
     {
@@ -230,7 +230,7 @@ class RicController extends Controller
     }
 
     /**
-     * Sync Status — paginated list with filters.
+     * Sync Status - paginated list with filters.
      */
     public function syncStatus(Request $request)
     {
@@ -265,7 +265,7 @@ class RicController extends Controller
     }
 
     /**
-     * Orphans — list with status tabs.
+     * Orphans - list with status tabs.
      */
     public function orphans(Request $request)
     {
@@ -295,7 +295,7 @@ class RicController extends Controller
     }
 
     /**
-     * Queue — list with status tabs.
+     * Queue - list with status tabs.
      */
     public function queue(Request $request)
     {
@@ -325,7 +325,7 @@ class RicController extends Controller
     }
 
     /**
-     * Logs — list with filters.
+     * Logs - list with filters.
      */
     public function logs(Request $request)
     {
@@ -371,7 +371,7 @@ class RicController extends Controller
     }
 
     /**
-     * Config — show/save Fuseki settings.
+     * Config - show/save Fuseki settings.
      */
     public function config(Request $request)
     {
@@ -384,7 +384,7 @@ class RicController extends Controller
                 ->toArray();
         }
 
-        // Handle POST — save settings
+        // Handle POST - save settings
         if ($request->isMethod('post')) {
             $incoming = $request->input('config', []);
 
@@ -398,7 +398,7 @@ class RicController extends Controller
                     continue;
                 }
 
-                // #1395(D) — fuseki_password is a write-only field: a blank
+                // #1395(D) - fuseki_password is a write-only field: a blank
                 // submission means "keep current", and the stored value is
                 // encrypted at rest (matched by SecretCrypto::reveal() at every
                 // fuseki consumer).
@@ -590,7 +590,7 @@ class RicController extends Controller
     }
 
     /**
-     * Best-effort Fuseki ping — 1-second timeout, accept 200 or 401.
+     * Best-effort Fuseki ping - 1-second timeout, accept 200 or 401.
      */
     private function fusekiReachable(string $baseUrl): bool
     {
@@ -946,7 +946,7 @@ class RicController extends Controller
     }
 
     /**
-     * RiC Explorer — full-page graph visualization.
+     * RiC Explorer - full-page graph visualization.
      */
     public function explorer()
     {
@@ -955,7 +955,7 @@ class RicController extends Controller
 
     /**
      * Create a new RiC entity directly in the Fuseki graph store.
-     * Standalone — does not create in AtoM/Heratio DB. Can be synced later.
+     * Standalone - does not create in AtoM/Heratio DB. Can be synced later.
      */
     public function createEntity(Request $request)
     {
@@ -1154,7 +1154,7 @@ class RicController extends Controller
     }
 
     /**
-     * Timeline data for a record — events with dates for the explorer timeline view.
+     * Timeline data for a record - events with dates for the explorer timeline view.
      */
     public function getTimelineData(Request $request)
     {
@@ -1234,7 +1234,7 @@ class RicController extends Controller
             $items[] = [
                 'id' => 'event-' . $e->id,
                 'label' => $e->event_type_name ?? $e->event_name ?? 'Event',
-                'detail' => $e->actor_name ? ($e->actor_name . ' — ' . ($e->date_display ?? '')) : ($e->date_display ?? ''),
+                'detail' => $e->actor_name ? ($e->actor_name . ' - ' . ($e->date_display ?? '')) : ($e->date_display ?? ''),
                 'start' => $e->start_date,
                 'end' => $e->end_date,
                 'group' => $io->title ?? 'Record',
@@ -1504,7 +1504,7 @@ SPARQL;
         $edges = [];
         $nodeIndex = [];
 
-        // Top-level information objects (fonds/collections — parent_id = 1 is root)
+        // Top-level information objects (fonds/collections - parent_id = 1 is root)
         $topLevel = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', function ($j) use ($culture) {
                 $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
@@ -1565,7 +1565,7 @@ SPARQL;
     }
 
     /**
-     * Build graph data for a specific record — tries SPARQL first, falls back to DB.
+     * Build graph data for a specific record - tries SPARQL first, falls back to DB.
      */
     protected function buildGraphData($recordId, string $endpoint, string $username, string $password, string $baseUri, string $instanceId): array
     {
@@ -1596,7 +1596,7 @@ SPARQL;
             return $dbGraph;
         }
 
-        // DB returned nothing — try SPARQL
+        // DB returned nothing - try SPARQL
         $result = $this->executeSparql($query, $endpoint, $username, $password);
 
         if ($result && isset($result['results']['bindings']) && count($result['results']['bindings']) > 0) {
@@ -1880,7 +1880,7 @@ SPARQL;
                     'type'  => $type,
                 ];
             }
-            // Subject access points — taxonomy 42 is Places, others are Subjects
+            // Subject access points - taxonomy 42 is Places, others are Subjects
             $subjPredicate = ($subject->taxonomy_id == 42)
                 ? 'rico:hasOrHadLocation'
                 : 'rico:hasOrHadSubject';
@@ -1921,7 +1921,7 @@ SPARQL;
             }
         }
 
-        // RiC-O: hasCreationDate / hasAccumulationDate — temporal date modelling (rico:Date nodes)
+        // RiC-O: hasCreationDate / hasAccumulationDate - temporal date modelling (rico:Date nodes)
         $dateEvents = DB::table('event as e')
             ->leftJoin('event_i18n as ei', function ($j) use ($culture) {
                 $j->on('e.id', '=', 'ei.id')->where('ei.culture', '=', $culture);
@@ -1961,7 +1961,7 @@ SPARQL;
             ];
         }
 
-        // RiC-O: hasOrHadHolder — map from repository_id
+        // RiC-O: hasOrHadHolder - map from repository_id
         if (isset($record->repository_id) && $record->repository_id) {
             $repo = DB::table('repository as r')
                 ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
@@ -2193,7 +2193,7 @@ SPARQL;
             }
         }
 
-        // RiC-O: describesOrDescribed — finding aid references
+        // RiC-O: describesOrDescribed - finding aid references
         if (Schema::hasTable('finding_aid')) {
             $findingAids = DB::table('finding_aid')
                 ->where('information_object_id', $recordId)
@@ -2418,7 +2418,7 @@ SPARQL;
     // =========================================================================
 
     /**
-     * Semantic Search — full page.
+     * Semantic Search - full page.
      */
     public function semanticSearch()
     {
@@ -2453,7 +2453,7 @@ SPARQL;
     }
 
     /**
-     * SHACL Validation — validates RiC data against SHACL shapes via Fuseki.
+     * SHACL Validation - validates RiC data against SHACL shapes via Fuseki.
      * GET /admin/ric/shacl-validate
      */
     public function shaclValidate()

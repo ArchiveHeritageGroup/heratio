@@ -65,17 +65,17 @@
           <tbody>
             @forelse($requests as $req)
               <tr>
-                <td><strong>{{ $req->user_name ?? $req->username ?? '—' }}</strong></td>
+                <td><strong>{{ $req->user_name ?? $req->username ?? '-' }}</strong></td>
                 <td>
                   @if($req->classification_name)
                     <span class="badge" style="background-color:{{ $req->classification_color ?? '#6c757d' }};">
                       {{ $req->classification_name }}
                     </span>
                   @else
-                    <span class="text-muted">—</span>
+                    <span class="text-muted">-</span>
                   @endif
                 </td>
-                <td>{{ $req->request_type ?? '—' }}</td>
+                <td>{{ $req->request_type ?? '-' }}</td>
                 <td>{{ \Illuminate\Support\Str::limit($req->justification ?? '', 60) }}</td>
                 <td class="text-center">
                   @php
@@ -101,7 +101,7 @@
                   @endphp
                   <span class="badge {{ $statusClass }}">{{ ucfirst($req->status ?? 'Pending') }}</span>
                 </td>
-                <td>{{ $req->created_at ?? '—' }}</td>
+                <td>{{ $req->created_at ?? '-' }}</td>
                 @if($status === 'pending')
                   <td class="text-end">
                     <div class="btn-group btn-group-sm" role="group">
@@ -298,17 +298,17 @@
                   };
                 @endphp
                 <tr>
-                  <td class="text-nowrap"><small>{{ $log->created_at ? \Illuminate\Support\Carbon::parse($log->created_at)->format('Y-m-d H:i:s') : '—' }}</small></td>
+                  <td class="text-nowrap"><small>{{ $log->created_at ? \Illuminate\Support\Carbon::parse($log->created_at)->format('Y-m-d H:i:s') : '-' }}</small></td>
                   <td><span class="badge bg-{{ $color }}">{{ ucfirst($log->action) }}</span></td>
                   <td>#{{ $log->request_id }}</td>
                   <td>
                     @if ($log->request_status)
                       <span class="badge bg-{{ $reqStatusColor }}">{{ ucfirst($log->request_status) }}</span>
                     @else
-                      —
+                      -
                     @endif
                   </td>
-                  <td><small>{{ e($log->actor_username ?: '—') }}</small></td>
+                  <td><small>{{ e($log->actor_username ?: '-') }}</small></td>
                   <td><small class="text-muted">{{ e($log->details ?: '') }}</small></td>
                 </tr>
               @endforeach

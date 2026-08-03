@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ClearanceCheck — record-level security clearance lookup for share-link
+ * ClearanceCheck - record-level security clearance lookup for share-link
  * issuance. Mirror of the AtoM-side service.
  *
  * @phase C

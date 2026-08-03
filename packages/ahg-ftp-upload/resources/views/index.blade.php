@@ -41,7 +41,7 @@
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fa fa-cloud-upload-alt me-2"></i>Upload Files or Folders
-          <small class="ms-2 opacity-75">(supports files up to 2 GB — chunked upload with resume)</small>
+          <small class="ms-2 opacity-75">(supports files up to 2 GB - chunked upload with resume)</small>
         </h5>
       </div>
       <div class="card-body">
@@ -173,7 +173,7 @@
                 @foreach($folders as $folder)
                   <tr class="folder-row" data-foldername="{{ $folder['name'] }}" style="cursor:pointer">
                     <td><i class="fa fa-folder me-2 text-warning"></i><span class="fw-semibold">{{ $folder['name'] }}</span></td>
-                    <td class="text-end text-muted">—</td>
+                    <td class="text-end text-muted">-</td>
                     <td>{{ $folder['modified'] }}</td>
                     <td class="text-center"><span class="text-muted small">{{ __('Open') }}</span></td>
                   </tr>
@@ -531,7 +531,7 @@
               status.textContent = 'Paused';
               status.className = 'upload-status badge bg-warning text-dark';
               bar.classList.remove('progress-bar-animated');
-              detail.textContent = 'Chunk ' + state.currentChunk + '/' + totalChunks + ' — paused';
+              detail.textContent = 'Chunk ' + state.currentChunk + '/' + totalChunks + ' - paused';
           });
 
           resumeBtn.addEventListener('click', function() {
@@ -570,7 +570,7 @@
               formData.append('fileName', file.name);
               formData.append('fileSize', file.size);
               // Empty for root-level uploads in the root listing, otherwise the
-              // file's path *relative to the FTP root* — which is the current
+              // file's path *relative to the FTP root* - which is the current
               // viewing folder + (for folder-uploads) the within-tree path.
               // Server uses dirname() for mkdir-p, basename() for the filename.
               var rel = file._ahgRelPath || '';
@@ -596,8 +596,8 @@
                           var speed = bytesUploaded / elapsed;
                           var remaining = (file.size - bytesUploaded) / speed;
                           detail.textContent = 'Chunk ' + (state.currentChunk + 1) + '/' + totalChunks +
-                              ' — ' + formatBytes(Math.round(speed)) + '/s' +
-                              ' — ' + formatTime(remaining) + ' remaining';
+                              ' - ' + formatBytes(Math.round(speed)) + '/s' +
+                              ' - ' + formatTime(remaining) + ' remaining';
                       }
                   }
               });
@@ -655,7 +655,7 @@
                   var delay = RETRY_DELAY_MS * state.retries;
                   detail.innerHTML = '<i class="fa fa-exclamation-triangle text-warning me-1"></i>' +
                       'Retry ' + state.retries + '/' + MAX_RETRIES +
-                      ' in ' + (delay / 1000) + 's — ' + escapeHtml(msg);
+                      ' in ' + (delay / 1000) + 's - ' + escapeHtml(msg);
                   status.textContent = 'Retrying...';
                   status.className = 'upload-status badge bg-warning text-dark';
                   setTimeout(function() {
@@ -670,7 +670,7 @@
                   status.textContent = 'Failed';
                   status.className = 'upload-status badge bg-danger';
                   detail.innerHTML = '<i class="fa fa-times-circle text-danger me-1"></i>' + escapeHtml(msg) +
-                      ' — chunk ' + (state.currentChunk + 1) + '/' + totalChunks;
+                      ' - chunk ' + (state.currentChunk + 1) + '/' + totalChunks;
                   pauseBtn.classList.add('d-none');
                   resumeBtn.classList.remove('d-none');
                   resumeBtn.innerHTML = '<i class="fa fa-redo me-1"></i>Retry';
@@ -721,7 +721,7 @@
                   folders.forEach(function(f) {
                       var row = '<tr class="folder-row" data-foldername="' + escapeHtml(f.name) + '" style="cursor:pointer">' +
                           '<td><i class="fa fa-folder me-2 text-warning"></i><span class="fw-semibold">' + escapeHtml(f.name) + '</span></td>' +
-                          '<td class="text-end text-muted">&mdash;</td>' +
+                          '<td class="text-end text-muted">-</td>' +
                           '<td>' + escapeHtml(f.modified) + '</td>' +
                           '<td class="text-center"><span class="text-muted small">Open</span></td>' +
                           '</tr>';

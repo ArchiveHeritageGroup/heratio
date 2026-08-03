@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Researcher offline packages (Phase 1–2).
+ * Researcher offline packages (Phase 1-2).
  *
  * Resolves one of a researcher's *groups* (research project / collection /
  * workspace / favourites folder) to the set of catalogue records it contains,

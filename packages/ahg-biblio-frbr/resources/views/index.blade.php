@@ -1,4 +1,4 @@
-{{-- ahg-biblio-frbr/index.blade.php — FRBR integration dashboard --}}
+{{-- ahg-biblio-frbr/index.blade.php - FRBR integration dashboard --}}
 @extends('theme::layouts.1col')
 
 @section('content')
@@ -11,7 +11,7 @@
   <p class="text-muted small mb-4">
     Convert bibliographic catalogue records to/from the
     <a href="https://www.ifla.org/publications/united-for-recommendations-2/" target="_blank" rel="noopener">IFLA FRBR conceptual model</a>
-    &mdash; Work, Expression, Item, Manifestation.
+    - Work, Expression, Item, Manifestation.
     All round-trips go through the OpenRiC RiC-O service layer.
   </p>
 
@@ -93,7 +93,7 @@
           <i class="bi bi-person me-1"></i> Agents
         </div>
         <div class="card-body">
-          <p class="small text-muted">Browse the agent authority used in FRBR records &mdash; creators, contributors, publishers.</p>
+          <p class="small text-muted">Browse the agent authority used in FRBR records - creators, contributors, publishers.</p>
           <a href="{{ route('frbr.agent') }}" class="btn btn-outline-secondary btn-sm w-100">
             Browse Agents
           </a>

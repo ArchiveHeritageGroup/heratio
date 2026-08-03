@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://heratio.theahg.co.za/schemas/qdrant/archive_images.json",
-  "title": "Qdrant payload — archive_images",
+  "title": "Qdrant payload - archive_images",
   "description": "Multimodal image-embedding index of digital_object images. One point per image; vector is a 768-dim nomic-embed-vision-v1.5 image embedding. Hosted at http://localhost:6333/collections/archive_images. Issue #23, repointed to nomic-embed-vision-v1.5 in #1272. Point id = digital_object.id.",
   "type": "object",
   "additionalProperties": false,

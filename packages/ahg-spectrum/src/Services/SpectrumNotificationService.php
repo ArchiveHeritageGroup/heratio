@@ -110,7 +110,7 @@ class SpectrumNotificationService
         $objectTitle = $resource->title ?: ($resource->slug ?? 'Untitled');
         $objectLink  = url('/admin/spectrum/workflow?slug=' . ($resource->slug ?? '') . '&procedure_type=' . $procedureType);
 
-        $subject = "Spectrum: {$transitionLabel} — {$procedureLabel}";
+        $subject = "Spectrum: {$transitionLabel} - {$procedureLabel}";
         $message = "{$actingName} performed '{$transitionLabel}' on a task.\n\n"
             . "Object: {$objectTitle}\n"
             . "Procedure: {$procedureLabel}\n"

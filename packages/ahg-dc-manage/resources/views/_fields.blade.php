@@ -121,7 +121,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Repository') }}</label>
             <select name="repository_id" class="form-select">
-              <option value="">—</option>
+              <option value="">-</option>
               @foreach($repositories as $r)
                 <option value="{{ $r->id }}" @if(($io->repository_id ?? null) == $r->id) selected @endif>{{ $r->name }}</option>
               @endforeach
@@ -132,7 +132,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Publication status') }}</label>
             <select name="publication_status_id" class="form-select">
-              <option value="">—</option>
+              <option value="">-</option>
               <option value="159" @if($publicationStatusId == 159) selected @endif>{{ __('Draft') }}</option>
               <option value="160" @if($publicationStatusId == 160) selected @endif>{{ __('Published') }}</option>
             </select>
