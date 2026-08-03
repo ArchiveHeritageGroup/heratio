@@ -38,7 +38,8 @@
 
           <div class="col-md-4">
             <label class="form-label">{{ __('Site') }}</label>
-            <select name="site_id" class="form-select">
+            <select name="site_id" id="af-site" class="form-select"
+                    data-contexts-base="{{ url('/archaeology/site') }}">
               <option value="">-</option>
               @foreach($sites as $s)
                 <option value="{{ $s->id }}" @selected((int) old('site_id', $siteId) === (int) $s->id)>{{ $s->site_number }} @if($s->title)- {{ $s->title }}@endif</option>
@@ -47,11 +48,11 @@
           </div>
           <div class="col-md-4">
             <label class="form-label">{{ __('Context') }}</label>
-            <select name="context_id" class="form-select">
+            <select name="context_id" id="af-context" class="form-select" data-current="{{ old('context_id', $isEdit ? ($find->context_id ?? '') : '') }}">
               <option value="">-</option>
               @foreach($contexts as $c)<option value="{{ $c->id }}" @selected($sel('context_id',$c->id))>{{ $c->context_number }}</option>@endforeach
             </select>
-            <small class="text-muted">{{ __('Contexts of the selected site. Change the site and save to switch.') }}</small>
+            <small class="text-muted">{{ __('Contexts of the selected site (updates when you change the site).') }}</small>
           </div>
           <div class="col-md-4">
             <label class="form-label">{{ __('Object type') }}</label>
@@ -129,4 +130,32 @@
   </form>
 
 </div>
+
+{{-- #1428 Phase 4b: refresh the context picker when the site changes. --}}
+<script>
+(function () {
+  var site = document.getElementById('af-site');
+  var ctx = document.getElementById('af-context');
+  if (!site || !ctx) return;
+  var base = site.getAttribute('data-contexts-base');
+  site.addEventListener('change', function () {
+    var id = site.value;
+    var keep = ctx.getAttribute('data-current') || '';
+    ctx.innerHTML = '<option value="">-</option>';
+    if (!id) return;
+    fetch(base + '/' + encodeURIComponent(id) + '/contexts.json', { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) {
+        (rows || []).forEach(function (c) {
+          var o = document.createElement('option');
+          o.value = c.id;
+          o.textContent = c.context_number;
+          if (String(c.id) === String(keep)) o.selected = true;
+          ctx.appendChild(o);
+        });
+      })
+      .catch(function () {});
+  });
+})();
+</script>
 @endsection

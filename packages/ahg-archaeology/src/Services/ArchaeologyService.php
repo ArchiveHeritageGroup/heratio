@@ -487,8 +487,10 @@ class ArchaeologyService
     /**
      * Create a published child information_object description (title + slug +
      * publication status) under a parent, returning its id. Shared by contexts,
-     * sites and finds. The node's lft/rgt are 0 until the next tree rebuild;
-     * nothing here depends on tree position.
+     * sites and finds. Slots the node into the #1333 closure tree immediately
+     * (the canonical hierarchy the tree UI + descendant queries use), matching
+     * the main IO store: lft/rgt stay NULL (nested-set is legacy and rebuilt
+     * separately), and ClosureMaintenanceService::addNode registers the node.
      */
     private function createDescription(string $title, int $parentId, $repositoryId, string $slugPrefix = 'item'): int
     {
@@ -498,8 +500,20 @@ class ArchaeologyService
         ]);
         DB::table('information_object')->insert([
             'id' => $objectId, 'parent_id' => $parentId, 'repository_id' => $repositoryId,
-            'lft' => 0, 'rgt' => 0, 'source_culture' => 'en',
+            'lft' => null, 'rgt' => null, 'source_culture' => 'en',
         ]);
+
+        // #1333 dual-write: register the node in the information_object closure
+        // tree so it appears under its parent immediately (no rebuild needed).
+        // Guarded so a minimal install without the service still creates the row.
+        if (class_exists(\AhgCore\Services\ClosureMaintenanceService::class)) {
+            try {
+                app(\AhgCore\Services\ClosureMaintenanceService::class)
+                    ->addNode('information_object', (int) $objectId, $parentId ?: null);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[#1428] closure addNode failed for IO '.$objectId.': '.$e->getMessage());
+            }
+        }
         DB::table('information_object_i18n')->insert([
             'id' => $objectId, 'culture' => 'en', 'title' => $title !== '' ? $title : ($slugPrefix.' '.$objectId),
         ]);

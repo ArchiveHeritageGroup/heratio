@@ -375,6 +375,16 @@ class ArchaeologyController extends Controller
         ]);
     }
 
+    /** Contexts of a site as JSON, for the find form's context picker. #1428 Phase 4b. */
+    public function contextsJson(int $siteId)
+    {
+        return response()->json(
+            $this->service->contextPickList($siteId)
+                ->map(fn ($c) => ['id' => (int) $c->id, 'context_number' => (string) $c->context_number])
+                ->values()
+        );
+    }
+
     // ─── CSV import of contexts + relationships - #1428 Phase 4b ─────────────────
 
     /** Upload form for a context + relationship CSV. */

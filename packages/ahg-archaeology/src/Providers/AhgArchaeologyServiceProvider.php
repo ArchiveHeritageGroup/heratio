@@ -67,6 +67,9 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
                 // declared before '{id}' so it is not captured as an id.
                 $router->get('/site/{siteId}/contexts', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contexts'])
                     ->whereNumber('siteId')->name('archaeology.contexts');
+                // Contexts of a site as JSON, for the find form's context picker - #1428 Phase 4b.
+                $router->get('/site/{siteId}/contexts.json', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextsJson'])
+                    ->whereNumber('siteId')->name('archaeology.contexts.json');
 
                 // CSV import of contexts + relationships - #1428 Phase 4b.
                 $router->get('/site/{siteId}/contexts/import', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextImportForm'])
