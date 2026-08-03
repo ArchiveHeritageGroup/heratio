@@ -84,6 +84,9 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
                     ->whereNumber('id')->name('archaeology.context');
                 $router->get('/context/{id}/edit', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextEdit'])
                     ->whereNumber('id')->name('archaeology.context.edit');
+                // Context recording sheet PDF - #1428 Phase 4b.
+                $router->get('/context/{id}/pdf', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextPdf'])
+                    ->whereNumber('id')->name('archaeology.context.pdf');
                 $router->post('/context/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextSave'])
                     ->whereNumber('id')->name('archaeology.context.update');
 

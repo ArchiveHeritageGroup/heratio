@@ -17,6 +17,7 @@
       @if($context->site)
         <a href="{{ route('archaeology.contexts', $context->site->id) }}" class="btn btn-outline-secondary btn-sm">&larr; {{ __('Stratigraphy') }}</a>
       @endif
+      <a href="{{ route('archaeology.context.pdf', $context->id) }}" class="btn btn-outline-primary btn-sm" target="_blank">{{ __('PDF sheet') }}</a>
       <a href="{{ route('archaeology.context.edit', $context->id) }}" class="btn btn-primary btn-sm">{{ __('Edit') }}</a>
     </div>
   </div>

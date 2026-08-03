@@ -335,6 +335,46 @@ class ArchaeologyController extends Controller
         return redirect()->to(url('/archaeology/object/'.$findId))->with('status', __('Find saved.'));
     }
 
+    /**
+     * Context recording sheet as a PDF (dompdf). Falls back to the styled HTML
+     * inline when dompdf is not installed, so the operator can still print it.
+     * #1428 Phase 4b.
+     */
+    public function contextPdf(int $id)
+    {
+        $context = $this->service->context($id);
+        if (! $context) {
+            abort(404);
+        }
+
+        $html = view('ahg-archaeology::context-sheet-pdf', [
+            'context'       => $context,
+            'relationships' => $this->service->relationshipsForContext($id),
+            'relTypes'      => ArchaeologyService::REL_TYPES,
+            'generatedAt'   => now()->format('Y-m-d H:i'),
+        ])->render();
+
+        $filename = 'context-'.preg_replace('/[^A-Za-z0-9_-]+/', '', (string) $context->context_number).'.pdf';
+
+        if (! class_exists(\Dompdf\Dompdf::class)) {
+            return response($html, 200, ['Content-Type' => 'text/html; charset=UTF-8']);
+        }
+
+        $dompdf = new \Dompdf\Dompdf([
+            'isRemoteEnabled'      => false,
+            'isHtml5ParserEnabled' => true,
+            'defaultFont'          => 'DejaVu Sans',
+        ]);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return response($dompdf->output(), 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
     // ─── CSV import of contexts + relationships - #1428 Phase 4b ─────────────────
 
     /** Upload form for a context + relationship CSV. */
