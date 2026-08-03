@@ -488,7 +488,7 @@
 
 @push('scripts')
 @if(!empty($formatStats))
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/chart.umd.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var ctx = document.getElementById('formatChart').getContext('2d');

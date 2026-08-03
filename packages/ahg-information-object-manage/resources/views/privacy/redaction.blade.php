@@ -405,12 +405,12 @@
 
 @push('js')
 {{-- PDF.js --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="{{ asset('vendor/pdfjs/3.11.174/pdf.min.js') }}"></script>
 {{-- OpenSeadragon --}}
 <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon.min.js') }}"></script>
 <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-filtering.js') }}"></script>
 {{-- Fabric.js --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="{{ asset('js/vendor/fabric.min.js') }}"></script>
 
 <script nonce="{{ csp_nonce() }}">
 // Console-only debug helper. Field-debug is via DevTools - open the Console
@@ -564,7 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
       console.error('PDF.js not loaded');
       return;
     }
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/vendor/pdfjs/3.11.174/pdf.worker.min.js';
 
     const pdfCanvas = document.getElementById('pdf-canvas');
     const fabricOverlay = document.getElementById('fabric-overlay');

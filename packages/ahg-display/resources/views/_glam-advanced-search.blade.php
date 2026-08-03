@@ -60,7 +60,7 @@ $currentLevels = isset($levelsBySector[$currentType]) && !empty($levelsBySector[
     ? $levelsBySector[$currentType]
     : ($levelsBySector[''] ?? []);
 @endphp
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<link href="{{ asset('vendor/tom-select/2.2.2/tom-select.bootstrap5.min.css') }}" rel="stylesheet">
 
 <div class="accordion mb-3" id="glamAdvancedSearchAccordion" data-default-closed>
   <div class="accordion-item">
@@ -311,7 +311,7 @@ $currentLevels = isset($levelsBySector[$currentType]) && !empty($levelsBySector[
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script src="{{ asset('vendor/tom-select/2.2.2/tom-select.complete.min.js') }}"></script>
 <script{{ Vite::useCspNonce() ? ' nonce="' . Vite::cspNonce() . '"' : '' }}>
 document.addEventListener('DOMContentLoaded', function() {
     var repoSelect = document.getElementById('repo-select');

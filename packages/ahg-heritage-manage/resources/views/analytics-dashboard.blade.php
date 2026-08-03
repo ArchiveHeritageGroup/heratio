@@ -175,7 +175,7 @@
           <div style="height: 250px;">
             <canvas id="trendsChart"></canvas>
           </div>
-          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script src="{{ asset('vendor/ahg-theme-b5/js/chart.umd.min.js') }}"></script>
           <script>
           new Chart(document.getElementById('trendsChart'), {
               type: 'line',

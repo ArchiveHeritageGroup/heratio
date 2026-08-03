@@ -190,7 +190,7 @@
     </div></div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="{{ asset('vendor/ahg-theme-b5/js/chart.umd.min.js') }}"></script>
   <script nonce="{{ $cspNonce ?? '' }}">
   (function () {
     var DATA = @json($data);

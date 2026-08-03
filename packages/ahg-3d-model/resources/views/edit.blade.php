@@ -4,7 +4,7 @@
 @section('body-class', 'edit model3d')
 
 @section('content')
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script type="module" src="{{ asset('vendor/model-viewer/3.3.0/model-viewer.min.js') }}"></script>
 
   {{-- Breadcrumb --}}
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">

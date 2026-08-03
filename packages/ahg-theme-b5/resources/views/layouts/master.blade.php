@@ -485,9 +485,9 @@
     {{-- Footer --}}
     @include('theme::partials.footer')
 
-    {{-- D3.js for visualizations. Served from jsdelivr because d3js.org is not
+    {{-- D3.js for visualizations. Vendored locally (#1423) - was jsdelivr; d3js.org is not
          in our CSP script-src allowlist (and jsdelivr is) - see HeratioCspPreset. --}}
-    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+    <script src="{{ asset('vendor/d3/7/d3.min.js') }}"></script>
 
     {{-- Base JS (display-mode + voiceCommands already in theme bundle - don't load standalone) --}}
     <script src="{{ asset('vendor/ahg-theme-b5/js/base.js') }}"></script>

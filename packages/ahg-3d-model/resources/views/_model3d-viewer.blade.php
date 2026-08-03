@@ -49,7 +49,7 @@
     @else
       <div class="card mb-3">
         <div class="card-body p-0" style="height:500px;">
-          <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+          <script type="module" src="{{ asset('vendor/model-viewer/3.3.0/model-viewer.min.js') }}"></script>
           <model-viewer
             id="ahg-3d-viewer-{{ $model->id }}"
             data-model-id="{{ $model->id }}"
@@ -319,7 +319,7 @@
 if (!customElements.get('model-viewer')) {
     var s = document.createElement('script');
     s.type = 'module';
-    s.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js';
+    s.src = '{{ asset('vendor/model-viewer/3.3.0/model-viewer.min.js') }}';
     document.head.appendChild(s);
 }
 </script>

@@ -21,7 +21,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
   <title>{{ $space->name }} - {{ __('Gallery companion') }}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/1.11.3/bootstrap-icons.min.css') }}">
   <style nonce="{{ $cspNonce ?? '' }}">
     :root { --c-bg:#0f1115; --c-card:#1b1f27; --c-line:#2c313c; --c-accent:#4ea1ff; --c-text:#f2f4f8; --c-muted:#9aa3b2; }
     * { box-sizing: border-box; }

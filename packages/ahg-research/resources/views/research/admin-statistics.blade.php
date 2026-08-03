@@ -212,7 +212,7 @@
 </div>
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/chart.umd.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     new Chart(document.getElementById('registrationsChart'), {

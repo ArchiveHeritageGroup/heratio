@@ -1320,7 +1320,7 @@
         <p class="text-muted small mt-2 mb-0">{{ $isbn }}</p>
       </div>
     </section>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script src="{{ asset('vendor/jsbarcode/3.11.6/JsBarcode.all.min.js') }}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
       try {

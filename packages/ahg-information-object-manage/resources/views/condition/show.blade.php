@@ -303,7 +303,7 @@
 <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/condition-photos.css') }}">
 
 {{-- JS: Fabric.js + AtoM ConditionAnnotator + condition-photos --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="{{ asset('js/vendor/fabric.min.js') }}"></script>
 <script src="{{ asset('vendor/ahg-theme-b5/js/condition-annotator.js') }}"></script>
 
 <script>

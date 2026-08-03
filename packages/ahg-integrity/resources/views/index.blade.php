@@ -191,7 +191,7 @@
       <canvas id="trendChart" height="200"></canvas>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="{{ asset('vendor/ahg-theme-b5/js/chart.umd.min.js') }}@4"></script>
   <script>
   new Chart(document.getElementById('trendChart'), {
     type: 'line',

@@ -186,8 +186,8 @@
   {{-- TomSelect lookup for the placement "Information object" field (heratio#146).
        Searches information_object via the shared informationobject/autocomplete
        endpoint and submits the selected object id. --}}
-  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+  <link href="{{ asset('vendor/tom-select/2.2.2/tom-select.bootstrap5.min.css') }}" rel="stylesheet">
+  <script src="{{ asset('vendor/tom-select/2.2.2/tom-select.complete.min.js') }}"></script>
   <script nonce="{{ $cspNonce ?? '' }}">
   document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('information_object_id');

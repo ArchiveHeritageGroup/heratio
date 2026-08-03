@@ -1690,7 +1690,7 @@
         </div>
       </div>
     </div>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    <script type="module" src="{{ asset('vendor/model-viewer/3.3.0/model-viewer.min.js') }}"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         var el = document.getElementById('triposrPreviewModal');

@@ -60,8 +60,8 @@
 </div>
 
 {{-- RiC Explorer dependencies from CDN --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="{{ asset('vendor/ahg-ric/js/cytoscape.min.js') }}"></script>
+<script src="{{ asset('vendor/three/r128/three.min.js') }}"></script>
 <script src="{{ asset('vendor/ahg-theme-b5/js/three-spritetext.min.js') }}"></script>
 <script src="{{ asset('vendor/ahg-theme-b5/js/3d-force-graph.min.js') }}"></script>
 

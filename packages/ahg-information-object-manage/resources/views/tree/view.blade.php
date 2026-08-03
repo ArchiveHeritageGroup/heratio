@@ -65,12 +65,12 @@
 @endsection
 
 @push('css')
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.16/themes/default/style.min.css">
+  <link rel="stylesheet" href="{{ asset('vendor/jstree/3.3.16/themes/default/style.min.css') }}">
 @endpush
 
 @push('js')
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.16/jstree.min.js"></script>
+  <script src="{{ asset('vendor/jquery/3.7.1/jquery.min.js') }}"></script>
+  <script src="{{ asset('vendor/jstree/3.3.16/jstree.min.js') }}"></script>
   <script>
   (function () {
     var $tree = jQuery('#io-tree');

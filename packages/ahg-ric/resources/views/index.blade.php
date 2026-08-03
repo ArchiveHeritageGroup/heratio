@@ -214,7 +214,7 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/chart.umd.min.js') }}"></script>
 <script>
 let syncTrendChart = null;
 let operationsChart = null;
