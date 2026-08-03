@@ -171,21 +171,14 @@ All status values, types, and categories throughout the library system are manag
 
 ## Architecture
 
-```
-+-----------------------------------------------------------+
-|              ahgLibraryPlugin v2.0.0                      |
-|                                                           |
-|  Modules: library, circulation, patron, opac,            |
-|           acquisition, serial, ill, isbn, reports         |
-|                                                           |
-|  Services: 14 (Circulation, Patron, Hold, Fine,          |
-|           Acquisition, Serial, ILL, OPAC, MARC,          |
-|           Library, BookCover, ISBN, Subject, WorldCat)    |
-|                                                           |
-|  Database: 18 tables, 46 routes                          |
-|  Heritage Accounting: GRAP 103 / IPSAS 45               |
-+-----------------------------------------------------------+
-```
+- ahgLibraryPlugin v2.0.0
+- Modules: library, circulation, patron, opac,
+- acquisition, serial, ill, isbn, reports
+- Services: 14 (Circulation, Patron, Hold, Fine,
+- Acquisition, Serial, ILL, OPAC, MARC,
+- Library, BookCover, ISBN, Subject, WorldCat)
+- Database: 18 tables, 46 routes
+- Heritage Accounting: GRAP 103 / IPSAS 45
 
 ---
 

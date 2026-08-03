@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Link articles — ' . $article['title'])
+@section('title', 'Link articles - ' . $article['title'])
 @section('body-class', 'help manage-links')
 
 @section('content')
@@ -38,7 +38,7 @@
               <option value="{{ $a['title'] }}">{{ $a['category'] }}</option>
             @endforeach
           </datalist>
-          <div class="form-text">{{ __('Start typing to search, pick from the list, then Add. Links are bidirectional — they appear on both articles. Repeat to add more.') }}</div>
+          <div class="form-text">{{ __('Start typing to search, pick from the list, then Add. Links are bidirectional - they appear on both articles. Repeat to add more.') }}</div>
         </form>
       </div>
     </div>

@@ -25,13 +25,9 @@ exactly where and stop.
 
 ## How it works (at a glance)
 
-```
-+---------+     +---------+     +---------+
-| row 0   | <-- | row 1   | <-- | row 2   |   ... and so on
-| sha256  |     | sha256  |     | sha256  |
-| ed25519 |     | ed25519 |     | ed25519 |
-+---------+     +---------+     +---------+
-```
+- row 0
+- sha256
+- ed25519
 
 Each row stores five extra columns: `seq`, `prev_hash`, `entry_hash`,
 `signature`, `kid`. The `prev_hash` is literally the previous row's

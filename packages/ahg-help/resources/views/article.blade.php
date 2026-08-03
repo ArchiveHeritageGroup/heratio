@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', $article['title'] . ' — Help Center')
+@section('title', $article['title'] . ' - Help Center')
 @section('body-class', 'help article')
 
 @section('content')
@@ -59,7 +59,7 @@
       </ol>
     </nav>
 
-    {{-- Permalink (copyable) + admin link-manager — wraps on mobile so nothing is hidden --}}
+    {{-- Permalink (copyable) + admin link-manager - wraps on mobile so nothing is hidden --}}
     <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
       <div class="input-group input-group-sm" style="flex: 1 1 260px; max-width: 480px;">
         <span class="input-group-text"><i class="fas fa-link"></i></span>

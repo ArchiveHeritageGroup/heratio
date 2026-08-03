@@ -9,35 +9,53 @@ View and interact with 3D models of objects in your collection directly in your 
 ---
 
 ## Overview
-```
-+-------------------------------------------------------------+
-|                    3D MODEL VIEWER                           |
-+-------------------------------------------------------------+
-|                                                              |
-|         Rotate         Zoom         Pan                      |
-|           |              |           |                       |
-|           v              v           v                       |
-|        Click &       Scroll       Shift +                    |
-|        Drag          Wheel        Drag                       |
-|                                                              |
-+-------------------------------------------------------------+
-```
+
+<div style="text-align:center;margin:1rem 0">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 170" role="img" aria-label="The three ways to interact with a 3D model: rotate, zoom and pan" style="max-width:100%;height:auto;font-family:Arial,Helvetica,sans-serif">
+  <rect x="1" y="1" width="598" height="168" rx="10" fill="#f4f8f7" stroke="#10373E" stroke-width="1.5"/>
+  <text x="300" y="30" text-anchor="middle" font-size="15" font-weight="bold" fill="#10373E">Interacting with a 3D model</text>
+  <!-- Rotate -->
+  <g>
+    <circle cx="110" cy="90" r="26" fill="#10373E"/>
+    <path d="M110 74 a16 16 0 1 1 -11 4" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <path d="M99 78 l-2 -9 l9 3 z" fill="#fff"/>
+    <text x="110" y="140" text-anchor="middle" font-size="13" font-weight="bold" fill="#10373E">Rotate</text>
+    <text x="110" y="158" text-anchor="middle" font-size="11" fill="#5a6b68">Click &amp; drag</text>
+  </g>
+  <!-- Zoom -->
+  <g>
+    <circle cx="300" cy="90" r="26" fill="#10373E"/>
+    <circle cx="296" cy="86" r="10" fill="none" stroke="#fff" stroke-width="3"/>
+    <line x1="303" y1="93" x2="311" y2="101" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <line x1="292" y1="86" x2="300" y2="86" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+    <line x1="296" y1="82" x2="296" y2="90" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+    <text x="300" y="140" text-anchor="middle" font-size="13" font-weight="bold" fill="#10373E">Zoom</text>
+    <text x="300" y="158" text-anchor="middle" font-size="11" fill="#5a6b68">Scroll wheel</text>
+  </g>
+  <!-- Pan -->
+  <g>
+    <circle cx="490" cy="90" r="26" fill="#10373E"/>
+    <line x1="490" y1="76" x2="490" y2="104" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <line x1="476" y1="90" x2="504" y2="90" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <path d="M490 74 l-5 6 h10 z M490 106 l-5 -6 h10 z M474 90 l6 -5 v10 z M506 90 l-6 -5 v10 z" fill="#fff"/>
+    <text x="490" y="140" text-anchor="middle" font-size="13" font-weight="bold" fill="#10373E">Pan</text>
+    <text x="490" y="158" text-anchor="middle" font-size="11" fill="#5a6b68">Shift + drag</text>
+  </g>
+</svg>
+</div>
 
 ---
 
 ## Supported Formats
-```
-+-------------------------------------------------------------+
-|                    3D FILE FORMATS                            |
-+-------------------------------------------------------------+
-|  GLB/GLTF    - Standard web 3D format (recommended)         |
-|  USDZ        - Apple AR format                              |
-|  OBJ         - Common 3D format (auto-converted to glTF)    |
-|  FBX         - Autodesk format (auto-converted to glTF)     |
-|  STL         - 3D printing format                           |
-|  PLY         - Polygon file / point cloud format             |
-+-------------------------------------------------------------+
-```
+
+| Format | Description |
+|---|---|
+| **GLB / GLTF** | Standard web 3D format (recommended) |
+| **USDZ** | Apple AR format |
+| **OBJ** | Common 3D format (auto-converted to glTF) |
+| **FBX** | Autodesk format (auto-converted to glTF) |
+| **STL** | 3D printing format |
+| **PLY** | Polygon file / point-cloud format |
 
 All viewer libraries (model-viewer, Three.js, loaders) are served from local vendor files. No external CDN dependencies are required.
 
@@ -60,103 +78,106 @@ the original OBJ/FBX is preserved alongside the record.
 
 ## Viewing a 3D Model
 
-### Step 1: Find a Record with 3D Model
+<div style="text-align:center;margin:1rem 0">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 90" role="img" aria-label="Steps to view a 3D model: find a record, open the viewer, then interact" style="max-width:100%;height:auto;font-family:Arial,Helvetica,sans-serif">
+  <g font-size="12.5" fill="#10373E">
+    <rect x="2" y="25" width="170" height="40" rx="8" fill="#e6efed" stroke="#10373E"/>
+    <text x="87" y="43" text-anchor="middle" font-weight="bold">1. Find a record</text>
+    <text x="87" y="58" text-anchor="middle" font-size="10.5" fill="#5a6b68">look for the 3D cube icon</text>
+    <path d="M176 45 h30" stroke="#10373E" stroke-width="2"/><path d="M206 45 l-8 -5 v10 z" fill="#10373E"/>
+    <rect x="212" y="25" width="170" height="40" rx="8" fill="#e6efed" stroke="#10373E"/>
+    <text x="297" y="43" text-anchor="middle" font-weight="bold">2. Open the viewer</text>
+    <text x="297" y="58" text-anchor="middle" font-size="10.5" fill="#5a6b68">click thumbnail / View 3D</text>
+    <path d="M386 45 h30" stroke="#10373E" stroke-width="2"/><path d="M416 45 l-8 -5 v10 z" fill="#10373E"/>
+    <rect x="422" y="25" width="176" height="40" rx="8" fill="#10373E"/>
+    <text x="510" y="43" text-anchor="middle" font-weight="bold" fill="#fff">3. Rotate, zoom, pan</text>
+    <text x="510" y="58" text-anchor="middle" font-size="10.5" fill="#cfe0dc">measure &amp; fullscreen</text>
+  </g>
+</svg>
+</div>
 
-Browse or search for a record that has a 3D model attached.
+### Step 1: Find a Record with a 3D Model
 
-Look for the 3D cube icon on the record page.
+Browse or search for a record that has a 3D model attached, and look for the **3D cube icon** on the record page.
 
 ### Step 2: Open the Viewer
 
-Click on the 3D model thumbnail or the **View 3D** button.
-```
-+-------------------------------------------------------------+
-|  +-------------------------------------------------------+  |
-|  |                                                        |  |
-|  |                                                        |  |
-|  |                    [3D Model                           |  |
-|  |                     Loading...]                        |  |
-|  |                                                        |  |
-|  |                                                        |  |
-|  +-------------------------------------------------------+  |
-|                                                              |
-|  Rotate  |  Zoom  |  Measure  |  Fullscreen                 |
-+-------------------------------------------------------------+
-```
+Click the 3D model thumbnail or the **View 3D** button. The model loads inside the viewer, with the interaction toolbar (Rotate, Zoom, Measure, Fullscreen) along the bottom.
+
+<div style="text-align:center;margin:1rem 0">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Layout of the 3D viewer: a large model canvas above a toolbar" style="max-width:100%;height:auto;font-family:Arial,Helvetica,sans-serif">
+  <rect x="1" y="1" width="478" height="298" rx="10" fill="#ffffff" stroke="#10373E" stroke-width="1.5"/>
+  <rect x="20" y="20" width="440" height="210" rx="6" fill="#f4f8f7" stroke="#cdd8d5"/>
+  <circle cx="240" cy="118" r="34" fill="none" stroke="#10373E" stroke-width="2" stroke-dasharray="5 5"/>
+  <text x="240" y="123" text-anchor="middle" font-size="13" fill="#10373E">3D model</text>
+  <g font-size="12" fill="#10373E" text-anchor="middle">
+    <rect x="40" y="250" width="90" height="30" rx="15" fill="#e6efed" stroke="#10373E"/><text x="85" y="270">Rotate</text>
+    <rect x="145" y="250" width="90" height="30" rx="15" fill="#e6efed" stroke="#10373E"/><text x="190" y="270">Zoom</text>
+    <rect x="250" y="250" width="90" height="30" rx="15" fill="#e6efed" stroke="#10373E"/><text x="295" y="270">Measure</text>
+    <rect x="355" y="250" width="105" height="30" rx="15" fill="#10373E"/><text x="407" y="270" fill="#fff">Fullscreen</text>
+  </g>
+</svg>
+</div>
 
 ---
 
 ## Controls
 
 ### Mouse Controls
-```
-+-------------------------------------------------------------+
-|  ACTION              |  HOW TO                               |
-+----------------------+---------------------------------------+
-|  Rotate              |  Click and drag                       |
-|  Zoom in/out         |  Scroll wheel                         |
-|  Pan (move)          |  Shift + click and drag               |
-|  Reset view          |  Double-click                         |
-+----------------------+---------------------------------------+
-```
 
-### Touch Controls (Mobile/Tablet)
-```
-+-------------------------------------------------------------+
-|  ACTION              |  HOW TO                               |
-+----------------------+---------------------------------------+
-|  Rotate              |  One finger drag                      |
-|  Zoom                |  Pinch in/out                         |
-|  Pan                 |  Two finger drag                      |
-|  Reset               |  Double tap                           |
-+----------------------+---------------------------------------+
-```
+| Action | How to |
+|---|---|
+| Rotate | Click and drag |
+| Zoom in / out | Scroll wheel |
+| Pan (move) | Shift + click and drag |
+| Reset view | Double-click |
+
+### Touch Controls (Mobile / Tablet)
+
+| Action | How to |
+|---|---|
+| Rotate | One-finger drag |
+| Zoom | Pinch in / out |
+| Pan | Two-finger drag |
+| Reset | Double tap |
 
 ---
 
 ## Viewer Features
 
 ### Toolbar Options
-```
-+-------------------------------------------------------------+
-|  TOOLBAR                                                     |
-+-------------------------------------------------------------+
-|                                                              |
-|  Auto-Rotate    - Spin model automatically                   |
-|  Lighting       - Adjust light direction                     |
-|  Background     - Change background color                    |
-|  Wireframe      - Show mesh structure                        |
-|  Fullscreen     - Expand to full screen                      |
-|  Screenshot     - Save current view as image                 |
-|  AR View        - View in augmented reality (mobile)         |
-|                                                              |
-+-------------------------------------------------------------+
-```
+
+| Tool | What it does |
+|---|---|
+| **Auto-Rotate** | Spin the model automatically |
+| **Lighting** | Adjust the light direction |
+| **Background** | Change the background colour |
+| **Wireframe** | Show the mesh structure |
+| **Fullscreen** | Expand to full screen |
+| **Screenshot** | Save the current view as an image |
+| **AR View** | View in augmented reality (mobile) |
 
 ---
 
 ## Augmented Reality (AR)
 
-### On iPhone/iPad
+### On iPhone / iPad
 
 1. Open the record on your device
 2. Tap the **AR** button
-3. Point camera at a flat surface
-4. The object appears in your space!
+3. Point the camera at a flat surface
+4. The object appears in your space.
 
 ### On Android
 
 1. Open the record in Chrome
 2. Tap the **AR** button
-3. Follow prompts to place object
-```
-+-------------------------------------------------------------+
-|                    AR REQUIREMENTS                            |
-+-------------------------------------------------------------+
-|  iPhone/iPad    - iOS 12+ with ARKit support                 |
-|  Android        - ARCore compatible device + Chrome          |
-+-------------------------------------------------------------+
-```
+3. Follow the prompts to place the object
+
+| Platform | AR requirement |
+|---|---|
+| iPhone / iPad | iOS 12+ with ARKit support |
+| Android | ARCore-compatible device + Chrome |
 
 ---
 
@@ -165,17 +186,14 @@ Click on the 3D model thumbnail or the **View 3D** button.
 3D models can have interactive annotation points (hotspots) placed on their surface. Click a hotspot to view its title and description.
 
 ### Hotspot Types
-```
-+-------------------------------------------------------------+
-|  TYPE          |  COLOR   |  USE CASE                        |
-+----------------+----------+----------------------------------+
-|  Annotation    |  Blue    |  General notes and comments      |
-|  Info          |  Green   |  Information points              |
-|  Damage        |  Red     |  Condition documentation         |
-|  Detail        |  Yellow  |  Highlight features              |
-|  Link          |  Blue    |  External URL links              |
-+----------------+----------+----------------------------------+
-```
+
+| Type | Colour | Use case |
+|---|---|---|
+| Annotation | <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1e73be;vertical-align:middle"></span> Blue | General notes and comments |
+| Info | <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2e9e5b;vertical-align:middle"></span> Green | Information points |
+| Damage | <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#c0392b;vertical-align:middle"></span> Red | Condition documentation |
+| Detail | <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#e1b12c;vertical-align:middle"></span> Yellow | Highlight features |
+| Link | <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1e73be;vertical-align:middle"></span> Blue | External URL links |
 
 **Damage hotspots** automatically link to the object's condition assessment page when the ahgConditionPlugin is installed.
 
@@ -254,46 +272,26 @@ If you prefer typing to speaking, **right-click** the floating microphone button
 ---
 
 ## Tips for Best Experience
-```
-+----------------------------------------+--------------------+
-|  DO                                    |  DON'T             |
-+----------------------------------------+--------------------+
-|  Use a modern browser (Chrome/Firefox) |  Use old browsers  |
-|  Wait for model to fully load          |  Interact while    |
-|                                        |  loading           |
-|  Use fullscreen for detail             |  View in small     |
-|                                        |  window            |
-|  Try AR on supported devices           |  Expect AR on all  |
-|                                        |  devices           |
-|  Allow time for large models           |  Give up on slow   |
-|                                        |  load              |
-+----------------------------------------+--------------------+
-```
+
+| Do | Don't |
+|---|---|
+| Use a modern browser (Chrome / Firefox) | Use old browsers |
+| Wait for the model to fully load | Interact while it is still loading |
+| Use fullscreen for detail | View in a small window |
+| Try AR on supported devices | Expect AR on every device |
+| Allow time for large models | Give up on a slow load |
 
 ---
 
 ## Troubleshooting
-```
-Problem                          Solution
----------------------------------------------------------------
-Model won't load              -> Refresh the page
-                                 Try a different browser
-                                 Check internet connection
 
-Viewer is slow                -> Close other browser tabs
-                                 Model may be very detailed
-
-AR not available              -> Check device compatibility
-                                 Use Safari (iOS) or
-                                 Chrome (Android)
-
-Model looks wrong             -> Try resetting the view
-                                 Report to administrator
-
-Hotspots not showing          -> Check the model has hotspots
-                                 configured (editors can add
-                                 them via Edit page)
-```
+| Problem | Solution |
+|---|---|
+| Model won't load | Refresh the page · try a different browser · check your internet connection |
+| Viewer is slow | Close other browser tabs · the model may be very detailed |
+| AR not available | Check device compatibility · use Safari (iOS) or Chrome (Android) |
+| Model looks wrong | Try resetting the view · report to an administrator |
+| Hotspots not showing | Check the model has hotspots configured (editors can add them via the Edit page) |
 
 ---
 

@@ -40,14 +40,11 @@ Generating a new clip atomically replaces any previous one for that record (the 
 
 To replace an existing clip, generate again - the previous MP4 is removed automatically. To remove a clip entirely, use the delete action for that animation.
 
-```
-+------------------+     +-----------------------+     +-----------------------+
-| Curator clicks   | --> | Heratio sends master  | --> | AI server returns MP4 |
-| "Animate image"  |     | image + params to     |     | Heratio saves it under|
-| on the record    |     | the image-to-video    |     | uploads/ar/{id}/ and  |
-|                  |     | server /animate       |     | logs the generation   |
-+------------------+     +-----------------------+     +-----------------------+
-```
+| Curator clicks | --> | Heratio sends master | --> | AI server returns MP4 |
+|---|---|---|---|---|
+| "Animate image" |  | image + params to |  | Heratio saves it under |
+| on the record |  | the image-to-video |  | uploads/ar/{id}/ and |
+|  |  | server /animate |  | logs the generation |
 
 ### For administrators - check server health
 

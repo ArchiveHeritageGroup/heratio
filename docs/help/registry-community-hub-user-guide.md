@@ -33,40 +33,31 @@ The Registry provides:
 
 ## How It Works
 
-```
-+------------------------------------------------------------------------+
-|                    REGISTRY ARCHITECTURE                                |
-+------------------------------------------------------------------------+
-|                                                                        |
-|  PUBLIC DIRECTORY                    SELF-SERVICE                       |
-|  ----------------                   ------------                       |
-|  Browse Institutions                My Institution Dashboard            |
-|  Browse Vendors                     My Vendor Dashboard                 |
-|  Browse Software                    Manage Contacts                     |
-|  Map View                           Manage Instances                    |
-|  Unified Search                     Manage Software & Releases          |
-|  Detail Pages                       Call & Issue Log (CRM)              |
-|                                                                        |
-|  COMMUNITY                           ADMIN                             |
-|  ---------                           -----                             |
-|  User Groups                         Dashboard & Stats                  |
-|  Threaded Discussions                Verify Institutions/Vendors        |
-|  Blog / News                         Moderate Content                   |
-|  Newsletters                         Manage Groups & Members            |
-|  Reviews & Ratings                   Newsletters & Email                |
-|  Favorites                           Sync Monitoring                    |
-|                                      Settings & Footer                  |
-|                                      Data Import                        |
-|                                                                        |
-|  SYNC API                                                              |
-|  --------                                                              |
-|  Remote Instance Registration                                          |
-|  Heartbeat Monitoring                                                  |
-|  Metadata Sync                                                         |
-|  Public JSON Directory                                                 |
-|                                                                        |
-+------------------------------------------------------------------------+
-```
+- REGISTRY ARCHITECTURE
+- PUBLIC DIRECTORY                    SELF-SERVICE
+- ----------------                   ------------
+- Browse Institutions                My Institution Dashboard
+- Browse Vendors                     My Vendor Dashboard
+- Browse Software                    Manage Contacts
+- Map View                           Manage Instances
+- Unified Search                     Manage Software & Releases
+- Detail Pages                       Call & Issue Log (CRM)
+- COMMUNITY                           ADMIN
+- ---------                           -----
+- User Groups                         Dashboard & Stats
+- Threaded Discussions                Verify Institutions/Vendors
+- Blog / News                         Moderate Content
+- Newsletters                         Manage Groups & Members
+- Reviews & Ratings                   Newsletters & Email
+- Favorites                           Sync Monitoring
+- Settings & Footer
+- Data Import
+- SYNC API
+- --------
+- Remote Instance Registration
+- Heartbeat Monitoring
+- Metadata Sync
+- Public JSON Directory
 
 ---
 

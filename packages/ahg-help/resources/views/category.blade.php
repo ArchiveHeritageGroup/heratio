@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', $category . ' — Help Center')
+@section('title', $category . ' - Help Center')
 @section('body-class', 'help category')
 
 @section('content')

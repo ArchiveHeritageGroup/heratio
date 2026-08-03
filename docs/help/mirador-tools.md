@@ -10,18 +10,11 @@ Two power-user toggles in the Mirador window menu - a "Comparison glass" for bef
 
 ## Overview
 
-```
-+-------------------------------------------------------------+
-|   MIRADOR WINDOW MENU                                       |
-+-------------------------------------------------------------+
-|                                                             |
-|   [Magnifier]                                  [O]          |
-|   [Scalebar]                                   [O]          |
-|   [Comparison glass]                           [O]   <- #700|
-|   [A/V playback + transcript]                  [O]   <- #701|
-|                                                             |
-+-------------------------------------------------------------+
-```
+- MIRADOR WINDOW MENU
+- [Magnifier]                                  [O]
+- [Scalebar]                                   [O]
+- [Comparison glass]                           [O]   <- #700
+- [A/V playback + transcript]                  [O]   <- #701
 
 Open the window menu (the "..." or hamburger icon at the top of any Mirador window) to see the toggles. Each switch is per-window.
 
