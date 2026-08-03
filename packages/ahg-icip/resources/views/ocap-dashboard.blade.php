@@ -125,5 +125,35 @@
       </table>
     </div>
   </div>
+
+  {{-- #1409: OCAP governance event log - append-only trail of protocol changes --}}
+  <div class="card mt-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <strong><i class="fas fa-scroll me-1"></i>{{ __('Governance events') }}</strong>
+      <span class="text-muted small">{{ __('Cultural-protocol changes (set / clear), newest first') }}</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead><tr>
+          <th>{{ __('When') }}</th><th>{{ __('Event') }}</th><th>{{ __('Entity') }}</th>
+          <th>{{ __('Label') }}</th><th>{{ __('Condition') }}</th><th>{{ __('By') }}</th>
+        </tr></thead>
+        <tbody>
+          @forelse(($events ?? collect()) as $e)
+            <tr>
+              <td class="text-nowrap"><small class="text-muted">{{ $e->created_at ? \Illuminate\Support\Carbon::parse($e->created_at)->format('Y-m-d H:i') : '' }}</small></td>
+              <td><span class="badge bg-{{ str_contains($e->event_type, 'clear') ? 'secondary' : 'success' }}">{{ str_replace('_', ' ', $e->event_type) }}</span></td>
+              <td><small>{{ $e->entity_type }} #{{ $e->entity_id }}</small></td>
+              <td>{{ trim(($e->label_family ? strtoupper($e->label_family) . ' ' : '') . ($e->label_code ?? '')) ?: '-' }}</td>
+              <td>{{ $e->access_condition ? ucwords(str_replace('_', ' ', $e->access_condition)) : '-' }}</td>
+              <td><small class="text-muted">{{ $e->actor_user_id ? ('user #' . $e->actor_user_id) : __('system') }}</small></td>
+            </tr>
+          @empty
+            <tr><td colspan="6" class="text-center text-muted py-4">{{ __('No governance events recorded yet.') }}</td></tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 @endsection

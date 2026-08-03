@@ -200,7 +200,10 @@ class TermProtocolService
         DB::table('term_protocol')->where('term_id', $termId)->delete();
         $condition = $condition ?: 'open';
         if ($condition === 'open' && empty($labelFamily) && empty($labelCode)) {
-            return; // nothing to record
+            // Clearing the protocol on a term is itself a governance event (#1409).
+            self::ocapEvent('protocol_clear', 'term', $termId, ['principle' => 'control', 'access_condition' => 'open']);
+
+            return;
         }
         DB::table('term_protocol')->insert([
             'term_id'          => $termId,
@@ -213,6 +216,30 @@ class TermProtocolService
             'created_at'       => now(),
             'updated_at'       => now(),
         ]);
+        self::ocapEvent('protocol_set', 'term', $termId, [
+            'principle'        => 'control',
+            'label_family'     => $labelFamily,
+            'label_code'       => $labelCode,
+            'access_condition' => $condition,
+            'detail'           => ['owner_actor_id' => $ownerActorId, 'region_module' => $regionModule],
+        ]);
+    }
+
+    /**
+     * heratio#1409 - emit an OCAP governance event on a protocol change, via
+     * ahg-icip's OcapService. Guarded by class_exists so ahg-core does not
+     * depend on ahg-icip (no-op when ICIP isn't installed), and wrapped so
+     * governance logging can never break the protocol write.
+     */
+    private static function ocapEvent(string $eventType, string $entityType, int $entityId, array $meta = []): void
+    {
+        try {
+            if (class_exists(\AhgIcip\Services\OcapService::class)) {
+                app(\AhgIcip\Services\OcapService::class)->recordEvent($eventType, $entityType, $entityId, $meta);
+            }
+        } catch (\Throwable $e) {
+            // fail-silent
+        }
     }
 
     /**
@@ -349,7 +376,7 @@ class TermProtocolService
     ): int {
         $condition = $condition ?: 'open';
 
-        return (int) DB::table('object_protocol')->insertGetId([
+        $id = (int) DB::table('object_protocol')->insertGetId([
             'target_type'      => $targetType,
             'target_id'        => $targetId,
             'label_family'     => $labelFamily ?: null,
@@ -362,13 +389,31 @@ class TermProtocolService
             'created_at'       => now(),
             'updated_at'       => now(),
         ]);
+        self::ocapEvent('object_protocol_set', $targetType, $targetId, [
+            'principle'        => 'control',
+            'label_family'     => $labelFamily,
+            'label_code'       => $labelCode,
+            'access_condition' => $condition,
+            'detail'           => ['protocol_id' => $id, 'is_notice' => $isNotice, 'owner_actor_id' => $ownerActorId],
+        ]);
+
+        return $id;
     }
 
     /** Remove a single direct object protocol row by id. */
     public static function clearObjectProtocol(int $protocolId): void
     {
         try {
+            $row = DB::table('object_protocol')->where('id', $protocolId)->first();
             DB::table('object_protocol')->where('id', $protocolId)->delete();
+            if ($row) {
+                self::ocapEvent('object_protocol_clear', (string) ($row->target_type ?? 'information_object'), (int) ($row->target_id ?? 0), [
+                    'principle'    => 'control',
+                    'label_family' => $row->label_family ?? null,
+                    'label_code'   => $row->label_code ?? null,
+                    'detail'       => ['protocol_id' => $protocolId],
+                ]);
+            }
         } catch (\Throwable $e) {
             // no-op if table absent
         }

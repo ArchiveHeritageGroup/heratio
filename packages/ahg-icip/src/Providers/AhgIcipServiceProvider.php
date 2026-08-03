@@ -59,6 +59,29 @@ class AhgIcipServiceProvider extends ServiceProvider
     private function ensureGovernanceTables(): void
     {
         try {
+            // heratio#1409 - OCAP governance event log. Append-only record of every
+            // cultural-protocol change (set/clear on a term or object) for the OCAP
+            // (Ownership, Control, Access, Possession) audit trail. Written via
+            // OcapService::recordEvent from the TermProtocolService hook points.
+            DB::statement(
+                'CREATE TABLE IF NOT EXISTS ocap_event (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    event_type VARCHAR(64) NOT NULL,
+                    entity_type VARCHAR(40) NOT NULL,
+                    entity_id INT NOT NULL,
+                    principle VARCHAR(20) NULL,
+                    label_family VARCHAR(40) NULL,
+                    label_code VARCHAR(191) NULL,
+                    access_condition VARCHAR(64) NULL,
+                    detail JSON NULL,
+                    actor_user_id INT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_ocap_event_entity (entity_type, entity_id),
+                    INDEX idx_ocap_event_type (event_type),
+                    INDEX idx_ocap_event_created (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+            );
+
             DB::statement(
                 'CREATE TABLE IF NOT EXISTS icip_label_assignment_log (
                     id BIGINT AUTO_INCREMENT PRIMARY KEY,

@@ -57,6 +57,58 @@ class OcapService
         'possession',
     ];
 
+    /**
+     * heratio#1409 - append an OCAP governance event. Called from the
+     * protocol-change hook points (TermProtocolService set/setObject/clear) so
+     * every apply/withdraw of a cultural protocol is on the governance audit
+     * trail. Best-effort and fail-silent: governance logging must never break
+     * the protocol write it is recording.
+     *
+     * @param  array{principle?:string,label_family?:?string,label_code?:?string,access_condition?:?string,detail?:array}  $meta
+     */
+    public function recordEvent(string $eventType, string $entityType, int $entityId, array $meta = []): void
+    {
+        try {
+            if (! Schema::hasTable('ocap_event')) {
+                return;
+            }
+            $detail = $meta['detail'] ?? array_diff_key($meta, array_flip(['principle', 'label_family', 'label_code', 'access_condition', 'detail']));
+
+            DB::table('ocap_event')->insert([
+                'event_type'       => mb_substr($eventType, 0, 64),
+                'entity_type'      => mb_substr($entityType, 0, 40),
+                'entity_id'        => $entityId,
+                'principle'        => isset($meta['principle']) ? mb_substr((string) $meta['principle'], 0, 20) : null,
+                'label_family'     => isset($meta['label_family']) && $meta['label_family'] !== '' ? mb_substr((string) $meta['label_family'], 0, 40) : null,
+                'label_code'       => isset($meta['label_code']) && $meta['label_code'] !== '' ? mb_substr((string) $meta['label_code'], 0, 191) : null,
+                'access_condition' => isset($meta['access_condition']) ? mb_substr((string) $meta['access_condition'], 0, 64) : null,
+                'detail'           => ! empty($detail) ? json_encode($detail, JSON_UNESCAPED_SLASHES) : null,
+                'actor_user_id'    => auth()->id(),
+                'created_at'       => now(),
+            ]);
+        } catch (\Throwable $e) {
+            // fail-silent - never break the protocol write
+        }
+    }
+
+    /**
+     * Recent OCAP governance events, newest first (for the OCAP dashboard).
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function recentEvents(int $limit = 100): \Illuminate\Support\Collection
+    {
+        try {
+            if (! Schema::hasTable('ocap_event')) {
+                return collect();
+            }
+
+            return DB::table('ocap_event')->orderByDesc('id')->limit(max(1, $limit))->get();
+        } catch (\Throwable $e) {
+            return collect();
+        }
+    }
+
     public function isEnabled(): bool
     {
         try {

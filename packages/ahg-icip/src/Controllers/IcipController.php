@@ -2205,6 +2205,7 @@ class IcipController extends Controller
         return view('icip::ocap-dashboard', [
             'agg' => $svc->aggregate(),
             'rollup' => $svc->rollup(),
+            'events' => $svc->recentEvents(50),
         ]);
     }
 
