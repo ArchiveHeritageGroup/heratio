@@ -214,6 +214,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/heritage/{slug}', [SpectrumController::class, 'heritage'])->name('io.heritage');
 
     // Digital Preservation (OAIS)
+    // Parent-package autocomplete (distinct path so it never matches /preservation/{slug}).
+    Route::get('/preservation-package-search', [PreservationController::class, 'searchPackages'])->name('io.preservation.package-search');
     Route::get('/preservation/{slug}', [PreservationController::class, 'index'])->name('io.preservation');
     Route::post('/preservation/{slug}', [PreservationController::class, 'createPackage'])->name('io.preservation.create')->middleware('acl:create');
     Route::post('/preservation/{slug}/{id}/update', [PreservationController::class, 'updatePackage'])->name('io.preservation.update')->middleware('acl:update')->where('id', '[0-9]+');

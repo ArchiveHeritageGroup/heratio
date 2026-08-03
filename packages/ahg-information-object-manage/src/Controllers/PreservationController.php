@@ -163,6 +163,42 @@ class PreservationController extends Controller
      * triggered here - that's the OAIS packager's job. This handler only
      * accepts the create-and-record step the modal form is wired to.
      */
+    /**
+     * JSON autocomplete for the "Parent Package" picker on the create form.
+     * Searches preservation packages by name / type / uuid / id. Auth-gated
+     * (guests get an empty list). Returns [{id, name}, ...].
+     */
+    public function searchPackages(Request $request)
+    {
+        if (! auth()->check()) {
+            return response()->json([]);
+        }
+        $q = trim((string) $request->query('query', $request->query('q', '')));
+        $rows = DB::table('preservation_package')
+            ->when($q !== '', function ($qq) use ($q) {
+                $like = '%' . $q . '%';
+                $qq->where(function ($w) use ($like, $q) {
+                    $w->where('name', 'like', $like)
+                        ->orWhere('package_type', 'like', $like)
+                        ->orWhere('uuid', 'like', $like);
+                    if (ctype_digit($q)) {
+                        $w->orWhere('id', (int) $q);
+                    }
+                });
+            })
+            ->orderByDesc('id')
+            ->limit(20)
+            ->get(['id', 'name', 'package_type']);
+
+        $out = $rows->map(fn ($r) => [
+            'id'   => (int) $r->id,
+            'name' => strtoupper((string) ($r->package_type ?: 'AIP')) . ' #' . $r->id
+                . (! empty($r->name) ? ' - ' . \Illuminate\Support\Str::limit((string) $r->name, 50) : ''),
+        ])->values();
+
+        return response()->json($out);
+    }
+
     public function createPackage(Request $request, string $slug)
     {
         $io = $this->getIO($slug);
@@ -190,11 +226,11 @@ class PreservationController extends Controller
         $algo = in_array($algo, ['sha256', 'sha512', 'sha1', 'md5'], true) ? $algo : 'sha256';
         $clean = fn ($k) => (($v = trim((string) $request->input($k, ''))) !== '' ? $v : null);
 
-        // Parent package must be another package of THIS record (guards
-        // cross-record nesting; self-parenting is dropped once we know our id).
+        // Parent package: any existing package picked from the searchable list.
+        // Validated for existence here; self-parenting is dropped once we know
+        // our own id below.
         $parentId = (int) $request->input('parent_package_id', 0);
-        if ($parentId > 0 && ! DB::table('preservation_package')
-                ->where('id', $parentId)->where('information_object_id', $io->id)->exists()) {
+        if ($parentId > 0 && ! DB::table('preservation_package')->where('id', $parentId)->exists()) {
             $parentId = 0;
         }
 

@@ -473,17 +473,14 @@
             <label for="retention_period" class="form-label">{{ __('Retention Period') }}</label>
             <input type="text" name="retention_period" id="retention_period" class="form-control" placeholder="{{ __('e.g., Permanent, 10 years, etc.') }}">
           </div>
-          <div class="mb-3">
-            <label for="parent_package_id" class="form-label">{{ __('Parent Package') }}</label>
-            <select name="parent_package_id" id="parent_package_id" class="form-select">
-              <option value="">{{ __('- None (top-level package) -') }}</option>
-              @foreach(($aips ?? []) as $ap)
-                @continue(empty($ap->id))
-                <option value="{{ $ap->id }}">{{ strtoupper($ap->package_type ?? 'AIP') }} #{{ $ap->id }}{{ !empty($ap->name) ? ' - '.\Illuminate\Support\Str::limit($ap->name, 40) : '' }}</option>
-              @endforeach
-            </select>
-            <div class="form-text">{{ __('Nest this package under a parent - e.g. a SIP or DIP under its AIP.') }}</div>
-          </div>
+          @include('ahg-core::components.autocomplete', [
+            'name'        => 'parent_package_id',
+            'label'       => __('Parent Package'),
+            'route'       => 'io.preservation.package-search',
+            'placeholder' => __('Search packages by name, type or id...'),
+            'helpText'    => __('Nest this package under a parent - e.g. a SIP or DIP under its AIP. Leave blank for a top-level package.'),
+            'minChars'    => 1,
+          ])
           <div class="mb-3">
             <label class="form-label">{{ __('Linked Collection / Description') }}</label>
             <input type="text" class="form-control" value="{{ $io->title ?? ($io->slug ?? ('#'.$io->id)) }}" disabled>
