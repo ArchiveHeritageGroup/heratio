@@ -62,12 +62,26 @@ class MuseumService
         $record = $q
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->join('museum_metadata', 'information_object.id', '=', 'museum_metadata.object_id')
+            // museum_metadata is now a LEFT join so museum-sector COLLECTION /
+            // series nodes (which have no CCO object metadata) are served too -
+            // the old inner join 404'd them, leaving museum collections with no
+            // viewable page (they 302'd here from the archival show).
+            ->leftJoin('museum_metadata', 'information_object.id', '=', 'museum_metadata.object_id')
             ->leftJoin('display_object_config', function ($join) {
                 $join->on('information_object.id', '=', 'display_object_config.object_id')
                     ->where('display_object_config.object_type', '=', 'museum');
             })
             ->where('slug.slug', $slug)
+            // "Museum" = a CCO object (has museum_metadata) OR a node explicitly
+            // placed in the museum sector (has a museum display_object_config).
+            // The two markers don't fully overlap (metadata-only objects lack the
+            // config; collection nodes lack the metadata), so require either -
+            // this keeps every existing museum object AND adds the collections,
+            // without matching non-museum records.
+            ->where(function ($q) {
+                $q->whereNotNull('museum_metadata.id')
+                    ->orWhereNotNull('display_object_config.object_id');
+            })
             // Guests see only published objects (status 158/160) — draft-leak fix (#1360).
             ->when(! auth()->check(), fn ($qq) => $qq->whereExists(function ($s) {
                 $s->select(DB::raw(1))->from('status as pub_st')
