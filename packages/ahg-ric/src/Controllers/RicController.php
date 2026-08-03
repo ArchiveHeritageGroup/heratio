@@ -527,11 +527,41 @@ class RicController extends Controller
         $fusekiUser    = config('ahg-ric.fuseki.user');
         $fusekiPass    = config('ahg-ric.fuseki.pass');
 
+        // #1421 (bug 1): the rest of the package reads its Fuseki config from
+        // ahg_settings (group 'fuseki', key fuseki_endpoint) via getFusekiConfig(),
+        // but this readiness check only consulted the .env-backed config - so the
+        // dashboard reported "Sync not configured: RIC_FUSEKI_URL is not set"
+        // even while the settings-configured endpoint was live and actively
+        // syncing. Fall back to the settings when .env is empty so the status
+        // reflects the same source everything else uses. fuseki_endpoint is a
+        // full dataset URL (http://host:port/<dataset>); split it into the base
+        // URL + dataset the shell runner expects.
+        if (empty($fusekiUrl) || empty($fusekiDataset)) {
+            $settings = $this->getFusekiConfig();
+            $endpoint = trim((string) ($settings['fuseki_endpoint'] ?? ''));
+            if ($endpoint !== '') {
+                $parts = parse_url($endpoint);
+                if (empty($fusekiUrl) && ! empty($parts['host'])) {
+                    $fusekiUrl = ($parts['scheme'] ?? 'http') . '://' . $parts['host']
+                        . (isset($parts['port']) ? ':' . $parts['port'] : '');
+                }
+                if (empty($fusekiDataset)) {
+                    $fusekiDataset = trim((string) ($parts['path'] ?? ''), '/') ?: $fusekiDataset;
+                }
+            }
+            if (empty($fusekiUser)) {
+                $fusekiUser = $settings['fuseki_username'] ?? $fusekiUser;
+            }
+            if (empty($fusekiPass) && ! empty($settings['fuseki_password'])) {
+                $fusekiPass = SecretCrypto::reveal($settings['fuseki_password']);
+            }
+        }
+
         if (empty($fusekiUrl)) {
-            $reasons[] = 'RIC_FUSEKI_URL is not set in .env.';
+            $reasons[] = 'Fuseki URL is not set (RIC_FUSEKI_URL in .env, or fuseki_endpoint in RiC settings).';
         }
         if (empty($fusekiDataset)) {
-            $reasons[] = 'RIC_FUSEKI_DATASET is not set in .env.';
+            $reasons[] = 'Fuseki dataset is not set (RIC_FUSEKI_DATASET in .env, or the dataset path in fuseki_endpoint).';
         }
 
         if (empty($reasons) && !empty($fusekiUrl)) {

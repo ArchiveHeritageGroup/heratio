@@ -16,13 +16,16 @@ FRBR is the conceptual model from IFLA that structures bibliographic records as:
 
 Heratio mapping:
 
-| FRBR entity       | Heratio table                  |
-|-------------------|-------------------------------|
-| Work              | `library_biblio_work`         |
-| Expression        | `library_biblio_instance`     |
-| Manifestation     | `library_biblio_instance`    |
-| Item              | `library_biblio_item`         |
-| Person/Corporate Body | `library_biblio_agent`    |
+FRBR entities are projected from the live library catalogue via
+`AhgBiblioBf\Services\BiblioWorkRepository` (there is no separate FRBR store):
+
+| FRBR entity       | Heratio source                              |
+|-------------------|---------------------------------------------|
+| Work              | `library_item` clustered by `work_key`      |
+| Expression        | `library_item` (instance rows in a cluster) |
+| Manifestation     | `library_item` (instance rows in a cluster) |
+| Item              | `library_copy`                              |
+| Person/Corporate Body | `library_item_creator`                  |
 
 ## Routes
 
@@ -40,7 +43,7 @@ GET  /frbr/agent                  — agent management
 
 ## Dependencies
 
-- Heratio `library_biblio_*` tables
+- Heratio library catalogue (`library_item` / `library_copy` / `library_item_creator`) via `AhgBiblioBf\Services\BiblioWorkRepository`
 - OpenRiC at `services.openric.url` (optional; degrades gracefully)
 
 ## License
