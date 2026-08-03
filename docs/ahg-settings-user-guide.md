@@ -174,7 +174,7 @@ Manage AHG plugin settings organized by category:
 |                         |  | [/uploads/logo.png    ] |     |
 |  [ ] IIIF Viewer        |  +--------------------------+     |
 |                         |  | Primary Color           |     |
-|  [ ] Spectrum           |  | [#] [#1a5f7a         ] |     |
+|  [ ] Museum Procedures           |  | [#] [#1a5f7a         ] |     |
 |                         |  +--------------------------+     |
 |  [ ] Data Protection    |  | Secondary Color         |     |
 |                         |  | [#] [#57837b         ] |     |
@@ -206,7 +206,7 @@ Manage AHG plugin settings organized by category:
 | Multi-Tenancy | Repository isolation | Tenant filtering, branding |
 | Metadata | Auto-extraction | EXIF, XMP, IPTC, thumbnails |
 | IIIF Viewer | Image viewing | Navigator, rotation, fullscreen |
-| Spectrum | Collections management | Auto-movements, photos |
+| Museum Procedures | Collections management | Auto-movements, photos |
 | Data Protection | Privacy compliance | POPIA, GDPR settings |
 | Face Detection | Facial recognition | Auto-match, blur settings |
 | Media Player | Audio/video | Autoplay, waveform, transcription |

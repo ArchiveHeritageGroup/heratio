@@ -830,7 +830,7 @@ format_field_value($field)   // Format field for display
 | isad_full | archive | detail | Full archival description |
 | isad_hierarchy | archive | hierarchy | Tree/hierarchy view |
 | isad_list | archive | list | Compact reference list |
-| spectrum_full | museum | detail | Full Spectrum object |
+| spectrum_full | museum | detail | Full Museum object |
 | spectrum_card | museum | card | Object cards |
 | spectrum_catalog | museum | catalog | Print catalog |
 | gallery_full | gallery | gallery | Artwork detail |

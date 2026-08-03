@@ -21,7 +21,7 @@
 | TrueNAS NFS = "Done" | **Correct** - /mnt/nas/heratio/ exists and mounted |
 | OAIS SIP/AIP/DIP = "Partial" | Correct - preservation plugin has 31 routes but pipeline incomplete |
 | Fuseki "17,358+ triples" | **WRONG** - actually **17,912,054 triples** (17.9M not 17K) |
-| Spectrum 5.0 = "~60%" | **Higher** - spectrum plugin has 28 routes, full condition/provenance/risk/workflow |
+| museum procedures = "~60%" | **Higher** - spectrum plugin has 28 routes, full condition/provenance/risk/workflow |
 | ICIP = "Not built" | **WRONG** - ahg-icip has 24 routes, communities, consent, restrictions, protocols |
 | WCAG 2.1 Level AA = "Done" | Cannot verify - no automated WCAG audit run |
 | Natural language discovery = "On horizon" | Partially done - semantic search via Qdrant on ric.theahg.co.za |
@@ -43,7 +43,7 @@
 | ISO 15489-1:2016 | ~50% | ~55% - workflow exists |
 | MoReq2010 | ~35% | ~40% - workflow + audit already there |
 | DoD 5015.2 | ~25% | ~30% - audit trail + security covers more |
-| Spectrum 5.0 | ~60% | ~75% - full condition/provenance/risk/workflow |
+| museum procedures | ~60% | ~75% - full condition/provenance/risk/workflow |
 | ICIP | "Not built" | **~40%** - communities, consent, restrictions exist |
 
 ### Competitive Position Table - Verified
@@ -76,7 +76,7 @@ The competitive position table is accurate. Heratio IS the only open-source plat
 
 ### Overview
 
-Build Heratio into a full records management + digital memory platform covering ISO 15489, MoReq2010, DoD 5015.2, ISAD(G), RiC-O, and Spectrum 5.0 end-to-end.
+Build Heratio into a full records management + digital memory platform covering ISO 15489, MoReq2010, DoD 5015.2, ISAD(G), RiC-O, and museum procedures end-to-end.
 
 No other open-source platform covers both RM and GLAM description with RiC-O RiC (Records in Contexts) linked data.
 
@@ -107,7 +107,7 @@ No other open-source platform covers both RM and GLAM description with RiC-O RiC
 - OAI-PMH (ahg-oai)
 - Research portal (ahg-research, 101 routes)
 - ICIP indigenous cultural material (ahg-icip, 24 routes)
-- Spectrum 5.0 museum objects (ahg-spectrum, 28 routes)
+- museum procedures museum objects (ahg-spectrum, 28 routes)
 
 ### P1 - Harden Existing (4-6 weeks)
 
@@ -148,7 +148,7 @@ No other open-source platform covers both RM and GLAM description with RiC-O RiC
 | MoReq2010 | ~40% | 85% |
 | DoD 5015.2 | ~30% | 80% |
 | OAIS ISO 14721 | ~40% | 90% |
-| Spectrum 5.0 | ~75% | 95% |
+| museum procedures | ~75% | 95% |
 | ICIP | ~40% | 80% |
 
 ### Labels

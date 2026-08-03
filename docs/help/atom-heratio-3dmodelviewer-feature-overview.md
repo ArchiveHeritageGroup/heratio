@@ -156,7 +156,7 @@ All actions are logged to a dedicated audit table:
 - **IIIF Presentation API 3.0** — 3D manifest generation with Scene type
 - **IIIF 3D Extension** — Draft specification for 3D content
 - **WebXR** — Immersive AR standard
-- **Spectrum 5.1** — Condition documentation via damage hotspots
+- **museum procedures** — Condition documentation via damage hotspots
 
 ---
 

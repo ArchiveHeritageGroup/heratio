@@ -22,7 +22,7 @@ Three figures follow. Each has an in-paper caption (use as-is or lightly edit) a
 
 **In-paper caption:**
 
-> *Figure 1.* The Heratio collections-management framework. Open-source Laravel/PHP application reading from a Qubit-schema MySQL database; AI capabilities (shaded amber) operate as opt-in services running on institution-controlled GPU infrastructure. Standards-aligned outputs (ISAD(G), Spectrum 5.0, Dublin Core, RiC-O) are produced by the same data layer that AI populates, ensuring AI-generated metadata is not a parallel data layer. Optional services (Cantaloupe IIIF, Apache Jena Fuseki, Qdrant vector store) extend specific capabilities without being on the critical path. Where two cataloguer figures are shown, the workflow is human-in-the-loop: AI proposes, cataloguer disposes.
+> *Figure 1.* The Heratio collections-management framework. Open-source Laravel/PHP application reading from a Qubit-schema MySQL database; AI capabilities (shaded amber) operate as opt-in services running on institution-controlled GPU infrastructure. Standards-aligned outputs (ISAD(G), museum procedures, Dublin Core, RiC-O) are produced by the same data layer that AI populates, ensuring AI-generated metadata is not a parallel data layer. Optional services (Cantaloupe IIIF, Apache Jena Fuseki, Qdrant vector store) extend specific capabilities without being on the critical path. Where two cataloguer figures are shown, the workflow is human-in-the-loop: AI proposes, cataloguer disposes.
 
 ### Visual specification
 
@@ -106,7 +106,7 @@ Three figures follow. Each has an in-paper caption (use as-is or lightly edit) a
 
 **In-paper caption:**
 
-> *Figure 2.* AI-assisted condition assessment in Heratio. (a) The conservator's review screen showing the master photograph (left) overlaid with the model's per-defect heatmap (centre); each colour codes a Spectrum 5.0 damage typology (foxing, water damage, mould, support loss). (b) Spectrum-aligned condition record draft, populated by the model and editable inline by the conservator before sign-off. The record carries an overall grade (Stable / Fair / Poor / Unstable), a severity score (0–100), and a treatment recommendation drawn from the institution's `conservation_action` taxonomy. The model's confidence score appears beside each detected defect. Drafts do not auto-publish; the conservator's signed-off record is the system of record under GRAP 103.
+> *Figure 2.* AI-assisted condition assessment in Heratio. (a) The conservator's review screen showing the master photograph (left) overlaid with the model's per-defect heatmap (centre); each colour codes a museum procedures damage typology (foxing, water damage, mould, support loss). (b) museum-procedure-aligned condition record draft, populated by the model and editable inline by the conservator before sign-off. The record carries an overall grade (Stable / Fair / Poor / Unstable), a severity score (0–100), and a treatment recommendation drawn from the institution's `conservation_action` taxonomy. The model's confidence score appears beside each detected defect. Drafts do not auto-publish; the conservator's signed-off record is the system of record under GRAP 103.
 
 ### Visual specification
 
@@ -141,7 +141,7 @@ Two-panel figure, side-by-side, total width A5 (~14 cm).
 - Colour overlays at ~35 % opacity; the underlying photograph still visible through them.
 - Each region carries a tiny confidence label inset (e.g. "0.87"). Position below or beside the region with a thin leader line.
 
-#### Panel (b) - Spectrum-aligned condition record draft (right, ~40 %)
+#### Panel (b) - museum-procedure-aligned condition record draft (right, ~40 %)
 
 A semi-realistic UI mockup of the Heratio condition-record edit form, in the institution's brand. Approximate fields:
 

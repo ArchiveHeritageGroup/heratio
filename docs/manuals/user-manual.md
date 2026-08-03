@@ -141,7 +141,7 @@ and (where enabled) buy reproductions.
 | Sector | Guide |
 |---|---|
 | Library (cataloguing, serials, acquisitions, KBART) | [library](../help/library-user-guide.md) · [library-serials](../help/library-serials-user-guide.md) · [library-acquisitions](../help/library-acquisitions-user-guide.md) · [kbart-remote](../help/kbart-remote-user-guide.md) |
-| Museum (Spectrum / CCO) | [museum](../help/museum-user-guide.md) · [spectrum](../help/spectrum-user-guide.md) |
+| Museum (CCO) | [museum](../help/museum-user-guide.md) · [spectrum](../help/spectrum-user-guide.md) |
 | Gallery (artworks, loans, valuations) | [gallery](../help/gallery-user-guide.md) |
 | Heritage sites & accounting | [heritage-manage](../help/heritage-manage-user-guide.md) · [heritage-sites](../help/heritage-sites-user-guide.md) · [heritage-accounting](../help/heritage-accounting-user-guide.md) |
 | Records management (retention, disposal) | [records-manage](../help/records-manage-user-guide.md) |

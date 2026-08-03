@@ -26,7 +26,7 @@ stated as an AtoM strength and is tracked for improvement in issue #1410.
 | OAI-PMH | Serve and harvest (provider and harvester) | OAI-PMH provider |
 | Finding aids | Generated PDF finding aids | PDF / RTF finding aid generation |
 | Records in Contexts (RiC) | Native, first-class (traditional + RiC view per entity) | Not native (community and roadmap interest) |
-| Museum collections | Spectrum-capable (Spectrum 5.1 procedures) | Not a museum collections system |
+| Museum collections | museum-procedure-capable (museum procedures) | Not a museum collections system |
 | Digital asset management | Built-in: IIIF deep-zoom, 3D viewing, media at scale | Basic digital object handling |
 | Digital preservation | OCFL, BagIt, OAIS/PREMIS, portable dark-archive export | Via integration with Archivematica |
 | Archivematica integration | Connector (pulls DIPs) | Native (same steward, Artefactual) |

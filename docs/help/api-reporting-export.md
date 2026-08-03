@@ -853,7 +853,7 @@ The granular per-entity AtoM CSV importers are consolidated into the CLI import 
 | `ahg:load-digital-objects` | Batch load digital objects under a parent IO |
 | `sector:archives-csv-import` | Import archives CSV data with ISAD(G) validation |
 | `sector:library-csv-import` | Import library CSV data with MARC/RDA validation |
-| `sector:museum-csv-import` | Import museum CSV data with Spectrum 5.0 validation |
+| `sector:museum-csv-import` | Import museum CSV data with museum procedures validation |
 | `sector:gallery-csv-import` | Import gallery CSV data with CCO validation |
 | `sector:dam-csv-import` | Import DAM CSV data with Dublin Core/IPTC validation |
 

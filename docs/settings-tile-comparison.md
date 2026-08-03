@@ -50,7 +50,7 @@ Generated: 2026-04-11
 | 31 | Sector Numbering | Sector Numbering | ✓ |
 | 32 | Semantic Search | Semantic Search | ✓ |
 | 33 | Services Monitor | Services Monitor | ✓ |
-| 34 | Spectrum / Collections | Spectrum / Collections | ✓ |
+| 34 | Museum Procedures | Museum Procedures | ✓ |
 | 35 | System Information | System Information | ✓ |
 | 36 | Text-to-Speech | Text-to-Speech | ✓ |
 | 37 | Theme Configuration | Theme Configuration | ✓ |
@@ -561,7 +561,7 @@ Read-only system services health dashboard.
 
 **URL:** `/admin/ahgSettings/services` (was `/admin/settings/services`) ✓ Standardised
 
-### Row 34: Spectrum / Collections
+### Row 34: Museum Procedures
 
 | # | Control | Type | AtoM | Heratio | Wired | Status |
 |---|---------|------|------|---------|-------|--------|

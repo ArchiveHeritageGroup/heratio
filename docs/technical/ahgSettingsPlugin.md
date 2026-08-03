@@ -423,7 +423,7 @@ protected $sections = [
     'multi_tenant' => ['label' => 'Multi-Tenancy', 'icon' => 'fa-building'],
     'metadata' => [...],  // Metadata extraction settings
     'iiif' => ['label' => 'IIIF Viewer', 'icon' => 'fa-images'],
-    'spectrum' => ['label' => 'Spectrum / Collections', 'icon' => 'fa-archive'],
+    'spectrum' => ['label' => 'Museum Procedures', 'icon' => 'fa-archive'],
     'data_protection' => ['label' => 'Data Protection', 'icon' => 'fa-shield-alt'],
     'faces' => ['label' => 'Face Detection', 'icon' => 'fa-user-circle'],
     'media' => ['label' => 'Media Player', 'icon' => 'fa-play-circle'],

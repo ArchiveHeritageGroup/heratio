@@ -150,7 +150,7 @@ Add each unique base path to a `--source-extra` flag.
 ## 5. Heratio-only translation keys
 
 Of Heratio's ~3290 `__()` keys, ~2000 don't exist in any AtoM XLIFF (RiC
-Explorer, AI Tools, Privacy Dashboard, Spectrum, Heritage Accounting, etc.).
+Explorer, AI Tools, Privacy Dashboard, Museum Procedures, Heritage Accounting, etc.).
 These are unaffected by an AtoM upgrade - they need their own translation
 sourcing path:
 

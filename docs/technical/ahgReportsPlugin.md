@@ -485,7 +485,7 @@ The dashboard dynamically shows sections based on enabled plugins:
 | ahgMuseumPlugin | Museum Dashboard/Reports |
 | ahgGalleryPlugin | Gallery Management |
 | ahgDAMPlugin | Digital Asset Management |
-| ahgSpectrumPlugin | Spectrum Workflow |
+| ahgSpectrumPlugin | Museum Procedure Workflow |
 | ahgGrapPlugin | GRAP 103 Dashboard |
 | ahgHeritageAccountingPlugin | Heritage Asset Accounting |
 | ahgResearchPlugin | Research Services |

@@ -4,7 +4,7 @@
 
 ## Overview
 
-Heratio's Condition Reports module allows you to create detailed condition assessments for archival materials, museum objects, and library items. Reports include photographs with annotations, AI-powered condition scanning, and integration with the Spectrum condition check procedures.
+Heratio's Condition Reports module allows you to create detailed condition assessments for archival materials, museum objects, and library items. Reports include photographs with annotations, AI-powered condition scanning, and integration with the museum condition-check procedures.
 
 ---
 
@@ -109,9 +109,9 @@ Access condition history from the object record under **More > Condition History
 
 ---
 
-## Spectrum Condition Checks
+## Museum Condition Checks
 
-Heratio's condition reports align with the Spectrum 5.0 Condition Checking procedure. The Spectrum integration ensures that:
+Heratio's condition reports align with the museum procedures Condition Checking procedure. The museum-procedure integration ensures that:
 
 - **Pre-loan checks** are documented before items leave the institution
 - **Post-loan checks** are recorded when items return
@@ -119,9 +119,9 @@ Heratio's condition reports align with the Spectrum 5.0 Condition Checking proce
 - **Routine survey checks** are scheduled and tracked
 - **Exhibition checks** are performed before and after display periods
 
-Each Spectrum check type generates a condition report with the appropriate context fields pre-filled.
+Each museum condition check type generates a condition report with the appropriate context fields pre-filled.
 
-### Spectrum Workflow Integration
+### Museum Procedure Workflow Integration
 
 1. **Object Entry** --- condition checked on arrival
 2. **Loans Out** --- condition checked before dispatch and on return

@@ -108,7 +108,7 @@ The clipboard lets you collect records and export them together.
 
 | Format | Description |
 |--------|-------------|
-| **CSV (Spectrum)** | Museum standard fields |
+| **CSV (Museum)** | Museum standard fields |
 | **CSV (CCO)** | Art cataloguing fields |
 | **Dublin Core** | Simple metadata |
 

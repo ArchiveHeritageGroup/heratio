@@ -124,7 +124,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 111. [Translation and Localization Workbench (ahg-translation)](#translation-and-localization-workbench-ahg-translation)
 112. [User Account and Access Management (ahg-user-manage)](#user-account-and-access-management-ahg-user-manage)
 113. [Record Version History and Restore (ahg-version-control)](#record-version-history-and-restore-ahg-version-control)
-114. [Museum Collections Workflow and Spectrum Compliance (ahg-workflow)](#museum-collections-workflow-and-spectrum-compliance-ahg-workflow)
+114. [Museum Collections Workflow and Museum-Procedure Compliance (ahg-workflow)](#museum-collections-workflow-and-spectrum-compliance-ahg-workflow)
 115. [Vendor and Procurement Management (ahg-vendor)](#vendor-and-procurement-management-ahg-vendor)
 116. [Z39.50 / SRU Bibliographic Search and Copy Cataloguing (ahg-z3950)](#z3950-sru-bibliographic-search-and-copy-cataloguing-ahg-z3950)
 117. [Route Health Check - 2026-07-13](#route-health-check---2026-07-13)
@@ -390,7 +390,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - Pull incremental sync changes and push batched sync updates for offline/mobile clients
 - Look up, validate, and detect identifiers (ISBN, barcode, etc.) and list an object's identifier types
 - Search the marketplace, place bids, check auction status, favourite lots, and list currencies/categories
-- Read Spectrum museum-workflow statistics, events, and per-object activity
+- Read museum-procedure workflow statistics, events, and per-object activity
 - Retrieve event streams (with correlation chains) and audit records over the API
 ### API Access & Integration
 - Self-service API key management (list, issue, revoke)
@@ -1198,7 +1198,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - Record and manage provenance across all sectors (archival, museum, gallery, library, heritage) with timeline view and CSV export
 - Attach and download provenance supporting documents (deeds, bills of sale, catalogues)
 - Create condition reports with photos and image annotations; AI-assisted condition assessment
-- Capture Spectrum collections-management and heritage-object metadata forms
+- Capture museum collections-management and heritage-object metadata forms
 - Record museum-specific metadata (identity, physical location, accession areas)
 
 ### Rights, Privacy and Preservation
@@ -1527,7 +1527,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 ## Museum Collections Management (ahg-museum)
 
 ### Object Cataloguing
-- Browse, view, create, edit, and delete museum objects catalogued to the Spectrum 5.0 standard
+- Browse, view, create, edit, and delete museum objects catalogued to the museum procedures standard
 - Upload multiple media files against a single object
 - Compare two objects side by side
 
@@ -1546,7 +1546,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - Search controlled vocabularies and authority records for form fields
 
 ### CLI Commands
-- `php artisan sector:museum-csv-import {filename} {--validate-only} {--mapping=} {--repository=} {--update=legacyId} {--update-mode=skip} {--culture=en} {--limit=} {--skip=}` - import museum objects from CSV with Spectrum 5.0 validation, configurable field mapping, target repository, update/merge matching, culture, and row limits
+- `php artisan sector:museum-csv-import {filename} {--validate-only} {--mapping=} {--repository=} {--update=legacyId} {--update-mode=skip} {--culture=en} {--limit=} {--skip=}` - import museum objects from CSV with museum procedures validation, configurable field mapping, target repository, update/merge matching, culture, and row limits
 
 ## MVA Accident Fund Claims (ahg-mva-claims)
 
@@ -2560,7 +2560,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - Run a data-quality review across collection records
 
 ### Workflow and Standard Operating Procedures
-- Drive records through a configurable Spectrum workflow with state transitions (ACL-gated)
+- Drive records through a configurable museum-procedure workflow with state transitions (ACL-gated)
 - Attach standard-operating-procedure (SOP) guidance to workflow steps
 - Use the general workflow configuration screen to define the workflow
 
@@ -2575,13 +2575,13 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - Remind curators when condition checks fall overdue
 
 ### Reporting, Compliance and Notifications
-- Run Spectrum reports for object entry, acquisitions, loans, movements, conditions, conservation, and valuations
-- Export collection data (general export and Spectrum export)
+- Run museum-procedure reports for object entry, acquisitions, loans, movements, conditions, conservation, and valuations
+- Export collection data (general export and museum-procedure export)
 - View a GRAP (accounting-standard) dashboard for heritage-asset compliance
 - Manage POPIA/privacy compliance: privacy admin, compliance overview, breaches register, DSAR handling, ROPA, and privacy templates (admin-gated writes)
 - View a security-compliance screen
 - Receive in-app notifications and mark them read individually or all at once
-- Guard publishing of collection records behind Spectrum completeness rules
+- Guard publishing of collection records behind museum-procedure completeness rules
 
 ### CLI Commands
 - `php artisan ahg:spectrum-valuation-reminder` - Email curators when valuations are older than the configured reminder threshold
@@ -2762,7 +2762,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - `php artisan ahg:version-snapshot {--entity=information_object} {--id=} {--pretty}` - Print a SnapshotBuilder JSON snapshot for an entity (smoke test)
 - `php artisan ahg:version-diff {--entity=information_object} {--id=} {--v1=} {--v2=} {--pretty}` - Print a structured diff between two stored versions
 
-## Museum Collections Workflow and Spectrum Compliance (ahg-workflow)
+## Museum Collections Workflow and Museum-Procedure Compliance (ahg-workflow)
 
 ### Task Management
 - View a personal workflow dashboard summarising assigned, pooled, and overdue tasks
@@ -2798,15 +2798,15 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - Check an object's publish-readiness against gate rules
 - Run a publish simulation for an object to preview whether it would pass the gates
 
-### Spectrum 5.1 Compliance
-- Install / re-install the Spectrum 5.1 procedure pack (21 canonical museum procedures) from the admin screen
-- View a Spectrum compliance dashboard tracking procedure coverage/status
-- Export Spectrum compliance data as CSV
-- Configure Spectrum chain rules (procedure sequencing) and create, save, or delete them
+### Museum Procedure Compliance
+- Install / re-install the museum procedures procedure pack (21 canonical museum procedures) from the admin screen
+- View a Museum compliance dashboard tracking procedure coverage/status
+- Export museum-procedure compliance data as CSV
+- Configure museum-procedure chain rules (procedure sequencing) and create, save, or delete them
 
 ### CLI Commands
-- `php artisan workflow:seed-spectrum {--overwrite} {--only=*} {--dry-run}` - Install the Spectrum 5.1 procedure starter pack (21 workflows with paraphrased canonical steps); optionally overwrite existing, restrict to specific procedure codes, or dry-run
-- `php artisan spectrum:overdue {--days=14} {--notify=} {--inbox=} {--dry-run}` - Scan for Spectrum-tagged tasks past the overdue threshold and drop Workbench notifications for the configured user
+- `php artisan workflow:seed-spectrum {--overwrite} {--only=*} {--dry-run}` - Install the museum procedures procedure starter pack (21 workflows with paraphrased canonical steps); optionally overwrite existing, restrict to specific procedure codes, or dry-run
+- `php artisan spectrum:overdue {--days=14} {--notify=} {--inbox=} {--dry-run}` - Scan for museum-procedure-tagged tasks past the overdue threshold and drop Workbench notifications for the configured user
 - `php artisan workflow:notify-overdue {--repeat-days=} {--dry-run} {--limit=500}` - Email assignees of tasks past their due date that have not been nagged within the repeat window
 
 ## Vendor and Procurement Management (ahg-vendor)

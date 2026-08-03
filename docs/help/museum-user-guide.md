@@ -2,7 +2,7 @@
 
 # Museum Cataloguing (CCO)
 
-The Museum module lets you catalogue, browse, search, and report on museum objects (paintings, sculptures, ceramics, textiles, metalwork, and other human-made artefacts) using a rich CCO-style descriptive record. Each museum object is stored as an information object with an extended `museum_metadata` record that captures work type, creator, materials and techniques, physical description, condition and treatment, inscriptions and marks, provenance and ownership history, rights, cataloguing metadata, and stylistic and cultural classification. The module ships with faceted browse, six reporting views, CIDOC-CRM export, Getty AAT and internal authority autocomplete, and a Spectrum 5.0 CSV importer.
+The Museum module lets you catalogue, browse, search, and report on museum objects (paintings, sculptures, ceramics, textiles, metalwork, and other human-made artefacts) using a rich CCO-style descriptive record. Each museum object is stored as an information object with an extended `museum_metadata` record that captures work type, creator, materials and techniques, physical description, condition and treatment, inscriptions and marks, provenance and ownership history, rights, cataloguing metadata, and stylistic and cultural classification. The module ships with faceted browse, six reporting views, CIDOC-CRM export, Getty AAT and internal authority autocomplete, and a museum procedures CSV importer.
 
 ## Overview
 
@@ -26,7 +26,7 @@ Records integrate with the rest of Heratio: digital objects, repositories, subje
 - Vocabulary autocomplete API: Getty AAT (live SPARQL, cached 24 hours), internal `ahg_dropdown` taxonomy lookups, and internal actor/term authority search.
 - Authority linking and unlinking against internal actor and term records.
 - Per-object views for condition report, provenance chain, Getty links, GRAP valuation dashboard, loan dashboard, multi-file upload, and object comparison.
-- Spectrum 5.0 CSV import via an artisan command, with validate-only and update modes.
+- museum procedures CSV import via an artisan command, with validate-only and update modes.
 - Automatic sector identifier generation when no identifier is supplied and the museum mask is enabled.
 
 ## How to use
@@ -82,9 +82,9 @@ These authenticated JSON endpoints back the edit-form autocomplete widgets:
 - `GET /api/museum/vocabulary-search?group=...&q=...` searches one `ahg_dropdown` taxonomy group (active rows, by label or code).
 - `GET /api/museum/authority-search?type=actor|term&q=...` searches internal authorities. Requires at least 2 characters.
 
-### CSV import (Spectrum 5.0)
+### CSV import (museum procedures)
 
-Import museum objects from a Spectrum 5.0 CSV using the artisan command:
+Import museum objects from a museum procedures CSV using the artisan command:
 
 ```
 php artisan sector:museum-csv-import <filename>

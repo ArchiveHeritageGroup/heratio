@@ -647,7 +647,7 @@ class AhgSectorProfile
 ```php
 [
     'name' => 'Museum',
-    'standard' => 'Spectrum 5.0 / CCO',
+    'standard' => 'museum procedures / CCO',
     'labels' => [
         'extent' => 'Dimensions',
         'scope_and_content' => 'Description',

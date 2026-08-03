@@ -13,7 +13,7 @@ Every time an AI service produces output that lands in a record, a row is writte
 - sha256 of the input bytes plus a 500-char excerpt for human inspection
 - sha256 of the output bytes plus a 500-char excerpt
 - confidence score where the model exposes one (1 - CER for HTR, the spaCy entity score for NER, etc.)
-- the cataloguing standard the inference is targeting (ISAD(G), ICIP, RiC-O, Spectrum 5.1, etc.)
+- the cataloguing standard the inference is targeting (ISAD(G), ICIP, RiC-O, museum procedures, etc.)
 - target entity type, entity id, and field
 - elapsed call time (for ops dashboards)
 - triggering user when known

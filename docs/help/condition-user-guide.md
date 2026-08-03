@@ -2,7 +2,7 @@
 
 # Condition Module
 
-The Condition module records condition checks against archival and museum objects, lets staff attach and annotate condition photographs, surfaces at-risk items on a risk dashboard, and manages reusable condition-assessment templates. It is supplied by the `ahg-condition` package and supports the Spectrum-style condition-checking procedure used elsewhere in Heratio.
+The Condition module records condition checks against archival and museum objects, lets staff attach and annotate condition photographs, surfaces at-risk items on a risk dashboard, and manages reusable condition-assessment templates. It is supplied by the `ahg-condition` package and supports the museum condition-checking procedure used elsewhere in Heratio.
 
 ---
 
@@ -94,7 +94,7 @@ It is jurisdiction-neutral and applies to any collection type; condition termino
 
 ### Completing a check
 
-A pending check can be transitioned to a real rating (`good`, `fair`, `poor`, or `unfit`) through the service's completion path. When the Spectrum setting **require photos** is enabled, completion is refused unless at least one photo exists for the check; the user sees a clear message rather than an error. See Configuration below.
+A pending check can be transitioned to a real rating (`good`, `fair`, `poor`, or `unfit`) through the service's completion path. When the museum-procedure setting **require photos** is enabled, completion is refused unless at least one photo exists for the check; the user sees a clear message rather than an error. See Configuration below.
 
 ---
 
@@ -203,7 +203,7 @@ The install also creates `condition_report`, `condition_image`, `condition_damag
 
 ### Require photos before completion
 
-- **Setting:** `spectrum_require_photos`, on the Spectrum settings page at `/admin/ahgSettings/spectrum`.
+- **Setting:** `spectrum_require_photos`, on the Museum Procedures settings page at `/admin/ahgSettings/spectrum`.
 - When enabled, a condition check cannot be moved off `pending` to a real rating until at least one photo is attached. The gate uses the denormalised `photo_count`, falling back to a live count, and raises an operator-readable message (surfaced as a flash error, not a 500) when no photo exists.
 
 ### Condition vocabulary and dropdowns
@@ -232,5 +232,5 @@ All condition routes require `auth`. The dashboard, list, and risk routes additi
 ## References
 
 - Source package: `packages/ahg-condition/`
-- Related package: `ahg-spectrum` (Spectrum 5.1 procedures and the `spectrum_require_photos` setting).
+- Related package: `ahg-spectrum` (museum procedures and the `spectrum_require_photos` setting).
 - Issue: [GH #552](https://github.com/ArchiveHeritageGroup/heratio/issues/552)

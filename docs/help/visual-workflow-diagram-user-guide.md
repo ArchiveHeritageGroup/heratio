@@ -81,4 +81,4 @@ If a workflow has no edges saved, the diagram falls back to linear order by `ste
 
 The diagram is **pure server-side SVG** — no JavaScript, prints cleanly, copies to PDF cleanly. The designer is the one piece that uses JavaScript (drawflow.js v0.0.59, self-hosted; no CDN dependency).
 
-When a task is approved, the workflow service checks the Spectrum chain rules (if any are configured) and may automatically spawn a downstream task — see the *Spectrum compliance dashboard* article for how chain rules work.
+When a task is approved, the workflow service checks the museum-procedure chain rules (if any are configured) and may automatically spawn a downstream task — see the *Museum compliance dashboard* article for how chain rules work.

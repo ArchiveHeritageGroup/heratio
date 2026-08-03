@@ -1,18 +1,18 @@
-# Spectrum 5.0 Collections Management
+# Museum Procedures - Collections Management
 
 ## A Guide for Museum Staff
 
 ---
 
-## What is Spectrum?
+## What are the museum procedures?
 
-Spectrum helps you keep track of everything that happens to objects in your collection. Think of it as a complete history for each item.
+The museum procedures help you keep track of everything that happens to objects in your collection. Think of it as a complete history for each item.
 
 ---
 
 ## The Dashboard
 
-Find it at: **Admin → Spectrum Dashboard**
+Find it at: **Admin → Museum Procedures Dashboard**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -82,7 +82,7 @@ Find it at: **Admin → Spectrum Dashboard**
 ### How to Record Entry
 
 1. Find the object in AtoM (or create a new record)
-2. Click **Extensions → Spectrum 5.0**
+2. Click **Extensions → museum procedures**
 3. Click **New Entry**
 4. Fill in the form:
 
@@ -159,7 +159,7 @@ Find it at: **Admin → Spectrum Dashboard**
 ### Creating a Loan
 
 1. Go to the object
-2. Click **Extensions → Spectrum → New Loan Out**
+2. Click **Extensions → Museum Procedures → New Loan Out**
 3. Enter the details:
 
 | Field | Example |
@@ -216,7 +216,7 @@ The dashboard shows overdue items in red. Click on any overdue loan to:
 ### Recording a Check
 
 1. Go to the object
-2. Click **Extensions → Spectrum → New Condition Check**
+2. Click **Extensions → Museum Procedures → New Condition Check**
 3. Fill in:
    - Today's date
    - Your name
@@ -255,7 +255,7 @@ When someone asks "where is the blue vase?" you need to answer quickly. Good loc
 Every time an object moves:
 
 1. Go to the object
-2. Click **Extensions → Spectrum → Record Movement**
+2. Click **Extensions → Museum Procedures → Record Movement**
 3. Enter:
    - New location
    - Why it moved (exhibition, photography, storage)
@@ -269,7 +269,7 @@ Every time an object moves:
 ### Recording Value
 
 1. Go to the object
-2. Click **Extensions → Spectrum → Add Valuation**
+2. Click **Extensions → Museum Procedures → Add Valuation**
 3. Enter:
 
 | Field | Example |
@@ -302,11 +302,11 @@ The dashboard alerts you when renewals are due.
 ---
 
 *For technical support, contact your system administrator.*
-# Spectrum 5.0 Collections Management
+# Museum Procedures - Collections Management
 
 ## User Guide
 
-Manage museum collections using UK Collections Trust Spectrum 5.0 procedures for object entry, loans, movements, and more.
+Manage museum collections using UK Collections Trust museum procedures for object entry, loans, movements, and more.
 
 ---
 
@@ -357,7 +357,7 @@ Manage museum collections using UK Collections Trust Spectrum 5.0 procedures for
    GLAM/DAM
       │
       ▼
-   Spectrum ──────────────────────────────────────────────────┐
+   Museum ──────────────────────────────────────────────────┐
       │                                                        │
       ├──▶ Dashboard          (overview and quick actions)     │
       │                                                        │
@@ -725,7 +725,7 @@ Record object values:
 
 ---
 
-## Spectrum Dashboard
+## Museum Procedures Dashboard
 
 Quick overview of collection activity:
 ```
@@ -759,7 +759,7 @@ Quick overview of collection activity:
 
 ---
 
-## Tips for Spectrum
+## Tips for museum procedures
 ```
 ┌────────────────────────────────────────────────────────────┐
 │  ✓ DO                          │  ✗ DON'T                  │

@@ -1,6 +1,6 @@
-# Condition assessment (Spectrum 5.1) — gaps, incomplete code, and suggested enhancements
+# Condition assessment (museum procedures) — gaps, incomplete code, and suggested enhancements
 
-This note summarises the current state of Condition / Spectrum 5.1 support in the codebase, points to incomplete or fragile code paths, and proposes concrete enhancements and an implementation plan. All file references are exact repository paths so you can inspect or apply the changes locally.
+This note summarises the current state of Condition / museum procedures support in the codebase, points to incomplete or fragile code paths, and proposes concrete enhancements and an implementation plan. All file references are exact repository paths so you can inspect or apply the changes locally.
 
 1. Overview — what the codebase already provides
 - Tables and schema
@@ -12,9 +12,9 @@ This note summarises the current state of Condition / Spectrum 5.1 support in th
   - ConditionService handles DB interactions and photo operations: packages/ahg-condition/src/Services/ConditionService.php
   - SpectrumWorkflowService, SpectrumNotificationService and SpectrumStatisticsService provide workflow gating, notifications and statistics.
 - Exports and RIC
-  - The ric_extractor includes Spectrum condition extract logic (packages/ahg-ric/tools/ric_extractor_v5.py), mapping Spectrum fields into RiC/JSON-LD.
+  - The ric_extractor includes museum condition extract logic (packages/ahg-ric/tools/ric_extractor_v5.py), mapping museum fields into RiC/JSON-LD.
 - Reminders and scheduled jobs
-  - Spectrum reminder commands exist (spectrum:valuation-reminder, spectrum:condition-check-reminder) and are scheduled via the service provider.
+  - museum-procedure reminder commands exist (spectrum:valuation-reminder, spectrum:condition-check-reminder) and are scheduled via the service provider.
 
 2. First look — gaps (what's missing / weak)
 - Incomplete or fragile photo annotation support
@@ -27,7 +27,7 @@ This note summarises the current state of Condition / Spectrum 5.1 support in th
   - Condition template fields are stored (spectrum_condition_template_field) but controllers often accept freeform payloads; field-level validation and typed values (numeric/enum) are not consistently enforced.
   - Files: packages/ahg-condition/resources/views/_condition-template-form.blade.php, packages/ahg-condition/src/Services/ConditionService.php
 - Missing or inconsistent provenance and audit metadata on condition checks and photos
-  - Spectrum RiC extractor reads many fields (checked_by, workflow_state) but the condition_photo rows and condition_check events lack consistent authorship/provenance capture for AI-assisted annotations or automated imports.
+  - museum-procedure RiC extractor reads many fields (checked_by, workflow_state) but the condition_photo rows and condition_check events lack consistent authorship/provenance capture for AI-assisted annotations or automated imports.
   - Files: packages/ahg-condition/src/Services/ConditionService.php; ric_extractor references spectrum_condition_check fields but provenance entry points are sparse.
 - UI/UX issues on mobile and accessibility
   - condition-photos page heavy on JS; no explicit accessible text-tour fallback or low-bandwidth mode; photo upload UX needs client-side validation for file size and type.
@@ -36,7 +36,7 @@ This note summarises the current state of Condition / Spectrum 5.1 support in th
   - ConditionService and photo/annotation endpoints have limited automated tests (unit/feature) to catch regressions.
   - Files: packages/ahg-condition/tests/ (few if any tests found in quick scan)
 - Publication / publish-guard coupling
-  - Spectrum publish-guard (spectrum_require_photos etc.) depends on table existence; enforcement exists in SpectrumPublishGuardService, but cross-checking with upload/annotation status is brittle if background jobs fail.
+  - museum-procedure publish-guard (spectrum_require_photos etc.) depends on table existence; enforcement exists in SpectrumPublishGuardService, but cross-checking with upload/annotation status is brittle if background jobs fail.
   - Files: packages/ahg-spectrum/src/Services/SpectrumPublishGuardService.php
 
 3. Incomplete code (exact files with partial/fragile implementations)
@@ -68,7 +68,7 @@ D. Provenance and AI
 - UI should label AI-proposed annotations and require curator Accept/Reject before they become canonical.
 
 E. Performance and caching
-- Cache generated condition lists and the count metrics used by the Spectrum dashboard and invalidate on create/update/delete of checks or photos.
+- Cache generated condition lists and the count metrics used by the museum-procedures dashboard and invalidate on create/update/delete of checks or photos.
 - Add ETag / Last-Modified headers for endpoints that return heavy condition manifests (spectrumExport / condition lists).
 
 F. Accessibility & mobile UX

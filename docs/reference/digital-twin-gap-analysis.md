@@ -31,7 +31,7 @@ enabling **monitoring, simulation and prediction**.
 
 | Blueprint layer | Heratio status | Gap |
 |---|---|---|
-| Curation / content / digitisation | Strong (ISAD, RiC, Spectrum, IIIF, media pipeline) | — |
+| Curation / content / digitisation | Strong (ISAD, RiC, CCO, IIIF, media pipeline) | — |
 | Security / privacy / governance | ACL, ODRL rights, provenance, redaction, POPIA/GDPR modules | encryption / cyber hardening only |
 | Scalable infra + UI | Laravel + Three.js walkthrough (desktop + mobile), builder, plan editor | — |
 | AI supporting tech | HTR / NER / condition via the AI gateway, KM RAG | **CLOSED** - in-twin AI recommendation (#1149) shipped (LlmService over the gateway) |

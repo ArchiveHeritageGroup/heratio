@@ -55,7 +55,7 @@ Heratio implements recognised GLAM description and management standards:
 - Archival description: ISAD(G), ISAAR(CPF), ISDIAH, RAD, DACS, MODS, Dublin
   Core.
 - Graph-based description: Records in Contexts (RiC).
-- Museum procedures: Spectrum 5.1.
+- Museum procedures: museum procedures.
 
 Heritage accounting standards and jurisdictional compliance regimes are provided
 as optional, pluggable per-market modules rather than being built into the core.
@@ -80,7 +80,7 @@ Asia-Pacific are all treated as first-class target markets.
 - Research portal: researcher workspaces, projects, reports, bibliographies,
   annotations, reproductions, bookings, equipment, reading-room seats, and ODRL
   digital rights policies.
-- Museum procedures: Spectrum 5.1 workflows, condition photography, and privacy
+- Museum procedures: museum procedures workflows, condition photography, and privacy
   compliance hooks.
 - Heritage accounting: heritage asset valuation and reporting, with the
   jurisdiction-specific accounting standard supplied as a pluggable module.
@@ -107,7 +107,7 @@ by The Archive and Heritage Group (Pty) Ltd.
 
 Heratio suits organisations that need a single platform spanning archives,
 libraries, museums, and galleries; that require standards-compliant description
-such as ISAD(G), RiC, and Spectrum; that want a researcher-facing portal with
+such as ISAD(G), RiC, and CCO; that want a researcher-facing portal with
 reading-room and reproductions management; and that want optional AI-assisted
 cataloguing. Because compliance features are modular, Heratio fits institutions
 in any jurisdiction without forcing a single country's regulatory model on every

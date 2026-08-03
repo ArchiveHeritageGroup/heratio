@@ -275,8 +275,8 @@ Listed in score order. Packages with score = 0 are in the clean list above.
   - `src/Commands/SpectrumSeedWorkflowConfigs.php:61` - `// Deactivate deprecated procedures`
   - `src/Services/SpectrumNotificationService.php:413` - `// Legacy (deprecated, kept for existing DB records)`
   - `src/Controllers/SpectrumController.php:71` - `/** @deprecated Use PROC_EMERGENCY - kept for backward compatibility with existing DB records */`
-  - `src/Controllers/SpectrumController.php:73` - `/** @deprecated Merged into PROC_DEACCESSION in Spectrum 5.1 */`
-  - `src/Controllers/SpectrumController.php:75` - `/** @deprecated Not a current Spectrum 5.1 procedure name - use PROC_DOCUMENTATION / PROC_INVENTORY */`
+  - `src/Controllers/SpectrumController.php:73` - `/** @deprecated Merged into PROC_DEACCESSION in museum procedures */`
+  - `src/Controllers/SpectrumController.php:75` - `/** @deprecated Not a current museum procedures procedure name - use PROC_DOCUMENTATION / PROC_INVENTORY */`
 
 ### `ahg-condition` - score 4 (red 1, yellow 1)
 

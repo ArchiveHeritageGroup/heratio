@@ -68,7 +68,7 @@ The dashboard displays tiles for all available settings pages, grouped by functi
 | Sector Numbering | `/admin/ahgSettings/sectorNumbering` | CRUD | Numbering schemes per sector |
 | Security | `/admin/ahgSettings/security` | Dynamic | Lockout, password policy, session |
 | Services Monitor | `/admin/ahgSettings/services` | Read-only | System services health dashboard |
-| Spectrum / Collections | `/admin/ahgSettings/spectrum` | 4+ | Museum procedures, auto-movements |
+| Museum Procedures | `/admin/ahgSettings/spectrum` | 4+ | Museum procedures, auto-movements |
 | System Information | `/admin/ahgSettings/systemInfo` | Read-only | PHP, MySQL, disk, Elasticsearch status |
 | Text-to-Speech | `/admin/ahgSettings/tts` | Dedicated | Read-aloud accessibility settings |
 | Theme Configuration | `/admin/ahgSettings/themes` | Dedicated | Colours, branding, custom CSS |

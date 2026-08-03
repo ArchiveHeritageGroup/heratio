@@ -38,7 +38,7 @@ GLAM Browse automatically detects what type of material you're viewing and displ
 |       |                     |                     |                  |
 |       V                     V                     V                  |
 |   Fonds/Series   --->   Archive     --->   Hierarchy View           |
-|   Museum Object  --->   Museum      --->   Spectrum Fields          |
+|   Museum Object  --->   Museum      --->   Museum Fields          |
 |   Painting       --->   Gallery     --->   Artwork Gallery          |
 |   Book/Journal   --->   Library     --->   Bibliographic View       |
 |   Photograph     --->   DAM         --->   Photo Grid               |
@@ -199,7 +199,7 @@ GLAM Browse automatically detects what type of material you're viewing and displ
 +---------------------------------------------------------------------+
 |                        MUSEUM MODE                                   |
 +---------------------------------------------------------------------+
-|  Standards: Spectrum 5.0                                             |
+|  Standards: museum procedures                                             |
 |  Default Layout: Detail                                              |
 |  Icon: Landmark                                                      |
 +---------------------------------------------------------------------+

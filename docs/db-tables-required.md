@@ -81,7 +81,7 @@ Generated 2026-04-12. **Audit-only, no code changes.**
 ### IIIF 3D (2 tables)
 `three_d_hotspot`, `three_d_model` - exist as `object_3d_model` + `object_3d_model_i18n`. Possibly a typo (Category A) or a separate feature table. Needs verification.
 
-### Spectrum (1 table)
+### Museum procedures (1 table)
 `spectrum_loan` - exists as `spectrum_loan_in` / `spectrum_loan_out` / `spectrum_loan_agreements` / `spectrum_loan_document`. This may be a typo - code expects a single `spectrum_loan` header table.
 
 ### Misc (6 tables)

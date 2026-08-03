@@ -731,7 +731,7 @@ public function transformDescription($row, $detail = false)
 | 353 | `archive` | ISAD(G) |
 | 449 | `museum` | CCO |
 | 1691 | `dam` | IPTC/XMP |
-| 1696 | `gallery` | Spectrum 5.0 |
+| 1696 | `gallery` | museum procedures |
 | 1705 | `library` | MARC-inspired |
 
 ---

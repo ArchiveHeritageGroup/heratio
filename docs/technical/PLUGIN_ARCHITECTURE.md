@@ -104,7 +104,7 @@ The Heratio migration adds an alternative rendering path. When `.heratio_enabled
 │  └── ahgDisplayPlugin ───────── Browse/display (owns: informationobject, etc.)  │
 │                                                                                  │
 │  SECTOR (Profile-only, no module actions)                                        │
-│  ├── ahgMuseumPlugin ─────────── Museum profiles, CCO, Spectrum                 │
+│  ├── ahgMuseumPlugin ─────────── Museum profiles, CCO                 │
 │  ├── ahgLibraryPlugin ────────── Library profiles, MARC, ISBN                   │
 │  ├── ahgGalleryPlugin ────────── Gallery profiles, artwork metadata             │
 │  └── ahgDAMPlugin ────────────── DAM profiles, media management                 │
@@ -289,7 +289,7 @@ $panels = AhgPanels::forPosition('informationobject', 'sidebar', $record);
 // Register sector (in Museum plugin)
 AhgSectorProfile::register('museum', [
     'name' => 'Museum',
-    'standard' => 'Spectrum 5.0',
+    'standard' => 'museum procedures',
     'labels' => [
         'extent' => 'Dimensions',
         'scopeAndContent' => 'Object Description'
@@ -340,7 +340,7 @@ plugin-name/
 
 ### 6.1 The Problem
 
-Sector plugins (Gallery, Museum, DAM) and shared menus (theme, reports) contain links to features provided by optional capability plugins (Spectrum, Provenance, GRAP, etc.). When those plugins are disabled, the links become broken (404 errors or blank pages).
+Sector plugins (Gallery, Museum, DAM) and shared menus (theme, reports) contain links to features provided by optional capability plugins (Museum Procedures, Provenance, GRAP, etc.). When those plugins are disabled, the links become broken (404 errors or blank pages).
 
 ### 6.2 The `ahg_is_plugin_enabled()` Helper
 

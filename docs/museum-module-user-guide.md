@@ -2,7 +2,7 @@
 
 ## User Guide
 
-Catalog museum objects using Spectrum 5.0 and CCO standards for artifacts, artworks, specimens, and collections. Manage exhibitions, loans, provenance, and condition assessments.
+Catalog museum objects using museum procedures and CCO standards for artifacts, artworks, specimens, and collections. Manage exhibitions, loans, provenance, and condition assessments.
 
 ---
 
@@ -62,7 +62,7 @@ Catalog museum objects using Spectrum 5.0 and CCO standards for artifacts, artwo
               │                                                 │
               ├──▶ Browse Objects      (view collection)        │
               ├──▶ Add Object          (create new record)      │
-              ├──▶ Spectrum Procedures (loans, movements)       │
+              ├──▶ Museum Procedures (loans, movements)       │
               ├──▶ Condition Reports   (assess condition)       │
               └──▶ CCO Dashboard       (overview and stats)     │
 ```
@@ -607,7 +607,7 @@ Record the object's physical state:
 
 ---
 
-## Spectrum Procedures
+## Museum Procedures
 
 Access collection management workflows:
 ```

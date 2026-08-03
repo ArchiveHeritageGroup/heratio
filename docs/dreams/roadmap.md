@@ -16,7 +16,7 @@ A complete, standards-based GLAM platform, international by design (jurisdiction
 - Archival description (ISAD(G) + RiC), actors (ISAAR), repositories (ISDIAH), class-table-inheritance entity model
 - Elasticsearch discovery, advanced search, GLAM browse
 - Research portal (workspaces, projects, bibliographies, annotations, reproductions, bookings, ODRL rights)
-- Spectrum 5.1 museum procedures; heritage accounting (GRAP 103 module for SA, pluggable for other markets)
+- museum procedures museum procedures; heritage accounting (GRAP 103 module for SA, pluggable for other markets)
 - AI services via the AHG gateway: HTR, NER, condition scan, neural TTS docent, translation
 - REST API (v1/v2), ingest wizard, scanner/capture pipeline, reports/dashboards, 221+ help articles
 - **Exhibition digital twin** (roadmap [#1145](https://github.com/ArchiveHeritageGroup/heratio/issues/1145), delivered): builder, plan editor, first-person 3D walkthrough, authored audio tours, multi-user presence + live docent, live conservation-data overlay, simulation/forecast, twin analytics, in-twin AI recommendation, immersive XR/VR, photoreal scan shells + point clouds, open exports (IIIF / glTF scene / JSON-LD ExhibitionEvent), colour-managed renderer, windows/doors authoring

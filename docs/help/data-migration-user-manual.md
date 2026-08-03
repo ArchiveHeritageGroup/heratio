@@ -489,9 +489,9 @@ php artisan sector:archives-csv-import /path/to/file.csv --mapping=10 --limit=10
 | subjectAccessPoints | 6XX | Subject headings |
 | nameAccessPoints | 7XX | Added entries |
 
-### 10.3 Museum (Spectrum) Fields
+### 10.3 Museum Fields
 
-| Heratio Field | Spectrum Unit | Description |
+| Heratio Field | Museum Unit | Description |
 |------------|---------------|-------------|
 | identifier | Object Number | Unique object number |
 | title | Object Name | Name of object |

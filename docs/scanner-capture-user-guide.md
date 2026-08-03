@@ -18,7 +18,7 @@ Three ways to get scans into Heratio:
 | Mode | You do | Best for |
 |---|---|---|
 | **Watched folder - path layout** | Drop files into `<folder>/<parent-slug>/<identifier>/page_001.tiff` | Simple; scanner station saves straight to a shared folder |
-| **Watched folder - flat sidecar** | Drop `ARC-001.tiff` + `ARC-001.xml` in the same folder | Rich metadata (ISAD(G), MARC, LIDO, Spectrum, etc.) without encoding everything in paths |
+| **Watched folder - flat sidecar** | Drop `ARC-001.tiff` + `ARC-001.xml` in the same folder | Rich metadata (ISAD(G), MARC, LIDO, CCO, etc.) without encoding everything in paths |
 | **Scan API** | POST to `/api/v2/scan/*` from the scanner application or a wrapper script | Direct integration (VueScan, NAPS2, custom software) |
 
 | You configure | Heratio does |
@@ -118,7 +118,7 @@ the pipeline writes sector-specific rows **in addition to** the core IO:
 | `archive` | `information_object`, `information_object_i18n`, `slug`, `status` | Core only - nothing extra |
 | `library` | `library_item`, `library_item_creator`, `library_item_subject`, `library_copy`, `library_creator`, `library_subject` | ISBN/ISSN/edition/publisher/pagination; creators + subjects linked; `holdings/copy` entries populate `library_copy` |
 | `gallery` | `gallery_artwork`, `gallery_artist`, `gallery_valuation`, `museum_metadata`, `event` (type=Creation) | Artists auto-created as actors when `output_create_authorities=1`; descriptive fields (medium, techniques, dimensions, movement, provenance) land in `museum_metadata` (shared with museum sector) |
-| `museum` | `museum_object`, `museum_metadata`, `event`, plus optionally `spectrum_object_entry` + `spectrum_acquisition` when `spectrum_auto_enter=1` | Object number, accession number, classification, materials, cultural affiliation, measurements, current location, Spectrum workflow entry |
+| `museum` | `museum_object`, `museum_metadata`, `event`, plus optionally `spectrum_object_entry` + `spectrum_acquisition` when `spectrum_auto_enter=1` | Object number, accession number, classification, materials, cultural affiliation, measurements, current location, museum-procedure workflow entry |
 
 ### Authority auto-creation
 
@@ -135,13 +135,13 @@ The draft actor has the sidecar's `uri` attribute stored in
 `actor.description_identifier`, so you can later reconcile against Getty
 ULAN / LCNAF / ORCID.
 
-### Spectrum auto-entry (museum sector)
+### Museum-procedure auto-entry (museum sector)
 
 Off by default - museum scans create `museum_object` + `museum_metadata`
 only. Turn on `spectrum_auto_enter=1` at folder-config time to
 automatically create a `spectrum_object_entry` (workflow state:
 *received*) and a `spectrum_acquisition` row when the sidecar includes a
-`<spectrum>` block. Suitable for institutions that run the full Spectrum
+`<spectrum>` block. Suitable for institutions that run the full museum-procedure
 5.1 workflow.
 
 ### Controlled vocabularies
@@ -187,7 +187,7 @@ Scan Inbox awaiting a human approval.
    - **Layout** - keep as *Path as destination* for now.
    - **Sector** - archive / library / gallery / museum.
    - **Standard** - descriptive standard (ISAD(G), RAD, DACS, MARC21,
-     MODS, LIDO, Spectrum, Darwin Core, etc.).
+     MODS, LIDO, CCO, Darwin Core, etc.).
    - **Default parent** - optional fallback if a dropped file's path does
      not resolve to a known slug.
    - **Repository** - optional; inherited by every IO created from this
@@ -244,7 +244,7 @@ pending → virus → format → io → do → meta → sector-route → rights
 6. **Sector-route** - based on the sidecar sector, writes to
    `library_item` / `gallery_artwork` + `museum_metadata` /
    `museum_object`; auto-creates draft actors for new creators; enters
-   Spectrum workflow when opted in.
+   museum-procedure workflow when opted in.
 7. **Rights** - applies rights block (statements, CC, embargo, ODRL,
    TK). Holds the file in `awaiting_rights` when a security
    classification is set but no rights were supplied.
@@ -607,7 +607,7 @@ yet scheduled.
 - **Sector-aware destination routing (library / gallery / museum)** -
   parses sector-specific fields from the sidecar and writes to
   `library_item` / `gallery_artwork` / `museum_object` /
-  `museum_metadata`, plus optional Spectrum-workflow entry for museums,
+  `museum_metadata`, plus optional museum-procedure-workflow entry for museums,
   plus authority auto-creation (creators/artists) with configurable
   opt-out. ✅ **Delivered (P3).**
 - **Sidecar XML** (`<heratioScan>` envelope) - rich per-file metadata
@@ -688,7 +688,7 @@ yet scheduled.
 - **Alternate sidecar formats** (METS accepted alongside
   `heratioScan`). **Status: Open - plan §12 question #1.** Proposed
   as a transform plugin rather than core.
-- **Spectrum workflow auto-activation** on museum-sector scans.
+- **museum-procedure workflow auto-activation** on museum-sector scans.
   **Status: Open - plan §12 question #7.** Proposed as an opt-in flag
   per folder, default off.
 

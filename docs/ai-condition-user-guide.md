@@ -1,6 +1,6 @@
 # ahgAiConditionPlugin - AI Condition Assessment
 
-The **ahgAiConditionPlugin** runs **automatic condition assessments** on digital images of archival material (photographs, manuscripts, books, art on paper) and writes the results back as a structured **Spectrum 5.1 condition report**.
+The **ahgAiConditionPlugin** runs **automatic condition assessments** on digital images of archival material (photographs, manuscripts, books, art on paper) and writes the results back as a structured **museum procedures condition report**.
 
 It is the AI counterpart to the manual condition workflow in `ahgConditionPlugin`. Where the manual flow asks an archivist to fill a form, the AI flow looks at the image, generates a draft assessment (foxing, tears, fading, mould, damp, support deformation, ink loss, …), assigns severity grades, and pre-populates the form so the archivist only has to **review and accept**.
 
@@ -10,7 +10,7 @@ It is the AI counterpart to the manual condition workflow in `ahgConditionPlugin
 
 | Capability | Detail |
 | --- | --- |
-| Visual triage | Scans every image attached to an information object and grades it on the Spectrum **Stable / Fair / Poor / Unstable** scale |
+| Visual triage | Scans every image attached to an information object and grades it on the **Stable / Fair / Poor / Unstable** scale |
 | Defect detection | Identifies common defects (foxing, tears, water damage, fading, support loss, biological attack, etc.) by region |
 | Heatmap overlay | Renders a per-defect mask over the image so the conservator can visually verify |
 | Severity score | Assigns a 0-100 severity based on defect coverage, defect type, and image area affected |
@@ -44,7 +44,7 @@ The plugin is gated behind `ahgAIPlugin` and `ahgConditionPlugin` - both must be
 | `ai_condition_severity_threshold` | Below this score, no condition_report is written (image is healthy) | `15` |
 | `ai_condition_auto_run_on_ingest` | If true, every newly-ingested IO with an attached image gets queued automatically | `false` |
 | `ai_condition_concurrency` | Parallel jobs run by the queue worker | `2` |
-| `ai_condition_taxonomies` | Which Spectrum taxonomies feed the picklists (defects, treatments, urgency) | `condition_defect, conservation_action, urgency` |
+| `ai_condition_taxonomies` | Which museum condition taxonomies feed the picklists (defects, treatments, urgency) | `condition_defect, conservation_action, urgency` |
 
 Auto-run is disabled by default - running vision-LM inference on every new image is expensive. Turn it on once you've sized your queue + GPU.
 
@@ -117,15 +117,15 @@ Failures (network, model timeout, malformed JSON) leave the report in `failed` s
 - **No GPU = it crawls.** CPU-only inference takes ~2-5 minutes per image. Wire up a GPU box (RTX 3070+ recommended) and point `ai_condition_endpoint` at it. See the server 192.168.0.78 setup notes.
 - **Thumbnails are useless.** If the only digital object is a 500-px reference image, the model has nothing to work with. The plugin skips anything below `ai_condition_min_resolution_px`.
 - **Heatmap not appearing?** Check `{storage_path}/uploads/r/<repo>/condition/<id>/` - if the file is there but not visible, your nginx alias for `/uploads/` might be missing for that repo. The plugin doesn't write its own static-file route.
-- **Spectrum vs AI defect taxonomies.** The plugin ships its own `condition_defect_ai` taxonomy that is a *superset* of the manual `condition_defect` one. When publishing, it maps AI labels back to the manual taxonomy - if a label has no mapping, it lands as a free-text note.
+- **Museum-procedure vs AI defect taxonomies.** The plugin ships its own `condition_defect_ai` taxonomy that is a *superset* of the manual `condition_defect` one. When publishing, it maps AI labels back to the manual taxonomy - if a label has no mapping, it lands as a free-text note.
 - **Auto-run + bulk ingest = job storm.** Turning auto-run on while a 50,000-row CSV ingest runs will queue 50,000 vision-LM jobs. Set `ai_condition_concurrency` low or run the ingest with auto-run off, then a separate batch afterwards.
 
 ---
 
 ## Related
 
-- **`ahgConditionPlugin`** - manual Spectrum condition reports; the AI plugin writes into the same data model.
+- **`ahgConditionPlugin`** - manual museum condition reports; the AI plugin writes into the same data model.
 - **`ahgAIPlugin`** - parent plugin; provides the model endpoint, OCR, NER, summary, translate.
 - **`ahgPreservationPlugin`** - OAIS preservation - a Poor/Unstable AI verdict can auto-create a preservation event.
-- **`ahgSpectrumPlugin`** - Spectrum 5.1 procedures; condition assessment is one of the 21 Spectrum procedures.
+- **`ahgSpectrumPlugin`** - museum procedures; condition assessment is one of the 21 museum procedures.
 - **Help articles**: *AI Tools - Overview*, *Condition Reports - Manual Workflow*

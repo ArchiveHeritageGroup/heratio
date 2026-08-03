@@ -13,7 +13,7 @@ Every row carries:
 - model name and version
 - sha256 of input + output bytes plus a 500-char excerpt for human inspection
 - confidence (where the model exposes one)
-- the cataloguing standard the inference targets (ISAD(G), ICIP, RiC-O, Spectrum 5.1)
+- the cataloguing standard the inference targets (ISAD(G), ICIP, RiC-O, museum procedures)
 - target entity, field, timestamp, triggering user
 - the Fuseki named graph URI where the canonical RDF-Star representation was written
 

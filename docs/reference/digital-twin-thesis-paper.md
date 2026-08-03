@@ -86,7 +86,7 @@ Heratio's `ahg-exhibition` package provides:
 - **Supporting technologies (6.4)**: an institutional AI gateway (HTR, NER, condition
   assessment) and a retrieval-augmented knowledge base (KM), all called through one
   governed endpoint.
-- **Content management (layer 7)**: ISAD(G)/RiC description, Spectrum procedures, IIIF
+- **Content management (layer 7)**: ISAD(G)/RiC description, museum procedures, IIIF
   deep-zoom, a media pipeline, ODRL rights, provenance, PII redaction, and pluggable
   per-market privacy modules (POPIA/GDPR).
 
@@ -106,7 +106,7 @@ data - i.e. it qualifies as a digital twin, not merely a virtual model.
 | 6.3 Security and privacy | ACL, ODRL, provenance, redaction, POPIA/GDPR modules | Built (encryption/cyber hardening pending) |
 | 6.4 AI / ML / analytics / recommendation | Gateway (HTR/NER/condition), KM RAG, analytics dashboard, in-twin recommendation | Built (blockchain not adopted) |
 | **6.5 Digital-twinning process (real-time + simulation + prediction)** | Live readings overlay + conservation/visitor simulation + light-dose prediction | **Built (the defining loop)** |
-| 7 Content management (policy, access, curation, governance, interoperable sharing) | ISAD/RiC/Spectrum/IIIF/media pipeline, data governance | Built (twin-level FAIR federation pending) |
+| 7 Content management (policy, access, curation, governance, interoperable sharing) | ISAD/RiC/CCO/IIIF/media pipeline, data governance | Built (twin-level FAIR federation pending) |
 
 ## 5. What remains outstanding (future work)
 

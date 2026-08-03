@@ -33,7 +33,7 @@ and `slug` tables) but replaces the Symfony 1.x application layer with a modern
 Laravel monorepo of **~115 first-party packages** under `packages/ahg-*`.
 
 The platform is multi-sector: archives, libraries (MARC/Z39.50/SRU), museums
-(Spectrum/CCO), galleries, records management, research-data management (RDM), and
+((CCO)), galleries, records management, research-data management (RDM), and
 a large AI layer — all over one shared catalogue.
 
 ---

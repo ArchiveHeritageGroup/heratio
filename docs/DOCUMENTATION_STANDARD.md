@@ -163,7 +163,7 @@ Links to related guides and technical docs.
 - ...
 
 ## Compliance & Standards
-List applicable standards (ISAD(G), POPIA, Spectrum, etc.)
+List applicable standards (ISAD(G), POPIA, CCO, etc.)
 
 ## Technical Requirements
 - PHP version

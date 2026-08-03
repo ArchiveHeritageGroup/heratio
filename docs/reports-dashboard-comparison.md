@@ -24,8 +24,8 @@ Single edit to `packages/ahg-reports/resources/views/dashboard.blade.php`. No ne
 
 | Card / Section | Old (broken) | New (fixed) |
 |----------------|--------------|-------------|
-| Spectrum Workflow (5) | `/spectrum/dashboard`, `/my-tasks`, `/workflows`, `/notifications` | `/admin/spectrum/dashboard`, `/my-tasks`, `/workflow`, `/notifications` |
-| Spectrum Export (3) | `/spectrum/export` | `/admin/spectrum/export` |
+| Museum Procedure Workflow (5) | `/spectrum/dashboard`, `/my-tasks`, `/workflows`, `/notifications` | `/admin/spectrum/dashboard`, `/my-tasks`, `/workflow`, `/notifications` |
+| Museum Procedures Export (3) | `/spectrum/export` | `/admin/spectrum/export` |
 | Access Requests (9) | `/admin/access-requests` (kebab) | `/admin/accessRequests` (camelCase, actual route) |
 | Audit (10) | `/audit/statistics`, `/audit/browse`, `/audit/export` | `/admin/audit/statistics`, `/admin/audit`, `/admin/audit/export` |
 | Privacy & Data Protection (11) | `/privacyAdmin`, `/privacyAdmin/ropaList`, `/dsarList`, `/breachList`, `/paiaList`, `/officerList`, `/config` | `/admin/privacy/dashboard`, `/ropa-list`, `/dsar-list`, `/breach-list`, `/paia-list`, `/officer-list`, `/config` |
@@ -350,14 +350,14 @@ These are NOT broken - the previous detection script used literal grep that coul
 | 2 | Sector Dashboards | `bg-info` | `bg-info` | YES - reordered to match | YES |
 | 3 | Export | `bg-success` | `bg-success` | YES (superset) | YES |
 | 4 | Approval Workflow | `#6610f2` | `#6610f2` | YES - added Publish Gates | YES |
-| 5 | Spectrum Workflow | `#0d6efd` | `#0d6efd` | YES (superset) | YES |
+| 5 | Museum Procedure Workflow | `#0d6efd` | `#0d6efd` | YES (superset) | YES |
 | 6 | Research Services | `#0d6efd` | `#0d6efd` | YES - cloned 6 AtoM links | YES |
 | 7 | Knowledge Platform | `#6610f2` | `#6610f2` | YES - cloned 6 AtoM links | YES |
 | 8 | Research Admin | `#198754` | `#198754` | YES - cloned 5 AtoM links | YES |
 | 9 | Access Requests | `#0d6efd` | `#0d6efd` | YES (3 links) | YES |
 | 10 | Security & Compliance | `bg-danger` | `bg-danger` | YES - added Audit Statistics | YES |
 | 11 | Privacy & Data Protection | `bg-warning` | `bg-warning` | YES (7 links) | YES |
-| 12 | Condition (Spectrum 5.1) | `bg-secondary` | `bg-secondary` | YES (3 links) | YES |
+| 12 | Condition (museum procedures) | `bg-secondary` | `bg-secondary` | YES (3 links) | YES |
 | 13 | AI Condition Assessment | `bg-success` | `bg-success` | YES - 7 links matching AtoM | YES |
 | - | Assessment Statistics | - | `bg-success` | Heratio extra (kept) | - |
 | - | Grade Distribution | - | `bg-success` | Heratio extra (kept) | - |
@@ -454,11 +454,11 @@ These are NOT broken - the previous detection script used literal grep that coul
 | 12c | Digital Objects | 4 columns | 4 columns | YES |
 | 12d | Thumbnails | Card grid | Card grid | YES |
 
-### Block 1: Spectrum Reports
+### Block 1: Museum Procedure Reports
 
 | # | Page | AtoM | Heratio | Cloned? |
 |---|------|------|---------|---------|
-| 13 | Spectrum Index | 2col, sidebar, 4 stats + Procedure Summary + Recent Activity | Same - dashboard with stats, summary, activity | YES |
+| 13 | Museum Procedures Index | 2col, sidebar, 4 stats + Procedure Summary + Recent Activity | Same - dashboard with stats, summary, activity | YES |
 | 13a | Object Entry | 5 columns (Object/Entry Date/Entry Number/Depositor/Reason) | 5 columns, 2col, table-dark | YES |
 | 13b | Acquisitions | 4 columns (Object/Date/Method/Source) | 4 columns, 2col, table-dark | YES |
 | 13c | Loans | 2 tables (Loans In + Loans Out), 5 columns each | 2 tables, 5 columns each, status badges | YES |
@@ -474,7 +474,7 @@ These are NOT broken - the previous detection script used literal grep that coul
 | 2 | Sector Dashboards | All sector dashboard routes verified | Links only |
 | 3 | Export | Export routes exist | Links only |
 | 4 | Approval Workflow | All workflow routes verified | Links only |
-| 5 | Spectrum Workflow | All spectrum routes verified | Links only |
+| 5 | Museum Procedure Workflow | All spectrum routes verified | Links only |
 
 ### Blocks 6–36: Destination Page Audit (122 pages)
 

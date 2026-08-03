@@ -48,7 +48,7 @@ A sector-aware CSV exporter. The sector picker is bound to the
 `data_migration_sector` taxonomy in `ahg_dropdown` and accepts `archive`,
 `museum`, `library`, `gallery` and `dam` out of the box. The column resolver
 returns a sector-specific column / label map - for example the museum sector
-uses Spectrum semantics (Object number, Materials, Technique) while the
+uses museum-procedure semantics (Object number, Materials, Technique) while the
 library sector uses MARC / RDA semantics (Call number, Author, ISBN).
 
 GET renders the picker view; POST streams the CSV.

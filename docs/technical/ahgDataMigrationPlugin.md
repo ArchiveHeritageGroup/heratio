@@ -77,7 +77,7 @@ atom-ahg-plugins/ahgDataMigrationPlugin/
 │   ├── install.sql
 │   ├── samples/                   # NEW: Sample CSV files
 │   │   ├── archives_sample.csv   # ISAD-G hierarchy example
-│   │   ├── museum_sample.csv     # Spectrum objects
+│   │   ├── museum_sample.csv     # museum objects
 │   │   ├── library_sample.csv    # MARC/RDA records
 │   │   ├── gallery_sample.csv    # CCO artworks
 │   │   └── dam_sample.csv        # Dublin Core assets
@@ -148,7 +148,7 @@ atom-ahg-plugins/ahgDataMigrationPlugin/
 │       ├── migrationImportTask.class.php
 │       ├── sectorImportTask.class.php         # NEW: Base sector import
 │       ├── archivesCsvImportTask.class.php    # NEW: ISAD-G import
-│       ├── museumCsvImportTask.class.php      # NEW: Spectrum import
+│       ├── museumCsvImportTask.class.php      # NEW: museum-procedure import
 │       ├── libraryCsvImportTask.class.php     # NEW: MARC/RDA import
 │       ├── galleryCsvImportTask.class.php     # NEW: CCO import
 │       ├── damCsvImportTask.class.php         # NEW: Dublin Core import
@@ -699,7 +699,7 @@ Each sector has specialized validation rules:
 | Validator | Sector | Key Validations |
 |-----------|--------|-----------------|
 | `ArchivesValidator` | ISAD-G | Level hierarchy, fonds→series→file→item flow |
-| `MuseumValidator` | Spectrum | Object number format, acquisition date |
+| `MuseumValidator` | Museum procedures | Object number format, acquisition date |
 | `LibraryValidator` | MARC/RDA | ISBN-10/13 checksum, ISSN format |
 | `GalleryValidator` | CCO | Work type vocabulary, creator format |
 | `DamValidator` | Dublin Core | DC type, MIME type, GPS coordinates |
@@ -1102,7 +1102,7 @@ abstract class BaseExporter
 | Exporter | Columns | Standard |
 |----------|---------|----------|
 | `ArchivesExporter` | 45 | ISAD(G) |
-| `MuseumExporter` | 38 | Spectrum 5.1 |
+| `MuseumExporter` | 38 | museum procedures |
 | `LibraryExporter` | 32 | MARC/RDA |
 | `GalleryExporter` | 35 | CCO/VRA |
 | `DamExporter` | 52 | Dublin Core/IPTC |
@@ -1116,7 +1116,7 @@ Located in `data/mappings/defaults/`:
 | `library.json` | Maps MARC/RDA fields (ISBN, call number, publisher, etc.) |
 | `gallery.json` | Maps CCO/VRA fields (creator, provenance, exhibition history, etc.) |
 | `dam.json` | Maps Dublin Core/IPTC fields (camera metadata, GPS, keywords, etc.) |
-| `museum.json` | Maps Spectrum 5.1 fields |
+| `museum.json` | Maps museum procedures fields |
 | `information_object.json` | Generic ISAD(G) mapping |
 
 ### Database Export (NEW in 1.4.0)
@@ -1386,7 +1386,7 @@ class MuseumSector implements SectorInterface
             'inscriptions' => ['required' => false],
             'condition' => ['required' => false],
             
-            // Spectrum fields
+            // museum fields
             'acquisitionMethod' => ['required' => false],
             'acquisitionDate' => ['required' => false],
             'currentLocation' => ['required' => false],
@@ -1533,7 +1533,7 @@ abstract class sectorImportTask extends arBaseTask
 | Task Class | Command | Sector |
 |------------|---------|--------|
 | `archivesCsvImportTask` | `php symfony sector:archives-csv-import` | ISAD-G |
-| `museumCsvImportTask` | `php symfony sector:museum-csv-import` | Spectrum |
+| `museumCsvImportTask` | `php symfony sector:museum-csv-import` | Museum procedures |
 | `libraryCsvImportTask` | `php symfony sector:library-csv-import` | MARC/RDA |
 | `galleryCsvImportTask` | `php symfony sector:gallery-csv-import` | CCO |
 | `damCsvImportTask` | `php symfony sector:dam-csv-import` | Dublin Core |

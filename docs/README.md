@@ -24,7 +24,7 @@ Documentation for **Heratio** - a standalone Laravel 12 GLAM (Gallery, Library, 
 | Cart & E-Commerce | [cart-ecommerce-user-guide.md](cart-ecommerce-user-guide.md) |
 | ODRL Rights | [rights-management-user-guide.md](rights-management-user-guide.md) |
 | Heritage Accounting | [heritage-accounting-user-guide.md](heritage-accounting-user-guide.md) |
-| Spectrum 5.1 | [spectrum-user-guide.md](spectrum-user-guide.md) |
+| museum procedures | [spectrum-user-guide.md](spectrum-user-guide.md) |
 | AI Tools | [ai-tools-user-guide.md](ai-tools-user-guide.md) |
 | API | [api-user-guide.md](api-user-guide.md) |
 | RiC | [ric-user-guide.md](ric-user-guide.md) |

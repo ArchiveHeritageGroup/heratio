@@ -68,9 +68,9 @@ This ADR locks the seven architectural decisions that gate the rest of the work.
 ### 4. Standard attribution is inference-site, not record-level
 
 - Each inference declares the standard it is targeting via the `standard` column / `ex:standard` predicate.
-- Examples: NER → `ICIP-subject-indexing` or `Spectrum-5.1-subject`. HTR → `ISAD(G)-physical_characteristics`. Translation → `Heratio-i18n-NLLB-200` (or whatever model is in play). LLM summary → `RiC-O-scope_and_content`.
+- Examples: NER → `ICIP-subject-indexing` or `museum-procedure-subject`. HTR → `ISAD(G)-physical_characteristics`. Translation → `Heratio-i18n-NLLB-200` (or whatever model is in play). LLM summary → `RiC-O-scope_and_content`.
 
-**Why inference-site:** the standard is a property of the production decision, not the record. The same record can have one field generated against ISAD(G) and another against Spectrum 5.1; only the inference knows which.
+**Why inference-site:** the standard is a property of the production decision, not the record. The same record can have one field generated against ISAD(G) and another against museum procedures; only the inference knows which.
 
 ### 5. Confidence threshold is per-service, configured in `ahg_settings`
 

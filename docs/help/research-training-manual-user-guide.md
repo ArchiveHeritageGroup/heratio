@@ -1403,7 +1403,7 @@ When materials are handed to a researcher:
 
 **What Happens:**
 1. A custody handoff record is created
-2. A Spectrum movement record is auto-generated (movement reason: `research_checkout`)
+2. A museum movement record is auto-generated (movement reason: `research_checkout`)
 3. The material request status changes to `in_use`
 4. The physical object's access status updates to `in_use`
 5. A workflow event is emitted for the audit trail
@@ -1422,7 +1422,7 @@ When materials are returned by a researcher:
 
 **What Happens:**
 1. A custody handoff record is created (type: `checkin`)
-2. A Spectrum movement record is auto-generated (movement reason: `research_return`)
+2. A museum movement record is auto-generated (movement reason: `research_return`)
 3. The material request status changes to `returned`
 4. The physical object's access status updates to `available`
 5. Current location updates to "Return shelf (pending re-shelving)"
@@ -1472,19 +1472,19 @@ View the full chain of custody for any archival object. The chain combines data 
 | Source | Icon | Description |
 |--------|------|-------------|
 | Custody Handoff | Hand icon (blue) | Research checkout/checkin/transfer events |
-| Spectrum Movement | Truck icon (cyan) | Physical movement records |
+| Museum Movement | Truck icon (cyan) | Physical movement records |
 | Provenance | Scroll icon (yellow) | Historical provenance events |
 
 **Table Columns:**
 - Date, Source, Event Type, From (handler + location), To (handler + location), Condition, Confirmed (signature), Notes
 
-### Spectrum Movement Integration
+### Museum Movement Integration
 
 Every custody handoff automatically creates a corresponding `spectrum_movement` record:
 - Movement reference: `RR-{request ID}`
 - Includes condition before/after
 - Links back to the custody handoff via foreign key
-- Compliant with Spectrum 5.1 Object Location and Movement Control procedures
+- Compliant with museum object location and movement control procedures
 
 ---
 

@@ -850,7 +850,7 @@ User can access a record when:
 
 ## 5. Condition Assessment ERD (ahgConditionPlugin)
 
-**8 tables** - Condition reporting, damage tracking, conservation, scheduling, and controlled vocabularies. Spectrum 5.1 compliant.
+**8 tables** - Condition reporting, damage tracking, conservation, scheduling, and controlled vocabularies. museum procedures compliant.
 
 ### Tables
 
@@ -863,7 +863,7 @@ User can access a record when:
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                          ahgConditionPlugin - Condition Assessment ERD                                │
-│                                   Spectrum 5.1 Compliance                                            │
+│                                   Museum Procedure Compliance                                            │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
   ┌──────────────────────────────────────────────────┐
@@ -969,7 +969,7 @@ User can access a record when:
      condition_image.digital_object_id ─────► digital_object.id (photo documentation)
 
    CROSS-PLUGIN: condition_conservation_link.treatment_id ► spectrum_conservation.id
-                 (links to ahgSpectrumPlugin for Spectrum 5.1 conservation treatments)
+                 (links to ahgSpectrumPlugin for museum procedures conservation treatments)
                  ahg_loan_condition_report (ahgLoanPlugin) references condition data
                  ahg_ai_condition_assessment (ahgAIPlugin) AI-powered assessments
   ════════════════════════════════════════════════════════════════════════

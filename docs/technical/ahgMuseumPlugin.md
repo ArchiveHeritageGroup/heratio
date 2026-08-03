@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Museum Plugin provides comprehensive museum object cataloguing following CCO (Cataloging Cultural Objects) and Spectrum 5.0 standards. It includes exhibition management, loan tracking, provenance documentation, condition assessments, and Getty vocabulary integration.
+The Museum Plugin provides comprehensive museum object cataloguing following CCO (Cataloging Cultural Objects) and museum procedures standards. It includes exhibition management, loan tracking, provenance documentation, condition assessments, and Getty vocabulary integration.
 
 ## Version
 
@@ -554,7 +554,7 @@ all:
 
 ### With Other Plugins
 - **ahgConditionPlugin**: Shared condition assessment framework
-- **ahgSpectrumPlugin**: Spectrum 5.0 procedure workflows
+- **ahgSpectrumPlugin**: museum procedures procedure workflows
 - **ahgAuditTrailPlugin**: Change tracking
 - **ahgPreservationPlugin**: Digital preservation for museum media
 
@@ -642,7 +642,7 @@ php symfony cc
 
 ### v1.0.0 (Initial Release)
 - CCO cataloguing forms
-- Spectrum 5.0 procedures
+- museum procedures
 - Loan management (in/out)
 - Provenance tracking with D3.js visualization
 - Condition assessments

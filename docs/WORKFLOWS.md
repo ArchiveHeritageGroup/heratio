@@ -92,7 +92,7 @@
 │  │   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │   │
 │  │   │   Museum    │  │   Library   │  │   Gallery   │  │     DAM     │    │   │
 │  │   │             │  │             │  │             │  │             │    │   │
-│  │   │ Spectrum 5.0│  │ MARC/RDA    │  │  Artwork    │  │   Media     │    │   │
+│  │   │ museum procedures│  │ MARC/RDA    │  │  Artwork    │  │   Media     │    │   │
 │  │   │ CCO/CIDOC   │  │ ISBN lookup │  │  Cataloging │  │   Assets    │    │   │
 │  │   └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘    │   │
 │  │          │                │                │                │            │   │
@@ -128,7 +128,7 @@
 │  │   │   • Material: Oil paint, Bronze, Marble, Wood...               │    │   │
 │  │   │                                                                 │    │   │
 │  │   │ Standards:                                                      │    │   │
-│  │   │   • Spectrum 5.0 procedures enabled                            │    │   │
+│  │   │   • museum procedures enabled                            │    │   │
 │  │   │   • CCO metadata fields available                              │    │   │
 │  │   └────────────────────────────────────────────────────────────────┘    │   │
 │  └─────────────────────────────────────────────────────────────────────────┘   │

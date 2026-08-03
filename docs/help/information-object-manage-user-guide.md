@@ -57,7 +57,7 @@ The edit form is structured into the seven ISAD(G) areas:
 
 All title-style fields (title, scope_and_content, archival_history, …) live in `information_object_i18n` per culture; structural fields (identifier, parent_id, level_of_description_id, repository_id) live in `information_object`.
 
-The plugin also supplements ISAD(G) with optional sidebar panels (visible when the relevant secondary plugin is enabled): Spectrum data, Heritage Assets, Provenance, Condition reports, Digital preservation, AI tools, Privacy & PII, RiC actions.
+The plugin also supplements ISAD(G) with optional sidebar panels (visible when the relevant secondary plugin is enabled): Museum data, Heritage Assets, Provenance, Condition reports, Digital preservation, AI tools, Privacy & PII, RiC actions.
 
 ---
 
@@ -100,8 +100,8 @@ The right sidebar of an IO show page is composed of opt-in panels, each gated by
 | Sidebar panel | Plugin | Surface |
 | --- | --- | --- |
 | Provenance | `ahgProvenancePlugin` | chain-of-custody log |
-| Condition reports | `ahgConditionPlugin` | Spectrum 5.0 condition assessment |
-| Spectrum data | `ahgSpectrumPlugin` | museum procedures |
+| Condition reports | `ahgConditionPlugin` | museum procedures condition assessment |
+| Museum data | `ahgSpectrumPlugin` | museum procedures |
 | Heritage Assets | `ahgHeritageAccountingPlugin` | GRAP/IPSAS valuation |
 | Cite this Record | `ahgResearchPlugin` | citation builder |
 | Digital Preservation (OAIS) | `ahgPreservationPlugin` | PREMIS events, fixity |
@@ -157,4 +157,4 @@ The slug is the public URL component. Renaming a slug breaks old bookmarks unles
 - **`ahgActorManagePlugin`** — the people/orgs that created them
 - **`ahgIngestPlugin`** — the CSV / file batch import wizard
 - **`ahgFormsPlugin`** — admin-configurable IO edit forms (per repository)
-- **Help articles**: *Spectrum 5.0*, *Provenance Management*, *Condition Reports*
+- **Help articles**: *museum procedures*, *Provenance Management*, *Condition Reports*

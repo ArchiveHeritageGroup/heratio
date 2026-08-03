@@ -25,7 +25,7 @@ preservation metadata, and rights.
    - not just the archival core. DAM (rights, technical metadata,
    preservation) is handled for every asset, cross-cutting all sectors.
 4. Descriptive-standard-neutral on ingress: accepts our canonical XML plus
-   common standards (EAD, MARC21, MODS, LIDO, Spectrum, DwC, Dublin Core,
+   common standards (EAD, MARC21, MODS, LIDO, CCO, DwC, Dublin Core,
    IPTC/XMP) via shipped transforms.
 5. Pipeline is **idempotent and resumable** - re-dropping a file is safe,
    failures quarantine rather than crash, and retries are one click.
@@ -105,7 +105,7 @@ metadata, format identification).
 | Archive | `event`, `relation`, `information_object_physical_location` | ISAD(G), ISAAR(CPF), ISDIAH, RAD, DACS, EAD, EAC-CPF, RiC-CM |
 | Library | `library_item`, `library_copy`, `library_item_creator`, `library_item_subject`, `library_serial_issue` | MARC21, MODS, BIBFRAME, RDA, Dublin Core, ONIX |
 | Gallery | `gallery_artwork`, `gallery_artist` (link), `gallery_exhibition` (link), optional `gallery_valuation` | CDWA, VRA Core 4, LIDO, CIDOC CRM |
-| Museum | `museum_object`, `museum_metadata`, optionally `spectrum_object_entry` + `spectrum_acquisition` if the Spectrum workflow is active | Spectrum 5.1, LIDO, CIDOC CRM, Darwin Core (natural history), Nomenclature 4 |
+| Museum | `museum_object`, `museum_metadata`, optionally `spectrum_object_entry` + `spectrum_acquisition` if the museum-procedure workflow is active | museum procedures, LIDO, CIDOC CRM, Darwin Core (natural history), Nomenclature 4 |
 | (all) DAM | `dam_asset`, `dam_iptc_metadata`, `dam_format_holdings`, `digital_object_metadata`, `media_metadata` | IPTC Photo Metadata, XMP, EXIF, PREMIS, schema.org |
 
 Sector is determined in this order:
@@ -362,7 +362,7 @@ a destination.
 </galleryProfile>
 ```
 
-#### 3.2.5 `<museumProfile>` - Spectrum 5.1 / LIDO / Darwin Core
+#### 3.2.5 `<museumProfile>` - museum procedures / LIDO / Darwin Core
 
 ```xml
 <museumProfile>
@@ -390,7 +390,7 @@ a destination.
   <productionPlace vocab="tgn">Cape Town</productionPlace>
   <productionDate start="1923-07-14" end="1923-07-14"/>
 
-  <!-- Spectrum procedures (optional; triggered if Spectrum workflow is active) -->
+  <!-- museum procedures (optional; triggered if museum-procedure workflow is active) -->
   <spectrum>
     <acquisitionMethod>gift</acquisitionMethod>
     <acquisitionDate>2026-04-12</acquisitionDate>
@@ -535,9 +535,9 @@ the preservation record is complete without extra work.
    controlled-vocabulary values (§2b.4).
 6. **Sector routing** - based on effective sector (§2b.1), write to
    `library_item` / `gallery_artwork` / `museum_object` / `museum_metadata`
-   using the matching sidecar profile. If the museum session has Spectrum
+   using the matching sidecar profile. If the museum session has a museum-procedure
    enabled, also create `spectrum_object_entry` + `spectrum_acquisition`
-   rows and move the object into the configured Spectrum workflow state
+   rows and move the object into the configured museum workflow state
    (`spectrum_workflow_state`).
 7. **Create `digital_object`** - move staged file to canonical location
    (`{uploads_path}/r/<repo>/<hash>/<filename>`), link `dam_asset` row,
@@ -800,7 +800,7 @@ path.
 |---|---|---|---|
 | **P1 - Ingest streaming mode** | `ingest_session.session_kind/auto_commit/source_ref` + `ingest_file` per-file state columns (§6.1). Teach `IngestService`/`IngestJob` to run in streaming mode. Add `ingestFile()` entry point that reuses the wizard's commit logic per file. | 1.5 weeks | Existing wizard unchanged; manually-inserted `ingest_file` rows on a `session_kind=watched_folder` session get processed end-to-end into IO + DO |
 | **P2 - Mode A watcher + dashboard + archive profile** | `scan_folder` table, `ScanWatchCommand`, admin dashboard (read-only filtered view of ingest), folder CRUD reusing `/ingest/configure`, Mode A path-layout, archive-sector sidecar profile | 2 weeks | Drop TIFF into folder with ISAD(G) sidecar → IO + DO + controlled-vocab resolution → dashboard shows throughput |
-| **P3 - Sector profiles (library / gallery / museum) + DAM augmentation** ✅ **DELIVERED 2026-04-24** | Library/gallery/museum sidecar parsers + sector-routing stage writing `library_item` / `gallery_artwork` / `museum_object` / `museum_metadata`, Spectrum workflow hook (opt-in per session), `damAugmentation` merge into `dam_iptc_metadata`, authority auto-creation for creators/artists (opt-out per session), controlled-vocab lookup (creation deferred to P7) | 3 weeks | ✅ End-to-end verified: library sidecar → `library_item` + creators + subjects + holdings; gallery sidecar → `gallery_artwork` + auto-created actor + `gallery_artist` + creation event + `gallery_valuation` + `museum_metadata`; museum sidecar → `museum_object` + `museum_metadata` + (when opted-in) `spectrum_object_entry` + `spectrum_acquisition` |
+| **P3 - Sector profiles (library / gallery / museum) + DAM augmentation** ✅ **DELIVERED 2026-04-24** | Library/gallery/museum sidecar parsers + sector-routing stage writing `library_item` / `gallery_artwork` / `museum_object` / `museum_metadata`, museum-procedure workflow hook (opt-in per session), `damAugmentation` merge into `dam_iptc_metadata`, authority auto-creation for creators/artists (opt-out per session), controlled-vocab lookup (creation deferred to P7) | 3 weeks | ✅ End-to-end verified: library sidecar → `library_item` + creators + subjects + holdings; gallery sidecar → `gallery_artwork` + auto-created actor + `gallery_artist` + creation event + `gallery_valuation` + `museum_metadata`; museum sidecar → `museum_object` + `museum_metadata` + (when opted-in) `spectrum_object_entry` + `spectrum_acquisition` |
 | **P4 - PREMIS + format ID + rights enforcement** ✅ **DELIVERED 2026-04-24** | Siegfried-based PRONOM format-ID stage (+ `preservation_format_obsolescence` for at-risk formats), PREMIS event emission via `preservation_event` at every stage (virusCheck / formatIdentification / messageDigestCalculation / ingestion / creation(derivation)), rights-enforcement stage (`rights_statement` + `rights_cc_license` + `rights_embargo` + `rights_tk_label` + `object_rights_holder` + `research_rights_policy` binding), `awaiting_rights` hold state + admin "Release rights" resume action | 2 weeks | ✅ End-to-end: every ingested file has PREMIS event chain + PUID + checksum + fixity record; classified session with no sidecar rights → held for review; admin release resumes deriving + indexing. |
 | **P5 - Sidecar + Mode B API** ✅ **DELIVERED 2026-04-24** | Sidecar XML parser (envelope + archive profile, sector profiles preserved for P3), Mode A flat-sidecar layout, `scan_session_token` table, `/api/v2/scan/*` endpoints, wrapper scripts (ps1/sh/py) | 2.5 weeks | ✅ VueScan/NAPS2 post-scan hook creates fully-described IO via wrapper; archive sector fully round-trips. Library/gallery/museum profile *routing* (writing to sector tables) deferred to P3 as originally planned. |
 | **P6 - Reliability + Capture helper** ✅ **DELIVERED 2026-04-24** | Exponential retry/backoff ladder via `ahg:scan-retry-failed` (cron every 5 min; 15/60/240/1440/4320 minute defaults), bulk retry+discard on Inbox list, "Restore from quarantine" on detail view, per-folder email notifications on final failure, BagIt container ingest (zip+dir) with manifest-sha256/512 verification, Capture TUI helper (`heratio-capture.py`) as an interactive alternative to a full Tauri app | 4 weeks | ✅ End-to-end: BagIt zip with `External-Identifier` + `data/*` → one IO with multiple DOs; retry scheduler re-dispatches failed files after backoff windows; capture TUI browses destinations and uploads via the Scan API. Full Tauri/Electron desktop app remains on backlog (TUI covers the workflow). |
@@ -850,9 +850,9 @@ is delivered. SIP/AIP/DIP packaging still needs no new work.
    keyed on quiet-period - each run of the job runner for a session emits a
    new `ingest_job` row, closed when the file queue drains. Revisit after
    P2 dogfooding.
-7. **Spectrum workflow auto-activation** - ~~should a museum-sector scan
+7. **museum-procedure workflow auto-activation** - ~~should a museum-sector scan
    automatically create `spectrum_object_entry` + `spectrum_acquisition`
-   rows and enter the institution's configured Spectrum workflow?~~
+   rows and enter the institution's configured museum-procedure workflow?~~
    **Resolved (2026-04-24)**: opt-in per `scan_folder` / API session via
    `ingest_session.spectrum_auto_enter` (default 0). When enabled and the
    sidecar includes a `<spectrum>` block, the museum routing path creates

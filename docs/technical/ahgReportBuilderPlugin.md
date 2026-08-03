@@ -253,12 +253,12 @@ The plugin supports 40+ data sources organized by category:
 | user_clearance | User Clearances | user_security_clearance |
 | security_access_log | Access Logs | security_access_log |
 
-### Heritage & Spectrum
+### Heritage & Museum Procedures
 | Key | Label | Table |
 |-----|-------|-------|
 | heritage_asset | Heritage Assets | heritage_asset |
 | heritage_valuation | Heritage Valuations | heritage_valuation_history |
-| spectrum_valuation | Spectrum Valuations | spectrum_valuation |
+| spectrum_valuation | Museum Valuations | spectrum_valuation |
 | spectrum_loan_in | Loans In | spectrum_loan_in |
 | spectrum_loan_out | Loans Out | spectrum_loan_out |
 | spectrum_condition | Condition Checks | spectrum_condition_check |

@@ -178,7 +178,7 @@ Click **[+ New Ingestion]** on the dashboard or navigate to `/ingest/configure`
 |  Descriptive Standard                                        |
 |  +--------------------------------------------------------+ |
 |  | [ISAD(G)                                              v]| |
-|  |  Options: ISAD(G), Dublin Core, Spectrum, CCO,         | |
+|  |  Options: ISAD(G), Dublin Core, CCO,         | |
 |  |           RAD, DACS                                     | |
 |  +--------------------------------------------------------+ |
 |                                                              |
@@ -878,7 +878,7 @@ Download pre-built CSV templates for each GLAM sector from the dashboard:
 | Archive - ISAD(G) | Archive | ISAD(G) | identifier, title, levelOfDescription, eventDates, eventTypes, eventActors, repository, scopeAndContent, extentAndMedium, ... |
 | Archive - RAD | Archive | RAD | identifier, title, levelOfDescription, dates, nameAccessPoints, placeAccessPoints, ... |
 | Archive - DACS | Archive | DACS | identifier, title, levelOfDescription, date, extent, scopeAndContent, ... |
-| Museum - Spectrum | Museum | Spectrum | objectNumber, objectName, title, briefDescription, numberOfObjects, ... |
+| Museum | Museum | CCO | objectNumber, objectName, title, briefDescription, numberOfObjects, ... |
 | Library - Dublin Core | Library | Dublin Core | identifier, title, creator, subject, description, publisher, date, type, format, ... |
 | Gallery - CCO | Gallery | CCO | identifier, title, creator, date, workType, measurements, materials, ... |
 | DAM - Dublin Core | DAM | Dublin Core | identifier, title, creator, date, format, rights, description, ... |
@@ -952,7 +952,7 @@ Download pre-built CSV templates for each GLAM sector from the dashboard:
 | Sector | Recommended Standard | Alternatives |
 |--------|---------------------|--------------|
 | Archive | ISAD(G) | RAD, DACS |
-| Museum | Spectrum | CCO |
+| Museum | Museum procedures | CCO |
 | Library | Dublin Core | - |
 | Gallery | CCO | Dublin Core |
 | DAM | Dublin Core | - |

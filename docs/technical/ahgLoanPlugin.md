@@ -356,7 +356,7 @@ The `ahgLoanPlugin` is a shared loan management system for all GLAM (Galleries, 
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                        MUSEUM LOAN OUT WORKFLOW (Spectrum 5.0)                           │
+│                        MUSEUM LOAN OUT WORKFLOW (museum procedures)                           │
 └─────────────────────────────────────────────────────────────────────────────────────────┘
 
                                     ┌─────────┐

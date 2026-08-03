@@ -1,10 +1,10 @@
-# Spectrum 5.1 compliance dashboard
+# Museum Procedures Compliance Dashboard
 
-Phase C of the Spectrum integration adds **collection-wide compliance tracking** to Heratio. It tells you — at a glance — what proportion of your information objects have been through each of the 21 Spectrum 5.1 procedures, where bottlenecks are, and when individual procedures fall behind schedule.
+Phase C of the museum-procedure integration adds **collection-wide compliance tracking** to Heratio. It tells you — at a glance — what proportion of your information objects have been through each of the 21 museum procedures, where bottlenecks are, and when individual procedures fall behind schedule.
 
 ## What it answers
 
-- **"What's our Spectrum compliance percentage?"** — heatmap dashboard shows per-procedure completion across the whole collection.
+- **"What's our museum-procedure compliance percentage?"** — heatmap dashboard shows per-procedure completion across the whole collection.
 - **"Which procedures are bottlenecked?"** — overdue counts surface per row.
 - **"Where is this specific object in the procedural pipeline?"** — per-object compliance panel.
 - **"What happens automatically after this procedure?"** — cross-procedure chain rules wire Acquisition → Cataloguing → Location etc.
@@ -12,9 +12,9 @@ Phase C of the Spectrum integration adds **collection-wide compliance tracking**
 
 ## Compliance dashboard
 
-**Admin → Workflow → Spectrum compliance**, or directly: `/spectrum/dashboard`
+**Admin → Workflow → museum-procedure compliance**, or directly: `/spectrum/dashboard`
 
-Shows a row per Spectrum procedure with 5 status columns:
+Shows a row per museum procedure with 5 status columns:
 
 | Status | Meaning |
 |---|---|
@@ -34,11 +34,11 @@ Any information object view page can embed the per-object panel via:
 @include('ahg-workflow::_spectrum-object-panel', ['informationObjectId' => $io->id])
 ```
 
-The panel renders a 21-cell grid showing the object's status on each procedure with colour-coded badges. No action required — it's a read-only visualisation. Renders nothing (graceful no-op) if the Spectrum compliance tables aren't present yet.
+The panel renders a 21-cell grid showing the object's status on each procedure with colour-coded badges. No action required — it's a read-only visualisation. Renders nothing (graceful no-op) if the museum-procedure compliance tables aren't present yet.
 
 ## Chain rules — automate cross-procedure handoffs
 
-**Admin → Workflow → Spectrum chain rules**, or: `/spectrum/chain`
+**Admin → Workflow → museum-procedure chain rules**, or: `/spectrum/chain`
 
 A chain rule says *"when procedure X completes for an object, automatically spawn a task on procedure Y for the same object"*. The classic chain is:
 
@@ -80,7 +80,7 @@ The command groups overdue items by procedure so the user gets one notification 
 ## What it deliberately does NOT do
 
 - Does not store compliance state as authoritative — the **task table is the source of truth**, the compliance cache table is derived.
-- Does not enforce Spectrum compliance gates on workflow execution — it's an observability layer.
+- Does not enforce museum-procedure compliance gates on workflow execution — it's an observability layer.
 - Does not auto-create procedures for new objects — use the chain rules to opt in to that behaviour for the chains you care about.
 - Does not currently produce PDF reports — CSV only. (PDF could be added if needed using an existing PDF export pattern from elsewhere in the codebase.)
 
