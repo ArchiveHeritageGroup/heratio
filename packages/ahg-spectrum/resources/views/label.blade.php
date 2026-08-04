@@ -221,7 +221,10 @@ $sectorLabel = $sectorLabels[$sector] ?? __('Record');
             <button type="button" class="btn btn-primary" onclick="window.print()">
                 <i class="fas fa-print me-1"></i>{{ __('Print Label') }}
             </button>
-            <button type="button" class="btn btn-secondary" onclick="downloadLabel()">
+            {{-- Download PNG needs html2canvas, which is an OPTIONAL vendor lib
+                 (see install docs). Hidden unless it is actually loaded, so
+                 users never hit the "Use Print instead" dead-end. --}}
+            <button type="button" id="downloadLabelBtn" class="btn btn-secondary" onclick="downloadLabel()" style="display:none;">
                 <i class="fas fa-download me-1"></i>{{ __('Download PNG') }}
             </button>
         </div>
@@ -286,6 +289,14 @@ function toggleTitle() {
 function toggleRepo() {
     document.getElementById('labelRepo').style.display = document.getElementById('showRepo').checked ? 'block' : 'none';
 }
+
+// Reveal the Download PNG button only when html2canvas is present (optional dep).
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof html2canvas !== 'undefined') {
+        var b = document.getElementById('downloadLabelBtn');
+        if (b) b.style.display = '';
+    }
+});
 
 function downloadLabel() {
     if (typeof html2canvas !== 'undefined') {
