@@ -158,7 +158,14 @@ class FindingAidController extends Controller
                 ->with('error', 'No finding aid exists for this description.');
         }
 
-        return response()->download($path);
+        // Download filename = the collection/description title (sanitised),
+        // not the internal finding-aid-{id}.ext, so a downloaded finding aid is
+        // recognisable. Falls back to the slug, then the internal name.
+        $ext = pathinfo($path, PATHINFO_EXTENSION) ?: 'pdf';
+        $base = trim(preg_replace('/\s+/', ' ', preg_replace('/[^A-Za-z0-9 _().-]+/', '', (string) ($io->title ?? ''))));
+        $base = $base !== '' ? $base : ($io->slug ?? ('finding-aid-' . $io->id));
+
+        return response()->download($path, $base . '.' . $ext);
     }
 
     /**
