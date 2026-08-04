@@ -319,6 +319,8 @@
        pass $asset under that name since DAM/Gallery/IO all share the IO row
        shape underneath. --}}
   @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $asset, 'digitalObjects' => $digitalObjects, 'childThumbnails' => $childThumbnails ?? collect(), 'childThumbnailTotal' => $childThumbnailTotal ?? 0])
+  {{-- #1447 Phase 3 - additional digital objects attached directly to this asset --}}
+  @include('ahg-information-object-manage::partials._attached-objects', ['io' => $asset])
 
   @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core', 'entityType' => 'dam', 'objectId' => $asset->id])
   @if(\AhgRic\Services\RicViewModeService::isRic('dam', $asset->id))

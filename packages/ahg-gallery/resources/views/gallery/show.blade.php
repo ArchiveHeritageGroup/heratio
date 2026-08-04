@@ -609,6 +609,9 @@
     </div>
   @endif
 
+  {{-- #1447 Phase 3 - additional digital objects attached directly to this artwork --}}
+  @include('ahg-information-object-manage::partials._attached-objects', ['io' => $artwork])
+
   {{-- Digital object display --}}
   @if(!empty($digitalObjects['reference']))
     <div class="card mb-3">

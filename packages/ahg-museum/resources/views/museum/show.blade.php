@@ -313,6 +313,8 @@
 {{-- ============================================================ --}}
 @section('before-content')
   @include('ahg-information-object-manage::partials._digital-object-viewer', ['io' => $museum, 'childThumbnails' => $childThumbnails ?? collect(), 'childThumbnailTotal' => $childThumbnailTotal ?? 0])
+  {{-- #1447 Phase 3 - additional digital objects attached directly to this object --}}
+  @include('ahg-information-object-manage::partials._attached-objects', ['io' => $museum])
 @endsection
 
 {{-- ============================================================ --}}

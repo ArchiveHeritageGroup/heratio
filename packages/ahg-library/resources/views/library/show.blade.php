@@ -1028,6 +1028,9 @@
     $hasDigitalObject = $masterObj || $refObj || $thumbObj;
   @endphp
 
+  {{-- #1447 Phase 3 - additional digital objects attached directly to this item --}}
+  @include('ahg-information-object-manage::partials._attached-objects', ['io' => $item])
+
   @if(false && ($masterObj || $refObj || $thumbObj))
     @php
       $masterUrl = $masterObj ? \AhgCore\Services\DigitalObjectService::getUrl($masterObj) : '';
