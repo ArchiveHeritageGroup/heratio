@@ -132,7 +132,7 @@ OpenRiC powers the RiC capabilities within Heratio and is available as a standal
 | Elasticsearch | 7.x or 8.x | prefix `heratio_` |
 | Apache Jena Fuseki | 4.10+ | optional, for RiC SPARQL endpoint |
 | Ollama | Latest stable | optional, remote - never bundled |
-| html2canvas | 1.4+ | optional front-end lib; vendor to `public/vendor/` to enable the "Download PNG" button on the Museum-procedures label page. Absent = the button is hidden (Print still works). |
+| html2canvas | 1.4.1 | bundled at `public/vendor/html2canvas/1.4.1/` (CSP/offline-safe); powers the "Download PNG" button on the Museum-procedures label page. |
 | **Docker (alternative)** | **24+** with the Compose plugin | Scenario 3 below - replaces every row above |
 
 ---

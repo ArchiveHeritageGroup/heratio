@@ -263,6 +263,9 @@ $sectorLabel = $sectorLabels[$sector] ?? __('Record');
     </div>
 </div>
 
+{{-- html2canvas (vendored locally, CSP/offline-safe) powers the "Download PNG"
+     button; the gate below reveals the button once it has loaded. --}}
+<script src="{{ asset('vendor/html2canvas/1.4.1/html2canvas.min.js') }}"></script>
 <script>
 function updateBarcodeSource() {
     var value = document.getElementById('barcodeSource').value;
