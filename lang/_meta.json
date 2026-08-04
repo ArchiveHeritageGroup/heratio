@@ -249,7 +249,7 @@
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
-            "mt_batch_last_run": "2026-08-03",
+            "mt_batch_last_run": "2026-08-04",
             "mt_engine": "nllb-200-distilled-600M",
             "mt_batch_count": 12921
         },
@@ -272,7 +272,7 @@
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
-            "mt_batch_last_run": "2026-08-03",
+            "mt_batch_last_run": "2026-08-04",
             "mt_engine": "nllb-200-distilled-600M",
             "mt_batch_count": 12993
         },
@@ -285,7 +285,7 @@
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
-            "mt_batch_last_run": "2026-08-03",
+            "mt_batch_last_run": "2026-08-04",
             "mt_engine": "nllb-200-distilled-600M",
             "mt_batch_count": 13578
         },

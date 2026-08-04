@@ -8,7 +8,7 @@ This document summarises the current gaps, incomplete code areas, suggested enha
 
 1. First — Gaps (what is missing today)
 
-- No explicit Museum data model: there is no dedicated condition_assessment or treatment table that implements the museum condition entity set (condition_statement, condition_activity, assessor, condition_detail, signed-off flag, treatment actions).
+- No explicit Museum flow model: there is no dedicated condition_assessment or treatment table that implements the museum condition entity set (condition_statement, condition_activity, assessor, condition_detail, signed-off flag, treatment actions).
 
 - No UI for structured condition reporting: the Research writing studio and notebook can hold free-text notes and claims but lack a guided condition assessment form that maps to museum fields (e.g. area, extent, severity, materials affected, treatment recommendation).
 

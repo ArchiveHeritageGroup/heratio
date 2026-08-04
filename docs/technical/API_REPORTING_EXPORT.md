@@ -917,7 +917,7 @@ text, textarea, date, number, boolean, dropdown, url, select, multiselect, radio
 | `embargo:report` | ahgExtendedRightsPlugin | Embargo report |
 | `museum:exhibition` | ahgMuseumPlugin | Exhibition management |
 | `museum:getty-link` | ahgMuseumPlugin | Getty vocabulary linking |
-| `museum:migrate` | ahgMuseumPlugin | Museum data migration |
+| `museum:migrate` | ahgMuseumPlugin | Museum flow migration |
 | `ingest:commit` | ahgIngestPlugin | Commit ingest session |
 | `ipsas:report` | ahgIPSASPlugin | IPSAS report |
 | `nmmz:report` | ahgNMMZPlugin | NMMZ report |

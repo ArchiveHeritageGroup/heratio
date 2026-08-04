@@ -57,7 +57,7 @@ The edit form is structured into the seven ISAD(G) areas:
 
 All title-style fields (title, scope_and_content, archival_history, …) live in `information_object_i18n` per culture; structural fields (identifier, parent_id, level_of_description_id, repository_id) live in `information_object`.
 
-The plugin also supplements ISAD(G) with optional sidebar panels (visible when the relevant secondary plugin is enabled): Museum data, Heritage Assets, Provenance, Condition reports, Digital preservation, AI tools, Privacy & PII, RiC actions.
+The plugin also supplements ISAD(G) with optional sidebar panels (visible when the relevant secondary plugin is enabled): Museum flow, Heritage Assets, Provenance, Condition reports, Digital preservation, AI tools, Privacy & PII, RiC actions.
 
 ---
 
@@ -101,7 +101,7 @@ The right sidebar of an IO show page is composed of opt-in panels, each gated by
 | --- | --- | --- |
 | Provenance | `ahgProvenancePlugin` | chain-of-custody log |
 | Condition reports | `ahgConditionPlugin` | museum procedures condition assessment |
-| Museum data | `ahgSpectrumPlugin` | museum procedures |
+| Museum flow | `ahgSpectrumPlugin` | museum procedures |
 | Heritage Assets | `ahgHeritageAccountingPlugin` | GRAP/IPSAS valuation |
 | Cite this Record | `ahgResearchPlugin` | citation builder |
 | Digital Preservation (OAIS) | `ahgPreservationPlugin` | PREMIS events, fixity |
