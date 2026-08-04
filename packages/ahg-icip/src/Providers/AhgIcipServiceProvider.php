@@ -118,6 +118,26 @@ class AhgIcipServiceProvider extends ServiceProvider
                     INDEX idx_cs_user (user_id)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
             );
+
+            // #1427 - graded-access audit trail. Every allow/deny decision on an
+            // object that carries an ICIP access restriction lands here with the
+            // reason, since these are exactly the decisions a source community
+            // will ask us to account for (CARE 'authority to control'). Append-only.
+            DB::statement(
+                'CREATE TABLE IF NOT EXISTS icip_access_log (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    information_object_id INT NOT NULL,
+                    user_id INT NULL,
+                    decision VARCHAR(24) NOT NULL,
+                    restriction_types VARCHAR(255) NULL,
+                    reason VARCHAR(255) NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_ial_object (information_object_id),
+                    INDEX idx_ial_user (user_id),
+                    INDEX idx_ial_decision (decision),
+                    INDEX idx_ial_created (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+            );
         } catch (\Throwable $e) {
             // Don't break boot if the DB isn't reachable yet
         }

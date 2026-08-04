@@ -2018,6 +2018,11 @@ class IcipController extends Controller
             'unacknowledged_notices' => [],
             'blocked_reason' => null,
             'restrictions' => [],
+            // #1427 - workflow-state protocols (elder approval / under consultation)
+            // are not a binary block; they surface a consultation requirement that
+            // routes to the icip_consultation record instead of denying staff.
+            'requires_consultation' => false,
+            'consultation_restrictions' => [],
         ];
 
         if (! Schema::hasTable('icip_cultural_notice')) {
@@ -2085,11 +2090,62 @@ class IcipController extends Controller
                 ], true)) {
                     $result['allowed'] = false;
                     $result['blocked_reason'] = 'ICIP restriction: '.(self::RESTRICTION_TYPES[$restriction->restriction_type] ?? ucwords(str_replace('_', ' ', $restriction->restriction_type)));
+                } elseif (in_array($restriction->restriction_type, [
+                    'elder_approval_required',
+                    'under_consultation',
+                ], true)) {
+                    // #1427 item 2: workflow states, not a hard block. Surface a
+                    // consultation requirement and (if present) link the open
+                    // icip_consultation record for this object, rather than
+                    // ignoring the protocol or blanket-denying staff.
+                    $result['requires_consultation'] = true;
+                    $result['consultation_restrictions'][] = $restriction->restriction_type;
                 }
             }
         }
 
+        // #1427 item 4: audit every access decision on an ICIP-restricted object
+        // so a source community can be given an account of who opened what.
+        if (! empty($result['restrictions'])) {
+            $this->logIcipAccess($objectId, $userId, $result);
+        }
+
         return $result;
+    }
+
+    /**
+     * #1427 item 4: append an ICIP graded-access decision to icip_access_log.
+     * Best-effort - never throws into the access path. Records the decision, the
+     * restriction types in play, the acting user and a human reason.
+     *
+     * @param  array<string,mixed>  $result
+     */
+    protected function logIcipAccess(int $objectId, ?int $userId, array $result): void
+    {
+        if (! Schema::hasTable('icip_access_log')) {
+            return;
+        }
+        try {
+            $decision = $result['allowed']
+                ? (! empty($result['requires_consultation']) ? 'allow_consultation' : 'allow')
+                : 'deny';
+            $types = collect($result['restrictions'] ?? [])
+                ->pluck('restriction_type')->filter()->unique()->implode(',');
+            $reason = $result['blocked_reason']
+                ?? (! empty($result['requires_consultation'])
+                    ? 'Consultation required: '.implode(', ', $result['consultation_restrictions'] ?? [])
+                    : 'Access to ICIP-restricted object');
+            DB::table('icip_access_log')->insert([
+                'information_object_id' => $objectId,
+                'user_id' => $userId,
+                'decision' => $decision,
+                'restriction_types' => mb_substr((string) $types, 0, 255),
+                'reason' => mb_substr((string) $reason, 0, 255),
+                'created_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            // audit must never break access evaluation
+        }
     }
 
     /**
