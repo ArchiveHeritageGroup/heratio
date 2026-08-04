@@ -8,9 +8,14 @@
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-list me-2"></i>{{ __('Browse Assets') }}</h1>
-      @if(Route::has('heritage.accounting.add'))
-      <a href="{{ route('heritage.accounting.add') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('Add Asset') }}</a>
-      @endif
+      <div class="d-flex gap-2">
+        @if(Route::has('heritage.accounting.add') && session('add_io_id'))
+          <a href="{{ route('heritage.accounting.add', ['io_id' => session('add_io_id')]) }}" class="btn btn-success btn-sm"><i class="fas fa-plus me-1"></i>{{ __('Add asset for this record') }}</a>
+        @endif
+        @if(Route::has('heritage.accounting.add'))
+          <a href="{{ route('heritage.accounting.add') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('Add Asset') }}</a>
+        @endif
+      </div>
     </div>
     <p class="text-muted">Browse all heritage assets.</p>
 

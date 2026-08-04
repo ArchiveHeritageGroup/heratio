@@ -117,7 +117,30 @@ class HeritageAccountingController extends Controller
 
         return view('ahg-heritage-manage::heritage-accounting.add', compact('io', 'standards', 'classes'));
     }
-    public function store(Request $request) { return redirect()->route('heritage.accounting.browse')->with('success', 'Asset created.'); }
+    public function store(Request $request)
+    {
+        if (! Schema::hasTable('heritage_asset')) {
+            return back()->with('error', __('Heritage accounting is not installed.'))->withInput();
+        }
+        $request->validate([
+            'recognition_status'     => 'nullable|in:pending,recognised,not_recognised',
+            'information_object_id'  => 'nullable|integer',
+            'accounting_standard_id' => 'nullable|integer',
+            'asset_class_id'         => 'nullable|integer',
+        ]);
+
+        $data = $this->collectAssetFields($request);
+        $data['created_at'] = now();
+        $data['updated_at'] = now();
+        if (Schema::hasColumn('heritage_asset', 'created_by') && auth()->id()) {
+            $data['created_by'] = auth()->id();
+        }
+
+        $id = DB::table('heritage_asset')->insertGetId($data);
+
+        return redirect()->route('heritage.accounting.view', $id)
+            ->with('success', __('Heritage asset created.'));
+    }
 
     /**
      * Inline status change from the browse grid (AJAX). Whitelisted to the same
@@ -158,8 +181,127 @@ class HeritageAccountingController extends Controller
             'label' => ucwords(str_replace('_', ' ', (string) $row->recognition_status)),
         ]);
     }
-    public function edit(int $id) { $asset = null; try { if (Schema::hasTable('heritage_asset')) $asset = DB::table('heritage_asset')->where('id', $id)->first(); } catch (\Exception $e) {} return view('ahg-heritage-manage::heritage-accounting.edit', ['asset' => $asset, 'fields' => [], 'formAction' => route('heritage.accounting.update', $id)]); }
-    public function update(Request $request, int $id) { return redirect()->route('heritage.accounting.view', $id)->with('success', 'Asset updated.'); }
+    public function edit(int $id)
+    {
+        $asset = null;
+        if (Schema::hasTable('heritage_asset')) {
+            $asset = DB::table('heritage_asset')->where('id', $id)->first();
+        }
+        if (! $asset) {
+            abort(404);
+        }
+        [$standards, $classes] = $this->accountingFormLookups();
+        $io = $this->fetchLinkedIo($asset->information_object_id ?: ($asset->object_id ?? null));
+
+        return view('ahg-heritage-manage::heritage-accounting.edit', [
+            'asset'      => $asset,
+            'standards'  => $standards,
+            'classes'    => $classes,
+            'io'         => $io,
+            'formAction' => route('heritage.accounting.update', $id),
+        ]);
+    }
+
+    public function update(Request $request, int $id)
+    {
+        if (! Schema::hasTable('heritage_asset') || ! DB::table('heritage_asset')->where('id', $id)->exists()) {
+            abort(404);
+        }
+        $request->validate([
+            'recognition_status'     => 'nullable|in:pending,recognised,not_recognised',
+            'information_object_id'  => 'nullable|integer',
+            'accounting_standard_id' => 'nullable|integer',
+            'asset_class_id'         => 'nullable|integer',
+        ]);
+
+        $data = $this->collectAssetFields($request);
+        $data['updated_at'] = now();
+        if (Schema::hasColumn('heritage_asset', 'updated_by') && auth()->id()) {
+            $data['updated_by'] = auth()->id();
+        }
+        DB::table('heritage_asset')->where('id', $id)->update($data);
+
+        return redirect()->route('heritage.accounting.view', $id)
+            ->with('success', __('Heritage asset updated.'));
+    }
+
+    /** Standards + classes for the create/edit form selects. */
+    private function accountingFormLookups(): array
+    {
+        $standards = Schema::hasTable('heritage_accounting_standard')
+            ? DB::table('heritage_accounting_standard')->orderBy('code')->get()
+            : collect();
+        $classes = Schema::hasTable('heritage_asset_class')
+            ? DB::table('heritage_asset_class')->orderBy('name')->get()
+            : collect();
+
+        return [$standards, $classes];
+    }
+
+    /** The linked archival record (title/identifier/slug) for display on the form/view. */
+    private function fetchLinkedIo(?int $ioId): ?object
+    {
+        if (! $ioId) {
+            return null;
+        }
+        $culture = app()->getLocale();
+
+        return DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
+                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
+            ->where('io.id', $ioId)
+            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->first();
+    }
+
+    /**
+     * Whitelist + type-cast the heritage_asset columns from the create/edit form.
+     * Only fields present in the request are returned (so a partial form never
+     * nulls untouched columns), and only columns that actually exist on this
+     * install's table survive - a schema-safe write.
+     */
+    private function collectAssetFields(Request $request): array
+    {
+        $money = ['acquisition_cost', 'fair_value_at_acquisition', 'nominal_value', 'initial_carrying_amount', 'current_carrying_amount', 'last_valuation_amount', 'revaluation_surplus', 'residual_value', 'annual_depreciation', 'accumulated_depreciation', 'impairment_loss', 'recoverable_amount', 'derecognition_proceeds', 'gain_loss_on_derecognition', 'insurance_value'];
+        $ints = ['information_object_id', 'accounting_standard_id', 'asset_class_id', 'useful_life_years'];
+        $dates = ['recognition_date', 'acquisition_date', 'last_valuation_date', 'last_impairment_date', 'derecognition_date', 'insurance_expiry_date', 'last_condition_assessment'];
+        $text = ['asset_sub_class', 'recognition_status', 'recognition_status_reason', 'measurement_basis', 'acquisition_method', 'donor_name', 'donor_restrictions', 'valuation_method', 'valuer_name', 'valuer_credentials', 'valuation_report_reference', 'revaluation_frequency', 'depreciation_policy', 'impairment_indicators', 'impairment_indicators_details', 'derecognition_reason', 'heritage_significance', 'significance_statement', 'restrictions_on_use', 'restrictions_on_disposal', 'conservation_requirements', 'insurance_policy_number', 'insurance_provider', 'current_location', 'storage_conditions', 'condition_rating', 'notes'];
+
+        $out = [];
+        foreach ($money as $c) {
+            if ($request->has($c)) {
+                $val = $request->input($c);
+                $out[$c] = ($val === null || $val === '') ? null : (float) $val;
+            }
+        }
+        foreach ($ints as $c) {
+            if ($request->has($c)) {
+                $val = $request->input($c);
+                $out[$c] = ($val === null || $val === '') ? null : (int) $val;
+            }
+        }
+        foreach ($dates as $c) {
+            if ($request->has($c)) {
+                $val = $request->input($c);
+                $out[$c] = ($val === null || $val === '') ? null : $val;
+            }
+        }
+        foreach ($text as $c) {
+            if ($request->has($c)) {
+                $val = $request->input($c);
+                $out[$c] = ($val === null || $val === '') ? null : trim((string) $val);
+            }
+        }
+        // Insurance-required checkbox: a hidden 0 companion in the form guarantees
+        // presence, so this only fires when the insurance section was rendered.
+        if ($request->has('insurance_required')) {
+            $out['insurance_required'] = $request->boolean('insurance_required') ? 1 : 0;
+        }
+
+        return array_filter($out, fn ($k) => Schema::hasColumn('heritage_asset', $k), ARRAY_FILTER_USE_KEY);
+    }
     /**
      * #1454 - the full GRAP heritage-asset accounting record (all recognition,
      * measurement, valuation, depreciation, impairment, derecognition,
@@ -219,9 +361,14 @@ class HeritageAccountingController extends Controller
         if ($asset) {
             return redirect()->route('heritage.accounting.view', $asset->id);
         }
-        if (\Illuminate\Support\Facades\Route::has('heritage.accounting.add')) {
-            return redirect()->route('heritage.accounting.add', ['io_id' => $id])
-                ->with('info', __('No heritage-asset accounting record exists yet for this object. You can create one here.'));
+        // No accounting record yet - land on the asset register (browse), where
+        // an "Add asset for this record" button (pre-linked to the object) lets
+        // the operator create one. Matches the requested dashboard/browse-then-add
+        // flow rather than jumping straight into a blank form.
+        if (\Illuminate\Support\Facades\Route::has('heritage.accounting.browse')) {
+            return redirect()->route('heritage.accounting.browse')
+                ->with('info', __('No heritage-asset accounting record exists yet for this record. Use "Add asset for this record" to create one.'))
+                ->with('add_io_id', $id);
         }
         abort(404);
     }

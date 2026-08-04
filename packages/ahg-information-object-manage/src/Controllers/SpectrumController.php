@@ -206,6 +206,15 @@ class SpectrumController extends Controller
             abort(404);
         }
 
+        // #1454: heritage-asset accounting lives in the Heritage Accounting area.
+        // Send this legacy per-item page to the item's accounting record - or, when
+        // none exists yet, to the asset register (browse) with a pre-linked "Add"
+        // (both handled by view-by-object). Falls back to the legacy view below when
+        // the accounting package is absent.
+        if (\Illuminate\Support\Facades\Route::has('heritage.accounting.view-by-object')) {
+            return redirect()->route('heritage.accounting.view-by-object', $io->id);
+        }
+
         // Fetch heritage asset record for this IO
         $asset = null;
         try {

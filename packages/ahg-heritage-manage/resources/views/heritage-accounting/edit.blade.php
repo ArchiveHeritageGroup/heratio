@@ -1,59 +1,34 @@
 @extends('theme::layouts.1col')
-@section('title', 'Edit Asset')
+@section('title', __('Edit Heritage Asset'))
 @section('body-class', 'admin heritage')
 
 @section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
-  <div class="col-md-9">
-    <h1><i class="fas fa-pencil-alt me-2"></i>{{ __('Edit Asset') }}</h1>
-    <p class="text-muted">Edit heritage asset details.</p>
-
-    @if($errors->any())
-      <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0"><i class="fas fa-pencil-alt me-2"></i>{{ __('Edit Heritage Asset') }}</h1>
+  <div class="d-flex gap-2">
+    @if(isset($asset) && Route::has('heritage.accounting.view'))
+      <a href="{{ route('heritage.accounting.view', $asset->id) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eye me-1"></i>{{ __('View') }}</a>
     @endif
-
-    <form method="post" action="{{ $formAction ?? '#' }}">
-      @csrf
-      @if(isset($asset)) @method('PUT') @endif
-
-      <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-pencil-alt me-2"></i>{{ __('Edit Asset') }}</div>
-        <div class="card-body">
-          @foreach($fields ?? [] as $field)
-          <div class="mb-3">
-            <label class="form-label">{{ $field['label'] }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            @if(($field['type'] ?? 'text') === 'select')
-              <select name="{{ $field['name'] }}" class="form-select">
-                @foreach($field['options'] ?? [] as $val => $label)
-                  <option value="{{ $val }}" {{ old($field['name'], $field['value'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
-                @endforeach
-              </select>
-            @elseif(($field['type'] ?? 'text') === 'textarea')
-              <textarea name="{{ $field['name'] }}" class="form-control" rows="3">{{ old($field['name'], $field['value'] ?? '') }}</textarea>
-            @else
-              <input type="{{ $field['type'] ?? 'text' }}" name="{{ $field['name'] }}" class="form-control" value="{{ old($field['name'], $field['value'] ?? '') }}">
-            @endif
-          </div>
-          @endforeach
-
-          @if(empty($fields))
-          <div class="row">
-            <div class="col-md-6 mb-3"><label class="form-label">Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="name" class="form-control" value="{{ old('name', $asset->name ?? '') }}"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Reference <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="reference" class="form-control" value="{{ old('reference', $asset->reference ?? '') }}"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Amount <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" step="0.01" name="amount" class="form-control" value="{{ old('amount', $asset->amount ?? '') }}"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="date" class="form-control" value="{{ old('date', $asset->date ?? '') }}"></div>
-            <div class="col-12 mb-3"><label class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="notes" class="form-control" rows="3">{{ old('notes', $asset->notes ?? '') }}</textarea></div>
-          </div>
-          @endif
-        </div>
-      </div>
-
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
-        <a href="{{ route('heritage.accounting.browse') }}" class="btn atom-btn-white">Cancel</a>
-      </div>
-    </form>
+    @if(Route::has('heritage.accounting.browse'))
+      <a href="{{ route('heritage.accounting.browse') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-list me-1"></i>{{ __('All assets') }}</a>
+    @endif
   </div>
 </div>
+
+<form method="post" action="{{ $formAction ?? route('heritage.accounting.update', $asset->id) }}">
+  @csrf
+  @method('PUT')
+
+  @include('ahg-heritage-manage::heritage-accounting._form', [
+    'asset'     => $asset,
+    'standards' => $standards ?? collect(),
+    'classes'   => $classes ?? collect(),
+    'io'        => $io ?? null,
+  ])
+
+  <div class="d-flex gap-2 mb-4">
+    <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-save me-2"></i>{{ __('Save changes') }}</button>
+    <a href="{{ route('heritage.accounting.view', $asset->id) }}" class="btn btn-outline-secondary btn-lg">{{ __('Cancel') }}</a>
+  </div>
+</form>
 @endsection
