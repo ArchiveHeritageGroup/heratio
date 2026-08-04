@@ -136,6 +136,9 @@ class FindingAidJob implements ShouldQueue
 
         $cmd = escapeshellcmd($wkhtmltopdf)
             .' --quiet'
+            // full-details embeds reference-copy images via file:// - modern
+            // wkhtmltopdf blocks local file reads unless this is set.
+            .' --enable-local-file-access'
             .' --page-size A4'
             .' --margin-top 15mm'
             .' --margin-bottom 15mm'
@@ -230,6 +233,18 @@ class FindingAidJob implements ShouldQueue
         $body = preg_replace('/<\/dsc>/', '</div>', $body);
         $body = preg_replace('/<c [^>]*>/', '<div class="component" style="margin-left:20px;border-left:2px solid #ccc;padding-left:10px;margin-bottom:10px;">', $body);
         $body = preg_replace('/<\/c>/', '</div>', $body);
+
+        // Digital archival objects (reference-copy images) -> <img>. wkhtmltopdf
+        // embeds local file:// images reliably; fall back to the absolute web
+        // URL so a browser rendering the HTML still resolves the picture.
+        $body = preg_replace_callback('/<dao\b[^>]*href="([^"]*)"[^>]*>/i', function ($m) {
+            $url = htmlspecialchars_decode($m[1], ENT_QUOTES);
+            $fs = $this->uploadsFsPath($url);
+            $src = $fs ? 'file://'.$fs : rtrim((string) config('app.url'), '/').$url;
+
+            return '<div class="dao"><img src="'.htmlspecialchars($src, ENT_QUOTES)
+                .'" alt="" style="max-width:100%;max-height:420px;margin:12px 0;border:1px solid #ccc;"/></div>';
+        }, $body);
 
         // Clean remaining tags that are decorative
         $body = preg_replace('/<(persname|famname|corpname|name|extent|subject|geogname|genreform)>/', '', $body);
@@ -425,6 +440,60 @@ HTML;
         return $map[$level ?? ''] ?? 'otherlevel';
     }
 
+    /**
+     * Build a <dao> EAD element for an object's reference-copy image, used by
+     * the full-details finding aid model. Reference copies are usage_id 141
+     * derivatives hanging off the master (object_id = the IO) via parent_id;
+     * fall back to the thumbnail (142) then the master itself so an image still
+     * appears when no reference derivative was generated. Non-image masters
+     * (e.g. a PDF with no image derivative) and objects with no digital object
+     * yield ''.
+     */
+    protected function referenceDao(int $objectId, string $indent): string
+    {
+        $master = DB::table('digital_object')->where('object_id', $objectId)->first();
+        if (! $master) {
+            return '';
+        }
+        // Prefer the reference copy (141), then thumbnail (142), else the master.
+        $img = DB::table('digital_object')
+            ->where('parent_id', $master->id)
+            ->whereIn('usage_id', [141, 142])
+            ->orderByRaw('FIELD(usage_id, 141, 142)')
+            ->first();
+        $img = $img ?: $master;
+        if (empty($img->path) || empty($img->name)) {
+            return '';
+        }
+        if (! empty($img->mime_type) && ! str_starts_with((string) $img->mime_type, 'image/')) {
+            return '';
+        }
+        $url = rtrim((string) $img->path, '/').'/'.$img->name;
+
+        return $indent.'<dao href="'.$this->e($url).'" title="'.$this->e($img->name).'" audience="external"/>'."\n";
+    }
+
+    /**
+     * Resolve a web /uploads/... path to an absolute filesystem path so
+     * wkhtmltopdf can embed the image via file://. Mirrors
+     * RedactionRenderService::resolveAbsolutePath - Heratio's on-disk layout is
+     * <uploads_path>/r/<hash>/, so strip only the leading 'uploads/' (keep the
+     * '/r/' segment).
+     */
+    protected function uploadsFsPath(string $webPath): ?string
+    {
+        $uploads = rtrim(config('heratio.uploads_path', '/mnt/nas/heratio/archive'), '/');
+        $raw = ltrim($webPath, '/');
+        $uploadsOnly = str_starts_with($raw, 'uploads/') ? substr($raw, strlen('uploads/')) : $raw;
+        foreach ([$uploads.'/'.$uploadsOnly, $uploads.'/'.$raw] as $c) {
+            if ($c && is_file($c)) {
+                return $c;
+            }
+        }
+
+        return null;
+    }
+
     protected function buildEadXml($io, $repository, $events, $creators, $subjects, $places, $genres, $notes, $levelName, $children, string $culture, string $model = 'inventory-summary'): string
     {
         $isInventory = ($model !== 'full-details');
@@ -459,6 +528,11 @@ HTML;
         // Archdesc
         $xml .= "<archdesc level=\"{$eadLevel}\" relatedencoding=\"isad\">\n";
         $xml .= $this->buildDidElement($io, $events, $creators, $repository, $levelName, $culture);
+
+        // full-details embeds the reference-copy image(s) of the described unit.
+        if (! $isInventory) {
+            $xml .= $this->referenceDao((int) $io->id, '  ');
+        }
 
         // Bioghist
         foreach ($creators as $creator) {
@@ -569,6 +643,9 @@ HTML;
                     $xml .= '        <physdesc><extent>'.$this->e($child->extent_and_medium)."</extent></physdesc>\n";
                 }
                 $xml .= "      </did>\n";
+                if (! $isInventory) {
+                    $xml .= $this->referenceDao((int) $child->id, '      ');
+                }
                 if ($child->scope_and_content) {
                     $xml .= '      <scopecontent><p>'.$this->e($child->scope_and_content)."</p></scopecontent>\n";
                 }
