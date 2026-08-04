@@ -160,8 +160,71 @@ class HeritageAccountingController extends Controller
     }
     public function edit(int $id) { $asset = null; try { if (Schema::hasTable('heritage_asset')) $asset = DB::table('heritage_asset')->where('id', $id)->first(); } catch (\Exception $e) {} return view('ahg-heritage-manage::heritage-accounting.edit', ['asset' => $asset, 'fields' => [], 'formAction' => route('heritage.accounting.update', $id)]); }
     public function update(Request $request, int $id) { return redirect()->route('heritage.accounting.view', $id)->with('success', 'Asset updated.'); }
-    public function view(int $id) { $items = collect(); $stats = []; return view('ahg-heritage-manage::heritage-accounting.view', compact('items', 'stats')); }
-    public function viewByObject(int $id) { $items = collect(); $stats = []; return view('ahg-heritage-manage::heritage-accounting.view-by-object', compact('items', 'stats')); }
+    /**
+     * #1454 - the full GRAP heritage-asset accounting record (all recognition,
+     * measurement, valuation, depreciation, impairment, derecognition,
+     * restriction, insurance and location/condition fields), grouped by GRAP
+     * lifecycle. This is the rich replacement for the thin Spectrum grap
+     * dashboard, which now redirects here.
+     */
+    public function view(int $id)
+    {
+        $asset = null;
+        if (Schema::hasTable('heritage_asset')) {
+            $asset = DB::table('heritage_asset as ha')
+                ->leftJoin('heritage_asset_class as ac', 'ac.id', '=', 'ha.asset_class_id')
+                ->leftJoin('heritage_accounting_standard as st', 'st.id', '=', 'ha.accounting_standard_id')
+                ->where('ha.id', $id)
+                ->select('ha.*', 'ac.name as asset_class_name', 'st.code as standard_code', 'st.name as standard_name')
+                ->first();
+        }
+        if (! $asset) {
+            abort(404);
+        }
+
+        $io = null;
+        $ioId = $asset->information_object_id ?: ($asset->object_id ?? null);
+        if ($ioId) {
+            $culture = app()->getLocale();
+            $io = DB::table('information_object as io')
+                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
+                    $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+                })
+                ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
+                ->where('io.id', $ioId)
+                ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+                ->first();
+        }
+
+        return view('ahg-heritage-manage::heritage-accounting.view', compact('asset', 'io'));
+    }
+
+    /**
+     * #1454 - resolve an information-object id to its heritage-asset record and
+     * show the full GRAP record. When no accounting record exists yet, hand off
+     * to the Add form pre-linked to the object. This is the target the legacy
+     * /admin/spectrum/grap-dashboard?slug= surface redirects to.
+     */
+    public function viewByObject(int $id)
+    {
+        $asset = null;
+        if (Schema::hasTable('heritage_asset')) {
+            $asset = DB::table('heritage_asset')
+                ->where(function ($q) use ($id) {
+                    $q->where('information_object_id', $id)->orWhere('object_id', $id);
+                })
+                ->orderByDesc('id')
+                ->first();
+        }
+        if ($asset) {
+            return redirect()->route('heritage.accounting.view', $asset->id);
+        }
+        if (\Illuminate\Support\Facades\Route::has('heritage.accounting.add')) {
+            return redirect()->route('heritage.accounting.add', ['io_id' => $id])
+                ->with('info', __('No heritage-asset accounting record exists yet for this object. You can create one here.'));
+        }
+        abort(404);
+    }
     public function addValuation(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-valuation', ['asset' => null, 'fields' => [], 'formAction' => '#']); }
     public function addImpairment(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-impairment', ['asset' => null, 'fields' => [], 'formAction' => '#']); }
     public function addJournal(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-journal', ['asset' => null, 'fields' => [], 'formAction' => '#']); }

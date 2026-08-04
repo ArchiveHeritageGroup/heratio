@@ -1624,6 +1624,25 @@ class SpectrumController extends Controller
     public function grapDashboard(Request $request)
     {
         $slug = $request->query('slug');
+
+        // #1454: GRAP heritage-asset accounting belongs under Heritage Accounting,
+        // not Museum procedures. Redirect this legacy Spectrum surface to the rich
+        // heritage-accounting record (full GRAP 103 field set). Non-export requests
+        // only, so any lingering ?export= links still hit the legacy path below.
+        if (! $request->filled('export')) {
+            if ($slug && \Illuminate\Support\Facades\Route::has('heritage.accounting.view-by-object')) {
+                $resource = $this->getResourceBySlug($slug);
+                if (! $resource) {
+                    abort(404);
+                }
+
+                return redirect()->route('heritage.accounting.view-by-object', $resource->id);
+            }
+            if (! $slug && \Illuminate\Support\Facades\Route::has('heritage.accounting.dashboard')) {
+                return redirect()->route('heritage.accounting.dashboard');
+            }
+        }
+
         $resource = null;
         $grapData = null;
         $totalAssets = 0;
