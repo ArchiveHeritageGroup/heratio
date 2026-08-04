@@ -2023,6 +2023,9 @@ class IcipController extends Controller
             // routes to the icip_consultation record instead of denying staff.
             'requires_consultation' => false,
             'consultation_restrictions' => [],
+            // #1427 - positive reason when access is granted despite a restriction
+            // (e.g. the user is a steward of the restricting community).
+            'access_reason' => null,
         ];
 
         if (! Schema::hasTable('icip_cultural_notice')) {
@@ -2065,41 +2068,43 @@ class IcipController extends Controller
         foreach ($restrictions as $restriction) {
             $result['restrictions'][] = $restriction;
             if ($restriction->override_security_clearance) {
-                // Hard-block types. #1427: the date-driven protocols (seasonal,
-                // mourning_period) are now enforced too - getObjectRestrictions()
-                // already filters to the active [start_date, end_date] window
-                // (#1426), so a restriction that reaches here IS currently in
-                // force and lifts automatically when the window passes.
-                //
-                // Still DEFERRED (need the user-attribute model + a per-type
-                // fail-direction product decision - see #1427 scope items 1 & 3):
-                //   gender_restricted_male / gender_restricted_female / custom
-                //     - require a community-supplied user attribute to evaluate;
-                //   elder_approval_required / under_consultation
-                //     - workflow states that should route to the consultation log,
-                //       not a hard binary block.
-                // These are left un-blocked here (DisclosureGate still withholds
-                // every restricted record from public/machine surfaces), rather
-                // than silently failing open OR blanket-denying staff.
-                if (in_array($restriction->restriction_type, [
-                    'community_permission_required',
-                    'initiated_only',
-                    'repatriation_pending',
-                    'seasonal',
-                    'mourning_period',
-                ], true)) {
-                    $result['allowed'] = false;
-                    $result['blocked_reason'] = 'ICIP restriction: '.(self::RESTRICTION_TYPES[$restriction->restriction_type] ?? ucwords(str_replace('_', ' ', $restriction->restriction_type)));
-                } elseif (in_array($restriction->restriction_type, [
-                    'elder_approval_required',
-                    'under_consultation',
-                ], true)) {
-                    // #1427 item 2: workflow states, not a hard block. Surface a
-                    // consultation requirement and (if present) link the open
-                    // icip_consultation record for this object, rather than
-                    // ignoring the protocol or blanket-denying staff.
+                // #1427 - all ten restriction types are now evaluated. Product
+                // decisions (Johan, 2026-08-04): FAIL CLOSED on an unknown user
+                // attribute, and reuse the existing icip_community_steward link
+                // as the community-affiliation attribute.
+                $type = $restriction->restriction_type;
+                $label = 'ICIP restriction: '.(self::RESTRICTION_TYPES[$type] ?? ucwords(str_replace('_', ' ', $type)));
+
+                if ($type === 'community_permission_required') {
+                    // The one type an existing user attribute can satisfy: a
+                    // steward of the restricting community IS the community
+                    // granting permission. Everyone else is denied (fail closed).
+                    $isSteward = $userId && $restriction->community_id
+                        && Schema::hasTable('icip_community_steward')
+                        && DB::table('icip_community_steward')
+                            ->where('community_id', $restriction->community_id)
+                            ->where('user_id', $userId)
+                            ->exists();
+                    if ($isSteward) {
+                        $result['access_reason'] = 'Granted: steward of the restricting community';
+                    } else {
+                        $result['allowed'] = false;
+                        $result['blocked_reason'] = $label;
+                    }
+                } elseif (in_array($type, ['elder_approval_required', 'under_consultation'], true)) {
+                    // Workflow states (item 2): not a binary block - surface a
+                    // consultation requirement that routes to icip_consultation.
                     $result['requires_consultation'] = true;
-                    $result['consultation_restrictions'][] = $restriction->restriction_type;
+                    $result['consultation_restrictions'][] = $type;
+                } else {
+                    // initiated_only, repatriation_pending, seasonal, mourning_period,
+                    // gender_restricted_male/female, custom. There is no verified
+                    // user attribute to grant these, so FAIL CLOSED - deny. Better
+                    // to withhold than to leak to an undeclared staff user; the
+                    // date-windowed types (seasonal/mourning_period) already lifted
+                    // automatically once their window passes (getObjectRestrictions).
+                    $result['allowed'] = false;
+                    $result['blocked_reason'] = $label;
                 }
             }
         }
@@ -2132,6 +2137,7 @@ class IcipController extends Controller
             $types = collect($result['restrictions'] ?? [])
                 ->pluck('restriction_type')->filter()->unique()->implode(',');
             $reason = $result['blocked_reason']
+                ?? $result['access_reason']
                 ?? (! empty($result['requires_consultation'])
                     ? 'Consultation required: '.implode(', ', $result['consultation_restrictions'] ?? [])
                     : 'Access to ICIP-restricted object');
