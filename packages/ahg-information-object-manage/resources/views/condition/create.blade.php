@@ -152,9 +152,14 @@
       </div>
     </div>
 
+    <div class="alert alert-info d-flex align-items-center py-2 mb-3">
+      <i class="fas fa-camera me-2"></i>
+      <span class="small">{{ __('Save the report first, then add condition photos (with damage annotations) on the saved report page.') }}</span>
+    </div>
+
     <div class="d-flex gap-2">
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save Condition Report') }}</button>
       <a href="{{ route('io.condition', $io->slug) }}" class="btn atom-btn-white">Cancel</a>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save Condition Report') }}</button>
     </div>
 
   </form>
