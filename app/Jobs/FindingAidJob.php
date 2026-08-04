@@ -77,7 +77,7 @@ class FindingAidJob implements ShouldQueue
             $this->log('Finding aid model: '.$model);
 
             // Ensure downloads directory exists
-            $downloadsDir = public_path('downloads');
+            $downloadsDir = storage_path('app/public/downloads');
             if (! is_dir($downloadsDir)) {
                 mkdir($downloadsDir, 0755, true);
             }
@@ -90,7 +90,7 @@ class FindingAidJob implements ShouldQueue
             // Update job download_path
             if ($this->jobRecordId) {
                 DB::table('job')->where('id', $this->jobRecordId)->update([
-                    'download_path' => '/downloads/finding-aid-'.$io->id.'.xml',
+                    'download_path' => '/storage/downloads/finding-aid-'.$io->id.'.xml',
                 ]);
             }
 
@@ -156,7 +156,7 @@ class FindingAidJob implements ShouldQueue
             // Update download_path to point to PDF
             if ($this->jobRecordId) {
                 DB::table('job')->where('id', $this->jobRecordId)->update([
-                    'download_path' => '/downloads/finding-aid-'.$io->id.'.pdf',
+                    'download_path' => '/storage/downloads/finding-aid-'.$io->id.'.pdf',
                 ]);
             }
         } else {

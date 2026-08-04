@@ -901,7 +901,7 @@ class InformationObjectController extends Controller
         }
         // Fallback: check if finding aid file exists on disk
         if (!$findingAid) {
-            $downloadsDir = public_path('downloads');
+            $downloadsDir = storage_path('app/public/downloads');
             foreach (['pdf', 'xml', 'rtf'] as $ext) {
                 if (file_exists($downloadsDir . '/finding-aid-' . $collectionRootId . '.' . $ext)) {
                     $findingAid = (object) [

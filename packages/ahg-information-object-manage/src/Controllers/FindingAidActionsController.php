@@ -67,7 +67,7 @@ class FindingAidActionsController extends Controller
         $file = $request->file('file');
         $filename = 'finding-aid-' . $io->id . '.' . $file->getClientOriginalExtension();
 
-        $downloadsDir = public_path('downloads');
+        $downloadsDir = storage_path('app/public/downloads');
         if (!is_dir($downloadsDir)) {
             mkdir($downloadsDir, 0755, true);
         }
@@ -81,7 +81,7 @@ class FindingAidActionsController extends Controller
         return response()->json([
             'ok' => true,
             'filename' => $filename,
-            'url' => url('/downloads/' . $filename),
+            'url' => url('/storage/downloads/' . $filename),
         ]);
     }
 
@@ -98,7 +98,7 @@ class FindingAidActionsController extends Controller
             return response()->json(['ok' => false, 'error' => 'Information object not found'], 404);
         }
 
-        $downloadsDir = public_path('downloads');
+        $downloadsDir = storage_path('app/public/downloads');
         $deletedFiles = [];
         foreach (['pdf', 'xml', 'html', 'rtf'] as $ext) {
             $path = $downloadsDir . '/finding-aid-' . $io->id . '.' . $ext;

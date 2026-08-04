@@ -24,6 +24,18 @@ class ImportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    // A CSV/XML import creates many IOs (row -> object + i18n + slug + status +
+    // closure + ES index), which easily exceeds the worker's 60s default and was
+    // force-killed as a TimeoutExceededException, leaving the job row stuck at
+    // "In progress". Give it real headroom, and do NOT retry - a retried partial
+    // import duplicates records (this is why re-submitting spawned several
+    // "In progress" jobs). failOnTimeout makes failed() fire on a timeout too.
+    public int $timeout = 1800;
+
+    public int $tries = 1;
+
+    public bool $failOnTimeout = true;
+
     // Job status IDs (term_i18n)
     const STATUS_IN_PROGRESS = 183;
 
@@ -822,6 +834,24 @@ class ImportJob implements ShouldQueue
     }
 
     // ─── Job record management ───────────────────────────────────────
+
+    /**
+     * Called by the queue when the job throws OR times out (failOnTimeout=true).
+     * Marks the job row as ERROR so it never stays stuck on "In progress" - the
+     * timeout SIGALRM previously killed the process before the in-handle catch
+     * could update the status. Runs on the same instance that ran handle(), so
+     * $this->jobRecordId is set.
+     */
+    public function failed(\Throwable $e): void
+    {
+        if ($this->jobRecordId > 0) {
+            DB::table('job')->where('id', $this->jobRecordId)->update([
+                'status_id' => self::STATUS_ERROR,
+                'output' => 'Import failed: '.mb_substr($e->getMessage(), 0, 500),
+                'completed_at' => now(),
+            ]);
+        }
+    }
 
     protected function createJobRecord(): void
     {

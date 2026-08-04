@@ -120,7 +120,7 @@ class FindingAidController extends Controller
         $filename = 'finding-aid-' . $io->id . '.' . $file->getClientOriginalExtension();
 
         // Store in downloads directory (matches AtoM convention)
-        $downloadsDir = public_path('downloads');
+        $downloadsDir = storage_path('app/public/downloads');
         if (!is_dir($downloadsDir)) {
             mkdir($downloadsDir, 0755, true);
         }
@@ -172,7 +172,7 @@ class FindingAidController extends Controller
             abort(404);
         }
 
-        $downloadsDir = public_path('downloads');
+        $downloadsDir = storage_path('app/public/downloads');
         $deleted = false;
         foreach (['pdf', 'xml', 'html', 'rtf'] as $ext) {
             $path = $downloadsDir . '/finding-aid-' . $io->id . '.' . $ext;
@@ -225,7 +225,7 @@ class FindingAidController extends Controller
 
     private function getFindingAidPath(int $objectId): ?string
     {
-        $downloadsDir = public_path('downloads');
+        $downloadsDir = storage_path('app/public/downloads');
         foreach (['pdf', 'rtf'] as $ext) {
             $path = $downloadsDir . '/finding-aid-' . $objectId . '.' . $ext;
             if (file_exists($path)) {

@@ -95,7 +95,9 @@ class ImportController extends Controller
 
         return redirect()
             ->route($slug ? 'informationobject.show' : 'informationobject.browse', $slug ? ['slug' => $slug] : [])
-            ->with('success', "Import queued: {$objectType} ({$type}) - file: {$file->getClientOriginalName()}. Processing will begin shortly.");
+            ->with('success', "Import queued: {$objectType} ({$type}) - file: {$file->getClientOriginalName()}. "
+                ."It runs in the background - track it under Admin -> Jobs (the imported records appear when it completes). "
+                ."Please do NOT re-submit: each submit starts a separate import.");
     }
 
     /**
