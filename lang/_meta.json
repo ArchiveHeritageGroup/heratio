@@ -190,7 +190,10 @@
         "nso": {
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "ahg"
+            "primary_source": "ahg",
+            "mt_batch_last_run": "2026-08-04",
+            "mt_engine": "nllb-200-distilled-600M",
+            "mt_batch_count": 13030
         },
         "pl": {
             "credit": "AtoM / Artefactual community",
@@ -243,7 +246,10 @@
         "ss": {
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "ahg"
+            "primary_source": "ahg",
+            "mt_batch_last_run": "2026-08-04",
+            "mt_engine": "nllb-200-distilled-600M",
+            "mt_batch_count": 13003
         },
         "st": {
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
@@ -316,7 +322,10 @@
         "xh": {
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "ahg"
+            "primary_source": "ahg",
+            "mt_batch_last_run": "2026-08-04",
+            "mt_engine": "nllb-200-distilled-600M",
+            "mt_batch_count": 13264
         },
         "zh": {
             "credit": "AtoM / Artefactual community",
@@ -330,8 +339,9 @@
             "last_imported_at": "2026-04-30",
             "primary_source": "ahg",
             "secondary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-05-01",
-            "mt_batch_count": 0
+            "mt_batch_last_run": "2026-08-04",
+            "mt_batch_count": 13155,
+            "mt_engine": "nllb-200-distilled-600M"
         }
     }
 }
