@@ -194,6 +194,21 @@ class Ead4Serializer
             ->select('id', 'name', 'path', 'mime_type', 'byte_size', 'usage_id')
             ->get();
 
+        // #1447 - additional digital objects attached directly to this
+        // description (no child records) join the same <daoset>, in order.
+        if (class_exists(\AhgCore\Services\AttachedDigitalObjectService::class)) {
+            $extra = app(\AhgCore\Services\AttachedDigitalObjectService::class)
+                ->attachedMasters((int) $objectId)
+                ->map(fn ($do) => (object) [
+                    'id' => $do->id, 'name' => $do->name, 'path' => $do->path,
+                    'mime_type' => $do->mime_type, 'byte_size' => $do->byte_size,
+                    'usage_id' => $do->usage_id,
+                ]);
+            if ($extra->isNotEmpty()) {
+                $digitalObjects = $digitalObjects->concat($extra);
+            }
+        }
+
         // Build root <ead> element
         $ead = $this->dom->createElementNS(self::NS_EAD, 'ead');
         $this->dom->appendChild($ead);

@@ -1061,10 +1061,19 @@ class RicSerializationService
      */
     private function getInstantiationsForRecord(int $ioId): array
     {
-        // Digital-object instantiations (the automatic manifestations).
-        $out = DB::table('digital_object as do')
+        // Digital-object instantiations (the automatic manifestations). #1447 -
+        // additional objects attached directly to the description (no child
+        // records) are also manifestations of this record, so they join the set.
+        $digitalObjects = DB::table('digital_object as do')
             ->where('do.object_id', $ioId)
-            ->get()
+            ->get();
+        if (class_exists(\AhgCore\Services\AttachedDigitalObjectService::class)) {
+            $attached = app(\AhgCore\Services\AttachedDigitalObjectService::class)->attachedMasters((int) $ioId);
+            if ($attached->isNotEmpty()) {
+                $digitalObjects = $digitalObjects->concat($attached);
+            }
+        }
+        $out = $digitalObjects
             ->map(fn($do) => [
                 '@type' => self::RICO_NS . 'Instantiation',
                 'rico:identifier' => $do->name,

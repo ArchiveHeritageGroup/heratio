@@ -59,10 +59,18 @@ class AttachedDigitalObjectService
      */
     public function attach(int $ioId, UploadedFile $file, ?string $caption = null, ?string $role = null): int
     {
-        // Create the master + derivatives via the shared uploader (object_id is
-        // set to $ioId in there), then move it out of the primary slot.
+        // Create the master + derivatives via the shared uploader, then move the
+        // whole set out of the primary slot. upload() stamps object_id = $ioId on
+        // the master AND its thumbnail/reference derivatives, so both must be
+        // nulled - otherwise the derivatives leak into WHERE object_id = IO reads
+        // (list thumbnail, EAD/IIIF/RiC exports) and the extra is no longer
+        // invisible to the legacy primary path.
         $masterId = DigitalObjectService::upload($ioId, $file);
-        DB::table('digital_object')->where('id', $masterId)->update(['object_id' => null]);
+        DB::table('digital_object')
+            ->where(function ($q) use ($masterId) {
+                $q->where('id', $masterId)->orWhere('parent_id', $masterId);
+            })
+            ->update(['object_id' => null]);
 
         $sort = (int) DB::table(self::TABLE)->where('information_object_id', $ioId)->max('sort_order');
 
@@ -128,6 +136,33 @@ class AttachedDigitalObjectService
                 'thumbnail'  => $derivs->firstWhere('usage_id', DigitalObjectService::USAGE_THUMBNAIL),
             ];
         })->filter()->values();
+    }
+
+    /**
+     * The attached MASTER digital_object rows for a description, in display
+     * order - for exporters (EAD <dao> set, IIIF canvases, RiC instantiations)
+     * that already fetch the primary via object_id and want to append the
+     * extras. Returns full rows; callers read the columns they need. Empty when
+     * the feature is not installed or nothing is attached.
+     *
+     * @return Collection<int,object>
+     */
+    public function attachedMasters(int $ioId): Collection
+    {
+        if (! self::available()) {
+            return collect();
+        }
+        $ids = DB::table(self::TABLE)
+            ->where('information_object_id', $ioId)
+            ->orderBy('sort_order')->orderBy('id')
+            ->pluck('digital_object_id');
+        if ($ids->isEmpty()) {
+            return collect();
+        }
+        $order = $ids->values()->flip();
+        $rows = DB::table('digital_object')->whereIn('id', $ids->all())->get();
+
+        return $rows->sortBy(fn ($r) => $order[$r->id] ?? PHP_INT_MAX)->values();
     }
 
     /** Number of objects attached to a description (cheap existence/count check). */

@@ -1135,6 +1135,21 @@ class IiifCollectionService
             ->select('do.id', 'do.name', 'do.path', 'do.mime_type', 'do.byte_size')
             ->get();
 
+        // #1447 - additional digital objects attached directly to this
+        // description (no child records) each become their own canvas, appended
+        // after the primary in display order.
+        if (class_exists(\AhgCore\Services\AttachedDigitalObjectService::class)) {
+            $extra = app(\AhgCore\Services\AttachedDigitalObjectService::class)
+                ->attachedMasters((int) $object->id)
+                ->map(fn ($do) => (object) [
+                    'id' => $do->id, 'name' => $do->name, 'path' => $do->path,
+                    'mime_type' => $do->mime_type, 'byte_size' => $do->byte_size,
+                ]);
+            if ($extra->isNotEmpty()) {
+                $digitalObjects = $digitalObjects->concat($extra);
+            }
+        }
+
         if ($digitalObjects->isEmpty()) {
             return null;
         }
