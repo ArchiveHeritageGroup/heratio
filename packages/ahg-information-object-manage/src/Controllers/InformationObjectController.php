@@ -353,6 +353,25 @@ class InformationObjectController extends Controller
             abort(404);
         }
 
+        // #1427 graded ICIP cultural-access enforcement on the staff show page.
+        // DisclosureGate already withholds restricted records from public/machine
+        // surfaces; this honours the community's protocol for authenticated staff
+        // too. The check runs first so access to a restricted record is audited
+        // (icip_access_log) for EVERY viewer, including custodians. Only the block
+        // is bypassed for custodians: anyone who can EDIT the record (admins
+        // included, via AclService's admin bypass) - and, inside the check, a
+        // steward of the restricting community. Everyone else fails closed on an
+        // unsatisfied restriction. Workflow-state protocols (elder approval /
+        // under consultation) are non-blocking. Unrestricted records return early
+        // in the service with no log write, so the common path stays cheap.
+        if (class_exists(\AhgIcip\Services\IcipAccessService::class)) {
+            $icipAccess = app(\AhgIcip\Services\IcipAccessService::class)->check((int) $io->id, \Illuminate\Support\Facades\Auth::id());
+            if (! ($icipAccess['allowed'] ?? true)
+                && ! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'update', (int) $io->id)) {
+                abort(403, $icipAccess['blocked_reason'] ?: 'Access to this record is restricted by an Indigenous cultural protocol.');
+            }
+        }
+
         // #74 encryption_field_access_restrictions: decrypt the two
         // registered i18n columns before the show-page blade renders them.
         // The show() method does its own inline query (not via
