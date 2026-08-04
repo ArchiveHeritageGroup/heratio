@@ -2916,8 +2916,8 @@ class MarketplaceController extends Controller
             'id'            => 'required|integer|min:1',
             'form_action'   => 'required|string|in:upload,set_primary,delete',
             'image_id'      => 'nullable|integer|min:1',
-            'image_caption' => 'nullable|string|max:500',
-            'listing_image' => 'nullable|image|mimes:jpeg,png,gif,webp|max:10240',
+            'caption'       => 'nullable|string|max:500',
+            'image_file'    => 'nullable|image|mimes:jpeg,png,gif,webp|max:10240',
         ]);
 
         $listingId = (int) $request->input('id');
@@ -2936,10 +2936,10 @@ class MarketplaceController extends Controller
 
             if (count($currentImages) >= $maxImages) {
                 session()->flash('error', 'Maximum image limit reached (' . $maxImages . ').');
-            } elseif (!$request->hasFile('listing_image') || !$request->file('listing_image')->isValid()) {
+            } elseif (!$request->hasFile('image_file') || !$request->file('image_file')->isValid()) {
                 session()->flash('error', 'Please select an image to upload.');
             } else {
-                $file = $request->file('listing_image');
+                $file = $request->file('image_file');
 
                 $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
                 if (!in_array($file->getMimeType(), $allowedTypes)) {
@@ -2947,7 +2947,7 @@ class MarketplaceController extends Controller
                 } elseif ($file->getSize() > 10 * 1024 * 1024) {
                     session()->flash('error', 'File size exceeds the 10 MB limit.');
                 } else {
-                    $caption = trim($request->input('image_caption', ''));
+                    $caption = trim($request->input('caption', ''));
                     $result = $this->service->uploadListingImage($listingId, $file, $caption, count($currentImages));
 
                     if ($result) {
