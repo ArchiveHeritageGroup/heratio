@@ -15333,6 +15333,26 @@ CREATE TABLE IF NOT EXISTS `information_object_physical_location` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `information_object_digital_object` (#1447 - N digital objects per description)
+--
+
+CREATE TABLE IF NOT EXISTS `information_object_digital_object` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `information_object_id` int NOT NULL,
+  `digital_object_id` int NOT NULL,
+  `sort_order` int NOT NULL DEFAULT '0',
+  `is_primary` tinyint(1) NOT NULL DEFAULT '0',
+  `caption` varchar(255) DEFAULT NULL,
+  `role` varchar(64) DEFAULT NULL,
+  `created_by` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_iodo` (`information_object_id`,`digital_object_id`),
+  KEY `idx_iodo_sort` (`information_object_id`,`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Table structure for table `information_object_privacy`
 --
 

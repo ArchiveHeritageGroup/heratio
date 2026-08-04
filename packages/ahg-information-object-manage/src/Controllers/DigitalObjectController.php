@@ -299,6 +299,101 @@ class DigitalObjectController extends Controller
     }
 
     /**
+     * #1447 - attach one or more ADDITIONAL digital objects to this description
+     * (recto/verso, page scans, multiple views) without creating child records.
+     * Each file becomes its own master + derivatives, linked via
+     * information_object_digital_object. The existing single primary is untouched.
+     */
+    public function attachStore(Request $request, string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (! $io) {
+            abort(404);
+        }
+
+        $request->validate([
+            'attachments'   => 'required|array',
+            'attachments.*' => 'file|max:'.$this->phpUploadMaxKb(),
+            'caption'       => 'nullable|string|max:255',
+            'role'          => 'nullable|string|max:64',
+        ]);
+
+        $svc = app(\AhgCore\Services\AttachedDigitalObjectService::class);
+        if (! \AhgCore\Services\AttachedDigitalObjectService::available()) {
+            return redirect()->route('informationobject.show', $slug)
+                ->with('error', 'Multiple attachments are not available on this installation.');
+        }
+
+        $caption = trim((string) $request->input('caption', ''));
+        $role = trim((string) $request->input('role', ''));
+
+        $attached = 0;
+        $skipped = [];
+        foreach ((array) $request->file('attachments', []) as $file) {
+            if (! $file) {
+                continue;
+            }
+            $name = $file->getClientOriginalName();
+
+            // Same executable deny-list as the primary upload path.
+            $denied = DigitalObjectService::deniedUploadExtension($file);
+            if ($denied !== null) {
+                $skipped[] = $name.' (file type not allowed)';
+                continue;
+            }
+            // #115 repository quota.
+            if (! \AhgCore\Services\RepositoryQuotaService::canAccept(
+                $io->repository_id ? (int) $io->repository_id : null,
+                (int) $file->getSize()
+            )) {
+                $skipped[] = $name.' (over repository quota)';
+                continue;
+            }
+            try {
+                $svc->attach((int) $io->id, $file, $caption ?: null, $role ?: null);
+                $attached++;
+            } catch (\Throwable $e) {
+                $skipped[] = $name.' (upload error)';
+                \Log::warning('[io.attachments] attach failed: '.$e->getMessage(), ['io_id' => $io->id]);
+            }
+        }
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'digital_object_attach', [
+            'data' => ['attached' => $attached, 'skipped' => count($skipped)],
+        ]);
+
+        $msg = $attached.' object'.($attached === 1 ? '' : 's').' attached.';
+        if ($skipped) {
+            $msg .= ' Skipped: '.implode('; ', $skipped);
+        }
+
+        return redirect()->route('informationobject.show', $slug)
+            ->with($attached > 0 ? 'success' : 'error', $msg);
+    }
+
+    /**
+     * #1447 - remove one attached object (link + its master/derivatives/files).
+     */
+    public function attachDelete(Request $request, int $id)
+    {
+        $svc = app(\AhgCore\Services\AttachedDigitalObjectService::class);
+        $ioId = $svc->ownerIoId($id);
+        if (! $ioId) {
+            abort(404);
+        }
+        $svc->detach($id);
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $ioId, 'information_object', 'digital_object_detach', [
+            'data' => ['link_id' => $id],
+        ]);
+
+        $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');
+
+        return redirect()->route('informationobject.show', $slug)
+            ->with('success', 'Attachment removed.');
+    }
+
+    /**
      * Bulk folder upload (closes #folder-upload-on-iio-page user request).
      *
      * Accepts a multipart payload with digital_objects[] (the files) and

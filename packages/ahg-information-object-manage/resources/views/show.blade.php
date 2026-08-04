@@ -407,6 +407,8 @@
 @section('before-content')
   @include('ahg-information-object-manage::partials._redaction-overlay')
   @include('ahg-information-object-manage::partials._digital-object-viewer')
+  {{-- #1447 - additional digital objects attached to this description (gallery + attach form) --}}
+  @include('ahg-information-object-manage::partials._attached-objects')
 @endsection
 
 
