@@ -190,10 +190,15 @@ class ConditionController extends Controller
             ->select('io.id', 'i18n.title', 's.slug')
             ->first();
 
-        // Get photos for this report
-        $photos = DB::table('condition_image')
-            ->where('condition_report_id', $id)
+        // #1452/#1453 - photos now live in the unified spectrum_condition_photo
+        // store, linked by (source_type='report', source_id). photo_type is
+        // aliased to image_type so the view renders unchanged.
+        $photos = DB::table('spectrum_condition_photo')
+            ->where('source_type', 'report')
+            ->where('source_id', $id)
+            ->orderBy('sort_order')
             ->orderBy('created_at')
+            ->select('*', DB::raw('photo_type as image_type'))
             ->get();
 
         // Get damages
@@ -299,12 +304,19 @@ class ConditionController extends Controller
         $filename = $id . '_' . time() . '_' . $file->getClientOriginalName();
         $file->move($dir, $filename);
 
-        DB::table('condition_image')->insert([
-            'condition_report_id' => $id,
-            'file_path' => '/uploads/condition_photos/' . $filename,
-            'caption' => $request->input('caption'),
-            'image_type' => $request->input('image_type', 'general'),
-            'created_at' => now(),
+        // #1452/#1453 - write to the unified spectrum_condition_photo store as a
+        // report-sourced photo (no condition_check_id).
+        DB::table('spectrum_condition_photo')->insert([
+            'condition_check_id' => null,
+            'source_type'        => 'report',
+            'source_id'          => $id,
+            'file_path'          => '/uploads/condition_photos/' . $filename,
+            'filename'           => $filename,
+            'original_filename'  => $file->getClientOriginalName(),
+            'caption'            => $request->input('caption'),
+            'photo_type'         => $request->input('image_type', 'detail'),
+            'created_by'         => \Illuminate\Support\Facades\Auth::id(),
+            'created_at'         => now(),
         ]);
 
         return redirect()->route('io.condition.show', $id)->with('success', 'Photo uploaded.');
@@ -315,7 +327,8 @@ class ConditionController extends Controller
      */
     public function deletePhoto(int $id)
     {
-        $photo = DB::table('condition_image')->where('id', $id)->first();
+        // #1452/#1453 - report photos now live in spectrum_condition_photo.
+        $photo = DB::table('spectrum_condition_photo')->where('id', $id)->first();
         if (!$photo) {
             abort(404);
         }
@@ -324,7 +337,7 @@ class ConditionController extends Controller
             @unlink(public_path($photo->file_path));
         }
 
-        DB::table('condition_image')->where('id', $id)->delete();
+        DB::table('spectrum_condition_photo')->where('id', $id)->delete();
 
         return redirect()->back()->with('success', 'Photo deleted.');
     }

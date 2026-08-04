@@ -29488,7 +29488,9 @@ DROP TABLE IF EXISTS `spectrum_condition_photo`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE IF NOT EXISTS `spectrum_condition_photo` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `condition_check_id` int NOT NULL,
+  `condition_check_id` int DEFAULT NULL,
+  `source_type` varchar(16) NOT NULL DEFAULT 'check' COMMENT '#1452/#1453 - check (spectrum_condition_check) | report (condition_report)',
+  `source_id` int DEFAULT NULL COMMENT 'the condition check or report id per source_type',
   `digital_object_id` int DEFAULT NULL,
   `photo_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'detail' COMMENT 'before, after, detail, damage, overall, other',
   `caption` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -29520,6 +29522,7 @@ CREATE TABLE IF NOT EXISTS `spectrum_condition_photo` (
   KEY `idx_photo_type` (`photo_type`),
   KEY `idx_photo_date` (`photo_date`),
   KEY `idx_primary` (`is_primary`),
+  KEY `idx_scp_source` (`source_type`,`source_id`),
   CONSTRAINT `spectrum_condition_photo_ibfk_1` FOREIGN KEY (`condition_check_id`) REFERENCES `spectrum_condition_check` (`id`) ON DELETE CASCADE,
   CONSTRAINT `spectrum_condition_photo_ibfk_2` FOREIGN KEY (`digital_object_id`) REFERENCES `digital_object` (`id`) ON DELETE SET NULL,
   CONSTRAINT `spectrum_condition_photo_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL,

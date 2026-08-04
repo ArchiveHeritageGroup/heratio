@@ -1503,6 +1503,14 @@ class SpectrumController extends Controller
                 }
                 if ($conditionCheck) {
                     $conditionCheckId = $conditionCheck->id;
+                    // #1452 - fold this standalone page into the Condition
+                    // Assessment: redirect to the condition-namespace photo
+                    // manager (io.condition.spectrum.show), which reads the same
+                    // unified spectrum_condition_photo store. Falls through to the
+                    // legacy view only if that route is unavailable.
+                    if (\Illuminate\Support\Facades\Route::has('io.condition.spectrum.show')) {
+                        return redirect()->route('io.condition.spectrum.show', $conditionCheckId);
+                    }
                 }
 
                 // Get all condition checks for this object
