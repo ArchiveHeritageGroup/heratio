@@ -190,7 +190,8 @@
             <a href="{{ route('informationobject.findingaid.download', $slug) }}" class="list-group-item list-group-item-action small">
               <i class="fas fa-download me-1"></i> {{ __('Download') }}
             </a>
-            <a href="{{ route('informationobject.findingaid.generate', $slug) }}" class="list-group-item list-group-item-action small">
+            <a href="{{ route('informationobject.findingaid.generate', $slug) }}" class="list-group-item list-group-item-action small"
+               onclick="this.style.pointerEvents='none';this.classList.add('disabled');this.innerHTML='<i class=&quot;fas fa-spinner fa-spin me-1&quot;></i> {{ __('In process...') }}';">
               <i class="fas fa-sync-alt me-1"></i> {{ __('Regenerate') }}
             </a>
             <form action="{{ route('informationobject.findingaid.delete', $slug) }}" method="POST" class="d-inline">
@@ -200,7 +201,8 @@
               </button>
             </form>
           @else
-            <a href="{{ route('informationobject.findingaid.generate', $slug) }}" class="list-group-item list-group-item-action small">
+            <a href="{{ route('informationobject.findingaid.generate', $slug) }}" class="list-group-item list-group-item-action small"
+               onclick="this.style.pointerEvents='none';this.classList.add('disabled');this.innerHTML='<i class=&quot;fas fa-spinner fa-spin me-1&quot;></i> {{ __('In process...') }}';">
               <i class="fas fa-file-alt me-1"></i> {{ __('Generate') }}
             </a>
             @if(\Illuminate\Support\Facades\Route::has('informationobject.findingaid.upload.form') && \AhgCore\Services\AclService::check($record ?? null, 'update'))

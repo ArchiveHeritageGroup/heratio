@@ -72,7 +72,7 @@
                   Sector <span class="text-danger">*</span>
                  <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <select name="sector" id="sector" class="form-select @error('sector') is-invalid @enderror" required>
-                  @php $sectorVal = old('sector', request('sector', '')); @endphp
+                  @php $sectorVal = old('sector', request('sector', $prefill['sector'] ?? '')); @endphp
                   <option value="">-- Select sector --</option>
                   <option value="museum" {{ $sectorVal === 'museum' ? 'selected' : '' }}>{{ __('Museum') }}</option>
                   <option value="archive" {{ $sectorVal === 'archive' ? 'selected' : '' }}>{{ __('Archive') }}</option>

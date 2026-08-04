@@ -29,6 +29,7 @@ use AhgLoan\Services\LoanService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Loan Management Controller.
@@ -148,10 +149,45 @@ class LoanController extends Controller
                 $prefill['object_title'] = $io->title;
                 $prefill['object_slug'] = $io->slug;
                 $prefill['object_identifier'] = $io->identifier;
+                // #1449 - default the Sector dropdown to the object's own sector.
+                // Same detection the show controller uses: display_object_config
+                // is authoritative, else the level-of-description sector map.
+                $prefill['sector'] = $this->resolveObjectSector((int) $io->id);
             }
         }
 
         return view('ahg-loan::loan.create', compact('prefill'));
+    }
+
+    /**
+     * #1449 - resolve an object's sector (museum/library/gallery/dam) so the
+     * loan form can default the Sector dropdown. Mirrors the show controller:
+     * display_object_config.object_type is authoritative, else the
+     * level_of_description_sector map; archival/unmapped => null.
+     */
+    private function resolveObjectSector(int $objectId): ?string
+    {
+        // The loan form offers these four sectors (no dam), so 'archive' IS a
+        // valid auto-fill value here - display_object_config.object_type carries
+        // it (engelbrecht-family-bible is object_type='archive').
+        $valid = ['museum', 'archive', 'library', 'gallery'];
+        $glamType = Schema::hasTable('display_object_config')
+            ? DB::table('display_object_config')->where('object_id', $objectId)->value('object_type')
+            : null;
+        if ($glamType && in_array($glamType, $valid, true)) {
+            return $glamType;
+        }
+        $lod = DB::table('information_object')->where('id', $objectId)->value('level_of_description_id');
+        if ($lod && Schema::hasTable('level_of_description_sector')) {
+            $s = DB::table('level_of_description_sector')
+                ->where('term_id', $lod)
+                ->orderBy('display_order')->value('sector');
+            if ($s && in_array($s, $valid, true)) {
+                return $s;
+            }
+        }
+
+        return null;
     }
 
     /**

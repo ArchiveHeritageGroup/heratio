@@ -124,7 +124,15 @@ class RelationshipService
         // NULL name, so the graph rendered them as bare "#id". Resolve their
         // real names from the ric_*_i18n tables, batched per type (collect the
         // ids of each RiC class, then one query per class - no N+1).
-        $ricNames = $this->resolveRicNativeNames($res);
+        $rightsNames = $this->resolveRightsNames($res);
+
+        // #1451 - RiC-native entities (rico:Activity/Place/Rule/Instantiation)
+        // belong to the RiC lens, which renders them in its OWN dedicated panels
+        // (_ric-entities-panel). They must NOT clutter the general "Related
+        // records" panel on the ISAD (and other AtoM-standard) show views - that
+        // is where the "Activities (RiC): Creation Creation Creation" noise came
+        // from. Skip them here; the RiC view still surfaces them via its panels.
+        $ricNative = ['RicPlace', 'RicRule', 'RicActivity', 'RicInstantiation'];
 
         $domains = [
             'QubitInformationObject' => 'Records & descriptions',
@@ -132,20 +140,19 @@ class RelationshipService
             'QubitRepository' => 'Repositories',
             'QubitTerm' => 'Subjects, places & terms',
             'QubitAccession' => 'Accessions',
-            // RiC-native domains keyed by object.class_name.
-            'RicPlace' => 'Places (RiC)',
-            'RicRule' => 'Mandates & rules (RiC)',
-            'RicActivity' => 'Activities (RiC)',
-            'RicInstantiation' => 'Instantiations (RiC)',
+            'QubitRights' => 'Rights',
         ];
 
         $groups = [];
         foreach ($res as $e) {
+            if (in_array($e->class_name, $ricNative, true)) {
+                continue; // RiC-native: shown in the RiC lens, not the ISAD view
+            }
             $domain = $domains[$e->class_name] ?? trim(preg_replace('/^Qubit/', '', (string) $e->class_name)) ?: 'Other';
             $groups[$domain] = $groups[$domain] ?? ['domain' => $domain, 'items' => []];
-            // Prefer the RiC-native resolved name when this node is a RiC entity;
-            // fall back to the AtoM COALESCE name, then to "#id" only when truly absent.
-            $name = $e->name ?: ($ricNames[(int) $e->id] ?? null) ?: ('#'.$e->id);
+            // Name: AtoM COALESCE name, then a resolved QubitRights label (basis),
+            // then "#id" only when truly absent.
+            $name = $e->name ?: ($rightsNames[(int) $e->id] ?? null) ?: ('#'.$e->id);
             $groups[$domain]['items'][] = ['id' => (int) $e->id, 'name' => $name, 'slug' => $e->slug];
         }
 
@@ -157,7 +164,38 @@ class RelationshipService
         }
         usort($out, fn ($a, $b) => $b['count'] <=> $a['count']);
 
-        return ['groups' => $out, 'total' => (int) $res->count()];
+        // Total reflects the entities actually shown (RiC-native ones are
+        // excluded above), so the panel header count matches the list.
+        return ['groups' => $out, 'total' => array_sum(array_column($out, 'count'))];
+    }
+
+    /**
+     * #1451 - resolve a human label for QubitRights nodes, which carry no i18n
+     * title so the "Related records" panel showed a bare "#id". Batched: one
+     * query over the rights table joined to the basis term. The label is the
+     * rights basis (e.g. "Donor", "Copyright") - what a cataloguer recognises.
+     *
+     * @param  \Illuminate\Support\Collection<int,object>  $rows  rows with ->id and ->class_name
+     * @return array<int,string>  map of QubitRights id => label
+     */
+    protected function resolveRightsNames($rows): array
+    {
+        $ids = collect($rows)->where('class_name', 'QubitRights')->pluck('id')->all();
+        if (! $ids || ! \Illuminate\Support\Facades\Schema::hasTable('rights')) {
+            return [];
+        }
+        $out = [];
+        $rights = DB::table('rights as r')
+            ->leftJoin('term_i18n as b', function ($j) {
+                $j->on('b.id', '=', 'r.basis_id')->where('b.culture', '=', 'en');
+            })
+            ->whereIn('r.id', $ids)
+            ->get(['r.id', 'b.name as basis']);
+        foreach ($rights as $r) {
+            $out[(int) $r->id] = 'Rights'.($r->basis ? ' - '.$r->basis : '');
+        }
+
+        return $out;
     }
 
     /**
