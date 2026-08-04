@@ -90,6 +90,13 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                 zoomPerClick: 1.5,
                 defaultZoomLevel: (typeof cfg.default_zoom === 'number' && cfg.default_zoom > 0) ? cfg.default_zoom : 0,
                 maxZoomPixelRatio: (typeof cfg.max_zoom === 'number' && cfg.max_zoom > 0) ? cfg.max_zoom : 4,
+                // How far the image may zoom OUT. OSD's default (0.8) clamps
+                // zoom-out to ~0.8x the viewport, which for non-square images
+                // stops the whole image ever fitting at "home" - the raw image
+                // then shows more than the deep-zoom view. A low ratio lets the
+                // full image fit with margin and lets the user keep zooming out.
+                minZoomImageRatio: (typeof cfg.min_zoom_ratio === 'number' && cfg.min_zoom_ratio >= 0) ? cfg.min_zoom_ratio : 0.3,
+                homeFillsViewer: false,
                 visibilityRatio: 0.5,
                 constrainDuringPan: true,
                 immediateRender: true,
