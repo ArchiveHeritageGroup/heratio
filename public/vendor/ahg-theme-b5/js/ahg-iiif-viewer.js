@@ -318,10 +318,16 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
         // sizes its canvas from manifest width/height, so a wrong value parks
         // the image in a corner of an oversized empty canvas.
         function buildAndShow(realW, realH) {
+            // Stable internal identifier for the inline IIIF manifest. This is
+            // NOT an HTTP address and must never be fetched - Mirador is handed
+            // the manifest object directly via receiveManifest below. Declared
+            // before the manifest so it can also be the manifest's own @id.
+            // (Replaces a blob: URL, which is fragile under strict CSP.)
+            var manifestUrl = 'urn:heratio:inline-manifest:' + encodeURIComponent(imageUrl);
             var manifest = {
                 '@context': 'http://iiif.io/api/presentation/2/context.json',
                 '@type': 'sc:Manifest',
-                '@id': imageUrl + '/manifest.json',
+                '@id': manifestUrl,
                 label: title || 'Image',
                 sequences: [{
                     '@type': 'sc:Sequence',
@@ -347,9 +353,6 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                 }]
             };
 
-            var manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-            var manifestUrl = URL.createObjectURL(manifestBlob);
-
             function createMirador() {
                 if (typeof Mirador === 'undefined') {
                     mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>';
@@ -364,19 +367,10 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                 // (see tools/mirador-build/src/index.js).
                 var miradorConfig = {
                     id: 'mirador-' + vid,
-                    windows: [{
-                        manifestId: manifestUrl,
-                        sideBarPanel: cfg.enable_annotations === true ? 'annotations' : 'info',
-                        // highlightAllAnnotations keeps drawn shapes
-                        // permanently visible on the canvas; without it
-                        // Mirador's stock overlay only renders shapes on
-                        // mouseover. Only flip on when annotations are
-                        // enabled — leaving it off when the panel isn't
-                        // open avoids painting over images that have
-                        // pre-existing IIIF manifest annotations the
-                        // operator hasn't opted into surfacing.
-                        highlightAllAnnotations: cfg.enable_annotations === true
-                    }],
+                    // Windows are opened imperatively (addWindow) after the
+                    // inline manifest is injected into the store, so Mirador
+                    // never tries to fetch the urn: manifestId.
+                    windows: [],
                     window: {
                         allowClose: false,
                         allowMaximize: false,
@@ -401,7 +395,16 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                         exportLocalStorageAnnotations: false
                     };
                 }
-                Mirador.viewer(miradorConfig);
+                var mir = Mirador.viewer(miradorConfig);
+                // Hand Mirador the manifest object directly (the manifestUrl is a
+                // urn:, not fetchable), then open a window on it. This keeps the
+                // annotation/highlight options that used to live in windows:[{...}].
+                mir.store.dispatch(Mirador.actions.receiveManifest(manifestUrl, manifest));
+                mir.store.dispatch(Mirador.actions.addWindow({
+                    manifestId: manifestUrl,
+                    sideBarPanel: cfg.enable_annotations === true ? 'annotations' : 'info',
+                    highlightAllAnnotations: cfg.enable_annotations === true
+                }));
 
                 // Hide Mirador's own close/minimize/maximize buttons via CSS
                 setTimeout(function() {
