@@ -187,12 +187,51 @@ class AttachedDigitalObjectService
         if (! $link) {
             return false;
         }
+
+        $ioId = (int) $link->information_object_id;
+        $masterId = (int) $link->digital_object_id;
+
+        // Remove the on-disk files ourselves FIRST. DigitalObjectService::delete()
+        // resolves file paths via object_id, which attach() deliberately nulled -
+        // so it cannot find an attached object's files and would leave them
+        // orphaned under uploads_path/r/<ioId>/ (the shard upload() wrote to,
+        // using the ioId as object_id before we detached it). delete()'s DB-row
+        // cleanup keys off id/parent_id and still works, so we let it run after.
+        // NB: the /r/<ioId>/ directory is SHARED with this record's primary
+        // object, so we only ever unlink the specific attached files by name -
+        // never the directory.
+        $uploads = rtrim((string) config('heratio.uploads_path', '/mnt/nas/heratio/archive'), '/');
+        $rows = DB::table('digital_object')
+            ->where('id', $masterId)->orWhere('parent_id', $masterId)
+            ->get(['id', 'name', 'path']);
+        foreach ($rows as $r) {
+            if (empty($r->name)) {
+                continue;
+            }
+            $candidates = [$uploads.'/r/'.$ioId.'/'.$r->name];
+            if (! empty($r->path)) {
+                // path is the web path (e.g. /uploads/r/<id>/) - strip the leading
+                // 'uploads/' but keep the 'r/' shard, then re-root at uploads_path.
+                $rel = ltrim((string) $r->path, '/');
+                if (str_starts_with($rel, 'uploads/')) {
+                    $rel = substr($rel, strlen('uploads/'));
+                }
+                $candidates[] = $uploads.'/'.rtrim($rel, '/').'/'.$r->name;
+            }
+            foreach ($candidates as $c) {
+                if (is_file($c)) {
+                    @unlink($c);
+                    break;
+                }
+            }
+        }
+
         DB::table(self::TABLE)->where('id', $linkId)->delete();
         try {
-            DigitalObjectService::delete((int) $link->digital_object_id);
+            DigitalObjectService::delete($masterId);
         } catch (\Throwable $e) {
-            // The link is gone regardless; a failed file cleanup must not throw
-            // into the request. Orphaned rows are harmless (object_id is NULL).
+            // DB-row cleanup is best-effort; the link is gone and the files were
+            // removed above, so a failure here must not throw into the request.
         }
 
         return true;
