@@ -674,28 +674,43 @@
         <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
         @php
           // #1457: when the record has more than one digital object (primary
-          // master(s) + attachments), hand the viewer the multi-canvas IIIF
-          // manifest so its Mirador mode shows ALL objects with deep zoom.
-          // Single-object records get '' and keep the inline single-image path.
-          $__miradorManifestUrl = '';
+          // master(s) + attachments), build the list the viewer's Mirador mode
+          // shows as a multi-canvas set - each a deep-zoomable image. Uses the
+          // PLAIN reference image (a JPEG derivative: anon-safe, and it dodges the
+          // webp/Cantaloupe issues the /iiif/ service hits). One entry per master.
+          $__viewerObjects = [];
           try {
-              if (\Illuminate\Support\Facades\Route::has('iiif-collection.object-manifest')) {
-                  $__masterCount = \Illuminate\Support\Facades\DB::table('digital_object')
-                      ->where('object_id', $io->id)->whereNull('parent_id')->count();
-                  $__attachCount = (class_exists(\AhgCore\Services\AttachedDigitalObjectService::class)
-                      && \AhgCore\Services\AttachedDigitalObjectService::available())
-                      ? app(\AhgCore\Services\AttachedDigitalObjectService::class)->countFor((int) $io->id) : 0;
-                  if (($__masterCount + $__attachCount) > 1) {
-                      $__miradorManifestUrl = route('iiif-collection.object-manifest', $io->slug);
+              // Skip any object whose file is missing on disk (e.g. an orphan
+              // attachment row whose file was removed) so the viewer never shows
+              // a broken canvas.
+              $__addObj = function ($disp, $label) use (&$__viewerObjects) {
+                  if (! $disp) { return; }
+                  if (\AhgCore\Services\DigitalObjectService::resolveDiskPath($disp) === null) { return; }
+                  $u = \AhgCore\Services\DigitalObjectService::getUrl($disp);
+                  if ($u) { $__viewerObjects[] = ['url' => url($u), 'label' => $label]; }
+              };
+              foreach (\Illuminate\Support\Facades\DB::table('digital_object')
+                      ->where('object_id', $io->id)->whereNull('parent_id')->orderBy('id')->get() as $__mo) {
+                  $__derivs = \Illuminate\Support\Facades\DB::table('digital_object')->where('parent_id', $__mo->id)->get();
+                  $__disp = $__derivs->firstWhere('usage_id', 141) ?: $__derivs->firstWhere('usage_id', 142) ?: $__mo;
+                  $__addObj($__disp, $__mo->name);
+              }
+              if (class_exists(\AhgCore\Services\AttachedDigitalObjectService::class)
+                  && \AhgCore\Services\AttachedDigitalObjectService::available()) {
+                  foreach (app(\AhgCore\Services\AttachedDigitalObjectService::class)->listFor((int) $io->id) as $__att) {
+                      $__disp = $__att->reference ?: $__att->thumbnail ?: $__att->master;
+                      $__addObj($__disp, $__att->caption ?: ($__att->role ?: ($__att->master->name ?? 'Attachment')));
                   }
               }
-          } catch (\Throwable $e) { /* no manifest -> inline single-image viewer */ }
+          } catch (\Throwable $e) { $__viewerObjects = []; }
+          // Only feed the multi-object viewer when there is genuinely more than one.
+          if (count($__viewerObjects) < 2) { $__viewerObjects = []; }
         @endphp
         <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {
           var __vid = '{{ $viewerId }}';
           var __imgUrl = '{{ url($imgSrc) }}';
-          initIiifViewer(__vid, __imgUrl, {!! json_encode($io->title) !!}, '{{ $vType }}', {!! json_encode($__miradorManifestUrl) !!});
+          initIiifViewer(__vid, __imgUrl, {!! json_encode($io->title) !!}, '{{ $vType }}', {!! json_encode($__viewerObjects) !!});
 
           // TIFF / no-Cantaloupe fallback: the OSD + Mirador deep-zoom modes need a
           // IIIF image server. When none is reachable (e.g. a box without

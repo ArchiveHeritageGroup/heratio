@@ -14,7 +14,7 @@
  *   - show_rotation        toolbar rotation button visibility (future)
  *   - enable_annotations   Mirador annotation panel visibility
  */
-function initIiifViewer(viewerId, imageUrl, title, initialMode, remoteManifestUrl) {
+function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
     var cfg = (window.AHG_IIIF && typeof window.AHG_IIIF === 'object') ? window.AHG_IIIF : {};
     // Master kill-switch. When the operator disables IIIF, fall back to a
     // plain <img> render so callers don't get an inert page.
@@ -301,49 +301,66 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, remoteManifestUr
         // Always recreate Mirador to avoid stale state
         mirEl.innerHTML = '';
 
-        // #1457: when the record has more than one digital object, load the
-        // record's multi-canvas IIIF manifest so ALL objects (primary + attached
-        // recto/verso/etc.) are viewable with deep zoom + a thumbnail navigator,
-        // instead of the inline single-image manifest built below. Mirador fetches
-        // the remote manifest itself.
-        if (remoteManifestUrl) {
-            var showRemoteManifest = function () {
-                if (typeof Mirador === 'undefined') {
-                    mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>';
-                    return;
-                }
-                Mirador.viewer({
-                    id: 'mirador-' + vid,
-                    windows: [{ manifestId: remoteManifestUrl }],
-                    window: {
-                        allowClose: false,
-                        allowMaximize: false,
-                        allowFullscreen: cfg.show_fullscreen !== false,
-                        allowTopMenuButton: false,
-                        allowWindowSideBar: true
-                    },
-                    workspaceControlPanel: { enabled: false },
-                    workspace: { type: 'mosaic', allowNewWindows: false }
+        // #1457: when the record has more than one digital object, show ALL of
+        // them (primary + attached recto/verso/...) in ONE Mirador window, each a
+        // deep-zoomable canvas with a thumbnail navigator. The manifest is built
+        // client-side from the objects' PLAIN reference-image URLs (dimensions
+        // probed per image) - deliberately NOT the /iiif/ Cantaloupe service,
+        // which 404s on these paths and 501s on webp; the references are JPEGs
+        // the browser renders directly, matching the single-image path below.
+        if (viewerObjects && viewerObjects.length > 1) {
+            var probes = viewerObjects.map(function (o) {
+                return new Promise(function (resolve) {
+                    var im = new Image();
+                    im.onload = function () { resolve({ url: o.url, label: o.label, w: im.naturalWidth || 1200, h: im.naturalHeight || 1200 }); };
+                    im.onerror = function () { resolve(null); };
+                    im.src = o.url;
                 });
-                setTimeout(function () {
-                    var style = document.createElement('style');
-                    style.textContent = '#mirador-' + vid + ' button[aria-label="Close"], ' +
-                        '#mirador-' + vid + ' button[aria-label="Minimize window"], ' +
-                        '#mirador-' + vid + ' button[aria-label="Maximize window"] { display:none !important; }';
-                    document.head.appendChild(style);
-                }, 500);
-            };
-            if (!miradorLoaded) {
-                var sr = document.createElement('script');
-                sr.src = '/vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js';
-                sr.onload = function () { miradorLoaded = true; showRemoteManifest(); };
-                sr.onerror = function () {
-                    mirEl.innerHTML = '<div class="alert alert-warning m-3">Could not load the Mirador viewer.</div>';
+            });
+            Promise.all(probes).then(function (items) {
+                items = items.filter(Boolean);
+                if (items.length < 2) { showImg(); return; } // not enough loaded - fall back to the single image
+                var manifestUrl = 'urn:heratio:multi:' + encodeURIComponent(vid);
+                var canvases = items.map(function (it, i) {
+                    var cid = manifestUrl + '/canvas/' + i;
+                    return {
+                        '@type': 'sc:Canvas', '@id': cid, label: it.label || ('Image ' + (i + 1)),
+                        width: it.w, height: it.h,
+                        images: [{
+                            '@type': 'oa:Annotation', motivation: 'sc:painting',
+                            resource: { '@id': it.url, '@type': 'dctypes:Image', format: 'image/jpeg', width: it.w, height: it.h },
+                            on: cid
+                        }]
+                    };
+                });
+                var manifest = {
+                    '@context': 'http://iiif.io/api/presentation/2/context.json',
+                    '@type': 'sc:Manifest', '@id': manifestUrl, label: title || 'Images',
+                    sequences: [{ '@type': 'sc:Sequence', canvases: canvases }]
                 };
-                document.head.appendChild(sr);
-            } else {
-                showRemoteManifest();
-            }
+                function createMulti() {
+                    if (typeof Mirador === 'undefined') { mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>'; return; }
+                    var mir = Mirador.viewer({
+                        id: 'mirador-' + vid, windows: [],
+                        window: { allowClose: false, allowMaximize: false, allowFullscreen: cfg.show_fullscreen !== false, allowTopMenuButton: false, allowWindowSideBar: true },
+                        workspaceControlPanel: { enabled: false }, workspace: { type: 'mosaic', allowNewWindows: false }
+                    });
+                    mir.store.dispatch(Mirador.actions.receiveManifest(manifestUrl, manifest));
+                    mir.store.dispatch(Mirador.actions.addWindow({ manifestId: manifestUrl }));
+                    setTimeout(function () {
+                        var style = document.createElement('style');
+                        style.textContent = '#mirador-' + vid + ' button[aria-label="Close"], #mirador-' + vid + ' button[aria-label="Minimize window"], #mirador-' + vid + ' button[aria-label="Maximize window"] { display:none !important; }';
+                        document.head.appendChild(style);
+                    }, 500);
+                }
+                if (!miradorLoaded) {
+                    var sr = document.createElement('script');
+                    sr.src = '/vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js';
+                    sr.onload = function () { miradorLoaded = true; createMulti(); };
+                    sr.onerror = function () { mirEl.innerHTML = '<div class="alert alert-warning m-3">Could not load the Mirador viewer.</div>'; };
+                    document.head.appendChild(sr);
+                } else { createMulti(); }
+            });
             return;
         }
 

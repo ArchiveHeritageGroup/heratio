@@ -7,6 +7,13 @@
 --}}
 @foreach(($tiles ?? collect()) as $att)
   @php
+    $__disp = $att->thumbnail ?: $att->reference ?: $att->master;
+    // Skip an attachment whose file is missing on disk (orphan row) - it would
+    // render as a broken thumbnail.
+    $__present = $__disp && \AhgCore\Services\DigitalObjectService::resolveDiskPath($__disp) !== null;
+  @endphp
+  @continue(! $__present)
+  @php
     $isImg = $att->master && str_starts_with((string) ($att->master->mime_type ?? ''), 'image/');
     $thumb = \AhgCore\Services\DigitalObjectService::getUrl($att->thumbnail ?: $att->reference ?: $att->master);
     $open  = \AhgCore\Services\DigitalObjectService::getUrl($att->reference ?: $att->thumbnail ?: $att->master);
