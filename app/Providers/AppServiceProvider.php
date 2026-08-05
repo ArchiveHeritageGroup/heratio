@@ -69,6 +69,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Apply the operator's DB SMTP settings (email_setting) to the mail config
+        // in EVERY context - web requests AND the queue worker / scheduler.
+        // Previously this ran only per-web-request in LoginController, so QUEUED
+        // mail (password reset, researcher/booking notifications, error alerts)
+        // was sent by the worker using the .env default (log / 127.0.0.1:2525) and
+        // silently failed - password-reset emails never arrived. (#mail)
+        $this->configureMailFromDatabase();
+
         // Bootstrap-5 pagination markup for Laravel paginator ->links()
         // (the blog/articles index uses it; nothing else in the app does).
         \Illuminate\Pagination\Paginator::useBootstrapFive();
@@ -137,5 +145,40 @@ class AppServiceProvider extends ServiceProvider
                 $schedule->command('auth:warn-password-expiry')->dailyAt('06:00')->withoutOverlapping();
             });
         }
+    }
+
+    /**
+     * Apply the operator-editable SMTP settings from the email_setting table to
+     * the runtime mail config, so mail works identically in web requests and the
+     * queue worker. Cached briefly so the anon-heavy request path doesn't take a
+     * DB hit every request; falls back to the .env config on any error. (#mail)
+     */
+    protected function configureMailFromDatabase(): void
+    {
+        try {
+            $s = \Illuminate\Support\Facades\Cache::remember('ahg_mail_db_config', 300, function () {
+                $rows = \Illuminate\Support\Facades\DB::table('email_setting')
+                    ->pluck('setting_value', 'setting_key')->toArray();
+
+                return empty($rows['smtp_enabled'] ?? null) ? [] : $rows;
+            });
+        } catch (\Throwable $e) {
+            return; // no email_setting table / DB not ready -> keep .env config
+        }
+
+        if (empty($s['smtp_enabled'] ?? null)) {
+            return;
+        }
+
+        config([
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.host' => $s['smtp_host'] ?? config('mail.mailers.smtp.host'),
+            'mail.mailers.smtp.port' => (int) ($s['smtp_port'] ?? config('mail.mailers.smtp.port')),
+            'mail.mailers.smtp.encryption' => $s['smtp_encryption'] ?? config('mail.mailers.smtp.encryption'),
+            'mail.mailers.smtp.username' => $s['smtp_username'] ?? config('mail.mailers.smtp.username'),
+            'mail.mailers.smtp.password' => $s['smtp_password'] ?? config('mail.mailers.smtp.password'),
+            'mail.from.address' => $s['smtp_from_email'] ?? config('mail.from.address'),
+            'mail.from.name' => $s['smtp_from_name'] ?? config('mail.from.name'),
+        ]);
     }
 }
