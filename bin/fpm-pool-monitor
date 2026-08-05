@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+#
+# fpm-pool-monitor - #1446 php-fpm pool-saturation early warning.
+#
+# On 2026-08-04 a CPU-heavy co-tenant job jammed the single shared php-fpm pool
+# and every site on the host 502'd for hours before anyone noticed. This is the
+# lightweight "catch it before it's an outage" alert the issue asked for: it
+# reads each pool's status page (over its own socket, read-only) and drops a
+# Workbench notification when a pool approaches exhaustion, so pool starvation
+# is visible well before the whole pool jams.
+#
+# Read-only: it never touches php-fpm, only queries the status page and writes a
+# notification JSON to the Workbench inbox. Safe to run every minute from cron.
+#
+# Alert triggers (any of):
+#   - active processes >= THRESHOLD% of pm.max_children
+#   - listen queue > 0 (requests already waiting for a free worker)
+#   - "max children reached" counter increased since the last check (the pool
+#     hit its ceiling at least once in the interval)
+#
+# Debounced: after an alert a pool stays quiet for COOLDOWN seconds unless it
+# hits the ceiling again (max-children-reached climbs), so cron-per-minute does
+# not spam the bell during a sustained event.
+
+set -uo pipefail
+
+THRESHOLD_PCT="${FPM_ALERT_PCT:-85}"
+COOLDOWN="${FPM_ALERT_COOLDOWN:-900}"          # seconds of quiet after an alert
+INBOX="${WORKBENCH_NOTIFICATIONS_INBOX:-/var/spool/workbench/notifications}"
+STATE="${FPM_MONITOR_STATE:-/var/tmp/fpm-pool-monitor.state}"
+ALERT_USER="${FPM_ALERT_USER:-johan}"
+CGI_FCGI="${CGI_FCGI:-/usr/bin/cgi-fcgi}"
+
+# Pools to watch: "name:socket:poolconf". A pool whose socket is absent is
+# skipped quietly, so listing not-yet-created pools here is harmless.
+POOLS=(
+  "www:/run/php/php8.3-fpm.sock:/etc/php/8.3/fpm/pool.d/www.conf"
+  "atom:/run/php-fpm.atom.sock:/etc/php/8.3/fpm/pool.d/atom.conf"
+  "heratio:/run/php-fpm.heratio.sock:/etc/php/8.3/fpm/pool.d/heratio.conf"
+  "sasa:/run/php-fpm.sasa.sock:/etc/php/8.3/fpm/pool.d/sasa.conf"
+)
+
+now=$(date +%s)
+touch "$STATE" 2>/dev/null || STATE=/dev/null
+
+get_state() { grep -E "^$1=" "$STATE" 2>/dev/null | tail -1 | cut -d= -f2-; }
+set_state() {
+  # replace-or-append key=value in the state file
+  if [ "$STATE" != /dev/null ]; then
+    grep -vE "^$1=" "$STATE" 2>/dev/null > "$STATE.tmp" || true
+    echo "$1=$2" >> "$STATE.tmp"
+    mv "$STATE.tmp" "$STATE" 2>/dev/null || true
+  fi
+}
+
+drop_notification() {
+  local title="$1" message="$2"
+  [ -d "$INBOX" ] || return 0
+  local f="$INBOX/fpm-pool-$(date +%s)-$$-$RANDOM.json"
+  # Minimal payload per the Workbench inbox contract.
+  cat > "$f.part" <<JSON
+{
+  "username": "$ALERT_USER",
+  "title": $(printf '%s' "$title" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
+  "message": $(printf '%s' "$message" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
+  "eventType": "alert"
+}
+JSON
+  mv "$f.part" "$f" 2>/dev/null || true
+}
+
+for entry in "${POOLS[@]}"; do
+  name="${entry%%:*}"
+  rest="${entry#*:}"
+  sock="${rest%%:*}"
+  conf="${rest#*:}"
+
+  [ -S "$sock" ] || continue   # pool not present / not listening - skip quietly
+
+  maxch=$(grep -E '^\s*pm\.max_children\s*=' "$conf" 2>/dev/null | grep -oE '[0-9]+' | head -1)
+  [ -n "$maxch" ] || maxch=100
+
+  status=$(SCRIPT_NAME=/fpm-status SCRIPT_FILENAME=/fpm-status REQUEST_METHOD=GET QUERY_STRING= \
+      timeout 5 "$CGI_FCGI" -bind -connect "$sock" 2>/dev/null || true)
+  [ -n "$status" ] || continue
+
+  active=$(printf '%s\n' "$status" | awk -F': *' '/^active processes:/{print $2; exit}')
+  queue=$(printf '%s\n' "$status" | awk -F': *' '/^listen queue:/{print $2; exit}')
+  reached=$(printf '%s\n' "$status" | awk -F': *' '/^max children reached:/{print $2; exit}')
+  active=${active:-0}; queue=${queue:-0}; reached=${reached:-0}
+
+  pct=$(( active * 100 / maxch ))
+
+  prev_reached=$(get_state "reached_$name"); prev_reached=${prev_reached:-$reached}
+  last_alert=$(get_state "lastalert_$name"); last_alert=${last_alert:-0}
+  set_state "reached_$name" "$reached"
+
+  breached=0
+  [ "$pct" -ge "$THRESHOLD_PCT" ] && breached=1
+  [ "$queue" -gt 0 ] && breached=1
+  ceil_hit=0
+  [ "$reached" -gt "$prev_reached" ] && { breached=1; ceil_hit=1; }
+
+  [ "$breached" -eq 1 ] || continue
+
+  # debounce: quiet unless cooldown elapsed OR the ceiling was hit again
+  if [ "$ceil_hit" -eq 0 ] && [ $(( now - last_alert )) -lt "$COOLDOWN" ]; then
+    continue
+  fi
+  set_state "lastalert_$name" "$now"
+
+  drop_notification \
+    "php-fpm pool '$name' near saturation" \
+    "Pool '$name': ${active}/${maxch} workers active (${pct}%), listen queue ${queue}, ceiling-hits ${reached}. Risk of cross-site 502s (#1446). Check for a CPU-heavy job (run models on .76, not this host); recover the pool with: systemctl restart php8.3-fpm"
+done
+
+exit 0
