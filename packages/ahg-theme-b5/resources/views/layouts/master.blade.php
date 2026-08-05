@@ -415,7 +415,11 @@
          truthy value ("1", "on", "yes") silently disabled the whole dynamic
          stylesheet, leaving every var(--ahg-*) on its hardcoded fallback. --}}
     @if(filter_var(\AhgCore\Services\AhgSettingsService::get('ahg_theme_enabled', 'true'), FILTER_VALIDATE_BOOLEAN))
-      <link href="{{ route('settings.dynamic-css') }}" rel="stylesheet">
+      {{-- Cache-bust with the generated file's mtime: nginx serves the static
+           /css/ahg-theme-dynamic.css with a 7-day max-age, so without ?v= a saved
+           theme colour (footer etc.) would not show for up to a week. The mtime
+           changes whenever the theme is re-saved, forcing a fresh fetch. --}}
+      <link href="{{ route('settings.dynamic-css') }}?v={{ @filemtime(public_path('css/ahg-theme-dynamic.css')) ?: time() }}" rel="stylesheet">
     @endif
     <link href="{{ asset('vendor/ahg-theme-b5/css/custom.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/ahg-theme-b5/css/style.css') }}" rel="stylesheet">

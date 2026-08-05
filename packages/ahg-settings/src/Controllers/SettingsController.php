@@ -702,7 +702,14 @@ class SettingsController extends Controller
                     ['setting_value' => $value, 'setting_group' => 'general']
                 );
             }
-            $this->regenerateThemeCss();
+            $cssFailures = $this->regenerateThemeCss();
+            if (! empty($cssFailures)) {
+                return redirect()->route('settings.themes')->with('warning',
+                    'Theme settings were saved, but the generated CSS file(s) could not be written ('
+                    .implode(', ', array_map('basename', $cssFailures)).'). Generated colours (e.g. the footer) '
+                    .'will NOT update until the web server can write to public/css and public/vendor/ahg-theme-b5/css. '
+                    .'On hardened php-fpm (ProtectSystem=full) grant those paths via a systemd drop-in, then restart php-fpm.');
+            }
 
             return redirect()->route('settings.themes')->with('success', 'Theme settings saved.');
         }
@@ -714,7 +721,16 @@ class SettingsController extends Controller
         return view('ahg-settings::themes', ['settings' => $settings]);
     }
 
-    private function regenerateThemeCss(): void
+    /**
+     * Regenerate the static theme CSS files from the saved settings.
+     *
+     * @return array<int,string> Absolute paths that could NOT be written. A
+     * hardened php-fpm (ProtectSystem=full) makes public/ read-only, so these
+     * writes silently fail and the generated colours (footer, etc.) never update
+     * - callers surface a warning instead of a false "saved" so the operator
+     * isn't left wondering why the footer stayed the old colour.
+     */
+    private function regenerateThemeCss(): array
     {
         $rows = DB::table('ahg_settings')
             ->where('setting_group', 'general')
@@ -733,16 +749,21 @@ class SettingsController extends Controller
         $css .= "}\n";
         $css .= $this->getThemeRules();
 
-        $path = public_path('vendor/ahg-theme-b5/css/ahg-generated.css');
-        file_put_contents($path, $css);
-
-        // Also write to the dynamic CSS path served by nginx
-        $dynamicPath = public_path('css/ahg-theme-dynamic.css');
-        $dir = dirname($dynamicPath);
-        if (! is_dir($dir)) {
-            mkdir($dir, 0755, true);
+        $failures = [];
+        foreach ([
+            public_path('vendor/ahg-theme-b5/css/ahg-generated.css'),
+            public_path('css/ahg-theme-dynamic.css'), // path served by nginx
+        ] as $path) {
+            $dir = dirname($path);
+            if (! is_dir($dir)) {
+                @mkdir($dir, 0755, true);
+            }
+            if (@file_put_contents($path, $css) === false) {
+                $failures[] = $path;
+            }
         }
-        file_put_contents($dynamicPath, $css);
+
+        return $failures;
     }
 
     public function dynamicCss()
@@ -1056,7 +1077,13 @@ class SettingsController extends Controller
                     ->update(['setting_value' => $value]);
             }
             if ($group === 'general') {
-                $this->regenerateThemeCss();
+                $cssFailures = $this->regenerateThemeCss();
+                if (! empty($cssFailures)) {
+                    return redirect()->route('settings.ahg', $group)->with('warning',
+                        ucfirst(str_replace('_', ' ', $group)).' settings were saved, but the theme CSS file(s) could not be written ('
+                        .implode(', ', array_map('basename', $cssFailures)).') - generated colours (e.g. the footer) will not update '
+                        .'until public/css and public/vendor/ahg-theme-b5/css are writable by the web server.');
+                }
             }
 
             return redirect()->route('settings.ahg', $group)->with('success', ucfirst(str_replace('_', ' ', $group)).' settings saved.');
