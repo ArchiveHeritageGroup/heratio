@@ -1,17 +1,27 @@
 
-  {{-- Imageflow: scrollable gallery of child IO thumbnails (matching AtoM imageflow component) --}}
-  @if(isset($childThumbnails) && $childThumbnails->isNotEmpty())
+  {{-- Imageflow: scrollable gallery of child IO thumbnails (matching AtoM imageflow
+       component), with #1447 objects attached directly to this description merged
+       into the same strip. --}}
+  @php
+    $__attTiles = (isset($io) && $io && \AhgCore\Services\AttachedDigitalObjectService::available())
+        ? app(\AhgCore\Services\AttachedDigitalObjectService::class)->listFor((int) $io->id)
+        : collect();
+  @endphp
+  @if((isset($childThumbnails) && $childThumbnails->isNotEmpty()) || $__attTiles->isNotEmpty())
     <div class="imageflow-strip border-bottom mb-2 py-2 px-1" style="background:#f8f8f8;">
       <div class="d-flex overflow-auto gap-2 px-2" style="scrollbar-width:thin;">
-        @foreach($childThumbnails as $ct)
-          @php
-            $thumbUrl = \AhgCore\Services\DigitalObjectService::getUrl($ct);
-          @endphp
-          <a href="{{ route('informationobject.show', $ct->slug) }}" class="flex-shrink-0 text-center text-decoration-none" style="width:100px;" title="{{ $ct->title ?: '[Untitled]' }}">
-            <img src="{{ $thumbUrl }}" alt="{{ $ct->title ?: '' }}" class="img-thumbnail" style="width:90px;height:68px;object-fit:cover;">
-            <small class="d-block text-truncate text-muted mt-1" style="font-size:.7rem;">{{ Str::limit($ct->title ?: '[Untitled]', 18) }}</small>
-          </a>
-        @endforeach
+        @if(isset($childThumbnails) && $childThumbnails->isNotEmpty())
+          @foreach($childThumbnails as $ct)
+            @php
+              $thumbUrl = \AhgCore\Services\DigitalObjectService::getUrl($ct);
+            @endphp
+            <a href="{{ route('informationobject.show', $ct->slug) }}" class="flex-shrink-0 text-center text-decoration-none" style="width:100px;" title="{{ $ct->title ?: '[Untitled]' }}">
+              <img src="{{ $thumbUrl }}" alt="{{ $ct->title ?: '' }}" class="img-thumbnail" style="width:90px;height:68px;object-fit:cover;">
+              <small class="d-block text-truncate text-muted mt-1" style="font-size:.7rem;">{{ Str::limit($ct->title ?: '[Untitled]', 18) }}</small>
+            </a>
+          @endforeach
+        @endif
+        @include('ahg-information-object-manage::partials._attached-carousel-tiles', ['tiles' => $__attTiles])
       </div>
       @if(isset($childThumbnailTotal) && $childThumbnailTotal > $childThumbnails->count())
         <div class="text-center mt-1">

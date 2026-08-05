@@ -16,10 +16,13 @@
     $__doUrl = fn ($do) => $do ? \AhgCore\Services\DigitalObjectService::getUrl($do) : null;
   @endphp
 
-  @if($__attached->isNotEmpty() || $__canEditAttachments)
+  {{-- #1447 (c): attached objects DISPLAY now lives in the imageflow carousel
+       (merged with child thumbnails). This card is the editor management panel -
+       attach new files + remove existing - so it renders only for editors. --}}
+  @if($__canEditAttachments)
     <div class="attached-objects card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:#10373E;color:#fff">
-        <span><i class="fas fa-images me-2"></i>{{ __('Attached images / files') }}
+        <span><i class="fas fa-images me-2"></i>{{ __('Manage attached images / files') }}
           @if($__attached->isNotEmpty())<span class="badge bg-light text-dark ms-2">{{ $__attached->count() }}</span>@endif
         </span>
       </div>

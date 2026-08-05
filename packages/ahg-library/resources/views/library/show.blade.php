@@ -1028,7 +1028,21 @@
     $hasDigitalObject = $masterObj || $refObj || $thumbObj;
   @endphp
 
-  {{-- #1447 Phase 3 - additional digital objects attached directly to this item --}}
+  {{-- #1447 - additional digital objects attached to this item. Library has no
+       native imageflow strip, so render one for display; the editor attach/manage
+       panel follows below. --}}
+  @php
+    $__attTiles = (isset($item) && \AhgCore\Services\AttachedDigitalObjectService::available())
+        ? app(\AhgCore\Services\AttachedDigitalObjectService::class)->listFor((int) $item->id)
+        : collect();
+  @endphp
+  @if($__attTiles->isNotEmpty())
+    <div class="imageflow-strip border rounded mb-3 py-2 px-1" style="background:#f8f8f8;">
+      <div class="d-flex overflow-auto gap-2 px-2" style="scrollbar-width:thin;">
+        @include('ahg-information-object-manage::partials._attached-carousel-tiles', ['tiles' => $__attTiles])
+      </div>
+    </div>
+  @endif
   @include('ahg-information-object-manage::partials._attached-objects', ['io' => $item])
 
   @if(false && ($masterObj || $refObj || $thumbObj))
