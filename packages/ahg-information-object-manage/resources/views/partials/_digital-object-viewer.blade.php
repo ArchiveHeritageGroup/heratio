@@ -672,11 +672,30 @@
         <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon.min.js') }}"></script>
         <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-filtering.js') }}"></script>
         <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
+        @php
+          // #1457: when the record has more than one digital object (primary
+          // master(s) + attachments), hand the viewer the multi-canvas IIIF
+          // manifest so its Mirador mode shows ALL objects with deep zoom.
+          // Single-object records get '' and keep the inline single-image path.
+          $__miradorManifestUrl = '';
+          try {
+              if (\Illuminate\Support\Facades\Route::has('iiif-collection.object-manifest')) {
+                  $__masterCount = \Illuminate\Support\Facades\DB::table('digital_object')
+                      ->where('object_id', $io->id)->whereNull('parent_id')->count();
+                  $__attachCount = (class_exists(\AhgCore\Services\AttachedDigitalObjectService::class)
+                      && \AhgCore\Services\AttachedDigitalObjectService::available())
+                      ? app(\AhgCore\Services\AttachedDigitalObjectService::class)->countFor((int) $io->id) : 0;
+                  if (($__masterCount + $__attachCount) > 1) {
+                      $__miradorManifestUrl = route('iiif-collection.object-manifest', $io->slug);
+                  }
+              }
+          } catch (\Throwable $e) { /* no manifest -> inline single-image viewer */ }
+        @endphp
         <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {
           var __vid = '{{ $viewerId }}';
           var __imgUrl = '{{ url($imgSrc) }}';
-          initIiifViewer(__vid, __imgUrl, {!! json_encode($io->title) !!}, '{{ $vType }}');
+          initIiifViewer(__vid, __imgUrl, {!! json_encode($io->title) !!}, '{{ $vType }}', {!! json_encode($__miradorManifestUrl) !!});
 
           // TIFF / no-Cantaloupe fallback: the OSD + Mirador deep-zoom modes need a
           // IIIF image server. When none is reachable (e.g. a box without

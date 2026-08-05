@@ -14,7 +14,7 @@
  *   - show_rotation        toolbar rotation button visibility (future)
  *   - enable_annotations   Mirador annotation panel visibility
  */
-function initIiifViewer(viewerId, imageUrl, title, initialMode) {
+function initIiifViewer(viewerId, imageUrl, title, initialMode, remoteManifestUrl) {
     var cfg = (window.AHG_IIIF && typeof window.AHG_IIIF === 'object') ? window.AHG_IIIF : {};
     // Master kill-switch. When the operator disables IIIF, fall back to a
     // plain <img> render so callers don't get an inert page.
@@ -300,6 +300,52 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
 
         // Always recreate Mirador to avoid stale state
         mirEl.innerHTML = '';
+
+        // #1457: when the record has more than one digital object, load the
+        // record's multi-canvas IIIF manifest so ALL objects (primary + attached
+        // recto/verso/etc.) are viewable with deep zoom + a thumbnail navigator,
+        // instead of the inline single-image manifest built below. Mirador fetches
+        // the remote manifest itself.
+        if (remoteManifestUrl) {
+            var showRemoteManifest = function () {
+                if (typeof Mirador === 'undefined') {
+                    mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>';
+                    return;
+                }
+                Mirador.viewer({
+                    id: 'mirador-' + vid,
+                    windows: [{ manifestId: remoteManifestUrl }],
+                    window: {
+                        allowClose: false,
+                        allowMaximize: false,
+                        allowFullscreen: cfg.show_fullscreen !== false,
+                        allowTopMenuButton: false,
+                        allowWindowSideBar: true
+                    },
+                    workspaceControlPanel: { enabled: false },
+                    workspace: { type: 'mosaic', allowNewWindows: false }
+                });
+                setTimeout(function () {
+                    var style = document.createElement('style');
+                    style.textContent = '#mirador-' + vid + ' button[aria-label="Close"], ' +
+                        '#mirador-' + vid + ' button[aria-label="Minimize window"], ' +
+                        '#mirador-' + vid + ' button[aria-label="Maximize window"] { display:none !important; }';
+                    document.head.appendChild(style);
+                }, 500);
+            };
+            if (!miradorLoaded) {
+                var sr = document.createElement('script');
+                sr.src = '/vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js';
+                sr.onload = function () { miradorLoaded = true; showRemoteManifest(); };
+                sr.onerror = function () {
+                    mirEl.innerHTML = '<div class="alert alert-warning m-3">Could not load the Mirador viewer.</div>';
+                };
+                document.head.appendChild(sr);
+            } else {
+                showRemoteManifest();
+            }
+            return;
+        }
 
         // For IIIF-served images (TIFF etc.), use the IIIF image service in the manifest
         var miradorImageUrl = imageUrl;

@@ -1129,8 +1129,14 @@ class IiifCollectionService
             return null;
         }
 
+        // One canvas per MASTER object only: masters have parent_id IS NULL,
+        // while reference/thumbnail derivatives carry the same object_id AND a
+        // parent_id pointing at their master - including them would emit a noisy
+        // extra canvas per derivative (#1457). Attached masters (object_id NULL)
+        // are added separately below.
         $digitalObjects = DB::table('digital_object as do')
             ->where('do.object_id', $object->id)
+            ->whereNull('do.parent_id')
             ->orderBy('do.id')
             ->select('do.id', 'do.name', 'do.path', 'do.mime_type', 'do.byte_size')
             ->get();
