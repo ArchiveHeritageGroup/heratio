@@ -56,7 +56,6 @@ class MetadataExportController extends Controller
             'ead' => ['name' => 'EAD 2002 (XML)', 'icon' => 'bi-file-earmark-code'],
             'eac' => ['name' => 'EAC-CPF (XML)', 'icon' => 'bi-file-earmark-code'],
             'eac2' => ['name' => 'EAC-CPF 2.0 (XML)', 'icon' => 'bi-file-earmark-code'],
-            'ead4' => ['name' => 'EAD 4 (XML)', 'icon' => 'bi-file-earmark-code'],
             'eac-f' => ['name' => 'EAC-F Functions (XML)', 'icon' => 'bi-file-earmark-code'],
             'eag' => ['name' => 'EAG 3.0 (XML)', 'icon' => 'bi-file-earmark-code'],
             'json-ld' => ['name' => 'JSON-LD', 'icon' => 'bi-braces'],

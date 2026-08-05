@@ -338,25 +338,12 @@ class ExportController extends Controller
         return ''; // unreachable - abort() throws - but keeps the return type honest
     }
 
-    /**
-     * Export an information object as EAD 4 XML (draft).
-     * Uses the Ead4Serializer from ahg-metadata-export.
-     */
-    public function ead4(string $slug)
-    {
-        $culture = app()->getLocale();
-        $io = $this->getIO($slug, $culture);
-        if (!$io) {
-            abort(404);
-        }
-
-        $serializer = new \AhgMetadataExport\Services\Exporters\Ead4Serializer();
-        $xml = $serializer->serializeRecord($io->id, $culture);
-
-        return response($xml, 200)
-            ->header('Content-Type', 'application/xml; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '_ead4.xml"');
-    }
+    // EAD 4 export removed for now: "EAD 4" is not a published standard (the
+    // current SAA release is EAD3, 2015) and Ead4Serializer emitted a made-up
+    // namespace/schema (archivists.org/ns/ead/v4, ead4.xsd) that does not
+    // resolve. Route, menu links and this handler are pulled; the serializer
+    // file is kept dormant so a real future EAD4 (or an honestly-labelled RiC-
+    // harmonised extension) can re-enable it. EAD3 export stays.
 
     /**
      * Export an information object as RiC-O JSON-LD.

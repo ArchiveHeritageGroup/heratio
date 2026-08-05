@@ -148,9 +148,6 @@
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead3'))
         <a href="{{ route('informationobject.export.ead3', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('EAD3 XML') }}</a>
       @endif
-      @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead4'))
-        <a href="{{ route('informationobject.export.ead4', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('EAD 4 XML') }}</a>
-      @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.mods'))
         <a href="{{ route('informationobject.export.mods', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('MODS XML') }}</a>
       @endif

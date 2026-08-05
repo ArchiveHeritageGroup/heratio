@@ -240,7 +240,6 @@
           @if(Route::has('ahgmetadataexport.index'))
           <li class="list-group-item border-top mt-2 pt-2"><small class="text-muted fw-bold">{{ __('Metadata Standards Export') }}</small></li>
           <li class="list-group-item"><a href="{{ route('ahgmetadataexport.index') }}"><i class="fas fa-file-export me-2 text-muted"></i>{{ __('Metadata Export Hub') }}</a></li>
-          <li class="list-group-item"><a href="{{ route('ahgmetadataexport.preview', ['format' => 'ead4']) }}"><i class="fas fa-code me-2 text-muted"></i>{{ __('EAD 4 (Draft)') }}</a></li>
           <li class="list-group-item"><a href="{{ route('ahgmetadataexport.preview', ['format' => 'eac2']) }}"><i class="fas fa-user-tag me-2 text-muted"></i>{{ __('EAC-CPF 2.0') }}</a></li>
           <li class="list-group-item"><a href="{{ route('ahgmetadataexport.preview', ['format' => 'eac-f']) }}"><i class="fas fa-cogs me-2 text-muted"></i>{{ __('EAC-F (Functions)') }}</a></li>
           <li class="list-group-item"><a href="{{ route('ahgmetadataexport.preview', ['format' => 'eag']) }}"><i class="fas fa-building me-2 text-muted"></i>{{ __('EAG 3.0 (Repositories)') }}</a></li>

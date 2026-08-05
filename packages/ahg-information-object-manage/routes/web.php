@@ -132,7 +132,6 @@ Route::post('/informationobject/treeview-sort', [TreeviewController::class, 'tre
 Route::get('/informationobject/{slug}/export/dc', [ExportController::class, 'dc'])->name('informationobject.export.dc');
 Route::get('/informationobject/{slug}/export/ead', [ExportController::class, 'ead'])->name('informationobject.export.ead');
 Route::get('/informationobject/{slug}/export/ead3', [ExportController::class, 'ead3'])->name('informationobject.export.ead3');
-Route::get('/informationobject/{slug}/export/ead4', [ExportController::class, 'ead4'])->name('informationobject.export.ead4');
 Route::get('/informationobject/{slug}/export/mods', [ExportController::class, 'mods'])->name('informationobject.export.mods');
 Route::get('/informationobject/{slug}/export/marcxml', [ExportController::class, 'marcxml'])->name('informationobject.export.marcxml');
 Route::get('/informationobject/{slug}/export/marc', [ExportController::class, 'marc'])->name('informationobject.export.marc');

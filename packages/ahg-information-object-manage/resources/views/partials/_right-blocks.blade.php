@@ -96,9 +96,6 @@
       <a href="{{ route('informationobject.export.ead3', $slug) }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-code me-1"></i> {{ __('EAD3 1.1 XML') }}
       </a>
-      <a href="{{ route('informationobject.export.ead4', $slug) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-code me-1"></i> {{ __('EAD 4 XML') }}
-      </a>
       <a href="{{ route('informationobject.export.mods', $slug) }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-code me-1"></i> {{ __('MODS 3.5 XML') }}
       </a>
