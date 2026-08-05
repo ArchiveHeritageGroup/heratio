@@ -141,6 +141,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         // Log all exceptions to ahg_error_log table
         $exceptions->report(function (\Throwable $e) {
+            // Never record PsySH / `artisan tinker` REPL errors (e.g. a parse
+            // error from a pasted snippet). They occur in an interactive console
+            // session, but request() falls back to a synthetic "GET <app.url>"
+            // web context, so they land in the operator error log as bogus 500s.
+            // Real web + queue-job errors are unaffected.
+            if (str_starts_with(get_class($e), 'Psy\\')) {
+                return;
+            }
             try {
                 $request = request();
                 $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
