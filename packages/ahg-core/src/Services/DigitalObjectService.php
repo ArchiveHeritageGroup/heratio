@@ -226,6 +226,17 @@ class DigitalObjectService
         $uploads = rtrim((string) config('heratio.uploads_path', self::UPLOAD_DIR), '/');
         $storage = rtrim((string) config('heratio.storage_path', '/mnt/nas/heratio'), '/');
         $rawPath = ltrim((string) $digitalObject->path, '/');
+
+        // Correct strip: the real on-disk layout is uploads_path/r/<id>/, so strip
+        // ONLY a leading 'uploads/' and KEEP the 'r/' shard. (The previous
+        // 'uploads/r/' strip dropped the shard and never resolved current uploads
+        // - the root cause of #1455's orphaned files.)
+        $uploadsOnly = str_starts_with($rawPath, 'uploads/')
+            ? substr($rawPath, strlen('uploads/'))
+            : $rawPath;
+
+        // Legacy strip (older flat AtoM layouts with no 'r/' shard) - kept as a
+        // fallback so previously-resolving callers do not regress.
         $stripped = $rawPath;
         foreach (['uploads/r/', 'uploads/'] as $prefix) {
             if (str_starts_with($stripped, $prefix)) {
@@ -233,14 +244,18 @@ class DigitalObjectService
                 break;
             }
         }
+
         $name = (string) $digitalObject->name;
-        $candidates = [
-            $uploads.'/'.$stripped.$name,
+        $objId = $digitalObject->object_id ?? null;
+        $candidates = array_values(array_filter([
+            $uploads.'/'.$uploadsOnly.$name,                       // correct: uploads_path/r/<id>/name
+            $objId ? $uploads.'/r/'.$objId.'/'.$name : null,       // object_id shard fallback
+            $uploads.'/'.$stripped.$name,                          // legacy flat (no r/)
             $uploads.'/'.$rawPath.$name,
             $storage.'/'.$rawPath.$name,
             rtrim((string) $digitalObject->path, '/').'/'.$name,
             $uploads.'/'.$name,
-        ];
+        ]));
         foreach ($candidates as $c) {
             if ($c && @is_file($c)) {
                 return $c;
@@ -539,20 +554,13 @@ class DigitalObjectService
             }
 
             foreach ($objects as $obj) {
-                // Try to delete file from disk
-                $filePath = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.($obj->object_id ?: '').'/'.$obj->name;
-
-                // Also try via path field
-                if (! empty($obj->path) && ! empty($obj->name)) {
-                    // Path may be web-relative; try to find actual file
-                    $altPath = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.ltrim($obj->path, '/').$obj->name;
-                    if (file_exists($altPath)) {
-                        @unlink($altPath);
-                    }
-                }
-
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                // #1455 - resolve the real on-disk path via the shared resolver
+                // (uploads_path/r/<id>/<name>) instead of the old inline logic,
+                // which dropped the '/r/' shard and doubled 'uploads/' so the file
+                // was never found and got orphaned on every delete.
+                $onDisk = self::resolveDiskPath($obj);
+                if ($onDisk && @is_file($onDisk)) {
+                    @unlink($onDisk);
                 }
 
                 // Delete digital_object record
@@ -562,12 +570,15 @@ class DigitalObjectService
                 DB::table('object')->where('id', $obj->id)->delete();
             }
 
-            // Clean up empty directory
-            $master = $objects->firstWhere('usage_id', self::USAGE_MASTER);
-            if ($master && $master->object_id) {
-                $dir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$master->object_id;
-                if (is_dir($dir) && count(scandir($dir)) <= 2) {
-                    @rmdir($dir);
+            // Clean up the now-empty '/r/<object_id>/' shard directory (only when
+            // empty - it can be shared with the record's other digital objects).
+            $master = $objects->firstWhere('usage_id', self::USAGE_MASTER) ?: $objects->first();
+            if ($master && ! empty($master->object_id)) {
+                $uploads = rtrim((string) config('heratio.uploads_path', self::UPLOAD_DIR), '/');
+                foreach ([$uploads.'/r/'.$master->object_id, $uploads.'/'.$master->object_id] as $dir) {
+                    if (is_dir($dir) && count(scandir($dir)) <= 2) {
+                        @rmdir($dir);
+                    }
                 }
             }
 
