@@ -460,15 +460,53 @@
 
             <div class="mb-3">
               <label for="desc_language" class="form-label">Language(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <input type="text" class="form-control" id="desc_language" name="desc_language"
-                     value="{{ old('desc_language') }}" placeholder="{{ __('e.g. English, French') }}">
+              @php
+                // Same ISO-639 option set the archival description form uses, so
+                // the repository "Language(s) of the description" field offers the
+                // same pick-list (was a plain text input with no lookup).
+                $__descLangOpts = [
+                  'en' => 'English', 'af' => 'Afrikaans', 'nl' => 'Dutch', 'de' => 'German',
+                  'fr' => 'French', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sesotho',
+                  'tn' => 'Setswana', 'nso' => 'Sepedi', 'ts' => 'Tsonga', 'ss' => 'Swati',
+                  've' => 'Venda', 'nr' => 'Ndebele', 'pt' => 'Portuguese', 'es' => 'Spanish',
+                  'it' => 'Italian', 'la' => 'Latin', 'grc' => 'Ancient Greek', 'he' => 'Hebrew',
+                  'ar' => 'Arabic', 'fa' => 'Persian', 'hi' => 'Hindi', 'zh' => 'Chinese',
+                  'ja' => 'Japanese', 'ko' => 'Korean', 'ru' => 'Russian', 'sw' => 'Swahili',
+                ];
+                $__dl = old('desc_language', $repository->desc_language ?? '');
+              @endphp
+              <select class="form-select" id="desc_language" name="desc_language">
+                <option value="">{{ __('-- Select language --') }}</option>
+                @foreach($__descLangOpts as $code => $name)
+                  <option value="{{ $code }}" @selected($__dl == $code)>{{ $name }}</option>
+                @endforeach
+                @if($__dl && ! array_key_exists($__dl, $__descLangOpts))
+                  <option value="{{ $__dl }}" selected>{{ $__dl }}</option>
+                @endif
+              </select>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select the language(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDIAH 5.6.7)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="desc_script" class="form-label">Script(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <input type="text" class="form-control" id="desc_script" name="desc_script"
-                     value="{{ old('desc_script') }}" placeholder="{{ __('e.g. Latin, Cyrillic') }}">
+              @php
+                $__descScriptOpts = [
+                  'Latn' => 'Latin', 'Cyrl' => 'Cyrillic', 'Arab' => 'Arabic', 'Grek' => 'Greek',
+                  'Hebr' => 'Hebrew', 'Deva' => 'Devanagari', 'Hans' => 'Chinese (Simplified)',
+                  'Hant' => 'Chinese (Traditional)', 'Jpan' => 'Japanese', 'Kore' => 'Korean',
+                  'Thai' => 'Thai', 'Geor' => 'Georgian', 'Armn' => 'Armenian', 'Ethi' => 'Ethiopic',
+                ];
+                $__ds = old('desc_script', $repository->desc_script ?? '');
+              @endphp
+              <select class="form-select" id="desc_script" name="desc_script">
+                <option value="">{{ __('-- Select script --') }}</option>
+                @foreach($__descScriptOpts as $code => $name)
+                  <option value="{{ $code }}" @selected($__ds == $code)>{{ $name }}</option>
+                @endforeach
+                @if($__ds && ! array_key_exists($__ds, $__descScriptOpts))
+                  <option value="{{ $__ds }}" selected>{{ $__ds }}</option>
+                @endif
+              </select>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select the script(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDIAH 5.6.7)"><i class="fas fa-question-circle"></i></button>
             </div>
 

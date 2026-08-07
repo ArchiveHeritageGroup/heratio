@@ -530,6 +530,7 @@ class RepositoryController extends Controller
             'finding_aids', 'opening_times', 'access_conditions', 'disabled_access',
             'research_services', 'reproduction_services', 'public_facilities',
             'desc_institution_identifier', 'desc_rules', 'desc_sources', 'desc_revision_history',
+            'desc_language', 'desc_script',
             // Special fields (stored in other_name / note tables)
             'parallel_name', 'other_name', 'maintenance_notes',
             // Contacts

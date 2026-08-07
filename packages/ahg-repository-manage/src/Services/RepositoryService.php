@@ -116,6 +116,8 @@ class RepositoryService
                 DB::raw('COALESCE(ri_cur.desc_rules, ri_fb.desc_rules) AS desc_rules'),
                 DB::raw('COALESCE(ri_cur.desc_sources, ri_fb.desc_sources) AS desc_sources'),
                 DB::raw('COALESCE(ri_cur.desc_revision_history, ri_fb.desc_revision_history) AS desc_revision_history'),
+                DB::raw('COALESCE(ri_cur.desc_language, ri_fb.desc_language) AS desc_language'),
+                DB::raw('COALESCE(ri_cur.desc_script, ri_fb.desc_script) AS desc_script'),
                 // Object
                 'object.created_at',
                 'object.updated_at',
@@ -543,6 +545,8 @@ class RepositoryService
                 'desc_rules' => $data['desc_rules'] ?? null,
                 'desc_sources' => $data['desc_sources'] ?? null,
                 'desc_revision_history' => $data['desc_revision_history'] ?? null,
+                'desc_language' => $data['desc_language'] ?? null,
+                'desc_script' => $data['desc_script'] ?? null,
             ]);
 
             // 7. Save parallel name(s) (other_name table, type_id 148)
@@ -659,6 +663,7 @@ class RepositoryService
                 'finding_aids', 'opening_times', 'access_conditions', 'disabled_access',
                 'research_services', 'reproduction_services', 'public_facilities',
                 'desc_institution_identifier', 'desc_rules', 'desc_sources', 'desc_revision_history',
+                'desc_language', 'desc_script',
             ];
             $repoI18n = [];
             foreach ($repoI18nFields as $field) {

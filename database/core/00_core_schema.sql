@@ -23711,6 +23711,8 @@ CREATE TABLE IF NOT EXISTS `repository_i18n` (
   `desc_rules` text,
   `desc_sources` text,
   `desc_revision_history` text,
+  `desc_language` varchar(255) DEFAULT NULL,
+  `desc_script` varchar(255) DEFAULT NULL,
   `id` int NOT NULL,
   `culture` varchar(16) NOT NULL,
   PRIMARY KEY (`id`,`culture`),
