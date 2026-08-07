@@ -394,23 +394,42 @@ say "Stage 6/14 - core schema"
 # on a valid, byte-identical int FK (build-install + E2E Parity). Surfacing the
 # CI server's version / sql_mode / fk-checks pins down what differs.
 warn "MySQL env: $(mysql_run -N -e "SELECT CONCAT(@@version,' | sql_mode=[',@@sql_mode,'] | fk_checks=',@@foreign_key_checks);" 2>/dev/null)"
-for f in database/core/0*.sql; do
-    [[ -f "$f" ]] || continue
-    bn="$(basename "$f")"
-    if mysql_run "$DB_NAME" < "$f" 2>"/tmp/heratio-install-${bn}.err"; then
-        ok "loaded $bn"
-    else
-        warn "----- mysql error output for $bn -----"
-        tail -n 30 "/tmp/heratio-install-${bn}.err" >&2 || true
-        # Show how the server actually materialised the FK pair. The parent
-        # (user_totp_secret) is created before the failing child, so its real
-        # column type/attrs are visible here even after the load aborts.
-        warn "----- SHOW CREATE for the fk_mfa_recovery_user pair (diagnostic) -----"
-        mysql_run "$DB_NAME" -e "SHOW CREATE TABLE user_totp_secret\\G" 2>&1 | head -40 >&2 || true
-        mysql_run "$DB_NAME" -e "SHOW CREATE TABLE user_mfa_recovery_code\\G" 2>&1 | head -40 >&2 || true
-        die "failed loading $bn (see /tmp/heratio-install-${bn}.err)"
-    fi
-done
+
+# DATA-LOSS GUARD. database/core/00_core_schema.sql starts every table with
+# `DROP TABLE IF EXISTS`, so loading it over an EXISTING, populated database drops
+# and recreates every table EMPTY - i.e. it WIPES all content. That is what
+# happened when an operator ran `bin/install` to apply an UPDATE (updates are
+# `git checkout <tag>` + `php artisan migrate` at Stage 9b - migrations are
+# additive and never touch data; the core schema is for a FRESH install only).
+# Refuse to load it when the core tables already exist, unless --fresh was passed
+# (which already dropped+recreated the DB above and printed "ALL prior data
+# wiped"). This makes a mistaken re-run safe instead of catastrophic.
+CORE_PRESENT="$(mysql_run "$DB_NAME" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_NAME' AND table_name='information_object'" 2>/dev/null || echo 0)"
+if [[ "${FRESH:-0}" != "1" && "${CORE_PRESENT:-0}" != "0" ]]; then
+    IO_ROWS="$(mysql_run "$DB_NAME" -N -e "SELECT COUNT(*) FROM information_object" 2>/dev/null || echo '?')"
+    warn "Stage 6 SKIPPED: '$DB_NAME' already has the core schema (information_object present, ${IO_ROWS} rows)."
+    warn "  Loading database/core/*.sql would DROP + recreate every table and WIPE ALL DATA."
+    warn "  This looks like an UPDATE of an existing install - schema changes are applied by migrations at Stage 9b, so the core schema is intentionally skipped."
+    warn "  To deliberately wipe and rebuild from scratch, re-run with:  bin/install --fresh"
+else
+    for f in database/core/0*.sql; do
+        [[ -f "$f" ]] || continue
+        bn="$(basename "$f")"
+        if mysql_run "$DB_NAME" < "$f" 2>"/tmp/heratio-install-${bn}.err"; then
+            ok "loaded $bn"
+        else
+            warn "----- mysql error output for $bn -----"
+            tail -n 30 "/tmp/heratio-install-${bn}.err" >&2 || true
+            # Show how the server actually materialised the FK pair. The parent
+            # (user_totp_secret) is created before the failing child, so its real
+            # column type/attrs are visible here even after the load aborts.
+            warn "----- SHOW CREATE for the fk_mfa_recovery_user pair (diagnostic) -----"
+            mysql_run "$DB_NAME" -e "SHOW CREATE TABLE user_totp_secret\\G" 2>&1 | head -40 >&2 || true
+            mysql_run "$DB_NAME" -e "SHOW CREATE TABLE user_mfa_recovery_code\\G" 2>&1 | head -40 >&2 || true
+            die "failed loading $bn (see /tmp/heratio-install-${bn}.err)"
+        fi
+    done
+fi
 
 # ============================================================================
 # 7. Plugin schema (artisan two-pass)
