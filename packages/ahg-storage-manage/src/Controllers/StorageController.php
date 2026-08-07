@@ -455,6 +455,22 @@ class StorageController extends Controller
             ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
             ->first();
 
+        // The record may be an ACCESSION rather than an information object - the
+        // accession show page links here too. Accessions use the same relation
+        // (subject = the accession, object = the physical object, type 151), so
+        // resolve the slug against the accession table when it is not an IO.
+        if (! $io) {
+            $io = DB::table('accession')
+                ->join('slug', 'accession.id', '=', 'slug.object_id')
+                ->leftJoin('accession_i18n', function ($j) use ($culture) {
+                    $j->on('accession.id', '=', 'accession_i18n.id')
+                        ->where('accession_i18n.culture', $culture);
+                })
+                ->where('slug.slug', $slug)
+                ->select('accession.id', DB::raw('COALESCE(accession_i18n.title, accession.identifier) as title'), 'slug.slug')
+                ->first();
+        }
+
         if (! $io) {
             abort(404);
         }

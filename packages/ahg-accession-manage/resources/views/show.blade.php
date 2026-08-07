@@ -576,7 +576,7 @@
           <ul class="dropdown-menu mb-2">
             <li><a href="{{ route('informationobject.create', ['accession' => $accession->id]) }}" class="dropdown-item">Create {{ config('atom.ui_label_informationobject', 'archival description') }}</a></li>
             <li><a href="{{ url('/right/add?slug=' . $accession->slug) }}" class="dropdown-item">Create new rights</a></li>
-            <li><a href="{{ url('/physicalobject/link?slug=' . $accession->slug) }}" class="dropdown-item">Link physical storage</a></li>
+            <li><a href="{{ route('physicalobject.link-to', $accession->slug) }}" class="dropdown-item">Link physical storage</a></li>
           </ul>
         </div>
       </li>

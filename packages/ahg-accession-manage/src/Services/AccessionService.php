@@ -721,8 +721,13 @@ class AccessionService
      */
     public function getPhysicalObjects(int $accessionId): \Illuminate\Support\Collection
     {
+        // Canonical HAS_PHYSICAL_OBJECT (151) direction: subject = the record
+        // (accession), object = the physical object - matches what
+        // StorageController::linkTo/linkToStore write and the IO show reads. (Was
+        // reading the reversed ends, so links created via the fixed accession
+        // "Link physical storage" flow never appeared.)
         return DB::table('relation')
-            ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
+            ->join('physical_object', 'relation.object_id', '=', 'physical_object.id')
             ->leftJoin('physical_object_i18n', function ($j) {
                 $j->on('physical_object.id', '=', 'physical_object_i18n.id')
                     ->where('physical_object_i18n.culture', '=', $this->culture);
@@ -732,8 +737,16 @@ class AccessionService
                     ->where('term_i18n.culture', '=', $this->culture);
             })
             ->join('slug', 'physical_object.id', '=', 'slug.object_id')
-            ->where('relation.object_id', $accessionId)
-            ->where('relation.type_id', TermId::RELATION_HAS_PHYSICAL_OBJECT)
+            ->where('relation.subject_id', $accessionId)
+            // NB: the physical-storage feature actually stores this relation as
+            // type 151, not TermId::RELATION_HAS_PHYSICAL_OBJECT (147). 147 is the
+            // semantically-correct "has Physical Object" term, but StorageController
+            // ::linkToStore + the IO show page have long used 151 ("temporal" in the
+            // taxonomy - a pre-existing misuse), so a link created via the accession
+            // "Link physical storage" flow is written as 151. Read the same id here
+            // so accession links actually appear; unifying on 147 is a separate,
+            // wider cleanup (touches the IO flow + existing relation rows).
+            ->where('relation.type_id', 151)
             ->select([
                 'physical_object.id',
                 'physical_object_i18n.name',
