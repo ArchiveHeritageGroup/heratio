@@ -63,6 +63,7 @@ class AhgBackupServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                \AhgBackup\Console\Commands\RunBackupCommand::class,
                 ReplicateBackupCommand::class,
                 VerifyBackupIntegrityCommand::class,
                 ArchiveBinaryLogsCommand::class,
