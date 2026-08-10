@@ -44,9 +44,12 @@
 namespace AhgAuthorityResolution\Services\Evidence;
 
 use Illuminate\Support\Facades\DB;
+use AhgAuthorityResolution\Services\Evidence\Concerns\ExtractsPersonOrgNames;
 
 class RelationalEvaluator implements EvaluatorInterface
 {
+    use ExtractsPersonOrgNames;
+
     private const PERSON_ORG_TYPES = ['PERSON', 'ORG'];
 
     public function dimension(): string
@@ -124,33 +127,6 @@ class RelationalEvaluator implements EvaluatorInterface
         ]);
     }
 
-    /**
-     * @return list<string> PERSON / ORG co-occurring entity values
-     */
-    private function coOccurringPersonOrgNames($cooccurringJson): array
-    {
-        $rows = EvidenceDateUtil::decodeJsonish($cooccurringJson);
-        if (! is_array($rows)) {
-            return [];
-        }
-        $names = [];
-        foreach ($rows as $row) {
-            if (! is_array($row)) {
-                continue;
-            }
-            $type = (string) ($row['type'] ?? '');
-            if (! in_array($type, self::PERSON_ORG_TYPES, true)) {
-                continue;
-            }
-            $value = (string) ($row['value'] ?? '');
-            if ($value === '') {
-                continue;
-            }
-            $names[] = $value;
-        }
-
-        return array_values(array_unique($names));
-    }
 
     /**
      * Pull actor-to-actor relations only (both sides resolve to an actor row).

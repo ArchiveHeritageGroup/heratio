@@ -30,9 +30,12 @@ namespace AhgInformationObjectManage\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
+use AhgCore\Support\Concerns\FetchesObjectCreators;
 
 class ExportController extends Controller
 {
+    use FetchesObjectCreators;
+
     /**
      * Export an information object as EAD 2002 XML.
      */
@@ -671,19 +674,6 @@ class ExportController extends Controller
             ->get();
     }
 
-    private function getCreators($io, string $culture)
-    {
-        return DB::table('event')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
-            ->join('actor', 'event.actor_id', '=', 'actor.id')
-            ->where('event.object_id', $io->id)
-            ->where('event.type_id', 111)
-            ->where('actor_i18n.culture', $culture)
-            ->whereNotNull('event.actor_id')
-            ->select('actor_i18n.authorized_form_of_name as name', 'actor.entity_type_id')
-            ->distinct()
-            ->get();
-    }
 
     private function getAccessPoints($io, int $taxonomyId, string $culture)
     {

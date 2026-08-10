@@ -34,9 +34,12 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Throwable;
+use AhgCore\Support\Concerns\RunsInstallSqlFile;
 
 final class AhgC2paServiceProvider extends ServiceProvider
 {
+    use RunsInstallSqlFile;
+
     public function register(): void
     {
         // Public, single-segment "Content Credentials" explainer / trust page
@@ -231,24 +234,4 @@ final class AhgC2paServiceProvider extends ServiceProvider
         }
     }
 
-    private function runInstallSqlFile(string $path): void
-    {
-        $sql = (string) file_get_contents($path);
-
-        $lines = preg_split('/\r?\n/', $sql) ?: [];
-        $stripped = '';
-        foreach ($lines as $line) {
-            $trimmed = ltrim($line);
-            if ($trimmed === '' || str_starts_with($trimmed, '--')) {
-                continue;
-            }
-            $stripped .= $line . "\n";
-        }
-
-        foreach (array_filter(array_map('trim', explode(';', $stripped))) as $stmt) {
-            if ($stmt !== '') {
-                \DB::statement($stmt);
-            }
-        }
-    }
 }

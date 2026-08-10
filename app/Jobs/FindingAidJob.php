@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use AhgCore\Support\Concerns\FetchesObjectCreators;
 
 /**
  * Finding Aid Job - generates EAD XML (and optionally PDF) for an information object.
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\Log;
  */
 class FindingAidJob implements ShouldQueue
 {
+    use FetchesObjectCreators;
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     // Job status IDs (term_i18n)
@@ -352,19 +355,6 @@ HTML;
             ->get();
     }
 
-    protected function getCreators(object $io, string $culture)
-    {
-        return DB::table('event')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
-            ->join('actor', 'event.actor_id', '=', 'actor.id')
-            ->where('event.object_id', $io->id)
-            ->where('event.type_id', 111)
-            ->where('actor_i18n.culture', $culture)
-            ->whereNotNull('event.actor_id')
-            ->select('actor_i18n.authorized_form_of_name as name', 'actor.entity_type_id')
-            ->distinct()
-            ->get();
-    }
 
     protected function getAccessPoints(object $io, int $taxonomyId, string $culture)
     {
