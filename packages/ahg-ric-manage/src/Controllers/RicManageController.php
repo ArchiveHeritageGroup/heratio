@@ -18,9 +18,12 @@ namespace AhgRicManage\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\Concerns\LoadsObjectProperties;
 
 class RicManageController extends Controller
 {
+    use LoadsObjectProperties;
+
     public function edit(Request $request, string $slug)
     {
         $culture = app()->getLocale();
@@ -696,15 +699,6 @@ class RicManageController extends Controller
         return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards', 'eventTypes');
     }
 
-    private function loadProperty(int $objectId, string $name, string $culture): ?string
-    {
-        return DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-            ->where('property.object_id', $objectId)
-            ->where('property.name', $name)
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
-    }
 
     private function saveProperty(int $objectId, string $name, ?string $value, string $culture): void
     {
@@ -717,24 +711,6 @@ class RicManageController extends Controller
         }
     }
 
-    private function loadSerializedProperty(int $objectId, string $name, string $culture): \Illuminate\Support\Collection
-    {
-        $raw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-            ->where('property.object_id', $objectId)
-            ->where('property.name', $name)
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
-
-        if ($raw) {
-            $decoded = @unserialize($raw, ['allowed_classes' => false]);
-            if (is_array($decoded)) {
-                return collect($decoded);
-            }
-        }
-
-        return collect();
-    }
 
     private function saveSerializedProperty(int $objectId, string $name, array $values, string $culture): void
     {

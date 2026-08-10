@@ -29,6 +29,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use AhgCore\Support\Concerns\PersistsObjectProperties;
+use AhgCore\Support\Concerns\LoadsObjectProperties;
 
 /**
  * RAD (Rules for Archival Description) editor.
@@ -37,6 +38,8 @@ use AhgCore\Support\Concerns\PersistsObjectProperties;
  */
 class RadManageController extends Controller
 {
+    use LoadsObjectProperties;
+
     use PersistsObjectProperties;
 
     /**
@@ -635,34 +638,7 @@ class RadManageController extends Controller
 
     // ── Helper: property load/save ──
 
-    private function loadProperty(int $objectId, string $name, string $culture): ?string
-    {
-        return DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-            ->where('property.object_id', $objectId)
-            ->where('property.name', $name)
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
-    }
 
 
-    private function loadSerializedProperty(int $objectId, string $name, string $culture): \Illuminate\Support\Collection
-    {
-        $raw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-            ->where('property.object_id', $objectId)
-            ->where('property.name', $name)
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
-
-        if ($raw) {
-            $decoded = @unserialize($raw, ['allowed_classes' => false]);
-            if (is_array($decoded)) {
-                return collect($decoded);
-            }
-        }
-
-        return collect();
-    }
 
 }
