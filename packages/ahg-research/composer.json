@@ -15,5 +15,7 @@
             ]
         }
     },
-    "require": {}
+    "require": {
+        "ahg/core": "@dev"
+    }
 }

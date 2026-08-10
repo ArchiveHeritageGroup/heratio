@@ -958,28 +958,6 @@ class GrantEngineService
     /** Generic dropdown reader [code => label] with a fallback map. */
     private function dropdownOptions(string $taxonomy, array $fallback): array
     {
-        try {
-            if (! Schema::hasTable('ahg_dropdown')) {
-                return $fallback;
-            }
-            $rows = DB::table('ahg_dropdown')
-                ->where('taxonomy', $taxonomy)
-                ->where('is_active', 1)
-                ->orderBy('sort_order')
-                ->get(['code', 'label']);
-
-            if ($rows->isEmpty()) {
-                return $fallback;
-            }
-
-            $out = [];
-            foreach ($rows as $r) {
-                $out[(string) $r->code] = (string) $r->label;
-            }
-
-            return $out;
-        } catch (\Throwable $e) {
-            return $fallback;
-        }
+        return \AhgCore\Support\DropdownOptions::resolve($taxonomy, $fallback);
     }
 }

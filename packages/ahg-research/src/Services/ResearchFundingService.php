@@ -313,25 +313,7 @@ class ResearchFundingService
      */
     public function dmpOptions(int $projectId): array
     {
-        try {
-            if (! Schema::hasTable('research_dmp')) {
-                return [];
-            }
-            $rows = DB::table('research_dmp')
-                ->where('project_id', $projectId)
-                ->orderByDesc('updated_at')
-                ->orderByDesc('id')
-                ->get(['id', 'title']);
-
-            $out = [];
-            foreach ($rows as $r) {
-                $out[(int) $r->id] = (string) $r->title;
-            }
-
-            return $out;
-        } catch (\Throwable $e) {
-            return [];
-        }
+        return \AhgCore\Support\DropdownOptions::forProjectDmp($projectId);
     }
 
     // ---------------------------------------------------------------------
@@ -654,29 +636,7 @@ class ResearchFundingService
     /** Generic dropdown reader [code => label] with a fallback map. */
     private function dropdownOptions(string $taxonomy, array $fallback): array
     {
-        try {
-            if (! Schema::hasTable('ahg_dropdown')) {
-                return $fallback;
-            }
-            $rows = DB::table('ahg_dropdown')
-                ->where('taxonomy', $taxonomy)
-                ->where('is_active', 1)
-                ->orderBy('sort_order')
-                ->get(['code', 'label']);
-
-            if ($rows->isEmpty()) {
-                return $fallback;
-            }
-
-            $out = [];
-            foreach ($rows as $r) {
-                $out[(string) $r->code] = (string) $r->label;
-            }
-
-            return $out;
-        } catch (\Throwable $e) {
-            return $fallback;
-        }
+        return \AhgCore\Support\DropdownOptions::resolve($taxonomy, $fallback);
     }
 
     // ---------------------------------------------------------------------
