@@ -10,9 +10,12 @@
 namespace AhgShareLink\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\Concerns\ResolvesUserClearanceLevel;
 
 class ClearanceCheck
 {
+    use ResolvesUserClearanceLevel;
+
     private const ACL_GROUP_ADMINISTRATOR = 100;
 
     public function canUserIssueLink(?int $userId, int $entityId): bool
@@ -72,17 +75,4 @@ class ClearanceCheck
         }
     }
 
-    private function resolveUserClearanceLevel(int $userId): int
-    {
-        $today = date('Y-m-d');
-        $level = DB::table('user_security_clearance as usc')
-            ->join('security_classification as sc', 'sc.id', '=', 'usc.classification_id')
-            ->where('usc.user_id', $userId)
-            ->where(function ($q) use ($today) {
-                $q->whereNull('usc.expires_at')->orWhere('usc.expires_at', '>=', $today);
-            })
-            ->max('sc.level');
-
-        return (int) ($level ?? 0);
-    }
 }

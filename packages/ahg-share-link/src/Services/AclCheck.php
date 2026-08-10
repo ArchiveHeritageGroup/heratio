@@ -9,9 +9,12 @@
 namespace AhgShareLink\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\Concerns\ChecksAclUserGroups;
 
 class AclCheck
 {
+    use ChecksAclUserGroups;
+
     public const ACTION_CREATE = 'share_link.create';
 
     public const ACTION_CREATE_CLASSIFIED = 'share_link.create_classified';
@@ -24,7 +27,7 @@ class AclCheck
 
     private const ACL_GROUP_ADMINISTRATOR = 100;
 
-    private static array $groupCache = [];
+
 
     public function canUserDo(?int $userId, string $action): bool
     {
@@ -66,21 +69,4 @@ class AclCheck
         }
     }
 
-    /**
-     * @return array<int,int>
-     */
-    private function getUserGroups(int $userId): array
-    {
-        if (isset(self::$groupCache[$userId])) {
-            return self::$groupCache[$userId];
-        }
-        try {
-            $rows = DB::table('acl_user_group')->where('user_id', $userId)->pluck('group_id')->all();
-            self::$groupCache[$userId] = array_map('intval', $rows);
-        } catch (\Throwable $e) {
-            self::$groupCache[$userId] = [];
-        }
-
-        return self::$groupCache[$userId];
-    }
 }
