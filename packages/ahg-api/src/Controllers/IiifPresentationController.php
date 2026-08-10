@@ -89,9 +89,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
+use AhgApi\Concerns\ResolvesEventMeta;
 
 class IiifPresentationController extends Controller
 {
+    use ResolvesEventMeta;
+
     /** Publication-status taxonomy: status.type_id for "publication status". */
     private const STATUS_TYPE_PUBLICATION = 158;
 
@@ -570,39 +573,6 @@ class IiifPresentationController extends Controller
         }
     }
 
-    /**
-     * The single most representative display date (the event display date, else
-     * a start/end span). Best-effort; '' when absent. Mirrors
-     * CitationController::primaryDate().
-     */
-    protected function primaryDate(int $objectId): string
-    {
-        try {
-            $rows = DB::table('event as e')
-                ->leftJoin('event_i18n as ei', function ($j) {
-                    $j->on('e.id', '=', 'ei.id')->where('ei.culture', $this->culture);
-                })
-                ->where('e.object_id', $objectId)
-                ->select('ei.date as display_date', 'e.start_date', 'e.end_date')
-                ->get();
-
-            foreach ($rows as $r) {
-                if (! empty($r->display_date)) {
-                    return trim((string) $r->display_date);
-                }
-            }
-            foreach ($rows as $r) {
-                if (! empty($r->start_date)) {
-                    return $this->trimDate((string) $r->start_date)
-                        .(! empty($r->end_date) ? '/'.$this->trimDate((string) $r->end_date) : '');
-                }
-            }
-        } catch (\Throwable $e) {
-            return '';
-        }
-
-        return '';
-    }
 
     /**
      * The holding repository's authorised name (the archival "publisher" /
@@ -688,16 +658,6 @@ class IiifPresentationController extends Controller
         return (bool) preg_match('/\.(jpe?g|png|gif|tiff?|jp2|jpx|bmp|webp)$/i', $name);
     }
 
-    /**
-     * Trim AtoM-style "-00" month/day placeholders so "1923-00-00" reads "1923".
-     */
-    protected function trimDate(string $value): string
-    {
-        $value = trim($value);
-        $value = (string) preg_replace('/-00(-00)?$/', '', $value);
-
-        return (string) preg_replace('/-00$/', '', $value);
-    }
 
     /**
      * An IIIF Presentation 3.0 language map: { "<culture>": ["<value>"] }, using

@@ -94,9 +94,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
+use AhgApi\Concerns\ResolvesEventMeta;
 
 class MetsController extends Controller
 {
+    use ResolvesEventMeta;
+
     /** Publication-status taxonomy: status.type_id for "publication status". */
     private const STATUS_TYPE_PUBLICATION = 158;
 
@@ -468,67 +471,7 @@ class MetsController extends Controller
         }
     }
 
-    /**
-     * Creator names (actors linked via the event table) - the SAME resolution as
-     * CitationController::creators().
-     *
-     * @return array<int,string>
-     */
-    protected function creators(int $objectId): array
-    {
-        try {
-            return DB::table('event')
-                ->join('actor_i18n', function ($j) {
-                    $j->on('event.actor_id', '=', 'actor_i18n.id')
-                        ->where('actor_i18n.culture', $this->culture);
-                })
-                ->where('event.object_id', $objectId)
-                ->whereNotNull('event.actor_id')
-                ->whereNotNull('actor_i18n.authorized_form_of_name')
-                ->distinct()
-                ->pluck('actor_i18n.authorized_form_of_name')
-                ->map(fn ($v) => trim((string) $v))
-                ->filter()
-                ->values()
-                ->all();
-        } catch (\Throwable $e) {
-            return [];
-        }
-    }
 
-    /**
-     * The single most representative display date (the event display date, else
-     * a start/end span). Best-effort; '' when absent. Mirrors
-     * CitationController::primaryDate().
-     */
-    protected function primaryDate(int $objectId): string
-    {
-        try {
-            $rows = DB::table('event as e')
-                ->leftJoin('event_i18n as ei', function ($j) {
-                    $j->on('e.id', '=', 'ei.id')->where('ei.culture', $this->culture);
-                })
-                ->where('e.object_id', $objectId)
-                ->select('ei.date as display_date', 'e.start_date', 'e.end_date')
-                ->get();
-
-            foreach ($rows as $r) {
-                if (! empty($r->display_date)) {
-                    return trim((string) $r->display_date);
-                }
-            }
-            foreach ($rows as $r) {
-                if (! empty($r->start_date)) {
-                    return $this->trimDate((string) $r->start_date)
-                        .(! empty($r->end_date) ? '/'.$this->trimDate((string) $r->end_date) : '');
-                }
-            }
-        } catch (\Throwable $e) {
-            return '';
-        }
-
-        return '';
-    }
 
     /**
      * The holding repository's authorised name (the archival "publisher").
@@ -684,16 +627,6 @@ class MetsController extends Controller
         return str_contains($l, 'fonds') || str_contains($l, 'collection') || str_contains($l, 'series');
     }
 
-    /**
-     * Trim AtoM-style "-00" month/day placeholders so "1923-00-00" reads "1923".
-     */
-    protected function trimDate(string $value): string
-    {
-        $value = trim($value);
-        $value = (string) preg_replace('/-00(-00)?$/', '', $value);
-
-        return (string) preg_replace('/-00$/', '', $value);
-    }
 
     /**
      * The canonical public origin (no trailing slash), derived from url() so no

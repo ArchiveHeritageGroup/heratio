@@ -71,9 +71,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
+use AhgApi\Concerns\NegotiatesRdfFormat;
 
 class ActorEntityController extends Controller
 {
+    use NegotiatesRdfFormat;
+
     /** Publication-status taxonomy: status.type_id for "publication status". */
     private const STATUS_TYPE_PUBLICATION = 158;
 
@@ -410,39 +413,6 @@ class ActorEntityController extends Controller
     // Content negotiation
     // -----------------------------------------------------------------
 
-    protected function negotiateFormat(Request $request): string
-    {
-        $param = strtolower((string) $request->query('format', ''));
-        if (in_array($param, ['turtle', 'ttl'], true)) {
-            return 'turtle';
-        }
-        if (in_array($param, ['rdf', 'rdfxml', 'rdf-xml', 'rdf/xml'], true)) {
-            return 'rdfxml';
-        }
-        if (in_array($param, ['jsonld', 'json-ld', 'json'], true)) {
-            return 'jsonld';
-        }
-        if (in_array($param, ['html', 'page'], true)) {
-            return 'html';
-        }
-
-        $accept = strtolower((string) $request->header('Accept', ''));
-
-        if (str_contains($accept, 'text/turtle') || str_contains($accept, 'application/x-turtle')) {
-            return 'turtle';
-        }
-        if (str_contains($accept, 'application/rdf+xml')) {
-            return 'rdfxml';
-        }
-        if (str_contains($accept, 'application/ld+json') || str_contains($accept, 'application/json')) {
-            return 'jsonld';
-        }
-        if (str_contains($accept, 'text/html') || str_contains($accept, 'application/xhtml')) {
-            return 'html';
-        }
-
-        return 'jsonld';
-    }
 
     protected function contentTypeFor(string $format): string
     {

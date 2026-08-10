@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgApi\Concerns\PaginatesApiResponse;
 
 class InformationObjectApiController extends Controller
 {
+    use PaginatesApiResponse;
+
     protected string $culture = 'en';
 
     public function __construct()
@@ -1034,33 +1037,4 @@ class InformationObjectApiController extends Controller
             ->value('name');
     }
 
-    /**
-     * Build a paginated JSON response.
-     */
-    protected function paginatedResponse($data, int $total, int $page, int $limit, string $path): JsonResponse
-    {
-        $lastPage = max(1, (int) ceil($total / $limit));
-        $baseUrl = url("/api/v1/{$path}");
-
-        $links = ['self' => "{$baseUrl}?page={$page}&limit={$limit}"];
-        if ($page < $lastPage) {
-            $links['next'] = "{$baseUrl}?page=".($page + 1)."&limit={$limit}";
-        }
-        if ($page > 1) {
-            $links['prev'] = "{$baseUrl}?page=".($page - 1)."&limit={$limit}";
-        }
-        $links['first'] = "{$baseUrl}?page=1&limit={$limit}";
-        $links['last'] = "{$baseUrl}?page={$lastPage}&limit={$limit}";
-
-        return response()->json([
-            'data' => $data->values(),
-            'meta' => [
-                'total' => $total,
-                'page' => $page,
-                'limit' => $limit,
-                'last_page' => $lastPage,
-            ],
-            'links' => $links,
-        ]);
-    }
 }

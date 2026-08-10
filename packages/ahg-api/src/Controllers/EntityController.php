@@ -74,9 +74,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
+use AhgApi\Concerns\NegotiatesRdfFormat;
 
 class EntityController extends Controller
 {
+    use NegotiatesRdfFormat;
+
     /** Publication-status taxonomy: status.type_id for "publication status". */
     private const STATUS_TYPE_PUBLICATION = 158;
 
@@ -516,52 +519,6 @@ class EntityController extends Controller
     // Content negotiation
     // -----------------------------------------------------------------
 
-    /**
-     * Resolve the wire format from the Accept header (plus a ?format= override
-     * for convenience). One of: 'jsonld', 'turtle', 'rdfxml', 'html'.
-     *
-     * Precedence: explicit ?format= wins; then the Accept header is scanned for
-     * an RDF media type, then for an explicit text/html. The DEFAULT is JSON-LD
-     * (a machine endpoint), EXCEPT when a browser clearly asks for HTML.
-     */
-    protected function negotiateFormat(Request $request): string
-    {
-        $param = strtolower((string) $request->query('format', ''));
-        if (in_array($param, ['turtle', 'ttl'], true)) {
-            return 'turtle';
-        }
-        if (in_array($param, ['rdf', 'rdfxml', 'rdf-xml', 'rdf/xml'], true)) {
-            return 'rdfxml';
-        }
-        if (in_array($param, ['jsonld', 'json-ld', 'json'], true)) {
-            return 'jsonld';
-        }
-        if (in_array($param, ['html', 'page'], true)) {
-            return 'html';
-        }
-
-        $accept = strtolower((string) $request->header('Accept', ''));
-
-        if (str_contains($accept, 'text/turtle') || str_contains($accept, 'application/x-turtle')) {
-            return 'turtle';
-        }
-        if (str_contains($accept, 'application/rdf+xml')) {
-            return 'rdfxml';
-        }
-        if (str_contains($accept, 'application/ld+json') || str_contains($accept, 'application/json')) {
-            return 'jsonld';
-        }
-
-        // A browser sends "text/html,..." (often with */*). Honour an explicit
-        // text/html preference by sending the human to the record page. An
-        // Accept of only */* (curl's default) falls through to the JSON-LD
-        // machine default below.
-        if (str_contains($accept, 'text/html') || str_contains($accept, 'application/xhtml')) {
-            return 'html';
-        }
-
-        return 'jsonld';
-    }
 
     protected function contentTypeFor(string $format): string
     {
