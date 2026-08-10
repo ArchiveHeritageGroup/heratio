@@ -52,9 +52,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
+use AhgC2pa\Concerns\ResolvesProvenanceObject;
 
 final class PreservationTimelineService
 {
+    use ResolvesProvenanceObject;
+
     /** Publication status taxonomy: status.type_id for "publication status". */
     private const PUBLICATION_STATUS_TYPE_ID = 158;
 
@@ -755,14 +758,6 @@ final class PreservationTimelineService
         }
     }
 
-    private function tableExists(string $table): bool
-    {
-        try {
-            return Schema::hasTable($table);
-        } catch (Throwable $e) {
-            return false;
-        }
-    }
 
     /**
      * Resolve a PUBLISHED information object by numeric id or (possibly
@@ -797,37 +792,6 @@ final class PreservationTimelineService
         }
     }
 
-    /**
-     * Turn a numeric id or slug into an information_object id, or null. A purely
-     * numeric reference is treated as an id; otherwise it is looked up in the
-     * slug table (trimmed of surrounding slashes for multi-segment slugs).
-     */
-    private function resolveId(string $idOrSlug): ?int
-    {
-        $ref = trim($idOrSlug, '/');
-        if ($ref === '') {
-            return null;
-        }
-
-        if (ctype_digit($ref)) {
-            $id = (int) $ref;
-
-            return $id > 0 ? $id : null;
-        }
-
-        if (! $this->tableExists('slug')) {
-            return null;
-        }
-
-        $row = DB::table('slug')->where('slug', $ref)->first(['object_id']);
-        if ($row === null || ! isset($row->object_id)) {
-            return null;
-        }
-
-        $id = (int) $row->object_id;
-
-        return $id > 0 ? $id : null;
-    }
 
     /**
      * The published gate: a published row has a status entry with the
@@ -848,36 +812,6 @@ final class PreservationTimelineService
             ->exists();
     }
 
-    /**
-     * Public-safe identity of the record: id, identifier, title (en-preferred),
-     * slug. Returns null when the row vanished between the gate and the load.
-     */
-    private function loadObject(int $informationObjectId): ?object
-    {
-        $io = DB::table('information_object')
-            ->where('id', $informationObjectId)
-            ->first(['id', 'identifier']);
-        if ($io === null) {
-            return null;
-        }
-
-        $io->title = null;
-        $io->slug  = null;
-
-        if ($this->tableExists('information_object_i18n')) {
-            $i18n = DB::table('information_object_i18n')
-                ->where('id', $informationObjectId)
-                ->orderByRaw("culture = 'en' DESC")
-                ->first(['title']);
-            $io->title = $i18n->title ?? null;
-        }
-        if ($this->tableExists('slug')) {
-            $slug = DB::table('slug')->where('object_id', $informationObjectId)->first(['slug']);
-            $io->slug = $slug->slug ?? null;
-        }
-
-        return $io;
-    }
 
     /* ----------------------------------------------------------------- *
      * Small value helpers.

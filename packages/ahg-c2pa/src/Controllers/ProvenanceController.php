@@ -22,9 +22,12 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
+use AhgC2pa\Concerns\LoadsProvenanceRecord;
 
 final class ProvenanceController extends Controller
 {
+    use LoadsProvenanceRecord;
+
     public function __construct(private ProvenanceRecordService $service)
     {
     }
@@ -137,28 +140,6 @@ final class ProvenanceController extends Controller
         ]);
     }
 
-    private function loadObject(int $informationObjectId): ?object
-    {
-        if (!Schema::hasTable('information_object')) {
-            return null;
-        }
-        $io = DB::table('information_object')->where('id', $informationObjectId)->first(['id', 'identifier']);
-        if ($io === null) {
-            return null;
-        }
-        if (Schema::hasTable('information_object_i18n')) {
-            $i18n = DB::table('information_object_i18n')
-                ->where('id', $informationObjectId)
-                ->orderByRaw("culture = 'en' DESC")
-                ->first(['title']);
-            $io->title = $i18n->title ?? null;
-        }
-        if (Schema::hasTable('slug')) {
-            $slug = DB::table('slug')->where('object_id', $informationObjectId)->first(['slug']);
-            $io->slug = $slug->slug ?? null;
-        }
-        return $io;
-    }
 
     /**
      * @return list<object>
