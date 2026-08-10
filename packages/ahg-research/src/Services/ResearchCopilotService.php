@@ -14,6 +14,7 @@ namespace AhgResearch\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use AhgResearch\Services\Concerns\ResolvesAiModel;
 
 /**
  * heratio#1198 - researcher copilot. A research question in, an annotated source set + a
@@ -23,6 +24,8 @@ use Illuminate\Support\Facades\Log;
  */
 class ResearchCopilotService
 {
+    use ResolvesAiModel;
+
     /** @return array{ok:bool, question:string, answer:string, sources:array} */
     public function ask(string $question, int $maxSources = 8): array
     {
@@ -114,25 +117,6 @@ class ResearchCopilotService
         return ['ok' => true, 'id' => $id];
     }
 
-    /**
-     * #1252 - best-effort model name from the LlmService default config; falls
-     * back to the gateway label. Config read only; never contacts a node.
-     */
-    protected function resolveAiModel(): string
-    {
-        try {
-            if (class_exists(\AhgAiServices\Services\LlmService::class)) {
-                $cfg = (new \AhgAiServices\Services\LlmService())->getDefaultConfig();
-                $model = trim((string) ($cfg->model ?? ''));
-                if ($model !== '') {
-                    return mb_substr($model, 0, 120);
-                }
-            }
-        } catch (\Throwable $e) {
-            // fall through to label.
-        }
-        return 'AHG AI gateway';
-    }
 
     /** Saved copilot answers for a workspace (newest first), with decoded sources. */
     public function listAnswers(int $workspaceId, int $limit = 50): array

@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgResearch\Services\Concerns\LabelsCounts;
 
 /**
  * heratio#1222 - Research OS: Research Milestones & Deliverables tracker.
@@ -54,6 +55,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchMilestoneService
 {
+    use LabelsCounts;
+
     public const TYPE_TAXONOMY   = 'milestone_type';
     public const STATUS_TAXONOMY = 'milestone_status';
 
@@ -421,30 +424,6 @@ class ResearchMilestoneService
         ];
     }
 
-    /**
-     * Order a code=>count map by a label taxonomy, attaching labels. Any orphan
-     * code not in the taxonomy still surfaces with a humanised label.
-     *
-     * @param  array<string,int>  $counts
-     * @param  array<string,string>  $labels
-     * @return array<int,array{code:string,label:string,count:int}>
-     */
-    private function labelCounts(array $counts, array $labels): array
-    {
-        $out = [];
-        foreach ($labels as $code => $label) {
-            if (isset($counts[$code])) {
-                $out[] = ['code' => (string) $code, 'label' => (string) $label, 'count' => (int) $counts[$code]];
-            }
-        }
-        foreach ($counts as $code => $c) {
-            if (! isset($labels[$code])) {
-                $out[] = ['code' => (string) $code, 'label' => ucfirst(str_replace('_', ' ', (string) $code)), 'count' => (int) $c];
-            }
-        }
-
-        return $out;
-    }
 
     // ---------------------------------------------------------------------
     // Machine-readable export

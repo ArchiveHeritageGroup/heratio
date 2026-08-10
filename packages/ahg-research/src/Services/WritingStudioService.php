@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use AhgResearch\Services\Concerns\ResolvesAiModel;
 
 /**
  * WritingStudioService - Research OS Stage 13 (epic heratio#1222).
@@ -55,6 +56,8 @@ use Illuminate\Support\Str;
  */
 class WritingStudioService
 {
+    use ResolvesAiModel;
+
     /**
      * Document types surfaced by the studio. VARCHAR-backed (no ENUM); these are
      * the canonical values, but unknown legacy values still render.
@@ -782,26 +785,6 @@ class WritingStudioService
         }
     }
 
-    /**
-     * #1252 - best-effort name of the model the AHG gateway used, read from the
-     * LlmService default config. Falls back to the gateway label when the model
-     * id is not exposed. NEVER contacts a node; config read only.
-     */
-    protected function resolveAiModel(): string
-    {
-        try {
-            if (class_exists(\AhgAiServices\Services\LlmService::class)) {
-                $cfg = (new \AhgAiServices\Services\LlmService())->getDefaultConfig();
-                $model = trim((string) ($cfg->model ?? ''));
-                if ($model !== '') {
-                    return mb_substr($model, 0, 120);
-                }
-            }
-        } catch (\Throwable $e) {
-            // fall through to label.
-        }
-        return 'AHG AI gateway';
-    }
 
     // =====================================================================
     // INTERNAL HELPERS

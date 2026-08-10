@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Services\Concerns\ValidatesDmpId;
 use AhgResearch\Services\Concerns\NormalizesDateString;
+use AhgResearch\Services\Concerns\LabelsCounts;
 
 /**
  * heratio#1222 - Research OS: Research Funding tracker.
@@ -56,6 +57,8 @@ use AhgResearch\Services\Concerns\NormalizesDateString;
  */
 class ResearchFundingService
 {
+    use LabelsCounts;
+
     use NormalizesDateString;
 
     use ValidatesDmpId;
@@ -438,30 +441,6 @@ class ResearchFundingService
         return $sign . intdiv($cents, 100) . '.' . str_pad((string) ($cents % 100), 2, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Order a code=>count map by a label taxonomy, attaching labels. Any orphan
-     * code not in the taxonomy still surfaces with a humanised label.
-     *
-     * @param  array<string,int>  $counts
-     * @param  array<string,string>  $labels
-     * @return array<int,array{code:string,label:string,count:int}>
-     */
-    private function labelCounts(array $counts, array $labels): array
-    {
-        $out = [];
-        foreach ($labels as $code => $label) {
-            if (isset($counts[$code])) {
-                $out[] = ['code' => (string) $code, 'label' => (string) $label, 'count' => (int) $counts[$code]];
-            }
-        }
-        foreach ($counts as $code => $c) {
-            if (! isset($labels[$code])) {
-                $out[] = ['code' => (string) $code, 'label' => ucfirst(str_replace('_', ' ', (string) $code)), 'count' => (int) $c];
-            }
-        }
-
-        return $out;
-    }
 
     // ---------------------------------------------------------------------
     // Machine-readable export

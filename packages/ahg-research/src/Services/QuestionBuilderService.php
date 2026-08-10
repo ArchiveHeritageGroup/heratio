@@ -28,9 +28,12 @@ namespace AhgResearch\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgResearch\Services\Concerns\ResolvesAiModel;
 
 class QuestionBuilderService
 {
+    use ResolvesAiModel;
+
     /** Editable brief fields carried on every version row, in display order. */
     public const FIELDS = [
         'broad_topic',
@@ -395,24 +398,4 @@ class QuestionBuilderService
         }
     }
 
-    /**
-     * #1252 - best-effort name of the model the AHG gateway used, read from the
-     * LlmService default config. Falls back to the gateway label. Config read
-     * only; never contacts a node.
-     */
-    protected function resolveAiModel(): string
-    {
-        try {
-            if (class_exists(\AhgAiServices\Services\LlmService::class)) {
-                $cfg = (new \AhgAiServices\Services\LlmService())->getDefaultConfig();
-                $model = trim((string) ($cfg->model ?? ''));
-                if ($model !== '') {
-                    return mb_substr($model, 0, 120);
-                }
-            }
-        } catch (\Throwable $e) {
-            // fall through to label.
-        }
-        return 'AHG AI gateway';
-    }
 }

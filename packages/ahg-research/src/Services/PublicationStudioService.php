@@ -43,9 +43,12 @@ namespace AhgResearch\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgResearch\Services\Concerns\ResolvesAiModel;
 
 class PublicationStudioService
 {
+    use ResolvesAiModel;
+
     /** Submission lifecycle. VARCHAR-backed (Dropdown Manager: submission_status), never an ENUM. */
     public const STATUSES = ['drafting', 'submitted', 'reviewed', 'revised', 'accepted', 'published', 'rejected'];
 
@@ -623,23 +626,4 @@ class PublicationStudioService
         }
     }
 
-    /**
-     * #1252 - best-effort model name from the LlmService default config; falls
-     * back to the gateway label. Config read only; never contacts a node.
-     */
-    protected function resolveAiModel(): string
-    {
-        try {
-            if (class_exists(\AhgAiServices\Services\LlmService::class)) {
-                $cfg = (new \AhgAiServices\Services\LlmService())->getDefaultConfig();
-                $model = trim((string) ($cfg->model ?? ''));
-                if ($model !== '') {
-                    return mb_substr($model, 0, 120);
-                }
-            }
-        } catch (\Throwable $e) {
-            // fall through to label.
-        }
-        return 'AHG AI gateway';
-    }
 }
