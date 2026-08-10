@@ -3,7 +3,8 @@
     "description": "Integrity check dashboard for Heratio",
     "type": "library",
     "require": {
-        "ahg/core": "@dev"
+        "ahg/core": "@dev",
+        "ahg/records-manage": "@dev"
     },
     "autoload": {
         "psr-4": {
