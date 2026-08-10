@@ -390,6 +390,28 @@ class IiifContentSearchService
             $map[(int) $do->id] = $info;
         }
 
+        // OCR is normally run on the reference/thumbnail DERIVATIVE (the master
+        // is often a PDF/TIFF Tesseract can't read directly), so an iiif_ocr_text
+        // row's digital_object_id is a derivative id - not the master the canvas
+        // is keyed by above. Map each master's derivatives onto the same canvas
+        // so a search hit on a derivative resolves to its canvas (otherwise the
+        // canvas lookup misses and the whole search returns empty).
+        $masterIds = array_keys($map);
+        if (! empty($masterIds)) {
+            foreach (
+                DB::table('digital_object')
+                    ->whereIn('parent_id', $masterIds)
+                    ->select('id', 'parent_id')
+                    ->get() as $deriv
+            ) {
+                $pid = (int) $deriv->parent_id;
+                $did = (int) $deriv->id;
+                if (isset($map[$pid]) && ! isset($map[$did])) {
+                    $map[$did] = $map[$pid];
+                }
+            }
+        }
+
         return $map;
     }
 
