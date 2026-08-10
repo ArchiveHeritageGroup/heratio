@@ -52,6 +52,17 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
         iiifTileSource = iiifOrigin + '/iiif/3/' + iiifId + '/info.json';
     }
 
+    // Cantaloupe image-service base id for any raster URL Cantaloupe can serve
+    // (TIFF/JP2/JPEG/PNG), else null (webp/gif/svg/etc. stay plain). Used to
+    // give each multi-object Mirador canvas true deep-zoom (#1475 follow-up).
+    function cantaloupeServiceId(u) {
+        if (!/\.(tiff?|jp2|jpx|jpe?g|png)$/i.test(u)) { return null; }
+        try {
+            var p = new URL(u, window.location.origin).pathname.replace(/^\//, '').replace(/\//g, '_SL_');
+            return iiifOrigin + '/iiif/3/' + p;
+        } catch (e) { return null; }
+    }
+
     function hideAllPanels() {
         osdEl.style.display = 'none';
         mirEl.style.display = 'none';
@@ -323,10 +334,11 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
         // #1457: when the record has more than one digital object, show ALL of
         // them (primary + attached recto/verso/...) in ONE Mirador window, each a
         // deep-zoomable canvas with a thumbnail navigator. The manifest is built
-        // client-side from the objects' PLAIN reference-image URLs (dimensions
-        // probed per image) - deliberately NOT the /iiif/ Cantaloupe service,
-        // which 404s on these paths and 501s on webp; the references are JPEGs
-        // the browser renders directly, matching the single-image path below.
+        // client-side from the objects' reference-image URLs (dimensions probed
+        // per image). #1475: each canvas now carries a Cantaloupe IIIF image
+        // service (via cantaloupeServiceId) for servable rasters, so attached
+        // objects get true tiled deep-zoom - not just the primary; webp/other
+        // non-servable formats fall back to the plain reference image.
         if (viewerObjects && viewerObjects.length > 1) {
             var probes = viewerObjects.map(function (o) {
                 return new Promise(function (resolve) {
@@ -342,12 +354,24 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
                 var manifestUrl = 'urn:heratio:multi:' + encodeURIComponent(vid);
                 var canvases = items.map(function (it, i) {
                     var cid = manifestUrl + '/canvas/' + i;
+                    // #1475: when the object is a Cantaloupe-servable raster,
+                    // attach an IIIF image service so this canvas deep-zooms
+                    // (tiled pyramid) instead of loading a single flat image.
+                    // Non-servable formats (webp/gif/...) keep the plain image.
+                    var svcId = cantaloupeServiceId(it.url);
+                    var resource = svcId
+                        ? {
+                            '@id': svcId + '/full/max/0/default.jpg', '@type': 'dctypes:Image',
+                            format: 'image/jpeg', width: it.w, height: it.h,
+                            service: { '@id': svcId, '@type': 'ImageService2', profile: 'http://iiif.io/api/image/2/level2.json' }
+                          }
+                        : { '@id': it.url, '@type': 'dctypes:Image', format: 'image/jpeg', width: it.w, height: it.h };
                     return {
                         '@type': 'sc:Canvas', '@id': cid, label: it.label || ('Image ' + (i + 1)),
                         width: it.w, height: it.h,
                         images: [{
                             '@type': 'oa:Annotation', motivation: 'sc:painting',
-                            resource: { '@id': it.url, '@type': 'dctypes:Image', format: 'image/jpeg', width: it.w, height: it.h },
+                            resource: resource,
                             on: cid
                         }]
                     };
