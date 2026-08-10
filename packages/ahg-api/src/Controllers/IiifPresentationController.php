@@ -90,9 +90,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 use AhgApi\Concerns\ResolvesEventMeta;
+use AhgApi\Concerns\ResolvesTermName;
 
 class IiifPresentationController extends Controller
 {
+    use ResolvesTermName;
+
     use ResolvesEventMeta;
 
     /** Publication-status taxonomy: status.type_id for "publication status". */
@@ -598,21 +601,6 @@ class IiifPresentationController extends Controller
         }
     }
 
-    protected function termName($termId): ?string
-    {
-        if (empty($termId)) {
-            return null;
-        }
-
-        try {
-            return DB::table('term_i18n')
-                ->where('id', (int) $termId)
-                ->where('culture', $this->culture)
-                ->value('name');
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     /**
      * A `rights` value for the Manifest: emitted ONLY when the record's

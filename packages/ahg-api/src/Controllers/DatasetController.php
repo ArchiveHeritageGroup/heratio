@@ -63,9 +63,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use AhgApi\Concerns\ResolvesTermName;
+use AhgApi\Concerns\ResolvesPublisherName;
 
 class DatasetController extends Controller
 {
+    use ResolvesPublisherName;
+
+    use ResolvesTermName;
+
     /** Publication-status taxonomy: status.type_id for "publication status". */
     private const STATUS_TYPE_PUBLICATION = 158;
 
@@ -369,28 +375,6 @@ class DatasetController extends Controller
         }
     }
 
-    /**
-     * The holding repository's authorised name (dc:publisher / schema:publisher).
-     */
-    protected function publisher($repositoryId): ?string
-    {
-        if (empty($repositoryId)) {
-            return null;
-        }
-
-        try {
-            $name = DB::table('repository as r')
-                ->join('actor_i18n as ai', function ($j) {
-                    $j->on('r.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
-                ->where('r.id', (int) $repositoryId)
-                ->value('ai.authorized_form_of_name');
-
-            return $name ? (string) $name : null;
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     /**
      * Subject access points for a record as a flat list. Best-effort - [] on a
@@ -426,21 +410,6 @@ class DatasetController extends Controller
         return implode(' | ', $this->subjectsList($objectId));
     }
 
-    protected function termName($termId): ?string
-    {
-        if (empty($termId)) {
-            return null;
-        }
-
-        try {
-            return DB::table('term_i18n')
-                ->where('id', (int) $termId)
-                ->where('culture', $this->culture)
-                ->value('name');
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     // -----------------------------------------------------------------
     // Text / URI helpers

@@ -59,9 +59,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use AhgApi\Concerns\ResolvesTermName;
+use AhgApi\Concerns\ResolvesPublisherName;
 
 class OaiPmhController extends Controller
 {
+    use ResolvesPublisherName;
+
+    use ResolvesTermName;
+
     /** Publication-status taxonomy: status.type_id for "publication status". */
     private const STATUS_TYPE_PUBLICATION = 158;
 
@@ -510,28 +516,6 @@ class OaiPmhController extends Controller
         }
     }
 
-    /**
-     * The holding repository's authorised name, as dc:publisher.
-     */
-    protected function publisher($repositoryId): ?string
-    {
-        if (empty($repositoryId)) {
-            return null;
-        }
-
-        try {
-            $name = DB::table('repository as r')
-                ->join('actor_i18n as ai', function ($j) {
-                    $j->on('r.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
-                ->where('r.id', (int) $repositoryId)
-                ->value('ai.authorized_form_of_name');
-
-            return $name ? (string) $name : null;
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     /**
      * Subject access points (taxonomy 35 - subjects). dc:subject.
@@ -755,21 +739,6 @@ class OaiPmhController extends Controller
     // Term lookup (mirrors GraphController)
     // -----------------------------------------------------------------
 
-    protected function termName($termId): ?string
-    {
-        if (empty($termId)) {
-            return null;
-        }
-
-        try {
-            return DB::table('term_i18n')
-                ->where('id', (int) $termId)
-                ->where('culture', $this->culture)
-                ->value('name');
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     // -----------------------------------------------------------------
     // Request echo + config
