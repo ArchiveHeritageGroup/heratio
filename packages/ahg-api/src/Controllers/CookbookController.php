@@ -60,9 +60,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
+use AhgApi\Concerns\ServesApiDocument;
 
 class CookbookController extends Controller
 {
+    use ServesApiDocument;
+
     private const LICENSE = 'https://creativecommons.org/licenses/by/4.0/';
 
     /**
@@ -73,37 +76,7 @@ class CookbookController extends Controller
      */
     private const SAMPLE_SLUG = 'an-example-record-slug';
 
-    /**
-     * OPTIONS preflight for the cookbook endpoint.
-     */
-    public function options(): Response
-    {
-        return $this->withCors(response('', 204));
-    }
 
-    /**
-     * GET /open-data/cookbook  (and /open-data/cookbook.json)
-     *
-     * A browser (text/html) gets the human guide; everyone else (and
-     * ?format=json) gets the JSON example index. The .json route forces JSON.
-     */
-    public function index(Request $request, bool $forceJson = false): Response
-    {
-        if (! $forceJson && $this->wantsHtml($request)) {
-            return $this->withCors(response($this->html(), 200, [
-                'Content-Type' => 'text/html; charset=utf-8',
-            ]));
-        }
-
-        $body = json_encode(
-            $this->document(),
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-        );
-
-        return $this->withCors(response($body, 200, [
-            'Content-Type' => 'application/json; charset=utf-8',
-        ]));
-    }
 
     /**
      * Build the cookbook as a neutral PHP array: a set of recipe groups, each a
@@ -473,31 +446,6 @@ class CookbookController extends Controller
         ];
     }
 
-    /**
-     * The canonical surface list from ProtocolController, indexed by id. Resolved
-     * defensively: if the protocol controller is unavailable for any reason the
-     * cookbook degrades to the tooling + licence recipes (which need no surface)
-     * rather than throwing.
-     *
-     * @return array<string,array<string,mixed>>
-     */
-    protected function surfacesById(): array
-    {
-        try {
-            $surfaces = app(ProtocolController::class)->surfaces();
-        } catch (\Throwable $e) {
-            return [];
-        }
-
-        $byId = [];
-        foreach ($surfaces as $surface) {
-            if (! empty($surface['id'])) {
-                $byId[(string) $surface['id']] = $surface;
-            }
-        }
-
-        return $byId;
-    }
 
     /**
      * The resolved URL (or URL template) of a surface by id, or null when the
@@ -531,43 +479,8 @@ class CookbookController extends Controller
         return $template;
     }
 
-    /**
-     * Resolve a named route to its absolute URL, falling back to a literal root
-     * path when the route is not registered. Returns null when neither is
-     * available (so the link can be dropped, never dead).
-     */
-    protected function resolveRoute(string $routeName, ?string $fallbackPath = null): ?string
-    {
-        if (Route::has($routeName)) {
-            try {
-                return route($routeName);
-            } catch (\Throwable $e) {
-                // fall through to the literal path
-            }
-        }
 
-        return $fallbackPath !== null ? url($fallbackPath) : null;
-    }
 
-    protected function base(): string
-    {
-        return rtrim((string) url('/'), '/');
-    }
-
-    /**
-     * Whether the client prefers HTML (a browser). curl's default catch-all
-     * Accept does NOT count as HTML, so a bare curl gets JSON.
-     */
-    protected function wantsHtml(Request $request): bool
-    {
-        $accept = strtolower((string) $request->header('Accept', ''));
-
-        if (str_contains($accept, 'application/json') || str_contains($accept, 'application/ld+json')) {
-            return false;
-        }
-
-        return str_contains($accept, 'text/html') || str_contains($accept, 'application/xhtml');
-    }
 
     /**
      * Render a small, dependency-free human guide from the same document() array
@@ -639,18 +552,4 @@ class CookbookController extends Controller
             .'</body></html>';
     }
 
-    /**
-     * Apply permissive open-data CORS headers. This document is intentionally
-     * world-readable (open data), so any origin may fetch it.
-     */
-    protected function withCors(Response $response): Response
-    {
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Accept, Content-Type');
-        $response->headers->set('Vary', 'Accept');
-        $response->headers->set('X-Open-Data', 'true');
-
-        return $response;
-    }
 }

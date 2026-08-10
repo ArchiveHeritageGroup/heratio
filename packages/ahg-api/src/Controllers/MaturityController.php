@@ -68,9 +68,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
+use AhgApi\Concerns\ServesApiDocument;
 
 class MaturityController extends Controller
 {
+    use ServesApiDocument;
+
     private const LICENSE = 'https://creativecommons.org/licenses/by/4.0/';
 
     private const MODEL = 'https://5stardata.info/';
@@ -126,37 +129,7 @@ class MaturityController extends Controller
         ],
     ];
 
-    /**
-     * OPTIONS preflight for the maturity endpoint.
-     */
-    public function options(): Response
-    {
-        return $this->withCors(response('', 204));
-    }
 
-    /**
-     * GET /open-data/maturity  (and /open-data/maturity.json)
-     *
-     * A browser (text/html) gets the human scorecard; everyone else (and
-     * ?format=json) gets the JSON document. The .json route always forces JSON.
-     */
-    public function index(Request $request, bool $forceJson = false): Response
-    {
-        if (! $forceJson && $this->wantsHtml($request)) {
-            return $this->withCors(response($this->html(), 200, [
-                'Content-Type' => 'text/html; charset=utf-8',
-            ]));
-        }
-
-        $body = json_encode(
-            $this->document(),
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-        );
-
-        return $this->withCors(response($body, 200, [
-            'Content-Type' => 'application/json; charset=utf-8',
-        ]));
-    }
 
     /**
      * Build the maturity scorecard as a neutral PHP array. Never touches the DB;
@@ -237,69 +210,9 @@ class MaturityController extends Controller
         ];
     }
 
-    /**
-     * The canonical surface list from ProtocolController, indexed by id for
-     * stable evidence lookup. Resolved defensively: if the protocol controller is
-     * unavailable for any reason the scorecard degrades to "no evidence" (every
-     * star honestly not-achieved) rather than throwing.
-     *
-     * @return array<string,array<string,mixed>>
-     */
-    protected function surfacesById(): array
-    {
-        try {
-            $surfaces = app(ProtocolController::class)->surfaces();
-        } catch (\Throwable $e) {
-            return [];
-        }
 
-        $byId = [];
-        foreach ($surfaces as $surface) {
-            if (! empty($surface['id'])) {
-                $byId[(string) $surface['id']] = $surface;
-            }
-        }
 
-        return $byId;
-    }
 
-    /**
-     * Resolve a named route to its absolute URL, falling back to a literal root
-     * path when the route is not registered. Returns null when neither is
-     * available (so the link can be dropped, never dead).
-     */
-    protected function resolve(string $routeName, ?string $fallbackPath = null): ?string
-    {
-        if (Route::has($routeName)) {
-            try {
-                return route($routeName);
-            } catch (\Throwable $e) {
-                // fall through to the literal path
-            }
-        }
-
-        return $fallbackPath !== null ? url($fallbackPath) : null;
-    }
-
-    protected function base(): string
-    {
-        return rtrim((string) url('/'), '/');
-    }
-
-    /**
-     * Whether the client prefers HTML (a browser). curl's default catch-all
-     * Accept does NOT count as HTML, so a bare curl gets JSON.
-     */
-    protected function wantsHtml(Request $request): bool
-    {
-        $accept = strtolower((string) $request->header('Accept', ''));
-
-        if (str_contains($accept, 'application/json') || str_contains($accept, 'application/ld+json')) {
-            return false;
-        }
-
-        return str_contains($accept, 'text/html') || str_contains($accept, 'application/xhtml');
-    }
 
     /**
      * Render a small, dependency-free human scorecard from the same document()
@@ -374,18 +287,4 @@ class MaturityController extends Controller
             .'</body></html>';
     }
 
-    /**
-     * Apply permissive open-data CORS headers. This document is intentionally
-     * world-readable (open data), so any origin may fetch it.
-     */
-    protected function withCors(Response $response): Response
-    {
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Accept, Content-Type');
-        $response->headers->set('Vary', 'Accept');
-        $response->headers->set('X-Open-Data', 'true');
-
-        return $response;
-    }
 }

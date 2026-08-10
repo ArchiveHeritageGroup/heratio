@@ -64,41 +64,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
+use AhgApi\Concerns\ServesApiDocument;
 
 class ProtocolController extends Controller
 {
-    /**
-     * OPTIONS preflight for the protocol endpoint.
-     */
-    public function options(): Response
-    {
-        return $this->withCors(response('', 204));
-    }
+    use ServesApiDocument;
 
-    /**
-     * GET /open-data/protocol  (and /open-data/protocol.json)
-     *
-     * Content negotiation: a browser (text/html) gets the human page; everyone
-     * else (and ?format=json) gets the JSON capabilities document. The .json
-     * route always forces JSON regardless of Accept.
-     */
-    public function index(Request $request, bool $forceJson = false): Response
-    {
-        if (! $forceJson && $this->wantsHtml($request)) {
-            return $this->withCors(response($this->html(), 200, [
-                'Content-Type' => 'text/html; charset=utf-8',
-            ]));
-        }
 
-        $body = json_encode(
-            $this->document(),
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-        );
-
-        return $this->withCors(response($body, 200, [
-            'Content-Type' => 'application/json; charset=utf-8',
-        ]));
-    }
 
     /**
      * Build the capabilities document as a neutral PHP array. Each surface is
@@ -502,43 +474,8 @@ class ProtocolController extends Controller
         }));
     }
 
-    /**
-     * Resolve a named route to its absolute URL, falling back to a literal root
-     * path when the route is not registered. Returns null when neither is
-     * available so the surface can be dropped (never a dead link).
-     */
-    protected function resolve(string $routeName, ?string $fallbackPath = null): ?string
-    {
-        if (Route::has($routeName)) {
-            try {
-                return route($routeName);
-            } catch (\Throwable $e) {
-                // fall through to the literal path
-            }
-        }
 
-        return $fallbackPath !== null ? url($fallbackPath) : null;
-    }
 
-    protected function base(): string
-    {
-        return rtrim((string) url('/'), '/');
-    }
-
-    /**
-     * Whether the client prefers HTML (a browser). curl's default catch-all
-     * Accept does NOT count as HTML, so a bare curl gets JSON.
-     */
-    protected function wantsHtml(Request $request): bool
-    {
-        $accept = strtolower((string) $request->header('Accept', ''));
-
-        if (str_contains($accept, 'application/json') || str_contains($accept, 'application/ld+json')) {
-            return false;
-        }
-
-        return str_contains($accept, 'text/html') || str_contains($accept, 'application/xhtml');
-    }
 
     /**
      * Render a small, dependency-free human page that lists the surfaces. Built
@@ -588,18 +525,4 @@ class ProtocolController extends Controller
             .'</body></html>';
     }
 
-    /**
-     * Apply permissive open-data CORS headers. This document is intentionally
-     * world-readable (open data), so any origin may fetch it.
-     */
-    protected function withCors(Response $response): Response
-    {
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Accept, Content-Type');
-        $response->headers->set('Vary', 'Accept');
-        $response->headers->set('X-Open-Data', 'true');
-
-        return $response;
-    }
 }
