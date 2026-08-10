@@ -31,9 +31,12 @@ namespace AhgMetadataExport\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\Concerns\FetchesRepositoryActor;
 
 class EadFindingAidCommand extends Command
 {
+    use FetchesRepositoryActor;
+
     protected $signature = 'ead:finding-aid {ioId : Information-object id} {--out= : Output PDF path (default: storage/app/finding-aids/<id>.pdf)} {--culture=en}';
 
     protected $description = 'Generate a print-friendly PDF finding aid for an IO and its descendants (Library of Congress style).';
@@ -120,18 +123,6 @@ class EadFindingAidCommand extends Command
             ->first();
     }
 
-    private function fetchRepository($io, string $culture)
-    {
-        if (empty($io->repository_id)) {
-            return null;
-        }
-        return DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
-            ->where('repository.id', $io->repository_id)
-            ->where('actor_i18n.culture', $culture)
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
-            ->first();
-    }
 
     private function fetchEvents($io)
     {

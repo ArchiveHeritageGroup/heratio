@@ -51,9 +51,15 @@
 namespace AhgRic\Crm;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\Concerns\FetchesRepositoryActor;
+use AhgCore\Support\Concerns\FetchesObjectTerms;
 
 class CrmSerializer
 {
+    use FetchesObjectTerms;
+
+    use FetchesRepositoryActor;
+
     public const NS_RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
     public const NS_RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
     public const NS_XSD = 'http://www.w3.org/2001/XMLSchema#';
@@ -455,18 +461,6 @@ class CrmSerializer
             ->first();
     }
 
-    protected function fetchRepository($io, string $culture)
-    {
-        if (empty($io->repository_id)) {
-            return null;
-        }
-        return DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
-            ->where('repository.id', $io->repository_id)
-            ->where('actor_i18n.culture', $culture)
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
-            ->first();
-    }
 
     protected function fetchCreators($io, string $culture): array
     {
@@ -504,31 +498,7 @@ class CrmSerializer
             ->all();
     }
 
-    protected function fetchAccessPoints($io, int $taxonomyId, string $culture): array
-    {
-        return DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
-            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->where('object_term_relation.object_id', $io->id)
-            ->where('term.taxonomy_id', $taxonomyId)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
-            ->get()
-            ->all();
-    }
 
-    protected function fetchLanguages($io, string $culture): array
-    {
-        return DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
-            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->where('object_term_relation.object_id', $io->id)
-            ->where('term.taxonomy_id', 7)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
-            ->get()
-            ->all();
-    }
 
     protected function ttlString(string $value, ?string $lang = null): string
     {

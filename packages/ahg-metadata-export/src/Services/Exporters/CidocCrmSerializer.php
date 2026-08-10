@@ -72,9 +72,15 @@ namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgMetadataExport\Services\Exporters\Concerns\ChecksPublicationStatus;
+use AhgMetadataExport\Services\Exporters\Concerns\RendersCrmTurtle;
 
 class CidocCrmSerializer
 {
+    use RendersCrmTurtle;
+
+    use ChecksPublicationStatus;
+
     use InformationObjectFetcher;
 
     /** Namespaces. The default CRM ns is the official CIDOC one; the Erlangen
@@ -147,25 +153,6 @@ class CidocCrmSerializer
         return $this->renderTurtle($bag);
     }
 
-    /**
-     * The published-records gate. True when a published status row exists for
-     * this object and the object is not the synthetic root (id = 1).
-     */
-    private function isPublic(int $objectId): bool
-    {
-        if ($objectId <= 1) {
-            return false;
-        }
-        if (! Schema::hasTable('status')) {
-            return false;
-        }
-
-        return DB::table('status')
-            ->where('object_id', $objectId)
-            ->where('type_id', self::STATUS_TYPE_PUBLICATION)
-            ->where('status_id', self::PUBLICATION_STATUS_PUBLISHED)
-            ->exists();
-    }
 
     // -----------------------------------------------------------------
     // Graph construction - format-neutral intermediate representation.
@@ -345,40 +332,7 @@ class CidocCrmSerializer
     // Turtle output
     // -----------------------------------------------------------------
 
-    private function renderTurtle(array $bag): string
-    {
-        $culture = $bag['culture'];
-        $ttl  = '@prefix rdf: <' . self::NS_RDF . "> .\n";
-        $ttl .= '@prefix rdfs: <' . self::NS_RDFS . "> .\n";
-        $ttl .= '@prefix xsd: <' . self::NS_XSD . "> .\n";
-        $ttl .= '@prefix crm: <' . self::NS_CRM . "> .\n";
-        $ttl .= '@prefix ecrm: <' . self::NS_ECRM . "> .\n\n";
 
-        foreach ($bag['nodes'] as [$uri, $typeCurie, $props]) {
-            $ttl .= '<' . $uri . '> a ' . $typeCurie;
-            foreach ($props as [$pred, $value, $kind]) {
-                $ttl .= ' ;' . "\n" . '  ' . $pred . ' ' . $this->ttlValue($value, $kind, $culture);
-            }
-            $ttl .= " .\n\n";
-        }
-
-        return $ttl;
-    }
-
-    private function ttlValue(string $value, string $kind, string $culture): string
-    {
-        switch ($kind) {
-            case 'iri':
-                return '<' . $value . '>';
-            case 'date':
-                return '"' . addcslashes($value, "\\\"\n\r") . '"^^xsd:date';
-            case 'lang':
-                return '"' . addcslashes($value, "\\\"\n\r") . '"@' . $culture;
-            case 'plain':
-            default:
-                return '"' . addcslashes($value, "\\\"\n\r") . '"';
-        }
-    }
 
     // -----------------------------------------------------------------
     // RDF/XML output

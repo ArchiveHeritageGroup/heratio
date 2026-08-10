@@ -59,9 +59,12 @@ namespace AhgMetadataExport\Services\Exporters;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use XMLWriter;
+use AhgMetadataExport\Services\Exporters\Concerns\ChecksPublicationStatus;
 
 class PremisSerializer
 {
+    use ChecksPublicationStatus;
+
     use InformationObjectFetcher;
 
     /** PREMIS 3.0 namespace. */
@@ -478,26 +481,6 @@ class PremisSerializer
         return $agents;
     }
 
-    /**
-     * The published-records gate. True when a published status row exists for
-     * this object and the object is not the synthetic root (id = 1). Mirrors
-     * CidocCrmSerializer::isPublic().
-     */
-    private function isPublic(int $objectId): bool
-    {
-        if ($objectId <= 1) {
-            return false;
-        }
-        if (! Schema::hasTable('status')) {
-            return false;
-        }
-
-        return DB::table('status')
-            ->where('object_id', $objectId)
-            ->where('type_id', self::STATUS_TYPE_PUBLICATION)
-            ->where('status_id', self::PUBLICATION_STATUS_PUBLISHED)
-            ->exists();
-    }
 
     // -----------------------------------------------------------------
     // Small mappers / normalisers

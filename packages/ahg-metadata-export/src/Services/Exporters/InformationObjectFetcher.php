@@ -20,9 +20,12 @@
 namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\Concerns\FetchesRepositoryActor;
 
 trait InformationObjectFetcher
 {
+    use FetchesRepositoryActor;
+
     protected function fetchIo(int $objectId, string $culture)
     {
         return DB::table('information_object as io')
@@ -48,19 +51,6 @@ trait InformationObjectFetcher
             ->first();
     }
 
-    protected function fetchRepository($io, string $culture)
-    {
-        if (empty($io->repository_id)) {
-            return null;
-        }
-
-        return DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
-            ->where('repository.id', $io->repository_id)
-            ->where('actor_i18n.culture', $culture)
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
-            ->first();
-    }
 
     protected function fetchEvents($io, string $culture)
     {
