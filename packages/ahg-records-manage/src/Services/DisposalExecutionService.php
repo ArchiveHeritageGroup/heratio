@@ -6,9 +6,12 @@ use AhgCore\Services\AclService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgRecordsManage\Services\Concerns\WritesDisposalAuditLog;
 
 class DisposalExecutionService
 {
+    use WritesDisposalAuditLog;
+
     /**
      * Execute destruction of an information object's digital objects.
      */
@@ -409,43 +412,4 @@ class DisposalExecutionService
         return $prefix.str_pad($nextNum, 5, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Write to ahg_audit_log if the table exists.
-     */
-    private function auditLog(int $userId, string $action, string $entityType, int $entityId, string $title, array $metadata = []): void
-    {
-        if (! Schema::hasTable('ahg_audit_log')) {
-            return;
-        }
-
-        $user = DB::table('user')
-            ->leftJoin('actor_i18n', function ($join) {
-                $join->on('user.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', 'en');
-            })
-            ->where('user.id', $userId)
-            ->select('user.username', 'user.email', 'actor_i18n.authorized_form_of_name')
-            ->first();
-
-        DB::table('ahg_audit_log')->insert([
-            'uuid' => \Illuminate\Support\Str::uuid()->toString(),
-            'user_id' => $userId,
-            'username' => $user->username ?? null,
-            'user_email' => $user->email ?? null,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'session_id' => session()->getId(),
-            'action' => $action,
-            'entity_type' => $entityType,
-            'entity_id' => $entityId,
-            'entity_title' => $title,
-            'module' => 'records-manage',
-            'action_name' => $action,
-            'request_method' => request()->method(),
-            'request_uri' => request()->getRequestUri(),
-            'metadata' => ! empty($metadata) ? json_encode($metadata) : null,
-            'status' => 'success',
-            'created_at' => Carbon::now(),
-        ]);
-    }
 }

@@ -52,9 +52,12 @@ use DOMXPath;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
+use AhgMetadataExport\Services\Importers\Concerns\MatchesExistingObject;
 
 class EadXmlImporter
 {
+    use MatchesExistingObject;
+
     public const NS_EAD2002 = 'urn:isbn:1-931666-22-9';
 
     public const NS_EAD3 = 'http://ead3.archivists.org/schema/';
@@ -416,29 +419,6 @@ class EadXmlImporter
         ];
     }
 
-    private function matchExisting(string $identifier): ?int
-    {
-        try {
-            if (! Schema::hasTable('information_object')) {
-                return null;
-            }
-            $id = DB::table('information_object')
-                ->where('identifier', $identifier)
-                ->value('id');
-            if ($id) {
-                return (int) $id;
-            }
-            if (ctype_digit($identifier)) {
-                $hit = DB::table('information_object')->where('id', (int) $identifier)->value('id');
-                if ($hit) {
-                    return (int) $hit;
-                }
-            }
-        } catch (Throwable $e) {
-            // fall through
-        }
-        return null;
-    }
 
     private function logAudit(int $ioId, string $action, array $node): ?int
     {

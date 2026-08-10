@@ -46,9 +46,12 @@ use DOMXPath;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
+use AhgMetadataExport\Services\Importers\Concerns\MatchesExistingObject;
 
 class MarcXmlImporter
 {
+    use MatchesExistingObject;
+
     public const NS_MARC = 'http://www.loc.gov/MARC21/slim';
 
     /** @var string|null culture used for the i18n side of writes */
@@ -455,31 +458,6 @@ class MarcXmlImporter
         ]);
     }
 
-    private function matchExisting(string $identifier): ?int
-    {
-        try {
-            if (! Schema::hasTable('information_object')) {
-                return null;
-            }
-            // First try string match on io.identifier (most common round-trip)
-            $id = DB::table('information_object')
-                ->where('identifier', $identifier)
-                ->value('id');
-            if ($id) {
-                return (int) $id;
-            }
-            // Numeric 001 may be a raw io.id (export fallback path)
-            if (ctype_digit($identifier)) {
-                $hit = DB::table('information_object')->where('id', (int) $identifier)->value('id');
-                if ($hit) {
-                    return (int) $hit;
-                }
-            }
-        } catch (Throwable $e) {
-            // fall through
-        }
-        return null;
-    }
 
     /**
      * @return array{0: int, 1: string} [io_id, 'create'|'update']

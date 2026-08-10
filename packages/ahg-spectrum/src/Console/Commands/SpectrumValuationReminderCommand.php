@@ -31,6 +31,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgSpectrum\Console\Concerns\ResolvesReminderRecipient;
 
 /**
  * Emails curators when an object's most-recent valuation is older than
@@ -46,6 +47,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class SpectrumValuationReminderCommand extends Command
 {
+    use ResolvesReminderRecipient;
+
     protected $signature = 'ahg:spectrum-valuation-reminder';
     protected $description = 'Email curators when valuations are older than spectrum_valuation_reminder_days.';
 
@@ -123,32 +126,4 @@ class SpectrumValuationReminderCommand extends Command
         return self::SUCCESS;
     }
 
-    /**
-     * Best-effort recipient lookup: the object's repository's primary contact,
-     * or fall back to the first admin user. Returns null when no candidate
-     * exists - the caller skips silently in that case.
-     */
-    private function getRecipientForObject(int $objectId): ?int
-    {
-        // Repository contact (information_object.repository_id -> ?)
-        $repoId = DB::table('information_object')->where('id', $objectId)->value('repository_id');
-        if ($repoId) {
-            $contact = DB::table('contact_information')
-                ->where('actor_id', $repoId)
-                ->where('primary_contact', 1)
-                ->value('actor_id');
-            if ($contact) {
-                $userId = DB::table('user')->whereNotNull('email')->value('id');
-                if ($userId) return (int) $userId;
-            }
-        }
-        // Fallback: first user with an admin role.
-        $admin = DB::table('user as u')
-            ->join('user_group as ug', 'u.id', '=', 'ug.user_id')
-            ->join('aclgroup as g', 'ug.group_id', '=', 'g.id')
-            ->where('g.name', 'administrator')
-            ->whereNotNull('u.email')
-            ->value('u.id');
-        return $admin ? (int) $admin : null;
-    }
 }

@@ -31,6 +31,7 @@ use AhgRic\Support\RicGraphManifest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use AhgRic\Console\Concerns\ListsFusekiGraphs;
 
 /**
  * Purges Fuseki graphs whose entity row no longer exists in the relational
@@ -52,6 +53,8 @@ use Illuminate\Support\Facades\Log;
  */
 class FusekiOrphanCleanupCommand extends Command
 {
+    use ListsFusekiGraphs;
+
     protected $signature = 'ahg:fuseki-orphan-cleanup {--dry-run : Detect orphans + log them but do not DROP}';
     protected $description = 'Detect + purge Fuseki graphs whose entity row no longer exists.';
 
@@ -300,45 +303,6 @@ class FusekiOrphanCleanupCommand extends Command
         });
     }
 
-    /**
-     * Same SELECT as FusekiIntegrityCheckCommand. Kept duplicated rather than
-     * extracted into a shared helper because the two commands evolve at
-     * different paces and the SPARQL string is small.
-     */
-    private function listFusekiGraphsByPrefix(string $prefix): array
-    {
-        // Match entity SUBJECTS in the default graph or any named graph (entities
-        // are written to the default graph as subjects, not per-entity named
-        // graphs) - mirrors the fixed FusekiIntegrityCheckCommand.
-        $sparql = 'SELECT DISTINCT ?s WHERE { { ?s ?p ?o } UNION { GRAPH ?g { ?s ?p ?o } } FILTER(STRSTARTS(STR(?s), "' . $prefix . '")) }';
-        $endpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio') . '/sparql';
-
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $endpoint,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => http_build_query(['query' => $sparql, 'format' => 'json']),
-            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
-            CURLOPT_TIMEOUT => 30,
-        ]);
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode !== 200 || !$response) {
-            throw new \RuntimeException("Fuseki SELECT failed: HTTP {$httpCode}");
-        }
-
-        $data = json_decode($response, true);
-        $graphs = [];
-        foreach (($data['results']['bindings'] ?? []) as $row) {
-            if (isset($row['s']['value'])) {
-                $graphs[] = (string) $row['s']['value'];
-            }
-        }
-        return $graphs;
-    }
 
     private function parseGraphUri(string $uri): ?array
     {

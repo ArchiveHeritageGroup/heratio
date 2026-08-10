@@ -33,6 +33,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgResearch\Controllers\Concerns\ChecksProjectAccess;
 
 /**
  * heratio#1233 - Research OS Stage 16: Research Memory.
@@ -52,6 +53,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchMemoryController extends Controller
 {
+    use ChecksProjectAccess;
+
     use LogsResearchActivity;
 
     public function __construct(
@@ -332,40 +335,6 @@ class ResearchMemoryController extends Controller
         }
     }
 
-    /**
-     * Decide what this researcher may do with this project's memory. Owner +
-     * collaborators may view; owner, editor-collaborators and admins may edit.
-     * Resilient: any failure yields no access.
-     *
-     * @return array{can_view:bool,can_edit:bool}
-     */
-    private function access(object $project, object $researcher): array
-    {
-        $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id());
-        $isOwner = (int) ($project->owner_id ?? 0) === (int) ($researcher->id ?? 0);
-
-        $isCollaborator = false;
-        $isEditor       = false;
-        try {
-            if (Schema::hasTable('research_project_collaborator')) {
-                $collab = DB::table('research_project_collaborator')
-                    ->where('project_id', $project->id)
-                    ->where('researcher_id', $researcher->id)
-                    ->first();
-                if ($collab) {
-                    $isCollaborator = true;
-                    $isEditor = in_array($collab->role ?? '', ['owner', 'editor', 'admin'], true);
-                }
-            }
-        } catch (\Throwable $e) {
-            // No collaborator access on error.
-        }
-
-        return [
-            'can_view' => $isAdmin || $isOwner || $isCollaborator,
-            'can_edit' => $isAdmin || $isOwner || $isEditor,
-        ];
-    }
 
     /**
      * Common gate for the mutating actions. Returns [project, researcher] on

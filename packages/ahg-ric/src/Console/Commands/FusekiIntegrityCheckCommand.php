@@ -30,6 +30,7 @@ use AhgRic\Support\RicGraphManifest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use AhgRic\Console\Concerns\ListsFusekiGraphs;
 
 /**
  * Compares the ric_* relational tables to the GRAPH list in Fuseki and
@@ -45,6 +46,8 @@ use Illuminate\Support\Facades\Log;
  */
 class FusekiIntegrityCheckCommand extends Command
 {
+    use ListsFusekiGraphs;
+
     protected $signature = 'ahg:fuseki-integrity-check {--quiet-success : Suppress output when there are no discrepancies}';
     protected $description = 'Compare Fuseki graph state to ric_* relational tables; report drift.';
 
@@ -139,46 +142,6 @@ class FusekiIntegrityCheckCommand extends Command
         return self::SUCCESS;
     }
 
-    /**
-     * Returns the distinct entity SUBJECT URIs in Fuseki that start with our
-     * prefix, looking in BOTH the default graph and any named graph.
-     *
-     * fuseki-load writes RiC entities to the DEFAULT graph as subjects
-     * (urn:ahg:ric:<type>:<id>), not as one named graph per entity. The old
-     * `GRAPH ?g {}` form only saw named graphs, so it matched nothing and
-     * reported every entity missing (matched=0). Matching subjects fixes that.
-     */
-    private function listFusekiGraphsByPrefix(string $prefix): array
-    {
-        $sparql = 'SELECT DISTINCT ?s WHERE { { ?s ?p ?o } UNION { GRAPH ?g { ?s ?p ?o } } FILTER(STRSTARTS(STR(?s), "' . $prefix . '")) }';
-        $endpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio') . '/sparql';
-
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $endpoint,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => http_build_query(['query' => $sparql, 'format' => 'json']),
-            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
-            CURLOPT_TIMEOUT => 30,
-        ]);
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode !== 200 || !$response) {
-            throw new \RuntimeException("Fuseki SELECT failed: HTTP {$httpCode}");
-        }
-
-        $data = json_decode($response, true);
-        $graphs = [];
-        foreach (($data['results']['bindings'] ?? []) as $row) {
-            if (isset($row['s']['value'])) {
-                $graphs[] = (string) $row['s']['value'];
-            }
-        }
-        return $graphs;
-    }
 
     /**
      * Parse `urn:ahg:ric:{type}:{id}` into [type, id]; null if not our scheme.

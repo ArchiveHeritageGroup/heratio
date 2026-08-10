@@ -55,9 +55,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 use Throwable;
+use AhgC2pa\Concerns\ResolvesInferencePublicKey;
 
 final class PublicCheckController extends Controller
 {
+    use ResolvesInferencePublicKey;
+
     /** The three human-facing states the whole surface collapses to. */
     private const STATE_VERIFIED = 'verified';   // green
     private const STATE_INVALID  = 'invalid';    // red
@@ -515,39 +518,6 @@ final class PublicCheckController extends Controller
      * Key resolution - identical policy to ProvenanceRecordService.
      * ----------------------------------------------------------------- */
 
-    /**
-     * Resolve a kid to its raw Ed25519 public key. Prefers the ai_inference_key
-     * registry (shared with the EU AI Act chain), falls back to the on-disk
-     * signing pubkey. A kid we cannot resolve simply fails the signature check
-     * (-> invalid / red), which is the honest verdict for an unknown signer.
-     */
-    private function resolvePublicKey(string $kid): ?string
-    {
-        try {
-            if (Schema::hasTable('ai_inference_key')) {
-                $row = DB::table('ai_inference_key')->where('kid', $kid)->first(['public_key']);
-                if ($row !== null && is_string($row->public_key) && $row->public_key !== '') {
-                    return $row->public_key;
-                }
-            }
-        } catch (Throwable) {
-            // fall through to filesystem
-        }
-
-        if (!function_exists('storage_path')) {
-            return null;
-        }
-        $pkPath = storage_path('keys/inference-signing.pk');
-        if (!is_readable($pkPath)) {
-            return null;
-        }
-        $raw = @file_get_contents($pkPath);
-        if (!is_string($raw) || $raw === '') {
-            return null;
-        }
-        $candidateKid = substr(hash('sha256', $raw), 0, 16);
-        return $candidateKid === $kid ? $raw : null;
-    }
 
     private function cleanStr(mixed $v): ?string
     {

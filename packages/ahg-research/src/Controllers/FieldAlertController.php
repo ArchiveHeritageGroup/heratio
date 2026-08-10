@@ -32,6 +32,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgResearch\Controllers\Concerns\ChecksProjectAccess;
 
 /**
  * heratio#1235 - Research OS Stage 3: per-project Living Field Alerts.
@@ -48,6 +49,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class FieldAlertController extends Controller
 {
+    use ChecksProjectAccess;
+
     public function __construct(
         private FieldAlertService $service,
         private ResearchService $research,
@@ -210,38 +213,6 @@ class FieldAlertController extends Controller
         }
     }
 
-    /**
-     * Decide what this researcher may do with this project's alerts.
-     *
-     * @return array{can_view:bool,can_edit:bool}
-     */
-    private function access(object $project, object $researcher): array
-    {
-        $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id());
-        $isOwner = (int) ($project->owner_id ?? 0) === (int) ($researcher->id ?? 0);
-
-        $isCollaborator = false;
-        $isEditor       = false;
-        try {
-            if (Schema::hasTable('research_project_collaborator')) {
-                $collab = DB::table('research_project_collaborator')
-                    ->where('project_id', $project->id)
-                    ->where('researcher_id', $researcher->id)
-                    ->first();
-                if ($collab) {
-                    $isCollaborator = true;
-                    $isEditor = in_array($collab->role ?? '', ['owner', 'editor', 'admin'], true);
-                }
-            }
-        } catch (\Throwable $e) {
-            // No collaborator access on error.
-        }
-
-        return [
-            'can_view' => $isAdmin || $isOwner || $isCollaborator,
-            'can_edit' => $isAdmin || $isOwner || $isEditor,
-        ];
-    }
 
     /**
      * Gate for read actions. Returns [project, researcher, access] on success,

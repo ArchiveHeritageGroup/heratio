@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 use Throwable;
+use AhgC2pa\Concerns\ResolvesInferencePublicKey;
 
 /**
  * Provenance-record side of the C2PA layer. Distinct from C2paService, which
@@ -34,6 +35,8 @@ use Throwable;
  */
 final class ProvenanceRecordService
 {
+    use ResolvesInferencePublicKey;
+
     public function __construct(private C2paService $c2pa)
     {
     }
@@ -377,38 +380,6 @@ final class ProvenanceRecordService
         ];
     }
 
-    /**
-     * Resolve a kid to its raw Ed25519 public key. Prefers the ai_inference_key
-     * registry (shared with the EU AI Act chain), falls back to the on-disk
-     * signing pubkey.
-     */
-    private function resolvePublicKey(string $kid): ?string
-    {
-        try {
-            if (Schema::hasTable('ai_inference_key')) {
-                $row = DB::table('ai_inference_key')->where('kid', $kid)->first(['public_key']);
-                if ($row !== null && is_string($row->public_key) && $row->public_key !== '') {
-                    return $row->public_key;
-                }
-            }
-        } catch (Throwable) {
-            // fall through to filesystem
-        }
-
-        if (!function_exists('storage_path')) {
-            return null;
-        }
-        $pkPath = storage_path('keys/inference-signing.pk');
-        if (!is_readable($pkPath)) {
-            return null;
-        }
-        $raw = @file_get_contents($pkPath);
-        if (!is_string($raw) || $raw === '') {
-            return null;
-        }
-        $candidateKid = substr(hash('sha256', $raw), 0, 16);
-        return $candidateKid === $kid ? $raw : null;
-    }
 
     /**
      * List provenance records for an information object, newest first.

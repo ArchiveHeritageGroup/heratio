@@ -31,6 +31,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgSpectrum\Console\Concerns\ResolvesReminderRecipient;
 
 /**
  * Emails curators when an object's most-recent condition check is older
@@ -42,6 +43,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class SpectrumConditionCheckReminderCommand extends Command
 {
+    use ResolvesReminderRecipient;
+
     protected $signature = 'ahg:spectrum-condition-check-reminder';
     protected $description = 'Email curators when condition checks are overdue per spectrum_condition_check_interval.';
 
@@ -124,25 +127,4 @@ class SpectrumConditionCheckReminderCommand extends Command
         return self::SUCCESS;
     }
 
-    private function getRecipientForObject(int $objectId): ?int
-    {
-        $repoId = DB::table('information_object')->where('id', $objectId)->value('repository_id');
-        if ($repoId) {
-            $contact = DB::table('contact_information')
-                ->where('actor_id', $repoId)
-                ->where('primary_contact', 1)
-                ->value('actor_id');
-            if ($contact) {
-                $userId = DB::table('user')->whereNotNull('email')->value('id');
-                if ($userId) return (int) $userId;
-            }
-        }
-        $admin = DB::table('user as u')
-            ->join('user_group as ug', 'u.id', '=', 'ug.user_id')
-            ->join('aclgroup as g', 'ug.group_id', '=', 'g.id')
-            ->where('g.name', 'administrator')
-            ->whereNotNull('u.email')
-            ->value('u.id');
-        return $admin ? (int) $admin : null;
-    }
 }
