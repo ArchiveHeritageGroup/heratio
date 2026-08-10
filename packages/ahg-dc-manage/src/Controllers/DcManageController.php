@@ -28,9 +28,12 @@ namespace AhgDcManage\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\Concerns\PersistsObjectProperties;
 
 class DcManageController extends Controller
 {
+    use PersistsObjectProperties;
+
     /**
      * Dublin Core field names from AtoM sfDcPlugin.
      * Source standard: "Dublin Core Simple version 1.1"
@@ -386,31 +389,4 @@ class DcManageController extends Controller
         return collect();
     }
 
-    private function saveSerializedProperty(int $objectId, string $name, array $values, string $culture): void
-    {
-        $serialized = serialize(array_values(array_filter($values)));
-
-        $existing = DB::table('property')
-            ->where('object_id', $objectId)
-            ->where('name', $name)
-            ->first();
-
-        if ($existing) {
-            DB::table('property_i18n')
-                ->where('id', $existing->id)
-                ->where('culture', $culture)
-                ->update(['value' => $serialized]);
-        } elseif (! empty($values)) {
-            $propId = DB::table('property')->insertGetId([
-                'object_id' => $objectId,
-                'name' => $name,
-                'source_culture' => $culture,
-            ]);
-            DB::table('property_i18n')->insert([
-                'id' => $propId,
-                'culture' => $culture,
-                'value' => $serialized,
-            ]);
-        }
-    }
 }
