@@ -34,6 +34,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\AuthorizesProjectContext;
 
 /**
  * ReviewStudioController - Research OS Stage 14 (heratio#1230, epic #1222).
@@ -50,6 +51,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class ReviewStudioController extends Controller
 {
+    use AuthorizesProjectContext;
+
     use RendersResearchSidebar;
 
     use LogsResearchActivity;
@@ -64,21 +67,6 @@ class ReviewStudioController extends Controller
         $this->research = new ResearchService();
     }
 
-    /** Resolve [project, researcher] for a project id, mirroring loadProjectContext. */
-    protected function context(int $projectId): array
-    {
-        $researcher = $this->research->getResearcherByUserId(Auth::id());
-        if (! $researcher) {
-            abort(403);
-        }
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (! $project) {
-            abort(404, 'Project not found');
-        }
-        // SECURITY (#1308-parity): authorize the caller against the resolved project.
-        $this->assertProjectMember($projectId, (int) $researcher->id);
-        return [$project, $researcher];
-    }
 
 
     /** Review Studio landing: comment panel + reviewer-twin panel + run history. */

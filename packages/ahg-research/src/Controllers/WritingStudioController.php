@@ -34,6 +34,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\AuthorizesProjectContext;
 
 /**
  * WritingStudioController - Research OS Stage 13 (epic heratio#1222).
@@ -46,6 +47,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class WritingStudioController extends Controller
 {
+    use AuthorizesProjectContext;
+
     use RendersResearchSidebar;
 
     use LogsResearchActivity;
@@ -60,21 +63,6 @@ class WritingStudioController extends Controller
         $this->research = new ResearchService();
     }
 
-    /** Resolve [project, researcher] for a project id. */
-    protected function context(int $projectId): array
-    {
-        $researcher = $this->research->getResearcherByUserId(Auth::id());
-        if (! $researcher) {
-            abort(403);
-        }
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (! $project) {
-            abort(404, 'Project not found');
-        }
-        // SECURITY (#1308-parity): authorize the caller against the resolved project.
-        $this->assertProjectMember($projectId, (int) $researcher->id);
-        return [$project, $researcher];
-    }
 
 
     // =====================================================================

@@ -33,6 +33,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\AuthorizesProjectContext;
 
 /**
  * ContradictionEngineController - Research OS moonshot 17 (heratio#1236).
@@ -47,6 +48,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class ContradictionEngineController extends Controller
 {
+    use AuthorizesProjectContext;
+
     use RendersResearchSidebar;
 
     use AuthorizesProjectAccess;
@@ -60,21 +63,6 @@ class ContradictionEngineController extends Controller
         $this->research = new ResearchService();
     }
 
-    /** Resolve [project, researcher] for a project id, mirroring loadProjectContext. */
-    protected function context(int $projectId): array
-    {
-        $researcher = $this->research->getResearcherByUserId(Auth::id());
-        if (! $researcher) {
-            abort(403);
-        }
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (! $project) {
-            abort(404, 'Project not found');
-        }
-        // SECURITY (#1308-parity): authorize the caller against the resolved project.
-        $this->assertProjectMember($projectId, (int) $researcher->id);
-        return [$project, $researcher];
-    }
 
 
     /** Contradictions report for a project. */

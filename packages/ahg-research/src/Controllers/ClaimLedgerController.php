@@ -34,6 +34,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\AuthorizesProjectContext;
 
 /**
  * ClaimLedgerController - Research OS Stage 8 (heratio#1223).
@@ -47,6 +48,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class ClaimLedgerController extends Controller
 {
+    use AuthorizesProjectContext;
+
     use RendersResearchSidebar;
 
     use LogsResearchActivity;
@@ -61,21 +64,6 @@ class ClaimLedgerController extends Controller
         $this->research = new ResearchService();
     }
 
-    /** Resolve [project, researcher] for a project id, mirroring loadProjectContext. */
-    protected function context(int $projectId): array
-    {
-        $researcher = $this->research->getResearcherByUserId(Auth::id());
-        if (! $researcher) {
-            abort(403);
-        }
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (! $project) {
-            abort(404, 'Project not found');
-        }
-        // SECURITY (#1308-parity): authorize the caller against the resolved project.
-        $this->assertProjectMember($projectId, (int) $researcher->id);
-        return [$project, $researcher];
-    }
 
 
     /** List + filter claims for a project. */

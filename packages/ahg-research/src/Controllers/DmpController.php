@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 use AhgResearch\Controllers\Concerns\ResolvesResearchProject;
+use AhgResearch\Controllers\Concerns\ResolvesProjectContext;
 
 /**
  * heratio#1222 - Research OS: Data Management Plan (DMP) Builder.
@@ -50,6 +51,8 @@ use AhgResearch\Controllers\Concerns\ResolvesResearchProject;
  */
 class DmpController extends Controller
 {
+    use ResolvesProjectContext;
+
     use ResolvesResearchProject;
 
     use RendersResearchSidebar;
@@ -261,27 +264,6 @@ class DmpController extends Controller
     // Helpers (self-contained; getSidebarData is NOT used or edited)
     // ---------------------------------------------------------------------
 
-    /**
-     * Resolve project + current researcher. Aborts 403 if the user is not a
-     * registered researcher, 404 if the project is missing.
-     *
-     * @return array{0:?object,1:?object}
-     */
-    private function projectContext(int $projectId): array
-    {
-        $researcher = Auth::check() ? $this->research->getResearcherByUserId(Auth::id()) : null;
-        if (! $researcher) {
-            abort(403);
-        }
-        $project = $this->findProject($projectId);
-        if (! $project) {
-            abort(404, 'Project not found');
-        }
-        // SECURITY (#1308-parity): authorize the caller against the resolved project.
-        $this->assertProjectMember($projectId, (int) $researcher->id);
-
-        return [$project, $researcher];
-    }
 
 
 }
