@@ -174,25 +174,9 @@ class AnimationService
      */
     private function resolveGatewayKey(): string
     {
-        try {
-            $key = (string) (DB::table('ahg_ner_settings')
-                ->where('setting_key', 'api_key')
-                ->value('setting_value') ?? '');
-            if ($key !== '') {
-                return $key;
-            }
-            $key = (string) (DB::table('ahg_ai_settings')
-                ->where('feature', 'general')
-                ->where('setting_key', 'api_key')
-                ->value('setting_value') ?? '');
-            if ($key !== '') {
-                return $key;
-            }
-        } catch (\Throwable) {
-            // settings tables absent - no key.
-        }
-
-        return '';
+        // Canonical gateway-key resolution (adds the ai_services_api_key
+        // fallback this 2-step copy lacked; identical when api_key is set).
+        return (string) (\AhgAiServices\Support\AiServicesSettings::gatewayKey() ?? '');
     }
 
     /**
