@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\ResolvesResearchProject;
 
 /**
  * heratio#1224 - Research OS Stage 9: the per-project Decision Log.
@@ -50,6 +51,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class DecisionLogController extends Controller
 {
+    use ResolvesResearchProject;
+
     use RendersResearchSidebar;
 
     public function __construct(
@@ -220,19 +223,6 @@ class DecisionLogController extends Controller
     // Helpers
     // =========================================================================
 
-    /** Load the project row, or null. Never throws. */
-    private function loadProject(int $projectId): ?object
-    {
-        try {
-            if (! Schema::hasTable('research_project')) {
-                return null;
-            }
-
-            return DB::table('research_project')->where('id', $projectId)->first();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     /**
      * Decide what this researcher may do with this project's Decision Log.

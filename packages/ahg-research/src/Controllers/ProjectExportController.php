@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\ResolvesResearchProject;
 
 /**
  * heratio#1237 - Research OS #15: Open-format project export.
@@ -50,6 +51,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class ProjectExportController extends Controller
 {
+    use ResolvesResearchProject;
+
     use RendersResearchSidebar;
 
     public function __construct(
@@ -266,17 +269,6 @@ class ProjectExportController extends Controller
         return [$project, $researcher];
     }
 
-    private function loadProject(int $projectId): ?object
-    {
-        try {
-            if (! Schema::hasTable('research_project')) {
-                return null;
-            }
-            return DB::table('research_project')->where('id', $projectId)->first();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     /** Owner, collaborator, or admin may export. Resilient: error => no access. */
     private function canView(object $project, object $researcher): bool

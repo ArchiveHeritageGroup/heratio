@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Services\Concerns\ValidatesDmpId;
+use AhgResearch\Services\Concerns\NormalizesDateString;
 
 /**
  * heratio#1222 - Research OS: Research Funding tracker.
@@ -55,6 +56,8 @@ use AhgResearch\Services\Concerns\ValidatesDmpId;
  */
 class ResearchFundingService
 {
+    use NormalizesDateString;
+
     use ValidatesDmpId;
 
     public const FUNDER_TYPE_TAXONOMY = 'research_funder_type';
@@ -266,17 +269,6 @@ class ResearchFundingService
         return number_format((float) $num, 2, '.', '');
     }
 
-    private function dateOrNull(mixed $value): ?string
-    {
-        if ($value === null || trim((string) $value) === '') {
-            return null;
-        }
-        try {
-            return \Illuminate\Support\Carbon::parse((string) $value)->toDateString();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
 
     // ---------------------------------------------------------------------

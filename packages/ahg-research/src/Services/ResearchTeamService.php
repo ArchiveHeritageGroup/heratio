@@ -28,6 +28,7 @@ namespace AhgResearch\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgResearch\Services\Concerns\NormalizesDateString;
 
 /**
  * heratio#1222 - Research OS: Research Team & Collaborators register.
@@ -54,6 +55,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchTeamService
 {
+    use NormalizesDateString;
+
     public const ROLE_TAXONOMY   = 'research_team_role';
     public const STATUS_TAXONOMY = 'research_team_status';
 
@@ -236,17 +239,6 @@ class ResearchTeamService
         return $v === '' ? null : mb_substr($v, 0, $max);
     }
 
-    private function dateOrNull(mixed $value): ?string
-    {
-        if ($value === null || trim((string) $value) === '') {
-            return null;
-        }
-        try {
-            return \Illuminate\Support\Carbon::parse((string) $value)->toDateString();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     // ---------------------------------------------------------------------
     // ORCID handling (stored as the bare iD; rendered as a link; never fetched)

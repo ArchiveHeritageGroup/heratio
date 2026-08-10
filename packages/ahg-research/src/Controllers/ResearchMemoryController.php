@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Controllers\Concerns\ChecksProjectAccess;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\ResolvesResearchProject;
 
 /**
  * heratio#1233 - Research OS Stage 16: Research Memory.
@@ -54,6 +55,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class ResearchMemoryController extends Controller
 {
+    use ResolvesResearchProject;
+
     use RendersResearchSidebar;
 
     use ChecksProjectAccess;
@@ -324,19 +327,6 @@ class ResearchMemoryController extends Controller
     // Helpers
     // =========================================================================
 
-    /** Load the project row, or null. Never throws. */
-    private function loadProject(int $projectId): ?object
-    {
-        try {
-            if (! Schema::hasTable('research_project')) {
-                return null;
-            }
-
-            return DB::table('research_project')->where('id', $projectId)->first();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
 
     /**

@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Services\Concerns\ValidatesDmpId;
+use AhgResearch\Services\Concerns\NormalizesDateString;
 
 /**
  * heratio#1222 - Research OS: Research Ethics & Consent register.
@@ -52,6 +53,8 @@ use AhgResearch\Services\Concerns\ValidatesDmpId;
  */
 class ResearchEthicsService
 {
+    use NormalizesDateString;
+
     use ValidatesDmpId;
 
     public const APPROVAL_TYPE_TAXONOMY    = 'research_ethics_approval_type';
@@ -241,17 +244,6 @@ class ResearchEthicsService
         return $v === '' ? null : mb_substr($v, 0, $max);
     }
 
-    private function dateOrNull(mixed $value): ?string
-    {
-        if ($value === null || trim((string) $value) === '') {
-            return null;
-        }
-        try {
-            return \Illuminate\Support\Carbon::parse((string) $value)->toDateString();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
 
     // ---------------------------------------------------------------------

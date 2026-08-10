@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\Schema;
 use AhgResearch\Controllers\Concerns\ChecksProjectAccess;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 use AhgResearch\Controllers\Concerns\GuardsProjectView;
+use AhgResearch\Controllers\Concerns\ResolvesResearchProject;
 
 /**
  * heratio#1241 - Research OS #19 (moonshot 25): Impact Tracking.
@@ -52,6 +53,8 @@ use AhgResearch\Controllers\Concerns\GuardsProjectView;
  */
 class ImpactTrackingController extends Controller
 {
+    use ResolvesResearchProject;
+
     use GuardsProjectView;
 
     use RendersResearchSidebar;
@@ -138,19 +141,6 @@ class ImpactTrackingController extends Controller
     // Helpers
     // =========================================================================
 
-    /** Load the project row, or null. Never throws. */
-    private function loadProject(int $projectId): ?object
-    {
-        try {
-            if (! Schema::hasTable('research_project')) {
-                return null;
-            }
-
-            return DB::table('research_project')->where('id', $projectId)->first();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
 
 

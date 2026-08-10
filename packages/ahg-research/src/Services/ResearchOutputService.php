@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Services\Concerns\ValidatesDmpId;
+use AhgResearch\Services\Concerns\NormalizesDateString;
 
 /**
  * heratio#1222 - Research OS: Research Outputs register (CRIS / RIM).
@@ -47,6 +48,8 @@ use AhgResearch\Services\Concerns\ValidatesDmpId;
  */
 class ResearchOutputService
 {
+    use NormalizesDateString;
+
     use ValidatesDmpId;
 
     public const TYPE_TAXONOMY            = 'research_output_type';
@@ -228,17 +231,6 @@ class ResearchOutputService
         return $v === '' ? null : mb_substr($v, 0, $max);
     }
 
-    private function dateOrNull(mixed $value): ?string
-    {
-        if ($value === null || trim((string) $value) === '') {
-            return null;
-        }
-        try {
-            return \Illuminate\Support\Carbon::parse((string) $value)->toDateString();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
 
     // ---------------------------------------------------------------------

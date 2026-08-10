@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\ResolvesResearchProject;
 
 /**
  * heratio#1239 - Research OS #17 (moonshot 24): Grant Engine.
@@ -50,6 +51,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class GrantEngineController extends Controller
 {
+    use ResolvesResearchProject;
+
     use RendersResearchSidebar;
 
     use LogsResearchActivity;
@@ -389,18 +392,5 @@ class GrantEngineController extends Controller
         return [$project, $researcher];
     }
 
-    /** Project row, or null. Schema-guarded so a partial install never 500s. */
-    private function findProject(int $projectId): ?object
-    {
-        try {
-            if (! Schema::hasTable('research_project')) {
-                return null;
-            }
-
-            return DB::table('research_project')->where('id', $projectId)->first();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
 }
