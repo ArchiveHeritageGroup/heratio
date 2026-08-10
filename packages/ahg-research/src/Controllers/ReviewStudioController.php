@@ -33,6 +33,7 @@ use AhgResearch\Services\ReviewStudioService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 
 /**
  * ReviewStudioController - Research OS Stage 14 (heratio#1230, epic #1222).
@@ -49,6 +50,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ReviewStudioController extends Controller
 {
+    use RendersResearchSidebar;
+
     use LogsResearchActivity;
     use AuthorizesProjectAccess;
 
@@ -77,22 +80,6 @@ class ReviewStudioController extends Controller
         return [$project, $researcher];
     }
 
-    /** Build the shared sidebar payload (matches the rest of the research portal). */
-    protected function sidebar(string $active = 'projects'): array
-    {
-        $unread = 0;
-        try {
-            $researcher = $this->research->getResearcherByUserId(Auth::id());
-            if ($researcher) {
-                $unread = (int) DB::table('research_notification')
-                    ->where('researcher_id', $researcher->id)
-                    ->where('is_read', 0)->count();
-            }
-        } catch (\Throwable $e) {
-            // table may not exist yet
-        }
-        return ['sidebarActive' => $active, 'unreadNotifications' => $unread];
-    }
 
     /** Review Studio landing: comment panel + reviewer-twin panel + run history. */
     public function index(Request $request, int $projectId)

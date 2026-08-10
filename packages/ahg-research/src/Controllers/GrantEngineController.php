@@ -34,6 +34,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 
 /**
  * heratio#1239 - Research OS #17 (moonshot 24): Grant Engine.
@@ -49,6 +50,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class GrantEngineController extends Controller
 {
+    use RendersResearchSidebar;
+
     use LogsResearchActivity;
     use AuthorizesProjectAccess;
 
@@ -400,24 +403,4 @@ class GrantEngineController extends Controller
         }
     }
 
-    /** Sidebar payload matching the package convention, without touching getSidebarData. */
-    private function sidebar(string $active): array
-    {
-        $unread = 0;
-        try {
-            if (Auth::check() && Schema::hasTable('research_notification')) {
-                $researcher = $this->research->getResearcherByUserId(Auth::id());
-                if ($researcher) {
-                    $unread = (int) DB::table('research_notification')
-                        ->where('researcher_id', $researcher->id)
-                        ->where('is_read', 0)
-                        ->count();
-                }
-            }
-        } catch (\Throwable $e) {
-            // table may not exist yet - leave unread at 0
-        }
-
-        return ['sidebarActive' => $active, 'unreadNotifications' => $unread];
-    }
 }

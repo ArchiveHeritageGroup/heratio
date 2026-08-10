@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Controllers\Concerns\ChecksProjectAccess;
+use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 
 /**
  * heratio#1233 - Research OS Stage 16: Research Memory.
@@ -53,6 +54,8 @@ use AhgResearch\Controllers\Concerns\ChecksProjectAccess;
  */
 class ResearchMemoryController extends Controller
 {
+    use RendersResearchSidebar;
+
     use ChecksProjectAccess;
 
     use LogsResearchActivity;
@@ -389,25 +392,4 @@ class ResearchMemoryController extends Controller
         return $validated;
     }
 
-    /** Sidebar data without touching ResearchController::getSidebarData. */
-    private function sidebar(): array
-    {
-        $unread = 0;
-        try {
-            $researcher = $this->research->getResearcherByUserId(Auth::id());
-            if ($researcher && Schema::hasTable('research_notification')) {
-                $unread = (int) DB::table('research_notification')
-                    ->where('researcher_id', $researcher->id)
-                    ->where('is_read', 0)
-                    ->count();
-            }
-        } catch (\Throwable $e) {
-            // ignore
-        }
-
-        return [
-            'sidebarActive'       => 'projects',
-            'unreadNotifications' => $unread,
-        ];
-    }
 }

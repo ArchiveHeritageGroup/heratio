@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Controllers\Concerns\ChecksProjectAccess;
+use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 
 /**
  * heratio#1241 - Research OS #19 (moonshot 25): Impact Tracking.
@@ -50,6 +51,8 @@ use AhgResearch\Controllers\Concerns\ChecksProjectAccess;
  */
 class ImpactTrackingController extends Controller
 {
+    use RendersResearchSidebar;
+
     use ChecksProjectAccess;
 
     public function __construct(
@@ -196,25 +199,4 @@ class ImpactTrackingController extends Controller
         return [$project, $researcher, $access];
     }
 
-    /** Sidebar data without touching ResearchController::getSidebarData. */
-    private function sidebar(): array
-    {
-        $unread = 0;
-        try {
-            $researcher = $this->research->getResearcherByUserId(Auth::id());
-            if ($researcher && Schema::hasTable('research_notification')) {
-                $unread = (int) DB::table('research_notification')
-                    ->where('researcher_id', $researcher->id)
-                    ->where('is_read', 0)
-                    ->count();
-            }
-        } catch (\Throwable $e) {
-            // ignore
-        }
-
-        return [
-            'sidebarActive'       => 'projects',
-            'unreadNotifications' => $unread,
-        ];
-    }
 }

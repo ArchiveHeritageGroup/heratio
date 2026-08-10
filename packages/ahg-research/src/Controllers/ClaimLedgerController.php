@@ -33,6 +33,7 @@ use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 
 /**
  * ClaimLedgerController - Research OS Stage 8 (heratio#1223).
@@ -46,6 +47,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ClaimLedgerController extends Controller
 {
+    use RendersResearchSidebar;
+
     use LogsResearchActivity;
     use AuthorizesProjectAccess;
 
@@ -74,22 +77,6 @@ class ClaimLedgerController extends Controller
         return [$project, $researcher];
     }
 
-    /** Build the shared sidebar payload (matches the rest of the research portal). */
-    protected function sidebar(string $active = 'projects'): array
-    {
-        $unread = 0;
-        try {
-            $researcher = $this->research->getResearcherByUserId(Auth::id());
-            if ($researcher) {
-                $unread = (int) DB::table('research_notification')
-                    ->where('researcher_id', $researcher->id)
-                    ->where('is_read', 0)->count();
-            }
-        } catch (\Throwable $e) {
-            // table may not exist yet
-        }
-        return ['sidebarActive' => $active, 'unreadNotifications' => $unread];
-    }
 
     /** List + filter claims for a project. */
     public function index(Request $request, int $projectId)

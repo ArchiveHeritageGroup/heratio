@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 
 /**
  * heratio#1237 - Research OS #15: Open-format project export.
@@ -49,6 +50,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ProjectExportController extends Controller
 {
+    use RendersResearchSidebar;
+
     public function __construct(
         private ProjectExportService $export,
         private ResearchService $research,
@@ -310,25 +313,4 @@ class ProjectExportController extends Controller
         return $name !== '' ? $name : ($researcher->email ?? null);
     }
 
-    /** Sidebar data without touching ResearchController::getSidebarData. */
-    private function sidebar(): array
-    {
-        $unread = 0;
-        try {
-            $researcher = $this->research->getResearcherByUserId(Auth::id());
-            if ($researcher && Schema::hasTable('research_notification')) {
-                $unread = (int) DB::table('research_notification')
-                    ->where('researcher_id', $researcher->id)
-                    ->where('is_read', 0)
-                    ->count();
-            }
-        } catch (\Throwable $e) {
-            // ignore
-        }
-
-        return [
-            'sidebarActive'       => 'projects',
-            'unreadNotifications' => $unread,
-        ];
-    }
 }

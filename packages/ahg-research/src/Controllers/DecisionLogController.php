@@ -32,6 +32,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 
 /**
  * heratio#1224 - Research OS Stage 9: the per-project Decision Log.
@@ -49,6 +50,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class DecisionLogController extends Controller
 {
+    use RendersResearchSidebar;
+
     public function __construct(
         private DecisionLogService $service,
         private ResearchService $research,
@@ -325,25 +328,4 @@ class DecisionLogController extends Controller
         return $validated;
     }
 
-    /** Sidebar data without touching ResearchController::getSidebarData. */
-    private function sidebar(): array
-    {
-        $unread = 0;
-        try {
-            $researcher = $this->research->getResearcherByUserId(Auth::id());
-            if ($researcher && Schema::hasTable('research_notification')) {
-                $unread = (int) DB::table('research_notification')
-                    ->where('researcher_id', $researcher->id)
-                    ->where('is_read', 0)
-                    ->count();
-            }
-        } catch (\Throwable $e) {
-            // ignore
-        }
-
-        return [
-            'sidebarActive'       => 'projects',
-            'unreadNotifications' => $unread,
-        ];
-    }
 }

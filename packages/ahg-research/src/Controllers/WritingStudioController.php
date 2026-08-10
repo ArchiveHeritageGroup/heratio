@@ -33,6 +33,7 @@ use AhgResearch\Services\WritingStudioService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
 
 /**
  * WritingStudioController - Research OS Stage 13 (epic heratio#1222).
@@ -45,6 +46,8 @@ use Illuminate\Support\Facades\DB;
  */
 class WritingStudioController extends Controller
 {
+    use RendersResearchSidebar;
+
     use LogsResearchActivity;
     use AuthorizesProjectAccess;
 
@@ -73,22 +76,6 @@ class WritingStudioController extends Controller
         return [$project, $researcher];
     }
 
-    /** Build the shared sidebar payload (matches the rest of the research portal). */
-    protected function sidebar(string $active = 'projects'): array
-    {
-        $unread = 0;
-        try {
-            $researcher = $this->research->getResearcherByUserId(Auth::id());
-            if ($researcher) {
-                $unread = (int) DB::table('research_notification')
-                    ->where('researcher_id', $researcher->id)
-                    ->where('is_read', 0)->count();
-            }
-        } catch (\Throwable $e) {
-            // table may not exist yet
-        }
-        return ['sidebarActive' => $active, 'unreadNotifications' => $unread];
-    }
 
     // =====================================================================
     // DOCUMENTS
