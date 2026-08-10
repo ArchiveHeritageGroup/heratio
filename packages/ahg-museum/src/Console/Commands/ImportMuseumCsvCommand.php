@@ -18,9 +18,12 @@ namespace AhgMuseum\Console\Commands;
 
 use AhgMuseum\Services\MuseumCsvImporter;
 use Illuminate\Console\Command;
+use AhgCore\Console\Concerns\RunsCsvValidation;
 
 class ImportMuseumCsvCommand extends Command
 {
+    use RunsCsvValidation;
+
     protected $signature = 'sector:museum-csv-import
         {filename : CSV file to import}
         {--validate-only : Validate without importing}
@@ -84,34 +87,4 @@ class ImportMuseumCsvCommand extends Command
         return $counters['errors'] === 0 ? 0 : 1;
     }
 
-    protected function runValidation(MuseumCsvImporter $importer, string $filename): int
-    {
-        $this->info('Running validation only (no import)...');
-
-        $report = $importer->validate($filename);
-
-        $this->newLine();
-        $this->info('=== Validation Results ===');
-        $this->line(sprintf('Total rows: %d', $report['total']));
-        $this->line(sprintf('Errors: %d', count($report['errors'])));
-        $this->line(sprintf('Warnings: %d', count($report['warnings'])));
-
-        if (!$report['valid']) {
-            $this->newLine();
-            $this->error('Errors found:');
-            foreach (array_slice($report['errors'], 0, 20) as $err) {
-                $this->line('  ' . $err);
-            }
-        }
-
-        if (!empty($report['warnings'])) {
-            $this->newLine();
-            $this->warn('Warnings:');
-            foreach (array_slice($report['warnings'], 0, 20) as $warn) {
-                $this->line('  ' . $warn);
-            }
-        }
-
-        return $report['valid'] ? 0 : 1;
-    }
 }
