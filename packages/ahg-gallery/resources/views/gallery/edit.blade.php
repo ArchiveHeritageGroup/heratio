@@ -7,12 +7,13 @@
 <div class="sidebar-content">
   <section id="template-selector" class="sidebar-section">
     <h4>{{ __('Artwork Template') }}</h4>
+    @php $__tpl = old('template', $artwork->template ?? 'painting'); @endphp
     <div class="template-list">
-      <a href="javascript:void(0)" data-template="painting" class="template-option active"><i class="fas fa-palette"></i> <span>{{ __('Painting') }}</span></a>
-      <a href="javascript:void(0)" data-template="sculpture" class="template-option"><i class="fas fa-monument"></i> <span>{{ __('Sculpture') }}</span></a>
-      <a href="javascript:void(0)" data-template="photograph" class="template-option"><i class="fas fa-camera"></i> <span>{{ __('Photograph') }}</span></a>
-      <a href="javascript:void(0)" data-template="print" class="template-option"><i class="fas fa-print"></i> <span>{{ __('Print') }}</span></a>
-      <a href="javascript:void(0)" data-template="mixed_media" class="template-option"><i class="fas fa-layer-group"></i> <span>{{ __('Mixed Media') }}</span></a>
+      <a href="javascript:void(0)" data-template="painting" class="template-option {{ $__tpl === 'painting' ? 'active' : '' }}"><i class="fas fa-palette"></i> <span>{{ __('Painting') }}</span></a>
+      <a href="javascript:void(0)" data-template="sculpture" class="template-option {{ $__tpl === 'sculpture' ? 'active' : '' }}"><i class="fas fa-monument"></i> <span>{{ __('Sculpture') }}</span></a>
+      <a href="javascript:void(0)" data-template="photograph" class="template-option {{ $__tpl === 'photograph' ? 'active' : '' }}"><i class="fas fa-camera"></i> <span>{{ __('Photograph') }}</span></a>
+      <a href="javascript:void(0)" data-template="print" class="template-option {{ $__tpl === 'print' ? 'active' : '' }}"><i class="fas fa-print"></i> <span>{{ __('Print') }}</span></a>
+      <a href="javascript:void(0)" data-template="mixed_media" class="template-option {{ $__tpl === 'mixed_media' ? 'active' : '' }}"><i class="fas fa-layer-group"></i> <span>{{ __('Mixed Media') }}</span></a>
     </div>
   </section>
   <section id="completeness-meter" class="sidebar-section">
@@ -1874,7 +1875,13 @@
       form.addEventListener('change', function() { setTimeout(updateCompleteness, 100); });
     }
 
-    // Template switching (sets hidden template field + switch_template flag)
+    // Template switching. Purely client-side: set the active pill + the
+    // hidden `template` field. #1458 - the old code submitted the form to
+    // reload with the new template, but no server code reads switch_template
+    // and no fields are template-conditional, so the reload did nothing
+    // except revert the pill to the hardcoded default (Painting) and risk
+    // wiping half-entered input on validation. Toggling in place fixes the
+    // revert and preserves whatever the user has typed.
     document.querySelectorAll('.template-option').forEach(function(opt) {
       opt.addEventListener('click', function(e) {
         e.preventDefault();
@@ -1884,19 +1891,9 @@
         // Update active class
         document.querySelectorAll('.template-option').forEach(function(o) { o.classList.remove('active'); });
         this.classList.add('active');
-        // Update hidden template field
+        // Update hidden template field so the choice is submitted on save
         var templateInput = form.querySelector('input[name="template"]');
         if (templateInput) templateInput.value = tpl;
-        // Add switch_template flag and submit to reload with new template
-        var switchFlag = form.querySelector('input[name="switch_template"]');
-        if (!switchFlag) {
-          switchFlag = document.createElement('input');
-          switchFlag.type = 'hidden';
-          switchFlag.name = 'switch_template';
-          form.appendChild(switchFlag);
-        }
-        switchFlag.value = tpl;
-        form.submit();
       });
     });
 
