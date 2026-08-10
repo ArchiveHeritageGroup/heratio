@@ -79,10 +79,21 @@ class TranslationCoverageCommand extends Command
         $headers = ['locale', 'JSON keys', 'translated', '% translated', 'covers ref', '% coverage'];
         $rows = [];
         $worst = 100.0;
+        $malformed = [];
 
         foreach ($locales as $locale) {
             $jsonPath = $langDir.'/'.$locale.'.json';
-            $data = json_decode(@file_get_contents($jsonPath) ?: '{}', true) ?? [];
+            $raw = trim((string) @file_get_contents($jsonPath));
+            // A locale file MUST be a JSON object (key-value map). Files that
+            // are JSON arrays (`[...]`) or scalars contribute 0 usable strings
+            // - the exact #1410 regression - so flag them and treat as empty.
+            $decoded = $raw !== '' ? json_decode($raw, true) : [];
+            if (($raw !== '' && $raw[0] !== '{') || ! is_array($decoded)) {
+                $malformed[] = $locale;
+                $data = [];
+            } else {
+                $data = $decoded;
+            }
 
             $jsonKeys = count($data);
             $translated = 0;
@@ -119,6 +130,19 @@ class TranslationCoverageCommand extends Command
 
         $this->table($headers, $rows);
         $this->newLine();
+
+        // Malformed locale files are always a failure (regression guard, #1410):
+        // they parse as something other than a JSON object and silently
+        // contribute zero strings.
+        if (! empty($malformed)) {
+            $this->error(sprintf(
+                '%d malformed locale file(s) (not a JSON object): %s',
+                count($malformed),
+                implode(', ', $malformed)
+            ));
+
+            return self::FAILURE;
+        }
 
         if ($failBelow !== null && $worst < $failBelow) {
             $this->error(sprintf(

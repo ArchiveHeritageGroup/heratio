@@ -81,6 +81,15 @@ jobs:
             echo "files=${files}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Check locale coverage + malformed files (#1410)
+        run: |
+          set -o pipefail
+          # Prints the per-locale coverage table (drift is visible on every run)
+          # and FAILS the build if any lang/*.json is not a JSON object - the
+          # #1410 malformed-locale-file regression guard. Does not gate on
+          # coverage % (that is machine-fill work tracked in #1410/#1416).
+          php artisan ahg:translation-coverage | tee coverage-output.txt
+
       - name: Comment on PR with lint summary
         if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@v7
