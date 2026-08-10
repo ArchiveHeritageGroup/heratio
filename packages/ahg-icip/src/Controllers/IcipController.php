@@ -30,9 +30,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgIcip\Concerns\LogsIcipAccess;
 
 class IcipController extends Controller
 {
+    use LogsIcipAccess;
+
     /**
      * Culture for i18n joins
      */
@@ -2018,41 +2021,6 @@ class IcipController extends Controller
         return app(\AhgIcip\Services\IcipAccessService::class)->check($objectId, $userId);
     }
 
-    /**
-     * #1427 item 4: append an ICIP graded-access decision to icip_access_log.
-     * Best-effort - never throws into the access path. Records the decision, the
-     * restriction types in play, the acting user and a human reason.
-     *
-     * @param  array<string,mixed>  $result
-     */
-    protected function logIcipAccess(int $objectId, ?int $userId, array $result): void
-    {
-        if (! Schema::hasTable('icip_access_log')) {
-            return;
-        }
-        try {
-            $decision = $result['allowed']
-                ? (! empty($result['requires_consultation']) ? 'allow_consultation' : 'allow')
-                : 'deny';
-            $types = collect($result['restrictions'] ?? [])
-                ->pluck('restriction_type')->filter()->unique()->implode(',');
-            $reason = $result['blocked_reason']
-                ?? $result['access_reason']
-                ?? (! empty($result['requires_consultation'])
-                    ? 'Consultation required: '.implode(', ', $result['consultation_restrictions'] ?? [])
-                    : 'Access to ICIP-restricted object');
-            DB::table('icip_access_log')->insert([
-                'information_object_id' => $objectId,
-                'user_id' => $userId,
-                'decision' => $decision,
-                'restriction_types' => mb_substr((string) $types, 0, 255),
-                'reason' => mb_substr((string) $reason, 0, 255),
-                'created_at' => now(),
-            ]);
-        } catch (\Throwable $e) {
-            // audit must never break access evaluation
-        }
-    }
 
     /**
      * Update ICIP summary for an object

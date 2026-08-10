@@ -65,9 +65,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use AhgApi\Concerns\ResolvesTermName;
 use AhgApi\Concerns\ResolvesPublisherName;
+use AhgApi\Concerns\FetchesSubjectTerms;
 
 class DatasetController extends Controller
 {
+    use FetchesSubjectTerms;
+
     use ResolvesPublisherName;
 
     use ResolvesTermName;
@@ -376,30 +379,6 @@ class DatasetController extends Controller
     }
 
 
-    /**
-     * Subject access points for a record as a flat list. Best-effort - [] on a
-     * schema variance.
-     *
-     * @return array<int,string>
-     */
-    protected function subjectsList(int $objectId): array
-    {
-        try {
-            return DB::table('object_term_relation as otr')
-                ->join('term_i18n as ti', function ($j) {
-                    $j->on('otr.term_id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
-                ->where('otr.object_id', $objectId)
-                ->whereNotNull('ti.name')
-                ->distinct()
-                ->pluck('ti.name')
-                ->filter()
-                ->values()
-                ->all();
-        } catch (\Throwable $e) {
-            return [];
-        }
-    }
 
     /**
      * Subjects joined into a single CSV cell with " | " (fputcsv quotes the cell

@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 use Throwable;
+use AhgC2pa\Concerns\DetectsC2paBinary;
 
 /**
  * Service entry point used by Heratio code that wants to attach a C2PA
@@ -38,6 +39,8 @@ use Throwable;
  */
 final class C2paService
 {
+    use DetectsC2paBinary;
+
     /**
      * @param string|null $c2paToolBinary path to the c2pa-tools CLI, or null to auto-detect
      */
@@ -50,34 +53,6 @@ final class C2paService
         }
     }
 
-    /**
-     * Resolve the native c2patool binary. Prefers the configured path
-     * (config('heratio.c2patool_bin'), default /usr/local/bin/c2patool) and
-     * falls back to a small PATH probe so the package keeps working on hosts
-     * that installed the tool somewhere else. Returns null when no usable
-     * binary is found - the embed paths degrade to sidecars rather than fail.
-     */
-    private static function autodetectBinary(): ?string
-    {
-        // Config-first: an explicit, env-overridable host path.
-        if (function_exists('config')) {
-            $configured = config('heratio.c2patool_bin');
-            if (is_string($configured) && $configured !== '' && is_executable($configured)) {
-                return $configured;
-            }
-        }
-
-        foreach (['/usr/local/bin/c2patool', '/usr/bin/c2patool'] as $candidate) {
-            if (is_executable($candidate)) {
-                return $candidate;
-            }
-        }
-        $which = @shell_exec('command -v c2patool 2>/dev/null');
-        if (is_string($which) && trim($which) !== '') {
-            return trim($which);
-        }
-        return null;
-    }
 
     /**
      * Public read-only accessor for the resolved c2patool path (or null when

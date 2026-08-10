@@ -61,9 +61,12 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use AhgApi\Concerns\ResolvesTermName;
 use AhgApi\Concerns\ResolvesPublisherName;
+use AhgApi\Concerns\FetchesSubjectTerms;
 
 class OaiPmhController extends Controller
 {
+    use FetchesSubjectTerms;
+
     use ResolvesPublisherName;
 
     use ResolvesTermName;
@@ -517,29 +520,6 @@ class OaiPmhController extends Controller
     }
 
 
-    /**
-     * Subject access points (taxonomy 35 - subjects). dc:subject.
-     *
-     * @return array<int,string>
-     */
-    protected function subjects(int $objectId): array
-    {
-        try {
-            return DB::table('object_term_relation as otr')
-                ->join('term_i18n as ti', function ($j) {
-                    $j->on('otr.term_id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
-                ->where('otr.object_id', $objectId)
-                ->whereNotNull('ti.name')
-                ->distinct()
-                ->pluck('ti.name')
-                ->filter()
-                ->values()
-                ->all();
-        } catch (\Throwable $e) {
-            return [];
-        }
-    }
 
     /**
      * Conditions / rights statement, if any, as dc:rights. Best-effort: pulls a

@@ -21,9 +21,12 @@
 namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
+use AhgMetadataExport\Services\Exporters\Concerns\LoadsScalarProperty;
 
 class ModsSerializer
 {
+    use LoadsScalarProperty;
+
     use InformationObjectFetcher;
 
     public function getFormat(): string
@@ -300,26 +303,6 @@ class ModsSerializer
             ->get();
     }
 
-    private function loadFirstScalarProperty(int $ioId, string $name, string $culture): string
-    {
-        $raw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-            ->where('property.object_id', $ioId)
-            ->where('property.name', $name)
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
-        if (! $raw) {
-            return '';
-        }
-        $decoded = @unserialize($raw, ['allowed_classes' => false]);
-        if (is_string($decoded)) {
-            return $decoded;
-        }
-        if (is_array($decoded)) {
-            return implode("\n\n", array_filter($decoded));
-        }
-        return (string) $raw;
-    }
 
     /**
      * Map the IO level + (when present) its first digital-object MIME type

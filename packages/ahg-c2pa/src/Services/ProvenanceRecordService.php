@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 use Throwable;
 use AhgC2pa\Concerns\ResolvesInferencePublicKey;
+use AhgC2pa\Concerns\DetectsC2paBinary;
 
 /**
  * Provenance-record side of the C2PA layer. Distinct from C2paService, which
@@ -35,6 +36,8 @@ use AhgC2pa\Concerns\ResolvesInferencePublicKey;
  */
 final class ProvenanceRecordService
 {
+    use DetectsC2paBinary;
+
     use ResolvesInferencePublicKey;
 
     public function __construct(private C2paService $c2pa)
@@ -79,30 +82,6 @@ final class ProvenanceRecordService
         ];
     }
 
-    /**
-     * Resolve the native c2patool binary. Prefers the configured host path
-     * (config('heratio.c2patool_bin'), default /usr/local/bin/c2patool), then
-     * a small PATH probe. Returns null when no usable binary is found.
-     */
-    private function detectC2paTool(): ?string
-    {
-        if (function_exists('config')) {
-            $configured = config('heratio.c2patool_bin');
-            if (is_string($configured) && $configured !== '' && is_executable($configured)) {
-                return $configured;
-            }
-        }
-        foreach (['/usr/local/bin/c2patool', '/usr/bin/c2patool'] as $candidate) {
-            if (is_executable($candidate)) {
-                return $candidate;
-            }
-        }
-        $which = @shell_exec('command -v c2patool 2>/dev/null');
-        if (is_string($which) && trim($which) !== '') {
-            return trim($which);
-        }
-        return null;
-    }
 
     /**
      * Record a digitisation-provenance entry and (when the asset file is

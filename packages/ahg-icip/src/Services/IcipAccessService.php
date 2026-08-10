@@ -27,6 +27,7 @@ namespace AhgIcip\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgIcip\Concerns\LogsIcipAccess;
 
 /**
  * #1427 - the single, shared source of the graded ICIP cultural-access decision.
@@ -44,6 +45,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class IcipAccessService
 {
+    use LogsIcipAccess;
+
     /** Human labels for the ten restriction types (mirrors IcipController::RESTRICTION_TYPES). */
     public const RESTRICTION_TYPES = [
         'community_permission_required' => 'Community Permission Required',
@@ -194,33 +197,4 @@ class IcipAccessService
             ->get();
     }
 
-    /** Append-only audit of a graded access decision. Never breaks evaluation. */
-    private function logAccess(int $objectId, ?int $userId, array $result): void
-    {
-        if (! Schema::hasTable('icip_access_log')) {
-            return;
-        }
-        try {
-            $decision = $result['allowed']
-                ? (! empty($result['requires_consultation']) ? 'allow_consultation' : 'allow')
-                : 'deny';
-            $types = collect($result['restrictions'] ?? [])
-                ->pluck('restriction_type')->filter()->unique()->implode(',');
-            $reason = $result['blocked_reason']
-                ?? $result['access_reason']
-                ?? (! empty($result['requires_consultation'])
-                    ? 'Consultation required: '.implode(', ', $result['consultation_restrictions'] ?? [])
-                    : 'Access to ICIP-restricted object');
-            DB::table('icip_access_log')->insert([
-                'information_object_id' => $objectId,
-                'user_id' => $userId,
-                'decision' => $decision,
-                'restriction_types' => mb_substr((string) $types, 0, 255),
-                'reason' => mb_substr((string) $reason, 0, 255),
-                'created_at' => now(),
-            ]);
-        } catch (\Throwable $e) {
-            // audit must never break access evaluation
-        }
-    }
 }
