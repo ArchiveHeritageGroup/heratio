@@ -671,7 +671,7 @@
 
         <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon.min.js') }}"></script>
         <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-filtering.js') }}"></script>
-        <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
+        <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}?v={{ @filemtime(public_path('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js')) ?: time() }}"></script>
         @php
           // #1457: when the record has more than one digital object (primary
           // master(s) + attachments), build the list the viewer's Mirador mode

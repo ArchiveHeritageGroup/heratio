@@ -32,12 +32,17 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
     var osdViewer = null;
     var miradorLoaded = false;
 
-    // Build IIIF tile source for formats that need Cantaloupe (TIFF, JP2, etc.)
+    // Build IIIF tile source so OSD gets true deep-zoom (tiled pyramid) rather
+    // than a flat single-resolution <img>. Cantaloupe handles the common raster
+    // formats - TIFF, JP2/JPX, JPEG and PNG - so all of them route through it.
+    // webp/gif/svg/avif are deliberately excluded (Cantaloupe 501s on webp) and
+    // keep the plain-image path. If the tile source fails for any image, OSD
+    // falls back to the plain image (open-failed handler below) - no regression.
     // server_url override (cfg.server_url) lets ops front the viewer with a
     // remote IIIF image server instead of the local Cantaloupe proxy. Empty
     // string keeps the legacy behaviour (current origin + /iiif/3/).
     var iiifOrigin = (cfg.server_url && cfg.server_url.length) ? cfg.server_url : window.location.origin;
-    var needsIiif = /\.(tiff?|jp2|jpx)$/i.test(imageUrl);
+    var needsIiif = /\.(tiff?|jp2|jpx|jpe?g|png)$/i.test(imageUrl);
     var iiifTileSource = null;
     if (needsIiif) {
         // Convert URL path to Cantaloupe identifier: strip origin, replace / with _SL_
@@ -102,6 +107,20 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
                 immediateRender: true,
                 crossOriginPolicy: 'Anonymous'
             });
+            // Safety net: if the Cantaloupe/IIIF tile source can't be opened
+            // (image server down, unsupported/corrupt source, path miss), fall
+            // back once to the plain single-resolution image so the viewer
+            // never ends up blank. Only triggers when an IIIF source was used.
+            if (iiifTileSource) {
+                var iiifFallbackUsed = false;
+                osdViewer.addHandler('open-failed', function () {
+                    if (iiifFallbackUsed) { return; }
+                    iiifFallbackUsed = true;
+                    try {
+                        osdViewer.open({ type: 'image', url: imageUrl, buildPyramid: false });
+                    } catch (e) { /* leave the OSD error message in place */ }
+                });
+            }
             buildFilterToolbar();
             // Issue #698 - scalebar + magnifier toolbar wiring.
             wireHeratioScalebar();
