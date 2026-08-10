@@ -230,26 +230,7 @@ class ImageSearchStrategy implements SearchStrategyInterface
      */
     protected function resolveApiKey(): ?string
     {
-        try {
-            $key = DB::table('ahg_ner_settings')
-                ->where('setting_key', 'api_key')
-                ->value('setting_value');
-            if ($key !== null && $key !== '') {
-                return (string) $key;
-            }
-
-            $key = DB::table('ahg_ai_settings')
-                ->where('feature', 'general')
-                ->where('setting_key', 'api_key')
-                ->value('setting_value');
-            if ($key !== null && $key !== '') {
-                return (string) $key;
-            }
-        } catch (Throwable $e) {
-            // settings tables absent - fall through.
-        }
-
-        return AiServicesSettings::apiKey();
+        return AiServicesSettings::gatewayKey();
     }
 
     protected function setting(string $key, ?string $default = null): ?string

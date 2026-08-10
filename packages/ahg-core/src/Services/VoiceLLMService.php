@@ -437,26 +437,7 @@ class VoiceLLMService
      */
     private function resolveGatewayKey(): ?string
     {
-        try {
-            $key = DB::table('ahg_ner_settings')
-                ->where('setting_key', 'api_key')
-                ->value('setting_value');
-            if ($key !== null && $key !== '') {
-                return (string) $key;
-            }
-
-            $key = DB::table('ahg_ai_settings')
-                ->where('feature', 'general')
-                ->where('setting_key', 'api_key')
-                ->value('setting_value');
-            if ($key !== null && $key !== '') {
-                return (string) $key;
-            }
-        } catch (\Throwable $e) {
-            // settings tables absent during boot - fall through.
-        }
-
-        return AiServicesSettings::apiKey();
+        return AiServicesSettings::gatewayKey();
     }
 
     private function loadSettings(): array

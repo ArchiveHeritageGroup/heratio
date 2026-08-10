@@ -91,6 +91,42 @@ class AiServicesSettings
     public static function apiKey(): ?string     { return self::raw('ai_services_api_key'); }
     public static function apiTimeout(): int     { return self::int('ai_services_api_timeout', 60); }
 
+    /**
+     * Resolve the AHG AI gateway API key, in precedence order:
+     *   1. ahg_ner_settings.api_key
+     *   2. ahg_ai_settings (feature=general).api_key
+     *   3. the ai_services_api_key setting (apiKey())
+     *
+     * This exact 3-step resolution was copy-pasted verbatim into seven
+     * services/commands as resolveApiKey()/resolveGatewayKey(); they now
+     * delegate here so the gateway-key source is defined in one place
+     * (per the "never bypass the gateway" rule - one place to get the key
+     * and scope right). Returns null if none is configured.
+     */
+    public static function gatewayKey(): ?string
+    {
+        try {
+            $key = DB::table('ahg_ner_settings')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+
+            $key = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', 'api_key')
+                ->value('setting_value');
+            if ($key !== null && $key !== '') {
+                return (string) $key;
+            }
+        } catch (\Throwable $e) {
+            // settings tables absent during boot - fall through.
+        }
+
+        return self::apiKey();
+    }
+
     // ── NER (already wired - kept here for completeness) ──────────────
 
     public static function nerEnabled(): bool    { return self::bool('ner_enabled', true); }
