@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
+use AhgReports\Controllers\Concerns\BuildsReportCards;
 
 /**
  * North Star Cockpit - a single read-only, demo-ready overview of the
@@ -49,6 +50,8 @@ use Illuminate\View\View;
  */
 class NorthStarCockpitController extends Controller
 {
+    use BuildsReportCards;
+
     public function index(): View
     {
         $groups = [
@@ -204,35 +207,6 @@ class NorthStarCockpitController extends Controller
         ]);
     }
 
-    /**
-     * Build a capability card definition. Link/metric resolution happens
-     * later so that a single failure can never abort the list build.
-     *
-     * @param  array<string,mixed>  $opts
-     * @return array<string,mixed>
-     */
-    private function card(
-        string $key,
-        string $title,
-        string $description,
-        string $icon,
-        string $route,
-        array $opts = []
-    ): array {
-        return [
-            'key'            => $key,
-            'title'          => $title,
-            'description'    => $description,
-            'icon'           => $icon,
-            'route'          => $route,
-            'fallback_route' => $opts['fallback_route'] ?? null,
-            'route_param'    => $opts['route_param'] ?? [],
-            'metric_table'   => $opts['metric_table'] ?? null,
-            'metric_label'   => $opts['metric_label'] ?? null,
-            'url'            => null,
-            'metric'         => null,
-        ];
-    }
 
     /**
      * Resolve the public "Open" link for a card, preferring the primary
@@ -262,63 +236,5 @@ class NorthStarCockpitController extends Controller
         return null;
     }
 
-    /**
-     * Best-effort metric: a single cheap COUNT against a table that is
-     * confirmed present first. Every step is guarded so a missing table,
-     * a permissions error, or any driver exception simply yields no badge.
-     *
-     * @param  array<string,mixed>  $card
-     * @return array<string,mixed>|null
-     */
-    private function resolveMetric(array $card): ?array
-    {
-        $table = $card['metric_table'] ?? null;
 
-        if (! $table) {
-            return null;
-        }
-
-        try {
-            if (! Schema::hasTable($table)) {
-                return null;
-            }
-
-            $count = DB::table($table)->count();
-
-            return [
-                'value' => $count,
-                'label' => $card['metric_label'] ?? 'records',
-            ];
-        } catch (\Throwable $e) {
-            // Absent package, missing column, locked table, driver error -
-            // none of these should ever break the cockpit. No metric shown.
-            return null;
-        }
-    }
-
-    /**
-     * Roll up headline numbers for the hero strip.
-     *
-     * @param  array<int,array<string,mixed>>  $groups
-     * @return array<string,int>
-     */
-    private function summarise(array $groups): array
-    {
-        $total = 0;
-        $live  = 0;
-
-        foreach ($groups as $group) {
-            foreach ($group['cards'] as $card) {
-                $total++;
-                if (! empty($card['url'])) {
-                    $live++;
-                }
-            }
-        }
-
-        return [
-            'total' => $total,
-            'live'  => $live,
-        ];
-    }
 }
