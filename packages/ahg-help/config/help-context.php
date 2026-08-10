@@ -99,10 +99,42 @@ return [
         'admin/translation'          => 'translation-user-guide',
         'admin/vendor'               => 'vendor-user-guide',
         'admin/cdpa'                 => 'cdpa-user-guide',
+
+        // ── Public landing-page wiring pass (#1332 follow-up) ────────────────
+        // Every top-level public browse/landing page had fallen through to the
+        // generic "no specific help for this page" message. Map each to its
+        // verified user guide so the header help button is contextual there
+        // too. Every slug below is a published help_article row.
+        'informationobject'          => 'information-object-manage-user-guide',
+        'physicalobject'             => 'storage-manage-user-guide',
+        'rightsholder'               => 'rights-management-user-guide',
+        'ric-capture'                => 'ric-user-guide',
+        'ric'                        => 'ric-user-guide',
+        'clipboard'                  => 'cart-user-guide',
+        'opac'                       => 'library-user-guide',
+        'genres'                     => 'semantic-search-user-guide',
+        'places'                     => 'semantic-search-user-guide',
+        'themes'                     => 'semantic-search-user-guide',
+        'at-risk'                    => 'endangered-heritage-dashboard',
+        'ext-rights-admin'           => 'extended-rights-user-guide',
+        'sru'                        => 'z3950-user-guide',
+        'oai'                        => 'oai-user-guide',
+        'reconstructions'            => 'reconstruction-montage-user-guide',
+        'verified-records'           => 'c2pa-provenance',
+        'verify'                     => 'c2pa-provenance',
+        'settings'                   => 'ahg-settings-user-guide',
+        'about'                      => 'user-manual',
+        'credits'                    => 'user-manual',
+        'homepage'                   => 'user-manual',
+        'mva'                        => 'user-manual',
     ],
 
     // Exact route-name overrides (win over path prefixes). e.g.
     //   'clipboard.index' => 'some-clipboard-article',
     'routes' => [
+        // Home/landing page: the resolver skips the bare '/' path, so the
+        // homepage can only be reached by its route name.
+        'home'     => 'user-manual',
+        'homepage' => 'user-manual',
     ],
 ];
