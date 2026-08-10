@@ -230,6 +230,15 @@
     @endif
     @endif
 
+    {{-- Artwork placement (#1459) - staff requests to place works in offices/shared spaces. --}}
+    @if(Route::has('artwork-request.review'))
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">{{ __('Artwork placement') }}</h6></li>
+    <li><a class="dropdown-item" href="{{ route('artwork-request.review') }}"><i class="fas fa-clipboard-check me-2"></i>{{ __('Review queue') }}</a></li>
+    <li><a class="dropdown-item" href="{{ route('artwork-request.placements') }}"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Out on campus') }}</a></li>
+    <li><a class="dropdown-item" href="{{ route('artwork-request.approvers') }}"><i class="fas fa-user-check me-2"></i>{{ __('Approvers') }}</a></li>
+    @endif
+
     {{-- Workflow (gated by ahg_workflow table existence - ahg-workflow feature, heratio#143) --}}
     @php
       $hasWorkflow = false;

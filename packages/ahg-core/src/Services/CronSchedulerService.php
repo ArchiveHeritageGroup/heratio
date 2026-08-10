@@ -460,6 +460,9 @@ class CronSchedulerService
                 ['slug' => 'museum-aat-sync', 'name' => 'AAT Sync', 'description' => 'Synchronise museum object classifications with the Getty Art & Architecture Thesaurus.', 'artisan_command' => 'ahg:museum-aat-sync --depth=3', 'cron_expression' => '0 2 1 * *', 'duration_hint' => 'long', 'log_file' => 'logs/museum-aat-sync.log'],
                 ['slug' => 'museum-exhibition', 'name' => 'Exhibition Processing', 'description' => 'Process exhibition scheduling, loan status updates, and availability changes.', 'artisan_command' => 'ahg:museum-exhibition --process', 'cron_expression' => '0 7 * * *', 'duration_hint' => 'medium', 'log_file' => 'logs/museum-exhibition.log'],
             ],
+            'Artwork Placement' => [
+                ['slug' => 'artwork-remind', 'name' => 'Artwork Placement Reminders', 'description' => 'Overdue and due-soon reminders for artworks placed in offices and shared spaces (#1459). No-ops cleanly when nothing is out on placement.', 'artisan_command' => 'artwork:remind', 'cron_expression' => '0 8 * * *', 'duration_hint' => 'short', 'log_file' => 'logs/artwork-request.log'],
+            ],
             'Portable Packages' => [
                 ['slug' => 'portable-cleanup', 'name' => 'Portable Cleanup', 'description' => 'Remove expired portable export packages from the staging area.', 'artisan_command' => 'ahg:portable-cleanup', 'cron_expression' => '0 3 * * *', 'duration_hint' => 'short', 'log_file' => 'logs/portable-cleanup.log'],
             ],
