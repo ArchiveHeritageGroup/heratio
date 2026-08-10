@@ -477,6 +477,9 @@ class CronSchedulerService
                 ['slug' => 'naz-closure-check', 'name' => 'NAZ Closure Check', 'description' => 'Check records against National Archives of Zimbabwe closure periods.', 'artisan_command' => 'ahg:naz-closure-check', 'cron_expression' => '0 6 1 * *', 'duration_hint' => 'medium', 'log_file' => 'logs/naz-closure.log'],
                 ['slug' => 'naz-transfer-due', 'name' => 'NAZ Transfer Due', 'description' => 'Identify records due for transfer to the National Archives within the specified days.', 'artisan_command' => 'ahg:naz-transfer-due --days=90', 'cron_expression' => '0 6 1 * *', 'duration_hint' => 'medium', 'log_file' => 'logs/naz-transfer.log'],
             ],
+            'ICIP / Local Contexts' => [
+                ['slug' => 'icip-hub-sync', 'name' => 'Local Contexts Hub Sync', 'description' => 'Sync the configured Local Contexts Hub project(s) (applied TK/BC Labels + Notices) into Heratio. Enable only after registering a Hub project + API key in ICIP settings; the local label catalog is the offline fallback.', 'artisan_command' => 'ahg:icip-hub-sync', 'cron_expression' => '0 5 * * *', 'duration_hint' => 'short', 'log_file' => 'logs/icip-hub-sync.log', 'is_enabled' => false],
+            ],
             'Security & Compliance' => [
                 ['slug' => 'services-check', 'name' => 'Services Health Check', 'description' => 'Verify all dependent services (MySQL, Redis, Elasticsearch, Qdrant, TripoSR) are reachable.', 'artisan_command' => 'ahg:services-check', 'cron_expression' => '*/5 * * * *', 'duration_hint' => 'short', 'log_file' => 'logs/services-check.log'],
             ],

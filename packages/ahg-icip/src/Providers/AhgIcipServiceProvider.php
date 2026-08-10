@@ -44,6 +44,62 @@ class AhgIcipServiceProvider extends ServiceProvider
         $this->ensureProtocolColumns();
         $this->ensureGovernanceTables();
         $this->ensureRegionPacks();
+        $this->ensureHubIntegration();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgIcip\Commands\IcipHubSyncCommand::class,
+            ]);
+        }
+    }
+
+    /**
+     * #1448 - Local Contexts Hub integration seam. Self-heals the
+     * icip_hub_project cache table (synced projects' Labels + Notices) and
+     * seeds the config keys the LocalContextsHubService reads, all
+     * DISABLED/empty by default so a minimal install behaves exactly as
+     * before (local icip_tk_label_type catalog only). An operator enables it
+     * by supplying a Hub URL, API key and project id(s) and flipping
+     * local_contexts_hub_enabled.
+     */
+    private function ensureHubIntegration(): void
+    {
+        try {
+            DB::statement(
+                'CREATE TABLE IF NOT EXISTS icip_hub_project (
+                    project_id VARCHAR(191) NOT NULL,
+                    title VARCHAR(500) NULL,
+                    labels_json LONGTEXT NULL,
+                    notices_json LONGTEXT NULL,
+                    http_status INT NULL,
+                    synced_at DATETIME NULL,
+                    created_at DATETIME NULL,
+                    updated_at DATETIME NULL,
+                    PRIMARY KEY (project_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+            );
+
+            if (Schema::hasTable('icip_config')) {
+                $seed = [
+                    ['local_contexts_hub_enabled', '0', 'Enable live sync with the Local Contexts Hub (localcontextshub.org). Off = local icip_tk_label_type catalog only.'],
+                    ['local_contexts_hub_url', 'https://localcontextshub.org', 'Local Contexts Hub base URL (no trailing slash).'],
+                    ['local_contexts_project_ids', '', 'Comma/space-separated Local Contexts Hub project unique_ids to sync.'],
+                ];
+                foreach ($seed as [$k, $v, $desc]) {
+                    if (! DB::table('icip_config')->where('config_key', $k)->exists()) {
+                        DB::table('icip_config')->insert([
+                            'config_key' => $k,
+                            'config_value' => $v,
+                            'description' => $desc,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Don't break boot if the DB isn't reachable yet
+        }
     }
 
     /**
