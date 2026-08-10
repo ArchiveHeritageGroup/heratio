@@ -46,26 +46,15 @@ class InformationObjectController extends Controller
      */
     public static function languageDisplayMap(): array
     {
-        return [
-            'en' => 'English', 'af' => 'Afrikaans', 'nl' => 'Dutch', 'de' => 'German',
-            'fr' => 'French', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sesotho',
-            'tn' => 'Setswana', 'nso' => 'Sepedi', 'ts' => 'Tsonga', 'ss' => 'Swati',
-            've' => 'Venda', 'nr' => 'Ndebele', 'pt' => 'Portuguese', 'es' => 'Spanish',
-            'it' => 'Italian', 'la' => 'Latin', 'grc' => 'Ancient Greek', 'he' => 'Hebrew',
-            'ar' => 'Arabic', 'fa' => 'Persian', 'hi' => 'Hindi', 'zh' => 'Chinese',
-            'ja' => 'Japanese', 'ko' => 'Korean', 'ru' => 'Russian', 'sw' => 'Swahili',
-        ];
+        // Canonical list lives in ahg-core; kept as a public method so
+        // existing callers of this API keep working. See LanguageOptions.
+        return \AhgCore\Support\LanguageOptions::descriptionLanguages();
     }
 
     /** ISO 15924 script codes -> display names. */
     public static function scriptDisplayMap(): array
     {
-        return [
-            'Latn' => 'Latin', 'Cyrl' => 'Cyrillic', 'Arab' => 'Arabic', 'Grek' => 'Greek',
-            'Hebr' => 'Hebrew', 'Deva' => 'Devanagari', 'Hans' => 'Chinese (Simplified)',
-            'Hant' => 'Chinese (Traditional)', 'Jpan' => 'Japanese', 'Kore' => 'Korean',
-            'Thai' => 'Thai', 'Geor' => 'Georgian', 'Armn' => 'Armenian', 'Ethi' => 'Ethiopic',
-        ];
+        return \AhgCore\Support\LanguageOptions::scripts();
     }
 
     /**

@@ -461,18 +461,10 @@
             <div class="mb-3">
               <label for="desc_language" class="form-label">Language(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               @php
-                // Same ISO-639 option set the archival description form uses, so
-                // the repository "Language(s) of the description" field offers the
-                // same pick-list (was a plain text input with no lookup).
-                $__descLangOpts = [
-                  'en' => 'English', 'af' => 'Afrikaans', 'nl' => 'Dutch', 'de' => 'German',
-                  'fr' => 'French', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sesotho',
-                  'tn' => 'Setswana', 'nso' => 'Sepedi', 'ts' => 'Tsonga', 'ss' => 'Swati',
-                  've' => 'Venda', 'nr' => 'Ndebele', 'pt' => 'Portuguese', 'es' => 'Spanish',
-                  'it' => 'Italian', 'la' => 'Latin', 'grc' => 'Ancient Greek', 'he' => 'Hebrew',
-                  'ar' => 'Arabic', 'fa' => 'Persian', 'hi' => 'Hindi', 'zh' => 'Chinese',
-                  'ja' => 'Japanese', 'ko' => 'Korean', 'ru' => 'Russian', 'sw' => 'Swahili',
-                ];
+                // Same canonical ISO-639 option set the archival description
+                // form uses (ahg-core), so the repository "Language(s) of the
+                // description" field offers the same pick-list.
+                $__descLangOpts = \AhgCore\Support\LanguageOptions::descriptionLanguages();
                 $__dl = old('desc_language', $repository->desc_language ?? '');
               @endphp
               <select class="form-select" id="desc_language" name="desc_language">
@@ -490,12 +482,7 @@
             <div class="mb-3">
               <label for="desc_script" class="form-label">Script(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               @php
-                $__descScriptOpts = [
-                  'Latn' => 'Latin', 'Cyrl' => 'Cyrillic', 'Arab' => 'Arabic', 'Grek' => 'Greek',
-                  'Hebr' => 'Hebrew', 'Deva' => 'Devanagari', 'Hans' => 'Chinese (Simplified)',
-                  'Hant' => 'Chinese (Traditional)', 'Jpan' => 'Japanese', 'Kore' => 'Korean',
-                  'Thai' => 'Thai', 'Geor' => 'Georgian', 'Armn' => 'Armenian', 'Ethi' => 'Ethiopic',
-                ];
+                $__descScriptOpts = \AhgCore\Support\LanguageOptions::scripts();
                 $__ds = old('desc_script', $repository->desc_script ?? '');
               @endphp
               <select class="form-select" id="desc_script" name="desc_script">

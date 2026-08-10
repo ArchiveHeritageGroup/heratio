@@ -363,15 +363,8 @@
 
             {{-- Language(s) of material - multi-row select --}}
             @php
-              $languageOptions = [
-                'en' => 'English', 'af' => 'Afrikaans', 'nl' => 'Dutch', 'de' => 'German',
-                'fr' => 'French', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sesotho',
-                'tn' => 'Setswana', 'nso' => 'Sepedi', 'ts' => 'Tsonga', 'ss' => 'Swati',
-                've' => 'Venda', 'nr' => 'Ndebele', 'pt' => 'Portuguese', 'es' => 'Spanish',
-                'it' => 'Italian', 'la' => 'Latin', 'grc' => 'Ancient Greek', 'he' => 'Hebrew',
-                'ar' => 'Arabic', 'fa' => 'Persian', 'hi' => 'Hindi', 'zh' => 'Chinese',
-                'ja' => 'Japanese', 'ko' => 'Korean', 'ru' => 'Russian', 'sw' => 'Swahili',
-              ];
+              // Canonical description/material language pick-list (ahg-core).
+              $languageOptions = \AhgCore\Support\LanguageOptions::descriptionLanguages();
             @endphp
             <div class="mb-3">
               <label class="form-label">Language(s) of material <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -397,12 +390,7 @@
 
             {{-- Script(s) of material - multi-row select --}}
             @php
-              $scriptOptions = [
-                'Latn' => 'Latin', 'Cyrl' => 'Cyrillic', 'Arab' => 'Arabic', 'Grek' => 'Greek',
-                'Hebr' => 'Hebrew', 'Deva' => 'Devanagari', 'Hans' => 'Chinese (Simplified)',
-                'Hant' => 'Chinese (Traditional)', 'Jpan' => 'Japanese', 'Kore' => 'Korean',
-                'Thai' => 'Thai', 'Geor' => 'Georgian', 'Armn' => 'Armenian', 'Ethi' => 'Ethiopic',
-              ];
+              $scriptOptions = \AhgCore\Support\LanguageOptions::scripts();
             @endphp
             <div class="mb-3">
               <label class="form-label">Script(s) of material <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
