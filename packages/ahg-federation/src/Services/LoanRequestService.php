@@ -45,9 +45,12 @@ namespace AhgFederation\Services;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgFederation\Services\Concerns\ResolvesSelfMember;
 
 class LoanRequestService
 {
+    use ResolvesSelfMember;
+
     /** The loan-request store table. */
     public const TABLE = 'federation_loan_request';
 
@@ -103,21 +106,6 @@ class LoanRequestService
         }
     }
 
-    /** The local self-member row, if registered (default requesting party). */
-    public function selfMember(): ?object
-    {
-        if (! $this->tableReady(self::MEMBER_TABLE)) {
-            return null;
-        }
-        try {
-            return DB::table(self::MEMBER_TABLE)
-                ->where('is_self', 1)
-                ->orderBy('id')
-                ->first();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     /** Map of member id => name, for decorating loan rows without N+1 joins. */
     public function memberNameMap(): array

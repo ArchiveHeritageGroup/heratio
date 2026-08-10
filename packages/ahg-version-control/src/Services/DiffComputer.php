@@ -13,9 +13,12 @@
  */
 
 namespace AhgVersionControl\Services;
+use AhgVersionControl\Services\Concerns\ComputesCanonicalJson;
 
 class DiffComputer
 {
+    use ComputesCanonicalJson;
+
     public const LONG_TEXT_THRESHOLD = 200;
 
     private const BASE_NOISE_FIELDS = ['lft', 'rgt', 'oai_local_identifier'];
@@ -311,22 +314,4 @@ class DiffComputer
         return $out;
     }
 
-    private function canonicalJson(mixed $value): string
-    {
-        if (is_array($value)) {
-            if (array_is_list($value)) {
-                return '['.implode(',', array_map(fn ($v) => $this->canonicalJson($v), $value)).']';
-            }
-            ksort($value);
-            $parts = [];
-            foreach ($value as $k => $v) {
-                $parts[] = json_encode((string) $k, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-                    .':'.$this->canonicalJson($v);
-            }
-
-            return '{'.implode(',', $parts).'}';
-        }
-
-        return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    }
 }

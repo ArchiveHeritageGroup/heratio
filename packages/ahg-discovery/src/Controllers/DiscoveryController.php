@@ -29,6 +29,7 @@ use AhgCore\Constants\TermId;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgDiscovery\Concerns\ResolvesDiscoveryConnection;
 
 /**
  * Discovery Controller -- unified search/discovery across all entity types.
@@ -36,6 +37,8 @@ use Illuminate\Support\Facades\DB;
  */
 class DiscoveryController extends Controller
 {
+    use ResolvesDiscoveryConnection;
+
     /** Cache TTL in seconds (1 hour) */
     private const CACHE_TTL = 3600;
 
@@ -46,7 +49,6 @@ class DiscoveryController extends Controller
      * Cached resolved connection name, so the per-request lookup hits ahg_settings once.
      * Cleared at the boundary of each request via Laravel's normal lifecycle.
      */
-    private ?string $discoveryConn = null;
 
     /**
      * Cached fusion-config block - merge weights + RRF k + hierarchical-tier scores +
@@ -164,30 +166,6 @@ class DiscoveryController extends Controller
         return $this->fusionConfig = $cfg;
     }
 
-    /**
-     * Connection name for non-ES strategies - entity NER lookups, hierarchical
-     * walks, and enrich/group joins. Reads ahg_settings.discovery_db_connection;
-     * defaults to 'atom' (the ANC corpus). Falls back to the framework default
-     * connection if the requested one is missing - e.g. fresh installs without
-     * an `atom` DB will keep working in degraded mode (smaller heratio sample).
-     *
-     * Issue #14.
-     */
-    protected function discoveryDb(): \Illuminate\Database\ConnectionInterface
-    {
-        if ($this->discoveryConn === null) {
-            $name = (string) (DB::table('ahg_settings')
-                ->where('setting_key', 'discovery_db_connection')
-                ->value('setting_value') ?? 'atom');
-            $this->discoveryConn = $name !== '' ? $name : 'atom';
-        }
-        try {
-            return DB::connection($this->discoveryConn);
-        } catch (\Throwable $e) {
-            // Configured connection missing - degrade to default rather than fatal.
-            return DB::connection();
-        }
-    }
 
     /**
      * Map a request's `strategies` param + legacy `mode` into the canonical

@@ -7,6 +7,7 @@ namespace AhgDiscovery\Services;
 use AhgCore\Constants\TermId;
 use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
+use AhgDiscovery\Concerns\ResolvesDiscoveryConnection;
 
 /**
  * PageIndex Service
@@ -23,6 +24,8 @@ use Illuminate\Support\Facades\DB;
  */
 class PageIndexService
 {
+    use ResolvesDiscoveryConnection;
+
     private OllamaPageIndexClient $llmClient;
 
     /** OCR endpoint for PDF text extraction */
@@ -36,7 +39,6 @@ class PageIndexService
     private string $fusekiPassword;
 
     /** Cached connection name resolved once per instance (issue #14). */
-    private ?string $discoveryConn = null;
 
     public function __construct(?OllamaPageIndexClient $llmClient = null)
     {
@@ -44,25 +46,6 @@ class PageIndexService
         $this->loadConfig();
     }
 
-    /**
-     * Resolve the connection used for ANC content lookups. Mirrors
-     * DiscoveryController::discoveryDb(); reads ahg_settings.discovery_db_connection
-     * (default 'atom'); falls back to framework default if missing.
-     */
-    private function discoveryDb(): \Illuminate\Database\ConnectionInterface
-    {
-        if ($this->discoveryConn === null) {
-            $name = (string) (DB::table('ahg_settings')
-                ->where('setting_key', 'discovery_db_connection')
-                ->value('setting_value') ?? 'atom');
-            $this->discoveryConn = $name !== '' ? $name : 'atom';
-        }
-        try {
-            return DB::connection($this->discoveryConn);
-        } catch (\Throwable $e) {
-            return DB::connection();
-        }
-    }
 
     private function loadConfig(): void
     {

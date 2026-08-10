@@ -15,9 +15,12 @@
 namespace AhgVersionControl\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgVersionControl\Services\Concerns\ComputesCanonicalJson;
 
 class VersionWriter
 {
+    use ComputesCanonicalJson;
+
     private const TABLE_MAP = [
         'information_object' => ['table' => 'information_object_version', 'fk' => 'information_object_id', 'parent' => 'information_object'],
         'actor' => ['table' => 'actor_version',              'fk' => 'actor_id',              'parent' => 'actor'],
@@ -257,29 +260,6 @@ class VersionWriter
         return $changed;
     }
 
-    /**
-     * Canonical JSON serialisation: recursively sorts associative-array keys
-     * so the output is byte-stable regardless of insertion order. Sequential
-     * arrays (list-shaped) keep their element order.
-     */
-    private function canonicalJson(mixed $value): string
-    {
-        if (is_array($value)) {
-            if (array_is_list($value)) {
-                return '['.implode(',', array_map(fn ($v) => $this->canonicalJson($v), $value)).']';
-            }
-            ksort($value);
-            $parts = [];
-            foreach ($value as $k => $v) {
-                $parts[] = json_encode((string) $k, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-                    .':'.$this->canonicalJson($v);
-            }
-
-            return '{'.implode(',', $parts).'}';
-        }
-
-        return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    }
 
     /**
      * @param  array<int,array<string,mixed>>  $rows
