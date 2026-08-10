@@ -28,6 +28,7 @@ namespace AhgResearch\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgResearch\Services\Concerns\ValidatesDmpId;
 
 /**
  * heratio#1222 - Research OS: Research Outputs register (CRIS / RIM).
@@ -46,6 +47,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class ResearchOutputService
 {
+    use ValidatesDmpId;
+
     public const TYPE_TAXONOMY            = 'research_output_type';
     public const IDENTIFIER_TYPE_TAXONOMY = 'research_output_identifier_type';
     public const STATUS_TAXONOMY          = 'research_output_status';
@@ -237,30 +240,6 @@ class ResearchOutputService
         }
     }
 
-    /**
-     * Validate a candidate dmp_id - it must reference a research_dmp row on the
-     * SAME project, or it is dropped. Resilient when the sibling slice is not
-     * installed (no research_dmp table) - simply returns null.
-     */
-    private function validDmpId(mixed $value, int $projectId): ?int
-    {
-        if ($value === null || $value === '' || (int) $value <= 0) {
-            return null;
-        }
-        try {
-            if (! Schema::hasTable('research_dmp')) {
-                return null;
-            }
-            $ok = DB::table('research_dmp')
-                ->where('id', (int) $value)
-                ->where('project_id', $projectId)
-                ->exists();
-
-            return $ok ? (int) $value : null;
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
     // ---------------------------------------------------------------------
     // DMP link options (sibling slice, optional)

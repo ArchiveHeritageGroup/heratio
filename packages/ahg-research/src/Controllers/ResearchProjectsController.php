@@ -33,6 +33,7 @@ use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgResearch\Controllers\Concerns\LoadsProjectContext;
 
 /**
  * ResearchProjectsController - Researcher project management (project subsystem).
@@ -57,6 +58,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ResearchProjectsController extends Controller
 {
+    use LoadsProjectContext;
+
     use ResearchControllerHelpers;
 
     protected ResearchService $service;
@@ -298,32 +301,4 @@ class ResearchProjectsController extends Controller
         return redirect()->route('research.viewProject', $projectId)->with('success', 'Project created');
     }
 
-    /**
-     * Resolve [project, researcher] for a project id. Copied verbatim from
-     * ResearchController (issue #1269 project-subsystem extraction). The sibling
-     * ResearchProjectOutputsController carries its own identical copy.
-     */
-    protected function loadProjectContext(int $id): array
-    {
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
-
-        $project = DB::table('research_project')->where('id', $id)->first();
-        if (!$project) abort(404, 'Project not found');
-
-        // SECURITY (#1308): authorize, do not just load. The owner is stored as a
-        // collaborator row (role='owner', status='accepted'), so an accepted
-        // membership check covers owner + collaborators and excludes pending
-        // invites. Mirrors ProjectService::getProjects(). Admins bypass.
-        $hasAccess = DB::table('research_project_collaborator')
-            ->where('project_id', $id)
-            ->where('researcher_id', $researcher->id)
-            ->where('status', 'accepted')
-            ->exists();
-        if (!$hasAccess && !\AhgCore\Services\AclService::isAdministrator(Auth::user())) {
-            abort(403, 'You do not have access to this project.');
-        }
-
-        return [$project, $researcher];
-    }
 }

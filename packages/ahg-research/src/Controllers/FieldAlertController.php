@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Controllers\Concerns\ChecksProjectAccess;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\GuardsProjectView;
 
 /**
  * heratio#1235 - Research OS Stage 3: per-project Living Field Alerts.
@@ -50,6 +51,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class FieldAlertController extends Controller
 {
+    use GuardsProjectView;
+
     use RendersResearchSidebar;
 
     use ChecksProjectAccess;
@@ -217,35 +220,6 @@ class FieldAlertController extends Controller
     }
 
 
-    /**
-     * Gate for read actions. Returns [project, researcher, access] on success,
-     * or [RedirectResponse, null, null] when the request must bounce.
-     *
-     * @return array{0:object|\Illuminate\Http\RedirectResponse,1:object|null,2:array|null}
-     */
-    private function guardView(int $projectId): array
-    {
-        if (! Auth::check()) {
-            return [redirect()->route('login'), null, null];
-        }
-
-        $researcher = $this->research->getResearcherByUserId(Auth::id());
-        if (! $researcher) {
-            return [redirect()->route('researcher.register'), null, null];
-        }
-
-        $project = $this->loadProject($projectId);
-        if (! $project) {
-            abort(404, 'Project not found');
-        }
-
-        $access = $this->access($project, $researcher);
-        if (! $access['can_view']) {
-            abort(403, 'You do not have access to this project.');
-        }
-
-        return [$project, $researcher, $access];
-    }
 
     /**
      * Gate for mutating actions (manage = can_edit).

@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
+use AhgResearch\Controllers\Concerns\ResolvesDmpRecord;
 
 /**
  * heratio#1222 - Research OS: Research Funding tracker.
@@ -53,6 +54,8 @@ use AhgResearch\Controllers\Concerns\RendersResearchSidebar;
  */
 class ResearchFundingController extends Controller
 {
+    use ResolvesDmpRecord;
+
     use RendersResearchSidebar;
 
     use LogsResearchActivity;
@@ -320,31 +323,5 @@ class ResearchFundingController extends Controller
         }
     }
 
-    /**
-     * Resolve the linked DMP (sibling slice) for a record, scoped to the
-     * project. Returns null when there is no link or the sibling slice is absent.
-     *
-     * @param  array<string,mixed>  $record
-     * @return object|null
-     */
-    private function resolveDmp(array $record, int $projectId): ?object
-    {
-        $dmpId = $record['dmp_id'] ?? null;
-        if (! $dmpId) {
-            return null;
-        }
-        try {
-            if (! Schema::hasTable('research_dmp')) {
-                return null;
-            }
-
-            return DB::table('research_dmp')
-                ->where('id', (int) $dmpId)
-                ->where('project_id', $projectId)
-                ->first();
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
 
 }
