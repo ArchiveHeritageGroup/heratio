@@ -249,7 +249,11 @@ class IiifAuthFlow2Service
             // The manifest IRI ends in /iiif-manifest/<slug>. Resolve
             // the slug back to information_object.id, then look up the
             // sidecar row.
-            if (!preg_match('#/iiif-manifest/([^/?#]+)#', $resourceUri, $m)) {
+            // Delimiter must NOT be '#': the character class already contains a
+            // literal '#', which would close a '#'-delimited pattern early and
+            // throw "Unknown modifier" - silently returning null and granting
+            // access to every resource. Use '~' as the delimiter instead.
+            if (!preg_match('~/iiif-manifest/([^/?#]+)~', $resourceUri, $m)) {
                 return null;
             }
             $slug = $m[1];
