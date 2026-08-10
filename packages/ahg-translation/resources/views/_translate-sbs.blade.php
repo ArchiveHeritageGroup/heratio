@@ -61,13 +61,8 @@
       $i18nByCulture[$row->culture] = (array) $row;
   }
 
-  $cultureLabels = [
-    'en' => 'English', 'af' => 'Afrikaans', 'zu' => 'isiZulu', 'xh' => 'isiXhosa',
-    'st' => 'Sesotho', 'tn' => 'Setswana', 'nso' => 'Sepedi', 'ts' => 'Xitsonga',
-    'ss' => 'siSwati', 've' => 'Tshivenda', 'nr' => 'isiNdebele', 'nl' => 'Dutch',
-    'fr' => 'French', 'de' => 'German', 'es' => 'Spanish', 'pt' => 'Portuguese',
-    'sw' => 'Kiswahili', 'ar' => 'Arabic',
-  ];
+  // Canonical translation-target labels (ahg-core).
+  $cultureLabels = \AhgCore\Support\LanguageOptions::translationTargets();
 
   $enabledLocales = [];
   try {

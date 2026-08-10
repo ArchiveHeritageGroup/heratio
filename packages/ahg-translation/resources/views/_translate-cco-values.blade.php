@@ -63,13 +63,8 @@
       $ccoMuseumRowId = null;
   }
 
-  $ccoCultureLabels = [
-    'en' => 'English', 'af' => 'Afrikaans', 'zu' => 'isiZulu', 'xh' => 'isiXhosa',
-    'st' => 'Sesotho', 'tn' => 'Setswana', 'nso' => 'Sepedi', 'ts' => 'Xitsonga',
-    'ss' => 'siSwati', 've' => 'Tshivenda', 'nr' => 'isiNdebele', 'nl' => 'Dutch',
-    'fr' => 'French', 'de' => 'German', 'es' => 'Spanish', 'pt' => 'Portuguese',
-    'sw' => 'Kiswahili', 'ar' => 'Arabic',
-  ];
+  // Canonical translation-target labels (ahg-core).
+  $ccoCultureLabels = \AhgCore\Support\LanguageOptions::translationTargets();
   $ccoEnabledLocales = [];
   try {
       $ccoEnabledLocales = \Illuminate\Support\Facades\DB::table('setting')

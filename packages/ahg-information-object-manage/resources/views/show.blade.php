@@ -1441,12 +1441,8 @@
   {{-- Translate Modal --}}
   @auth
   @php
-    $targetLanguages = [
-        'en'=>'English','af'=>'Afrikaans','zu'=>'isiZulu','xh'=>'isiXhosa','st'=>'Sesotho',
-        'tn'=>'Setswana','nso'=>'Sepedi','ts'=>'Xitsonga','ss'=>'SiSwati','ve'=>'Tshivenda',
-        'nr'=>'isiNdebele','nl'=>'Dutch','fr'=>'French','de'=>'German','es'=>'Spanish',
-        'pt'=>'Portuguese','sw'=>'Swahili','ar'=>'Arabic',
-    ];
+    // Canonical translation-target list (ahg-core).
+    $targetLanguages = \AhgCore\Support\LanguageOptions::translationTargets();
     $allFields = [
         'title'=>'Title','alternate_title'=>'Alternate Title','scope_and_content'=>'Scope and Content',
         'archival_history'=>'Archival History','acquisition'=>'Acquisition','arrangement'=>'Arrangement',

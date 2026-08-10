@@ -75,4 +75,53 @@ class LanguageOptions
             'Thai' => 'Thai', 'Geor' => 'Georgian', 'Armn' => 'Armenian', 'Ethi' => 'Ethiopic',
         ];
     }
+
+    /**
+     * Machine-translation target languages: code => English display name,
+     * in picker order. The 11 official South African languages first, then
+     * the wider-SADC regional pair (Northern Ndebele, chiShona - all
+     * covered by the MzansiLM route), then international languages.
+     *
+     * Canonical for the translation feature. Previously copy-pasted (with
+     * drifting subsets and label styles - siSwati vs SiSwati, Kiswahili vs
+     * Swahili) into TranslationController::TARGET_LANGUAGES and the
+     * _translate-modal / _translate-sbs / _translate-cco-values / IO-show
+     * pickers; they now all delegate here.
+     *
+     * NOTE: this is the target-PICKER list. It is intentionally NOT the
+     * same as MultilingualRecordService::LANGUAGE_LABELS, which is a
+     * broader endonym display-resolver (Francais, Nederlands, 中文, 日本語)
+     * mirroring the UI-locale switcher - a different concern, left alone.
+     *
+     * @return array<string,string>
+     */
+    public static function translationTargets(): array
+    {
+        return [
+            // 11 official South African languages
+            'en'  => 'English',
+            'af'  => 'Afrikaans',
+            'zu'  => 'isiZulu',
+            'xh'  => 'isiXhosa',
+            'st'  => 'Sesotho',
+            'tn'  => 'Setswana',
+            'nso' => 'Sepedi (Northern Sotho)',
+            'ts'  => 'Xitsonga',
+            'ss'  => 'SiSwati',
+            've'  => 'Tshivenda',
+            'nr'  => 'isiNdebele',
+            // Wider SADC region
+            'nd'  => 'Northern Ndebele',
+            'sn'  => 'chiShona',
+            // International
+            'nl'  => 'Dutch',
+            'fr'  => 'French',
+            'de'  => 'German',
+            'es'  => 'Spanish',
+            'pt'  => 'Portuguese',
+            'sw'  => 'Swahili',
+            'ar'  => 'Arabic',
+            'it'  => 'Italian',
+        ];
+    }
 }

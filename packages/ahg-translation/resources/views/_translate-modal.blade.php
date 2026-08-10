@@ -21,14 +21,8 @@
         ->where('object_id', $objectId)
         ->value('slug') ?? '';
 
-    // Target languages
-    $targetLanguages = [
-        'en' => 'English', 'af' => 'Afrikaans', 'zu' => 'isiZulu', 'xh' => 'isiXhosa',
-        'st' => 'Sesotho', 'tn' => 'Setswana', 'nso' => 'Sepedi (Northern Sotho)',
-        'ts' => 'Xitsonga', 'ss' => 'SiSwati', 've' => 'Tshivenda', 'nr' => 'isiNdebele',
-        'nl' => 'Dutch', 'fr' => 'French', 'de' => 'German', 'es' => 'Spanish',
-        'pt' => 'Portuguese', 'sw' => 'Swahili', 'ar' => 'Arabic',
-    ];
+    // Canonical translation-target list (ahg-core).
+    $targetLanguages = \AhgCore\Support\LanguageOptions::translationTargets();
 
     // All translatable fields from information_object_i18n
     $allFields = [

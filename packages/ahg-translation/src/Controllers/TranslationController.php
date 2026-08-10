@@ -145,30 +145,16 @@ class TranslationController extends Controller
 
     /**
      * Target languages with culture codes (the 11 SA official languages, nd
-     * for the wider SADC region - all covered by MzansiLM, #128 - plus
-     * international languages).
+     * + sn for the wider SADC region - all covered by MzansiLM, #128 - plus
+     * international languages). Canonical list lives in ahg-core so the four
+     * translation pickers stay in sync; see LanguageOptions::translationTargets.
+     *
+     * @return array<string,string>
      */
-    private const TARGET_LANGUAGES = [
-        'en'  => 'English',
-        'af'  => 'Afrikaans',
-        'zu'  => 'isiZulu',
-        'xh'  => 'isiXhosa',
-        'st'  => 'Sesotho',
-        'tn'  => 'Setswana',
-        'nso' => 'Sepedi (Northern Sotho)',
-        'ts'  => 'Xitsonga',
-        'ss'  => 'SiSwati',
-        've'  => 'Tshivenda',
-        'nr'  => 'isiNdebele',
-        'nd'  => 'Northern Ndebele',
-        'nl'  => 'Dutch',
-        'fr'  => 'French',
-        'de'  => 'German',
-        'es'  => 'Spanish',
-        'pt'  => 'Portuguese',
-        'sw'  => 'Swahili',
-        'ar'  => 'Arabic',
-    ];
+    private static function targetLanguages(): array
+    {
+        return \AhgCore\Support\LanguageOptions::translationTargets();
+    }
 
     /**
      * Translation settings page (MT endpoint, timeout, health check).
@@ -269,7 +255,7 @@ class TranslationController extends Controller
             'title' => $io->title ?? 'Untitled',
             'culture' => $culture,
             'availableCultures' => $availableCultures,
-            'targetLanguages' => self::TARGET_LANGUAGES,
+            'targetLanguages' => self::targetLanguages(),
             'allFields' => $allFields,
             'selectedFields' => $selectedFields,
             'defaultTarget' => $defaultTarget,
@@ -685,7 +671,7 @@ class TranslationController extends Controller
 
         // Build language list with names
         $languageList = [];
-        foreach (self::TARGET_LANGUAGES as $code => $name) {
+        foreach (self::targetLanguages() as $code => $name) {
             $languageList[] = [
                 'code' => $code,
                 'name' => $name,
