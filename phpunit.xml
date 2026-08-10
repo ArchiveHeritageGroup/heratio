@@ -38,6 +38,7 @@
             <directory>packages/ahg-donor-manage/tests</directory>
             <directory>packages/ahg-vendor/tests</directory>
             <directory>packages/ahg-search/tests</directory>
+            <directory>packages/ahg-federation/tests</directory>
             <!-- Additional packages will be added here as tests are created -->
             <!-- See docs/package-classification.md for priority order -->
         </testsuite>

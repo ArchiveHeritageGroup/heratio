@@ -26,7 +26,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 CREATE TABLE IF NOT EXISTS federation_peer (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL COMMENT 'Human-readable name for the peer repository',
-    peer_type VARCHAR(64) NOT NULL DEFAULT 'oai_pmh' COMMENT 'Connector dispatch key: oai_pmh | sharepoint_graph_search | atom_local',
+    peer_type VARCHAR(64) NOT NULL DEFAULT 'oai_pmh' COMMENT 'Connector dispatch key: oai_pmh | dspace | sharepoint_graph_search | atom_local',
     config JSON NULL COMMENT 'Connector-specific configuration (KQL scopes, tenant_id, etc.)',
     base_url VARCHAR(500) NOT NULL COMMENT 'Base URL of the OAI-PMH endpoint (use "-" for non-OAI peer types)',
     oai_identifier VARCHAR(255) NULL COMMENT 'Optional OAI repository identifier',

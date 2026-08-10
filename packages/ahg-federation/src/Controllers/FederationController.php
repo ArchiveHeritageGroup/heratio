@@ -184,16 +184,16 @@ class FederationController extends Controller
     public function savePeer(Request $request)
     {
         $peerType = (string) $request->input('peer_type', 'oai_pmh');
-        if (!in_array($peerType, ['oai_pmh', 'sharepoint_graph_search'], true)) {
+        if (!in_array($peerType, ['oai_pmh', 'dspace', 'sharepoint_graph_search'], true)) {
             $peerType = 'oai_pmh';
         }
 
-        // Validation matrix: OAI requires base_url; SharePoint requires sp_tenant_id.
+        // Validation matrix: OAI + DSpace require base_url; SharePoint requires sp_tenant_id.
         $rules = [
             'name'      => 'required|string|max:255',
-            'peer_type' => 'required|in:oai_pmh,sharepoint_graph_search',
+            'peer_type' => 'required|in:oai_pmh,dspace,sharepoint_graph_search',
         ];
-        if ($peerType === 'oai_pmh') {
+        if (in_array($peerType, ['oai_pmh', 'dspace'], true)) {
             $rules['base_url'] = 'required|url';
         } else {
             $rules['sp_tenant_id'] = 'required|integer|min:1';

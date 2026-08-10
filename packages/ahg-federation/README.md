@@ -15,7 +15,40 @@
 ## What's missing (TODO)
 - [ ] `readme` - TODO: implement
 
+## Federated-search connectors (`src/Connectors/`)
+
+Each peer has a `peer_type` that selects a connector at search time
+(`FederatedSearchService::connectorClassFor()`; other packages register their own
+via `config('federation.connectors')`):
+
+| peer_type | Connector | Transport |
+|---|---|---|
+| `oai_pmh` | (JSON search path + `HarvestService` for harvest) | JSON-over-HTTP / OAI-PMH XML |
+| `dspace` | `DSpaceConnector` | DSpace 7+ REST discovery API |
+| `sharepoint_graph_search` | `SharePointGraphConnector` (ahg-sharepoint) | Microsoft Graph search |
+| `atom_local` | `AtomElasticsearchConnector` | local Elasticsearch |
+
+### DSpace (#1329)
+
+A `dspace` peer contributes live hits from a DSpace 7+ repository via its REST
+discovery endpoint (`{base_url}/server/api/discover/search/objects`), mapping each
+item's Dublin Core (`dc.title`, `dc.description.abstract`, `dc.identifier.uri`,
+`dc.date.issued`, `dc.contributor.author`) to a `PeerSearchResult`. Set the peer's
+**Base URL** to the repository root - the connector appends `/server/api` itself
+(override with `config.rest_base_url` for non-standard deployments). Public
+repositories need no credentials; a protected DSpace supplies an API key sent as a
+Bearer token. NB: DSpace metadata keys contain literal dots, so values are read by
+whole-key index, not `data_get()` dot-notation.
+
+**Harvest/import** (pulling DSpace items in as information objects) reuses the
+existing OAI-PMH harvest: add a second `oai_pmh` peer pointing at the same
+repository's `/server/oai/request` (DSpace 7) endpoint. No DSpace-specific harvest
+code is needed because DSpace's OAI-PMH is standard.
+
+Tested against a live DSpace instance and with an `Http::fake` unit test
+(`tests/DSpaceConnectorTest.php`).
+
 ## References
 - docs/help/ (search for `federation`)
 - packages/ahg-federation/ (source)
-- GH issue #570
+- GH issue #570, #1329 (DSpace connector)

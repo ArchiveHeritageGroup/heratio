@@ -317,6 +317,7 @@ class FederatedSearchService
         // Built-in GENERAL connectors that stay in ahg-federation.
         return match ($peerType) {
             'atom_local' => \AhgFederation\Connectors\AtomElasticsearchConnector::class,
+            'dspace'     => \AhgFederation\Connectors\DSpaceConnector::class, // #1329
             default      => null,
         };
     }
