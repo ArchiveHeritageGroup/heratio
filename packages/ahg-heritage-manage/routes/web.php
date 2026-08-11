@@ -123,6 +123,7 @@ Route::middleware('admin')->group(function () {
         // Specific routes must be declared BEFORE /{id} catch-all.
         Route::get('/by-object/{id}', [HeritageAccountingController::class, 'viewByObject'])->name('heritage.accounting.view-by-object');
         Route::get('/add-valuation/{id?}', [HeritageAccountingController::class, 'addValuation'])->name('heritage.accounting.add-valuation');
+        Route::post('/{id}/valuation', [HeritageAccountingController::class, 'storeValuation'])->where('id', '[0-9]+')->name('heritage.accounting.store-valuation')->middleware('acl:update');
         Route::get('/add-impairment/{id?}', [HeritageAccountingController::class, 'addImpairment'])->name('heritage.accounting.add-impairment');
         Route::get('/add-journal/{id?}', [HeritageAccountingController::class, 'addJournal'])->name('heritage.accounting.add-journal');
         Route::get('/add-movement/{id?}', [HeritageAccountingController::class, 'addMovement'])->name('heritage.accounting.add-movement');

@@ -27,6 +27,7 @@
 
 namespace AhgHeritageManage\Controllers;
 
+use AhgHeritageManage\Services\HeritageValuationService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -372,7 +373,82 @@ class HeritageAccountingController extends Controller
         }
         abort(404);
     }
-    public function addValuation(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-valuation', ['asset' => null, 'fields' => [], 'formAction' => '#']); }
+    /**
+     * #1460 - Add Valuation form. Was a stub returning a blank form with
+     * formAction '#'; now resolves the asset, shows what the revaluation will
+     * do to the carrying amount / reserve, and lists prior valuations.
+     *
+     * Without an id we can't value anything, so send the operator to the
+     * register to pick an asset first.
+     */
+    public function addValuation(?int $id = null)
+    {
+        if (! Schema::hasTable('heritage_asset')) {
+            return redirect()->route('heritage.accounting.dashboard')
+                ->with('error', __('Heritage accounting is not installed.'));
+        }
+        if (! $id) {
+            return redirect()->route('heritage.accounting.browse')
+                ->with('info', __('Choose a heritage asset to value.'));
+        }
+
+        $asset = DB::table('heritage_asset')->where('id', $id)->first();
+        if (! $asset) {
+            abort(404);
+        }
+
+        $service = app(HeritageValuationService::class);
+
+        return view('ahg-heritage-manage::heritage-accounting.add-valuation', [
+            'asset'   => $asset,
+            'io'      => $this->fetchLinkedIo($asset->information_object_id ?? ($asset->object_id ?? null)),
+            'methods' => HeritageValuationService::METHODS,
+            'history' => $service->history($id),
+        ]);
+    }
+
+    /**
+     * #1460 - persist a valuation. All the GRAP arithmetic (history row,
+     * carrying amount, revaluation reserve, OCI/P&L split) lives in
+     * HeritageValuationService so the Spectrum valuation bridge and this form
+     * post identically.
+     */
+    public function storeValuation(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'valuation_date'             => 'required|date',
+            'new_value'                  => 'required|numeric|min:0',
+            'valuation_method'           => 'nullable|string|max:51',
+            'valuer_name'                => 'nullable|string|max:255',
+            'valuer_credentials'         => 'nullable|string|max:255',
+            'valuer_organization'        => 'nullable|string|max:255',
+            'valuation_report_reference' => 'nullable|string|max:255',
+            'notes'                      => 'nullable|string',
+        ]);
+        $validated['user_id'] = auth()->id();
+
+        $result = app(HeritageValuationService::class)->record($id, $validated);
+
+        if (($result['status'] ?? '') !== 'recorded') {
+            return back()->withInput()->with('error', match ($result['status'] ?? '') {
+                'no_asset'    => __('Heritage asset not found.'),
+                'unavailable' => __('Heritage accounting is not installed.'),
+                default       => __('The valuation could not be recorded.'),
+            });
+        }
+
+        $change = $result['change'];
+        $msg = $change == 0.0
+            ? __('Valuation recorded - no change to the carrying amount.')
+            : __(':dir of :amt recorded; carrying amount is now :new.', [
+                'dir' => $change > 0 ? __('Revaluation increase') : __('Revaluation decrease'),
+                'amt' => number_format(abs($change), 2),
+                'new' => number_format($result['new_value'], 2),
+            ]);
+
+        return redirect()->route('heritage.accounting.view', $id)->with('success', $msg);
+    }
+
     public function addImpairment(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-impairment', ['asset' => null, 'fields' => [], 'formAction' => '#']); }
     public function addJournal(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-journal', ['asset' => null, 'fields' => [], 'formAction' => '#']); }
     public function addMovement(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-movement', ['asset' => null, 'fields' => [], 'formAction' => '#']); }

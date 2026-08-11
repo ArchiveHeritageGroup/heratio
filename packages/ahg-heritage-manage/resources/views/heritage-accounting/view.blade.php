@@ -132,6 +132,9 @@
         @endif
       </div>
       <div class="d-flex gap-2">
+        @if(Route::has('heritage.accounting.add-valuation'))
+          <a href="{{ route('heritage.accounting.add-valuation', $asset->id) }}" class="btn atom-btn-white btn-sm"><i class="fas fa-dollar-sign me-1"></i>{{ __('Add valuation') }}</a>
+        @endif
         @if(Route::has('heritage.accounting.edit'))
           <a href="{{ route('heritage.accounting.edit', $asset->id) }}" class="btn atom-btn-white btn-sm"><i class="fas fa-pen me-1"></i>{{ __('Edit') }}</a>
         @endif

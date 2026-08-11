@@ -83,6 +83,38 @@ class ValuationHeritageBridge
         $previousAmount = (float) ($asset->last_valuation_amount ?? 0);
         $newAmount = (float) $val->valuation_amount;
 
+        // Prefer the heritage-side write path when ahg-heritage-manage is
+        // present: it does the same asset update plus the rich
+        // heritage_valuation_history row and the GRAP 103.51 OCI / P&L split,
+        // so a Spectrum-driven valuation lands identically to one captured on
+        // the heritage Add Valuation form (#1460). Soft-bound via class_exists
+        // so this package keeps no hard dependency on that one; if anything
+        // goes wrong we fall through to the inline write below.
+        if (class_exists(\AhgHeritageManage\Services\HeritageValuationService::class)) {
+            try {
+                $result = app(\AhgHeritageManage\Services\HeritageValuationService::class)->record((int) $asset->id, [
+                    'valuation_date' => $val->valuation_date,
+                    'new_value' => $newAmount,
+                    'valuation_method' => $val->valuation_type ?: ($asset->valuation_method ?? null),
+                    'valuer_name' => $val->valuer_name ?: ($asset->valuer_name ?? null),
+                    'valuation_report_reference' => $val->valuation_reference ?: ($asset->valuation_report_reference ?? null),
+                    'notes' => 'Synced from Collections Procedure valuation',
+                    'user_id' => auth()->id(),
+                    'skip_if_unchanged' => true,
+                ]);
+                if (in_array($result['status'] ?? '', ['recorded', 'unchanged'], true)) {
+                    return [
+                        'status' => 'synced',
+                        'heritage_asset_id' => (int) $asset->id,
+                        'amount' => $newAmount,
+                        'created' => $created,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                // Fall through to the inline write.
+            }
+        }
+
         // Update the asset's valuation fields (only columns that exist).
         $update = $this->onlyColumns('heritage_asset', [
             'last_valuation_date' => $val->valuation_date,
