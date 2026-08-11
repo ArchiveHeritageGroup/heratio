@@ -191,7 +191,11 @@ class NerAnnotationBridgeIntegrationTest extends TestCase
                 // for the stub, and the parent would otherwise read
                 // ahg_settings + try to reach the API URL on instantiation.
             }
-            public function extract(string $text): array
+            // Signature must track NerService::extract; the $digitalObjectId
+            // parameter was added there and this stub was not updated, which
+            // made the class declaration fatal and took the whole Feature
+            // suite down with it.
+            public function extract(string $text, ?int $digitalObjectId = null): array
             {
                 return $this->payload;
             }

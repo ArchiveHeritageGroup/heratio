@@ -35,6 +35,15 @@ class DraftRecordVisibilityTest extends TestCase
     {
         parent::setUp();
 
+        // AclService caches the resolved user in a STATIC, which survives
+        // between tests in the same PHP process. phpunit.xml runs with
+        // executionOrder="depends,defects", so the editor case can run before
+        // a guest case and leave an admin cached - the guest gate then sees a
+        // privileged user and the draft appears to "leak". Production is
+        // unaffected (a request is its own process); this is test-only state.
+        // Same guard TermProtocolGateTest already uses.
+        \AhgCore\Services\AclService::forgetUser();
+
         foreach (['object', 'information_object', 'information_object_i18n', 'slug', 'status', 'user'] as $t) {
             if (! Schema::hasTable($t)) {
                 $this->markTestSkipped("$t table not present in this install.");
