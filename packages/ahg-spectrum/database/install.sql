@@ -1172,4 +1172,32 @@ CREATE TABLE IF NOT EXISTS `spectrum_object_barcode` (
   CONSTRAINT `spectrum_object_barcode_object_fk` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- #1460: generic per-procedure documented evidence/proof. Keyed by
+-- (object_id, procedure_type[, procedure_id]) like spectrum_procedure_history,
+-- so one table serves every flow. Either an uploaded file or a linked
+-- digital_object. Also created by the package migration on existing installs.
+CREATE TABLE IF NOT EXISTS `spectrum_procedure_evidence` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `object_id` INT UNSIGNED NOT NULL,
+    `procedure_type` VARCHAR(50) NOT NULL COMMENT 'acquisition, condition, valuation, loan_in, loan_out, movement, deaccession, ...',
+    `procedure_id` INT UNSIGNED NULL COMMENT 'specific procedure row, or NULL = the procedure_type in general',
+    `evidence_kind` VARCHAR(10) NOT NULL DEFAULT 'upload' COMMENT 'upload, link',
+    `filename` VARCHAR(255) NULL,
+    `original_name` VARCHAR(255) NULL,
+    `mime_type` VARCHAR(100) NULL,
+    `file_size` INT UNSIGNED NULL,
+    `file_path` VARCHAR(500) NULL,
+    `digital_object_id` INT UNSIGNED NULL,
+    `category` VARCHAR(40) NULL COMMENT 'certificate, receipt, report, agreement, photo, correspondence, other',
+    `description` TEXT NULL,
+    `evidence_date` DATE NULL,
+    `uploaded_by` INT UNSIGNED NULL,
+    `tenant_id` INT UNSIGNED NULL,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_spe_object_proc` (`object_id`, `procedure_type`),
+    KEY `idx_spe_procedure` (`procedure_id`),
+    KEY `idx_spe_digital_object` (`digital_object_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

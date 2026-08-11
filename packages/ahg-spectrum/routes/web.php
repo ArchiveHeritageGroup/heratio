@@ -28,6 +28,12 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth', EnsureSpectrumEnable
     Route::post('/workflow-transition', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowTransition'])->name('ahgspectrum.workflow-transition')->middleware('acl:update');
     Route::post('/workflow-sop', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowSop'])->name('ahgspectrum.workflow-sop')->middleware('acl:update');
 
+    // #1460: generic per-procedure documented evidence (upload / link / download / delete).
+    Route::post('/evidence/upload', [\AhgSpectrum\Controllers\ProcedureEvidenceController::class, 'upload'])->name('ahgspectrum.evidence.upload')->middleware('acl:update');
+    Route::post('/evidence/link', [\AhgSpectrum\Controllers\ProcedureEvidenceController::class, 'link'])->name('ahgspectrum.evidence.link')->middleware('acl:update');
+    Route::get('/evidence/{id}/download', [\AhgSpectrum\Controllers\ProcedureEvidenceController::class, 'download'])->whereNumber('id')->name('ahgspectrum.evidence.download');
+    Route::post('/evidence/{id}/delete', [\AhgSpectrum\Controllers\ProcedureEvidenceController::class, 'destroy'])->whereNumber('id')->name('ahgspectrum.evidence.delete')->middleware('acl:delete');
+
     // #123 enable_barcodes: scan + assign endpoints. Both 404 when
     // spectrum_enable_barcodes is off (controller-side check) so the
     // routes are invisible until the operator opts in.

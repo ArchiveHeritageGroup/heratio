@@ -485,6 +485,14 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
     </div>
 </div>
 
+{{-- #1460: generic per-procedure documented evidence/proof for this flow. --}}
+@include('spectrum::_procedure-evidence', [
+    'objectId'      => $resource->id ?? null,
+    'procedureType' => $procedureType,
+    'slug'          => $resource->slug ?? '',
+    'procedureId'   => null,
+])
+
 {{-- #739 Museum vocabulary autocomplete (Getty AAT + ahg_dropdown + internal authorities). --}}
 @includeIf('ahg-museum::_autocomplete-script')
 

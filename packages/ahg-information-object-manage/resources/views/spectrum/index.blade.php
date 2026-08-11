@@ -100,13 +100,19 @@
       ];
       $colors = ['primary', 'success', 'info', 'warning', 'secondary', 'dark'];
       $i = 0;
+      // #1460: evidence counts per procedure, for the paperclip badge.
+      try { $evCounts = app(\AhgSpectrum\Services\ProcedureEvidenceService::class)->countsByProcedure((int) $io->id); }
+      catch (\Throwable $e) { $evCounts = []; }
       @endphp
 
       <div class="row g-3">
         @foreach ($procedures as $key => $proc)
           @php $color = $colors[$i % count($colors)]; $i++; @endphp
           <div class="col-lg-3 col-md-4 col-sm-6">
-            <div class="card h-100 border-{{ $color }}">
+            <div class="card h-100 border-{{ $color }} position-relative">
+              @if (($evCounts[$key] ?? 0) > 0)
+                <span class="badge bg-secondary position-absolute top-0 end-0 m-2" title="{{ __('Documented evidence attached') }}"><i class="fas fa-paperclip"></i> {{ $evCounts[$key] }}</span>
+              @endif
               <div class="card-body text-center p-3">
                 <i class="fas {{ $proc['icon'] }} fa-2x mb-2 text-{{ $color }}"></i>
                 <h6 class="card-title mb-2">{{ __($proc['label']) }}</h6>

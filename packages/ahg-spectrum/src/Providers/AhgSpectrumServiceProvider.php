@@ -11,6 +11,9 @@ class AhgSpectrumServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'spectrum');
+        // #1460: per-procedure evidence table. loadMigrationsFrom or it silently
+        // never runs and prod drifts behind dev (see the package-migrations rule).
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
         // Share whether Spectrum is enabled so nav/menus can hide ALL Spectrum
         // entry points when the operator switches it off. Every /admin/spectrum/*
