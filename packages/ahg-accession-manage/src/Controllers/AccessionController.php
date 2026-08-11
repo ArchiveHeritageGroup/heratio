@@ -32,6 +32,7 @@ use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AccessionController extends Controller
@@ -1004,9 +1005,188 @@ class AccessionController extends Controller
         if (! $accession) {
             abort(404);
         }
-        $rights = collect();
+        // Was hardcoded to an empty collection, so the page always claimed
+        // "No rights records" no matter what accession_rights held.
+        $rights = Schema::hasTable('accession_rights')
+            ? DB::table('accession_rights')->where('accession_id', $id)->orderByDesc('id')->get()
+            : collect();
 
-        return view('ahg-accession-manage::rights', compact('accession', 'rights'));
+        return view('ahg-accession-manage::rights', [
+            'accession' => $accession,
+            'rights' => $rights,
+            'bases' => self::RIGHTS_BASES,
+            'restrictions' => self::RIGHTS_RESTRICTIONS,
+        ]);
+    }
+
+    /** Vocabulary for the rights form. PREMIS rights bases. */
+    public const RIGHTS_BASES = ['copyright', 'licence', 'statute', 'policy', 'donor', 'other'];
+
+    /** What the rights record does to access. */
+    public const RIGHTS_RESTRICTIONS = ['open', 'conditional', 'restricted', 'closed'];
+
+    /**
+     * Persist a rights record against the accession.
+     *
+     * inherit_to_children feeds the existing accession_rights_inheritance_enabled
+     * behaviour that createInformationObject() already honours, so a right
+     * captured here can flow to descriptions made from this accession.
+     */
+    public function rightsStore(Request $request, int $id)
+    {
+        if (! Schema::hasTable('accession_rights')) {
+            return back()->with('error', __('Accession rights are not installed.'));
+        }
+        if (! DB::table('accession')->where('id', $id)->exists()) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'rights_basis' => 'required|string|in:'.implode(',', self::RIGHTS_BASES),
+            'restriction_type' => 'required|string|in:'.implode(',', self::RIGHTS_RESTRICTIONS),
+            'rights_holder' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'conditions' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'inherit_to_children' => 'nullable|boolean',
+        ]);
+
+        DB::table('accession_rights')->insert([
+            'accession_id' => $id,
+            'rights_basis' => $data['rights_basis'],
+            'restriction_type' => $data['restriction_type'],
+            'rights_holder' => $data['rights_holder'] ?? null,
+            'start_date' => $data['start_date'] ?? null,
+            'end_date' => $data['end_date'] ?? null,
+            'conditions' => $data['conditions'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'inherit_to_children' => $request->boolean('inherit_to_children') ? 1 : 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('accession.rights', $id)->with('success', __('Rights record added.'));
+    }
+
+    public function rightsDestroy(int $id, int $rightId)
+    {
+        if (Schema::hasTable('accession_rights')) {
+            DB::table('accession_rights')->where('id', $rightId)->where('accession_id', $id)->delete();
+        }
+
+        return redirect()->route('accession.rights', $id)->with('success', __('Rights record removed.'));
+    }
+
+    /** Deaccession capture form for an accession. */
+    public function deaccessionCreate(int $id)
+    {
+        $accession = $this->fetchAccessionForPanel($id);
+        if (! $accession) {
+            abort(404);
+        }
+
+        $culture = app()->getLocale();
+        $scopes = Schema::hasTable('term')
+            ? DB::table('term')
+                ->join('term_i18n', function ($j) use ($culture) {
+                    $j->on('term_i18n.id', '=', 'term.id')->where('term_i18n.culture', $culture);
+                })
+                ->where('term.taxonomy_id', self::TAXONOMY_DEACCESSION_SCOPE)
+                ->orderBy('term_i18n.name')
+                ->pluck('term_i18n.name', 'term.id')
+            : collect();
+
+        $deaccessions = $this->service->getDeaccessions($id);
+
+        return view('ahg-accession-manage::deaccession-add', compact('accession', 'scopes', 'deaccessions'));
+    }
+
+    /**
+     * Create a deaccession.
+     *
+     * `deaccession` is a CTI table sharing its primary key with `object`
+     * (class_name QubitDeaccession), so the object row comes first - the id is
+     * not auto-generated on the deaccession table itself.
+     */
+    public function deaccessionStore(Request $request, int $id)
+    {
+        if (! Schema::hasTable('deaccession')) {
+            return back()->with('error', __('Deaccessions are not installed.'))->withInput();
+        }
+        if (! DB::table('accession')->where('id', $id)->exists()) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'identifier' => 'nullable|string|max:255',
+            'date' => 'nullable|date',
+            'scope_id' => 'nullable|integer',
+            'description' => 'nullable|string',
+            'extent' => 'nullable|string',
+            'reason' => 'nullable|string',
+        ]);
+
+        $culture = app()->getLocale();
+
+        $newId = DB::transaction(function () use ($data, $id, $culture) {
+            $objectId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitDeaccession',
+                'created_at' => now(),
+                'updated_at' => now(),
+                'serial_number' => 0,
+            ]);
+
+            DB::table('deaccession')->insert([
+                'id' => $objectId,
+                'accession_id' => $id,
+                'identifier' => $data['identifier'] ?? null,
+                'date' => $data['date'] ?? null,
+                'scope_id' => $data['scope_id'] ?? null,
+                'source_culture' => $culture,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('deaccession_i18n')->insert([
+                'id' => $objectId,
+                'culture' => $culture,
+                'description' => $data['description'] ?? null,
+                'extent' => $data['extent'] ?? null,
+                'reason' => $data['reason'] ?? null,
+            ]);
+
+            return $objectId;
+        });
+
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'deaccession', [
+            'accession_id' => $id,
+            'identifier' => $data['identifier'] ?? null,
+            'date' => $data['date'] ?? null,
+        ]);
+
+        return redirect()->route('accession.show', $this->slugFor($id))
+            ->with('success', __('Deaccession recorded.'));
+    }
+
+    /** Deaccession scope vocabulary (Whole / Part). */
+    private const TAXONOMY_DEACCESSION_SCOPE = 66;
+
+    /** Shared accession lookup for the side-panel pages. */
+    private function fetchAccessionForPanel(int $id): ?object
+    {
+        return DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('accession.id', $id)
+            ->where('accession_i18n.culture', app()->getLocale())
+            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->first();
+    }
+
+    private function slugFor(int $id): string
+    {
+        return (string) DB::table('slug')->where('object_id', $id)->value('slug');
     }
 
     // ── Intake Workflow ────────────────────────────────────────────

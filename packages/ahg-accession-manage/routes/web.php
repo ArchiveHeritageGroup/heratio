@@ -56,6 +56,18 @@ Route::middleware('admin')->group(function () {
     // Containers & rights
     Route::get('/accession/{id}/containers', [AccessionController::class, 'containers'])->name('accession.containers')->where('id', '[0-9]+');
     Route::get('/accession/{id}/rights', [AccessionController::class, 'rights'])->name('accession.rights')->where('id', '[0-9]+');
+    // Rights create/delete. The show page's "Create new rights" link pointed at
+    // the AtoM-legacy /right/add?slug=, which has no route here at all - it just
+    // 404'd, and the rights page it should have led to listed nothing because
+    // rights() hardcoded an empty collection.
+    Route::post('/accession/{id}/rights', [AccessionController::class, 'rightsStore'])->name('accession.rights-store')->middleware('acl:update')->where('id', '[0-9]+');
+    Route::delete('/accession/{id}/rights/{rightId}', [AccessionController::class, 'rightsDestroy'])->name('accession.rights-destroy')->middleware('acl:delete')->where(['id' => '[0-9]+', 'rightId' => '[0-9]+']);
+
+    // Deaccession. The show page's "Deaccession" button pointed at the
+    // AtoM-legacy /deaccession/add?accession=, which likewise had no route and
+    // no create path anywhere - the service could only READ deaccessions.
+    Route::get('/accession/{id}/deaccession', [AccessionController::class, 'deaccessionCreate'])->name('accession.deaccession-create')->where('id', '[0-9]+');
+    Route::post('/accession/{id}/deaccession', [AccessionController::class, 'deaccessionStore'])->name('accession.deaccession-store')->middleware('acl:create')->where('id', '[0-9]+');
 
     // Intake workflow
     Route::get('/accession/{id}/attachments', [AccessionController::class, 'attachments'])->name('accession.attachments')->where('id', '[0-9]+');

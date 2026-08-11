@@ -561,7 +561,7 @@
 
       {{-- Deaccession: admin only --}}
       @if($isAdmin)
-      <li><a href="{{ url('/deaccession/add?accession=' . $accession->id) }}" class="btn atom-btn-outline-light">Deaccession</a></li>
+      <li><a href="{{ route('accession.deaccession-create', $accession->id) }}" class="btn atom-btn-outline-light">Deaccession</a></li>
       @endif
 
       @if(!isset($accrualTo) || count($accrualTo) === 0)
@@ -575,7 +575,7 @@
           </button>
           <ul class="dropdown-menu mb-2">
             <li><a href="{{ route('informationobject.create', ['accession' => $accession->id]) }}" class="dropdown-item">Create {{ config('atom.ui_label_informationobject', 'archival description') }}</a></li>
-            <li><a href="{{ url('/right/add?slug=' . $accession->slug) }}" class="dropdown-item">Create new rights</a></li>
+            <li><a href="{{ route('accession.rights', $accession->id) }}" class="dropdown-item">Create new rights</a></li>
             <li><a href="{{ route('physicalobject.link-to', $accession->slug) }}" class="dropdown-item">Link physical storage</a></li>
           </ul>
         </div>
