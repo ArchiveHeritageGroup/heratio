@@ -50,10 +50,25 @@ class SearchUpdateCommand extends Command
                 continue;
             }
             $table = $this->tables[$type];
-            $ids = DB::table($table)->where('updated_at', '>=', $since)->pluck('id');
+            // Timestamps live on `object`, not on the per-class tables - all
+            // four of these are QubitObject subclasses sharing its id, so the
+            // modified-since filter has to join across. Querying
+            // information_object.updated_at (etc.) directly threw
+            // "Unknown column 'updated_at'" and every --since run died here.
+            $ids = DB::table($table)
+                ->join('object', 'object.id', '=', $table . '.id')
+                ->where('object.updated_at', '>=', $since)
+                ->orderBy($table . '.id')
+                ->pluck($table . '.id');
             $this->info("{$type}: {$ids->count()} records since {$since->toIso8601String()}");
             foreach ($ids as $id) {
-                $this->call('ahg:es-reindex', ['--index' => $type, '--id' => $id]);
+                // --no-progress: the delegate draws a progress bar per record,
+                // which is pure noise when the caller is a loop.
+                $this->call('ahg:es-reindex', [
+                    '--index' => $type,
+                    '--id' => $id,
+                    '--no-progress' => true,
+                ]);
                 $total++;
             }
         }
