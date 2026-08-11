@@ -174,6 +174,17 @@ class ProcedureUpdateController extends Controller
             }
         }
 
+        // #1460 Phase 2: keep an already-linked ahg-loan record in step with an
+        // edited Spectrum loan procedure. Gated + never breaks the PATCH; updates
+        // an existing loan only (the explicit button does the create).
+        if ($procedureType === 'loan_in' || $procedureType === 'loan_out') {
+            try {
+                app(\AhgSpectrum\Services\LoanBridge::class)
+                    ->syncObject((int) ($row->object_id ?? 0), $procedureType, false);
+            } catch (\Throwable $e) {
+            }
+        }
+
         return response()->json([
             'success'        => true,
             'procedure_type' => $procedureType,

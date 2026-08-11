@@ -512,6 +512,34 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
 </div>
 @endif
 
+{{-- #1460 Phase 2: Loan procedure -> ahg-loan hand-off (gated - only shown when
+     ahg-loan is installed). --}}
+@php
+    $loanAvailable = false;
+    if (in_array($procedureType ?? '', ['loan_in', 'loan_out'], true)) {
+        try { $loanAvailable = app(\AhgSpectrum\Services\LoanBridge::class)->available(); }
+        catch (\Throwable $e) { $loanAvailable = false; }
+    }
+@endphp
+@if (in_array($procedureType ?? '', ['loan_in', 'loan_out'], true) && $loanAvailable)
+<div class="card mb-4 border-primary">
+    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <i class="fas fa-exchange-alt me-2 text-primary"></i><strong>{{ __('Loans module (ahg-loan)') }}</strong>
+            <div class="small text-muted">{{ __('Create the full loan record (agreement, objects, condition reports, courier, returns) in the Loans module from this procedure. Creates it if it does not exist yet.') }}</div>
+        </div>
+        @if (\AhgCore\Services\AclService::hasPermission(auth()->id(), 'update'))
+        <form method="post" action="{{ route('ahgspectrum.loan.sync') }}">
+            @csrf
+            <input type="hidden" name="slug" value="{{ $resource->slug ?? '' }}">
+            <input type="hidden" name="procedure_type" value="{{ $procedureType }}">
+            <button type="submit" class="btn btn-outline-primary"><i class="fas fa-sync me-1"></i>{{ __('Create / sync loan record') }}</button>
+        </form>
+        @endif
+    </div>
+</div>
+@endif
+
 {{-- #1460: generic per-procedure documented evidence/proof for this flow. --}}
 @include('spectrum::_procedure-evidence', [
     'objectId'      => $resource->id ?? null,
