@@ -701,8 +701,23 @@
             ->where('er.object_id', $io->id)->first()
         : null;
 
-    $extRsName = ($extRightsData && ($extRightsData->rights_statement_id ?? null)) ? \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $extRightsData->rights_statement_id)->where('culture', $culture)->value('name') : null;
-    $extCcName = ($extRightsData && ($extRightsData->creative_commons_license_id ?? null)) ? \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $extRightsData->creative_commons_license_id)->where('culture', $culture)->value('name') : null;
+    // #1464: these two resolved against term_i18n, but rights statements and
+    // CC licences are their own vocabularies (rights_statement /
+    // rights_cc_license), not taxonomy terms. The ids never matched, both names
+    // came back null, and the guards below meant the Rights statement and
+    // Creative Commons rows silently never rendered.
+    $extRsName = ($extRightsData && ($extRightsData->rights_statement_id ?? null))
+        ? \Illuminate\Support\Facades\DB::table('rights_statement_i18n')
+            ->where('rights_statement_id', $extRightsData->rights_statement_id)
+            ->where('culture', $culture)->value('name')
+        : null;
+    $extCcName = ($extRightsData && ($extRightsData->creative_commons_license_id ?? null))
+        ? (\Illuminate\Support\Facades\DB::table('rights_cc_license_i18n')
+            ->where('id', $extRightsData->creative_commons_license_id)
+            ->where('culture', $culture)->value('name')
+           ?: \Illuminate\Support\Facades\DB::table('rights_cc_license')
+            ->where('id', $extRightsData->creative_commons_license_id)->value('code'))
+        : null;
     $tkLabels = ($extRightsData && \Illuminate\Support\Facades\Schema::hasTable('extended_rights_tk_label'))
         ? \Illuminate\Support\Facades\DB::table('extended_rights_tk_label')->where('extended_rights_id', $extRightsData->id)->get()
         : collect();

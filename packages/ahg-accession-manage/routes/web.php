@@ -67,6 +67,13 @@ Route::middleware('admin')->group(function () {
     // AtoM-legacy /deaccession/add?accession=, which likewise had no route and
     // no create path anywhere - the service could only READ deaccessions.
     Route::get('/accession/{id}/deaccession', [AccessionController::class, 'deaccessionCreate'])->name('accession.deaccession-create')->where('id', '[0-9]+');
+
+    // AtoM-legacy URL compatibility (#1463). These are the URLs the old buttons
+    // used and that may still sit in bookmarks, saved links and old email. They
+    // are not resurrected features - they just forward to the real pages so an
+    // old link is a redirect rather than a 404.
+    Route::get('/right/add', [AccessionController::class, 'legacyRightAdd']);
+    Route::get('/deaccession/add', [AccessionController::class, 'legacyDeaccessionAdd']);
     Route::post('/accession/{id}/deaccession', [AccessionController::class, 'deaccessionStore'])->name('accession.deaccession-store')->middleware('acl:create')->where('id', '[0-9]+');
 
     // Intake workflow

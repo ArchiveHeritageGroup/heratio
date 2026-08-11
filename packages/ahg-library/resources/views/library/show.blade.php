@@ -831,8 +831,22 @@
         : null;
 
     // Resolve extended rights lookups
-    $extRsName = ($extRights && $extRights->rights_statement_id) ? \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $extRights->rights_statement_id)->where('culture', $culture)->value('name') : null;
-    $extCcName = ($extRights && $extRights->creative_commons_license_id) ? \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $extRights->creative_commons_license_id)->where('culture', $culture)->value('name') : null;
+    // #1464: see the same fix on the archival-description show page. These
+    // resolved against term_i18n, but rights statements and CC licences are
+    // their own vocabularies, so both names were always null and neither row
+    // ever rendered.
+    $extRsName = ($extRights && $extRights->rights_statement_id)
+        ? \Illuminate\Support\Facades\DB::table('rights_statement_i18n')
+            ->where('rights_statement_id', $extRights->rights_statement_id)
+            ->where('culture', $culture)->value('name')
+        : null;
+    $extCcName = ($extRights && $extRights->creative_commons_license_id)
+        ? (\Illuminate\Support\Facades\DB::table('rights_cc_license_i18n')
+            ->where('id', $extRights->creative_commons_license_id)
+            ->where('culture', $culture)->value('name')
+           ?: \Illuminate\Support\Facades\DB::table('rights_cc_license')
+            ->where('id', $extRights->creative_commons_license_id)->value('code'))
+        : null;
 
     // TK labels
     $tkLabels = ($extRights && \Illuminate\Support\Facades\Schema::hasTable('extended_rights_tk_label'))

@@ -1169,6 +1169,48 @@ class AccessionController extends Controller
             ->with('success', __('Deaccession recorded.'));
     }
 
+    /**
+     * AtoM-legacy `/right/add?slug=` -> the accession's rights page.
+     *
+     * Kept only so old bookmarks and saved links redirect instead of 404ing;
+     * nothing in the UI points here any more.
+     */
+    public function legacyRightAdd(Request $request)
+    {
+        $id = $this->accessionIdFromSlug((string) $request->query('slug', ''));
+
+        return $id
+            ? redirect()->route('accession.rights', $id, 301)
+            : redirect()->route('accession.browse')
+                ->with('info', __('That rights link is out of date. Open the accession and use Rights.'));
+    }
+
+    /** AtoM-legacy `/deaccession/add?accession=` -> the deaccession form. */
+    public function legacyDeaccessionAdd(Request $request)
+    {
+        $id = (int) $request->query('accession', 0);
+        if ($id && DB::table('accession')->where('id', $id)->exists()) {
+            return redirect()->route('accession.deaccession-create', $id, 301);
+        }
+
+        return redirect()->route('accession.browse')
+            ->with('info', __('That deaccession link is out of date. Open the accession and use Deaccession.'));
+    }
+
+    /** Resolve an accession slug to its id, or null. */
+    private function accessionIdFromSlug(string $slug): ?int
+    {
+        if ($slug === '') {
+            return null;
+        }
+        $id = DB::table('slug')
+            ->join('accession', 'accession.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->value('accession.id');
+
+        return $id ? (int) $id : null;
+    }
+
     /** Deaccession scope vocabulary (Whole / Part). */
     private const TAXONOMY_DEACCESSION_SCOPE = 66;
 
