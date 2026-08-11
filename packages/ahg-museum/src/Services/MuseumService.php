@@ -544,6 +544,13 @@ class MuseumService
             app(\AhgCore\Services\ClosureMaintenanceService::class)
                 ->addNode('information_object', (int) $objectId, (int) $parentId);
 
+            // #1461 - without this the record has no publication status at all:
+            // invisible to guests and matched by no publication-status filter.
+            \AhgCore\Services\RecordCreationService::ensurePublicationStatus(
+                (int) $objectId,
+                isset($data['publication_status_id']) ? (int) $data['publication_status_id'] : null
+            );
+
             // Insert into information_object_i18n table
             DB::table('information_object_i18n')->insert([
                 'id' => $objectId,

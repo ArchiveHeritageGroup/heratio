@@ -1263,6 +1263,15 @@ class RicEntityService
                 'source_culture' => $this->culture,
             ]);
 
+            // #1461/#1462 - publication status + closure node. Without these a
+            // RiC record is invisible to guests, matched by no
+            // publication-status filter, and skipped by descendant walks.
+            \AhgCore\Services\RecordCreationService::finalizeInformationObject(
+                (int) $id,
+                isset($data['parent_id']) ? (int) $data['parent_id'] : null,
+                isset($data['publication_status_id']) ? (int) $data['publication_status_id'] : null
+            );
+
             DB::table('information_object_i18n')->insert([
                 'id' => $id,
                 'culture' => $this->culture,

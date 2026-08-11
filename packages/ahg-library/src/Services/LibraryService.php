@@ -278,6 +278,15 @@ class LibraryService
             }
             DB::table('information_object')->insert($ioInsert);
 
+            // #1461/#1462 - publication status + closure node. Without these a
+            // library item is invisible to guests, matched by no
+            // publication-status filter, and skipped by descendant walks.
+            \AhgCore\Services\RecordCreationService::finalizeInformationObject(
+                (int) $id,
+                (int) ($data['parent_id'] ?? 1),
+                isset($data['publication_status_id']) ? (int) $data['publication_status_id'] : null
+            );
+
             // 3. Create information_object_i18n record
             DB::table('information_object_i18n')->insert([
                 'id' => $id,

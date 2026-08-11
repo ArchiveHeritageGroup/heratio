@@ -146,6 +146,14 @@ class EadImportCommand extends Command
         }
         DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
 
+        // #1461/#1462 - publication status + closure node. Draft is the right
+        // posture for a fresh EAD import pending review; without the closure
+        // node a walk of the imported finding aid skips the record.
+        \AhgCore\Services\RecordCreationService::finalizeInformationObject(
+            (int) $objectId,
+            $parentId !== null ? (int) $parentId : null
+        );
+
         return $objectId;
     }
 }

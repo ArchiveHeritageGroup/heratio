@@ -112,6 +112,13 @@ class SeedScaleCorpusCommand extends Command
             $this->newLine();
             $this->line('Building closure tables (ahg:build-closure --all)...');
             $this->call('ahg:build-closure', ['--all' => true]);
+        } else {
+            // #1462 - a bulk seed deliberately skips per-node closure writes
+            // (they would dominate the runtime), so say so rather than leave
+            // the corpus silently missing from descendant queries.
+            $this->newLine();
+            $this->warn('Closure tables NOT built - the seeded corpus is absent from closure-backed descendant queries.');
+            $this->line('  Run `php artisan ahg:build-closure --all`, or re-run with --build-closure.');
         }
 
         if ($this->option('verify')) {

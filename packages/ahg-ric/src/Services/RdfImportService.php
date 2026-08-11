@@ -281,6 +281,15 @@ class RdfImportService
         DB::table('information_object')->insert(array_merge(['id' => $objectId], $cols));
         DB::table('information_object_i18n')->insert(array_merge(['id' => $objectId], $i18n));
 
+        // #1461/#1462 - imported records had no publication status (invisible
+        // to guests, matched by no filter) and no closure node (skipped by
+        // descendant walks). Status defaults to Draft, the right posture for
+        // freshly imported RDF pending review.
+        \AhgCore\Services\RecordCreationService::finalizeInformationObject(
+            (int) $objectId,
+            isset($cols['parent_id']) ? (int) $cols['parent_id'] : null
+        );
+
         return $objectId;
     }
 

@@ -521,6 +521,11 @@ class MarcXmlImporter
             'related_units_of_description' => $desc['related_units_of_description'],
         ]);
 
+        // #1461/#1462 - imported records had no publication status (invisible
+        // to guests, matched by no filter) and no closure node. MARC records
+        // import flat at the root, so there is no parent to link to.
+        \AhgCore\Services\RecordCreationService::finalizeInformationObject((int) $objectId, null);
+
         return [(int) $objectId, 'create'];
     }
 

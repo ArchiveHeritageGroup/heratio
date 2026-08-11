@@ -328,27 +328,41 @@ class InformationObjectService
                 'slug' => $slug,
             ]);
 
-            // 6. Set default publication status. Resolution order:
-            //    explicit $data['publication_status_id']
-            //    > settings.defaultPubStatus
-            //    > self::STATUS_DRAFT (159)
-            // Honours the operator-set defaultPubStatus on /admin/settings/global.
-            $pubStatusId = !empty($data['publication_status_id'])
-                ? (int) $data['publication_status_id']
-                : \AhgCore\Support\GlobalSettings::defaultPublicationStatusId(self::STATUS_DRAFT);
-
-            DB::table('status')->insert([
-                'object_id' => $objectId,
-                'type_id' => self::STATUS_TYPE_PUBLICATION,
-                'status_id' => $pubStatusId,
-                'serial_number' => 0,
-            ]);
+            // 6. Publication status (closure was already written above, next to
+            // the information_object insert, so it stays inside this
+            // transaction). See finalizeCreation() for why both matter.
+            self::ensurePublicationStatus($objectId, $data['publication_status_id'] ?? null);
 
             return $objectId;
         });
 
         \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'information_object', self::auditSnapshot((int) $newId, $culture));
         return (int) $newId;
+    }
+
+    // ─── Finish creating an information object (#1461, #1462) ────────
+
+    /**
+     * Finish creating an information object: publication status + closure node.
+     *
+     * Thin delegates to AhgCore\Services\RecordCreationService, which holds the
+     * single implementation (see #1461 / #1462 for why both writes matter, and
+     * why the canonical version lives in ahg-core - importers and sector
+     * packages call it without depending on this package).
+     */
+    public static function finalizeCreation(int $objectId, ?int $parentId = null, ?int $publicationStatusId = null): void
+    {
+        \AhgCore\Services\RecordCreationService::finalizeInformationObject($objectId, $parentId, $publicationStatusId);
+    }
+
+    public static function ensurePublicationStatus(int $objectId, ?int $publicationStatusId = null): int
+    {
+        return \AhgCore\Services\RecordCreationService::ensurePublicationStatus($objectId, $publicationStatusId);
+    }
+
+    public static function ensureClosureNode(int $objectId, ?int $parentId): void
+    {
+        \AhgCore\Services\RecordCreationService::ensureClosureNode($objectId, $parentId);
     }
 
     // ─── Update ──────────────────────────────────────────────────────

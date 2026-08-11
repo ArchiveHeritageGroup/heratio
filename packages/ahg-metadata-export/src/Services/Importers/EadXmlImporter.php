@@ -391,6 +391,16 @@ class EadXmlImporter
             ['id' => $objectId, 'culture' => $this->culture],
             $this->i18nPayload($node)
         ));
+
+        // #1461/#1462 - imported descriptions had no publication status
+        // (invisible to guests, matched by no filter) and no closure node (a
+        // walk of the imported finding aid skipped them). Draft is the right
+        // posture for a fresh EAD import pending review.
+        \AhgCore\Services\RecordCreationService::finalizeInformationObject(
+            (int) $objectId,
+            $parentIoId !== null ? (int) $parentIoId : null
+        );
+
         return [(int) $objectId, 'create'];
     }
 

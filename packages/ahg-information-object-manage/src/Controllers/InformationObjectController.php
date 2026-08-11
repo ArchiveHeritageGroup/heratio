@@ -3021,6 +3021,14 @@ class InformationObjectController extends Controller
                 app(\AhgCore\Services\ClosureMaintenanceService::class)
                     ->addNode('information_object', (int) $childId, (int) $ioId);
 
+                // #1461 - the add-child path wrote no publication status, so
+                // children created here were invisible to guests and matched by
+                // no publication-status filter.
+                \AhgCore\Services\RecordCreationService::ensurePublicationStatus(
+                    (int) $childId,
+                    $request->filled('publication_status_id') ? (int) $request->input('publication_status_id') : null
+                );
+
                 DB::table('information_object_i18n')->insert([
                     'id'      => $childId,
                     'culture' => $culture,
@@ -3251,32 +3259,17 @@ class InformationObjectController extends Controller
             'slug' => $slug,
         ]);
 
-        // Publication status. This path wrote no `status` row at all, so every
-        // record created from the form landed in a state no operator chose -
-        // neither Draft nor Published, just absent - which reads as unpublished
-        // to guests (404) and matches neither value in a publication-status
-        // filter. Worse, create.blade.php offers a Draft/Published select whose
-        // value was discarded. Same resolution order as
-        // InformationObjectService::create(): explicit field > the operator's
-        // defaultPubStatus global > Draft.
-        $pubStatusId = $request->filled('publication_status_id')
-            ? (int) $request->input('publication_status_id')
-            : \AhgCore\Support\GlobalSettings::defaultPublicationStatusId(
-                \AhgInformationObjectManage\Services\InformationObjectService::STATUS_DRAFT
-            );
-        if (! in_array($pubStatusId, [
-            \AhgInformationObjectManage\Services\InformationObjectService::STATUS_DRAFT,
-            \AhgInformationObjectManage\Services\InformationObjectService::STATUS_PUBLISHED,
-        ], true)) {
-            $pubStatusId = \AhgInformationObjectManage\Services\InformationObjectService::STATUS_DRAFT;
-        }
-
-        DB::table('status')->insert([
-            'object_id' => $objectId,
-            'type_id' => \AhgInformationObjectManage\Services\InformationObjectService::STATUS_TYPE_PUBLICATION,
-            'status_id' => $pubStatusId,
-            'serial_number' => 0,
-        ]);
+        // Publication status + closure node (#1461, #1462). This path wrote
+        // neither: records created from the form landed in a state no operator
+        // chose - no status row at all, so invisible to guests and matched by
+        // no publication-status filter - and absent from the closure tree, so
+        // closure-backed descendant walks silently skipped them. The form's
+        // Draft/Published select was being discarded outright.
+        \AhgInformationObjectManage\Services\InformationObjectService::finalizeCreation(
+            (int) $objectId,
+            (int) $parentId,
+            $request->filled('publication_status_id') ? (int) $request->input('publication_status_id') : null
+        );
 
         // Watermark Settings - same canonical write path as update(). Triggers
         // when any watermark field is present so a brand-new IO can be saved

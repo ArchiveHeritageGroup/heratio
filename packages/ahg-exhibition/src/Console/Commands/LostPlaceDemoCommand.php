@@ -285,6 +285,11 @@ class LostPlaceDemoCommand extends Command
             'scope_and_content' => "Public-domain photographic and graphic evidence of {$place}, assembled from Wikimedia Commons for the Lost Places reconstruction POC (#1323).",
         ]);
 
+        // #1461/#1462 - status + closure. Draft keeps the effective visibility
+        // these records already had (a missing status row reads as unpublished),
+        // so this makes the state explicit without changing behaviour.
+        \AhgCore\Services\RecordCreationService::finalizeInformationObject($id, null);
+
         return $id;
     }
 

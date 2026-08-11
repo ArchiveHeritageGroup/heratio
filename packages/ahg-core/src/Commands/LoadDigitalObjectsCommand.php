@@ -119,6 +119,11 @@ class LoadDigitalObjectsCommand extends Command
         }
         DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
 
+        // #1461/#1462 - these item-level children are exactly what a collection
+        // walk must find, and descendant queries read the closure tree; without
+        // a status row they are also invisible to guests.
+        \AhgCore\Services\RecordCreationService::finalizeInformationObject((int) $objectId, (int) $parent->id);
+
         return $objectId;
     }
 }

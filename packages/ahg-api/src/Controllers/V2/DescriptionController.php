@@ -254,6 +254,10 @@ class DescriptionController extends BaseApiController
                 'source_culture' => $this->culture,
             ]);
 
+            // #1462 - closure tree alongside lft/rgt; closure is what
+            // descendant queries actually read.
+            \AhgCore\Services\RecordCreationService::ensureClosureNode((int) $objectId, $parentId !== null ? (int) $parentId : null);
+
             // Create i18n row
             $i18nFields = ['title', 'scope_and_content', 'extent_and_medium', 'archival_history',
                 'acquisition', 'appraisal', 'accruals', 'arrangement', 'access_conditions',

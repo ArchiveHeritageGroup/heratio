@@ -160,6 +160,11 @@ class LostPlaceBuildSpaceCommand extends Command
         DB::table('information_object')->insert(['id' => $id, 'source_culture' => 'en']);
         DB::table('information_object_i18n')->insert(['id' => $id, 'culture' => 'en', 'title' => $title]);
 
+        // #1461/#1462 - status + closure. Draft keeps the effective visibility
+        // these records already had (a missing status row reads as unpublished),
+        // so this makes the state explicit without changing behaviour.
+        \AhgCore\Services\RecordCreationService::finalizeInformationObject($id, null);
+
         // digital surrogate reuses the already-downloaded file (same path/name).
         $doId = (int) DB::table('object')->insertGetId([
             'class_name' => 'QubitDigitalObject', 'created_at' => now(), 'updated_at' => now(),

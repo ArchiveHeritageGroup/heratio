@@ -990,6 +990,10 @@ class DigitalObjectController extends Controller
                     'source_culture' => $io->source_culture ?? $culture,
                 ]);
 
+                // #1462 - these children are exactly what a collection walk
+                // must find, and descendant queries read the closure tree.
+                \AhgCore\Services\RecordCreationService::ensureClosureNode((int) $objectId, (int) $io->id);
+
                 DB::table('information_object_i18n')->insert([
                     'id' => $objectId,
                     'culture' => $culture,

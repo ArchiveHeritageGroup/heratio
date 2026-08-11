@@ -292,6 +292,10 @@ class DamService
             }
             DB::table('information_object')->insert($ioInsert);
 
+            // #1462 - closure tree alongside lft/rgt; closure is what
+            // descendant queries actually read.
+            \AhgCore\Services\RecordCreationService::ensureClosureNode((int) $id, (int) ($data['parent_id'] ?? 1));
+
             // 3. Create information_object_i18n record
             DB::table('information_object_i18n')->insert([
                 'id' => $id,

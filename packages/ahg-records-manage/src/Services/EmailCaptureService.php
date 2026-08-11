@@ -223,6 +223,12 @@ class EmailCaptureService
                 app(\AhgCore\Services\ClosureMaintenanceService::class)
                     ->addNode('information_object', $objectId, 1);
 
+                // #1461 - captured email had no publication status at all,
+                // leaving it invisible to guests and absent from every
+                // publication-status filter. Defaults to Draft, which is the
+                // right posture for an auto-captured record.
+                \AhgCore\Services\RecordCreationService::ensurePublicationStatus((int) $objectId);
+
                 // 3. information_object_i18n
                 DB::table('information_object_i18n')->insert([
                     'id' => $objectId,
