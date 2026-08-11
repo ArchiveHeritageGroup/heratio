@@ -162,6 +162,18 @@ class ProcedureUpdateController extends Controller
             ], 500);
         }
 
+        // #1460 Phase 2: push an edited valuation into GRAP heritage accounting.
+        // Gated - a clean no-op when ahg-heritage-manage is absent, and never
+        // allowed to break the PATCH it is reacting to. Updates an existing
+        // heritage asset only (no surprise asset creation on a field edit).
+        if ($procedureType === 'valuation') {
+            try {
+                app(\AhgSpectrum\Services\ValuationHeritageBridge::class)
+                    ->syncObject((int) ($row->object_id ?? 0), false);
+            } catch (\Throwable $e) {
+            }
+        }
+
         return response()->json([
             'success'        => true,
             'procedure_type' => $procedureType,

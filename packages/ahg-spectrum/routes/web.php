@@ -34,6 +34,9 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth', EnsureSpectrumEnable
     Route::get('/evidence/{id}/download', [\AhgSpectrum\Controllers\ProcedureEvidenceController::class, 'download'])->whereNumber('id')->name('ahgspectrum.evidence.download');
     Route::post('/evidence/{id}/delete', [\AhgSpectrum\Controllers\ProcedureEvidenceController::class, 'destroy'])->whereNumber('id')->name('ahgspectrum.evidence.delete')->middleware('acl:delete');
 
+    // #1460 Phase 2: explicit "Sync valuation to Heritage Assets" (gated; no-op if ahg-heritage-manage absent).
+    Route::post('/valuation/sync-heritage', [\AhgSpectrum\Controllers\ValuationBridgeController::class, 'sync'])->name('ahgspectrum.valuation.sync-heritage')->middleware('acl:update');
+
     // #123 enable_barcodes: scan + assign endpoints. Both 404 when
     // spectrum_enable_barcodes is off (controller-side check) so the
     // routes are invisible until the operator opts in.

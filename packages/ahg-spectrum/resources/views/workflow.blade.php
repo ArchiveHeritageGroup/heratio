@@ -485,6 +485,33 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
     </div>
 </div>
 
+{{-- #1460 Phase 2: Valuation -> GRAP heritage-asset bridge (gated - only shown
+     when ahg-heritage-manage is installed). --}}
+@php
+    $heritageAvailable = false;
+    if (($procedureType ?? '') === 'valuation') {
+        try { $heritageAvailable = app(\AhgSpectrum\Services\ValuationHeritageBridge::class)->available(); }
+        catch (\Throwable $e) { $heritageAvailable = false; }
+    }
+@endphp
+@if (($procedureType ?? '') === 'valuation' && $heritageAvailable)
+<div class="card mb-4 border-info">
+    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <i class="fas fa-landmark me-2 text-info"></i><strong>{{ __('Heritage Accounting (GRAP)') }}</strong>
+            <div class="small text-muted">{{ __('Push this object\'s latest valuation into its GRAP heritage-asset record (last valuation, revaluation surplus, valuation log). Creates the heritage asset if it does not exist yet.') }}</div>
+        </div>
+        @if (\AhgCore\Services\AclService::hasPermission(auth()->id(), 'update'))
+        <form method="post" action="{{ route('ahgspectrum.valuation.sync-heritage') }}">
+            @csrf
+            <input type="hidden" name="slug" value="{{ $resource->slug ?? '' }}">
+            <button type="submit" class="btn btn-outline-info"><i class="fas fa-sync me-1"></i>{{ __('Sync to Heritage Assets') }}</button>
+        </form>
+        @endif
+    </div>
+</div>
+@endif
+
 {{-- #1460: generic per-procedure documented evidence/proof for this flow. --}}
 @include('spectrum::_procedure-evidence', [
     'objectId'      => $resource->id ?? null,
