@@ -38,6 +38,9 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth', EnsureSpectrumEnable
     Route::post('/valuation/sync-heritage', [\AhgSpectrum\Controllers\ValuationBridgeController::class, 'sync'])->name('ahgspectrum.valuation.sync-heritage')->middleware('acl:update');
     // #1460 Phase 2: explicit "Create/sync loan record" for loan_in/loan_out (gated; no-op if ahg-loan absent).
     Route::post('/loan/sync', [\AhgSpectrum\Controllers\LoanBridgeController::class, 'sync'])->name('ahgspectrum.loan.sync')->middleware('acl:update');
+    // #1460 Phase 2: disposal -> GRAP derecognition, insurance -> heritage insurance (gated; no-op if ahg-heritage-manage absent).
+    Route::post('/disposal/sync-heritage', [\AhgSpectrum\Controllers\HeritageBridgeController::class, 'disposal'])->name('ahgspectrum.disposal.sync-heritage')->middleware('acl:update');
+    Route::post('/insurance/sync-heritage', [\AhgSpectrum\Controllers\HeritageBridgeController::class, 'insurance'])->name('ahgspectrum.insurance.sync-heritage')->middleware('acl:update');
 
     // #123 enable_barcodes: scan + assign endpoints. Both 404 when
     // spectrum_enable_barcodes is off (controller-side check) so the

@@ -185,6 +185,16 @@ class ProcedureUpdateController extends Controller
             }
         }
 
+        // #1460 Phase 2: record an edited disposal/deaccession as GRAP
+        // derecognition on an existing heritage asset. Gated; never breaks the PATCH.
+        if ($procedureType === 'deaccession') {
+            try {
+                app(\AhgSpectrum\Services\DisposalHeritageBridge::class)
+                    ->syncObject((int) ($row->object_id ?? 0), false);
+            } catch (\Throwable $e) {
+            }
+        }
+
         return response()->json([
             'success'        => true,
             'procedure_type' => $procedureType,

@@ -540,6 +540,55 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
 </div>
 @endif
 
+{{-- #1460 Phase 2: Disposal -> GRAP derecognition + Insurance -> heritage insurance (gated). --}}
+@php
+    $disposalHeritage = false;
+    if (in_array($procedureType ?? '', ['deaccession', 'disposal'], true)) {
+        try { $disposalHeritage = app(\AhgSpectrum\Services\DisposalHeritageBridge::class)->available(); }
+        catch (\Throwable $e) { $disposalHeritage = false; }
+    }
+    $insuranceHeritage = false;
+    if (($procedureType ?? '') === 'insurance') {
+        try { $insuranceHeritage = app(\AhgSpectrum\Services\InsuranceHeritageBridge::class)->available(); }
+        catch (\Throwable $e) { $insuranceHeritage = false; }
+    }
+    $canBridge = \AhgCore\Services\AclService::hasPermission(auth()->id(), 'update');
+@endphp
+@if (in_array($procedureType ?? '', ['deaccession', 'disposal'], true) && $disposalHeritage)
+<div class="card mb-4 border-warning">
+    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <i class="fas fa-landmark me-2 text-warning"></i><strong>{{ __('Heritage Accounting (GRAP)') }}</strong>
+            <div class="small text-muted">{{ __('Record this disposal as GRAP derecognition on the heritage asset (derecognition date, proceeds, gain/loss). Creates the asset if it does not exist yet.') }}</div>
+        </div>
+        @if ($canBridge)
+        <form method="post" action="{{ route('ahgspectrum.disposal.sync-heritage') }}">
+            @csrf
+            <input type="hidden" name="slug" value="{{ $resource->slug ?? '' }}">
+            <button type="submit" class="btn btn-outline-warning"><i class="fas fa-sync me-1"></i>{{ __('Record derecognition') }}</button>
+        </form>
+        @endif
+    </div>
+</div>
+@endif
+@if (($procedureType ?? '') === 'insurance' && $insuranceHeritage)
+<div class="card mb-4 border-info">
+    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <i class="fas fa-landmark me-2 text-info"></i><strong>{{ __('Heritage Accounting (GRAP)') }}</strong>
+            <div class="small text-muted">{{ __('Copy this insurance policy (value, provider, policy number, expiry) onto the heritage asset. Creates the asset if it does not exist yet.') }}</div>
+        </div>
+        @if ($canBridge)
+        <form method="post" action="{{ route('ahgspectrum.insurance.sync-heritage') }}">
+            @csrf
+            <input type="hidden" name="slug" value="{{ $resource->slug ?? '' }}">
+            <button type="submit" class="btn btn-outline-info"><i class="fas fa-sync me-1"></i>{{ __('Sync insurance') }}</button>
+        </form>
+        @endif
+    </div>
+</div>
+@endif
+
 {{-- #1460: generic per-procedure documented evidence/proof for this flow. --}}
 @include('spectrum::_procedure-evidence', [
     'objectId'      => $resource->id ?? null,
