@@ -66,7 +66,7 @@ class IcipSettingsTest extends TestCase
 
     public function test_audit_middleware_records_access_when_enabled()
     {
-        if (! Schema::hasTable('icip_config') || ! Schema::hasTable('icip_access_log')) {
+        if (! Schema::hasTable('icip_config') || ! Schema::hasTable('icip_route_access_log')) {
             $this->markTestSkipped('icip tables not present (ahg-icip install.sql not loaded)');
         }
 
@@ -93,6 +93,8 @@ class IcipSettingsTest extends TestCase
 
         // Chain continues (non-blocking middleware) and the access is logged.
         $this->assertTrue($passed, 'middleware must call $next');
-        $this->assertSame(1, DB::table('icip_access_log')->where('path', 'icip/probe')->count());
+        // Route hits land in icip_route_access_log; icip_access_log is #1427's
+        // graded-access decision trail (a different shape entirely).
+        $this->assertSame(1, DB::table('icip_route_access_log')->where('path', 'icip/probe')->count());
     }
 }

@@ -169,6 +169,22 @@ class TermProtocolGate
      */
     private static array $restricting = [];
 
+    /**
+     * Drop the per-request memo.
+     *
+     * Only needed where one PHP process serves what would otherwise be several
+     * requests - i.e. tests. A test that applies a protocol after an earlier
+     * case has already cached "nothing restricts" would otherwise find the gate
+     * short-circuited and see the record it expects to be hidden. Mirrors
+     * AclService::forgetUser(). Not for use in request handling: under PHP-FPM
+     * the static dies with the request, which is the intended lifetime.
+     */
+    public static function forgetMemo(): void
+    {
+        self::$restricting = [];
+        self::$protocolTable = null;
+    }
+
     private static function hasRestrictingRows(string $table, string $column): bool
     {
         $key = $table.'.'.$column;

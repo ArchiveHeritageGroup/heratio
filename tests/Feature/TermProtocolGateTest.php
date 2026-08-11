@@ -33,6 +33,11 @@ class TermProtocolGateTest extends TestCase
     {
         parent::setUp();
         \AhgCore\Services\AclService::forgetUser(); // no actingAs state leaking across cases
+        // The gate memoises "does anything restrict?" per request. One phpunit
+        // process is many requests' worth of work, so an earlier case that ran
+        // before any protocol existed would leave "nothing restricts" cached
+        // and this case's gate would filter nothing.
+        \AhgCore\Services\TermProtocolGate::forgetMemo();
         foreach (['object', 'term', 'object_term_relation', 'information_object', 'term_protocol', 'user'] as $t) {
             if (! Schema::hasTable($t)) {
                 $this->markTestSkipped("$t not present in this install.");

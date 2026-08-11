@@ -194,6 +194,27 @@ class AhgIcipServiceProvider extends ServiceProvider
                     INDEX idx_ial_created (created_at)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
             );
+
+            // Route-level audit ("who hit which /admin/icip page"), written by
+            // the AuditIcipAccess middleware. Deliberately a SEPARATE table:
+            // it and the graded-access log above once shared the name
+            // icip_access_log, and since both used CREATE TABLE IF NOT EXISTS
+            // whichever ran first won while the other's INSERT silently died on
+            // an unknown column. Self-healed here for the same reason the log
+            // above is - so the table exists without depending on install
+            // order or on migrations having run.
+            DB::statement(
+                'CREATE TABLE IF NOT EXISTS icip_route_access_log (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT DEFAULT NULL,
+                    ip_address VARCHAR(45) DEFAULT NULL,
+                    path VARCHAR(1000) DEFAULT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_iral_user (user_id),
+                    INDEX idx_iral_created (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+            );
         } catch (\Throwable $e) {
             // Don't break boot if the DB isn't reachable yet
         }

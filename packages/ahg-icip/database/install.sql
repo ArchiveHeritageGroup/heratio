@@ -318,19 +318,40 @@ CREATE TABLE IF NOT EXISTS icip_config (
     INDEX idx_key (config_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Access audit log: written by AuditIcipAccess middleware when the
--- audit_all_icip_access config flag is on. The middleware INSERTed into this
--- table but its CREATE was never shipped, so any environment with the flag
--- enabled (and the IcipSettings test) hit "Table icip_access_log doesn't exist".
-CREATE TABLE IF NOT EXISTS icip_access_log (
+-- Route access log: written by the AuditIcipAccess middleware when the
+-- audit_all_icip_access config flag is on ("who hit which /admin/icip page").
+-- Deliberately NOT called icip_access_log - that name belongs to #1427's
+-- graded-access decision trail below. The two shapes previously collided under
+-- one name via CREATE TABLE IF NOT EXISTS, so whichever ran first won and the
+-- other silently failed on every insert.
+CREATE TABLE IF NOT EXISTS icip_route_access_log (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id INT DEFAULT NULL,
     ip_address VARCHAR(45) DEFAULT NULL,
     path VARCHAR(1000) DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_icip_access_user (user_id),
-    INDEX idx_icip_access_created (created_at)
+    INDEX idx_iral_user (user_id),
+    INDEX idx_iral_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- #1427 graded-access audit trail: every allow/deny decision on an object that
+-- carries an ICIP access restriction, with the reason - the decisions a source
+-- community will ask us to account for (CARE 'authority to control').
+-- Append-only. Mirrors AhgIcipServiceProvider's boot self-heal so a fresh
+-- install does not depend on boot order.
+CREATE TABLE IF NOT EXISTS icip_access_log (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    information_object_id INT NOT NULL,
+    user_id INT NULL,
+    decision VARCHAR(24) NOT NULL,
+    restriction_types VARCHAR(255) NULL,
+    reason VARCHAR(255) NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ial_object (information_object_id),
+    INDEX idx_ial_user (user_id),
+    INDEX idx_ial_decision (decision),
+    INDEX idx_ial_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Default configuration

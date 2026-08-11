@@ -24,8 +24,15 @@ class AuditIcipAccess
                     $ip = $request->ip();
                     $path = $request->path();
                     $ts = now();
+                    // Route hits go to icip_route_access_log, NOT icip_access_log:
+                    // the latter is #1427's graded-access decision trail
+                    // (information_object_id/decision/reason). Both once shared
+                    // the name via CREATE TABLE IF NOT EXISTS, so whichever ran
+                    // first won and the other's INSERT died on an unknown column -
+                    // caught below and logged, which is why this audit silently
+                    // never recorded anything.
                     // lightweight audit insert - non-blocking
-                    DB::table('icip_access_log')->insert([
+                    DB::table('icip_route_access_log')->insert([
                         'user_id' => $userId,
                         'ip_address' => $ip,
                         'path' => $path,
