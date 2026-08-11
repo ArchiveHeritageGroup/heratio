@@ -359,7 +359,7 @@ Download pre-built CSV templates for each GLAM sector from the dashboard:
 | Sector | Recommended Standard | Alternatives |
 |--------|---------------------|--------------|
 | Archive | ISAD(G) | RAD, DACS |
-| Museum | Museum procedures | CCO |
+| Museum | Collections procedure | CCO |
 | Library | Dublin Core | - |
 | Gallery | CCO | Dublin Core |
 | DAM | Dublin Core | - |

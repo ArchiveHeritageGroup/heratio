@@ -203,7 +203,7 @@ The install also creates `condition_report`, `condition_image`, `condition_damag
 
 ### Require photos before completion
 
-- **Setting:** `spectrum_require_photos`, on the Museum Procedures settings page at `/admin/ahgSettings/spectrum`.
+- **Setting:** `spectrum_require_photos`, on the Collections Procedure settings page at `/admin/ahgSettings/spectrum`.
 - When enabled, a condition check cannot be moved off `pending` to a real rating until at least one photo is attached. The gate uses the denormalised `photo_count`, falling back to a live count, and raises an operator-readable message (surfaced as a flash error, not a 500) when no photo exists.
 
 ### Condition vocabulary and dropdowns

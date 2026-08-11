@@ -35,7 +35,7 @@
       </div>
       <div class="card-body">
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">{{ __('Enable Museum Procedures') }}</label>
+          <label class="col-sm-3 col-form-label">{{ __('Enable Collections Procedure') }}</label>
           <div class="col-sm-9">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="spectrum_enabled"

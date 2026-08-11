@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Museum Procedures Workflow'))
+@section('title', __('Collections Procedure Workflow'))
 
 @section('content')
 
@@ -67,7 +67,7 @@ if ($users->isEmpty()) {
 $canEdit = auth()->check() && auth()->user()->is_admin;
 @endphp
 
-<h1>{{ __('Museum Procedures Workflow') }}: {{ $resource->title ?? $resource->slug ?? '' }}</h1>
+<h1>{{ __('Collections Procedure Workflow') }}: {{ $resource->title ?? $resource->slug ?? '' }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">

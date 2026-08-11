@@ -1,4 +1,4 @@
-# Museum Procedures Compliance Dashboard
+# Collections Procedure Compliance Dashboard
 
 Phase C of the museum-procedure integration adds **collection-wide compliance tracking** to Heratio. It tells you — at a glance — what proportion of your information objects have been through each of the 21 museum procedures, where bottlenecks are, and when individual procedures fall behind schedule.
 

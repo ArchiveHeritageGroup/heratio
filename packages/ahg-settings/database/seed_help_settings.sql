@@ -86,7 +86,7 @@ The dashboard displays tiles for all available settings pages, grouped by functi
 | Sector Numbering | `/admin/ahgSettings/sectorNumbering` | CRUD | Numbering schemes per sector |
 | Security | `/admin/ahgSettings/security` | Dynamic | Lockout, password policy, session |
 | Services Monitor | `/admin/ahgSettings/services` | Read-only | System services health dashboard |
-| Spectrum / Collections | `/admin/ahgSettings/spectrum` | 4+ | Museum procedures, auto-movements |
+| Spectrum / Collections | `/admin/ahgSettings/spectrum` | 4+ | Collections procedure, auto-movements |
 | System Information | `/admin/ahgSettings/systemInfo` | Read-only | PHP, MySQL, disk, Elasticsearch status |
 | Text-to-Speech | `/admin/ahgSettings/tts` | Dedicated | Read-aloud accessibility settings |
 | Theme Configuration | `/admin/ahgSettings/themes` | Dedicated | Colours, branding, custom CSS |
@@ -200,7 +200,7 @@ body_html = '<h1 id="ahg-settings">AHG Settings</h1>
 <tr><td>Sector Numbering</td><td><code>/admin/ahgSettings/sectorNumbering</code></td><td>CRUD</td><td>Numbering schemes per sector</td></tr>
 <tr><td>Security</td><td><code>/admin/ahgSettings/security</code></td><td>Dynamic</td><td>Lockout, password policy, session</td></tr>
 <tr><td>Services Monitor</td><td><code>/admin/ahgSettings/services</code></td><td>Read-only</td><td>System services health dashboard</td></tr>
-<tr><td>Spectrum / Collections</td><td><code>/admin/ahgSettings/spectrum</code></td><td>4+</td><td>Museum procedures, auto-movements</td></tr>
+<tr><td>Spectrum / Collections</td><td><code>/admin/ahgSettings/spectrum</code></td><td>4+</td><td>Collections procedure, auto-movements</td></tr>
 <tr><td>System Information</td><td><code>/admin/ahgSettings/systemInfo</code></td><td>Read-only</td><td>PHP, MySQL, disk, Elasticsearch status</td></tr>
 <tr><td>Text-to-Speech</td><td><code>/admin/ahgSettings/tts</code></td><td>Dedicated</td><td>Read-aloud accessibility settings</td></tr>
 <tr><td>Theme Configuration</td><td><code>/admin/ahgSettings/themes</code></td><td>Dedicated</td><td>Colours, branding, custom CSS</td></tr>

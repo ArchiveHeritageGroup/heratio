@@ -1,10 +1,10 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Museum Procedures Dashboard'))
+@section('title', __('Collections Procedure Dashboard'))
 
 @section('content')
 
-<h1><i class="fas fa-tasks me-2"></i>{{ __('Museum Procedures Dashboard') }}</h1>
+<h1><i class="fas fa-tasks me-2"></i>{{ __('Collections Procedure Dashboard') }}</h1>
 
 <div class="row">
     <!-- Sidebar -->

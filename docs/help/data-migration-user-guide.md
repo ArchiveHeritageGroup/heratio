@@ -304,7 +304,7 @@ Or from the Data Migration page, click the **"Batch Export"** button in the head
 | Format | Standard | Best For |
 |--------|----------|----------|
 | **Archives** | ISAD(G) | Archival fonds, series, files, items |
-| **Museum** | Museum procedures | Museum objects with acquisition, location data |
+| **Museum** | Collections procedure | Museum objects with acquisition, location data |
 | **Library** | MARC/RDA | Bibliographic records with ISBN, call numbers |
 | **Gallery** | CCO/VRA | Artworks and visual resources |
 | **Digital Assets** | Dublin Core/IPTC | Digital files with technical metadata |

@@ -72,10 +72,10 @@
 
     <!-- Main Content -->
     <div class="col-md-9">
-        <!-- Museum Procedures Grid -->
+        <!-- Collections Procedure Grid -->
         <div class="card mb-4">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>{{ __('Museum Procedures') }}</h5>
+                <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>{{ __('Collections Procedure') }}</h5>
             </div>
             <div class="card-body">
                 <p class="text-muted mb-4">{{ __('Manage museum collections-management procedures.') }}</p>

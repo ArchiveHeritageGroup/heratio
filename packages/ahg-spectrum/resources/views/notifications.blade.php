@@ -1,10 +1,10 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Museum Procedures Notifications'))
+@section('title', __('Collections Procedure Notifications'))
 
 @section('content')
 
-<h1>{{ __('Museum Procedures Notifications') }}</h1>
+<h1>{{ __('Collections Procedure Notifications') }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">

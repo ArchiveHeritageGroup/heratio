@@ -1,15 +1,15 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('General Museum Procedures'))
+@section('title', __('General Collections Procedure'))
 
 @section('content')
 
-<h1><i class="fas fa-building me-2"></i>{{ __('General Museum Procedures') }}</h1>
+<h1><i class="fas fa-building me-2"></i>{{ __('General Collections Procedure') }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">{{ __('Museum Procedures Dashboard') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">{{ __('Collections Procedure Dashboard') }}</a></li>
     <li class="breadcrumb-item active">{{ __('General Procedures') }}</li>
   </ol>
 </nav>

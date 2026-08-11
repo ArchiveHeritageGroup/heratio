@@ -1,4 +1,4 @@
-# Museum Procedures Starter Pack
+# Collections Procedure Starter Pack
 
 The museum procedure starter pack installs 21 workflows on your Heratio install — one for each of the primary museum procedures defined by [UK Collections Trust](https://collectionstrust.org.uk/spectrum/). Each shipped workflow comes with a sensible set of paraphrased starter steps you can immediately use, customise, or replace.
 
@@ -40,7 +40,7 @@ The museum procedure starter pack installs 21 workflows on your Heratio install 
 
 1. Log in as administrator
 2. Go to **Workflow → Workflows & diagrams** (top-right AHG Plugins dropdown)
-3. Click **Install Museum Procedures pack** in the page header
+3. Click **Install Collections Procedure pack** in the page header
 4. Confirm the dialogue
 5. Workflows tagged with their museum procedure now appear in the list
 

@@ -232,7 +232,7 @@ return [
                     ],
                 ],
                 [
-                    'id' => 'describe.spectrum', 'label' => 'Museum procedures', 'sub' => 'Museum object procedures', 'help' => 'spectrum-user-guide',
+                    'id' => 'describe.spectrum', 'label' => 'Collections procedure', 'sub' => 'Museum object procedures', 'help' => 'spectrum-user-guide',
                     'children' => [
                         ['id' => 'describe.spectrum.object', 'label' => 'Object entry', 'sub' => 'Object identification', 'help' => 'spectrum-user-guide'],
                         ['id' => 'describe.spectrum.loc',    'label' => 'Location',     'sub' => 'Movement control'],

@@ -365,7 +365,7 @@ return [
         [
             'id'    => 'museum',
             'label' => 'Museum objects',
-            'sub'   => 'Museum procedures',
+            'sub'   => 'Collections procedure',
             'color' => '#9e2a2b',
             'help'  => 'museum-user-guide',
             'children' => [
