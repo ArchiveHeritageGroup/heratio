@@ -35,7 +35,11 @@ class ExtendedRightsController extends Controller
     public function index()
     {
         $rightsStatements = Schema::hasTable('rights_statement') ? DB::table('rights_statement')->orderBy('sort_order')->get() : collect();
-        $ccLicenses = Schema::hasTable('creative_commons_license') ? DB::table('creative_commons_license')->orderBy('sort_order')->get() : collect();
+        // #1464: was creative_commons_license, a second copy of the same eight
+        // CC licences. rights_cc_license is the one the services already join
+        // and that extended_rights.creative_commons_license_id resolves against;
+        // ids are identical between the two, so this is a straight repoint.
+        $ccLicenses = Schema::hasTable('rights_cc_license') ? DB::table('rights_cc_license')->orderBy('sort_order')->get() : collect();
         $tkLabels = Schema::hasTable('rights_tk_label') ? DB::table('rights_tk_label')->orderBy('sort_order')->get() : collect();
         $stats = $this->getStats();
 
@@ -97,12 +101,16 @@ class ExtendedRightsController extends Controller
                 ->orderBy('rs.sort_order')
                 ->get()
             : collect();
-        $ccLicenses = Schema::hasTable('creative_commons_license')
-            ? DB::table('creative_commons_license as cc')
-                ->leftJoin('creative_commons_license_i18n as cci', function ($j) use ($culture) {
-                    $j->on('cc.id', '=', 'cci.creative_commons_license_id')->where('cci.culture', '=', $culture);
+        // #1464: repointed from creative_commons_license (duplicate vocabulary).
+        // Note the i18n key differs - rights_cc_license_i18n is keyed by `id`,
+        // where creative_commons_license_i18n used a creative_commons_license_id
+        // column.
+        $ccLicenses = Schema::hasTable('rights_cc_license')
+            ? DB::table('rights_cc_license as cc')
+                ->leftJoin('rights_cc_license_i18n as cci', function ($j) use ($culture) {
+                    $j->on('cc.id', '=', 'cci.id')->where('cci.culture', '=', $culture);
                 })
-                ->select('cc.*', 'cci.name')
+                ->select('cc.*', 'cci.name', 'cci.description')
                 ->orderBy('cc.sort_order')
                 ->get()
             : collect();
