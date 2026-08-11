@@ -25,6 +25,7 @@ via `config('federation.connectors')`):
 |---|---|---|
 | `oai_pmh` | (JSON search path + `HarvestService` for harvest) | JSON-over-HTTP / OAI-PMH XML |
 | `dspace` | `DSpaceConnector` | DSpace 7+ REST discovery API |
+| `alma` | `AlmaConnector` | Ex Libris Alma SRU (MARCXML) |
 | `sharepoint_graph_search` | `SharePointGraphConnector` (ahg-sharepoint) | Microsoft Graph search |
 | `atom_local` | `AtomElasticsearchConnector` | local Elasticsearch |
 
@@ -47,6 +48,25 @@ code is needed because DSpace's OAI-PMH is standard.
 
 Tested against a live DSpace instance and with an `Http::fake` unit test
 (`tests/DSpaceConnectorTest.php`).
+
+### Ex Libris Alma (#1330)
+
+An `alma` peer contributes live hits from an Alma library via the institution's
+public **SRU** endpoint (MARCXML), which needs no API key - unlike the Alma REST
+API. Set the peer's **Base URL** to the full SRU endpoint
+(`https://<inst>.alma.exlibrisgroup.com/view/sru/<INST_CODE>`; nothing is
+appended). The connector issues a CQL `searchRetrieve` (`alma.all_for_ui`), parses
+MARCXML with DOMXPath, and maps 245 (title), 100/110/700 (author), 264/260/008
+(date), 520 (summary), 020 (ISBN) and the 001 MMS ID to a `PeerSearchResult`.
+Click-through uses an optional `config.record_url_template` with a `{mms_id}`
+placeholder (typically a Primo VE permalink); without it, results link to the
+institution host.
+
+**Bib/holdings import** reuses OAI-PMH: add an `oai_pmh` harvest peer pointing at
+the same institution's Alma OAI endpoint. No Alma-specific harvest code is needed.
+
+Tested against Boston College's live Alma SRU and with an `Http::fake` unit test
+(`tests/AlmaConnectorTest.php`).
 
 ## References
 - docs/help/ (search for `federation`)

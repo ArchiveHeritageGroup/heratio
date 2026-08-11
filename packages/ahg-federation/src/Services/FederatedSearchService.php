@@ -318,6 +318,7 @@ class FederatedSearchService
         return match ($peerType) {
             'atom_local' => \AhgFederation\Connectors\AtomElasticsearchConnector::class,
             'dspace'     => \AhgFederation\Connectors\DSpaceConnector::class, // #1329
+            'alma'       => \AhgFederation\Connectors\AlmaConnector::class,   // #1330
             default      => null,
         };
     }

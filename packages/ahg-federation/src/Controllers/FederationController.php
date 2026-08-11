@@ -184,16 +184,16 @@ class FederationController extends Controller
     public function savePeer(Request $request)
     {
         $peerType = (string) $request->input('peer_type', 'oai_pmh');
-        if (!in_array($peerType, ['oai_pmh', 'dspace', 'sharepoint_graph_search'], true)) {
+        if (!in_array($peerType, ['oai_pmh', 'dspace', 'alma', 'sharepoint_graph_search'], true)) {
             $peerType = 'oai_pmh';
         }
 
-        // Validation matrix: OAI + DSpace require base_url; SharePoint requires sp_tenant_id.
+        // Validation matrix: OAI + DSpace + Alma require base_url; SharePoint requires sp_tenant_id.
         $rules = [
             'name'      => 'required|string|max:255',
-            'peer_type' => 'required|in:oai_pmh,dspace,sharepoint_graph_search',
+            'peer_type' => 'required|in:oai_pmh,dspace,alma,sharepoint_graph_search',
         ];
-        if (in_array($peerType, ['oai_pmh', 'dspace'], true)) {
+        if (in_array($peerType, ['oai_pmh', 'dspace', 'alma'], true)) {
             $rules['base_url'] = 'required|url';
         } else {
             $rules['sp_tenant_id'] = 'required|integer|min:1';
@@ -204,6 +204,10 @@ class FederationController extends Controller
         $config = null;
         if ($peerType === 'sharepoint_graph_search') {
             $config = $this->buildSharePointConfig($request);
+        } elseif ($peerType === 'alma') {
+            // #1330: optional Primo permalink template for click-through links.
+            $tpl = trim((string) $request->input('alma_record_url_template', ''));
+            $config = $tpl !== '' ? ['record_url_template' => $tpl] : null;
         }
 
         $data = [

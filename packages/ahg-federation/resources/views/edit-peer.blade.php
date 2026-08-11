@@ -58,13 +58,14 @@
                             <select class="form-select" id="peer_type" name="peer_type" required onchange="ahgFederationTogglePeerType()">
                                 <option value="oai_pmh" {{ $peerType === 'oai_pmh' ? 'selected' : '' }}>{{ __('OAI-PMH repository') }}</option>
                                 <option value="dspace" {{ $peerType === 'dspace' ? 'selected' : '' }}>{{ __('DSpace repository (REST search)') }}</option>
+                                <option value="alma" {{ $peerType === 'alma' ? 'selected' : '' }}>{{ __('Ex Libris Alma (SRU search)') }}</option>
                                 <option value="sharepoint_graph_search" {{ $peerType === 'sharepoint_graph_search' ? 'selected' : '' }}>{{ __('SharePoint (Microsoft Graph search)') }}</option>
                             </select>
-                            <div class="form-text">{{ __('Determines which connector is used at search time. OAI peers also support background harvest; DSpace repositories additionally expose OAI-PMH for harvest at /server/oai/request.') }}</div>
+                            <div class="form-text">{{ __('Determines which connector is used at search time. OAI peers also support background harvest; DSpace and Alma additionally expose OAI-PMH for harvest.') }}</div>
                         </div>
 
                         <div class="mb-3" id="peer-type-block-oai_pmh"
-                             style="{{ ($peerType !== 'oai_pmh' && $peerType !== 'dspace') ? 'display:none' : '' }}">
+                             style="{{ (!in_array($peerType, ['oai_pmh', 'dspace', 'alma'])) ? 'display:none' : '' }}">
                             <label for="base_url" class="form-label">{{ __('Base URL') }} <span class="text-danger">*</span></label>
                             <input type="url" class="form-control" id="base_url" name="base_url"
                                    value="{{ $peer->base_url ?? old('base_url', '') }}"
@@ -72,6 +73,7 @@
                             <div class="form-text">
                                 {{ __('For an OAI-PMH peer: the OAI endpoint (e.g. https://example.com/oai).') }}
                                 {{ __('For a DSpace peer: the repository root (e.g. https://repo.example.org); the connector appends /server/api itself.') }}
+                                {{ __('For an Alma peer: the full SRU endpoint (e.g. https://<inst>.alma.exlibrisgroup.com/view/sru/<INST_CODE>).') }}
                             </div>
                         </div>
 
@@ -80,6 +82,21 @@
                             <div class="alert alert-info py-2 small">
                                 <i class="bi bi-info-circle me-1"></i>
                                 {{ __('DSpace peers contribute live hits to federated search via the DSpace 7+ REST discovery API. To also import items, add a second OAI-PMH peer pointing at the same repository\'s /server/oai/request endpoint. Public repositories need no credentials; a protected DSpace can use the API key field below (sent as a Bearer token).') }}
+                            </div>
+                        </div>
+
+                        <div id="peer-type-block-alma"
+                             style="{{ $peerType !== 'alma' ? 'display:none' : '' }}">
+                            <div class="alert alert-info py-2 small">
+                                <i class="bi bi-info-circle me-1"></i>
+                                {{ __('Alma peers contribute live hits via the institution\'s public SRU endpoint (MARCXML), no API key required. Bib/holdings import is a separate path: add an OAI-PMH peer pointing at the same institution\'s Alma OAI endpoint. For click-through links, optionally set a Primo permalink template (with a {mms_id} placeholder) in the config field below.') }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="alma_record_url_template" class="form-label">{{ __('Record URL template (optional)') }}</label>
+                                <input type="text" class="form-control font-monospace" id="alma_record_url_template" name="alma_record_url_template"
+                                       value="{{ $peerConfig['record_url_template'] ?? '' }}"
+                                       placeholder="https://inst.primo.exlibrisgroup.com/discovery/fulldisplay?docid=alma{mms_id}&vid=...">
+                                <div class="form-text">{{ __('Uses {mms_id} as the placeholder. Left blank, results link to the institution host.') }}</div>
                             </div>
                         </div>
 
@@ -123,18 +140,21 @@
                                 var oaiBlock     = document.getElementById('peer-type-block-oai_pmh');
                                 var spBlock      = document.getElementById('peer-type-block-sharepoint_graph_search');
                                 var dspaceBlock  = document.getElementById('peer-type-block-dspace');
+                                var almaBlock    = document.getElementById('peer-type-block-alma');
                                 var prefixRow    = document.getElementById('oai-metadata-prefix-row');
                                 var baseUrl      = document.getElementById('base_url');
                                 var spTenantId   = document.getElementById('sp_tenant_id');
                                 var showOai    = (t === 'oai_pmh');
                                 var showSp     = (t === 'sharepoint_graph_search');
                                 var showDspace = (t === 'dspace');
-                                // The base-URL block is shared by OAI and DSpace peers.
-                                if (oaiBlock)    oaiBlock.style.display    = (showOai || showDspace) ? '' : 'none';
+                                var showAlma   = (t === 'alma');
+                                // The base-URL block is shared by OAI, DSpace and Alma peers.
+                                if (oaiBlock)    oaiBlock.style.display    = (showOai || showDspace || showAlma) ? '' : 'none';
                                 if (spBlock)     spBlock.style.display     = showSp     ? '' : 'none';
                                 if (dspaceBlock) dspaceBlock.style.display = showDspace ? '' : 'none';
+                                if (almaBlock)   almaBlock.style.display   = showAlma   ? '' : 'none';
                                 if (prefixRow)   prefixRow.style.display   = showOai ? '' : 'none';
-                                if (baseUrl)     baseUrl.required          = (showOai || showDspace);
+                                if (baseUrl)     baseUrl.required          = (showOai || showDspace || showAlma);
                                 if (spTenantId)  spTenantId.required       = showSp;
                             }
                             document.addEventListener('DOMContentLoaded', ahgFederationTogglePeerType);
