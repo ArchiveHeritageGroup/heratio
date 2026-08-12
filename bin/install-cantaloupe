@@ -154,14 +154,37 @@ render "${TEMPLATES}/cantaloupe.properties.template" "${INSTALL_DIR}/cantaloupe.
 chown "${SERVICE_USER}:${SERVICE_GROUP}" "${INSTALL_DIR}/cantaloupe.properties"
 echo "    wrote ${INSTALL_DIR}/cantaloupe.properties"
 
-# delegates.rb — render INSTANCE_PATHS hash for current host
-INSTANCE_PATHS_HASH="    '${DOMAIN}' => '${UPLOADS_PATH}/',"
-sed \
-    -e "s|{{INSTANCE_PATHS_HASH}}|${INSTANCE_PATHS_HASH}|" \
-    -e "s|{{DEFAULT_PATH}}|${UPLOADS_PATH}/|g" \
-    "${TEMPLATES}/delegates.rb.template" > "${INSTALL_DIR}/delegates.rb"
-chown "${SERVICE_USER}:${SERVICE_GROUP}" "${INSTALL_DIR}/delegates.rb"
-echo "    wrote ${INSTALL_DIR}/delegates.rb (host: ${DOMAIN} -> ${UPLOADS_PATH}/)"
+# delegates.rb — INSTANCE_PATHS maps each vhost to its uploads root.
+#
+# #1465: this used to render the template unconditionally with a SINGLE entry,
+# which silently destroyed the map on a host serving several instances - every
+# other vhost fell through to DEFAULT_PATH and all of its images 404'd, with the
+# viewer reporting it as a JSON parse error rather than a missing file. One
+# Cantaloupe serves every instance on this host, so re-running the installer for
+# instance B must not un-map instance A. An existing delegates.rb is therefore
+# MERGED into, not overwritten.
+DELEGATES="${INSTALL_DIR}/delegates.rb"
+ENTRY="    '${DOMAIN}' => '${UPLOADS_PATH}/',"
+
+if [ -f "$DELEGATES" ] && grep -q 'INSTANCE_PATHS' "$DELEGATES"; then
+    cp -a "$DELEGATES" "${DELEGATES}.bak-$(date +%Y%m%d-%H%M%S)"
+    if grep -qF "'${DOMAIN}' =>" "$DELEGATES"; then
+        # Already mapped: update its path in place, leaving every other host alone.
+        sed -i -E "s|^[[:space:]]*'${DOMAIN}'[[:space:]]*=>.*|${ENTRY}|" "$DELEGATES"
+        echo "    updated ${DOMAIN} -> ${UPLOADS_PATH}/ in existing delegates.rb (other hosts preserved)"
+    else
+        # New host: insert directly after the INSTANCE_PATHS opening brace.
+        sed -i "0,/INSTANCE_PATHS = {/s||INSTANCE_PATHS = {\n${ENTRY}|" "$DELEGATES"
+        echo "    added ${DOMAIN} -> ${UPLOADS_PATH}/ to existing delegates.rb (other hosts preserved)"
+    fi
+else
+    sed \
+        -e "s|{{INSTANCE_PATHS_HASH}}|${ENTRY}|" \
+        -e "s|{{DEFAULT_PATH}}|${UPLOADS_PATH}/|g" \
+        "${TEMPLATES}/delegates.rb.template" > "$DELEGATES"
+    echo "    wrote ${DELEGATES} (host: ${DOMAIN} -> ${UPLOADS_PATH}/)"
+fi
+chown "${SERVICE_USER}:${SERVICE_GROUP}" "$DELEGATES"
 
 # ---------- systemd ----------
 echo "==> systemd"
