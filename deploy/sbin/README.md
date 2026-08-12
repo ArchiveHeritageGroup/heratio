@@ -52,14 +52,23 @@ The chown is scoped to `.git` plus tracked files and their directories.
 `vendor/` and `node_modules/` stay root-owned deliberately: git does not manage
 them and chowning ~3M files would add minutes to every deploy for nothing.
 
-## Known issue
+## Deploy ordering that matters
 
-`heratio-deploy.sh` health-checks `https://heratio.theahg.co.za/`, but
-`/usr/share/nginx/heratio/public` is served by `heratio.org.conf`
-(`server_name heratio.org www.heratio.org`). That URL currently returns **301**,
-so the check reports a redirect rather than confirming the app is up. It only
-echoes the code and never fails the deploy, so it has gone unnoticed. Left as-is
-here so this copy matches the running one exactly; fix both together.
+`heratio-deploy.sh` health-checks `https://heratio.org/` **before** rebasing the
+demo baseline, and only rebases when it gets a 200.
+
+The order used to be the other way round, which meant a broken deploy was
+snapshotted as the "golden" state the 02:00 reset restores to - baking the
+breakage in and re-applying it nightly. Checking first makes the failure safe:
+unhealthy deploy → baseline not rebased → the reset's version guard sees a stale
+baseline and refuses → the demo keeps serving current code instead of being
+reset into a known-bad state. Fix the app, then run
+`heratio-demo-snapshot.sh` once it is healthy.
+
+The URL was `https://heratio.theahg.co.za/` until v1.154.590. That domain is a
+301 redirect and never served this docroot (`/usr/share/nginx/heratio/public` is
+served by `heratio.org.conf`), so the check had been reporting a redirect rather
+than confirming the app was up.
 
 ## Keeping this directory honest
 

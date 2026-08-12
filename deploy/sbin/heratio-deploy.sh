@@ -77,8 +77,30 @@ sudo -u www-data $PHP artisan storage:link >/dev/null 2>&1 || true
 echo "--- reload php-fpm (flush opcache, graceful) ---"
 systemctl reload php8.3-fpm
 
-echo "--- rebase demo baseline so 02:00 reset keeps this deploy ---"
-/usr/local/sbin/heratio-demo-snapshot.sh
+# Health check BEFORE the baseline rebase, and the rebase is gated on it.
+# It used to run after, which meant a broken deploy was snapshotted as the
+# "golden" state the 02:00 reset restores to every night - baking the breakage
+# in and re-applying it daily. Checking first turns that into a safe cascade:
+# unhealthy deploy -> baseline not rebased -> the reset's version guard sees a
+# stale baseline and refuses -> the demo keeps serving current code rather than
+# being reset into a known-bad state.
+#
+# The URL was https://heratio.theahg.co.za/, which is now a 301 redirect to
+# heratio.org and never served this docroot, so the check reported a redirect
+# rather than confirming the app was up. /usr/share/nginx/heratio/public is
+# served by heratio.org.conf (server_name heratio.org www.heratio.org).
+HEALTH_URL="https://heratio.org/"
+code="$(curl -s -o /dev/null -w '%{http_code}' "$HEALTH_URL")"
 
-code="$(curl -s -o /dev/null -w '%{http_code}' https://heratio.theahg.co.za/)"
+if [ "$code" = "200" ]; then
+    echo "--- health OK ($code) - rebase demo baseline so 02:00 reset keeps this deploy ---"
+    /usr/local/sbin/heratio-demo-snapshot.sh
+else
+    echo "!!! HEALTH CHECK FAILED: $HEALTH_URL returned $code (expected 200)"
+    echo "!!! demo baseline NOT rebased - it still describes the previous release."
+    echo "!!! the 02:00 reset will refuse to run while the baseline version does not"
+    echo "!!! match the deployed one, which is intended: fix the app, then run"
+    echo "!!! /usr/local/sbin/heratio-demo-snapshot.sh once it is healthy."
+fi
+
 echo "=== deploy done; live HTTP $code @ $(date) ==="
