@@ -113,14 +113,18 @@ class ExtendedRightsService
 
     /**
      * Get extended rights for an object.
-     * Joins extended_rights_i18n for rights_note, usage_conditions, copyright_notice.
+     * Reads rights_record (#1464), joining rights_record_i18n and aliasing
+     * columns back to the extended_rights names callers still use.
      */
     public function getExtendedRights(int $objectId): Collection
     {
         try {
-            return DB::table('extended_rights as er')
-                ->leftJoin('extended_rights_i18n as eri', function ($j) {
-                    $j->on('eri.extended_rights_id', '=', 'er.id')
+            // #1464: rights_record is the authoritative store. Columns are
+            // aliased back to the extended_rights names so the ~160 downstream
+            // references in blades, forms and controllers keep working.
+            return DB::table('rights_record as er')
+                ->leftJoin('rights_record_i18n as eri', function ($j) {
+                    $j->on('eri.id', '=', 'er.id')
                         ->where('eri.culture', '=', $this->culture);
                 })
                 ->leftJoin('rights_statement as rs', 'er.rights_statement_id', '=', 'rs.id')
@@ -128,13 +132,17 @@ class ExtendedRightsService
                     $j->on('rs.id', '=', 'rs_i18n.rights_statement_id')
                         ->where('rs_i18n.culture', '=', $this->culture);
                 })
-                ->leftJoin('rights_cc_license as cc', 'er.creative_commons_license_id', '=', 'cc.id')
+                ->leftJoin('rights_cc_license as cc', 'er.cc_license_id', '=', 'cc.id')
                 ->where('er.object_id', $objectId)
                 ->select([
                     'er.*',
+                    'er.cc_license_id as creative_commons_license_id',
+                    'er.copyright_holder as rights_holder',
+                    'er.start_date as rights_date',
+                    'er.end_date as expiry_date',
+                    'er.copyright_note as copyright_notice',
                     'eri.rights_note',
-                    'eri.usage_conditions',
-                    'eri.copyright_notice',
+                    'eri.restriction_note as usage_conditions',
                     'rs.code as rights_statement_code',
                     'rs.uri as rights_statement_uri',
                     DB::raw("COALESCE(rs.icon_filename, '') as rights_statement_icon"),
@@ -157,9 +165,17 @@ class ExtendedRightsService
     public function getTkLabelsForRights(int $extendedRightsId): Collection
     {
         try {
-            return DB::table('extended_rights_tk_label as ertl')
-                ->join('rights_tk_label as tkl', 'ertl.tk_label_id', '=', 'tkl.id')
-                ->where('ertl.extended_rights_id', $extendedRightsId)
+            // #1464: TK/BC assignments live in icip_tk_label keyed by OBJECT,
+            // which is what TermProtocolService enforces against. The argument
+            // is now a rights_record id, so resolve its object first.
+            $objectId = DB::table('rights_record')->where('id', $extendedRightsId)->value('object_id');
+            if (! $objectId) {
+                return collect();
+            }
+
+            return DB::table('icip_tk_label as il')
+                ->join('icip_tk_label_type as tkl', 'il.label_type_id', '=', 'tkl.id')
+                ->where('il.information_object_id', $objectId)
                 ->select(['tkl.*'])
                 ->get();
         } catch (\Illuminate\Database\QueryException $e) {
@@ -169,21 +185,21 @@ class ExtendedRightsService
 
     /**
      * Save (create) an extended right for an object.
-     * Inserts into extended_rights, extended_rights_i18n, and extended_rights_tk_label.
+     * Inserts into rights_record, rights_record_i18n, and icip_tk_label (#1464).
      */
     /**
      * Snapshot for the security_audit_log before/after diff.
      */
     private function rightSnapshot(int $rightsId): array
     {
-        $row = DB::table('extended_rights')->where('id', $rightsId)->first();
+        $row = DB::table('rights_record')->where('id', $rightsId)->first();
         if (!$row) return [];
         $arr = (array) $row;
         unset($arr['id'], $arr['created_at'], $arr['updated_at'], $arr['created_by'], $arr['updated_by']);
-        $i18n = (array) (DB::table('extended_rights_i18n')
-            ->where('extended_rights_id', $rightsId)
+        $i18n = (array) (DB::table('rights_record_i18n')
+            ->where('id', $rightsId)
             ->where('culture', $this->culture)
-            ->select('rights_note', 'usage_conditions', 'copyright_notice')
+            ->select('rights_note', 'restriction_note')
             ->first() ?? []);
         return array_merge($arr, $i18n);
     }
@@ -192,52 +208,45 @@ class ExtendedRightsService
     {
         $now = date('Y-m-d H:i:s');
 
-        // If is_primary, unset any existing primary for this object
+        // #1464: writes go to rights_record, the authoritative store.
         if (!empty($data['is_primary'])) {
-            DB::table('extended_rights')
+            DB::table('rights_record')
                 ->where('object_id', $objectId)
                 ->where('is_primary', 1)
                 ->update(['is_primary' => 0, 'updated_at' => $now]);
         }
 
-        $id = DB::table('extended_rights')->insertGetId([
-            'object_id'                   => $objectId,
-            'rights_statement_id'         => $data['rights_statement_id'] ?? null,
-            'creative_commons_license_id' => $data['creative_commons_license_id'] ?? null,
-            'rights_date'                 => $data['rights_date'] ?? null,
-            'expiry_date'                 => $data['expiry_date'] ?? null,
-            'rights_holder'               => $data['rights_holder'] ?? null,
-            'rights_holder_uri'           => $data['rights_holder_uri'] ?? null,
-            'is_primary'                  => $data['is_primary'] ?? 1,
-            'created_by'                  => $userId,
-            'updated_by'                  => $userId,
-            'created_at'                  => $now,
-            'updated_at'                  => $now,
+        $id = DB::table('rights_record')->insertGetId([
+            'object_id'           => $objectId,
+            // A CC licence is a licence grant; anything else defaults to
+            // copyright, matching the backfill and saveRightsRecord().
+            'basis'               => !empty($data['creative_commons_license_id']) ? 'license' : 'copyright',
+            'rights_statement_id' => $data['rights_statement_id'] ?? null,
+            'cc_license_id'       => $data['creative_commons_license_id'] ?? null,
+            'start_date'          => $data['rights_date'] ?? null,
+            'end_date'            => $data['expiry_date'] ?? null,
+            'copyright_holder'    => $data['rights_holder'] ?? null,
+            'rights_holder_uri'   => $data['rights_holder_uri'] ?? null,
+            'copyright_note'      => $data['copyright_notice'] ?? null,
+            'is_primary'          => $data['is_primary'] ?? 1,
+            'created_by'          => $userId,
+            'updated_by'          => $userId,
+            'created_at'          => $now,
+            'updated_at'          => $now,
         ]);
 
-        // Insert i18n row
-        $i18nData = [
-            'extended_rights_id' => $id,
-            'culture'            => $this->culture,
-            'rights_note'        => $data['rights_note'] ?? null,
-            'usage_conditions'   => $data['usage_conditions'] ?? null,
-            'copyright_notice'   => $data['copyright_notice'] ?? null,
-        ];
-        DB::table('extended_rights_i18n')->insert($i18nData);
+        DB::table('rights_record_i18n')->insert([
+            'id'               => $id,
+            'culture'          => $this->culture,
+            'rights_note'      => $data['rights_note'] ?? null,
+            'restriction_note' => $data['usage_conditions'] ?? null,
+        ]);
 
-        // Insert TK labels
-        if (!empty($data['tk_label_ids'])) {
-            foreach ($data['tk_label_ids'] as $tkLabelId) {
-                DB::table('extended_rights_tk_label')->insert([
-                    'extended_rights_id' => $id,
-                    'tk_label_id'        => (int) $tkLabelId,
-                    'created_at'         => $now,
-                    'updated_at'         => $now,
-                ]);
-            }
-        }
+        // TK/BC labels go to icip_tk_label, which is what TermProtocolService
+        // enforces against - recording them anywhere else has no effect.
+        \AhgCore\Services\IcipLabelAssignmentService::apply($objectId, $data['tk_label_ids'] ?? []);
 
-        \AhgCore\Support\AuditLog::captureCreate($id, 'extended_rights', $this->rightSnapshot($id));
+        \AhgCore\Support\AuditLog::captureCreate($id, 'rights_record', $this->rightSnapshot($id));
         return $id;
     }
 
@@ -250,57 +259,38 @@ class ExtendedRightsService
         $now = date('Y-m-d H:i:s');
 
         $record = [
-            'rights_statement_id'         => $data['rights_statement_id'] ?? null,
-            'creative_commons_license_id' => $data['creative_commons_license_id'] ?? null,
-            'rights_date'                 => $data['rights_date'] ?? null,
-            'expiry_date'                 => $data['expiry_date'] ?? null,
-            'rights_holder'               => $data['rights_holder'] ?? null,
-            'rights_holder_uri'           => $data['rights_holder_uri'] ?? null,
-            'is_primary'                  => $data['is_primary'] ?? 1,
-            'updated_by'                  => $userId,
-            'updated_at'                  => $now,
+            'basis'               => !empty($data['creative_commons_license_id']) ? 'license' : 'copyright',
+            'rights_statement_id' => $data['rights_statement_id'] ?? null,
+            'cc_license_id'       => $data['creative_commons_license_id'] ?? null,
+            'start_date'          => $data['rights_date'] ?? null,
+            'end_date'            => $data['expiry_date'] ?? null,
+            'copyright_holder'    => $data['rights_holder'] ?? null,
+            'rights_holder_uri'   => $data['rights_holder_uri'] ?? null,
+            'copyright_note'      => $data['copyright_notice'] ?? null,
+            'is_primary'          => $data['is_primary'] ?? 1,
+            'updated_by'          => $userId,
+            'updated_at'          => $now,
         ];
 
-        DB::table('extended_rights')->where('id', $rightsId)->update($record);
+        DB::table('rights_record')->where('id', $rightsId)->update($record);
 
-        // Upsert i18n row
-        $i18nExists = DB::table('extended_rights_i18n')
-            ->where('extended_rights_id', $rightsId)
-            ->where('culture', $this->culture)
-            ->exists();
+        DB::table('rights_record_i18n')->updateOrInsert(
+            ['id' => $rightsId, 'culture' => $this->culture],
+            [
+                'rights_note'      => $data['rights_note'] ?? null,
+                'restriction_note' => $data['usage_conditions'] ?? null,
+            ]
+        );
 
-        $i18nData = [
-            'rights_note'      => $data['rights_note'] ?? null,
-            'usage_conditions' => $data['usage_conditions'] ?? null,
-            'copyright_notice' => $data['copyright_notice'] ?? null,
-        ];
-
-        if ($i18nExists) {
-            DB::table('extended_rights_i18n')
-                ->where('extended_rights_id', $rightsId)
-                ->where('culture', $this->culture)
-                ->update($i18nData);
-        } else {
-            DB::table('extended_rights_i18n')->insert(array_merge([
-                'extended_rights_id' => $rightsId,
-                'culture'            => $this->culture,
-            ], $i18nData));
+        // Replace TK labels on the object (icip_tk_label is what the protocol
+        // layer enforces against).
+        $objectId = (int) DB::table('rights_record')->where('id', $rightsId)->value('object_id');
+        if ($objectId) {
+            DB::table('icip_tk_label')->where('information_object_id', $objectId)->delete();
+            \AhgCore\Services\IcipLabelAssignmentService::apply($objectId, $data['tk_label_ids'] ?? []);
         }
 
-        // Replace TK labels
-        DB::table('extended_rights_tk_label')->where('extended_rights_id', $rightsId)->delete();
-        if (!empty($data['tk_label_ids'])) {
-            foreach ($data['tk_label_ids'] as $tkLabelId) {
-                DB::table('extended_rights_tk_label')->insert([
-                    'extended_rights_id' => $rightsId,
-                    'tk_label_id'        => (int) $tkLabelId,
-                    'created_at'         => $now,
-                    'updated_at'         => $now,
-                ]);
-            }
-        }
-
-        \AhgCore\Support\AuditLog::captureEdit($rightsId, 'extended_rights', $before, $this->rightSnapshot($rightsId));
+        \AhgCore\Support\AuditLog::captureEdit($rightsId, 'rights_record', $before, $this->rightSnapshot($rightsId));
     }
 
     /**
@@ -308,11 +298,15 @@ class ExtendedRightsService
      */
     public function deleteExtendedRight(int $rightsId): void
     {
-        \AhgCore\Support\AuditLog::captureDelete($rightsId, 'extended_rights', $this->rightSnapshot($rightsId));
+        \AhgCore\Support\AuditLog::captureDelete($rightsId, 'rights_record', $this->rightSnapshot($rightsId));
 
-        DB::table('extended_rights_tk_label')->where('extended_rights_id', $rightsId)->delete();
-        DB::table('extended_rights_i18n')->where('extended_rights_id', $rightsId)->delete();
-        DB::table('extended_rights')->where('id', $rightsId)->delete();
+        // TK/BC labels are deliberately NOT deleted here. In the ICIP model they
+        // are attached to the OBJECT, not to a rights record, and they carry a
+        // community's own assertion of authority. Deleting a rights record must
+        // not strip that - especially as an object can hold more than one
+        // record, so the labels may not even relate to the one being removed.
+        DB::table('rights_record_i18n')->where('id', $rightsId)->delete();
+        DB::table('rights_record')->where('id', $rightsId)->delete();
     }
 
     // =========================================

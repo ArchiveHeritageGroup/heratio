@@ -8,7 +8,7 @@ if (!isset($resource) || !$resource->id) {
 $canEdit = auth()->check() && \AtomExtensions\Services\AclService::check($resource, 'update');
 
 // Check if has extended rights
-$hasRights = \Illuminate\Support\Facades\DB::table('extended_rights')
+$hasRights = \Illuminate\Support\Facades\DB::table('rights_record')
     ->where('object_id', $resource->id)
     ->exists();
 

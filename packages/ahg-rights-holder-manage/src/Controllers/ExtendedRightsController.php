@@ -63,8 +63,8 @@ class ExtendedRightsController extends Controller
 
         $rightsData = ['has_rights' => false, 'badges' => [], 'primary' => null];
 
-        if (Schema::hasTable('extended_rights')) {
-            $primary = DB::table('extended_rights')
+        if (Schema::hasTable('rights_record')) {
+            $primary = DB::table('rights_record')
                 ->where('object_id', $resource->id)
                 ->where('is_primary', true)
                 ->first();
@@ -264,9 +264,9 @@ class ExtendedRightsController extends Controller
             'by_cc_license' => [],
         ];
 
-        if (Schema::hasTable('extended_rights')) {
-            $stats->with_rights_statement = DB::table('extended_rights')->whereNotNull('rights_statement_id')->distinct('object_id')->count('object_id');
-            $stats->with_creative_commons = DB::table('extended_rights')->whereNotNull('creative_commons_license_id')->distinct('object_id')->count('object_id');
+        if (Schema::hasTable('rights_record')) {
+            $stats->with_rights_statement = DB::table('rights_record')->whereNotNull('rights_statement_id')->distinct('object_id')->count('object_id');
+            $stats->with_creative_commons = DB::table('rights_record')->whereNotNull('cc_license_id')->distinct('object_id')->count('object_id');
         }
         if (Schema::hasTable('embargo')) {
             $stats->active_embargoes = DB::table('embargo')->where('is_active', true)->count();

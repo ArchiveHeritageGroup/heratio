@@ -10,9 +10,9 @@ if (!isset($doc) || !isset($doc['id'])) {
 $objectId = $doc['id'];
 
 // Quick check for rights/embargo
-$rights = \Illuminate\Database\Capsule\Manager::table('extended_rights')
+$rights = \Illuminate\Database\Capsule\Manager::table('rights_record')
     ->where('object_id', $objectId)
-    ->select('rights_statement_id', 'creative_commons_id')
+    ->select('rights_statement_id', 'cc_license_id')
     ->first();
 
 $embargo = \Illuminate\Database\Capsule\Manager::table('embargo')
@@ -28,7 +28,7 @@ $embargo = \Illuminate\Database\Capsule\Manager::table('embargo')
   @if($rights && $rights->rights_statement_id)
     <i class="fas fa-copyright text-info" title="{{ __('Has rights statement') }}"></i>
   @endif
-  @if($rights && $rights->creative_commons_id)
+  @if($rights && $rights->cc_license_id)
     <i class="fab fa-creative-commons text-success" title="{{ __('CC licensed') }}"></i>
   @endif
 </span>

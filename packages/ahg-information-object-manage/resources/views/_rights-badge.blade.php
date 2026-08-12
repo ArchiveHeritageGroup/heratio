@@ -16,7 +16,7 @@ if (!$informationObject) {
 $culture = sfContext::getInstance()->user->getCulture();
 
 // Get rights
-$rights = \Illuminate\Database\Capsule\Manager::table('extended_rights as er')
+$rights = \Illuminate\Database\Capsule\Manager::table('rights_record as er')
     ->leftJoin('rights_statement as rs', 'rs.id', '=', 'er.rights_statement_id')
     ->leftJoin('rights_cc_license as cc', 'cc.id', '=', 'er.cc_license_id')
     ->where('er.object_id', $informationObject->id)

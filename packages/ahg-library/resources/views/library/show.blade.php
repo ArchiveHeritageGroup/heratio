@@ -233,8 +233,8 @@
   {{-- Rights --}}
   @auth
   @php
-    $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
-        && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $item->id)->exists();
+    $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('rights_record')
+        && \Illuminate\Support\Facades\DB::table('rights_record')->where('object_id', $item->id)->exists();
     $activeEmbargo = \Illuminate\Support\Facades\Schema::hasTable('embargo')
         ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $item->id)->where('is_active', 1)->first()
         : null;
@@ -822,11 +822,21 @@
         });
 
     // Extended rights (supplements PREMIS - CC license, TK labels, usage conditions)
-    $extRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
-        ? \Illuminate\Support\Facades\DB::table('extended_rights as er')
-            ->leftJoin('extended_rights_i18n as eri', function ($j) use ($culture) {
-                $j->on('eri.extended_rights_id', '=', 'er.id')->where('eri.culture', '=', $culture);
+    $extRights = \Illuminate\Support\Facades\Schema::hasTable('rights_record')
+        ? \Illuminate\Support\Facades\DB::table('rights_record as er')
+            ->leftJoin('rights_record_i18n as eri', function ($j) use ($culture) {
+                $j->on('eri.id', '=', 'er.id')->where('eri.culture', '=', $culture);
             })
+            ->select(
+                'er.*',
+                'er.cc_license_id as creative_commons_license_id',
+                'er.copyright_holder as rights_holder',
+                'er.start_date as rights_date',
+                'er.end_date as expiry_date',
+                'er.copyright_note as copyright_notice',
+                'eri.rights_note',
+                'eri.restriction_note as usage_conditions'
+            )
             ->where('er.object_id', $item->id)->first()
         : null;
 
@@ -849,8 +859,8 @@
         : null;
 
     // TK labels
-    $tkLabels = ($extRights && \Illuminate\Support\Facades\Schema::hasTable('extended_rights_tk_label'))
-        ? \Illuminate\Support\Facades\DB::table('extended_rights_tk_label')->where('extended_rights_id', $extRights->id)->get()
+    $tkLabels = ($extRights && \Illuminate\Support\Facades\Schema::hasTable('icip_tk_label'))
+        ? \Illuminate\Support\Facades\DB::table('icip_tk_label as il')->join('icip_tk_label_type as t','t.id','=','il.label_type_id')->where('il.information_object_id', $item->id)->select('t.*')->get()
         : collect();
 
     // Embargo

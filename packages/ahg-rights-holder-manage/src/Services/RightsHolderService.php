@@ -119,7 +119,7 @@ class RightsHolderService
         return DB::table('term_i18n')->whereIn('id', $ids)->where('culture', $this->culture)->pluck('name', 'id')->toArray();
     }
 
-    // ── Extended Rights (extended_rights + extended_rights_i18n + extended_rights_tk_label) ──
+    // ── Extended Rights (#1464: rights_record + rights_record_i18n + icip_tk_label) ──
 
     /**
      * Get all extended rights for an object (rights holder is linked to IOs via extended_rights.rights_holder).
@@ -138,9 +138,10 @@ class RightsHolderService
         }
 
         try {
-            return DB::table('extended_rights as er')
-                ->leftJoin('extended_rights_i18n as eri', function ($j) {
-                    $j->on('eri.extended_rights_id', '=', 'er.id')
+            // #1464: rights_record is authoritative; aliased to the legacy shape.
+            return DB::table('rights_record as er')
+                ->leftJoin('rights_record_i18n as eri', function ($j) {
+                    $j->on('eri.id', '=', 'er.id')
                         ->where('eri.culture', '=', $this->culture);
                 })
                 ->leftJoin('rights_statement as rs', 'er.rights_statement_id', '=', 'rs.id')
@@ -148,7 +149,7 @@ class RightsHolderService
                     $j->on('rs.id', '=', 'rs_i18n.rights_statement_id')
                         ->where('rs_i18n.culture', '=', $this->culture);
                 })
-                ->leftJoin('rights_cc_license as cc', 'er.creative_commons_license_id', '=', 'cc.id')
+                ->leftJoin('rights_cc_license as cc', 'er.cc_license_id', '=', 'cc.id')
                 ->leftJoin('information_object_i18n as ioi', function ($j) {
                     $j->on('ioi.id', '=', 'er.object_id')
                         ->where('ioi.culture', '=', $this->culture);
@@ -158,8 +159,8 @@ class RightsHolderService
                 ->select([
                     'er.*',
                     'eri.rights_note',
-                    'eri.usage_conditions',
-                    'eri.copyright_notice',
+                    'eri.restriction_note as usage_conditions',
+                    'er.copyright_note as copyright_notice',
                     'rs.code as rights_statement_code',
                     'rs.uri as rights_statement_uri',
                     'rs_i18n.name as rights_statement_name',
@@ -181,9 +182,15 @@ class RightsHolderService
     public function getTkLabelsForRights(int $extendedRightsId): \Illuminate\Support\Collection
     {
         try {
-            return DB::table('extended_rights_tk_label as ertl')
-                ->join('rights_tk_label as tkl', 'ertl.tk_label_id', '=', 'tkl.id')
-                ->where('ertl.extended_rights_id', $extendedRightsId)
+            // #1464: TK/BC assignments are object-scoped in icip_tk_label.
+            $objectId = DB::table('rights_record')->where('id', $extendedRightsId)->value('object_id');
+            if (! $objectId) {
+                return collect();
+            }
+
+            return DB::table('icip_tk_label as il')
+                ->join('icip_tk_label_type as tkl', 'il.label_type_id', '=', 'tkl.id')
+                ->where('il.information_object_id', $objectId)
                 ->select(['tkl.*'])
                 ->get();
         } catch (\Illuminate\Database\QueryException $e) {
@@ -198,22 +205,24 @@ class RightsHolderService
     {
         $now = date('Y-m-d H:i:s');
 
-        // If is_primary, unset any existing primary for this object
+        // #1464: rights_record is authoritative.
         if (! empty($data['is_primary'])) {
-            DB::table('extended_rights')
+            DB::table('rights_record')
                 ->where('object_id', $objectId)
                 ->where('is_primary', 1)
                 ->update(['is_primary' => 0, 'updated_at' => $now]);
         }
 
-        $id = DB::table('extended_rights')->insertGetId([
+        $id = DB::table('rights_record')->insertGetId([
             'object_id' => $objectId,
+            'basis' => ! empty($data['creative_commons_license_id']) ? 'license' : 'copyright',
             'rights_statement_id' => $data['rights_statement_id'] ?? null,
-            'creative_commons_license_id' => $data['creative_commons_license_id'] ?? null,
-            'rights_date' => $data['rights_date'] ?? null,
-            'expiry_date' => $data['expiry_date'] ?? null,
-            'rights_holder' => $data['rights_holder'] ?? null,
+            'cc_license_id' => $data['creative_commons_license_id'] ?? null,
+            'start_date' => $data['rights_date'] ?? null,
+            'end_date' => $data['expiry_date'] ?? null,
+            'copyright_holder' => $data['rights_holder'] ?? null,
             'rights_holder_uri' => $data['rights_holder_uri'] ?? null,
+            'copyright_note' => $data['copyright_notice'] ?? null,
             'is_primary' => $data['is_primary'] ?? 1,
             'created_by' => $userId,
             'updated_by' => $userId,
@@ -221,26 +230,14 @@ class RightsHolderService
             'updated_at' => $now,
         ]);
 
-        // Insert i18n row
-        DB::table('extended_rights_i18n')->insert([
-            'extended_rights_id' => $id,
+        DB::table('rights_record_i18n')->insert([
+            'id' => $id,
             'culture' => $this->culture,
             'rights_note' => $data['rights_note'] ?? null,
-            'usage_conditions' => $data['usage_conditions'] ?? null,
-            'copyright_notice' => $data['copyright_notice'] ?? null,
+            'restriction_note' => $data['usage_conditions'] ?? null,
         ]);
 
-        // Insert TK labels
-        if (! empty($data['tk_label_ids'])) {
-            foreach ($data['tk_label_ids'] as $tkLabelId) {
-                DB::table('extended_rights_tk_label')->insert([
-                    'extended_rights_id' => $id,
-                    'tk_label_id' => (int) $tkLabelId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
-            }
-        }
+        \AhgCore\Services\IcipLabelAssignmentService::apply($objectId, $data['tk_label_ids'] ?? []);
 
         return $id;
     }

@@ -141,7 +141,7 @@ class ExtendedRightsController extends Controller
         ];
 
         // Check if a primary extended right already exists for this object
-        $existing = DB::table('extended_rights')
+        $existing = DB::table('rights_record')
             ->where('object_id', $io->id)
             ->where('is_primary', 1)
             ->first();
@@ -426,7 +426,7 @@ class ExtendedRightsController extends Controller
                 'tk_label_ids'                => $request->input('tk_label_ids', []),
             ];
 
-            $existingExt = DB::table('extended_rights')
+            $existingExt = DB::table('rights_record')
                 ->where('object_id', $io->id)
                 ->where('is_primary', 1)
                 ->first();

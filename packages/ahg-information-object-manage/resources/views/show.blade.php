@@ -223,8 +223,8 @@
     @auth
     @if(\AhgCore\Services\AclService::check($io, 'update'))
     @php
-      $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
-          && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $io->id)->exists();
+      $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('rights_record')
+          && \Illuminate\Support\Facades\DB::table('rights_record')->where('object_id', $io->id)->exists();
       $activeEmbargoSidebar = \Illuminate\Support\Facades\Schema::hasTable('embargo')
           ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id)->where('is_active', 1)->first()
           : null;
@@ -693,11 +693,21 @@
         });
 
     // Extended rights
-    $extRightsData = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
-        ? \Illuminate\Support\Facades\DB::table('extended_rights as er')
-            ->leftJoin('extended_rights_i18n as eri', function ($j) use ($culture) {
-                $j->on('eri.extended_rights_id', '=', 'er.id')->where('eri.culture', '=', $culture);
+    $extRightsData = \Illuminate\Support\Facades\Schema::hasTable('rights_record')
+        ? \Illuminate\Support\Facades\DB::table('rights_record as er')
+            ->leftJoin('rights_record_i18n as eri', function ($j) use ($culture) {
+                $j->on('eri.id', '=', 'er.id')->where('eri.culture', '=', $culture);
             })
+            ->select(
+                'er.*',
+                'er.cc_license_id as creative_commons_license_id',
+                'er.copyright_holder as rights_holder',
+                'er.start_date as rights_date',
+                'er.end_date as expiry_date',
+                'er.copyright_note as copyright_notice',
+                'eri.rights_note',
+                'eri.restriction_note as usage_conditions'
+            )
             ->where('er.object_id', $io->id)->first()
         : null;
 
@@ -718,8 +728,8 @@
            ?: \Illuminate\Support\Facades\DB::table('rights_cc_license')
             ->where('id', $extRightsData->creative_commons_license_id)->value('code'))
         : null;
-    $tkLabels = ($extRightsData && \Illuminate\Support\Facades\Schema::hasTable('extended_rights_tk_label'))
-        ? \Illuminate\Support\Facades\DB::table('extended_rights_tk_label')->where('extended_rights_id', $extRightsData->id)->get()
+    $tkLabels = ($extRightsData && \Illuminate\Support\Facades\Schema::hasTable('icip_tk_label'))
+        ? \Illuminate\Support\Facades\DB::table('icip_tk_label as il')->join('icip_tk_label_type as t','t.id','=','il.label_type_id')->where('il.information_object_id', $io->id)->select('t.*')->get()
         : collect();
     $embargoData = \Illuminate\Support\Facades\Schema::hasTable('embargo')
         ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id)->where('is_active', 1)->first()

@@ -192,8 +192,8 @@
 
     {{-- Rights --}}
     @php
-      $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
-          && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $asset->id)->exists();
+      $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('rights_record')
+          && \Illuminate\Support\Facades\DB::table('rights_record')->where('object_id', $asset->id)->exists();
       $activeEmbargoSidebar = \Illuminate\Support\Facades\Schema::hasTable('embargo')
           ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $asset->id)->where('is_active', 1)->first()
           : null;

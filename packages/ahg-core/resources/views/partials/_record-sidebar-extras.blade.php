@@ -74,8 +74,8 @@
 @auth
 @if(empty($hideRights) && \Illuminate\Support\Facades\Route::has('io.rights.extended') && $__slug)
 @php
-  $__hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
-      && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $__objId)->exists();
+  $__hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('rights_record')
+      && \Illuminate\Support\Facades\DB::table('rights_record')->where('object_id', $__objId)->exists();
   $__activeEmbargo = \Illuminate\Support\Facades\Schema::hasTable('embargo')
       ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $__objId)->where('is_active', 1)->first()
       : null;
