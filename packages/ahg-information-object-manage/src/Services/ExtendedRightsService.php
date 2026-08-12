@@ -244,7 +244,7 @@ class ExtendedRightsService
 
         // TK/BC labels go to icip_tk_label, which is what TermProtocolService
         // enforces against - recording them anywhere else has no effect.
-        \AhgCore\Services\IcipLabelAssignmentService::apply($objectId, $data['tk_label_ids'] ?? []);
+        \AhgCore\Services\IcipLabelAssignmentService::applyLegacyIds($objectId, $data['tk_label_ids'] ?? []);
 
         \AhgCore\Support\AuditLog::captureCreate($id, 'rights_record', $this->rightSnapshot($id));
         return $id;
@@ -287,7 +287,7 @@ class ExtendedRightsService
         $objectId = (int) DB::table('rights_record')->where('id', $rightsId)->value('object_id');
         if ($objectId) {
             DB::table('icip_tk_label')->where('information_object_id', $objectId)->delete();
-            \AhgCore\Services\IcipLabelAssignmentService::apply($objectId, $data['tk_label_ids'] ?? []);
+            \AhgCore\Services\IcipLabelAssignmentService::applyLegacyIds($objectId, $data['tk_label_ids'] ?? []);
         }
 
         \AhgCore\Support\AuditLog::captureEdit($rightsId, 'rights_record', $before, $this->rightSnapshot($rightsId));

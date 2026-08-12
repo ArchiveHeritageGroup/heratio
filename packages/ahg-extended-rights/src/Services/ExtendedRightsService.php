@@ -287,32 +287,24 @@ class ExtendedRightsService
 
     public function getEmbargo(int $objectId): ?object
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return null;
         }
 
-        return DB::table('rights_embargo as e')
-            ->leftJoin('rights_embargo_i18n as ei', function ($join) {
-                $join->on('e.id', '=', 'ei.id')
-                    ->where('ei.culture', '=', $this->culture);
-            })
+        return DB::table('embargo as e')
             ->where('e.object_id', $objectId)
             ->where('e.status', 'active')
-            ->select(['e.*', 'ei.reason_note', 'ei.internal_note'])
+            ->select(['e.*', 'e.reason as reason_note', 'e.notes as internal_note'])
             ->first();
     }
 
     public function getActiveEmbargoes(?string $status = 'active'): Collection
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return collect();
         }
 
-        $query = DB::table('rights_embargo as e')
-            ->leftJoin('rights_embargo_i18n as ei', function ($join) {
-                $join->on('e.id', '=', 'ei.id')
-                    ->where('ei.culture', '=', $this->culture);
-            })
+        $query = DB::table('embargo as e')
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('e.object_id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $this->culture);
@@ -320,7 +312,7 @@ class ExtendedRightsService
             ->leftJoin('slug as s', 's.object_id', '=', 'e.object_id')
             ->select([
                 'e.*',
-                'ei.reason_note',
+                'e.reason as reason_note',
                 'ioi.title as object_title',
                 's.slug',
             ]);
@@ -334,11 +326,11 @@ class ExtendedRightsService
 
     public function getExpiringEmbargoes(int $days = 30): Collection
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return collect();
         }
 
-        return DB::table('rights_embargo as e')
+        return DB::table('embargo as e')
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('e.object_id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $this->culture);
@@ -355,11 +347,11 @@ class ExtendedRightsService
 
     public function getEmbargoesForReview(): Collection
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return collect();
         }
 
-        return DB::table('rights_embargo as e')
+        return DB::table('embargo as e')
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('e.object_id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $this->culture);
@@ -375,17 +367,13 @@ class ExtendedRightsService
 
     public function getEmbargoById(int $id): ?object
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return null;
         }
 
-        return DB::table('rights_embargo as e')
-            ->leftJoin('rights_embargo_i18n as ei', function ($join) {
-                $join->on('e.id', '=', 'ei.id')
-                    ->where('ei.culture', '=', $this->culture);
-            })
+        return DB::table('embargo as e')
             ->where('e.id', $id)
-            ->select(['e.*', 'ei.reason_note', 'ei.internal_note'])
+            ->select(['e.*', 'e.reason as reason_note', 'e.notes as internal_note'])
             ->first();
     }
 
@@ -403,7 +391,7 @@ class ExtendedRightsService
 
     public function createEmbargo(array $data): int
     {
-        $id = DB::table('rights_embargo')->insertGetId([
+        $id = DB::table('embargo')->insertGetId([
             'object_id' => $data['object_id'],
             'embargo_type' => $data['embargo_type'] ?? 'full',
             'reason' => $data['reason'],
@@ -412,20 +400,18 @@ class ExtendedRightsService
             'auto_release' => $data['auto_release'] ?? 1,
             'review_date' => $data['review_date'] ?? null,
             'review_interval_months' => $data['review_interval_months'] ?? 12,
-            'notify_before_days' => $data['notify_before_days'] ?? 30,
+            'notify_days_before' => $data['notify_days_before'] ?? 30,
             'notify_emails' => json_encode(array_filter(
                 array_map('trim', explode(',', $data['notify_emails'] ?? ''))
             )),
             'status' => 'active',
+            'is_active' => 1,
+            // #1464: embargo carries these directly; rights_embargo_i18n has no
+            // counterpart and is no longer written.
+            'reason' => $data['reason_note'] ?? null,
+            'notes' => $data['internal_note'] ?? null,
             'created_by' => $data['created_by'] ?? auth()->id(),
             'created_at' => now(),
-        ]);
-
-        DB::table('rights_embargo_i18n')->insert([
-            'id' => $id,
-            'culture' => $this->culture,
-            'reason_note' => $data['reason_note'] ?? null,
-            'internal_note' => $data['internal_note'] ?? null,
         ]);
 
         $this->logEmbargoAction($id, 'created', null, 'active');
@@ -435,12 +421,12 @@ class ExtendedRightsService
 
     public function updateEmbargo(int $id, array $data): bool
     {
-        $embargo = DB::table('rights_embargo')->where('id', $id)->first();
+        $embargo = DB::table('embargo')->where('id', $id)->first();
         if (!$embargo) {
             return false;
         }
 
-        DB::table('rights_embargo')->where('id', $id)->update([
+        DB::table('embargo')->where('id', $id)->update([
             'embargo_type' => $data['embargo_type'],
             'reason' => $data['reason'],
             'start_date' => $data['start_date'],
@@ -448,20 +434,14 @@ class ExtendedRightsService
             'auto_release' => $data['auto_release'] ?? 0,
             'review_date' => $data['review_date'] ?? null,
             'review_interval_months' => $data['review_interval_months'] ?? 12,
-            'notify_before_days' => $data['notify_before_days'] ?? 30,
+            'notify_days_before' => $data['notify_days_before'] ?? 30,
             'notify_emails' => json_encode(array_filter(
                 array_map('trim', explode(',', $data['notify_emails'] ?? ''))
             )),
+            'reason' => $data['reason_note'] ?? null,
+            'notes' => $data['internal_note'] ?? null,
             'updated_at' => now(),
         ]);
-
-        DB::table('rights_embargo_i18n')->updateOrInsert(
-            ['id' => $id, 'culture' => $this->culture],
-            [
-                'reason_note' => $data['reason_note'] ?? null,
-                'internal_note' => $data['internal_note'] ?? null,
-            ]
-        );
 
         $this->logEmbargoAction($id, 'updated', $embargo->status, $embargo->status);
 
@@ -470,12 +450,12 @@ class ExtendedRightsService
 
     public function liftEmbargo(int $id, ?string $reason = null, ?int $userId = null): bool
     {
-        $embargo = DB::table('rights_embargo')->where('id', $id)->first();
+        $embargo = DB::table('embargo')->where('id', $id)->first();
         if (!$embargo) {
             return false;
         }
 
-        DB::table('rights_embargo')->where('id', $id)->update([
+        DB::table('embargo')->where('id', $id)->update([
             'status' => 'lifted',
             'lifted_at' => now(),
             'lifted_by' => $userId ?? auth()->id(),
@@ -490,14 +470,14 @@ class ExtendedRightsService
 
     public function extendEmbargo(int $id, string $newEndDate, ?string $reason = null, ?int $userId = null): bool
     {
-        $embargo = DB::table('rights_embargo')->where('id', $id)->first();
+        $embargo = DB::table('embargo')->where('id', $id)->first();
         if (!$embargo) {
             return false;
         }
 
         $oldEndDate = $embargo->end_date;
 
-        DB::table('rights_embargo')->where('id', $id)->update([
+        DB::table('embargo')->where('id', $id)->update([
             'end_date' => $newEndDate,
             'status' => 'active',
             'notification_sent' => 0,
@@ -511,11 +491,11 @@ class ExtendedRightsService
 
     public function processExpiredEmbargoes(): int
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return 0;
         }
 
-        $expired = DB::table('rights_embargo')
+        $expired = DB::table('embargo')
             ->where('status', 'active')
             ->where('auto_release', 1)
             ->whereNotNull('end_date')
@@ -524,7 +504,7 @@ class ExtendedRightsService
 
         $count = 0;
         foreach ($expired as $embargo) {
-            DB::table('rights_embargo')->where('id', $embargo->id)->update([
+            DB::table('embargo')->where('id', $embargo->id)->update([
                 'status' => 'expired',
                 'updated_at' => now(),
             ]);
@@ -730,82 +710,125 @@ class ExtendedRightsService
             ->get();
     }
 
+
+
+
+
+    // =========================================================================
+    // TK / BC LABELS  (#1464: icip_tk_label - the table the protocol gate reads)
+    // =========================================================================
+
+    /**
+     * Labels attached to an object.
+     *
+     * Repointed from rights_object_tk_label, which TermProtocolService does not
+     * read - assignments made there governed nothing. Column names the admin
+     * views already use are preserved by aliasing.
+     */
     public function getTkLabelsForObject(int $objectId): Collection
     {
-        if (!Schema::hasTable('rights_object_tk_label')) {
+        if (! Schema::hasTable('icip_tk_label') || ! Schema::hasTable('icip_tk_label_type')) {
             return collect();
         }
 
-        return DB::table('rights_object_tk_label as otl')
-            ->join('rights_tk_label as tl', 'otl.tk_label_id', '=', 'tl.id')
-            ->leftJoin('rights_tk_label_i18n as tli', function ($join) {
-                $join->on('tl.id', '=', 'tli.id')
-                    ->where('tli.culture', '=', $this->culture);
-            })
-            ->where('otl.object_id', $objectId)
+        return DB::table('icip_tk_label as otl')
+            ->join('icip_tk_label_type as tl', 'otl.label_type_id', '=', 'tl.id')
+            ->where('otl.information_object_id', $objectId)
             ->select([
                 'otl.*',
+                'otl.information_object_id as object_id',
+                'otl.label_type_id as tk_label_id',
+                'otl.notes as community_name',
                 'tl.code',
                 'tl.category',
-                'tl.uri',
-                'tl.color',
-                'tli.name',
-                'tli.description',
-                'tli.usage_protocol',
+                'tl.local_contexts_url as uri',
+                'tl.name',
+                'tl.description',
+                'tl.default_access_condition as usage_protocol',
             ])
-            ->orderBy('tl.sort_order')
+            ->orderBy('tl.display_order')
             ->get();
     }
 
+    /** Recent assignments across all objects, for the admin listing. */
     public function getTkLabelAssignments(): Collection
     {
-        if (!Schema::hasTable('rights_object_tk_label')) {
+        if (! Schema::hasTable('icip_tk_label') || ! Schema::hasTable('icip_tk_label_type')) {
             return collect();
         }
 
-        return DB::table('rights_object_tk_label as otl')
-            ->join('rights_tk_label as tl', 'otl.tk_label_id', '=', 'tl.id')
-            ->leftJoin('rights_tk_label_i18n as tli', function ($join) {
-                $join->on('tl.id', '=', 'tli.id')
-                    ->where('tli.culture', '=', $this->culture);
+        $culture = $this->culture;
+
+        return DB::table('icip_tk_label as otl')
+            ->join('icip_tk_label_type as tl', 'otl.label_type_id', '=', 'tl.id')
+            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                $join->on('ioi.id', '=', 'otl.information_object_id')
+                    ->where('ioi.culture', '=', $culture);
             })
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('otl.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
-            ->leftJoin('slug as s', 's.object_id', '=', 'otl.object_id')
+            ->leftJoin('slug', 'slug.object_id', '=', 'otl.information_object_id')
             ->select([
                 'otl.*',
+                'otl.information_object_id as object_id',
+                'otl.label_type_id as tk_label_id',
+                'otl.notes as community_name',
                 'tl.code',
-                'tl.color',
-                'tli.name as label_name',
+                'tl.name',
+                'tl.category',
                 'ioi.title as object_title',
-                's.slug',
+                'slug.slug as object_slug',
             ])
-            ->orderBy('otl.created_at', 'desc')
+            ->orderByDesc('otl.created_at')
             ->limit(100)
             ->get();
     }
 
+    /**
+     * Assign a label to an object.
+     *
+     * $labelId is a LEGACY rights_tk_label id (what the admin pickers still
+     * offer). The two vocabularies' id spaces overlap, so it is translated by
+     * code rather than trusted as an ICIP id - see IcipLabelAssignmentService.
+     * The free-text community fields the old table carried are folded into
+     * `notes`, which is icip_tk_label's equivalent.
+     */
     public function assignTkLabel(int $objectId, int $labelId, array $data = []): int
     {
-        return DB::table('rights_object_tk_label')->insertGetId([
-            'object_id' => $objectId,
-            'tk_label_id' => $labelId,
-            'community_name' => $data['community_name'] ?? null,
-            'community_contact' => $data['community_contact'] ?? null,
-            'custom_text' => $data['custom_text'] ?? null,
-            'verified' => $data['verified'] ?? 0,
-            'created_by' => $data['created_by'] ?? auth()->id(),
-            'created_at' => now(),
-        ]);
+        $attached = \AhgCore\Services\IcipLabelAssignmentService::applyLegacyIds($objectId, [$labelId]);
+
+        $note = implode(' - ', array_filter([
+            $data['community_name'] ?? null,
+            $data['community_contact'] ?? null,
+            $data['custom_text'] ?? $data['provenance_statement'] ?? null,
+            $data['cultural_note'] ?? null,
+        ]));
+
+        if ($attached && $note !== '') {
+            $typeId = DB::table('rights_tk_label')->where('id', $labelId)->value('code');
+            $typeId = $typeId
+                ? DB::table('icip_tk_label_type')->where('code', strtolower(str_replace('-', '_', $typeId)))->value('id')
+                : null;
+            if ($typeId) {
+                DB::table('icip_tk_label')
+                    ->where('information_object_id', $objectId)
+                    ->where('label_type_id', $typeId)
+                    ->update(['notes' => $note, 'updated_at' => now()]);
+            }
+        }
+
+        return $attached;
     }
 
+    /** Remove a label from an object. $labelId is a legacy rights_tk_label id. */
     public function removeTkLabel(int $objectId, int $labelId): bool
     {
-        return DB::table('rights_object_tk_label')
-            ->where('object_id', $objectId)
-            ->where('tk_label_id', $labelId)
+        $code = DB::table('rights_tk_label')->where('id', $labelId)->value('code');
+        $typeId = $code
+            ? DB::table('icip_tk_label_type')->where('code', strtolower(str_replace('-', '_', $code)))->value('id')
+            : $labelId;
+
+        return DB::table('icip_tk_label')
+            ->where('information_object_id', $objectId)
+            ->where('label_type_id', $typeId)
             ->delete() > 0;
     }
 
@@ -1025,10 +1048,10 @@ class ExtendedRightsService
                 ->toArray();
         }
 
-        if (Schema::hasTable('rights_embargo')) {
-            $stats['active_embargoes'] = DB::table('rights_embargo')
+        if (Schema::hasTable('embargo')) {
+            $stats['active_embargoes'] = DB::table('embargo')
                 ->where('status', 'active')->count();
-            $stats['expiring_soon'] = DB::table('rights_embargo')
+            $stats['expiring_soon'] = DB::table('embargo')
                 ->where('status', 'active')
                 ->whereNotNull('end_date')
                 ->whereRaw('end_date <= DATE_ADD(NOW(), INTERVAL 30 DAY)')
@@ -1039,10 +1062,6 @@ class ExtendedRightsService
         if (Schema::hasTable('rights_orphan_work')) {
             $stats['orphan_works_in_progress'] = DB::table('rights_orphan_work')
                 ->where('status', 'in_progress')->count();
-        }
-
-        if (Schema::hasTable('rights_object_tk_label')) {
-            $stats['tk_label_assignments'] = DB::table('rights_object_tk_label')->count();
         }
 
         return $stats;

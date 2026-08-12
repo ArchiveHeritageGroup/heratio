@@ -237,7 +237,7 @@ class RightsHolderService
             'restriction_note' => $data['usage_conditions'] ?? null,
         ]);
 
-        \AhgCore\Services\IcipLabelAssignmentService::apply($objectId, $data['tk_label_ids'] ?? []);
+        \AhgCore\Services\IcipLabelAssignmentService::applyLegacyIds($objectId, $data['tk_label_ids'] ?? []);
 
         return $id;
     }

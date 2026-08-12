@@ -46,31 +46,75 @@ use Illuminate\Support\Facades\Schema;
 class IcipLabelAssignmentService
 {
     /**
-     * Attach the given labels to an object, leaving existing ones in place.
+     * Attach labels identified by LEGACY rights_tk_label ids.
      *
-     * Ids may be `icip_tk_label_type` ids or legacy `rights_tk_label` ids - the
-     * rights edit form still offers the legacy vocabulary, so those are
-     * translated by code ('BC-CB' -> 'bc_cb'). An unresolvable id is skipped
-     * rather than guessed at: a wrong cultural label is worse than none.
+     * This is what the rights edit forms submit. The id spaces of the two
+     * vocabularies OVERLAP (legacy 1-19, ICIP 1-70), so an id alone cannot say
+     * which vocabulary it belongs to - legacy 15 is BC-CB while ICIP 15 is
+     * tk_mg. Guessing there would attach the wrong cultural label, so the
+     * caller must state the vocabulary and translation always goes via the
+     * code.
      *
-     * @param  array<int|string>  $labelIds
+     * @param  array<int|string>  $legacyIds
      * @return int number attached
      */
-    public static function apply(int $objectId, array $labelIds): int
+    public static function applyLegacyIds(int $objectId, array $legacyIds): int
+    {
+        if (! Schema::hasTable('rights_tk_label')) {
+            return 0;
+        }
+
+        $codes = DB::table('rights_tk_label')
+            ->whereIn('id', array_filter(array_map('intval', $legacyIds)))
+            ->pluck('code')
+            ->all();
+
+        return self::applyCodes($objectId, $codes);
+    }
+
+    /**
+     * Attach labels by Local Contexts code, in either casing ('BC-CB', 'bc_cb').
+     *
+     * @param  array<string>  $codes
+     * @return int number attached
+     */
+    public static function applyCodes(int $objectId, array $codes): int
     {
         if (! $objectId || ! Schema::hasTable('icip_tk_label') || ! Schema::hasTable('icip_tk_label_type')) {
+            return 0;
+        }
+
+        $typeIds = [];
+        foreach ($codes as $code) {
+            $id = DB::table('icip_tk_label_type')
+                ->where('code', strtolower(str_replace('-', '_', (string) $code)))
+                ->value('id');
+            // An unresolvable code is skipped, never guessed at: a wrong
+            // cultural label is worse than a missing one.
+            if ($id) {
+                $typeIds[] = (int) $id;
+            }
+        }
+
+        return self::applyTypeIds($objectId, $typeIds);
+    }
+
+    /**
+     * Attach labels by icip_tk_label_type id, for callers already holding one.
+     *
+     * @param  array<int>  $typeIds
+     * @return int number attached
+     */
+    public static function applyTypeIds(int $objectId, array $typeIds): int
+    {
+        if (! $objectId || ! Schema::hasTable('icip_tk_label')) {
             return 0;
         }
 
         $now = date('Y-m-d H:i:s');
         $attached = 0;
 
-        foreach ($labelIds as $labelId) {
-            $typeId = self::resolveTypeId((int) $labelId);
-            if (! $typeId) {
-                continue;
-            }
-
+        foreach (array_unique(array_filter(array_map('intval', $typeIds))) as $typeId) {
             DB::table('icip_tk_label')->updateOrInsert(
                 ['information_object_id' => $objectId, 'label_type_id' => $typeId],
                 ['updated_at' => $now, 'created_at' => $now]
@@ -82,12 +126,12 @@ class IcipLabelAssignmentService
     }
 
     /**
-     * Replace an object's labels with the given set.
+     * Replace an object's labels with the given LEGACY-id set.
      *
-     * Used by the rights edit form, where the label picker shows the object's
-     * current labels and submits the intended full set.
+     * Used by the rights edit form, whose picker shows the object's current
+     * labels and submits the intended full set.
      */
-    public static function replace(int $objectId, array $labelIds): int
+    public static function replaceLegacyIds(int $objectId, array $legacyIds): int
     {
         if (! $objectId || ! Schema::hasTable('icip_tk_label')) {
             return 0;
@@ -95,34 +139,6 @@ class IcipLabelAssignmentService
 
         DB::table('icip_tk_label')->where('information_object_id', $objectId)->delete();
 
-        return self::apply($objectId, $labelIds);
-    }
-
-    /** An ICIP label-type id, or a legacy rights_tk_label id translated by code. */
-    private static function resolveTypeId(int $labelId): ?int
-    {
-        if (! $labelId) {
-            return null;
-        }
-
-        $id = DB::table('icip_tk_label_type')->where('id', $labelId)->value('id');
-        if ($id) {
-            return (int) $id;
-        }
-
-        if (! Schema::hasTable('rights_tk_label')) {
-            return null;
-        }
-
-        $code = DB::table('rights_tk_label')->where('id', $labelId)->value('code');
-        if (! $code) {
-            return null;
-        }
-
-        $id = DB::table('icip_tk_label_type')
-            ->where('code', strtolower(str_replace('-', '_', $code)))
-            ->value('id');
-
-        return $id ? (int) $id : null;
+        return self::applyLegacyIds($objectId, $legacyIds);
     }
 }

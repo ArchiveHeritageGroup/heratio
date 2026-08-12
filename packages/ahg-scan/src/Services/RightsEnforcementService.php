@@ -310,23 +310,14 @@ class RightsEnforcementService
 
     protected function linkTkLabel(int $ioId, string $code): bool
     {
-        $tkId = DB::table('rights_tk_label')->where('code', $code)->where('is_active', 1)->value('id');
-        if (! $tkId) {
-            return false;
-        }
-        $exists = DB::table('rights_object_tk_label')
-            ->where('object_id', $ioId)->where('tk_label_id', $tkId)->exists();
-        if ($exists) {
-            return true;
-        }
-        DB::table('rights_object_tk_label')->insert([
-            'object_id' => $ioId,
-            'tk_label_id' => $tkId,
-            'verified' => 0,
-            'created_at' => now(),
-        ]);
-
-        return true;
+        // #1464: sidecar-ingested TK labels used to land in
+        // rights_object_tk_label, which TermProtocolService does not read - so a
+        // label applied at ingest governed nothing. They now go to
+        // icip_tk_label via the shared assignment service, which is the table
+        // the community-protocol gate actually enforces against.
+        // The sidecar gives a CODE, so resolve by code - never by id. The two
+        // vocabularies' id spaces overlap, so an id would be ambiguous.
+        return \AhgCore\Services\IcipLabelAssignmentService::applyCodes($ioId, [$code]) > 0;
     }
 
     // ----------------------------------------------------------------
