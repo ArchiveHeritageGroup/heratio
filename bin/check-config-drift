@@ -50,6 +50,7 @@ say() { [ "$QUIET" = "1" ] || echo -e "$@"; }
 DRIFT=0
 CHECKED=0
 SKIPPED=0
+UNREADABLE=0
 
 # ---------------------------------------------------------------------------
 # Manifest: <repo path>|<installed path>|<mode>
@@ -97,6 +98,15 @@ while IFS='|' read -r repo live mode; do
         say "  not installed here  $live"
         continue
     fi
+    # An unreadable file is NOT drift. /usr/local/sbin/* is 0750 root, so an
+    # unprivileged run cannot read it and diff fails - reporting that as drift
+    # would make the check cry wolf every time it ran as www-data, and a check
+    # that is routinely wrong gets ignored, which is worse than no check.
+    if [ ! -r "$live" ]; then
+        UNREADABLE=$((UNREADABLE + 1))
+        say "  \033[33munreadable\033[0m      $live (run as root to compare)"
+        continue
+    fi
 
     CHECKED=$((CHECKED + 1))
     tmp=""
@@ -131,5 +141,7 @@ if [ "$DRIFT" = "1" ]; then
     exit 1
 fi
 
-say "\033[32mno drift\033[0m ($CHECKED compared, $SKIPPED not installed here)"
+msg="\033[32mno drift\033[0m ($CHECKED compared, $SKIPPED not installed here"
+[ "$UNREADABLE" -gt 0 ] && msg="$msg, $UNREADABLE unreadable - rerun as root for full cover"
+say "$msg)"
 exit 0
