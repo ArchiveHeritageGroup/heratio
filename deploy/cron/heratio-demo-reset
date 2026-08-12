@@ -1,0 +1,8 @@
+# Heratio DEMO nightly reset: restore the live `heratio` DB from the golden baseline
+# at 02:00 (low traffic), wiping visitor changes. heratio-dev is NOT touched.
+# Refresh the baseline after a legitimate deploy: /usr/local/sbin/heratio-demo-snapshot.sh
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=""
+
+0 2 * * * root /usr/local/sbin/heratio-demo-reset.sh
