@@ -22,6 +22,7 @@
 #   ./bin/check-config-drift            # summary
 #   ./bin/check-config-drift --diff     # summary + unified diff of each drift
 #   ./bin/check-config-drift --quiet    # exit code only, for cron
+#   ./bin/check-config-drift --notify   # on drift, raise a Workbench notification
 #
 # A file that is not installed on this host is SKIPPED, not failed: not every
 # box runs every vhost. Only a file present in both places and differing counts
@@ -37,10 +38,12 @@ ROOT="$(pwd)"
 
 SHOW_DIFF=0
 QUIET=0
+NOTIFY=0
 for arg in "$@"; do
     case "$arg" in
         --diff)  SHOW_DIFF=1 ;;
         --quiet) QUIET=1 ;;
+        --notify) NOTIFY=1 ;;
         -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
     esac
 done
@@ -51,6 +54,7 @@ DRIFT=0
 CHECKED=0
 SKIPPED=0
 UNREADABLE=0
+DRIFTED_LIST=""
 
 # ---------------------------------------------------------------------------
 # Manifest: <repo path>|<installed path>|<mode>
@@ -66,6 +70,7 @@ deploy/sbin/heratio-deploy.sh|/usr/local/sbin/heratio-deploy.sh|exact
 deploy/sbin/heratio-demo-reset.sh|/usr/local/sbin/heratio-demo-reset.sh|exact
 deploy/sbin/heratio-demo-snapshot.sh|/usr/local/sbin/heratio-demo-snapshot.sh|exact
 deploy/cron/heratio-demo-reset|/etc/cron.d/heratio-demo-reset|exact
+deploy/cron/heratio-config-drift|/etc/cron.d/heratio-config-drift|exact
 deploy/cron/heratio-schedule|/etc/cron.d/heratio-schedule|exact
 deploy/cron/ahg-facet-cache|/etc/cron.d/ahg-facet-cache|exact
 deploy/cron/ahg-discovery-prune|/etc/cron.d/ahg-discovery-prune|exact
@@ -125,6 +130,7 @@ while IFS='|' read -r repo live mode; do
     else
         say "  \033[31mDRIFT\033[0m           $repo  <->  $live"
         DRIFT=1
+        DRIFTED_LIST="${DRIFTED_LIST},$(basename "$repo")"
         if [ "$SHOW_DIFF" = "1" ]; then
             diff -u "$src" "$live" | sed 's/^/      /'
         fi
@@ -138,6 +144,26 @@ if [ "$DRIFT" = "1" ]; then
     say "  the repo copy is the one that survives a host rebuild; the live copy"
     say "  is the one that is actually working. Decide which is right, then make"
     say "  them match - do not assume the repo is correct."
+
+    # Cron here runs with MAILTO="" by convention, so a scheduled run would
+    # otherwise report drift to nobody. Drop it on the Workbench notification
+    # bus instead, which is the surface an operator actually watches.
+    INBOX="${WORKBENCH_NOTIFICATIONS_INBOX:-/var/spool/workbench/notifications}"
+    if [ "$NOTIFY" = "1" ] && [ -d "$INBOX" ]; then
+        drifted="$(printf '%s' "$DRIFTED_LIST" | sed 's/^,//')"
+        tmp="$(mktemp)"
+        cat > "$tmp" <<JSON
+{
+  "username": "johan",
+  "title": "Host config drift detected",
+  "message": "Tracked host config no longer matches this box: ${drifted}. Run bin/check-config-drift --diff as root, then decide which side is right - the live copy is usually the one that works.",
+  "eventType": "alert"
+}
+JSON
+        mv "$tmp" "$INBOX/config-drift-$(date +%Y%m%d-%H%M%S).json" 2>/dev/null \
+            && say "  notification raised on the Workbench bus" \
+            || rm -f "$tmp"
+    fi
     exit 1
 fi
 

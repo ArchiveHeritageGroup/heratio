@@ -63,8 +63,19 @@ here so this copy matches the running one exactly; fix both together.
 
 ## Keeping this directory honest
 
-Nothing enforces that these match `/usr/local/sbin`. Until a drift check exists
-(#1465), after changing either copy:
+`bin/check-config-drift` compares every tracked host file against its installed
+counterpart, and `deploy/cron/heratio-config-drift` runs it **weekly as root**
+(Monday 07:00), raising a Workbench notification if anything has diverged. It
+runs as root deliberately: these scripts are mode 0750, so an unprivileged run
+reports them "unreadable" and skips them.
+
+After changing either copy, check immediately rather than waiting for Monday:
+
+```bash
+sudo ./bin/check-config-drift --diff
+```
+
+Manual equivalent, if you prefer:
 
 ```bash
 for f in heratio-deploy.sh heratio-demo-reset.sh heratio-demo-snapshot.sh; do

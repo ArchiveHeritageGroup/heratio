@@ -1,0 +1,17 @@
+# Heratio host-config drift check (#1465).
+#
+# Compares the config tracked in the repo (deploy/, config/cantaloupe/) against
+# what is installed on this box. Runs as ROOT so it can read /usr/local/sbin/*
+# (mode 0750) - as www-data those three are reported "unreadable" and skipped,
+# which is honest but leaves a gap.
+#
+# Weekly is deliberate: drift accrues over months, not hours. The failure this
+# guards against went unnoticed from 2026-07-10 to 2026-08-12.
+#
+# MAILTO is empty by house convention, so cron output goes nowhere - the check
+# is given --notify, which drops an alert on the Workbench notification bus
+# (the surface an operator actually watches) and logs the detail here.
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=""
+0 7 * * 1 root /usr/share/nginx/heratio/bin/check-config-drift --notify >> /var/log/heratio-config-drift.log 2>&1
