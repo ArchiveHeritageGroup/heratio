@@ -114,6 +114,15 @@ class LibraryController extends Controller
             abort(404);
         }
 
+        // #1464: community-protocol gate. A record carrying a restricting
+        // TK/BC label was already withheld from browse, exports and OAI but
+        // still served on its direct URL. 404 like the draft gate above -
+        // a restricted record is not confirmed to exist. Staff bypass is
+        // handled inside allowsRecord().
+        if (! \AhgCore\Services\TermProtocolGate::allowsRecord((int) $item->id)) {
+            abort(404);
+        }
+
         $levelName = $this->service->getTermName($item->level_of_description_id);
 
         $creators = collect();

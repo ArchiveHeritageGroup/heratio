@@ -361,6 +361,21 @@ class InformationObjectController extends Controller
             }
         }
 
+        // #1464: community-protocol gate. TermProtocolGate was already enforced
+        // on browse, display, exports, OAI, RiC and GraphQL, but NOT here - the
+        // show page guarded ICIP through IcipAccessService, which reads cultural
+        // notices rather than TK-label-derived protocol conditions. So a record
+        // carrying a restricting TK/BC label vanished from every listing while
+        // its direct URL still served: protected everywhere except the one place
+        // a bookmark reaches. Deliberately placed AFTER the ICIP block so that
+        // check still audits the view first. 404 rather than 403, matching the
+        // gate's behaviour elsewhere and the draft gate above - a restricted
+        // record is not confirmed to exist. allowsRecord() bypasses staff
+        // internally, so editors and admins are unaffected.
+        if (! \AhgCore\Services\TermProtocolGate::allowsRecord((int) $io->id)) {
+            abort(404);
+        }
+
         // #74 encryption_field_access_restrictions: decrypt the two
         // registered i18n columns before the show-page blade renders them.
         // The show() method does its own inline query (not via
