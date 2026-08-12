@@ -1,7 +1,3 @@
-# Tracked copy of /etc/cron.d/heratio-schedule (source of truth). Heratio app cron.
-# No AHG internal addresses/secrets present - tracked verbatim. Update after each edit.
-# ============================================================================
-
 # Heratio: trigger Laravel's scheduler every minute. This is the single
 # entrypoint that fires every Schedule::command() registration in the
 # codebase (audit:prune, auth:gc-attempts, auth:warn-password-expiry,

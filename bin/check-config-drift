@@ -1,0 +1,135 @@
+#!/bin/bash
+#===============================================================================
+# Heratio - Host-Config Drift Check
+#===============================================================================
+# Compares the host configuration tracked in this repo against what is actually
+# installed on the box, and reports anything that has diverged.
+#
+# Why this exists (#1465): the repo already tracked deploy/ and
+# config/cantaloupe/, but nothing checked the copies still matched. They drifted
+# in BOTH directions - the tracked nginx IIIF snippet still used
+# `proxy_set_header Host $host`, which drops the port and would have
+# reintroduced a blank-viewer bug on any non-443 instance, while the live copy
+# had lost the timeouts and CORS headers the template carried. Neither was
+# correct and no one could tell, because comparing them was a manual job nobody
+# did.
+#
+# Exit codes:
+#   0 — every tracked file matches its installed counterpart (or is absent here)
+#   1 — drift found
+#
+# Usage:
+#   ./bin/check-config-drift            # summary
+#   ./bin/check-config-drift --diff     # summary + unified diff of each drift
+#   ./bin/check-config-drift --quiet    # exit code only, for cron
+#
+# A file that is not installed on this host is SKIPPED, not failed: not every
+# box runs every vhost. Only a file present in both places and differing counts
+# as drift.
+#
+# Copyright (C) 2026 Johan Pieterse
+# Plain Sailing Information Systems
+# License: AGPL-3.0-or-later
+#===============================================================================
+set -uo pipefail
+cd "$(dirname "$0")/.."
+ROOT="$(pwd)"
+
+SHOW_DIFF=0
+QUIET=0
+for arg in "$@"; do
+    case "$arg" in
+        --diff)  SHOW_DIFF=1 ;;
+        --quiet) QUIET=1 ;;
+        -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
+    esac
+done
+
+say() { [ "$QUIET" = "1" ] || echo -e "$@"; }
+
+DRIFT=0
+CHECKED=0
+SKIPPED=0
+
+# ---------------------------------------------------------------------------
+# Manifest: <repo path>|<installed path>|<mode>
+#
+#   exact    - byte-for-byte mirror; any difference is drift
+#   rendered - repo copy is a template; {{PLACEHOLDER}}s are substituted from
+#              the RENDER map below before comparing
+#   inform   - structurally different by design; reported for eyeballing only
+#              and never fails the check
+# ---------------------------------------------------------------------------
+MANIFEST="
+deploy/sbin/heratio-deploy.sh|/usr/local/sbin/heratio-deploy.sh|exact
+deploy/sbin/heratio-demo-reset.sh|/usr/local/sbin/heratio-demo-reset.sh|exact
+deploy/sbin/heratio-demo-snapshot.sh|/usr/local/sbin/heratio-demo-snapshot.sh|exact
+deploy/cron/heratio-demo-reset|/etc/cron.d/heratio-demo-reset|exact
+deploy/cron/heratio-schedule|/etc/cron.d/heratio-schedule|exact
+deploy/cron/ahg-facet-cache|/etc/cron.d/ahg-facet-cache|exact
+deploy/cron/ahg-discovery-prune|/etc/cron.d/ahg-discovery-prune|exact
+deploy/cron/heratio-articles-persist|/etc/cron.d/heratio-articles-persist|exact
+deploy/nginx/heratio.org.conf|/etc/nginx/sites-enabled/heratio.org.conf|exact
+deploy/nginx/heratio.theahg.co.za.conf|/etc/nginx/sites-enabled/heratio.theahg.co.za.conf|exact
+deploy/nginx/heratio-dev.conf|/etc/nginx/sites-enabled/heratio-dev.conf|exact
+deploy/nginx/sasaarchive.theahg.co.za.conf|/etc/nginx/sites-enabled/sasaarchive.theahg.co.za.conf|exact
+config/cantaloupe/nginx-iiif-snippet.conf|/etc/nginx/snippets/heratio-iiif.conf|rendered
+config/cantaloupe/delegates.rb.template|/opt/cantaloupe-5.0.6/delegates.rb|inform
+"
+
+# Placeholder substitutions applied in `rendered` mode.
+render_template() {
+    sed -e "s|{{HTTP_PORT}}|8182|g" "$1"
+}
+
+say "==> host-config drift check"
+
+while IFS='|' read -r repo live mode; do
+    [ -z "${repo:-}" ] && continue
+
+    if [ ! -f "$ROOT/$repo" ]; then
+        say "  \033[33mmissing in repo\033[0m  $repo"
+        DRIFT=1
+        continue
+    fi
+    if [ ! -f "$live" ]; then
+        SKIPPED=$((SKIPPED + 1))
+        say "  not installed here  $live"
+        continue
+    fi
+
+    CHECKED=$((CHECKED + 1))
+    tmp=""
+    case "$mode" in
+        rendered) tmp="$(mktemp)"; render_template "$ROOT/$repo" > "$tmp"; src="$tmp" ;;
+        *)        src="$ROOT/$repo" ;;
+    esac
+
+    if diff -q "$src" "$live" >/dev/null 2>&1; then
+        say "  \033[32mok\033[0m              $repo"
+    elif [ "$mode" = "inform" ]; then
+        # Expected to differ: delegates.rb is generated per host and then
+        # MERGED with every other instance's entry, so it will never equal the
+        # single-entry template. Shown so a structural change is still noticed.
+        say "  \033[36minfo (differs by design)\033[0m  $repo"
+    else
+        say "  \033[31mDRIFT\033[0m           $repo  <->  $live"
+        DRIFT=1
+        if [ "$SHOW_DIFF" = "1" ]; then
+            diff -u "$src" "$live" | sed 's/^/      /'
+        fi
+    fi
+    [ -n "$tmp" ] && rm -f "$tmp"
+done <<< "$MANIFEST"
+
+say ""
+if [ "$DRIFT" = "1" ]; then
+    say "\033[31mdrift found\033[0m - reconcile before it becomes a surprise."
+    say "  the repo copy is the one that survives a host rebuild; the live copy"
+    say "  is the one that is actually working. Decide which is right, then make"
+    say "  them match - do not assume the repo is correct."
+    exit 1
+fi
+
+say "\033[32mno drift\033[0m ($CHECKED compared, $SKIPPED not installed here)"
+exit 0

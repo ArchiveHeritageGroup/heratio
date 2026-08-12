@@ -1,7 +1,3 @@
-# Tracked copy of /etc/cron.d/ahg-facet-cache (source of truth). Heratio app cron.
-# No AHG internal addresses/secrets present - tracked verbatim. Update after each edit.
-# ============================================================================
-
 # Heratio: hourly refresh of display_facet_cache for every DB that has the GLAM browse.
 #
 # Replaces the prior /usr/share/nginx/archive symfony cron (which only hit the
@@ -25,4 +21,4 @@
 # fopen(...c+) "No such file or directory" 500s on /api/ric/v1/* endpoints).
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
-0 * * * * www-data flock -n /var/run/heratio-facet-cache.lock -c 'for d in archive atom dam heratio; do echo "[$(date -Iseconds)] facet-cache: $d"; DB_DATABASE=$d /usr/bin/php8.3 /usr/share/nginx/heratio/artisan ahg:refresh-facet-cache 2>&1 || echo "  failed $d"; done >> /var/log/facet-cache.log 2>&1'
+0 * * * * www-data flock -n /var/run/heratio-facet-cache.lock -c 'for d in dam heratio; do echo "[$(date -Iseconds)] facet-cache: $d"; DB_DATABASE=$d /usr/bin/php8.3 /usr/share/nginx/heratio/artisan ahg:refresh-facet-cache 2>&1 || echo "  failed $d"; done >> /var/log/facet-cache.log 2>&1'
