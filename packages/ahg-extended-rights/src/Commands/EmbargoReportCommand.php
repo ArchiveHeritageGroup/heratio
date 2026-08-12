@@ -21,8 +21,8 @@ class EmbargoReportCommand extends Command
 
     public function handle(): int
     {
-        if (! Schema::hasTable('rights_embargo')) {
-            $this->error('Table rights_embargo does not exist. Aborting.');
+        if (! Schema::hasTable('embargo')) {
+            $this->error('Table embargo does not exist. Aborting.');
 
             return 1;
         }
@@ -73,7 +73,7 @@ class EmbargoReportCommand extends Command
             $this->comment('  Run: php artisan embargo:process --lift-only');
         }
 
-        $expiringSoon = DB::table('rights_embargo')
+        $expiringSoon = DB::table('embargo')
             ->where('status', 'active')
             ->whereNotNull('end_date')
             ->whereBetween('end_date', [date('Y-m-d'), date('Y-m-d', strtotime('+30 days'))])
@@ -85,7 +85,7 @@ class EmbargoReportCommand extends Command
             $this->comment('  Run: php artisan embargo:report --expiring=30');
         }
 
-        $perpetual = DB::table('rights_embargo')
+        $perpetual = DB::table('embargo')
             ->where('status', 'active')
             ->where('auto_release', false)
             ->count();
@@ -102,7 +102,7 @@ class EmbargoReportCommand extends Command
     {
         $culture = config('app.locale', 'en');
 
-        $embargoes = DB::table('rights_embargo as e')
+        $embargoes = DB::table('embargo as e')
             ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
                 $join->on('e.object_id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $culture);
@@ -159,7 +159,7 @@ class EmbargoReportCommand extends Command
         $culture = config('app.locale', 'en');
         $cutoff = date('Y-m-d', strtotime("-{$days} days"));
 
-        $embargoes = DB::table('rights_embargo as e')
+        $embargoes = DB::table('embargo as e')
             ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
                 $join->on('e.object_id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $culture);
@@ -189,7 +189,7 @@ class EmbargoReportCommand extends Command
         $culture = config('app.locale', 'en');
         $today = date('Y-m-d');
 
-        $embargoes = DB::table('rights_embargo as e')
+        $embargoes = DB::table('embargo as e')
             ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
                 $join->on('e.object_id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $culture);

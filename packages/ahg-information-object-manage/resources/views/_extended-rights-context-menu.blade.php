@@ -13,7 +13,7 @@ $hasRights = \Illuminate\Support\Facades\DB::table('extended_rights')
     ->exists();
 
 // Check if has active embargo and get its ID
-$activeEmbargo = \Illuminate\Support\Facades\DB::table('rights_embargo')
+$activeEmbargo = \Illuminate\Support\Facades\DB::table('embargo')
     ->where('object_id', $resource->id)
     ->where('status', 'active')
     ->first();

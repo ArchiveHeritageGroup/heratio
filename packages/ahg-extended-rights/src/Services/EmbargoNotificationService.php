@@ -97,8 +97,8 @@ class EmbargoNotificationService
         );
 
         // Update notification_sent flag to prevent duplicate notifications
-        if ($sent && Schema::hasTable('rights_embargo')) {
-            DB::table('rights_embargo')
+        if ($sent && Schema::hasTable('embargo')) {
+            DB::table('embargo')
                 ->where('id', $embargo->id)
                 ->update(['notification_sent' => true]);
         }

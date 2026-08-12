@@ -69,17 +69,13 @@ class EmbargoService
      */
     public function getEmbargo(int $id): ?object
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return null;
         }
 
-        return DB::table('rights_embargo as e')
-            ->leftJoin('rights_embargo_i18n as ei', function ($join) {
-                $join->on('ei.id', '=', 'e.id')
-                    ->where('ei.culture', '=', $this->culture);
-            })
+        return DB::table('embargo as e')
             ->where('e.id', $id)
-            ->select(['e.*', 'ei.reason_note as reason', 'ei.internal_note as notes'])
+            ->select(['e.*'])
             ->first();
     }
 
@@ -88,18 +84,14 @@ class EmbargoService
      */
     public function getObjectEmbargoes(int $objectId): Collection
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return collect();
         }
 
-        return DB::table('rights_embargo as e')
-            ->leftJoin('rights_embargo_i18n as ei', function ($join) {
-                $join->on('ei.id', '=', 'e.id')
-                    ->where('ei.culture', '=', $this->culture);
-            })
+        return DB::table('embargo as e')
             ->where('e.object_id', $objectId)
             ->orderByDesc('e.created_at')
-            ->select(['e.*', 'ei.reason_note as reason', 'ei.internal_note as notes'])
+            ->select(['e.*'])
             ->get();
     }
 
@@ -108,17 +100,13 @@ class EmbargoService
      */
     public function getActiveEmbargo(int $objectId): ?object
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return null;
         }
 
         $now = date('Y-m-d');
 
-        return DB::table('rights_embargo as e')
-            ->leftJoin('rights_embargo_i18n as ei', function ($join) {
-                $join->on('ei.id', '=', 'e.id')
-                    ->where('ei.culture', '=', $this->culture);
-            })
+        return DB::table('embargo as e')
             ->where('e.object_id', $objectId)
             ->where('e.status', 'active')
             ->where('e.start_date', '<=', $now)
@@ -126,7 +114,7 @@ class EmbargoService
                 $q->whereNull('e.end_date')
                     ->orWhere('e.end_date', '>=', $now);
             })
-            ->select(['e.*', 'ei.reason_note as reason'])
+            ->select(['e.*'])
             ->first();
     }
 
@@ -135,17 +123,13 @@ class EmbargoService
      */
     public function getActiveEmbargoes(?string $filter = null): Collection
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return collect();
         }
 
         $now = date('Y-m-d');
 
-        $query = DB::table('rights_embargo as e')
-            ->leftJoin('rights_embargo_i18n as ei', function ($join) {
-                $join->on('ei.id', '=', 'e.id')
-                    ->where('ei.culture', '=', $this->culture);
-            })
+        $query = DB::table('embargo as e')
             ->leftJoin('information_object as io', 'e.object_id', '=', 'io.id')
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')
@@ -167,7 +151,6 @@ class EmbargoService
         return $query
             ->select([
                 'e.*',
-                'ei.reason_note as reason',
                 'ioi.title as object_title',
                 'slug.slug as object_slug',
             ])
@@ -180,18 +163,14 @@ class EmbargoService
      */
     public function getExpiringEmbargoes(int $days = 30): Collection
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return collect();
         }
 
         $now = date('Y-m-d');
         $future = date('Y-m-d', strtotime("+{$days} days"));
 
-        return DB::table('rights_embargo as e')
-            ->leftJoin('rights_embargo_i18n as ei', function ($join) {
-                $join->on('ei.id', '=', 'e.id')
-                    ->where('ei.culture', '=', $this->culture);
-            })
+        return DB::table('embargo as e')
             ->leftJoin('information_object as io', 'e.object_id', '=', 'io.id')
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')
@@ -204,7 +183,6 @@ class EmbargoService
             ->whereBetween('e.end_date', [$now, $future])
             ->select([
                 'e.*',
-                'ei.reason_note as reason',
                 'ioi.title as object_title',
                 'slug.slug as object_slug',
             ])
@@ -413,7 +391,7 @@ class EmbargoService
             return [];
         }
 
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return $objectIds;
         }
 
@@ -425,7 +403,7 @@ class EmbargoService
         $now = date('Y-m-d');
 
         // Get IDs under full embargo
-        $embargoedIds = DB::table('rights_embargo')
+        $embargoedIds = DB::table('embargo')
             ->whereIn('object_id', $objectIds)
             ->where('status', 'active')
             ->where('embargo_type', self::TYPE_FULL)
@@ -459,32 +437,31 @@ class EmbargoService
             $embargoType = self::TYPE_DIGITAL_ONLY;
         }
 
-        // Map reason to enum
+        // #1464: `embargo` is now the single embargo table. Its `reason` is
+        // FREE TEXT (that is what EmbargoController, the other writer, stores),
+        // not the enum rights_embargo used - so keep the operator's wording and
+        // retain the enum only for the audit entry, where it is a useful
+        // normalised classification. `notes` and `is_perpetual`/`is_active`
+        // live on the row itself; rights_embargo_i18n has no counterpart here
+        // and is no longer written.
         $reasonEnum = $this->mapReasonToEnum($data['reason'] ?? null);
 
-        $embargoId = DB::table('rights_embargo')->insertGetId([
+        $embargoId = DB::table('embargo')->insertGetId([
             'object_id' => $data['object_id'],
             'embargo_type' => $embargoType,
-            'reason' => $reasonEnum,
+            'reason' => $data['reason'] ?? null,
+            'notes' => $data['notes'] ?? null,
             'start_date' => $startDate,
             'end_date' => $data['end_date'] ?? null,
             'auto_release' => !($data['is_perpetual'] ?? false),
+            'is_perpetual' => ($data['is_perpetual'] ?? false) ? 1 : 0,
+            'is_active' => $status === 'active' ? 1 : 0,
             'status' => $status,
             'created_by' => $data['created_by'] ?? null,
-            'notify_before_days' => $data['notify_days_before'] ?? 30,
+            'notify_days_before' => $data['notify_days_before'] ?? 30,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
-
-        // Insert i18n for notes
-        if (!empty($data['reason']) || !empty($data['notes'])) {
-            DB::table('rights_embargo_i18n')->insert([
-                'id' => $embargoId,
-                'culture' => $this->culture,
-                'reason_note' => $data['reason'] ?? null,
-                'internal_note' => $data['notes'] ?? null,
-            ]);
-        }
 
         // Audit log (embargo-specific table)
         $this->logAudit($embargoId, 'create', $data['created_by'] ?? null, [], [
@@ -496,7 +473,7 @@ class EmbargoService
         ]);
 
         // Unified audit log (security_audit_log surfaced on /admin/acl/audit-log)
-        \AhgCore\Support\AuditLog::captureCreate((int) $embargoId, 'rights_embargo', [
+        \AhgCore\Support\AuditLog::captureCreate((int) $embargoId, 'embargo', [
             'object_id' => $data['object_id'],
             'embargo_type' => $embargoType,
             'reason' => $reasonEnum,
@@ -547,35 +524,23 @@ class EmbargoService
             $updateData['status'] = $data['status'];
         }
         if (isset($data['notify_days_before'])) {
-            $updateData['notify_before_days'] = $data['notify_days_before'];
+            $updateData['notify_days_before'] = $data['notify_days_before'];
         }
         if (isset($data['reason'])) {
             $updateData['reason'] = $this->mapReasonToEnum($data['reason']);
         }
 
-        $updated = DB::table('rights_embargo')
+        $updated = DB::table('embargo')
             ->where('id', $id)
             ->update($updateData) > 0;
-
-        // Update i18n
-        if (!empty($data['reason']) || !empty($data['notes'])) {
-            DB::table('rights_embargo_i18n')
-                ->updateOrInsert(
-                    ['id' => $id, 'culture' => $this->culture],
-                    [
-                        'reason_note' => $data['reason'] ?? null,
-                        'internal_note' => $data['notes'] ?? null,
-                    ]
-                );
-        }
 
         // Audit log (embargo-specific table)
         $this->logAudit($id, 'update', $data['updated_by'] ?? null, $oldValues, $updateData);
 
         // Unified audit log (security_audit_log)
-        $beforeFlat = is_array($oldValues) ? array_intersect_key($oldValues, array_flip(['embargo_type','reason','start_date','end_date','status','auto_release','notify_before_days'])) : [];
-        $afterFlat  = array_intersect_key($updateData, array_flip(['embargo_type','reason','start_date','end_date','status','auto_release','notify_before_days']));
-        \AhgCore\Support\AuditLog::captureEdit((int) $id, 'rights_embargo', $beforeFlat, $afterFlat);
+        $beforeFlat = is_array($oldValues) ? array_intersect_key($oldValues, array_flip(['embargo_type','reason','start_date','end_date','status','auto_release','notify_days_before'])) : [];
+        $afterFlat  = array_intersect_key($updateData, array_flip(['embargo_type','reason','start_date','end_date','status','auto_release','notify_days_before']));
+        \AhgCore\Support\AuditLog::captureEdit((int) $id, 'embargo', $beforeFlat, $afterFlat);
 
         self::clearCache();
 
@@ -592,7 +557,7 @@ class EmbargoService
 
         $now = date('Y-m-d H:i:s');
 
-        $lifted = DB::table('rights_embargo')
+        $lifted = DB::table('embargo')
             ->where('id', $id)
             ->update([
                 'status' => 'lifted',
@@ -765,7 +730,7 @@ class EmbargoService
      */
     public function getStatistics(): array
     {
-        if (!Schema::hasTable('rights_embargo')) {
+        if (!Schema::hasTable('embargo')) {
             return [
                 'total' => 0,
                 'active' => 0,
@@ -778,7 +743,7 @@ class EmbargoService
             ];
         }
 
-        $stats = DB::table('rights_embargo')
+        $stats = DB::table('embargo')
             ->selectRaw("
                 COUNT(*) as total,
                 SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,

@@ -15,12 +15,12 @@ class EmbargoProcessCommand extends Command
         {--lift-only : Only lift expired embargoes}
         {--warn-days=30,7,1 : Days before expiry to warn (comma-separated)}';
 
-    protected $description = 'Process embargo expiry: auto-lift and send notifications';
+    protected $description = 'Process embargo expiry: auto-lift and send notifications (MANUAL/advanced variant - the SCHEDULED processor is ahg:embargo-process; #1464: both now act on the single `embargo` table, so do not schedule this one as well)';
 
     public function handle(): int
     {
-        if (! Schema::hasTable('rights_embargo')) {
-            $this->error('Table rights_embargo does not exist. Aborting.');
+        if (! Schema::hasTable('embargo')) {
+            $this->error('Table embargo does not exist. Aborting.');
 
             return 1;
         }
@@ -82,7 +82,7 @@ class EmbargoProcessCommand extends Command
         $today = date('Y-m-d');
         $culture = config('app.locale', 'en');
 
-        $expiredEmbargoes = DB::table('rights_embargo as e')
+        $expiredEmbargoes = DB::table('embargo as e')
             ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
                 $join->on('e.object_id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $culture);
@@ -120,7 +120,7 @@ class EmbargoProcessCommand extends Command
             }
 
             try {
-                DB::table('rights_embargo')
+                DB::table('embargo')
                     ->where('id', $embargo->id)
                     ->update([
                         'status' => 'lifted',
@@ -177,7 +177,7 @@ class EmbargoProcessCommand extends Command
         foreach ($warnDays as $days) {
             $targetDate = date('Y-m-d', strtotime("+{$days} days"));
 
-            $expiringEmbargoes = DB::table('rights_embargo as e')
+            $expiringEmbargoes = DB::table('embargo as e')
                 ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
                     $join->on('e.object_id', '=', 'ioi.id')
                         ->where('ioi.culture', '=', $culture);
@@ -185,8 +185,8 @@ class EmbargoProcessCommand extends Command
                 ->where('e.status', 'active')
                 ->where('e.end_date', $targetDate)
                 ->where(function ($q) use ($days) {
-                    $q->whereNull('e.notify_before_days')
-                        ->orWhere('e.notify_before_days', '>=', $days);
+                    $q->whereNull('e.notify_days_before')
+                        ->orWhere('e.notify_days_before', '>=', $days);
                 })
                 ->select(['e.*', 'ioi.title as object_title'])
                 ->get();

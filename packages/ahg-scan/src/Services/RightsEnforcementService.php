@@ -6,7 +6,7 @@
  * Applies sidecar-declared rights at ingest:
  *   <rightsStatement uri="...">  → object_rights_statement (+ rights_statement create-if-missing)
  *   <ccLicense>cc-by-4.0</ccLicense> → rights_cc_license lookup or create
- *   <embargoUntil reason="...">YYYY-MM-DD</embargoUntil> → rights_embargo
+ *   <embargoUntil reason="...">YYYY-MM-DD</embargoUntil> →  embargo
  *   <odrlPolicy>slug</odrlPolicy> → research_rights_policy (target_type=io)
  *   <tkLabel>CODE</tkLabel>      → rights_object_tk_label
  *   <rightsHolder>Name</rightsHolder> → object_rights_holder via donor lookup/create
@@ -229,7 +229,7 @@ class RightsEnforcementService
     }
 
     // ----------------------------------------------------------------
-    // rights_embargo
+    //  embargo
     // ----------------------------------------------------------------
 
     protected function applyEmbargo(int $ioId, string $endDate, ?string $reason, object $session): void
@@ -244,7 +244,7 @@ class RightsEnforcementService
         }
 
         // Skip if an active embargo already exists for this IO ending later.
-        $existing = DB::table('rights_embargo')
+        $existing = DB::table('embargo')
             ->where('object_id', $ioId)
             ->where('status', 'active')
             ->orderByDesc('end_date')
@@ -253,7 +253,7 @@ class RightsEnforcementService
             return;
         }
 
-        DB::table('rights_embargo')->insert([
+        DB::table('embargo')->insert([
             'object_id' => $ioId,
             'embargo_type' => 'full',
             'reason' => substr($reason ?: 'Imposed by sidecar at ingest', 0, 95),
@@ -261,6 +261,7 @@ class RightsEnforcementService
             'end_date' => $endDate,
             'auto_release' => 1,
             'status' => 'active',
+            'is_active' => 1,
             'created_by' => $session->user_id ?? null,
             'created_at' => now(),
         ]);
