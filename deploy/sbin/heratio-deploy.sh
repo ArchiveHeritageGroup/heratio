@@ -74,8 +74,27 @@ sudo -u www-data $PHP artisan migrate --force || { echo "MIGRATE FAILED - check;
 sudo -u www-data $PHP artisan optimize:clear >/dev/null 2>&1
 sudo -u www-data $PHP artisan storage:link >/dev/null 2>&1 || true
 
-echo "--- reload php-fpm (flush opcache, graceful) ---"
-systemctl reload php8.3-fpm
+# RESTART, not reload. The pools here run opcache.validate_timestamps=0, so the
+# workers never re-stat a PHP file once it is compiled: a graceful reload keeps
+# the OLD code in the shared opcache and the site carries on serving the previous
+# release. It fails deceptively - `php artisan` from the CLI reads the new files
+# and reports everything fine while the browser runs last month's code. That is
+# what produced the spurious 405 on the demo on 2026-07-31, and it meant every
+# deploy since needed a manual `systemctl restart` afterwards to actually land.
+#
+# The cost is a brief drop of in-flight requests instead of a graceful drain.
+# That is the right trade here: this is a demo host, and a deploy that silently
+# does not take effect is worse than a half-second of refused connections.
+#
+# Cleared first because the manifests are what a new package/provider lands in;
+# a stale packages.php or services.php is the classic post-deploy 500.
+echo "--- clear compiled manifests + restart php-fpm ---"
+rm -f "$APP"/bootstrap/cache/packages.php \
+      "$APP"/bootstrap/cache/services.php \
+      "$APP"/bootstrap/cache/config.php \
+      "$APP"/bootstrap/cache/events.php \
+      "$APP"/bootstrap/cache/routes-*.php
+systemctl restart php8.3-fpm
 
 # Health check BEFORE the baseline rebase, and the rebase is gated on it.
 # It used to run after, which meant a broken deploy was snapshotted as the
@@ -90,7 +109,19 @@ systemctl reload php8.3-fpm
 # rather than confirming the app was up. /usr/share/nginx/heratio/public is
 # served by heratio.org.conf (server_name heratio.org www.heratio.org).
 HEALTH_URL="https://heratio.org/"
-code="$(curl -s -o /dev/null -w '%{http_code}' "$HEALTH_URL")"
+
+# Retry rather than check once. A restart (unlike a reload) drops the workers and
+# takes a moment to accept connections again, so a single immediate check can
+# catch the gap and report a false failure - which under the cascade above would
+# skip the baseline rebase on a perfectly good deploy. Up to ~15s, and it exits
+# the loop the moment it gets a 200, so a healthy deploy costs nothing.
+code=""
+for attempt in 1 2 3 4 5 6 7 8 9 10; do
+    code="$(curl -s -o /dev/null -w '%{http_code}' "$HEALTH_URL")"
+    [ "$code" = "200" ] && break
+    [ "$attempt" = "10" ] && break
+    sleep 1.5
+done
 
 if [ "$code" = "200" ]; then
     echo "--- health OK ($code) - rebase demo baseline so 02:00 reset keeps this deploy ---"

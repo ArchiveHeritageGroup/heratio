@@ -10,7 +10,7 @@ one is what let the pair drift apart in the first place (#1465).
 
 | Script | Purpose |
 |---|---|
-| `heratio-deploy.sh` | The sanctioned prod deploy. Pre-deploy DB dump → fast-forward-only pull from GitHub → composer + npm build → ownership restore → migrate → cache clear → php-fpm reload → demo-baseline rebase → health check. |
+| `heratio-deploy.sh` | The sanctioned prod deploy. Pre-deploy DB dump → fast-forward-only pull from GitHub → composer + npm build → ownership restore → migrate → cache clear → clear compiled manifests → php-fpm **restart** → health check (retried) → demo-baseline rebase, gated on that check. |
 | `heratio-demo-snapshot.sh` | Captures the live DB as the demo *baseline* and stamps it with the deployed version. |
 | `heratio-demo-reset.sh` | 02:00 cron. Restores the demo from that baseline, wiping visitor changes. Scheduled by `deploy/cron/heratio-demo-reset`. |
 
@@ -51,6 +51,25 @@ symptoms.
 The chown is scoped to `.git` plus tracked files and their directories.
 `vendor/` and `node_modules/` stay root-owned deliberately: git does not manage
 them and chowning ~3M files would add minutes to every deploy for nothing.
+
+**3. It restarts php-fpm, it does not reload it.** These pools run
+`opcache.validate_timestamps=0`, so a worker never re-stats a PHP file once it is
+compiled. A graceful reload therefore keeps the *previous release* in the shared
+opcache and the site carries on serving it. The failure is deceptive: `php
+artisan` from the CLI reads the new files and reports everything healthy while
+the browser runs old code, which is what produced the spurious 405 on the demo on
+2026-07-31 and meant every deploy afterwards needed a manual restart to land.
+
+The trade is a brief drop of in-flight requests rather than a graceful drain -
+correct here, because a deploy that silently does not take effect is worse than a
+half-second of refused connections. Because a restart is not instantaneous, the
+health check retries for ~15s instead of checking once; a single immediate check
+could catch the restart gap and fail a good deploy, which under the cascade below
+would skip the baseline rebase.
+
+The compiled manifests (`bootstrap/cache/packages.php`, `services.php`, …) are
+removed just before the restart. A newly registered package or service provider
+lands in those files, and a stale one is the classic post-deploy 500.
 
 ## Deploy ordering that matters
 
