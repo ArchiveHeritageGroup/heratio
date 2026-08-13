@@ -31,6 +31,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Services\HierarchyQueryService;
 
 class HeritageController extends Controller
 {
@@ -774,7 +775,12 @@ class HeritageController extends Controller
                         continue;
                     }
 
-                    $itemCount = (int) (($collection->rgt - $collection->lft - 1) / 2);
+                    // Closure-backed. The nested-set arithmetic this replaces,
+                    // (rgt - lft - 1) / 2, silently yields 0 for a record with
+                    // null bounds - a populated collection reported as empty.
+                    $descendantIds = app(HierarchyQueryService::class)
+                        ->descendantIds('information_object', (int) $collection->id);
+                    $itemCount = count($descendantIds);
 
                     $thumbnail = $item->thumbnail_path ?? null;
                     if (!$thumbnail && !empty($collection->thumb_child_path) && !empty($collection->thumb_child_name)) {
@@ -788,7 +794,7 @@ class HeritageController extends Controller
                         }
                     }
                     if (!$thumbnail) {
-                        $firstChild = DB::table('information_object as io')
+                        $firstChild = $descendantIds === [] ? null : DB::table('information_object as io')
                             ->join('digital_object as do', function ($join) {
                                 $join->on('io.id', '=', 'do.object_id')
                                     ->where('do.usage_id', '=', 140);
@@ -797,8 +803,7 @@ class HeritageController extends Controller
                                 $join->on('do_thumb.parent_id', '=', 'do.id')
                                     ->where('do_thumb.usage_id', '=', 142);
                             })
-                            ->where('io.lft', '>', $collection->lft)
-                            ->where('io.rgt', '<', $collection->rgt)
+                            ->whereIn('io.id', $descendantIds)
                             ->select(['do.path', 'do.name', 'do_thumb.path as tp', 'do_thumb.name as tn'])
                             ->orderBy('io.lft')
                             ->first();

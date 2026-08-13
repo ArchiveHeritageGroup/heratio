@@ -147,12 +147,21 @@ class EadFindingAidCommand extends Command
 
     private function fetchDescendants($io, string $culture)
     {
+        // Closure-backed, not the lft/rgt range: a record created through
+        // RecordCreationService has a closure node but null nested-set bounds,
+        // and `where('io.lft', '>', null)` throws instead of matching nothing.
+        $descendantIds = app(\AhgCore\Services\HierarchyQueryService::class)
+            ->descendantIds('information_object', (int) $io->id);
+
+        if ($descendantIds === []) {
+            $descendantIds = [0]; // match nothing, without an empty whereIn
+        }
+
         $query = DB::table('information_object as io')
             ->join('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
             })
-            ->where('io.lft', '>', $io->lft)
-            ->where('io.rgt', '<', $io->rgt)
+            ->whereIn('io.id', $descendantIds)
             ->orderBy('io.lft')
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt', 'io.level_of_description_id',

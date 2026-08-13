@@ -29,6 +29,7 @@ namespace AhgIiifCollection\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use AhgCore\Services\HierarchyQueryService;
 
 /**
  * Service for managing IIIF Collections (manifest groupings).
@@ -471,14 +472,17 @@ class IiifCollectionService
             ->get();
 
         foreach ($objects as $obj) {
-            $childCount = 0;
-            if ($obj->rgt - $obj->lft > 1) {
-                $childCount = DB::table('information_object as io')
-                    ->join('digital_object as do', 'io.id', '=', 'do.object_id')
-                    ->where('io.lft', '>', $obj->lft)
-                    ->where('io.rgt', '<', $obj->rgt)
-                    ->count();
-            }
+            // Closure-backed, not the lft/rgt range. The old `rgt - lft > 1`
+            // guard reads as a cheap "has children?" test, but on a record with
+            // null bounds it evaluates to 0 > 1 and reports zero children for a
+            // collection that has them - wrong, and silently so.
+            $descendantIds = app(HierarchyQueryService::class)
+                ->descendantIds('information_object', (int) $obj->id);
+
+            $childCount = $descendantIds === [] ? 0 : DB::table('information_object as io')
+                ->join('digital_object as do', 'io.id', '=', 'do.object_id')
+                ->whereIn('io.id', $descendantIds)
+                ->count();
 
             $results[] = [
                 'id' => $obj->id,
@@ -500,19 +504,20 @@ class IiifCollectionService
      */
     public function addChildrenToCollection(int $collectionId, int $parentObjectId): void
     {
-        $parent = DB::table('information_object')
-            ->where('id', $parentObjectId)
-            ->select('lft', 'rgt')
-            ->first();
+        $exists = DB::table('information_object')->where('id', $parentObjectId)->exists();
 
-        if (!$parent) {
+        if (!$exists) {
             return;
         }
 
-        $children = DB::table('information_object as io')
+        // Closure-backed: `where('io.lft', '>', null)` throws rather than
+        // matching nothing, so a parent with no nested-set bounds 500s here.
+        $descendantIds = app(HierarchyQueryService::class)
+            ->descendantIds('information_object', $parentObjectId);
+
+        $children = $descendantIds === [] ? collect() : DB::table('information_object as io')
             ->join('digital_object as do', 'io.id', '=', 'do.object_id')
-            ->where('io.lft', '>', $parent->lft)
-            ->where('io.rgt', '<', $parent->rgt)
+            ->whereIn('io.id', $descendantIds)
             ->select('io.id')
             ->orderBy('io.lft')
             ->get();
