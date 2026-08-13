@@ -31,6 +31,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 use AhgCore\Support\Concerns\FetchesObjectCreators;
+use AhgCore\Services\HierarchyQueryService;
 
 class ExportController extends Controller
 {
@@ -380,18 +381,26 @@ class ExportController extends Controller
             abort(404);
         }
 
-        // Get this IO and all descendants
+        // Get this IO and all descendants.
+        //
+        // Closure-backed, NOT the lft/rgt nested set. A record created through
+        // RecordCreationService gets a closure node but no lft/rgt, so those
+        // columns are null here - and `where('io.lft', '>', null)` is not a
+        // no-op, it makes the query builder throw "Illegal operator and value
+        // combination", 500ing the export outright. Stale (rather than null)
+        // bounds are the quieter version of the same fault: the range silently
+        // omits children. HierarchyQueryService prefers the closure table and
+        // falls back to direct children when a node has no usable bounds.
+        // Same reasoning as the preservation-packaging fix in v1.154.456.
+        $ids = app(HierarchyQueryService::class)
+            ->descendantIds('information_object', (int) $io->id, true);
+
         $rows = DB::table('information_object as io')
             ->join('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
-            ->where(function ($q) use ($io) {
-                $q->where('io.id', $io->id)
-                  ->orWhere(function ($q2) use ($io) {
-                      $q2->where('io.lft', '>', $io->lft)->where('io.rgt', '<', $io->rgt);
-                  });
-            })
+            ->whereIn('io.id', $ids)
             ->orderBy('io.lft')
             ->select([
                 'io.id', 'io.identifier', 'io.level_of_description_id',
