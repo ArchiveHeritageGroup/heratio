@@ -87,6 +87,56 @@ class NormalizationService
             return null;
         }
 
+        // #1139: an encrypted-at-rest master is an AHG-ENC- envelope on disk, not
+        // the image it claims to be. Handing that straight to the CLI tool makes
+        // it fail on the ciphertext with a misleading error ("Not a TIFF ... bad
+        // magic number 18497", which is the 'HA' of AHG-ENC), and normalization
+        // then looks like a format problem rather than an encryption one.
+        //
+        // Decrypt to a private temp file and convert from that, exactly as
+        // ahg-media-processing's DerivativeService already does for thumbnails.
+        // The derivative itself stays plaintext, matching that convention.
+        $plainSource = $sourcePath;
+        $tmpSource = null;
+        try {
+            $enc = app(\AhgCore\Services\EncryptionService::class);
+
+            // Foreign envelope (AHG-ENC-V2, written by another system) - ciphertext
+            // we hold no key for. Attempting it anyway is what produced the
+            // misleading "Not a TIFF ... bad magic number 18497" above: 0x4841 is
+            // the 'HA' of AHG-ENC. Fail early and say what is actually wrong.
+            //
+            // Note isFileEncryptedAtRest, not isFileEncrypted: the latter is gated
+            // on OUR sentinel, and encryption being switched off does not decrypt
+            // files already written, so the config flag is not the question here.
+            if (! $enc->isFileEncrypted($sourcePath) && $enc->isFileEncryptedAtRest($sourcePath)) {
+                Log::warning("[normalization] DO {$digitalObjectId} is encrypted at rest in a foreign envelope - cannot decrypt, skipping");
+
+                return null;
+            }
+
+            if ($enc->isFileEncrypted($sourcePath)) {
+                $plain = $enc->streamFileDecrypted($sourcePath);
+                if ($plain === null) {
+                    Log::warning("[normalization] could not decrypt encrypted master for DO {$digitalObjectId}");
+                    return null;
+                }
+                $tmpSource = tempnam(sys_get_temp_dir(), 'ahgnorm_');
+                if ($tmpSource === false || @file_put_contents($tmpSource, $plain) === false) {
+                    if (is_string($tmpSource)) {
+                        @unlink($tmpSource);
+                    }
+                    Log::warning("[normalization] could not stage decrypted master for DO {$digitalObjectId}");
+                    return null;
+                }
+                // The tools sniff format from content, so the temp file needs no extension.
+                $plainSource = $tmpSource;
+            }
+        } catch (\Throwable $e) {
+            // No encryption service on this install - carry on with the file as-is.
+            $plainSource = $sourcePath;
+        }
+
         if (! $this->toolAvailable($rule->tool)) {
             Log::warning("[normalization] tool '{$rule->tool}' unavailable - skipping DO {$digitalObjectId}");
             return null;
@@ -120,7 +170,11 @@ class NormalizationService
         $ioId = isset($do->object_id) ? (int) $do->object_id : null;
 
         try {
-            $result = $this->executeConversion($rule->tool, $sourcePath, $outputPath, (string) $rule->target_ext, $options);
+            // $plainSource, not $sourcePath: identical unless the master was
+            // encrypted at rest, in which case this is the decrypted temp copy.
+            // $outputPath still derives from $sourcePath, so the derivative lands
+            // beside the master rather than in the temp directory.
+            $result = $this->executeConversion($rule->tool, $plainSource, $outputPath, (string) $rule->target_ext, $options);
 
             // LibreOffice names output by the source basename; reconcile.
             if ($rule->tool === 'libreoffice' && ! is_file($outputPath)) {
@@ -202,6 +256,13 @@ class NormalizationService
                 'fail');
             Log::warning("[normalization] DO {$digitalObjectId} failed: " . $e->getMessage());
             return null;
+        } finally {
+            // Decrypted plaintext must not outlive the conversion, on ANY exit
+            // path - success, tool failure or exception. It is the whole point of
+            // encryption at rest that a readable copy is not left lying in /tmp.
+            if ($tmpSource !== null && is_file($tmpSource)) {
+                @unlink($tmpSource);
+            }
         }
     }
 
