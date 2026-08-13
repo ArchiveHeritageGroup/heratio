@@ -4006,6 +4006,10 @@ class ExhibitionSpaceService
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
                 'ep.rotation_deg', 'ep.scale', 'ep.size_units_used', 'ep.wall_or_zone',
                 'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case', 'ep.on_floor',
+                // #1139: the column has existed since #1138 and the Builder has always
+                // written it, but the walkthrough never selected it, so the flag governed
+                // nothing. Needed for the on-wall label cards.
+                'ep.label_visible',
                 'ep.view_x', 'ep.view_y', 'ep.notes', 'ep.remote_peer_id', 'ep.remote_ref', 'ep.remote_payload',
                 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
             )
@@ -4042,6 +4046,7 @@ class ExhibitionSpaceService
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
                 'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
                 'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
+                'label_visible' => (int) ($r->label_visible ?? 1),   // #1139 on-wall label card
                 'spotlight' => (int) ($r->spotlight ?? 0),
                 'display_case' => (int) ($r->display_case ?? 0), 'on_floor' => (int) ($r->on_floor ?? 0),   // #1174 proximity spotlight
                 'image_url' => $media['image_url'],

@@ -1807,6 +1807,86 @@
       return null;
     }
 
+    // heratio#1139 - the printed label card beside each piece.
+    //
+    // Canvas texture rather than an HTML overlay: it has to sit in world space so
+    // it turns with the wall and occludes correctly. Drawn at 4x the world size in
+    // pixels so it stays readable close up without a second texture.
+    //
+    // Cached by content: a gallery hangs the same object in several rooms, and the
+    // card is identical each time.
+    var _labelCache = {};
+    function labelCard(title, caption) {
+      var key = title + ' ' + (caption || '');
+      if (_labelCache[key]) return _labelCache[key];
+
+      var W = 0.30, H = 0.13;                       // metres - a real museum card
+      var PX = 4 * 512;
+      var cv = document.createElement('canvas');
+      cv.width = PX; cv.height = Math.round(PX * (H / W));
+      var g = cv.getContext('2d');
+
+      g.fillStyle = '#f4f1ea'; g.fillRect(0, 0, cv.width, cv.height);       // warm card stock
+      g.strokeStyle = '#c9c2b4'; g.lineWidth = 8;
+      g.strokeRect(4, 4, cv.width - 8, cv.height - 8);
+
+      // Title, wrapped to at most two lines, ellipsised rather than shrunk so the
+      // type size stays consistent from card to card across the room.
+      g.fillStyle = '#1a1a1a';
+      g.font = 'bold 116px Georgia, serif';
+      g.textBaseline = 'top';
+      var MAXW = cv.width - 120;
+      var words = String(title || '').split(/\s+/).filter(Boolean);
+      var lines = [], cur = '', dropped = false;
+      for (var i = 0; i < words.length; i++) {
+        var trial = cur ? cur + ' ' + words[i] : words[i];
+        if (g.measureText(trial).width > MAXW && cur) {
+          if (lines.length === 1) { dropped = true; break; }   // second line is full
+          lines.push(cur); cur = words[i];
+        } else {
+          cur = trial;
+        }
+      }
+      if (cur) lines.push(cur);
+      // A title that did not fit in two lines is ellipsised. This has to be done
+      // here rather than by re-measuring the pushed lines: every line in `lines`
+      // fits by construction, so a width test on them can never be true.
+      if (dropped && lines.length) {
+        var last = lines[lines.length - 1];
+        while (last.length > 1 && g.measureText(last + '...').width > MAXW) last = last.slice(0, -1);
+        lines[lines.length - 1] = last + '...';
+      }
+      // Word wrapping cannot break inside a word, so a single token longer than the
+      // card (an accession number, a German compound, a URL) would still be painted
+      // straight over the edge. Clamp every line by character as a backstop.
+      lines = lines.map(function (ln) {
+        if (g.measureText(ln).width <= MAXW) return ln;
+        while (ln.length > 1 && g.measureText(ln + '...').width > MAXW) ln = ln.slice(0, -1);
+
+        return ln + '...';
+      });
+      lines.forEach(function (ln, i) { g.fillText(ln, 60, 50 + i * 132); });
+
+      if (caption) {
+        g.fillStyle = '#5a5348';
+        g.font = 'italic 90px Georgia, serif';
+        var cap = String(caption);
+        while (cap.length > 4 && g.measureText(cap).width > cv.width - 120) cap = cap.slice(0, -1);
+        g.fillText(cap, 60, 50 + lines.length * 132 + 16);
+      }
+
+      var tex = new THREE.CanvasTexture(cv);
+      tex.anisotropy = 8;
+      tex.colorSpace = THREE.SRGBColorSpace;
+      var mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(W, H),
+        new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true })
+      );
+      _labelCache[key] = { mesh: mesh, w: W, h: H };
+
+      return _labelCache[key];
+    }
+
     function hangOnWall(wp, s, tex, aspect) {
       var dsc = s.scale || 1;                       // display size from Builder Bigger/Smaller
       var hgt = 1.5 * dsc, wdt = hgt * (aspect || 1);
@@ -1829,6 +1909,24 @@
       pic.position.z = 0.045;
       var grp = new THREE.Group();
       grp.add(frame); grp.add(pic);
+      // heratio#1139 - printed label card. Cloned because the cache holds one mesh
+      // and an Object3D can have only one parent; the clone shares geometry and
+      // material, so a room full of labels costs one texture each, not one per hang.
+      if (s.label_visible === undefined || s.label_visible) {
+        var card = labelCard(s.title, s.caption);
+        var lm = card.mesh.clone();
+        var gap = 0.06;
+        var below = cy - hgt / 2 - gap - card.h / 2;
+        if (below > 0.25) {
+          // Standard placement: centred under the piece.
+          lm.position.set(0, -(hgt / 2 + gap + card.h / 2), 0.05);
+        } else {
+          // Piece hangs too low for a card beneath it - the label would clip the
+          // floor - so put it beside, on the right, at the piece's own height.
+          lm.position.set(wdt / 2 + gap + card.w / 2, 0, 0.05);
+        }
+        grp.add(lm);
+      }
       // Cascade stacked layers: objects sharing a wall spot fan out (depth + along-wall + down)
       // so each is visible and the front one is clickable (#1140), for UV and auto placements alike.
       var st = s._stack || 0;

@@ -75,6 +75,24 @@
               <button type="button" class="btn btn-outline-secondary" data-act="front" title="{{ __('Bring to front') }}"><i class="fas fa-arrow-up"></i></button>
               <button type="button" class="btn btn-outline-secondary" data-act="back" title="{{ __('Send to back') }}"><i class="fas fa-arrow-down"></i></button>
             </div>
+            {{-- heratio#1139 - numeric display scale. The Bigger/Smaller buttons above
+                 still work and remain the quick way to nudge; this is for when you know
+                 the number. The two stay in sync because both write node.scale(). --}}
+            <label for="selScale" class="form-label small mb-1">{{ __('Display scale') }}</label>
+            <div class="input-group input-group-sm mb-2">
+              <input type="number" id="selScale" class="form-control" min="0.1" max="5" step="0.05"
+                     title="{{ __('Display size multiplier, 0.1 to 5. 1.0 renders about 1.5 m tall in the walkthrough.') }}">
+              <span class="input-group-text">&times;</span>
+            </div>
+            {{-- Optional real-world height. The walkthrough renders a piece at
+                 (1.5 m * display scale), so these are two views of one number and
+                 editing either updates the other. --}}
+            <label for="selHeightM" class="form-label small mb-1">{{ __('or real height (m)') }}</label>
+            <div class="input-group input-group-sm mb-2">
+              <input type="number" id="selHeightM" class="form-control" min="0.15" max="7.5" step="0.05"
+                     title="{{ __('Real-world height in metres. Sets the display scale to match.') }}">
+              <span class="input-group-text">m</span>
+            </div>
             <label for="selSize" class="form-label small mb-1">{{ __('Size (units)') }}</label>
             <input type="number" id="selSize" class="form-control form-control-sm mb-2" min="0" step="0.01">
             <div id="tiltControls" class="d-none border-top pt-2 mb-2">
@@ -641,6 +659,7 @@
       document.getElementById('selControls').classList.remove('d-none');
       document.getElementById('selTitle').textContent = g.getAttr('titleText') || '';
       document.getElementById('selSize').value = g.getAttr('sizeUnits') != null ? g.getAttr('sizeUnits') : 0;
+      syncScaleInputs(g.scaleX());   // heratio#1139
       var canTilt = g.getAttr('objKind') === '3d' || g.getAttr('isSplat');   // splats need orientation too
       document.getElementById('tiltControls').classList.toggle('d-none', !canTilt);
       if (canTilt) {
@@ -656,6 +675,46 @@
       layer.draw();
       if (typeof loadRecs === 'function') loadRecs();   // #1149 filter suggestions to this object
     }
+    // ---- heratio#1139 numeric display scale ----
+    // The walkthrough renders a wall piece at (WT_BASE_H * display scale) metres
+    // (see hangOnWall in walkthrough.blade.php), so scale and real height are two
+    // views of one number. Keep this constant in step with that view.
+    var WT_BASE_H = 1.5;
+    var SCALE_MIN = 0.1, SCALE_MAX = 5;
+
+    function clampScale(v) { return Math.max(SCALE_MIN, Math.min(SCALE_MAX, v)); }
+
+    /** Refresh both inputs from a scale value, without firing their change handlers. */
+    function syncScaleInputs(s) {
+      s = clampScale((+s) || 1);
+      var si = document.getElementById('selScale');
+      var hi = document.getElementById('selHeightM');
+      if (si) si.value = Math.round(s * 100) / 100;
+      if (hi) hi.value = Math.round(s * WT_BASE_H * 100) / 100;
+    }
+
+    /** Apply a scale to the selected node, sync the inputs and persist. */
+    function applyScale(s) {
+      if (!selected) return;
+      s = clampScale((+s) || 1);
+      selected.scale({ x: s, y: s });
+      syncScaleInputs(s);
+      layer.draw();
+      scheduleSave();
+    }
+
+    (function () {
+      var si = document.getElementById('selScale');
+      var hi = document.getElementById('selHeightM');
+      if (si) si.addEventListener('change', function () { applyScale(this.value); });
+      // Real height is the same number expressed in metres - divide back out.
+      if (hi) hi.addEventListener('change', function () {
+        var m = parseFloat(this.value);
+        if (!isFinite(m) || m <= 0) { syncScaleInputs(selected ? selected.scaleX() : 1); return; }
+        applyScale(m / WT_BASE_H);
+      });
+    })();
+
     // #1174 spotlight mode button: 0 off, 1 light on approach, 2 always-on (object stays lit).
     function setSpotBtn(m) {
       var sb = document.getElementById('spotBtn'); if (!sb) return;
@@ -915,8 +974,10 @@
         var a = b.getAttribute('data-act');
         if (a === 'rotL') selected.rotation(selected.rotation() - 15);
         if (a === 'rotR') selected.rotation(selected.rotation() + 15);
-        if (a === 'smaller') { var s = Math.max(0.3, selected.scaleX() - 0.1); selected.scale({ x: s, y: s }); }
-        if (a === 'bigger') { var s2 = Math.min(4, selected.scaleX() + 0.1); selected.scale({ x: s2, y: s2 }); }
+        // heratio#1139: clamps widened from 0.3-4 to match the numeric input's
+        // 0.1-5 range, and routed through applyScale so both controls stay in sync.
+        if (a === 'smaller') { applyScale(selected.scaleX() - 0.1); }
+        if (a === 'bigger') { applyScale(selected.scaleX() + 0.1); }
         var hdrs = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' };
         if (a === 'spot') {   // #1174 cycle spotlight mode: off -> on approach -> always-on
           var cur = (+selected.getAttr('spotlight')) || 0, m = (cur + 1) % 3;
