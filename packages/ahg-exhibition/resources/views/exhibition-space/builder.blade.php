@@ -883,13 +883,110 @@
     function setWallMode(on) {
       wallAdding = on; wallStart = null;
       wallBtn.classList.toggle('btn-primary', on); wallBtn.classList.toggle('btn-outline-primary', !on);
-      wallHintEl.textContent = on ? '{{ __('Click the start point, then the end point.') }}' : HINT_IDLE;
+      wallHintEl.textContent = on
+        ? '{{ __('Click the start point, then the end point. Snaps to 0.25 m.') }}'
+        : HINT_IDLE;
       stage.container().style.cursor = on ? 'crosshair' : 'default';
+      // heratio#1139: the edit handles listen only outside add mode, or they would
+      // swallow the clicks that place a new wall. Redraw to apply the change.
+      redrawWalls();
     }
+    // ---- heratio#1139 interior wall editor ----
+    // Walls used to be inert lines you could only add and delete. They are now
+    // movable (drag the line), reshapable and rotatable (drag either end), snapped
+    // to a real-world grid, and labelled with their live length in metres.
+    //
+    // Everything still round-trips through the existing saveWalls() endpoint, which
+    // already sanitises and clamps to 0-1 - no backend change was needed.
+    var WALL_GRID_M = 0.25;    // snap step in metres
+    var WALL_AXIS_M = 0.20;    // within this, an end snaps square to its partner
+
+    function wallLenM(w) {
+      return Math.hypot((w.x2 - w.x1) * ROOM_W, (w.z2 - w.z1) * ROOM_D);
+    }
+    /** Snap a normalized point to the metre grid, clamped to the room. */
+    function snapWallPt(nx, nz) {
+      var mx = Math.round((nx * ROOM_W) / WALL_GRID_M) * WALL_GRID_M;
+      var mz = Math.round((nz * ROOM_D) / WALL_GRID_M) * WALL_GRID_M;
+
+      return {
+        x: Math.max(0, Math.min(1, mx / ROOM_W)),
+        z: Math.max(0, Math.min(1, mz / ROOM_D)),
+      };
+    }
+    /** Square a dragged end against its fixed partner when it is nearly aligned. */
+    function axisSnap(moving, fixed) {
+      if (Math.abs((moving.x - fixed.x) * ROOM_W) < WALL_AXIS_M) moving.x = fixed.x;
+      if (Math.abs((moving.z - fixed.z) * ROOM_D) < WALL_AXIS_M) moving.z = fixed.z;
+
+      return moving;
+    }
+
     function redrawWalls() {
       wallLayer.destroyChildren();
-      WALLS.forEach(function (w) {
-        wallLayer.add(new Konva.Line({ points: [w.x1 * W, w.z1 * H, w.x2 * W, w.z2 * H], stroke: '#495057', strokeWidth: 7, lineCap: 'round', listening: false }));
+      WALLS.forEach(function (w, i) {
+        // In add mode the stage needs the clicks, so the handles stand down.
+        var live = !wallAdding;
+        var line = new Konva.Line({
+          points: [w.x1 * W, w.z1 * H, w.x2 * W, w.z2 * H],
+          stroke: '#495057', strokeWidth: 7, lineCap: 'round',
+          listening: live, draggable: live, hitStrokeWidth: 16,
+        });
+        var label = new Konva.Text({
+          text: wallLenM(w).toFixed(2) + ' m', fontSize: 11, fill: '#0d6efd',
+          listening: false, padding: 2,
+        });
+        var ends = [];
+
+        function place() {
+          line.points([w.x1 * W, w.z1 * H, w.x2 * W, w.z2 * H]);
+          ends[0].position({ x: w.x1 * W, y: w.z1 * H });
+          ends[1].position({ x: w.x2 * W, y: w.z2 * H });
+          label.text(wallLenM(w).toFixed(2) + ' m');
+          label.position({ x: (w.x1 + w.x2) / 2 * W + 8, y: (w.z1 + w.z2) / 2 * H - 16 });
+        }
+
+        [0, 1].forEach(function (endIdx) {
+          var h = new Konva.Circle({
+            x: 0, y: 0,   // place() sets the real position once both ends exist
+            radius: 6, fill: '#0d6efd', stroke: '#fff', strokeWidth: 2,
+            draggable: live, listening: live,
+          });
+          h.on('dragmove', function () {
+            var p = snapWallPt(h.x() / W, h.y() / H);
+            var other = endIdx ? { x: w.x1, z: w.z1 } : { x: w.x2, z: w.z2 };
+            p = axisSnap(p, other);
+            if (endIdx) { w.x2 = p.x; w.z2 = p.z; } else { w.x1 = p.x; w.z1 = p.z; }
+            place(); wallLayer.batchDraw();
+          });
+          h.on('dragend', function () { saveWalls(); });
+          h.on('mouseenter', function () { stage.container().style.cursor = 'pointer'; });
+          h.on('mouseleave', function () { stage.container().style.cursor = wallAdding ? 'crosshair' : 'default'; });
+          ends.push(h);
+        });
+
+        // Whole-wall move. Konva reports the drag as an offset on the node, so the
+        // offset is folded back into the stored coordinates and the node reset.
+        line.on('dragmove', function () {
+          var dx = line.x() / W, dz = line.y() / H;
+          ends[0].position({ x: (w.x1 + dx) * W, y: (w.z1 + dz) * H });
+          ends[1].position({ x: (w.x2 + dx) * W, y: (w.z2 + dz) * H });
+          label.position({ x: ((w.x1 + w.x2) / 2 + dx) * W + 8, y: ((w.z1 + w.z2) / 2 + dz) * H - 16 });
+        });
+        line.on('dragend', function () {
+          var dx = line.x() / W, dz = line.y() / H;
+          var a = snapWallPt(w.x1 + dx, w.z1 + dz);
+          var b = snapWallPt(w.x2 + dx, w.z2 + dz);
+          w.x1 = a.x; w.z1 = a.z; w.x2 = b.x; w.z2 = b.z;
+          line.position({ x: 0, y: 0 });
+          place(); saveWalls();
+        });
+        line.on('mouseenter', function () { if (!wallAdding) stage.container().style.cursor = 'move'; });
+        line.on('mouseleave', function () { stage.container().style.cursor = wallAdding ? 'crosshair' : 'default'; });
+
+        wallLayer.add(line); wallLayer.add(label);
+        ends.forEach(function (h) { wallLayer.add(h); });
+        place();
       });
       wallLayer.draw();
       renderWallList();
@@ -899,7 +996,8 @@
       WALLS.forEach(function (w, i) {
         var row = document.createElement('div');
         row.className = 'd-flex justify-content-between align-items-center mb-1';
-        row.innerHTML = '<span>{{ __('Wall') }} ' + (i + 1) + '</span>';
+        row.innerHTML = '<span>{{ __('Wall') }} ' + (i + 1) +
+          ' <span class="text-muted small">' + wallLenM(w).toFixed(2) + ' m</span></span>';
         var del = document.createElement('button');
         del.type = 'button'; del.className = 'btn btn-sm btn-outline-danger py-0'; del.innerHTML = '<i class="fas fa-times"></i>';
         del.addEventListener('click', function () { WALLS.splice(i, 1); saveWalls(); });
@@ -957,9 +1055,13 @@
       }
       if (wallAdding) {
         var p = stage.getPointerPosition(); if (!p) return;
-        if (!wallStart) { wallStart = { x: p.x / W, z: p.y / H }; }
+        // heratio#1139: snap new walls to the same grid the drag handles use, so an
+        // added wall and a dragged one can land on identical coordinates.
+        var sp = snapWallPt(p.x / W, p.y / H);
+        if (!wallStart) { wallStart = { x: sp.x, z: sp.z }; }
         else {
-          WALLS.push({ id: 'wall-' + Date.now(), x1: wallStart.x, z1: wallStart.z, x2: p.x / W, z2: p.y / H });
+          var wend = axisSnap({ x: sp.x, z: sp.z }, wallStart);
+          WALLS.push({ id: 'wall-' + Date.now(), x1: wallStart.x, z1: wallStart.z, x2: wend.x, z2: wend.z });
           setWallMode(false); saveWalls();
         }
         return;
