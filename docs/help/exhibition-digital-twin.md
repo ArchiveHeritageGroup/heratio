@@ -19,6 +19,20 @@ covers the twin features that sit on top of the builder and walkthrough.
   the selected perimeter wall - click **Add window**, drag it along the wall to position it,
   and **click a window to edit its width, sill and height or remove it** (windows can also be
   added in the plan editor); they appear as glass openings in the 3D walkthrough.
+  Size a selected work either by nudging it with **Bigger / Smaller** or by typing a
+  **display scale** between 0.1 and 5.0. If you know the real dimensions, type the
+  **real height in metres** instead - the two fields are the same number seen two
+  ways, and editing either updates the other. A scale of 1.0 renders roughly 1.5 m
+  tall in the walkthrough.
+- **Interior dividers** - free-standing partitions inside a room, hung on both
+  faces. Draw one by clicking its start and end points; afterwards **drag the wall
+  to move it, or drag either end to lengthen, shorten or swing it round**. Ends
+  snap to a 0.25 m grid, and an end that comes within 0.20 m of square with its
+  partner snaps flush, so dividers sit parallel to the room rather than a fraction
+  off. The **length in metres** shows live on the plan and in the wall list.
+
+  When hanging work on a divider, choose the **front** or the **back** face - they
+  are two sides of one partition and each takes its own pieces.
 - **Plan editor** (`/exhibition-space/{slug}/plan`) - arrange rooms of a building on a
   blueprint; rooms snap to each other and can take custom (non-rectangular) shapes.
 - **Walkthrough** (`/exhibition-space/{slug}/walkthrough`) - a first-person 3D tour on
@@ -155,6 +169,28 @@ VR for room-scale, head-tracked viewing; the **left thumbstick moves** and the *
 thumbstick turns**. On ordinary desktops and phones the button stays hidden and the normal
 controls apply.
 
+## Augmented reality (view a work in your own room)
+
+Any 3D work on a record page offers **View in your room**. On a phone or tablet it
+opens the model in your own space at real-world size, so you can see how a piece
+sits against your wall before committing to it. It appears on both the inline
+viewer and the fullscreen one.
+
+Three things decide whether the button shows:
+
+- **It only works over HTTPS.** Browsers refuse AR on an insecure page, so on a
+  plain `http://` test instance the button never appears no matter how it is set.
+- **The device has to support it.** Desktops generally do not. The button is
+  hidden rather than shown-and-broken.
+- **The model has to allow it** - the 3D settings for each model carry an
+  **AR enabled** switch, on by default.
+
+Two further per-model settings shape the result. **AR placement** decides whether
+the piece stands on the floor or hangs on a wall - set framed works to *wall*, or
+a painting will appear standing on the visitor's carpet. **AR scale** chooses
+between letting the viewer resize it and pinning it to true size; true size is the
+honest choice for anything a visitor might be judging proportions of.
+
 ## Share and interoperability
 
 From the builder, the **Share & interoperability** card exposes the exhibition in open
@@ -200,6 +236,41 @@ dim, moonlit ambient - fairly dark but never pitch black, so you can still make 
 - and a **flashlight** switches on that follows wherever you look. Press the button or **N**
 again to return to normal lighting. Great for a dramatic after-hours tour, or for picking
 out a single spotlit object in the dark.
+
+## Wall labels
+
+Each wall-hung work carries a printed **label card** beside it, the way it would in
+a real gallery: title, and the placement note underneath as the caption. The card
+sits below the piece, or to its right where the work hangs too low for a card to
+fit beneath it.
+
+Turn a label off for a single work with the **label** switch on that placement -
+useful for a piece whose caption is carried by a nearby panel, or a dense hang
+where every card would be noise. Long titles wrap to two lines and are shortened
+with an ellipsis rather than shrunk, so type stays the same size across the room.
+
+## Works that will not display
+
+The walkthrough draws JPEG, PNG, GIF, WebP and BMP. A work whose only image is a
+**TIFF or RAW master** has nothing the browser can render, so it shows as a plain
+pedestal placeholder instead of the artwork - present, but not the piece.
+
+Most masters already have a web-friendly copy made at upload, so this is uncommon.
+When it happens, an administrator can generate the missing copies for a space:
+
+```
+php artisan ahg:exhibition-normalize-images --space=<slug> --dry-run
+php artisan ahg:exhibition-normalize-images --space=<slug>
+```
+
+Run the dry run first - it lists what it would convert and changes nothing. The
+conversion itself is queued, so a queue worker must be running; add `--sync` to
+convert immediately instead. Omit `--space` to sweep every space.
+
+Objects that display as 3D models, Gaussian splats or PDFs are left alone; they
+render by their own route and need no flat image. Anything that cannot be
+converted is reported with the reason rather than silently skipped - a master
+encrypted at rest by another system, for instance, cannot be read at all.
 
 ## Reading an object's details
 
@@ -253,12 +324,6 @@ Server-GPU **pixel-streaming** (rendering console-quality scenes on a server and
 video to the browser, issue #1154) was evaluated and **deferred**: it costs roughly one GPU
 per viewer, whereas the walkthrough already serves unlimited concurrent visitors at no server
 cost. It is only worth revisiting for a single kiosk or low-concurrency photoreal experience.
-
-A **WebGPU renderer** (issue #1153) is being evaluated: open
-`/exhibition-space/{slug}/walkthrough-webgpu` for the proof page - it runs the room on
-modern three.js with WebGPU on capable devices and a graceful WebGL2 fallback elsewhere
-(a badge shows which backend is live). The main walkthrough still uses WebGL until that
-evaluation completes.
 
 ## Publish to the RiC knowledge graph
 
