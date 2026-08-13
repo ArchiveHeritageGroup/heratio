@@ -254,13 +254,28 @@
           $isGlb = in_array($modelExt, ['glb', 'gltf']);
           // Check for a turntable MP4 alongside this GLB (rendered by ahg:3d-multiangle)
           $turntableMp4 = null;
+          // #1139 AR ("view in your room"). The settings live on object_3d_model,
+          // which the dedicated 3D viewer already honours; this page never read
+          // them, so a model marked AR-enabled offered AR everywhere except the
+          // record page a visitor actually lands on.
+          $arEnabled = true;      // a plain GLB attachment with no settings row still gets AR
+          $arScale = 'auto';
+          $arPlacement = 'floor';
           try {
-            $turntableMp4 = \Illuminate\Support\Facades\DB::table('object_3d_model')
+            $m3d = \Illuminate\Support\Facades\DB::table('object_3d_model')
               ->where('object_id', $io->id)
-              ->whereNotNull('turntable_mp4_path')
               ->orderByDesc('id')
-              ->value('turntable_mp4_path');
-          } catch (\Throwable $e) { /* ignore */ }
+              ->first();
+            if ($m3d) {
+              $turntableMp4 = $m3d->turntable_mp4_path ?: null;
+              $arEnabled = ! empty($m3d->ar_enabled);
+              // ar_scale / ar_placement have existed since the table was created
+              // but nothing has ever read them. 'wall' is what makes a framed
+              // work hang on the visitor's wall rather than stand on the floor.
+              $arScale = in_array($m3d->ar_scale ?? '', ['auto', 'fixed'], true) ? $m3d->ar_scale : 'auto';
+              $arPlacement = in_array($m3d->ar_placement ?? '', ['floor', 'wall'], true) ? $m3d->ar_placement : 'floor';
+            }
+          } catch (\Throwable $e) { /* no 3D settings table - AR stays on with defaults */ }
         @endphp
         <div class="digitalObject3D">
           <div class="d-flex flex-column align-items-center">
@@ -289,7 +304,21 @@
             @if($isGlb)
               {{-- GLB/GLTF: Google model-viewer --}}
               <div id="{{ $modelViewerId }}-container" style="width: 100%; height: 400px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px;">
-                <model-viewer id="{{ $modelViewerId }}" src="{{ $masterUrl }}" camera-controls touch-action="pan-y" shadow-intensity="1" exposure="1" style="width:100%;height:100%;background:transparent;border-radius:8px;" alt="3D model"></model-viewer>
+                {{-- #1139: `ar` only advertises the capability. model-viewer decides
+                     whether the button can appear at all - it needs a secure context
+                     (HTTPS) and a device with Scene Viewer / Quick Look / WebXR, so on
+                     a desktop or over plain http nothing is shown and nothing breaks.
+                     quick-look is listed for iOS completeness; it needs a USDZ via
+                     ios-src, which we do not hold, so iOS falls through to webxr. --}}
+                <model-viewer id="{{ $modelViewerId }}" src="{{ $masterUrl }}" camera-controls touch-action="pan-y" shadow-intensity="1" exposure="1"
+                  @if($arEnabled) ar ar-modes="webxr scene-viewer quick-look" ar-scale="{{ $arScale }}" ar-placement="{{ $arPlacement }}" @endif
+                  style="width:100%;height:100%;background:transparent;border-radius:8px;" alt="3D model">
+                  @if($arEnabled)
+                    <button slot="ar-button" class="btn btn-sm" style="position:absolute;bottom:16px;left:16px;border:none;border-radius:8px;background:var(--ahg-primary,#1a73e8);color:#fff;font-weight:500;">
+                      <i class="fas fa-cube me-1"></i>{{ __('View in your room') }}
+                    </button>
+                  @endif
+                </model-viewer>
               </div>
             @else
               {{-- OBJ/STL/PLY/FBX: Three.js viewer --}}
@@ -401,15 +430,23 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
               </div>
               <div class="modal-body p-0" style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;">
-                <model-viewer 
+                <model-viewer
                   id="model-3d-fullscreen"
-                  src="{{ $masterUrl }}" 
+                  src="{{ $masterUrl }}"
                   camera-controls
                   touch-action="pan-y"
                   shadow-intensity="1"
                   exposure="1"
+                  {{-- #1139: AR here too. Fullscreen is where someone on a phone is
+                       most likely to want the piece in the room in front of them. --}}
+                  @if($arEnabled) ar ar-modes="webxr scene-viewer quick-look" ar-scale="{{ $arScale }}" ar-placement="{{ $arPlacement }}" @endif
                   style="width:100%;height:100%;background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);"
                   alt="3D model">
+                  @if($arEnabled)
+                    <button slot="ar-button" class="btn btn-sm" style="position:absolute;bottom:64px;left:16px;border:none;border-radius:8px;background:var(--ahg-primary,#1a73e8);color:#fff;font-weight:500;">
+                      <i class="fas fa-cube me-1"></i>{{ __('View in your room') }}
+                    </button>
+                  @endif
                 </model-viewer>
               </div>
               <div class="modal-footer" style="background:#1a1a2e;color:#fff;position:absolute;bottom:0;left:0;right:0;z-index:10;">
