@@ -27,9 +27,13 @@ class RefreshFacetCacheCommand extends Command
             // (ahg_settings.discovery_db_connection) so every install builds facets
             // from its own data. Only heratio (the demo) pins this to 'atom' to
             // showcase the shared ANC corpus; every other app stays self-contained.
+            // Fall back to this app's OWN connection, not 'atom' - the atom
+            // database exists only on an AtoM overlay, and defaulting to it
+            // contradicted the intent stated just above, breaking every
+            // self-contained install with "Access denied ... to database 'atom'".
             $conn = (string) (DB::table('ahg_settings')
                 ->where('setting_key', 'discovery_db_connection')
-                ->value('setting_value') ?: 'atom');
+                ->value('setting_value') ?: config('database.default'));
         }
         $only = $this->option('facet');
 
