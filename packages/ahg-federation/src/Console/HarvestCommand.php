@@ -47,9 +47,15 @@ class HarvestCommand extends Command
     public function handle(HarvestService $service): int
     {
         if (! SettingHelper::getScoped('federation', 'federation_enabled', '0')) {
-            $this->error('Federation is disabled (federation_enabled=0). Enable it in Plugin Management before harvesting.');
+            // Still say so plainly - an operator running this by hand needs to know
+            // why nothing happened - but exit 0. Federation being switched off is a
+            // configuration choice, not a runtime fault, and returning non-zero made
+            // the scheduler log a failed command on every run for every instance
+            // that simply does not federate.
+            $this->warn('Federation is disabled (federation_enabled=0) - nothing to harvest.');
+            $this->line('Enable it in Plugin Management if you expected a harvest.');
 
-            return self::FAILURE;
+            return self::SUCCESS;
         }
 
         $peers = $this->resolvePeers();
