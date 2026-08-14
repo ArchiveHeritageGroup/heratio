@@ -16,4 +16,4 @@ SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=""
 
-* * * * * www-data flock -n /var/run/heratio-schedule.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio/artisan schedule:run >> /var/log/heratio-schedule.log 2>&1'
+* * * * * www-data flock -n /run/lock/heratio-schedule.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio/artisan schedule:run >> /var/log/heratio-schedule.log 2>&1'

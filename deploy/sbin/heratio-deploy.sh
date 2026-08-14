@@ -74,6 +74,24 @@ sudo -u www-data $PHP artisan migrate --force || { echo "MIGRATE FAILED - check;
 sudo -u www-data $PHP artisan optimize:clear >/dev/null 2>&1
 sudo -u www-data $PHP artisan storage:link >/dev/null 2>&1 || true
 
+# Queue workers are long-lived PHP processes: they load the application ONCE and
+# keep serving jobs from that copy, so a deploy leaves them running the previous
+# release indefinitely. Restarting php-fpm does not touch them.
+#
+# This is not theoretical. On 2026-08-14 an Archivematica fix was deployed,
+# verified in the file, and kept failing - because the job that used it runs on
+# the queue and dev's worker had been up for nearly NINE DAYS on pre-fix code.
+# Anything dispatched to a queue (DIP ingest, normalization, webhooks, exports)
+# has the same exposure.
+#
+# queue:restart does not kill anything mid-job: it sets a restart signal, each
+# worker finishes the job in hand and exits cleanly, and systemd starts a fresh
+# one. The units are heratio-queue-worker@N / heratio-dev-queue-worker@N /
+# sasa-queue-worker@N. A `|| true` because an instance with no queue worker
+# running is a normal state, not a deploy failure.
+echo "--- restart queue workers (they hold the OLD code until told otherwise) ---"
+sudo -u www-data $PHP artisan queue:restart >/dev/null 2>&1 || true
+
 # RESTART, not reload. The pools here run opcache.validate_timestamps=0, so the
 # workers never re-stat a PHP file once it is compiled: a graceful reload keeps
 # the OLD code in the shared opcache and the site carries on serving the previous

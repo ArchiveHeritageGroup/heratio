@@ -13,4 +13,4 @@
 # See incident 2026-05-08 (admin/errorLog).
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
-17 * * * * www-data flock -n /var/run/heratio-discovery-prune.lock -c 'for d in heratio atom archive; do echo "[$(date -Iseconds)] discovery-prune: $d"; DB_DATABASE=$d /usr/bin/php8.3 /usr/share/nginx/heratio/artisan ahg:discovery-prune 2>&1 || echo "  failed $d"; done >> /var/log/heratio-discovery-prune.log 2>&1'
+17 * * * * www-data flock -n /run/lock/heratio-discovery-prune.lock -c 'for d in heratio atom archive; do echo "[$(date -Iseconds)] discovery-prune: $d"; DB_DATABASE=$d /usr/bin/php8.3 /usr/share/nginx/heratio/artisan ahg:discovery-prune 2>&1 || echo "  failed $d"; done >> /var/log/heratio-discovery-prune.log 2>&1'

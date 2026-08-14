@@ -10,7 +10,7 @@ one is what let the pair drift apart in the first place (#1465).
 
 | Script | Purpose |
 |---|---|
-| `heratio-deploy.sh` | The sanctioned prod deploy. Pre-deploy DB dump → fast-forward-only pull from GitHub → composer + npm build → ownership restore → migrate → cache clear → clear compiled manifests → php-fpm **restart** → health check (retried) → demo-baseline rebase, gated on that check. |
+| `heratio-deploy.sh` | The sanctioned prod deploy. Pre-deploy DB dump → fast-forward-only pull from GitHub → composer + npm build → ownership restore → migrate → cache clear → **queue-worker restart** → clear compiled manifests → php-fpm **restart** → health check (retried) → demo-baseline rebase, gated on that check. |
 | `heratio-demo-snapshot.sh` | Captures the live DB as the demo *baseline* and stamps it with the deployed version. |
 | `heratio-demo-reset.sh` | 02:00 cron. Restores the demo from that baseline, wiping visitor changes. Scheduled by `deploy/cron/heratio-demo-reset`. |
 
@@ -70,6 +70,21 @@ would skip the baseline rebase.
 The compiled manifests (`bootstrap/cache/packages.php`, `services.php`, …) are
 removed just before the restart. A newly registered package or service provider
 lands in those files, and a stale one is the classic post-deploy 500.
+
+**4. It restarts the queue workers, and php-fpm alone is not enough.** A queue
+worker is a long-lived PHP process that loads the application once and keeps
+serving jobs from that copy, so a deploy leaves it running the previous release
+indefinitely - restarting php-fpm does nothing to it.
+
+This cost real time on 2026-08-14: an Archivematica fix was deployed, confirmed
+present in the file, and kept failing, because the job that used it runs on the
+queue and dev's worker had been up for **nearly nine days** on pre-fix code.
+Anything dispatched to a queue carries the same exposure - DIP ingest,
+normalization, webhook delivery, exports.
+
+`queue:restart` is graceful: it sets a restart signal, each worker finishes the
+job in hand and exits, and systemd starts a fresh one
+(`heratio-queue-worker@N`, `heratio-dev-queue-worker@N`, `sasa-queue-worker@N`).
 
 ## Deploy ordering that matters
 
