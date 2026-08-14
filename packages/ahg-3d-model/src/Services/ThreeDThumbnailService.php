@@ -268,11 +268,19 @@ class ThreeDThumbnailService
             return false;
         }
 
-        $uploadsBase = config('heratio.uploads_path');
-        $masterPath = $uploadsBase.$digitalObject->path.$digitalObject->name;
+        // Resolve through DigitalObjectService, NOT by concatenating the
+        // configured base with the stored path. digital_object.path is stored
+        // as '/uploads/r/<id>/' while heratio.uploads_path already ends in
+        // '/uploads', so joining them produced '.../uploads/uploads/r/<id>/' -
+        // every 3D master "not found" and all eight derivative jobs failing on
+        // every run. The resolver strips the duplicated segment while KEEPING
+        // the 'r/' shard, and carries the legacy-layout fallbacks besides
+        // (the same bug class as #1455).
+        $masterPath = \AhgCore\Services\DigitalObjectService::resolveDiskPath($digitalObject);
 
-        if (! file_exists($masterPath)) {
-            $this->log("Master file not found: {$masterPath}", 'ERROR');
+        if (! $masterPath || ! file_exists($masterPath)) {
+            $this->log('Master file not found for digital_object #'.($digitalObject->id ?? '?')
+                .' ('.$digitalObject->name.')', 'ERROR');
 
             return false;
         }
@@ -357,10 +365,15 @@ class ThreeDThumbnailService
             return '';
         }
 
-        $uploadsBase = config('heratio.uploads_path');
-        $masterDir = dirname($uploadsBase.$digitalObject->path.$digitalObject->name);
+        // Same resolver as above - a concatenated base doubled the 'uploads'
+        // segment and pointed the multiangle output at a directory that does
+        // not exist.
+        $masterPath = \AhgCore\Services\DigitalObjectService::resolveDiskPath($digitalObject);
+        if (! $masterPath) {
+            return '';
+        }
 
-        return $masterDir.'/multiangle';
+        return dirname($masterPath).'/multiangle';
     }
 
     /**
