@@ -173,15 +173,29 @@ class WebhookService
 
     /**
      * Process pending retries.
+     *
+     * The limit and attempt cap are parameters so `ahg:webhook-retry` can pass
+     * its own options through instead of keeping a second, divergent copy of
+     * this query - that duplicate had been selecting a column (`attempts`) that
+     * does not exist since v1.82.1 and failed on every scheduled run.
      */
-    public function processRetries(): int
+    public function processRetries(int $limit = 50, int $maxAttempts = 5): int
     {
         $pending = DB::table('ahg_webhook_delivery')
             ->where('status', 'failed')
-            ->where('attempt_count', '<', 5)
+            ->where('attempt_count', '<', $maxAttempts)
             ->whereNotNull('next_retry_at')
             ->where('next_retry_at', '<=', now())
-            ->limit(50)
+            // Do not keep hammering an endpoint the operator has switched off.
+            // The command this replaces filtered on it; deliver() does not, so
+            // the guard belongs here or it is lost.
+            ->whereExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('ahg_webhook as w')
+                    ->whereColumn('w.id', 'ahg_webhook_delivery.webhook_id')
+                    ->where('w.is_active', 1);
+            })
+            ->limit(max(1, $limit))
             ->get();
 
         $processed = 0;

@@ -142,8 +142,28 @@ class HarvestCommand extends Command
         $query = DB::table('federation_peer')->where('is_active', 1)->orderBy('name');
 
         if ($peerOpt !== null && $peerOpt !== '') {
+            // An explicitly named peer is harvested as asked - the operator has
+            // said which one they mean, so do not second-guess it.
             $query->where('id', (int) $peerOpt);
+
+            return $query->get();
         }
+
+        // Sweeping every active peer is different: an "active" peer is not
+        // necessarily a harvestable one.
+        //
+        // `atom_local` represents THIS instance's own index. It exists so local
+        // records appear in federated search results; it is a contributor, not a
+        // remote source, and it carries a placeholder base_url ('-') rather than
+        // a URL. Harvesting it meant the scheduled --all-active run spent 30s
+        // failing to fetch from a non-URL and exited 1 on every pass.
+        //
+        // A peer with no usable base_url is skipped for the same reason: there is
+        // nothing to harvest from and a timeout is the only possible outcome.
+        $query->where('peer_type', '!=', 'atom_local')
+            ->whereNotNull('base_url')
+            ->where('base_url', '!=', '')
+            ->where('base_url', '!=', '-');
 
         return $query->get();
     }

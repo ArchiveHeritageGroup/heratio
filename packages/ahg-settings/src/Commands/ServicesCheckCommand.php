@@ -93,7 +93,7 @@ class ServicesCheckCommand extends Command
         if (! $url) {
             return $this->skipped($name, 'not configured');
         }
-        $endpoint = rtrim($url, '/').$path;
+        $endpoint = rtrim($url, '/').$this->healthPathFor($url, $path);
         $t0 = microtime(true);
         try {
             $resp = Http::timeout($timeout)->get($endpoint);
@@ -104,6 +104,25 @@ class ServicesCheckCommand extends Command
         } catch (\Throwable $e) {
             return $this->down($name, $endpoint, $e->getMessage(), $t0);
         }
+    }
+
+    /**
+     * The right liveness path for whatever this URL actually points at.
+     *
+     * These settings may hold either a native service (an Ollama host, where
+     * `/api/tags` is the liveness endpoint) or the AHG AI gateway, which is the
+     * sanctioned door for application AI traffic and does NOT re-expose Ollama's
+     * native routes - it answers `/health` and 404s `/api/tags`.
+     *
+     * Probing the gateway at `/api/tags` therefore reported a perfectly healthy
+     * gateway as DOWN, and because any DOWN service exits 1, the whole scheduled
+     * services check failed every run. The endpoint was wrong, not the service.
+     */
+    protected function healthPathFor(string $url, string $default): string
+    {
+        // The gateway's base already carries its /ai/v1 prefix, so the health
+        // endpoint is relative to that rather than the host root.
+        return str_contains($url, '/ai/v1') ? '/health' : $default;
     }
 
     protected function probeTriposr(int $timeout): ?array

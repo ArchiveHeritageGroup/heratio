@@ -713,7 +713,13 @@ INSERT IGNORE INTO `ahg_ai_service_client` (`id`, `name`, `organization`, `email
 -- ============================================================================
 
 INSERT IGNORE INTO `ahg_settings` (`setting_key`, `setting_value`, `setting_group`) VALUES
-    ('ai_condition_service_url', 'http://localhost:8100', 'ai_condition'),
+    -- Seeded EMPTY on purpose. This used to ship as 'http://localhost:8100',
+    -- but no such service is part of the install, so every instance carried a
+    -- URL pointing at nothing - ahg:services-check then reported it DOWN and
+    -- exited 1 on every scheduled run, for ever. Empty means the probe reports
+    -- "not configured" and skips, exactly as iiif_server_url does, until an
+    -- operator points it somewhere real.
+    ('ai_condition_service_url', '', 'ai_condition'),
     ('ai_condition_api_key', 'ahg_ai_condition_internal_2026', 'ai_condition'),
     ('ai_condition_auto_scan', '0', 'ai_condition'),
     ('ai_condition_min_confidence', '0.25', 'ai_condition'),

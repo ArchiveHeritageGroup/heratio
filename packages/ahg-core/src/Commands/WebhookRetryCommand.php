@@ -1,75 +1,65 @@
 <?php
 
+/**
+ * Retry failed webhook deliveries whose backoff window has elapsed.
+ *
+ * This command used to carry its own copy of the retry query and its own HTTP
+ * send. That copy referenced three columns `ahg_webhook_delivery` does not have
+ * - `attempts`, `last_response` and `last_error` (the real ones are
+ * `attempt_count`, `response_code` and `response_body`) - so from v1.82.1
+ * (2026-05-25) every scheduled run died on
+ * "Unknown column 'd.attempts'", roughly every two minutes, for months. It had
+ * never worked once.
+ *
+ * It now delegates to AhgApi\Services\WebhookService::processRetries(), which is
+ * the implementation the rest of the webhook stack already uses and which is
+ * correct on all three counts. Delegating also gains two things the local copy
+ * never had: the #1395 SSRF guard on the delivery URL, and redirects disabled -
+ * a retry loop POSTing signed payloads to an arbitrary redirect target is
+ * exactly the shape of an SSRF.
+ *
+ * ahg-api is a soft dependency: this no-ops with an explanation where that
+ * package is absent rather than fataling in the scheduler.
+ *
+ * Copyright (C) 2026 Johan Pieterse
+ * Plain Sailing Information Systems
+ *
+ * This file is part of Heratio, licensed under the GNU AGPL v3 or later.
+ */
+
 namespace AhgCore\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
 
 class WebhookRetryCommand extends Command
 {
     protected $signature = 'ahg:webhook-retry
         {--limit=50 : Max delivery rows to retry per run}
-        {--max-attempts=5 : Cap retries; failed rows past this are marked permanently_failed}';
+        {--max-attempts=5 : Cap retries; rows past this are left for an operator}';
 
     protected $description = 'Retry failed ahg_webhook_delivery rows whose backoff window has elapsed';
 
     public function handle(): int
     {
+        if (! Schema::hasTable('ahg_webhook_delivery')) {
+            $this->info('No webhook delivery table here - nothing to retry.');
+
+            return self::SUCCESS;
+        }
+
+        if (! class_exists(\AhgApi\Services\WebhookService::class)) {
+            $this->warn('ahg-api is not installed here, so there is no webhook service to retry with.');
+
+            return self::SUCCESS;
+        }
+
         $limit = max(1, (int) $this->option('limit'));
         $maxAttempts = max(1, (int) $this->option('max-attempts'));
 
-        $rows = DB::table('ahg_webhook_delivery as d')
-            ->join('ahg_webhook as w', 'w.id', '=', 'd.webhook_id')
-            ->where('d.status', 'failed')
-            ->where('d.attempts', '<', $maxAttempts)
-            ->where(function ($q) {
-                $q->whereNull('d.next_retry_at')->orWhere('d.next_retry_at', '<=', now());
-            })
-            ->where('w.is_active', 1)
-            ->select('d.id', 'd.webhook_id', 'd.payload', 'd.attempts', 'w.url', 'w.secret')
-            ->limit($limit)
-            ->get();
-        $this->info("retrying {$rows->count()} delivery rows (max_attempts={$maxAttempts})");
+        $processed = app(\AhgApi\Services\WebhookService::class)->processRetries($limit, $maxAttempts);
 
-        $ok = 0;
-        $fail = 0;
-        $perm = 0;
-        foreach ($rows as $r) {
-            $attempts = (int) $r->attempts + 1;
-            $signature = $r->secret ? hash_hmac('sha256', (string) $r->payload, (string) $r->secret) : null;
-            try {
-                $resp = Http::timeout(15)
-                    ->withHeaders(array_filter([
-                        'Content-Type' => 'application/json',
-                        'X-AHG-Signature' => $signature,
-                    ]))
-                    ->withBody((string) $r->payload, 'application/json')
-                    ->send('POST', (string) $r->url);
-                if ($resp->successful()) {
-                    DB::table('ahg_webhook_delivery')->where('id', $r->id)->update([
-                        'status' => 'delivered',
-                        'attempts' => $attempts,
-                        'last_response' => $resp->status(),
-                        'delivered_at' => now(),
-                    ]);
-                    $ok++;
-                } else {
-                    throw new \RuntimeException('HTTP '.$resp->status());
-                }
-            } catch (\Throwable $e) {
-                $next = now()->addMinutes(5 * $attempts);
-                $newStatus = $attempts >= $maxAttempts ? 'permanently_failed' : 'failed';
-                DB::table('ahg_webhook_delivery')->where('id', $r->id)->update([
-                    'status' => $newStatus,
-                    'attempts' => $attempts,
-                    'last_error' => $e->getMessage(),
-                    'next_retry_at' => $newStatus === 'failed' ? $next : null,
-                ]);
-                $newStatus === 'failed' ? $fail++ : $perm++;
-            }
-        }
-        $this->info("delivered={$ok} retry-later={$fail} permanently_failed={$perm}");
+        $this->info("retried {$processed} delivery row(s) (limit={$limit}, max_attempts={$maxAttempts})");
 
         return self::SUCCESS;
     }
