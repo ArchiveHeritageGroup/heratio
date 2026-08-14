@@ -55,7 +55,7 @@
               <tbody>
                 @forelse($group->members as $member)
                   <tr>
-                    <td>{{ $member->display_name ?? $member->username }}</td>
+                    <td>{{ $member->display_name ?: $member->username }}</td>
                     <td><code>{{ $member->username }}</code></td>
                     <td class="text-end">
                       <form action="{{ route('acl.remove-member', ['groupId' => $group->id, 'userId' => $member->user_id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove this member from the group?');">
@@ -83,7 +83,7 @@
               <select name="user_id" id="user_id" class="form-select form-select-sm" required>
                 <option value="">-- Select User --</option>
                 @foreach($allUsers as $user)
-                  <option value="{{ $user->id }}">{{ $user->display_name ?? $user->username }} ({{ $user->username }})</option>
+                  <option value="{{ $user->id }}">{{ $user->display_name ?: $user->username }} ({{ $user->username }})</option>
                 @endforeach
               </select>
             </div>

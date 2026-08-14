@@ -69,7 +69,7 @@
                 @forelse($approvers as $approver)
                   <tr>
                     <td>
-                      <strong>{{ $approver->display_name ?? $approver->username }}</strong>
+                      <strong>{{ $approver->display_name ?: $approver->username }}</strong>
                       <br><small class="text-muted">{{ $approver->email ?? '' }}</small>
                     </td>
                     <td>
@@ -129,7 +129,7 @@
               <select name="user_id" id="approver_user_id" class="form-select" required>
                 <option value="">-- Select User --</option>
                 @foreach($availableUsers as $user)
-                  <option value="{{ $user->id }}">{{ $user->display_name ?? $user->username }} ({{ $user->username }})</option>
+                  <option value="{{ $user->id }}">{{ $user->display_name ?: $user->username }} ({{ $user->username }})</option>
                 @endforeach
               </select>
             </div>

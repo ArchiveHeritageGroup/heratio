@@ -122,7 +122,12 @@
           @endphp
           <tr>
             <td><small>{{ $log->created_at }}</small></td>
-            <td>{{ $log->display_name ?? $log->user_name ?? 'Anonymous' }}</td>
+            {{-- ?: not ??. The display name is joined from actor_i18n, where an
+                 actor with no authorised form of name stores an EMPTY STRING, not
+                 NULL - and ?? only falls through on null. So a user whose actor
+                 record has a blank name rendered as an empty User column even
+                 though user_name was recorded correctly on the row. --}}
+            <td>{{ $log->display_name ?: ($log->user_name ?: 'Anonymous') }}</td>
             <td>
               <span class="badge {{ $badge }}">{{ $log->action }}</span>
             </td>

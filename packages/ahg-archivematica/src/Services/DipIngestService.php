@@ -78,6 +78,22 @@ class DipIngestService
             return $this->summary($dipUuid, null, 0, 'skipped', 'already linked');
         }
 
+        // A package the Storage Service has DELETED still answers its metadata
+        // endpoint, but asking to download it returns an opaque HTTP 500 with
+        // "this request could not be processed" - so a deleted DIP looked like a
+        // Storage Service fault and logged an error on every sweep. It is not a
+        // fault: the package is simply gone. Skip it the same way an
+        // already-linked one is skipped.
+        try {
+            $status = (string) ($this->ss->getPackage($dipUuid)['status'] ?? '');
+        } catch (\Throwable $e) {
+            // Metadata unreachable is a real problem - let the download surface it.
+            $status = '';
+        }
+        if ($status !== '' && strtoupper($status) !== 'UPLOADED') {
+            return $this->summary($dipUuid, null, 0, 'skipped', 'package status '.$status.' - not downloadable');
+        }
+
         $workDir = $this->workDir($dipUuid);
         $downloadPath = $workDir . '/download.package';
         $this->ss->downloadPackage($dipUuid, $downloadPath);

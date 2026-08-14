@@ -85,7 +85,7 @@
                 <input type="checkbox" class="form-check-input user-select" value="{{ $clr->user_id }}">
               </td>
               <td>
-                <strong>{{ $clr->user_display_name ?? $clr->username ?? '-' }}</strong><br>
+                <strong>{{ $clr->user_display_name ?: ($clr->username ?: '-') }}</strong><br>
                 <small class="text-muted">{{ $clr->email ?? '' }}</small>
                 @if(!$clr->active)
                   <span class="badge bg-secondary ms-1">{{ __('Inactive') }}</span>
@@ -143,14 +143,14 @@
                   <button type="button" class="btn btn-outline-success btn-row-grant"
                           data-bs-toggle="modal" data-bs-target="#grantModal"
                           data-user-id="{{ $clr->user_id }}"
-                          data-username="{{ $clr->user_display_name ?? $clr->username }}"
+                          data-username="{{ $clr->user_display_name ?: $clr->username }}"
                           data-current="{{ $clr->classification_id ?? 0 }}"
                           title="{{ __('Grant/Change Clearance') }}">
                     <i class="fas fa-key"></i>
                   </button>
                   @if($clr->classification_id)
                     <form action="{{ route('acl.set-clearance') }}" method="POST" class="d-inline"
-                          onsubmit="return confirm('Revoke clearance for {{ $clr->user_display_name ?? $clr->username }}?');">
+                          onsubmit="return confirm('Revoke clearance for {{ $clr->user_display_name ?: $clr->username }}?');">
                       @csrf
                       <input type="hidden" name="user_id" value="{{ $clr->user_id }}">
                       <input type="hidden" name="classification_id" value="0">
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <select name="user_id" class="form-select" required>
                 <option value="">-- Select User --</option>
                 @foreach($users as $user)
-                  <option value="{{ $user->id }}">{{ $user->display_name ?? $user->username }} ({{ $user->email ?? $user->username }})</option>
+                  <option value="{{ $user->id }}">{{ $user->display_name ?: $user->username }} ({{ $user->email ?? $user->username }})</option>
                 @endforeach
               </select>
             </div>
