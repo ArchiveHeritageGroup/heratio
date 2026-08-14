@@ -56,8 +56,16 @@ class AiConditionStatusCommand extends Command
             $this->line('ahg_ai_condition_assessment table not installed.');
         }
 
-        // Non-zero: we cannot assert the service is healthy.
-        return self::FAILURE;
+        // This is a STATUS command: it reports a known-open decision (#1268), and
+        // it reports it identically every time. Returning non-zero made the
+        // scheduler log a failed command on every run - 331 of them on one
+        // instance - which is noise that buries real failures rather than
+        // surfacing this one. The report itself is the output; an unwired
+        // integration that is documented as unwired is not a runtime failure.
+        //
+        // If this is ever wired up and then breaks, THAT is worth failing on, and
+        // the check above will have something real to assert.
+        return self::SUCCESS;
     }
 
     private function setting(string $key): ?string

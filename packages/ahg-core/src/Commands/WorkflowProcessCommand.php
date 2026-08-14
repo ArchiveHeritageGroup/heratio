@@ -19,11 +19,15 @@ class WorkflowProcessCommand extends Command
         $limit = max(1, (int) $this->option('limit'));
         $dry = (bool) $this->option('dry-run');
 
-        // Claim pending tasks whose due_at is past or null.
+        // Claim pending tasks not already claimed.
+        // Columns are claimed_at / due_date: this command previously used
+        // claim_at, started_at and due_at, none of which exist on
+        // ahg_workflow_task, so every scheduled run died on
+        // "Unknown column 'claim_at'" and it had never processed a task.
         $pending = DB::table('ahg_workflow_task')
             ->where('status', 'pending')
             ->where(function ($q) {
-                $q->whereNull('claim_at')->orWhere('claim_at', '<=', now());
+                $q->whereNull('claimed_at')->orWhere('claimed_at', '<=', now());
             })
             ->limit($limit)
             ->get();
@@ -37,7 +41,7 @@ class WorkflowProcessCommand extends Command
             $updated = (int) DB::table('ahg_workflow_task')
                 ->where('id', $t->id)
                 ->where('status', 'pending')
-                ->update(['status' => 'in_progress', 'started_at' => now()]);
+                ->update(['status' => 'in_progress', 'claimed_at' => now()]);
             if ($updated) {
                 $claimed++;
             }
@@ -47,8 +51,8 @@ class WorkflowProcessCommand extends Command
         if ($this->option('escalate')) {
             $escalated = (int) DB::table('ahg_workflow_task')
                 ->where('status', 'in_progress')
-                ->whereNotNull('due_at')
-                ->where('due_at', '<', now())
+                ->whereNotNull('due_date')
+                ->where('due_date', '<', now())
                 ->update(['status' => 'escalated', 'escalated_at' => now()]);
             $this->info("escalated={$escalated}");
         }

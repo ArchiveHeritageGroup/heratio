@@ -12,7 +12,8 @@
 
 namespace Ahg3dModel\Commands;
 
-use AhgSettings\Services\AhgSettingsService;
+// AhgCore, not AhgSettings - same wrong-namespace bug as TriposrHealthCommand.
+use AhgCore\Services\AhgSettingsService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 

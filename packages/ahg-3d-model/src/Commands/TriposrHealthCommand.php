@@ -9,7 +9,10 @@
 
 namespace Ahg3dModel\Commands;
 
-use AhgSettings\Services\AhgSettingsService;
+// AhgCore, not AhgSettings: the class lives in ahg-core. The wrong namespace
+// meant every run died with 'Class "AhgSettings\Services\AhgSettingsService"
+// not found' before reading a single setting.
+use AhgCore\Services\AhgSettingsService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
@@ -77,6 +80,14 @@ class TriposrHealthCommand extends Command
             }
         }
 
-        return ($r['reachable'] && $r['enabled']) ? self::SUCCESS : self::FAILURE;
+        // An integration that is switched OFF is not a failure - it is a choice,
+        // and reporting it as one made this command exit 1 on every scheduled run
+        // for every instance not using TripoSR, which is most of them. Only an
+        // integration that is enabled and cannot be reached is unhealthy.
+        if (! $r['enabled']) {
+            return self::SUCCESS;
+        }
+
+        return $r['reachable'] ? self::SUCCESS : self::FAILURE;
     }
 }
