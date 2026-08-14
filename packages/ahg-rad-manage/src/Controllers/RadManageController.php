@@ -297,6 +297,14 @@ class RadManageController extends Controller
     /** Persist a RAD description onto an existing IO (#1425 dynamic form). */
     public function persist(int $ioId, Request $request): void
     {
+        // #676: snapshot BEFORE the writes so the audit log can show a
+        // before/after for a RAD edit. Reuses the information-object
+        // service's own snapshot, so every standard diffs the same field set
+        // rather than each carrying its own idea of what counts as a change.
+        $auditBefore = class_exists(\AhgInformationObjectManage\Services\InformationObjectService::class)
+            ? \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot($ioId, app()->getLocale())
+            : [];
+
         $culture = app()->getLocale();
 
 
@@ -318,7 +326,16 @@ class RadManageController extends Controller
                 DB::table('information_object')
                     ->where('id', $ioId)
                     ->update(['display_standard_id' => $request->input('display_standard_id') ?: null]);
-            }
+            
+        if ($auditBefore !== []) {
+            \AhgCore\Support\AuditLog::captureEdit(
+                $ioId,
+                'information_object',
+                $auditBefore,
+                \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot($ioId, app()->getLocale())
+            );
+        }
+}
 
             // Update information_object_i18n table
             DB::table('information_object_i18n')

@@ -216,6 +216,14 @@ class RicManageController extends Controller
      */
     public function persist(int $ioId, Request $request): void
     {
+        // #676: snapshot BEFORE the writes so the audit log can show a
+        // before/after for a RiC edit. Reuses the information-object
+        // service's own snapshot, so every standard diffs the same field set
+        // rather than each carrying its own idea of what counts as a change.
+        $auditBefore = class_exists(\AhgInformationObjectManage\Services\InformationObjectService::class)
+            ? \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot($ioId, app()->getLocale())
+            : [];
+
         $culture = app()->getLocale();
 
             DB::table('information_object')
@@ -234,7 +242,16 @@ class RicManageController extends Controller
                 DB::table('information_object')
                     ->where('id', $ioId)
                     ->update(['display_standard_id' => $request->input('display_standard_id') ?: null]);
-            }
+            
+        if ($auditBefore !== []) {
+            \AhgCore\Support\AuditLog::captureEdit(
+                $ioId,
+                'information_object',
+                $auditBefore,
+                \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot($ioId, app()->getLocale())
+            );
+        }
+}
 
             DB::table('information_object_i18n')
                 ->where('id', $ioId)
