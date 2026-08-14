@@ -22,8 +22,21 @@ fi
 
 echo "Using: $BLENDER"
 
-# Snap Blender can't run as www-data (home dir restriction) - use sudo
-if [ "$(id -u)" -ne 0 ] && sudo -n "$BLENDER" --version >/dev/null 2>&1; then
+# Run Blender DIRECTLY whenever that works, and only consider sudo if it does
+# not. The order used to be the other way round, which probed
+# `sudo -n blender --version` on every single thumbnail. sudo's -n flag stops it
+# PROMPTING, but a denial is still logged and MAILED to root - so on a host
+# where the apt build runs perfectly well as www-data (no snap Blender present,
+# and the sudoers rule here only grants /snap/bin/blender anyway) every run
+# generated a "a password is required" security alert. With ahg:3d-derivatives
+# on a two-minute schedule that is a mail flood, for a privilege escalation that
+# was never needed.
+#
+# sudo remains the fallback for its original reason: snap Blender cannot run as
+# www-data because of the snap home-directory restriction.
+if "$BLENDER" --version >/dev/null 2>&1; then
+    "$BLENDER" --background --python "$SCRIPT_DIR/blender_thumbnail.py" -- "$INPUT" "$OUTPUT" "$WIDTH" "$HEIGHT" 2>&1 | grep -v "^Blender\|^Read\|^Fra:\|^Color management"
+elif [ "$(id -u)" -ne 0 ] && sudo -n "$BLENDER" --version >/dev/null 2>&1; then
     sudo "$BLENDER" --background --python "$SCRIPT_DIR/blender_thumbnail.py" -- "$INPUT" "$OUTPUT" "$WIDTH" "$HEIGHT" 2>&1 | grep -v "^Blender\|^Read\|^Fra:\|^Color management"
     sudo chown www-data:www-data "$OUTPUT" 2>/dev/null
 else
