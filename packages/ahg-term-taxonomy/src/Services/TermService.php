@@ -270,8 +270,28 @@ class TermService
     /**
      * Update a term (term + term_i18n + notes + use-for + relationships + touch object).
      */
+    /**
+     * Flat snapshot of the term fields an edit can change, for the
+     * security_audit_log before/after diff (#676).
+     */
+    private function auditSnapshot(int $termId, string $culture): array
+    {
+        $term = (array) (DB::table('term')->where('id', $termId)
+            ->select('code', 'parent_id', 'taxonomy_id')
+            ->first() ?? []);
+        $i18n = (array) (DB::table('term_i18n')->where('id', $termId)
+            ->where('culture', $culture)
+            ->select('name')
+            ->first() ?? []);
+
+        return array_merge($term, $i18n);
+    }
+
     public function update(int $termId, array $data, string $culture): void
     {
+        // Before the transaction, so a rolled-back edit records nothing.
+        $auditBefore = $this->auditSnapshot($termId, $culture);
+
         DB::transaction(function () use ($termId, $data, $culture) {
             // Update term table
             $termUpdate = [];
@@ -451,6 +471,12 @@ class TermService
                     'updated_at' => now(),
                 ]);
         });
+
+        // #676: field-level diff, so the audit log shows what changed about the
+        // term rather than only that something did.
+        \AhgCore\Support\AuditLog::captureEdit(
+            $termId, 'term', $auditBefore, $this->auditSnapshot($termId, $culture)
+        );
     }
 
     /**

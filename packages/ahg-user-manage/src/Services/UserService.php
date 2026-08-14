@@ -317,8 +317,33 @@ class UserService
     /**
      * Update an existing user.
      */
+    /**
+     * Flat snapshot of the user fields an edit can change, for the
+     * security_audit_log before/after diff (#676).
+     *
+     * Never includes the password hash: a diff is for seeing what changed, not
+     * for copying a credential into a second table.
+     */
+    private function auditSnapshot(int $id): array
+    {
+        $u = (array) (DB::table('user')->where('id', $id)
+            ->select('username', 'email', 'active')
+            ->first() ?? []);
+        $name = DB::table('actor_i18n')->where('id', $id)->where('culture', 'en')
+            ->value('authorized_form_of_name');
+        if ($name !== null) {
+            $u['authorized_form_of_name'] = $name;
+        }
+
+        return $u;
+    }
+
     public function update(int $id, array $data): void
     {
+        // Captured BEFORE the transaction so the diff reflects the state a
+        // reviewer would have seen, and so a rolled-back edit records nothing.
+        $auditBefore = $this->auditSnapshot($id);
+
         DB::transaction(function () use ($id, $data) {
             $updateFields = [];
 
@@ -404,6 +429,11 @@ class UserService
                 'serial_number' => DB::raw('serial_number + 1'),
             ]);
         });
+
+        // #676: record the field-level diff so the audit log can show before vs
+        // after. User edits were previously logged with a path only, which told a
+        // reviewer that a user record changed but never what changed about it.
+        \AhgCore\Support\AuditLog::captureEdit($id, 'user', $auditBefore, $this->auditSnapshot($id));
     }
 
     /**

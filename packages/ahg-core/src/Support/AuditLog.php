@@ -128,6 +128,19 @@ class AuditLog
      */
     private static function stash(int $objectId, string $objectType, array $payload): void
     {
+        // Outside an HTTP request there is no AuditLog middleware to flush the
+        // stash, so stashing would silently discard the diff. The old guard only
+        // caught `app('request')` THROWING, which it does not do in console or
+        // queue context - Laravel hands back a synthetic request there, the
+        // attributes were set on it, and nobody ever read them. Every edit made
+        // by an artisan command, a queued job or a seeder therefore lost its
+        // before/after. Write those straight through instead.
+        if (app()->runningInConsole()) {
+            self::writeDirect($objectId, $objectType, $payload);
+
+            return;
+        }
+
         try {
             $req = app('request');
             $req->attributes->set('audit.diff', $payload);
