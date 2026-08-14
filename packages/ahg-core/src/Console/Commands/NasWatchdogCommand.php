@@ -44,6 +44,17 @@ class NasWatchdogCommand extends Command
 
     public function handle(): int
     {
+        // Self-gate, like ahg:encryption-bulk-apply: a no-op when this install's
+        // storage is deliberately local. The probe requires storage_path to be a
+        // MOUNTPOINT with an archive/ subdirectory, so a local path fails two of
+        // three checks and reports "down" forever - notifying the operator about
+        // a NAS the install does not use. Default stays true so NAS-backed
+        // installs are unaffected.
+        if (!config('heratio.nas_watchdog_enabled', true)) {
+            $this->line('ahg:nas-watchdog disabled (heratio.nas_watchdog_enabled=false) - storage is local on this install.');
+            return self::SUCCESS;
+        }
+
         $path = (string) (config('heratio.storage_path') ?: '/mnt/nas/heratio');
         $report = $this->probe($path);
 
@@ -160,7 +171,13 @@ class NasWatchdogCommand extends Command
                 message: $body,
                 link: '/admin/health',
                 relatedType: 'nas',
-                relatedId: $state,
+                // NOT the state string. ahg_notification.related_id is
+                // `bigint unsigned`, so passing 'down' threw SQLSTATE[HY000]
+                // 1366 "Incorrect integer value" on EVERY alarm and the in-app
+                // bell row was never written - only the workbench drop-file
+                // landed. There is no numeric entity behind a mount check;
+                // relatedType 'nas' already carries the meaning.
+                relatedId: null,
             );
         } catch (Throwable $e) {
             Log::warning('NasWatchdog: ahg_notification insert failed - ' . $e->getMessage());

@@ -25,6 +25,14 @@ return [
 
     'storage_path' => env('HERATIO_STORAGE_PATH', base_path('uploads')),
 
+    // NAS watchdog (ahg:nas-watchdog, every 5 minutes). Probes storage_path and
+    // requires it to be a MOUNTPOINT with a readable archive/ subdirectory, so
+    // an install whose storage_path is deliberately LOCAL reports "down" on
+    // every tick and notifies the operator about a NAS it does not use.
+    // Default true: installs backed by the NAS keep watching it. Set
+    // NAS_WATCHDOG_ENABLED=false where storage is intentionally local.
+    'nas_watchdog_enabled' => (bool) env('NAS_WATCHDOG_ENABLED', true),
+
     // Uploads path — independently configurable for servers where the subdir
     // name differs (e.g. "archive" on the AHG NAS vs "uploads" on a fresh install).
     'uploads_path' => env('HERATIO_UPLOADS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads'))),
