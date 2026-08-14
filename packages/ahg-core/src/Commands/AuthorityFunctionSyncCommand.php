@@ -10,15 +10,49 @@ class AuthorityFunctionSyncCommand extends Command
 {
     protected $signature = 'ahg:authority-function-sync
         {--clean : Remove relation rows that point at missing actor or function}
-        {--connection=atom : Source DB}';
+        {--connection= : Source DB; defaults to this instance discovery_db_connection setting, else its own connection}';
 
     protected $description = 'Validate actor↔function links in `relation` table; report or clean orphans';
 
+    /**
+     * The instance's own discovery source: the discovery_db_connection setting
+     * when set, otherwise this application's default connection. Never a
+     * hard-coded 'atom' - that database only exists on an AtoM overlay install.
+     */
+    private function defaultConnection(): string
+    {
+        try {
+            $name = (string) (DB::table('ahg_settings')
+                ->where('setting_key', 'discovery_db_connection')
+                ->value('setting_value') ?? '');
+        } catch (\Throwable $e) {
+            $name = '';
+        }
+
+        return $name !== '' ? $name : (string) config('database.default');
+    }
+
     public function handle(): int
     {
-        $conn = (string) $this->option('connection');
-        $db = DB::connection($conn);
-        if (! Schema::connection($conn)->hasTable('relation')) {
+        // Was hard-defaulted to 'atom'. On a Heratio-native instance that database
+        // belongs to someone else, so the probe below threw
+        // "Access denied for user ... to database 'atom'" on every scheduled run.
+        // The relation table lives in this instance's own database unless an
+        // operator says otherwise.
+        $conn = (string) ($this->option('connection') ?: $this->defaultConnection());
+
+        try {
+            $db = DB::connection($conn);
+            $hasRelation = Schema::connection($conn)->hasTable('relation');
+        } catch (\Throwable $e) {
+            // An unreachable or forbidden source is nothing to sync, not a fault:
+            // failing here logged a failed scheduled command every run.
+            $this->warn("[{$conn}] not usable as a source: ".$e->getMessage());
+
+            return self::SUCCESS;
+        }
+
+        if (! $hasRelation) {
             $this->warn("[{$conn}] no relation table");
 
             return self::SUCCESS;
