@@ -12,8 +12,10 @@
           <label class="form-label">{{ __('Action Type') }}</label>
           <select name="filter_action" class="form-select form-select-sm">
             <option value="">{{ __('All Actions') }}</option>
-            @foreach($actionTypes as $a)
-              <option value="{{ $a }}" {{ ($filters['action'] ?? '') === $a ? 'selected' : '' }}>{{ $a }}</option>
+            {{-- code => human label, from the canonical catalogue so every
+                 instance offers the same choices --}}
+            @foreach($actionTypes as $code => $label)
+              <option value="{{ $code }}" {{ ($filters['action'] ?? '') === $code ? 'selected' : '' }}>{{ $label }}</option>
             @endforeach
           </select>
         </div>
@@ -129,7 +131,7 @@
                  though user_name was recorded correctly on the row. --}}
             <td>{{ $log->display_name ?: ($log->user_name ?: 'Anonymous') }}</td>
             <td>
-              <span class="badge {{ $badge }}">{{ $log->action }}</span>
+              <span class="badge {{ $badge }}" title="{{ $log->action }}">{{ \AhgCore\Support\AuditActionLabels::label($log->action) }}</span>
             </td>
             <td>{{ $log->object_type ?? '-' }}</td>
             <td>{{ $log->object_id ?? '-' }}</td>

@@ -697,9 +697,18 @@ class AclController extends Controller
             ->limit($limit)
             ->get();
 
-        // Filter dropdown options
-        $actionTypes = DB::table('security_audit_log')
-            ->select('action')->distinct()->orderBy('action')->pluck('action')->filter()->values();
+        // Filter dropdown options.
+        //
+        // Actions come from the canonical catalogue, NOT from SELECT DISTINCT on
+        // this instance's own rows. Deriving them from the data meant dev offered
+        // thirteen actions and heratio.org nine - the same screen behaving
+        // differently per instance, and an action being unfilterable until
+        // somebody happened to perform it. Codes present here but unknown to the
+        // catalogue are still added, so nothing becomes unreachable.
+        // Keyed code => human label.
+        $actionTypes = \AhgCore\Support\AuditActionLabels::withPresent(
+            DB::table('security_audit_log')->select('action')->distinct()->pluck('action')->filter()
+        );
         $entityTypes = DB::table('security_audit_log')
             ->select('object_type')->distinct()->orderBy('object_type')->pluck('object_type')->filter()->values();
         $usernames = DB::table('security_audit_log')

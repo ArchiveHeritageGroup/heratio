@@ -54,6 +54,7 @@ class AhgAuditTrailServiceProvider extends ServiceProvider
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-audit-trail');
 
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgAuditTrail\Console\Commands\PruneCommand::class,
