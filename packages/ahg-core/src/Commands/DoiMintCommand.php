@@ -65,6 +65,18 @@ class DoiMintCommand extends Command
         }
         $candidates = $q->orderBy('i.id')->limit($limit)->pluck('i.id')->all();
 
+        // DOI minting needs an active ahg_doi_config (prefix + credentials). Where
+        // there is none the integration simply is not set up on this instance, and
+        // every candidate would fail identically with 'no active ahg_doi_config
+        // row' - a scheduled failure every run reporting a configuration choice.
+        // Say so once and stop.
+        if (\Illuminate\Support\Facades\Schema::hasTable('ahg_doi_config')
+            && ! DB::table('ahg_doi_config')->where('is_active', 1)->exists()) {
+            $this->warn('No active DOI configuration - nothing to mint. Configure a prefix and credentials to enable it.');
+
+            return self::SUCCESS;
+        }
+
         $this->info('found '.count($candidates).' candidates'.($dry ? ' (dry-run)' : ''));
         $ok = 0;
         $fail = 0;
