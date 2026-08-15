@@ -13,7 +13,7 @@ class AuthorityNerPipelineCommand extends Command
         {--types=PERSON,ORG : Comma-separated entity_type filter}
         {--limit=100 : Max NER rows to process}
         {--dry-run : Simulate without creating ahg_ner_authority_stub rows}
-        {--connection=atom : Source DB for ahg_ner_entity}';
+        {--connection= : Source DB for ahg_ner_entity; blank = this instance}';
 
     protected $description = 'Create stub authority candidates from approved NER entities (status=approved, no existing actor link)';
 
@@ -26,6 +26,15 @@ class AuthorityNerPipelineCommand extends Command
         }
 
         $conn = (string) $this->option('connection');
+
+        // Not the 'atom' database by default - that exists only on an AtoM
+        // overlay, so a Heratio-native instance was denied access on every run.
+        $conn = \AhgCore\Support\DiscoverySource::connectionName($conn);
+        if (! \AhgCore\Support\DiscoverySource::usable($conn)) {
+            $this->warn("Source connection '{$conn}' is not usable here - nothing to process.");
+
+            return self::SUCCESS;
+        }
         $threshold = (float) $this->option('threshold');
         $types = array_filter(array_map('trim', explode(',', (string) $this->option('types'))));
         $limit = max(1, (int) $this->option('limit'));

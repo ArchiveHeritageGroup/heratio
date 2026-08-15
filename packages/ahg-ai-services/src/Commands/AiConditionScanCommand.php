@@ -37,6 +37,12 @@ class AiConditionScanCommand extends Command
 
         // TODO(#1268): implement once a ConditionService exists that routes
         // through ai.theahg.co.za/ai/v1/<condition-route>. Never call a node port.
-        return self::FAILURE;
+        //
+        // Exit 0, not FAILURE. This reports a known-open decision, identically on
+        // every run, so returning non-zero made the scheduler log a failed command
+        // twice a night on every instance - noise that buries real failures. The
+        // report above IS the output. When the route exists and this actually
+        // scans, a genuine scan error is what deserves a non-zero exit.
+        return self::SUCCESS;
     }
 }

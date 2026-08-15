@@ -52,8 +52,13 @@ class AiHtrCommand extends Command
         if (!$dryRun) {
             $health = $htr->health();
             if ($health === null) {
-                $this->error('HTR service unreachable (via gateway). Aborting.');
-                return self::FAILURE;
+                // An HTR service that is not deployed is not a failure of this
+                // command - it is an integration this instance does not run. Say so
+                // and exit 0, so a nightly schedule does not log a failed command
+                // for ever on every install without HTR. A reachable service that
+                // then errors still fails below.
+                $this->warn('HTR service unreachable via the gateway - nothing to do.');
+                return self::SUCCESS;
             }
         }
 

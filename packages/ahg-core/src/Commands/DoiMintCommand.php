@@ -37,7 +37,16 @@ class DoiMintCommand extends Command
         $level = $this->option('level');
         $limit = max(1, (int) $this->option('limit'));
 
-        $q = DB::connection('atom')->table('information_object as i')
+        // Was hard-wired to the 'atom' connection with no way to override it,
+        // so this could never run on a Heratio-native instance.
+        $doiConn = \AhgCore\Support\DiscoverySource::connectionName();
+        if (! \AhgCore\Support\DiscoverySource::usable($doiConn)) {
+            $this->warn("Source connection '{$doiConn}' is not usable here - nothing to mint.");
+
+            return self::SUCCESS;
+        }
+
+        $q = DB::connection($doiConn)->table('information_object as i')
             ->leftJoin('ahg_doi_config as cfg', function ($j) {
                 $j->on('cfg.is_active', '=', DB::raw('1'));
             })

@@ -37,9 +37,12 @@ class OaiHarvestCommand extends Command
         if (! $url) {
             $rows = DB::table('oai_repository')->whereNotNull('uri')->get(['id', 'name', 'uri']);
             if ($rows->isEmpty()) {
-                $this->error('No --url given and oai_repository is empty.');
+                // No harvest sources configured is an empty worklist, not a
+                // fault. Failing here logged a failed scheduled command every run
+                // on every instance that does not harvest OAI.
+                $this->warn('No --url given and no OAI repositories configured - nothing to harvest.');
 
-                return self::FAILURE;
+                return self::SUCCESS;
             }
             foreach ($rows as $r) {
                 $this->harvestOne($r->id, $r->uri);

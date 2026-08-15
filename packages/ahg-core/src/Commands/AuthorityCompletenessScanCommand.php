@@ -10,7 +10,7 @@ class AuthorityCompletenessScanCommand extends Command
 {
     protected $signature = 'ahg:authority-completeness-scan
         {--limit=0 : Max actors to scan (0 = all)}
-        {--connection=atom : Source DB connection (atom for ANC corpus, default heratio)}';
+        {--connection= : Source DB connection (blank = this instance; set atom only on an AtoM overlay)}';
 
     protected $description = 'Calculate completeness scores for authority (actor) records via ISAAR-CPF field coverage';
 
@@ -26,6 +26,15 @@ class AuthorityCompletenessScanCommand extends Command
         }
 
         $conn = (string) $this->option('connection');
+
+        // Not the 'atom' database by default - that exists only on an AtoM
+        // overlay, so a Heratio-native instance was denied access on every run.
+        $conn = \AhgCore\Support\DiscoverySource::connectionName($conn);
+        if (! \AhgCore\Support\DiscoverySource::usable($conn)) {
+            $this->warn("Source connection '{$conn}' is not usable here - nothing to process.");
+
+            return self::SUCCESS;
+        }
         $limit = (int) $this->option('limit');
 
         // Score each actor by % of ISAAR(CPF) fields populated in actor + actor_i18n.

@@ -31,15 +31,47 @@ class DatabaseBackupCommand extends Command
         $file = "{$backupsDir}/heratio-{$database}-{$stamp}{$ext}";
 
         // mysqldump with --single-transaction for InnoDB consistency without long locks.
-        // Credentials come from MySQL socket auth (no password on CLI).
-        $cmd = sprintf('mysqldump --single-transaction --quick --triggers --routines --events %s', escapeshellarg((string) $database));
+        //
+        // Credentials come from the application's own DB config, NOT from socket
+        // auth. The previous version passed no credentials at all, which works
+        // when an operator runs this as root - root has socket auth - but the
+        // SCHEDULER runs it as www-data, which holds no MySQL grant. So every
+        // scheduled backup died with
+        // "Access denied for user 'www-data'@'localhost' (using password: NO)"
+        // and no scheduled backup had ever been written.
+        //
+        // The password goes through MYSQL_PWD rather than --password so it is not
+        // exposed in the process list to every user on the box.
+        $db = config('database.connections.'.config('database.default'), []);
+        $cmd = 'mysqldump';
+        if (! empty($db['unix_socket'])) {
+            $cmd .= ' --socket='.escapeshellarg((string) $db['unix_socket']);
+        } else {
+            $cmd .= ' --host='.escapeshellarg((string) ($db['host'] ?? '127.0.0.1'));
+            $cmd .= ' --port='.escapeshellarg((string) ($db['port'] ?? 3306));
+        }
+        if (! empty($db['username'])) {
+            $cmd .= ' --user='.escapeshellarg((string) $db['username']);
+        }
+        $cmd .= sprintf(' --single-transaction --quick --triggers --routines --events %s', escapeshellarg((string) $database));
+
+        $envPrefix = ! empty($db['password'])
+            ? 'MYSQL_PWD='.escapeshellarg((string) $db['password']).' '
+            : '';
         if ($gzip) {
             $cmd .= ' | gzip --best';
         }
         $cmd .= ' > '.escapeshellarg($file).' 2>/tmp/heratio-backup.err';
+        $cmd = $envPrefix.$cmd;
 
         if ($this->option('dry-run')) {
-            $this->info("would run: {$cmd}");
+            // NEVER print the credential. --dry-run is the one path a human reads
+            // and copies into a ticket or a chat window, and MYSQL_PWD carries the
+            // live database password.
+            $shown = $envPrefix !== ''
+                ? preg_replace("/^MYSQL_PWD='.*?' /", "MYSQL_PWD='[redacted]' ", $cmd)
+                : $cmd;
+            $this->info("would run: {$shown}");
 
             return self::SUCCESS;
         }
