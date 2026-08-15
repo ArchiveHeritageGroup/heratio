@@ -559,7 +559,17 @@ class CronSchedulerService
 
             $event = $schedule->exec('true')
                 ->cron($cron)
-                ->name('ahg-cron:'.$entry['slug']);
+                ->name('ahg-cron:'.$entry['slug'])
+                // A managed entry could previously start while its own previous
+                // run was still going. refresh-facet-cache rebuilds ~558k rows
+                // hourly, so an overrun collided with itself and died on
+                // "Lock wait timeout exceeded" - five times in one day on
+                // heratio.org. Only the missed-run detector had this guard.
+                //
+                // The 120-minute expiry matters: the default lock never expires,
+                // so a worker killed mid-run would block the job for ever. Two
+                // hours is longer than any job here legitimately takes.
+                ->withoutOverlapping(120);
 
             // Re-target: the exec('true') above is just a placeholder so
             // we can attach hooks; the real work is dispatched in before().
