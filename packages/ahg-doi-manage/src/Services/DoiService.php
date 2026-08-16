@@ -767,6 +767,33 @@ class DoiService
                 return ['success' => false, 'doi' => null, 'error' => 'no active ahg_doi_config row'];
             }
 
+            // A config that cannot possibly authenticate is not a config. Without a
+            // password every request is rejected, and 10.12345 is DataCite's
+            // DOCUMENTATION prefix - it is registered to nobody, so minting against
+            // it returns "the resource you are looking for doesn't exist" (HTTP
+            // 404) for every record, on every scheduled run. heratio.org carried
+            // five active rows in exactly that state, four of them with no password
+            // at all, and hammered the DataCite API nightly because of it.
+            //
+            // Fail once, clearly, naming what is missing - rather than per record
+            // with an API error that says nothing about the real cause.
+            $missing = [];
+            if (empty($config->datacite_password)) {
+                $missing[] = 'no DataCite password';
+            }
+            if (trim((string) ($config->datacite_prefix ?? '')) === '10.12345') {
+                $missing[] = "prefix is DataCite's documentation placeholder 10.12345";
+            }
+            if ($missing !== []) {
+                return [
+                    'success' => false,
+                    'doi' => null,
+                    'error' => 'DOI minting is not configured: '.implode('; ', $missing)
+                        .'. Set real DataCite credentials before enabling this.',
+                    'unconfigured' => true,
+                ];
+            }
+
             // Idempotency: existing minted DOI is a no-op.
             $existing = DB::table('ahg_doi')->where('information_object_id', $objectId)->first();
             if ($existing && $existing->status !== 'tombstone') {

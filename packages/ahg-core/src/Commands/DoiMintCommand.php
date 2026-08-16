@@ -85,6 +85,14 @@ class DoiMintCommand extends Command
             if ($r['success']) {
                 $ok++;
                 $this->line(sprintf('  ok  oid=%s doi=%s', $cid, $r['doi']));
+            } elseif (! empty($r['unconfigured'])) {
+                // Not a per-record failure: the credentials cannot work for ANY
+                // record, so stop on the first one instead of walking the whole
+                // batch into the same rejection and reporting it fifty times.
+                $this->warn('  '.$r['error']);
+                $this->info('Stopping - nothing can be minted until this is configured.');
+
+                return self::SUCCESS;
             } else {
                 $fail++;
                 $this->line(sprintf('  fail oid=%s error=%s', $cid, $r['error']));
