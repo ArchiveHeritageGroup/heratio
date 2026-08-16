@@ -10,13 +10,23 @@ class DedupeScanCommand extends Command
     protected $signature = 'ahg:dedupe-scan
         {--limit=10000 : Max IOs to scan in this pass}
         {--repository= : Filter by repository_id}
-        {--connection=atom : Source DB connection}';
+        {--connection= : Source DB connection}';
 
     protected $description = 'Start a duplicate-record scan: enumerates same-title IOs into ahg_dedupe_scan';
 
     public function handle(): int
     {
         $conn = (string) $this->option('connection');
+
+        // Not 'atom' by default - see AhgCore\Support\DiscoverySource. That
+        // database exists only on an AtoM overlay, so a Heratio-native instance
+        // was denied on every run.
+        $conn = \AhgCore\Support\DiscoverySource::connectionName($conn);
+        if (! \AhgCore\Support\DiscoverySource::usable($conn)) {
+            $this->warn("Source connection '{$conn}' is not usable here - nothing to process.");
+
+            return self::SUCCESS;
+        }
         $repoId = $this->option('repository');
         $limit = max(100, (int) $this->option('limit'));
 

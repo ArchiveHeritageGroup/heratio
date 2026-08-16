@@ -9,13 +9,23 @@ class AuthorityDedupScanCommand extends Command
 {
     protected $signature = 'ahg:authority-dedup-scan
         {--limit=20 : Max duplicate groups to report}
-        {--connection=atom : Source DB}';
+        {--connection= : Source DB}';
 
     protected $description = 'Scan for likely-duplicate authority records (grouped by normalised authorized_form_of_name)';
 
     public function handle(): int
     {
         $conn = (string) $this->option('connection');
+
+        // Not 'atom' by default - see AhgCore\Support\DiscoverySource. That
+        // database exists only on an AtoM overlay, so a Heratio-native instance
+        // was denied on every run.
+        $conn = \AhgCore\Support\DiscoverySource::connectionName($conn);
+        if (! \AhgCore\Support\DiscoverySource::usable($conn)) {
+            $this->warn("Source connection '{$conn}' is not usable here - nothing to process.");
+
+            return self::SUCCESS;
+        }
         $limit = max(1, (int) $this->option('limit'));
 
         $rows = DB::connection($conn)->table('actor_i18n')

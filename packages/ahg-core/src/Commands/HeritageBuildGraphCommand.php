@@ -23,12 +23,30 @@ class HeritageBuildGraphCommand extends Command
 
         $limit = max(1, (int) $this->option('limit'));
         // Pull IOs that don't yet have a heritage_entity_cache row.
-        $ios = DB::connection('atom')->table('information_object as i')
+        // Was hard-wired to the 'atom' connection with no override.
+        $graphConn = \AhgCore\Support\DiscoverySource::connectionName();
+        if (! \AhgCore\Support\DiscoverySource::usable($graphConn)) {
+            $this->warn("Source connection '{$graphConn}' is not usable here - nothing to process.");
+
+            return self::SUCCESS;
+        }
+
+        // Three faults here, all of which meant this never worked:
+        //  - hec.entity_id does not exist; the column is object_id.
+        //  - the join also required hec.entity_type = 'io', a value that appears
+        //    nowhere in the data (the real values are person, place, work, date,
+        //    event, organization), so the join could never match and EVERY
+        //    information object came back as uncached.
+        //  - the cache database was named by a hard-coded 'heratio' connection,
+        //    which does not exist on another instance.
+        $cacheDb = DB::connection(config('database.default'))->getDatabaseName();
+
+        $ios = DB::connection($graphConn)->table('information_object as i')
             ->leftJoin(
-                DB::connection('heratio')->getDatabaseName().'.heritage_entity_cache as hec',
-                function ($j) {
-                    $j->on('hec.entity_type', '=', DB::raw("'io'"))->on('hec.entity_id', '=', 'i.id');
-                }
+                $cacheDb.'.heritage_entity_cache as hec',
+                'hec.object_id',
+                '=',
+                'i.id'
             )
             ->whereNull('hec.id')
             ->limit($limit)

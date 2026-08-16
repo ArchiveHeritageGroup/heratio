@@ -74,7 +74,11 @@ class PreservationReplicateCommand extends Command
                 }
                 // Best-effort: copy bag dir to target; for now log the intent and let ops wire the
                 // actual transport (rclone/rsync/aws s3) per target kind.
-                $svc->logEvent(0, null, 'replicate', json_encode(['target' => $t->name, 'package_id' => $r->id]), 'pending');
+                // null, not 0: digital_object_id is a nullable FK to digital_object.id and
+                // there is no row 0, so passing 0 violated the constraint and every
+                // replication event insert failed. A package-level event has no single
+                // digital object, which is exactly what null means here.
+                $svc->logEvent(null, null, 'replicate', json_encode(['target' => $t->name, 'package_id' => $r->id]), 'pending');
                 $this->line("  queued replicate package={$r->id} target={$t->name}");
                 $totalOK++;
             }

@@ -23,7 +23,21 @@ class ExportBulkCommand extends Command
         $path = base_path((string) $this->option('path'));
         @mkdir($path, 0775, true);
 
-        $q = DB::connection('atom')->table('information_object as i')->select('i.id');
+        // Was hard-wired to the 'atom' connection with no override.
+
+        $expConn = \AhgCore\Support\DiscoverySource::connectionName();
+
+        if (! \AhgCore\Support\DiscoverySource::usable($expConn)) {
+
+            $this->warn("Source connection '{$expConn}' is not usable here - nothing to process.");
+
+
+            return self::SUCCESS;
+
+        }
+
+
+        $q = DB::connection($expConn)->table('information_object as i')->select('i.id');
         if (! empty($criteria['repository_id'])) {
             $q->where('i.repository_id', (int) $criteria['repository_id']);
         }

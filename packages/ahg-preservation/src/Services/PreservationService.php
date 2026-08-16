@@ -246,7 +246,11 @@ class PreservationService
     /**
      * Insert a PREMIS preservation_event.
      */
-    public function logEvent(int $digitalObjectId, ?int $ioId, string $type, string $detail, string $outcome): int
+    // ?int: digital_object_id is a NULLABLE FK. A package-level or
+    // repository-level event has no single digital object, and callers were
+    // passing 0 to satisfy the int type - which then violated the foreign key,
+    // because there is no digital_object with id 0.
+    public function logEvent(?int $digitalObjectId, ?int $ioId, string $type, string $detail, string $outcome): int
     {
         $newId = DB::table('preservation_event')->insertGetId([
             'digital_object_id'    => $digitalObjectId,
