@@ -27,10 +27,12 @@ set -uo pipefail
 BR=main
 APP="${HERATIO_APP:-}"
 CHECK=0
+SKIP_BACKUP=0
 for arg in "$@"; do
   case "$arg" in
     --app=*)          APP="${arg#--app=}" ;;
     --check|--dry-run) CHECK=1 ;;   # resolve + report, change nothing
+    --no-backup)      SKIP_BACKUP=1 ;;   # proceed even if the pre-deploy dump fails
     -*)               echo "unknown option: $arg"; exit 1 ;;
     *)                BR="$arg" ;;
   esac
@@ -102,7 +104,18 @@ fi
 # Safety: snapshot the live DB BEFORE pulling new code. Taken pre-pull so the new
 # boot-install (idempotent ALTERs) cannot run during the dump and race it -
 # --single-transaction is NOT isolated from concurrent DDL. One retry for safety.
+# Dump with the instance's OWN credentials. This used to export MYSQL_PWD from the
+# app's .env but connect as `-u root`, which only worked because heratio.org's app
+# happens to run as the root DB user - on sasa (DB user `sasa`) the password and
+# the user disagreed, root auth failed with "Access denied ... (using password:
+# YES)", both attempts failed, and the deploy carried on with NO pre-deploy backup
+# after printing a warning that scrolls past in normal output. Found 2026-08-17.
+#
+# --no-tablespaces because dumping tablespace info needs the PROCESS privilege,
+# which an ordinary app user does not have; without it mysqldump still exits 0 but
+# prints an access-denied line that reads like a failure.
 export MYSQL_PWD="$(_env DB_PASSWORD)"
+DB_USER="$(_env DB_USERNAME)"; DB_USER="${DB_USER:-root}"
 ts="$(date +%Y%m%d-%H%M%S)"
 
 # The demo keeps its backups beside its baseline on the NAS; other instances get
@@ -113,11 +126,22 @@ if [ -d "$(dirname "$BASELINE_DIR")" ]; then BACKUP_DIR="$BASELINE_DIR"
 else BACKUP_DIR="/var/backups/heratio-deploy/$DB"; fi
 mkdir -p "$BACKUP_DIR"
 dst="$BACKUP_DIR/pre-deploy-$ts.sql.gz"
-_backup(){ mysqldump --defaults-file=/dev/null -u root --single-transaction --quick --routines --triggers "$DB" | gzip > "$dst"; }
-if _backup; then echo "pre-deploy DB backup saved ($DB -> $dst)"
-else echo "pre-deploy backup hit a transient error - retrying in 3s..."; sleep 3
-  if _backup; then echo "pre-deploy DB backup saved (2nd attempt)"
-  else rm -f "$dst"; echo "WARN: pre-deploy backup failed twice - continuing (prior baseline retained)"; fi
+_backup(){ mysqldump --defaults-file=/dev/null -u "$DB_USER" --no-tablespaces --single-transaction --quick --routines --triggers "$DB" | gzip > "$dst"; }
+# A dump is only real if it ends with mysqldump's completion marker: a truncated or
+# permission-refused dump can still leave a valid-looking .gz behind.
+_backup_ok(){ [ -s "$dst" ] && zcat "$dst" 2>/dev/null | tail -5 | grep -q 'Dump completed'; }
+if _backup && _backup_ok; then echo "pre-deploy DB backup saved ($DB as $DB_USER -> $dst)"
+else echo "pre-deploy backup incomplete - retrying in 3s..."; sleep 3
+  if _backup && _backup_ok; then echo "pre-deploy DB backup saved (2nd attempt)"
+  else
+    rm -f "$dst"
+    # Loud, and it stops the deploy: proceeding without a restore point is how a
+    # bad migration becomes unrecoverable. Pass --no-backup to override knowingly.
+    echo "!!! ABORT: could not take a pre-deploy backup of '$DB' as '$DB_USER'."
+    echo "!!! Check that user can dump it, or re-run with --no-backup to skip."
+    [ "$SKIP_BACKUP" = "1" ] || exit 1
+    echo "!!! --no-backup given: continuing WITHOUT a restore point."
+  fi
 fi
 find "$BACKUP_DIR" -name 'pre-deploy-*.sql.gz' -mtime +14 -delete 2>/dev/null || true
 
