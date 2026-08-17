@@ -244,10 +244,15 @@ php artisan ahg:ai-sync-entity-cache
 
 ### Rebuilding the Graph
 
-Rebuild to include new relationships:
+The entity cache behind the graph is refreshed automatically on a schedule. To
+refresh it by hand:
 ```bash
-php artisan ahg:heritage-build-graph
+php artisan ahg:ai-sync-entity-cache --limit=500
 ```
+
+Note there is no command that rebuilds the graph's node and edge tables
+themselves - see the technical guide. `ahg:heritage-build-graph` was removed in
+v1.154.626 (#1467); it wrote to the wrong table and never worked.
 
 ### Statistics
 

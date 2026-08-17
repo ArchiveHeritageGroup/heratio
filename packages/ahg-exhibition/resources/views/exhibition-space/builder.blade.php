@@ -1022,6 +1022,9 @@
         opts += '<option value="' + w.id + '|b">{{ __('Interior') }} ' + (i + 1) + ' {{ __('(back)') }}</option>';
       });
       sel.innerHTML = opts; sel.value = cur;
+      // Keep the wall-surfacing target list in step: a divider added now must be
+      // paintable now, not after a page reload (#1469).
+      if (window.refreshSurfaceTargets) window.refreshSurfaceTargets();
     }
     wallBtn.addEventListener('click', function () { setWallMode(!wallAdding); });
     document.getElementById('selWall').addEventListener('change', function () {
@@ -1660,9 +1663,32 @@
         if (p) { prev.src = p; prev.style.display = 'inline-block'; } else { prev.style.display = 'none'; }
         nameEl.textContent = own ? fname(own) : (p ? ('{{ __('using all-walls:') }} ' + fname(p)) : '{{ __('No painting on this wall') }}');
       }
-      sel.innerHTML = '<option value="all">{{ __('All walls (default)') }}</option>';
-      var n = (typeof SHAPE !== 'undefined' && SHAPE && SHAPE.length >= 3) ? SHAPE.length : 4;
-      for (var i = 0; i < n; i++) { var o = document.createElement('option'); o.value = String(i); o.textContent = '{{ __('Wall') }} ' + (i + 1); sel.appendChild(o); }
+      // Rebuildable so a divider added in this session appears without a reload:
+      // refreshWallOptions() calls this after saveWalls() returns (#1469).
+      function buildTargets() {
+        var keep = sel.value;
+        sel.innerHTML = '<option value="all">{{ __('All walls (default)') }}</option>';
+        var n = (typeof SHAPE !== 'undefined' && SHAPE && SHAPE.length >= 3) ? SHAPE.length : 4;
+        for (var i = 0; i < n; i++) { var o = document.createElement('option'); o.value = String(i); o.textContent = '{{ __('Wall') }} ' + (i + 1); sel.appendChild(o); }
+        // Interior dividers, each with a front and a back face. They are keyed by
+        // string id rather than edge index, which is why they could not be painted
+        // or papered before - the target could not be expressed here or stored.
+        // Same front/back convention as the placement dropdown.
+        var ws = (typeof WALLS !== 'undefined' && WALLS) ? WALLS : [];
+        ws.forEach(function (w, k) {
+          if (!w || !w.id) return;
+          [['', '{{ __('(front)') }}'], ['|b', '{{ __('(back)') }}']].forEach(function (f) {
+            var o = document.createElement('option');
+            o.value = w.id + f[0];
+            o.textContent = '{{ __('Interior') }} ' + (k + 1) + ' ' + f[1];
+            sel.appendChild(o);
+          });
+        });
+        sel.value = keep;
+        if (!sel.value) sel.value = 'all';
+      }
+      buildTargets();
+      window.refreshSurfaceTargets = buildTargets;
       refresh();
       sel.addEventListener('change', refresh);
       upBtn.addEventListener('click', function () {

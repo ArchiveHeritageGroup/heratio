@@ -891,7 +891,6 @@ The granular per-entity AtoM CSV importers are consolidated into the CLI import 
 | `ahg:dedupe-scan` | Dedupe | Scan for duplicates |
 | `ahg:forms-export` | Forms | Export form templates |
 | `ahg:forms-import` | Forms | Import form templates |
-| `ahg:heritage-build-graph` | Heritage | Build heritage graph |
 | `ahg:heritage-install` | Heritage | Install heritage tables |
 | `ahg:heritage-region` | Heritage | Manage regions |
 | `ahg:display-auto-detect` | Display | Auto-detect GLAM types |

@@ -1206,12 +1206,41 @@
           addCornice(rm, x1, z1, x0, z1, ceilY, cx, cz); addCornice(rm, x0, z1, x0, z0, ceilY, cx, cz);
         }
       }
+      // #1469: interior dividers are surfaced like any other wall. They are keyed
+      // by their string id (`wall-1780600482102`) rather than a numeric edge
+      // index, and the "|b" suffix addresses the BACK face - the same convention
+      // placements already use to hang a picture on the far side of a divider.
+      // Until now they were hardcoded to `wallMat`, so a divider always rendered
+      // in plain plaster while the walls around it could be painted or papered.
+      //
+      // Each face resolves independently. When both resolve to the same material
+      // (the common case - no override, or one that applies to the whole wall) it
+      // stays a SINGLE double-sided plane, exactly as before. Only when the two
+      // faces genuinely differ does it build two coincident single-sided planes,
+      // which cannot z-fight because each renders the opposite face.
+      var _sideCache = {};
+      function sideVariant(mat, side) {
+        if (mat.side === side) return mat;
+        var k = (mat.uuid || '') + ':' + side;
+        if (_sideCache[k]) return _sideCache[k];
+        var c = mat.clone(); c.side = side; _sideCache[k] = c; return c;
+      }
       (rm.walls || []).forEach(function (w) {          // interior dividers (normalized within room)
         var ax = rm.x_offset + w.x1 * rm.w, az = rm.z_offset + w.z1 * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = rm.z_offset + w.z2 * rm.d;
         var len = Math.hypot(bx - ax, bz - az); if (len < 0.1) return;
         var ang = Math.atan2(bz - az, bx - ax);
-        var m = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), wallMat);
-        m.position.set((ax + bx) / 2, RH / 2, (az + bz) / 2); m.rotation.y = -ang; addToRoom(rm, m); _collide(m, rm);
+        var px = (ax + bx) / 2, py = RH / 2, pz = (az + bz) / 2;
+        var fMat = wallMaterial(w.id), bMat = wallMaterial(w.id + '|b');
+        if (fMat === bMat) {
+          var m = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), fMat);
+          m.position.set(px, py, pz); m.rotation.y = -ang; addToRoom(rm, m); _collide(m, rm);
+        } else {
+          var mf = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), sideVariant(fMat, THREE.FrontSide));
+          mf.position.set(px, py, pz); mf.rotation.y = -ang; addToRoom(rm, mf);
+          var mb = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), sideVariant(bMat, THREE.BackSide));
+          mb.position.set(px, py, pz); mb.rotation.y = -ang; addToRoom(rm, mb);
+          _collide(mf, rm);   // one collider is enough: the two planes are coincident
+        }
       });
       // Live conservation status tint (hidden until the Live button is pressed).
       (function () {

@@ -162,19 +162,26 @@ php artisan ahg:ai-sync-entity-cache --stats
 
 ### Knowledge Graph Build
 
-```bash
-# Build graph from entity cache
-php artisan ahg:heritage-build-graph
+The entity cache that the graph views read from is maintained by
+`ahg:ai-sync-entity-cache` (above), which runs on a schedule. That is the only
+command that populates `heritage_entity_cache`.
 
-# Full rebuild (truncate + repopulate)
-php artisan ahg:heritage-build-graph --full
+There is **no command that rebuilds `heritage_entity_graph_node` /
+`heritage_entity_graph_edge`**. Those tables hold data built once by earlier
+tooling that is no longer part of Heratio; the application reads them and does
+not write them.
 
-# Build with limit
-php artisan ahg:heritage-build-graph --limit=1000
+`ahg:heritage-build-graph` used to be documented here. It was removed in
+v1.154.626 (#1467) because it never worked and could not be made to: it inserted
+`entity_type = 'io'` rows with columns (`entity_id`, `repository_id`, `level_id`,
+`cached_at`) that do not exist on `heritage_entity_cache`, so every run threw;
+`--full` **truncated** the cache that `ahg:ai-sync-entity-cache` maintains before
+failing to repopulate it; and `--link-getty` hardcoded `atom.term`, which is not
+present on a Heratio-native instance. An information object is not an extracted
+entity with a confidence score, so there was nothing to salvage.
 
-# Also link entities to the Getty AAT vocabulary
-php artisan ahg:heritage-build-graph --link-getty
-```
+If a rebuildable graph is wanted, it needs to be written as a consumer of the NER
+entities in `heritage_entity_cache` rather than a second producer of them.
 
 ---
 
@@ -243,8 +250,8 @@ Add to system crontab for automated sync:
 # Sync NER entities every 15 minutes
 */15 * * * * cd /usr/share/nginx/heratio && php artisan ahg:ai-sync-entity-cache --limit=500
 
-# Rebuild knowledge graph daily at 3am
-0 3 * * * cd /usr/share/nginx/heratio && php artisan ahg:heritage-build-graph --limit=5000
+# (There is no knowledge-graph rebuild command - see "Knowledge Graph Build".
+#  ahg:ai-sync-entity-cache above is what keeps the entity cache current.)
 ```
 
 ---

@@ -2806,7 +2806,7 @@ class ExhibitionSpaceService
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)->update($upd);
     }
 
-    /** Per-edge wall images: {edgeIndex: publicPath}. Falls back to the all-walls default per wall. */
+    /** Per-wall images: {edgeIndex|dividerId: publicPath}. Falls back to the all-walls default per wall. */
     public function getWallImages(int $exhibitionSpaceId): array
     {
         $space = $this->getById($exhibitionSpaceId);
@@ -2818,14 +2818,60 @@ class ExhibitionSpaceService
         return is_array($m) ? $m : [];
     }
 
-    /** Set or clear the wall image for a single edge (null path removes the override). */
-    public function setWallImageForEdge(int $exhibitionSpaceId, int $edge, ?string $publicPath): void
+    /**
+     * Normalise a wall-surfacing key, or null if it is not a wall we can surface.
+     *
+     * Two kinds of wall coexist and BOTH are valid keys here (#1469):
+     *   - a perimeter/polygon edge, addressed by numeric index: 0, 1, 2, ...
+     *   - an interior divider, addressed by its string id: `wall-1780600482102`,
+     *     with an optional `|b` suffix selecting the divider's BACK face.
+     *
+     * Dividers were unsurfaceable not because the storage could not hold them -
+     * these maps are JSON objects, whose keys are strings either way - but
+     * because the setters took `int $edge` and cast it, so a divider id arrived
+     * as 0 and painted edge 0 instead. No schema change was needed; only this.
+     */
+    public function wallKey(int $exhibitionSpaceId, int|string $wall): ?string
     {
+        if (is_int($wall)) {
+            return ($wall >= 0 && $wall <= 99) ? (string) $wall : null;
+        }
+        $w = trim($wall);
+        if ($w === '') {
+            return null;
+        }
+        if (ctype_digit($w)) {
+            return ((int) $w >= 0 && (int) $w <= 99) ? $w : null;
+        }
+
+        // A divider key is validated against the dividers this space actually has,
+        // NOT against a pattern. saveWalls() stores whatever id the client sends
+        // (defaulting to `wall-<index>`), so ids are arbitrary strings - the proof
+        // room uses `wall-proof-1` while the builder generates `wall-<timestamp>`.
+        // A regex guess would have rejected the former. Checking the real list also
+        // stops junk keys accumulating in the JSON for dividers that do not exist.
+        $base = str_ends_with($w, '|b') ? substr($w, 0, -2) : $w;
+        foreach ($this->getWalls($exhibitionSpaceId) as $divider) {
+            if ((string) ($divider['id'] ?? '') === $base) {
+                return $w;
+            }
+        }
+
+        return null;
+    }
+
+    /** Set or clear the wall image for one edge or divider face (null path removes the override). */
+    public function setWallImageForEdge(int $exhibitionSpaceId, int|string $edge, ?string $publicPath): void
+    {
+        $key = $this->wallKey($exhibitionSpaceId, $edge);
+        if ($key === null) {
+            return;
+        }
         $map = $this->getWallImages($exhibitionSpaceId);
         if ($publicPath === null) {
-            unset($map[(string) $edge]);
+            unset($map[$key]);
         } else {
-            $map[(string) $edge] = $publicPath;
+            $map[$key] = $publicPath;
         }
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
             ->update(['wall_images_json' => empty($map) ? null : json_encode($map), 'updated_at' => now()]);
@@ -2838,7 +2884,7 @@ class ExhibitionSpaceService
             ->update(['wall_color' => $hex, 'updated_at' => now()]);
     }
 
-    /** Per-edge wall paint colours: {edgeIndex: '#hex'}. Falls back to the all-walls colour per wall. */
+    /** Per-wall paint colours: {edgeIndex|dividerId: '#hex'}. Falls back to the all-walls colour per wall. */
     public function getWallColors(int $exhibitionSpaceId): array
     {
         $space = $this->getById($exhibitionSpaceId);
@@ -2850,14 +2896,18 @@ class ExhibitionSpaceService
         return is_array($m) ? $m : [];
     }
 
-    /** Set or clear the paint colour for a single edge (null removes the override). */
-    public function setWallColorForEdge(int $exhibitionSpaceId, int $edge, ?string $hex): void
+    /** Set or clear the paint colour for one edge or divider face (null removes the override). */
+    public function setWallColorForEdge(int $exhibitionSpaceId, int|string $edge, ?string $hex): void
     {
+        $key = $this->wallKey($exhibitionSpaceId, $edge);
+        if ($key === null) {
+            return;
+        }
         $map = $this->getWallColors($exhibitionSpaceId);
         if ($hex === null) {
-            unset($map[(string) $edge]);
+            unset($map[$key]);
         } else {
-            $map[(string) $edge] = $hex;
+            $map[$key] = $hex;
         }
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
             ->update(['wall_colors_json' => empty($map) ? null : json_encode($map), 'updated_at' => now()]);

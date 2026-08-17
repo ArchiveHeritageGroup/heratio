@@ -10,7 +10,7 @@ one is what let the pair drift apart in the first place (#1465).
 
 | Script | Purpose |
 |---|---|
-| `heratio-deploy.sh` | The sanctioned prod deploy. Pre-deploy DB dump → fast-forward-only pull from GitHub → composer + npm build → ownership restore → migrate → cache clear → **queue-worker restart** → clear compiled manifests → php-fpm **restart** → health check (retried) → demo-baseline rebase, gated on that check. |
+| `heratio-deploy.sh` | The sanctioned deploy for any instance. Resolves its target (see below, `--check` to confirm) → pre-deploy DB dump → fast-forward-only pull from GitHub → composer + npm build → ownership restore → migrate → cache clear → **queue-worker restart** → clear compiled manifests → php-fpm **restart** → health check on that instance's `APP_URL` (retried) → demo-baseline rebase, gated on that check and on the target being the demo. |
 | `heratio-demo-snapshot.sh` | Captures the live DB as the demo *baseline* and stamps it with the deployed version. |
 | `heratio-demo-reset.sh` | 02:00 cron. Restores the demo from that baseline, wiping visitor changes. Scheduled by `deploy/cron/heratio-demo-reset`. |
 
@@ -25,6 +25,36 @@ sudo install -o root -g root -m 0644 deploy/cron/heratio-demo-reset       /etc/c
 
 Demo-only: `heratio-demo-*` and their cron entry belong on the public demo host.
 `heratio-deploy.sh` is useful on any instance deployed from GitHub.
+
+### Which instance does `heratio-deploy.sh` deploy?
+
+It **resolves** the target rather than assuming one, in this order:
+
+1. `$HERATIO_APP`
+2. `--app=/path/to/app`
+3. the app the running copy lives inside (`<app>/deploy/sbin/heratio-deploy.sh`)
+4. `/usr/share/nginx/heratio` - the fallback, which is what the installed
+   `/usr/local/sbin` copy uses since it sits outside any app tree
+
+Everything per-instance follows from that: the database and health URL come from
+`$APP/.env` (`DB_DATABASE`, `APP_URL`), the lock file is
+`/var/run/heratio-deploy-<instance>.lock`, and the demo-baseline rebase happens
+only when the target is `/usr/share/nginx/heratio`.
+
+Confirm before running - `--check` (or `--dry-run`) resolves everything, prints
+it and exits without touching anything:
+
+```bash
+sudo /usr/share/nginx/sasa/deploy/sbin/heratio-deploy.sh --check
+sudo /usr/local/sbin/heratio-deploy.sh --app=/usr/share/nginx/sasa --check
+```
+
+**Why this matters.** The script is tracked in the repo, so every instance that
+pulls `main` gets its own copy. Until v1.154.626 it hardcoded
+`APP=/usr/share/nginx/heratio`, so running sasa's own copy from sasa's own
+directory deployed **heratio.org** instead: wrong tree pulled, wrong database
+dumped, prod's demo baseline re-stamped, sasa untouched - and it printed
+"deploy done". Found 2026-08-17 while deploying v1.154.625, before it was run.
 
 ## Two contracts worth understanding before editing
 
@@ -88,8 +118,12 @@ job in hand and exits, and systemd starts a fresh one
 
 ## Deploy ordering that matters
 
-`heratio-deploy.sh` health-checks `https://heratio.org/` **before** rebasing the
-demo baseline, and only rebases when it gets a 200.
+`heratio-deploy.sh` health-checks the target instance's own `APP_URL` **before**
+rebasing the demo baseline, and only rebases when it gets a 200. It follows
+redirects, because a healthy instance may legitimately redirect its root - sasa
+lands on `/heritage`. The URL was hardcoded to `https://heratio.org/`, which meant
+deploying any other instance health-checked the demo and passed whether or not
+the instance just deployed was up.
 
 The order used to be the other way round, which meant a broken deploy was
 snapshotted as the "golden" state the 02:00 reset restores to - baking the

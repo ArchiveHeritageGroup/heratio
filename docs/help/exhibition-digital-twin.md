@@ -33,6 +33,13 @@ covers the twin features that sit on top of the builder and walkthrough.
 
   When hanging work on a divider, choose the **front** or the **back** face - they
   are two sides of one partition and each takes its own pieces.
+
+  Dividers can also be **painted or papered like any other wall**, and each face
+  independently: pick *Interior 1 (front)* or *Interior 1 (back)* in the wall
+  picker of the **Wall painting** or **Wall colour** card. Leave a face unset and
+  it follows the all-walls default, exactly as a perimeter wall does. Previously a
+  divider always rendered in plain plaster while the walls around it could be
+  decorated.
 - **Plan editor** (`/exhibition-space/{slug}/plan`) - arrange rooms of a building on a
   blueprint; rooms snap to each other and can take custom (non-rectangular) shapes.
 - **Walkthrough** (`/exhibition-space/{slug}/walkthrough`) - a first-person 3D tour on
@@ -184,6 +191,13 @@ Three things decide whether the button shows:
   hidden rather than shown-and-broken.
 - **The model has to allow it** - the 3D settings for each model carry an
   **AR enabled** switch, on by default.
+- **iPhone and iPad additionally need a USDZ.** Apple's AR viewer (Quick Look)
+  will not open a GLB, so an iOS visitor gets AR only when a `.usdz` version of
+  the model has been uploaded alongside it - either as a second digital object on
+  the record, or as a file of the same name beside the GLB. Heratio cannot convert
+  GLB to USDZ (that needs Apple's own tooling), so this is a curator step. When no
+  USDZ is present the AR button simply does not appear on iOS, rather than
+  appearing and doing nothing. Android AR (Scene Viewer) works from the GLB alone.
 
 Two further per-model settings shape the result. **AR placement** decides whether
 the piece stands on the floor or hangs on a wall - set framed works to *wall*, or

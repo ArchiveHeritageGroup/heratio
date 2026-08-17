@@ -86,6 +86,14 @@
   <div class="card mb-4">
     <div class="card-body p-0">
       <div class="model-viewer-wrapper" style="height: 600px; position: relative;">
+@php
+  // #1469: quick-look (iOS AR) is advertised only when a USDZ actually backs it,
+  // otherwise the AR button appears on iPhone/iPad and does nothing. A USDZ may be
+  // uploaded beside the GLB - there is no converter on this host.
+  $__usdz = \AhgCore\Support\ArModes::usdzBesideFile($model->file_path ?? null)
+            ?: \AhgCore\Support\ArModes::usdzUrl($model->object_id ?? null);
+  $__arModes = \AhgCore\Support\ArModes::modes($__usdz);
+@endphp
         <model-viewer
           id="main-viewer"
           src="/uploads/{{ $model->file_path }}"
@@ -93,7 +101,7 @@
           alt="{{ e($model->alt_text ?: ($model->model_title ?? '3D Model')) }}"
           camera-controls
           touch-action="pan-y"
-          @if(!empty($model->ar_enabled)) ar ar-modes="webxr scene-viewer quick-look" @endif
+          @if(!empty($model->ar_enabled)) ar ar-modes="{{ $__arModes }}" @if($__usdz) ios-src="{{ $__usdz }}" @endif @endif
           @if(!empty($model->auto_rotate)) auto-rotate @endif
           rotation-per-second="{{ $model->rotation_speed ?? 30 }}deg"
           camera-orbit="{{ $model->camera_orbit ?? '0deg 75deg 105%' }}"

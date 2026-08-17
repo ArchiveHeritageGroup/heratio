@@ -37,17 +37,45 @@ class DoiService
      * repository_id is null in the row). Returns the first active row when
      * no repository-scoped match exists.
      */
+    /**
+     * The active DOI config for a repository, falling back to the global row.
+     *
+     * Ordered by id so the answer is deterministic. It used to be a bare
+     * `->first()`, which with no ORDER BY lets MySQL return whichever row it
+     * likes: heratio.org has FIVE active rows with repository_id NULL, four of
+     * them with no password, so which one won - and therefore whether DOI
+     * minting appeared configured at all - could vary between runs on identical
+     * data (#1466). A prefixed row is preferred over an unprefixed one for the
+     * same reason: given a choice among duplicates, pick the usable one rather
+     * than an arbitrary one.
+     *
+     * Multiple active rows for the same scope is still a misconfiguration, so it
+     * is logged once per call rather than silently accommodated.
+     */
     public function configFor(?int $repositoryId): ?object
     {
         $q = DB::table('ahg_doi_config')->where('is_active', 1);
+
         if ($repositoryId !== null) {
-            $row = (clone $q)->where('repository_id', $repositoryId)->first();
+            $row = (clone $q)->where('repository_id', $repositoryId)
+                ->orderByRaw("(datacite_prefix IS NOT NULL AND datacite_prefix <> '' AND datacite_prefix <> '10.12345') DESC")
+                ->orderBy('id')
+                ->first();
             if ($row) {
                 return $row;
             }
         }
 
-        return $q->whereNull('repository_id')->first();
+        $global = (clone $q)->whereNull('repository_id');
+        $count = (clone $global)->count();
+        if ($count > 1) {
+            Log::warning("ahg_doi_config has {$count} active rows with repository_id NULL - using the lowest id with a usable prefix. Reduce to one (#1466).");
+        }
+
+        return $global
+            ->orderByRaw("(datacite_prefix IS NOT NULL AND datacite_prefix <> '' AND datacite_prefix <> '10.12345') DESC")
+            ->orderBy('id')
+            ->first();
     }
 
     /**
@@ -759,6 +787,53 @@ class DoiService
      *
      * @return array{success:bool, doi:?string, error:?string}
      */
+    /**
+     * Reject a config that cannot possibly authenticate, before any HTTP request.
+     *
+     * Without a password every DataCite request is rejected, and `10.12345` is
+     * DataCite's DOCUMENTATION prefix - registered to nobody - so a request
+     * against it returns "the resource you are looking for doesn't exist" (HTTP
+     * 404) for every record, on every scheduled run. heratio.org carried five
+     * active rows in exactly that state, four with no password at all, and
+     * hammered the DataCite API nightly because of it.
+     *
+     * Fail once, clearly, naming what is missing - rather than per record with an
+     * API error that says nothing about the real cause.
+     *
+     * This lives in one place because the guard was originally written inside
+     * mint() alone (v1.154.619), which left update(), verify() and everything
+     * reached through ahg:doi-update / doi-verify / doi-sync free to keep calling
+     * DataCite with credentials that cannot work. Those commands only looked
+     * healthy because nothing has ever been minted, so they had no rows to act
+     * on - the moment one existed they would have failed the same way.
+     *
+     * @return array{success:bool,error:string,unconfigured:bool}|null null when the config is usable
+     */
+    public function unconfiguredResult(?object $config, string $verb = 'use'): ?array
+    {
+        if (! $config) {
+            return ['success' => false, 'error' => 'no active ahg_doi_config row', 'unconfigured' => true];
+        }
+
+        $missing = [];
+        if (empty($config->datacite_password)) {
+            $missing[] = 'no DataCite password';
+        }
+        if (trim((string) ($config->datacite_prefix ?? '')) === '10.12345') {
+            $missing[] = "prefix is DataCite's documentation placeholder 10.12345";
+        }
+        if ($missing === []) {
+            return null;
+        }
+
+        return [
+            'success' => false,
+            'error' => "DOI {$verb} is not configured: ".implode('; ', $missing)
+                .'. Set real DataCite credentials before enabling this.',
+            'unconfigured' => true,
+        ];
+    }
+
     public function mint(int $objectId, ?int $repositoryId = null, bool $dryRun = false): array
     {
         try {
@@ -767,31 +842,8 @@ class DoiService
                 return ['success' => false, 'doi' => null, 'error' => 'no active ahg_doi_config row'];
             }
 
-            // A config that cannot possibly authenticate is not a config. Without a
-            // password every request is rejected, and 10.12345 is DataCite's
-            // DOCUMENTATION prefix - it is registered to nobody, so minting against
-            // it returns "the resource you are looking for doesn't exist" (HTTP
-            // 404) for every record, on every scheduled run. heratio.org carried
-            // five active rows in exactly that state, four of them with no password
-            // at all, and hammered the DataCite API nightly because of it.
-            //
-            // Fail once, clearly, naming what is missing - rather than per record
-            // with an API error that says nothing about the real cause.
-            $missing = [];
-            if (empty($config->datacite_password)) {
-                $missing[] = 'no DataCite password';
-            }
-            if (trim((string) ($config->datacite_prefix ?? '')) === '10.12345') {
-                $missing[] = "prefix is DataCite's documentation placeholder 10.12345";
-            }
-            if ($missing !== []) {
-                return [
-                    'success' => false,
-                    'doi' => null,
-                    'error' => 'DOI minting is not configured: '.implode('; ', $missing)
-                        .'. Set real DataCite credentials before enabling this.',
-                    'unconfigured' => true,
-                ];
+            if ($problem = $this->unconfiguredResult($config, 'minting')) {
+                return $problem + ['doi' => null];
             }
 
             // Idempotency: existing minted DOI is a no-op.
@@ -985,8 +1037,8 @@ class DoiService
             return ['success' => false, 'error' => 'unknown DOI'];
         }
         $config = $this->configFor(null);
-        if (! $config) {
-            return ['success' => false, 'error' => 'no config'];
+        if ($problem = $this->unconfiguredResult($config, 'verification')) {
+            return $problem;
         }
 
         $resp = $this->dataciteRequest($config, 'GET', '/dois/'.urlencode($doi));
@@ -1015,8 +1067,8 @@ class DoiService
             return ['success' => false, 'error' => 'unknown DOI'];
         }
         $config = $this->configFor(null);
-        if (! $config) {
-            return ['success' => false, 'error' => 'no config'];
+        if ($problem = $this->unconfiguredResult($config, 'update')) {
+            return $problem;
         }
         $payload = $this->buildMetadata((int) $row->information_object_id, $config, $doi);
 

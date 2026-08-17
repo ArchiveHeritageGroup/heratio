@@ -276,6 +276,20 @@
               $arPlacement = in_array($m3d->ar_placement ?? '', ['floor', 'wall'], true) ? $m3d->ar_placement : 'floor';
             }
           } catch (\Throwable $e) { /* no 3D settings table - AR stays on with defaults */ }
+
+          // #1469 iOS AR. Apple Quick Look will not open a GLB - it needs a USDZ,
+          // supplied via model-viewer's `ios-src`. Listing quick-look in ar-modes
+          // without one meant iPhone/iPad fell through to webxr, which Safari does
+          // not implement, so the button appeared and then did nothing.
+          //
+          // There is no GLB -> USDZ conversion on this host (that needs Apple's
+          // tooling), but a USDZ can be UPLOADED alongside the GLB - the uploader,
+          // registry and MediaDerivativeService all already accept .usdz. So: use
+          // one when it exists, and stop advertising quick-look when it does not.
+          // One shared implementation - AhgCore\Support\ArModes - because five views
+          // advertise AR and five copies of this rule would drift apart.
+          $usdzUrl = \AhgCore\Support\ArModes::usdzUrl($io->id ?? null);
+          $arModes = \AhgCore\Support\ArModes::modes($usdzUrl);
         @endphp
         <div class="digitalObject3D">
           <div class="d-flex flex-column align-items-center">
@@ -308,10 +322,11 @@
                      whether the button can appear at all - it needs a secure context
                      (HTTPS) and a device with Scene Viewer / Quick Look / WebXR, so on
                      a desktop or over plain http nothing is shown and nothing breaks.
-                     quick-look is listed for iOS completeness; it needs a USDZ via
-                     ios-src, which we do not hold, so iOS falls through to webxr. --}}
+                     quick-look is advertised ONLY when a USDZ exists to back it
+                     (passed as ios-src), so iOS gets real AR when one has been
+                     uploaded and no dead button when it has not - #1469. --}}
                 <model-viewer id="{{ $modelViewerId }}" src="{{ $masterUrl }}" camera-controls touch-action="pan-y" shadow-intensity="1" exposure="1"
-                  @if($arEnabled) ar ar-modes="webxr scene-viewer quick-look" ar-scale="{{ $arScale }}" ar-placement="{{ $arPlacement }}" @endif
+                  @if($arEnabled) ar ar-modes="{{ $arModes }}" ar-scale="{{ $arScale }}" ar-placement="{{ $arPlacement }}" @if($usdzUrl) ios-src="{{ $usdzUrl }}" @endif @endif
                   style="width:100%;height:100%;background:transparent;border-radius:8px;" alt="3D model">
                   @if($arEnabled)
                     <button slot="ar-button" class="btn btn-sm" style="position:absolute;bottom:16px;left:16px;border:none;border-radius:8px;background:var(--ahg-primary,#1a73e8);color:#fff;font-weight:500;">
@@ -439,7 +454,7 @@
                   exposure="1"
                   {{-- #1139: AR here too. Fullscreen is where someone on a phone is
                        most likely to want the piece in the room in front of them. --}}
-                  @if($arEnabled) ar ar-modes="webxr scene-viewer quick-look" ar-scale="{{ $arScale }}" ar-placement="{{ $arPlacement }}" @endif
+                  @if($arEnabled) ar ar-modes="{{ $arModes }}" ar-scale="{{ $arScale }}" ar-placement="{{ $arPlacement }}" @if($usdzUrl) ios-src="{{ $usdzUrl }}" @endif @endif
                   style="width:100%;height:100%;background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);"
                   alt="3D model">
                   @if($arEnabled)

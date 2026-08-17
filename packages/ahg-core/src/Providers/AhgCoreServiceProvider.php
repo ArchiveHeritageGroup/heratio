@@ -197,7 +197,6 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\DisplayReindexCommand::class,
                 \AhgCore\Commands\HeritageInstallCommand::class,
                 \AhgCore\Commands\HeritageRegionCommand::class,
-                \AhgCore\Commands\HeritageBuildGraphCommand::class,
                 \AhgCore\Commands\LinkedDataSyncCommand::class,
                 \AhgCore\Commands\FormsExportCommand::class,
                 \AhgCore\Commands\FormsImportCommand::class,

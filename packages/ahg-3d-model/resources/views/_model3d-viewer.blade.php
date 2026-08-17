@@ -50,6 +50,14 @@
       <div class="card mb-3">
         <div class="card-body p-0" style="height:500px;">
           <script type="module" src="{{ asset('vendor/model-viewer/3.3.0/model-viewer.min.js') }}"></script>
+@php
+  // #1469: quick-look (iOS AR) is advertised only when a USDZ actually backs it,
+  // otherwise the AR button appears on iPhone/iPad and does nothing. A USDZ may be
+  // uploaded beside the GLB - there is no converter on this host.
+  $__usdz = \AhgCore\Support\ArModes::usdzBesideFile($model->file_path ?? null)
+            ?: \AhgCore\Support\ArModes::usdzUrl($model->object_id ?? null);
+  $__arModes = \AhgCore\Support\ArModes::modes($__usdz);
+@endphp
           <model-viewer
             id="ahg-3d-viewer-{{ $model->id }}"
             data-model-id="{{ $model->id }}"
@@ -62,7 +70,7 @@
                  when prefers-reduced-motion is set. The data-* attribute is the
                  source of truth; the viewer JS toggles auto-rotate after load. --}}
             @if(!empty($model->auto_rotate)) auto-rotate @endif
-            @if(!empty($model->ar_enabled)) ar ar-modes="webxr scene-viewer quick-look" @endif
+            @if(!empty($model->ar_enabled)) ar ar-modes="{{ $__arModes }}" @if($__usdz) ios-src="{{ $__usdz }}" @endif @endif
             rotation-per-second="{{ $model->rotation_speed ?? 30 }}deg"
             camera-orbit="{{ $model->camera_orbit ?? '0deg 75deg 105%' }}"
             field-of-view="{{ $model->field_of_view ?? '30deg' }}"
@@ -219,7 +227,7 @@
                 camera-controls touch-action="pan-y"
                 data-auto-rotate-pref="{{ !empty($model->auto_rotate) ? '1' : '0' }}"
                 @if(!empty($model->auto_rotate)) auto-rotate @endif
-                @if(!empty($model->ar_enabled)) ar ar-modes="webxr scene-viewer quick-look" @endif
+                @if(!empty($model->ar_enabled)) ar ar-modes="{{ $__arModes }}" @if($__usdz) ios-src="{{ $__usdz }}" @endif @endif
                 style="width:100%; height:100%; background-color: {{ $model->background_color ?? '#f5f5f5' }};"
               ></model-viewer>
             </div>

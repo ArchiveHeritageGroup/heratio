@@ -1785,7 +1785,10 @@ class ExhibitionSpaceController extends Controller
         }
         $request->validate([
             'wall_image' => 'required|image|mimes:jpeg,jpg,png,webp|max:51200',
-            'edge' => 'nullable|integer|min:0|max:99',   // target wall; absent or all=1 => all walls (room default)
+            'edge' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9_|-]+$/'],   // target wall: edge index, or an interior divider id with optional |b back face (#1469). Charset only - the
+            // service validates a divider key against the space's ACTUAL dividers, since saveWalls() stores whatever
+            // id the client sent (the proof room uses `wall-proof-1`, the builder generates `wall-<timestamp>`).
+            // Absent, or all=1, means all walls.
             'all' => 'nullable|boolean',
         ]);
         $file = $request->file('wall_image');
@@ -1801,10 +1804,10 @@ class ExhibitionSpaceController extends Controller
         if ($allWalls) {
             $this->service->setWallImage((int) $space->id, $path);
         } else {
-            $this->service->setWallImageForEdge((int) $space->id, (int) $request->input('edge'), $path);
+            $this->service->setWallImageForEdge((int) $space->id, (string) $request->input('edge'), $path);
         }
         if ($request->expectsJson()) {
-            return response()->json(['ok' => true, 'path' => $path, 'filename' => $filename, 'all' => $allWalls, 'edge' => $allWalls ? null : (int) $request->input('edge')]);
+            return response()->json(['ok' => true, 'path' => $path, 'filename' => $filename, 'all' => $allWalls, 'edge' => $allWalls ? null : (string) $request->input('edge')]);
         }
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image uploaded.');
@@ -1821,10 +1824,10 @@ class ExhibitionSpaceController extends Controller
         if ($allWalls) {
             $this->service->setWallImage((int) $space->id, null);
         } else {
-            $this->service->setWallImageForEdge((int) $space->id, (int) $request->input('edge'), null);
+            $this->service->setWallImageForEdge((int) $space->id, (string) $request->input('edge'), null);
         }
         if ($request->expectsJson()) {
-            return response()->json(['ok' => true, 'all' => $allWalls, 'edge' => $allWalls ? null : (int) $request->input('edge')]);
+            return response()->json(['ok' => true, 'all' => $allWalls, 'edge' => $allWalls ? null : (string) $request->input('edge')]);
         }
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image cleared.');
@@ -1974,7 +1977,7 @@ class ExhibitionSpaceController extends Controller
         }
         $data = $request->validate([
             'color' => 'required|string|regex:/^#?[0-9a-fA-F]{6}$/',
-            'edge' => 'nullable|integer|min:0|max:99',
+            'edge' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9_|-]+$/'],   // edge index or interior divider id; validated against real dividers in the service (#1469)
             'all' => 'nullable|boolean',
         ]);
         $hex = '#'.ltrim($data['color'], '#');
@@ -1982,10 +1985,10 @@ class ExhibitionSpaceController extends Controller
         if ($allWalls) {
             $this->service->setWallColor((int) $space->id, $hex);
         } else {
-            $this->service->setWallColorForEdge((int) $space->id, (int) $request->input('edge'), $hex);
+            $this->service->setWallColorForEdge((int) $space->id, (string) $request->input('edge'), $hex);
         }
         if ($request->expectsJson()) {
-            return response()->json(['ok' => true, 'color' => $hex, 'all' => $allWalls, 'edge' => $allWalls ? null : (int) $request->input('edge')]);
+            return response()->json(['ok' => true, 'color' => $hex, 'all' => $allWalls, 'edge' => $allWalls ? null : (string) $request->input('edge')]);
         }
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall colour saved.');
@@ -2002,10 +2005,10 @@ class ExhibitionSpaceController extends Controller
         if ($allWalls) {
             $this->service->setWallColor((int) $space->id, null);
         } else {
-            $this->service->setWallColorForEdge((int) $space->id, (int) $request->input('edge'), null);
+            $this->service->setWallColorForEdge((int) $space->id, (string) $request->input('edge'), null);
         }
         if ($request->expectsJson()) {
-            return response()->json(['ok' => true, 'all' => $allWalls, 'edge' => $allWalls ? null : (int) $request->input('edge')]);
+            return response()->json(['ok' => true, 'all' => $allWalls, 'edge' => $allWalls ? null : (string) $request->input('edge')]);
         }
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall colour cleared.');

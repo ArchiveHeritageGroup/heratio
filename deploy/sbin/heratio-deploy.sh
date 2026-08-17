@@ -1,18 +1,97 @@
 #!/bin/bash
-# Deploy the public DEMO (/usr/share/nginx/heratio) from GitHub.
-# Model: develop+release from heratio-dev -> this pulls `main` into live (pull-only).
-# Steps: snapshot DB -> ff-pull -> composer -> build -> migrate -> clear caches -> reload php-fpm
-#        -> REBASE the demo baseline (so the 02:00 reset keeps this deploy).
-# Run:  sudo /usr/local/sbin/heratio-deploy.sh [branch]   (branch defaults to main)
+# Deploy a live Heratio instance from GitHub (pull-only).
+# Model: develop+release from heratio-dev -> this pulls `main` into a live app.
+# Steps: snapshot DB -> ff-pull -> composer -> build -> migrate -> clear caches
+#        -> restart queue workers -> restart php-fpm -> health check
+#        -> on the demo only, REBASE the baseline (so the 02:00 reset keeps this deploy).
+#
+# Run:  sudo /usr/local/sbin/heratio-deploy.sh [branch]         # the demo (heratio.org)
+#       sudo /usr/share/nginx/sasa/deploy/sbin/heratio-deploy.sh  # sasa, resolved from location
+#       sudo HERATIO_APP=/usr/share/nginx/sasa /usr/local/sbin/heratio-deploy.sh
+#       sudo /usr/local/sbin/heratio-deploy.sh --app=/usr/share/nginx/sasa main
+#
+# WHY THE TARGET IS RESOLVED RATHER THAN HARDCODED. This file is tracked in the
+# repo, so every instance that pulls `main` gets a copy at
+# <app>/deploy/sbin/heratio-deploy.sh. It used to hardcode
+# APP=/usr/share/nginx/heratio, which meant running sasa's own copy from sasa's
+# own directory silently deployed heratio.org instead - pulling into the wrong
+# tree, dumping the wrong database, restarting on the wrong health URL and
+# re-stamping the prod demo baseline, while leaving sasa untouched. It printed
+# "deploy done" and looked like it had worked. Found 2026-08-17.
+#
+# Precedence: $HERATIO_APP -> --app=DIR -> the app this script lives inside
+# (<app>/deploy/sbin/..) -> /usr/share/nginx/heratio, which keeps the installed
+# /usr/local/sbin copy behaving exactly as before since it lives outside any app.
 set -uo pipefail
-APP=/usr/share/nginx/heratio
-BR="${1:-main}"
+
+BR=main
+APP="${HERATIO_APP:-}"
+CHECK=0
+for arg in "$@"; do
+  case "$arg" in
+    --app=*)          APP="${arg#--app=}" ;;
+    --check|--dry-run) CHECK=1 ;;   # resolve + report, change nothing
+    -*)               echo "unknown option: $arg"; exit 1 ;;
+    *)                BR="$arg" ;;
+  esac
+done
+
+if [ -z "$APP" ]; then
+  _self="$(readlink -f "$0")"
+  _cand="$(cd "$(dirname "$_self")/../.." 2>/dev/null && pwd || true)"
+  if [ -n "$_cand" ] && [ -f "$_cand/artisan" ] && [ -f "$_cand/.env" ]; then
+    APP="$_cand"
+  else
+    APP=/usr/share/nginx/heratio
+  fi
+fi
+APP="${APP%/}"
+
+# Refuse rather than guess: a wrong target here pulls into the wrong tree and
+# dumps the wrong database.
+[ -d "$APP" ]        || { echo "ABORT: no such app dir: $APP"; exit 1; }
+[ -f "$APP/artisan" ]|| { echo "ABORT: $APP has no artisan - not a Laravel app"; exit 1; }
+[ -f "$APP/.env" ]   || { echo "ABORT: $APP has no .env"; exit 1; }
+
+_env(){ grep -m1 "^$1=" "$APP/.env" | cut -d= -f2- | tr -d '\r' \
+        | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'\$/\1/"; }
+
+DB="$(_env DB_DATABASE)"
+APP_URL="$(_env APP_URL)"
+[ -n "$DB" ] || { echo "ABORT: DB_DATABASE not set in $APP/.env"; exit 1; }
+
 PHP=/usr/bin/php8.3
-exec {lock}>/var/run/heratio-deploy.lock || true
-flock -n "$lock" || { echo "another deploy is running - abort"; exit 1; }
+INSTANCE="$(basename "$APP")"
+
+# --check exists so the resolved target can be confirmed WITHOUT deploying.
+# Without it the only way to find out what this script would touch is to let it
+# touch it, which is how the wrong-instance bug stayed invisible.
+if [ "$CHECK" = "1" ]; then
+  echo "=== heratio deploy --check ==="
+  echo "    branch:      $BR"
+  echo "    target app:  $APP"
+  echo "    instance:    $INSTANCE"
+  echo "    database:    $DB"
+  echo "    health url:  ${APP_URL:-<unset>}/"
+  echo "    lock file:   /var/run/heratio-deploy-$INSTANCE.lock"
+  if [ "$APP" = "/usr/share/nginx/heratio" ]; then
+    echo "    baseline:    WILL be rebased (this is the demo)"
+  else
+    echo "    baseline:    not rebased (only the demo has one)"
+  fi
+  echo "nothing changed."
+  exit 0
+fi
+
+# Per-instance lock: deploying sasa must not be blocked by, or block, a demo deploy.
+exec {lock}>"/var/run/heratio-deploy-$INSTANCE.lock" || true
+flock -n "$lock" || { echo "another deploy of $INSTANCE is running - abort"; exit 1; }
 
 cd "$APP" || { echo "no $APP"; exit 1; }
 echo "=== heratio deploy ($BR) $(date) ==="
+echo "    target app: $APP"
+echo "    database:   $DB"
+echo "    health url: ${APP_URL:-<unset>}"
 git config --global --add safe.directory "$APP" 2>/dev/null || true
 
 # Guard: refuse if TRACKED files are modified/staged (untracked files are fine).
@@ -23,18 +102,24 @@ fi
 # Safety: snapshot the live DB BEFORE pulling new code. Taken pre-pull so the new
 # boot-install (idempotent ALTERs) cannot run during the dump and race it -
 # --single-transaction is NOT isolated from concurrent DDL. One retry for safety.
-raw="$(grep -m1 '^DB_PASSWORD=' "$APP/.env")"
-export MYSQL_PWD="$(printf '%s' "${raw#DB_PASSWORD=}" | tr -d '\r' | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'\$/\1/")"
+export MYSQL_PWD="$(_env DB_PASSWORD)"
 ts="$(date +%Y%m%d-%H%M%S)"
-mkdir -p /mnt/nas/heratio/demo-baseline
-dst="/mnt/nas/heratio/demo-baseline/pre-deploy-$ts.sql.gz"
-_backup(){ mysqldump --defaults-file=/dev/null -u root --single-transaction --quick --routines --triggers heratio | gzip > "$dst"; }
-if _backup; then echo "pre-deploy DB backup saved"
+
+# The demo keeps its backups beside its baseline on the NAS; other instances get
+# their own directory. Falls back to local disk when the NAS path is absent, so a
+# non-demo instance still gets a pre-deploy dump instead of silently skipping one.
+BASELINE_DIR="/mnt/nas/$DB/demo-baseline"
+if [ -d "$(dirname "$BASELINE_DIR")" ]; then BACKUP_DIR="$BASELINE_DIR"
+else BACKUP_DIR="/var/backups/heratio-deploy/$DB"; fi
+mkdir -p "$BACKUP_DIR"
+dst="$BACKUP_DIR/pre-deploy-$ts.sql.gz"
+_backup(){ mysqldump --defaults-file=/dev/null -u root --single-transaction --quick --routines --triggers "$DB" | gzip > "$dst"; }
+if _backup; then echo "pre-deploy DB backup saved ($DB -> $dst)"
 else echo "pre-deploy backup hit a transient error - retrying in 3s..."; sleep 3
   if _backup; then echo "pre-deploy DB backup saved (2nd attempt)"
   else rm -f "$dst"; echo "WARN: pre-deploy backup failed twice - continuing (prior baseline retained)"; fi
 fi
-find /mnt/nas/heratio/demo-baseline -name 'pre-deploy-*.sql.gz' -mtime +14 -delete 2>/dev/null || true
+find "$BACKUP_DIR" -name 'pre-deploy-*.sql.gz' -mtime +14 -delete 2>/dev/null || true
 
 echo "--- fetch + fast-forward to origin/$BR ---"
 git fetch origin --prune || { echo "fetch failed"; exit 1; }
@@ -122,11 +207,16 @@ systemctl restart php8.3-fpm
 # stale baseline and refuses -> the demo keeps serving current code rather than
 # being reset into a known-bad state.
 #
-# The URL was https://heratio.theahg.co.za/, which is now a 301 redirect to
-# heratio.org and never served this docroot, so the check reported a redirect
-# rather than confirming the app was up. /usr/share/nginx/heratio/public is
-# served by heratio.org.conf (server_name heratio.org www.heratio.org).
-HEALTH_URL="https://heratio.org/"
+# The URL comes from the instance's own APP_URL. It was hardcoded to
+# https://heratio.org/, which meant a deploy of any other instance health-checked
+# the demo and passed regardless of whether the instance it just deployed was up.
+# Before that it was https://heratio.theahg.co.za/, a 301 to heratio.org that
+# never served this docroot, so the check reported a redirect instead of
+# confirming the app was up.
+#
+# -L because a healthy instance may legitimately redirect its root: sasa lands on
+# /heritage. Following it and expecting 200 checks the app, not the redirect.
+HEALTH_URL="${APP_URL:-https://heratio.org}/"
 
 # Retry rather than check once. A restart (unlike a reload) drops the workers and
 # takes a moment to accept connections again, so a single immediate check can
@@ -135,15 +225,24 @@ HEALTH_URL="https://heratio.org/"
 # the loop the moment it gets a 200, so a healthy deploy costs nothing.
 code=""
 for attempt in 1 2 3 4 5 6 7 8 9 10; do
-    code="$(curl -s -o /dev/null -w '%{http_code}' "$HEALTH_URL")"
+    code="$(curl -sL -o /dev/null -w '%{http_code}' "$HEALTH_URL")"
     [ "$code" = "200" ] && break
     [ "$attempt" = "10" ] && break
     sleep 1.5
 done
 
 if [ "$code" = "200" ]; then
-    echo "--- health OK ($code) - rebase demo baseline so 02:00 reset keeps this deploy ---"
-    /usr/local/sbin/heratio-demo-snapshot.sh
+    # The baseline rebase belongs to the demo alone: only heratio.org is reset from
+    # a golden snapshot at 02:00. heratio-demo-snapshot.sh reads
+    # /usr/share/nginx/heratio/.env directly and aborts unless the DB is `heratio`,
+    # so calling it from another instance was never destructive - just misleading,
+    # since it would re-stamp the DEMO baseline during someone else's deploy.
+    if [ "$APP" = "/usr/share/nginx/heratio" ] && [ -x /usr/local/sbin/heratio-demo-snapshot.sh ]; then
+        echo "--- health OK ($code) - rebase demo baseline so 02:00 reset keeps this deploy ---"
+        /usr/local/sbin/heratio-demo-snapshot.sh
+    else
+        echo "--- health OK ($code) - $INSTANCE has no demo baseline to rebase (skipped) ---"
+    fi
 else
     echo "!!! HEALTH CHECK FAILED: $HEALTH_URL returned $code (expected 200)"
     echo "!!! demo baseline NOT rebased - it still describes the previous release."
