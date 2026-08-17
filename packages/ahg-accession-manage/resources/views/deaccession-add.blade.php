@@ -32,7 +32,7 @@
       <div class="row">
         <div class="col-md-4 mb-3">
           <label class="form-label" for="identifier">{{ __('Identifier') }}</label>
-          <input type="text" id="identifier" name="identifier" class="form-control" value="{{ old('identifier') }}">
+          <input type="text" id="identifier" name="identifier" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" data-lpignore="true" data-1p-ignore="true" data-form-type="other" class="form-control" value="{{ old('identifier') }}">
         </div>
         <div class="col-md-4 mb-3">
           <label class="form-label" for="date">{{ __('Date') }}</label>

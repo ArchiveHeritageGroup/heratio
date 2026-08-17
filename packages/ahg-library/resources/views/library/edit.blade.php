@@ -45,7 +45,7 @@
               </div>
               <div class="col-md-6 mb-3">
                 <label for="identifier" class="form-label">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
+                <input type="text" name="identifier" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" data-lpignore="true" data-1p-ignore="true" data-form-type="other" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
                        value="{{ old('identifier', $item->identifier ?? '') }}">
                 @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>

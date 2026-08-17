@@ -119,7 +119,7 @@
               <div class="row g-3">
                 <div class="col-md-6"><label class="form-label small fw-bold">Any field <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="query" class="form-control" value="{{ $params['query'] ?? '' }}"></div>
                 <div class="col-md-6"><label class="form-label small fw-bold">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="title" class="form-control" value="{{ $params['title'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="identifier" class="form-control" value="{{ $params['identifier'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="identifier" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" class="form-control" value="{{ $params['identifier'] ?? '' }}"></div>
                 <div class="col-md-6"><label class="form-label small fw-bold">Reference code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="referenceCode" class="form-control" value="{{ $params['referenceCode'] ?? '' }}"></div>
               </div>
             </div>

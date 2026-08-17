@@ -45,7 +45,7 @@
             <label for="identifier" class="form-label">
               Identifier / Reference code
               <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-            <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
+            <input type="text" name="identifier" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" data-lpignore="true" data-1p-ignore="true" data-form-type="other" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
                    value="{{ old('identifier', $asset->identifier ?? '') }}" placeholder="{{ __('e.g., DAM-2024-001') }}">
             @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
             <div class="form-text text-muted small">A unique identifier for this DAM asset within the repository.</div>

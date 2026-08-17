@@ -121,7 +121,7 @@ $currentLevels = isset($levelsBySector[$currentType]) && !empty($levelsBySector[
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small fw-bold">{{ __('Identifier') }}</label>
-                  <input type="text" name="identifier" class="form-control" value="{{ e($params['identifier'] ?? '') }}">
+                  <input type="text" name="identifier" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" class="form-control" value="{{ e($params['identifier'] ?? '') }}">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small fw-bold">{{ __('Reference code') }}</label>

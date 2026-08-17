@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 class PrivacyScanPiiCommand extends Command
 {
     protected $signature = 'ahg:privacy-scan-pii
-        {--connection=atom : Source DB connection}
+        {--connection= : Source DB connection; blank = this instance}
         {--limit=2000 : Max IOs to scan in this run}
         {--since= : Only scan IOs updated since DATE (Y-m-d)}
         {--dry-run : Report matches without writing privacy_redaction_cache}';
@@ -34,13 +34,31 @@ class PrivacyScanPiiCommand extends Command
             'iban' => '/\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b/',
         ];
 
-        $q = DB::connection($conn)->table('information_object_i18n')
-            ->where('culture', 'en')
-            ->where(function ($q) {
-                $q->whereNotNull('scope_and_content')->orWhereNotNull('history')->orWhereNotNull('archival_history');
-            });
+        // Not 'atom' by default - that database exists only on an AtoM overlay,
+        // so this was denied on every run on a Heratio-native instance.
+        $conn = \AhgCore\Support\DiscoverySource::connectionName($conn);
+        if (! \AhgCore\Support\DiscoverySource::usable($conn)) {
+            $this->warn("Source connection '{$conn}' is not usable here - nothing to scan.");
+
+            return self::SUCCESS;
+        }
+
+        // There is no `history` column on information_object_i18n; the field is
+        // archival_history, which is already checked beside it. Naming the
+        // non-existent one threw "Unknown column 'history'" on every run.
+        $q = DB::connection($conn)->table('information_object_i18n as i18n')
+            ->where('i18n.culture', 'en')
+            ->where(function ($w) {
+                $w->whereNotNull('i18n.scope_and_content')
+                    ->orWhereNotNull('i18n.archival_history');
+            })
+            ->select('i18n.id', 'i18n.scope_and_content', 'i18n.archival_history');
+
         if ($since) {
-            $q->where('updated_at', '>=', $since);
+            // updated_at is not on the i18n table either - timestamps live on
+            // `object`, which these rows share an id with (CTI).
+            $q->join('object as o', 'o.id', '=', 'i18n.id')
+                ->where('o.updated_at', '>=', $since);
         }
         $q->limit($limit);
 
@@ -50,7 +68,7 @@ class PrivacyScanPiiCommand extends Command
         $writeRows = [];
         foreach ($q->cursor() as $row) {
             $scanned++;
-            $haystack = ($row->scope_and_content ?? '')."\n".($row->history ?? '')."\n".($row->archival_history ?? '');
+            $haystack = ($row->scope_and_content ?? '')."\n".($row->archival_history ?? '');
             $hits = [];
             foreach ($patterns as $name => $re) {
                 if (preg_match_all($re, $haystack, $m) && ! empty($m[0])) {

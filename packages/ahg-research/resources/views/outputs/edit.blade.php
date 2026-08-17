@@ -88,7 +88,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">{{ __('Identifier') }}</label>
-                    <input type="text" name="identifier" class="form-control" maxlength="512" value="{{ old('identifier', $output['identifier'] ?? '') }}" placeholder="{{ __('e.g. 10.1234/abcd') }}">
+                    <input type="text" name="identifier" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" data-lpignore="true" data-1p-ignore="true" data-form-type="other" class="form-control" maxlength="512" value="{{ old('identifier', $output['identifier'] ?? '') }}" placeholder="{{ __('e.g. 10.1234/abcd') }}">
                 </div>
                 <div class="col-md-5">
                     <label class="form-label">{{ __('Explicit URL (optional)') }}</label>

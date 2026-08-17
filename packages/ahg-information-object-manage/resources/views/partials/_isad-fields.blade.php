@@ -17,7 +17,7 @@
       <div class="accordion-body">
         <div class="mb-3">
           <label class="form-label">{{ __('Identifier') }}</label>
-          <input type="text" name="identifier" class="form-control" value="{{ old('identifier', $io->identifier ?? '') }}">
+          <input type="text" name="identifier" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" data-lpignore="true" data-1p-ignore="true" data-form-type="other" class="form-control" value="{{ old('identifier', $io->identifier ?? '') }}">
         </div>
         <div class="mb-3">
           <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>

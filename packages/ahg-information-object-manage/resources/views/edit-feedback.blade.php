@@ -35,7 +35,7 @@
         </div>
         <div class="col-md-6 mb-3">
           <label for="identifier" class="form-label">{{ __('Identifier') }}</label>
-          <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier', $feedbackData['identifier'] ?? '') }}" readonly>
+          <input type="text" class="form-control" id="identifier" name="identifier" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" data-lpignore="true" data-1p-ignore="true" data-form-type="other" value="{{ old('identifier', $feedbackData['identifier'] ?? '') }}" readonly>
         </div>
       </div>
       <div class="row">
