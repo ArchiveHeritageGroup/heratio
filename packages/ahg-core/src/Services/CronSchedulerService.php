@@ -32,6 +32,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class CronSchedulerService
 {
@@ -527,6 +528,57 @@ class CronSchedulerService
      * afterResolving(Schedule::class) block so the host application
      * doesn't have to know about every command.
      */
+
+    /**
+     * The entries this scheduler should actually run.
+     *
+     * Reads the `cron_schedule` TABLE, honouring is_enabled - not the hardcoded
+     * defaults. Iterating getDefaultSchedules() here meant the Laravel scheduler
+     * ran every seeded entry regardless of what the cron admin said, so
+     * disabling a schedule had no effect on this path at all: only
+     * `ahg:cron-run` (via getDueSchedules) respected the flag. Three schedules
+     * disabled on 2026-08-16 carried on running and failing the following night
+     * because of it, and every enable/disable an operator has ever made in the
+     * admin UI was decorative here.
+     *
+     * Falls back to the defaults only when the table is missing or empty - a
+     * fresh install before seeding, where running the defaults is correct.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function schedulableEntries(): array
+    {
+        try {
+            if (! Schema::hasTable($this->table)) {
+                return $this->getDefaultSchedules();
+            }
+
+            $rows = DB::table($this->table)
+                ->where('is_enabled', 1)
+                ->whereNotNull('artisan_command')
+                ->where('artisan_command', '!=', '')
+                ->orderBy('sort_order')
+                ->get(['slug', 'artisan_command', 'cron_expression']);
+
+            if ($rows->isEmpty()) {
+                // An empty table means "not seeded yet", not "everything off".
+                // A table with rows, all disabled, correctly schedules nothing.
+                return DB::table($this->table)->count() === 0
+                    ? $this->getDefaultSchedules()
+                    : [];
+            }
+
+            return $rows->map(fn ($r) => [
+                'slug' => (string) $r->slug,
+                'artisan_command' => (string) $r->artisan_command,
+                'cron_expression' => (string) $r->cron_expression,
+            ])->all();
+        } catch (\Throwable $e) {
+            // Never let a scheduling read break boot.
+            return $this->getDefaultSchedules();
+        }
+    }
+
     public function registerWithLaravelSchedule(Schedule $schedule): void
     {
         $tracker = $this->tracker;
@@ -550,7 +602,7 @@ class CronSchedulerService
 
         // Use a single closure-per-command so $runId persists across the
         // before/after/onFailure trio for the same invocation.
-        foreach ($this->getDefaultSchedules() as $entry) {
+        foreach ($this->schedulableEntries() as $entry) {
             $command = (string) $entry['artisan_command'];
             $cron = (string) $entry['cron_expression'];
 
