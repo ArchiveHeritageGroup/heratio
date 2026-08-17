@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use AhgCore\Support\StatusRow;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -612,12 +613,7 @@ class ImportJob implements ShouldQueue
                 ]);
 
                 // Create default publication status (Draft = 159)
-                DB::table('status')->insert([
-                    'object_id' => $objectId,
-                    'type_id' => 158,
-                    'status_id' => 159, // Draft
-                    'serial_number' => 0,
-                ]);
+                StatusRow::set($objectId, 158, 159, ['serial_number' => 0]);
 
                 // Create event for dates if provided
                 if ($startDate || $endDate || $dateDisplay) {

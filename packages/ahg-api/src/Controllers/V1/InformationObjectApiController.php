@@ -2,6 +2,7 @@
 
 namespace AhgApi\Controllers\V1;
 
+use AhgCore\Support\StatusRow;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -642,7 +643,7 @@ class InformationObjectApiController extends Controller
 
                 // Publication status
                 $statusId = ($input['publication_status'] ?? 'draft') === 'published' ? 160 : 159;
-                DB::table('status')->insert(['object_id' => $objectId, 'type_id' => 158, 'status_id' => $statusId]);
+                StatusRow::set($objectId, 158, $statusId);
 
                 return response()->json([
                     'id' => $objectId,

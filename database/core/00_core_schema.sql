@@ -30607,6 +30607,23 @@ CREATE TABLE IF NOT EXISTS `static_page_i18n` (
 --
 -- Table structure for table `status`
 --
+-- #1470 - DO NOT "tidy up" the AUTO_INCREMENT on `id` below, and do not add the
+-- FOREIGN KEY (`id`) REFERENCES `object` (`id`) that the other 24 CTI children
+-- have. Both are applied by migrations instead, on purpose:
+--
+--   2026_08_17_130000_drop_auto_increment_on_status_id
+--   2026_08_17_140000_add_status_id_foreign_key_to_object
+--
+-- The reason is ordering. The earlier migration
+-- packages/ahg-actor-manage/.../2026_07_15_000001_add_actor_embargo_and_backfill_publication_status
+-- backfills actor publication statuses with a raw INSERT...SELECT that cannot
+-- supply an id, so it needs the AUTO_INCREMENT still present when it runs. The
+-- two August migrations then rehome those rows onto their own QubitStatus object
+-- rows and harden the column. A fresh install therefore ends up in the same
+-- state as an upgraded one - verified by rebuilding heratio_test from this file
+-- plus the seeds and running the chain (1,139 rows, all rehomed).
+--
+-- Hardening this DDL directly would break fresh installs at that July migration.
 
 DROP TABLE IF EXISTS `status`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

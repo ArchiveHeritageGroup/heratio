@@ -71,11 +71,9 @@ class DraftRecordVisibilityTest extends TestCase
             'slug'      => $this->slug,
         ]);
         // DRAFT: publication status type 158, status 159 (160 = published).
-        DB::table('status')->insert([
-            'object_id' => $this->ioId,
-            'type_id'   => 158,
-            'status_id' => 159,
-        ]);
+        // Via StatusRow so the row gets its own QubitStatus object id - status.id
+        // is no longer AUTO_INCREMENT, so an id-less insert now fails (#1470).
+        \AhgCore\Support\StatusRow::set($this->ioId, 158, 159);
     }
 
     private function makeAdmin(): User

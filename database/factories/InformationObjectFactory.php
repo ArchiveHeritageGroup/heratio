@@ -64,13 +64,7 @@ class InformationObjectFactory extends Factory
                 ]);
 
                 // Ensure status exists (published)
-                if (! \DB::table('status')->where('object_id', $io->id)->exists()) {
-                    \DB::table('status')->insert([
-                        'object_id' => $io->id,
-                        'type_id' => 158,
-                        'status_id' => 160, // Published
-                    ]);
-                }
+                \AhgCore\Support\StatusRow::ensure($io->id, 158, 160);
             });
     }
 
