@@ -367,10 +367,7 @@ class RicManageController extends Controller
             if ($request->has('publication_status_id')) {
                 // The `status` table has no source_culture column (object_id,
                 // type_id, status_id, id, serial_number) - do not write one.
-                DB::table('status')->updateOrInsert(
-                    ['object_id' => $ioId, 'type_id' => 158],
-                    ['status_id' => $request->input('publication_status_id')]
-                );
+                \AhgCore\Support\StatusRow::put($ioId, 158, (int) ($request->input('publication_status_id')));
             }
 
             DB::table('object')->where('id', $ioId)->update(['updated_at' => now()]);

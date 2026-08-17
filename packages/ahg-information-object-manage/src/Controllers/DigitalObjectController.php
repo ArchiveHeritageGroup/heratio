@@ -1009,6 +1009,9 @@ class DigitalObjectController extends Controller
 
                 // Set publication status
                 DB::table('status')->insert([
+                    // #1470: status.id must be an object id, not one from status's
+                    // own AUTO_INCREMENT counter.
+                    'id' => \AhgCore\Support\StatusRow::allocateId(),
                     'object_id' => $objectId,
                     'type_id' => 158,
                     'status_id' => 159, // draft

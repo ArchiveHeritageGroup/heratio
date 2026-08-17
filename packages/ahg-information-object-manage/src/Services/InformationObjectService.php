@@ -532,6 +532,9 @@ class InformationObjectService
                     ->delete();
 
                 DB::table('status')->insert([
+                    // #1470: status.id must be an object id, not one from status's
+                    // own AUTO_INCREMENT counter.
+                    'id' => \AhgCore\Support\StatusRow::allocateId(),
                     'object_id' => $id,
                     'type_id' => self::STATUS_TYPE_PUBLICATION,
                     'status_id' => (int) ($data['publication_status_id'] ?: self::STATUS_DRAFT),

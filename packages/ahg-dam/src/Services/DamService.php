@@ -390,6 +390,9 @@ class DamService
 
             // 7. Set publication status (published = 160)
             DB::table('status')->insert([
+                // #1470: status.id must be an object id, not one from status's
+                // own AUTO_INCREMENT counter.
+                'id' => \AhgCore\Support\StatusRow::allocateId(),
                 'object_id' => $id,
                 'type_id' => 158,
                 'status_id' => 160,

@@ -3776,6 +3776,9 @@ class InformationObjectController extends Controller
                 ->update(['status_id' => $statusId]);
         } else {
             DB::table('status')->insert([
+                // #1470: status.id must be an object id, not one from status's
+                // own AUTO_INCREMENT counter.
+                'id' => \AhgCore\Support\StatusRow::allocateId(),
                 'object_id' => $io->id,
                 'type_id' => 158,
                 'status_id' => $statusId,
@@ -3814,6 +3817,9 @@ class InformationObjectController extends Controller
                         ->update(['status_id' => $statusId]);
                 } else {
                     DB::table('status')->insert([
+                        // #1470: status.id must be an object id, not one from status's
+                        // own AUTO_INCREMENT counter.
+                        'id' => \AhgCore\Support\StatusRow::allocateId(),
                         'object_id' => $descId,
                         'type_id' => 158,
                         'status_id' => $statusId,

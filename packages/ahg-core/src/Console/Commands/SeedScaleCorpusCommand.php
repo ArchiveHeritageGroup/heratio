@@ -206,6 +206,11 @@ class SeedScaleCorpusCommand extends Command
                 'serial_number' => 0,
             ];
             $statuses[] = [
+                // #1470: one allocated object id per status row. This is a
+                // per-row insert inside a bulk build, which is slower - but a
+                // dev-only scale seeder that poisons the shared id space costs
+                // far more than the extra inserts.
+                'id' => \AhgCore\Support\StatusRow::allocateId(),
                 'object_id' => $id,
                 'type_id' => self::PUB_TYPE,
                 'status_id' => self::PUB_PUBLISHED,

@@ -465,10 +465,7 @@ class DacsManageController extends Controller
 
             // Publication status
             if ($request->has('publication_status_id')) {
-                DB::table('status')->updateOrInsert(
-                    ['object_id' => $ioId, 'type_id' => 158],
-                    ['status_id' => $request->input('publication_status_id'), 'source_culture' => $culture]
-                );
+                \AhgCore\Support\StatusRow::put($ioId, 158, (int) ($request->input('publication_status_id')), ['source_culture' => $culture]);
             }
 
             // Update object.updated_at

@@ -60,11 +60,7 @@ class ActorVisibilityTest extends TestCase
         $this->slug = 'embargo-test-'.$this->actorId;
         DB::table('slug')->insert(['object_id' => $this->actorId, 'slug' => $this->slug]);
         // Start published, no embargo.
-        DB::table('status')->insert([
-            'object_id' => $this->actorId,
-            'type_id'   => 158,
-            'status_id' => 160,
-        ]);
+        \AhgCore\Support\StatusRow::set($this->actorId, 158, 160);
     }
 
     private function setStatus(int $statusId, ?string $embargo = null): void

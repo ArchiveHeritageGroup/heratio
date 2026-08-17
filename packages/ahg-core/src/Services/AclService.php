@@ -346,10 +346,7 @@ class AclService
     public static function setActorPublicationStatus(int $actorId, int $statusId, ?string $embargoUntil = null): void
     {
         $statusId = $statusId === 159 ? 159 : 160;
-        DB::table('status')->updateOrInsert(
-            ['object_id' => $actorId, 'type_id' => TermId::STATUS_TYPE_PUBLICATION],
-            ['status_id' => $statusId]
-        );
+        \AhgCore\Support\StatusRow::put($actorId, TermId::STATUS_TYPE_PUBLICATION, (int) ($statusId));
         if (self::actorHasEmbargoColumn()) {
             DB::table('actor')->where('id', $actorId)->update([
                 'embargo_until' => $embargoUntil ?: null,

@@ -522,7 +522,7 @@ class ArchaeologyService
             $slug .= '-'.$objectId;
         }
         DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
-        DB::table('status')->updateOrInsert(['object_id' => $objectId, 'type_id' => 158], ['status_id' => 160]);
+        \AhgCore\Support\StatusRow::put($objectId, 158, (int) (160));
 
         return $objectId;
     }

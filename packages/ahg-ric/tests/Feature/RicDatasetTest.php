@@ -152,7 +152,7 @@ class RicDatasetTest extends TestCase
         ]);
         // Published, so the guest-facing RiC read API (records/export) serves it
         // (unpublished records now 404 for anonymous - Part A hardening).
-        DB::table('status')->insert(['object_id' => $id, 'type_id' => 158, 'status_id' => 160]);
+        \AhgCore\Support\StatusRow::set($id, 158, 160);
 
         return $id;
     }

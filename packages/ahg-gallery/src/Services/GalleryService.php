@@ -496,6 +496,9 @@ class GalleryService
 
             // Set publication status (draft by default)
             DB::table('status')->insert([
+                // #1470: status.id must be an object id, not one from status's
+                // own AUTO_INCREMENT counter.
+                'id' => \AhgCore\Support\StatusRow::allocateId(),
                 'object_id' => $objectId,
                 'type_id' => TermId::STATUS_TYPE_PUBLICATION,
                 'status_id' => TermId::PUBLICATION_STATUS_DRAFT,
