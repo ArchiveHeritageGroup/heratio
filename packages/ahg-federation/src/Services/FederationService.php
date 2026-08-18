@@ -151,7 +151,15 @@ class FederationService
         // bubbled up as a 500 from the middleware. Plus the federation_enabled
         // row has scope='federation' (not null) so SettingHelper::get (which
         // filters whereNull(scope)) misses it - must use ::getScoped.
-        $val = \AhgCore\Services\SettingHelper::getScoped('federation', 'federation_enabled', '1');
+        // Default '0', NOT '1'. This gate and the federation commands read the same
+        // setting, but disagreed about what an ABSENT row means: this defaulted to
+        // enabled while HarvestCommand/VocabSyncCommand default to disabled. On an
+        // instance with no federation_enabled row (sasa has none; dev and heratio.org
+        // both have it set to 1) the scheduler therefore decided federation was ON and
+        // ran the commands, which then reported it OFF - a guaranteed nightly failure.
+        // Defaulting to off is also the right answer on its own terms: a feature that
+        // exchanges data with external peers should not switch itself on by omission.
+        $val = \AhgCore\Services\SettingHelper::getScoped('federation', 'federation_enabled', '0');
         if ($val === '') {
             return false;
         }

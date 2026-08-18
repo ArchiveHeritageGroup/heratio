@@ -43,9 +43,17 @@ class VocabSyncCommand extends Command
     public function handle(VocabSyncService $service): int
     {
         if (! SettingHelper::getScoped('federation', 'federation_enabled', '0')) {
-            $this->error('Federation is disabled (federation_enabled=0).');
+            // Say so plainly for an operator running this by hand, but exit 0.
+            // Federation being switched off is a configuration choice, not a
+            // runtime fault. Returning non-zero made Laravel's scheduler record
+            // "Scheduled command [...] failed with exit code [1]" in ahg_error_log
+            // every night on every instance that simply does not federate - one
+            // error a night on sasa, which has no federation_enabled row at all.
+            // HarvestCommand was fixed this way already; this one was missed.
+            $this->warn('Federation is disabled (federation_enabled=0) - nothing to sync.');
+            $this->line('Enable it in Plugin Management if you expected a vocabulary sync.');
 
-            return self::FAILURE;
+            return self::SUCCESS;
         }
 
         $configs = $this->resolveConfigs();

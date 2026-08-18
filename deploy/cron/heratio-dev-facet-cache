@@ -1,0 +1,27 @@
+# Heratio DEV: hourly facet-cache refresh for /usr/share/nginx/heratio-dev.
+#
+# WHY THIS EXISTS. Two other things refresh facets, and neither covers dev:
+#
+#   - /etc/cron.d/ahg-facet-cache iterates `for d in dam heratio` only, and runs
+#     the PROD codebase (/usr/share/nginx/heratio/artisan) with a DB_DATABASE
+#     override. Pointing that at heratio_dev would run prod's code against dev's
+#     database - exactly the cross-wiring to avoid while dev is mid-development.
+#   - The managed cron_schedule row `refresh-facet-cache` is driven by Laravel's
+#     scheduler, and dev's scheduler is deliberately disabled
+#     (/etc/cron.d/heratio-dev-schedule.disabled), so the row never fires here
+#     whatever its is_enabled value.
+#
+# The result was dev facets going 66 hours stale (found 2026-08-18), which makes
+# browse/facet behaviour on dev quietly unlike prod while testing it.
+#
+# Same pattern as /etc/cron.d/heratio-am-dev: dev's scheduler stays off, and the
+# individual commands dev genuinely needs get their own entry here, running DEV's
+# OWN artisan so they use dev's .env, database and uploads paths.
+#
+# Run as www-data (never root: artisan bootstrap would create root-owned logs
+# that the worker can then no longer write). Absolute paths to php and artisan
+# because /etc/cron.d/* commands run with cwd=/.
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=""
+0 * * * * www-data flock -n /run/lock/heratio-dev-facet-cache.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio-dev/artisan ahg:refresh-facet-cache >> /var/log/heratio-dev-facet-cache.log 2>&1'

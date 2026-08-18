@@ -73,6 +73,7 @@ deploy/cron/heratio-demo-reset|/etc/cron.d/heratio-demo-reset|exact
 deploy/cron/heratio-config-drift|/etc/cron.d/heratio-config-drift|exact
 deploy/cron/heratio-schedule|/etc/cron.d/heratio-schedule|exact
 deploy/cron/ahg-facet-cache|/etc/cron.d/ahg-facet-cache|exact
+deploy/cron/heratio-dev-facet-cache|/etc/cron.d/heratio-dev-facet-cache|exact
 deploy/cron/ahg-discovery-prune|/etc/cron.d/ahg-discovery-prune|exact
 deploy/cron/heratio-articles-persist|/etc/cron.d/heratio-articles-persist|exact
 deploy/nginx/heratio.org.conf|/etc/nginx/sites-enabled/heratio.org.conf|exact
