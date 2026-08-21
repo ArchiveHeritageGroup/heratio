@@ -1529,6 +1529,48 @@ class LlmService
      * to the configured general api_url (if itself a gateway URL) then to the
      * canonical gateway. Mirrors ahg-discovery's OllamaPageIndexClient.
      */
+    /**
+     * Turn a failed HTTP response into something an operator can act on.
+     *
+     * Every non-2xx used to collapse into "Cannot connect to Ollama at <url>".
+     * When the gateway key hit its quota on 2026-08-20 it answered
+     * 403 {"detail":"No requests remaining"} and that message reported it as a
+     * connectivity fault - so the morning triage went looking for a network
+     * outage while the gateway sat there answering 200 on /health. The status
+     * code and the body were both right there and neither was shown.
+     */
+    private function describeHttpFailure(\Illuminate\Http\Client\Response $response): string
+    {
+        $status = $response->status();
+        $detail = '';
+
+        try {
+            $json = $response->json();
+            if (is_array($json)) {
+                $detail = (string) ($json['detail'] ?? $json['error'] ?? $json['message'] ?? '');
+            }
+        } catch (\Throwable) {
+            // not JSON - fall through to the raw body
+        }
+
+        if ($detail === '') {
+            $detail = trim(substr((string) $response->body(), 0, 200));
+        }
+
+        $lower = strtolower($detail);
+        $hint = match (true) {
+            $status === 401 => ' (gateway API key missing or not accepted)',
+            $status === 403 && str_contains($lower, 'no requests remaining')
+                            => ' (API KEY QUOTA EXHAUSTED - top up the key on the gateway; every AI path is refused until then)',
+            $status === 403 => ' (gateway refused the key)',
+            $status === 404 => ' (endpoint not found - check the gateway base path)',
+            $status >= 500  => ' (gateway or upstream node error)',
+            default         => '',
+        };
+
+        return 'HTTP '.$status.($detail !== '' ? ': '.$detail : '').$hint;
+    }
+
     private function resolveOllamaBase(?string $endpointUrl): string
     {
         $override = is_string($endpointUrl) ? trim($endpointUrl) : '';
@@ -1648,40 +1690,96 @@ class LlmService
                 case 'ollama':
                     // #1368 - health-check the gateway Ollama passthrough, not a
                     // direct node; a stale node endpoint_url is ignored.
-                    $url      = $this->resolveOllamaBase($config->endpoint_url ?? null);
+                    $url        = $this->resolveOllamaBase($config->endpoint_url ?? null);
                     $gatewayKey = $this->resolveGatewayKey();
-                    $req      = Http::timeout(10);
-                    if (! empty($gatewayKey)) {
-                        $req = $req->withToken($gatewayKey);
+
+                    // LIVENESS FIRST, AND FOR FREE.
+                    //
+                    // This used to call the AUTHENTICATED /ollama/api/tags on every
+                    // check, plus /ollama/api/version on success. llm-health and
+                    // services-check both run every 5 minutes on every instance, so
+                    // two live instances spent roughly 3,100 gateway requests a DAY
+                    // asking whether the gateway was awake. Over the life of the key
+                    // that was 24,005 of 50,000 requests; across the last seven days
+                    // before it died, 21,929 of 23,936 calls - 91.6% of all AI
+                    // traffic was liveness polling.
+                    //
+                    // On 2026-08-20 20:23 SAST the key hit 50,000/50,000 and the
+                    // gateway began returning 403 "No requests remaining" to
+                    // EVERYTHING - NER, embeddings, HTR, the chatbot. The health
+                    // checks consumed the budget and then blocked the actual work.
+                    //
+                    // {base}/health needs no key and consumes no quota, so it is now
+                    // the liveness probe. The model list still comes from the
+                    // authenticated passthrough, but cached - a model list does not
+                    // change between two five-minute ticks.
+                    $probe = Http::timeout(10)->get($url . '/health');
+                    if (! $probe->successful()) {
+                        return [
+                            'status'    => 'error',
+                            'provider'  => 'ollama',
+                            'config_id' => $config->id,
+                            'endpoint'  => $url,
+                            'error'     => 'Gateway health probe failed at ' . $url . '/health: '
+                                . $this->describeHttpFailure($probe),
+                        ];
                     }
-                    $response = $req->get($url . '/ollama/api/tags');
-                    if ($response->successful()) {
+
+                    // Model list + version, cached. A miss costs two requests an hour,
+                    // not two every five minutes.
+                    $cacheKey = 'llm:ollama:catalogue:' . md5($url . '|' . $gatewayKey);
+                    $cached   = \Illuminate\Support\Facades\Cache::get($cacheKey);
+
+                    if (! is_array($cached)) {
+                        $req = Http::timeout(10);
+                        if (! empty($gatewayKey)) {
+                            $req = $req->withToken($gatewayKey);
+                        }
+                        $response = $req->get($url . '/ollama/api/tags');
+
+                        if (! $response->successful()) {
+                            // The gateway is UP (the probe passed) but refused this
+                            // call. Say which, and why. Reporting a 403 quota refusal
+                            // as "Cannot connect to Ollama" sent a morning triage
+                            // looking for a network outage that did not exist.
+                            return [
+                                'status'    => 'degraded',
+                                'provider'  => 'ollama',
+                                'config_id' => $config->id,
+                                'endpoint'  => $url,
+                                'error'     => 'Gateway reachable but the model list was refused: '
+                                    . $this->describeHttpFailure($response),
+                            ];
+                        }
+
                         $body   = $response->json();
                         $models = [];
                         foreach (($body['models'] ?? []) as $m) {
                             $models[] = $m['name'] ?? $m['model'] ?? 'unknown';
                         }
-                        // Fetch version
-                        $vResp   = (empty($gatewayKey) ? Http::timeout(5) : Http::timeout(5)->withToken($gatewayKey))->get($url . '/ollama/api/version');
-                        $version = $vResp->successful() ? ($vResp->json()['version'] ?? 'unknown') : 'unknown';
 
-                        return [
-                            'status'        => 'ok',
-                            'provider'      => 'ollama',
-                            'config_id'     => $config->id,
-                            'models'        => $models,
-                            'version'       => $version,
-                            'endpoint'      => $url,
-                            'default_model' => $config->model,
-                            'error'         => null,
+                        $vReq = Http::timeout(5);
+                        if (! empty($gatewayKey)) {
+                            $vReq = $vReq->withToken($gatewayKey);
+                        }
+                        $vResp = $vReq->get($url . '/ollama/api/version');
+
+                        $cached = [
+                            'models'  => $models,
+                            'version' => $vResp->successful() ? ($vResp->json()['version'] ?? 'unknown') : 'unknown',
                         ];
+                        \Illuminate\Support\Facades\Cache::put($cacheKey, $cached, now()->addHour());
                     }
 
                     return [
-                        'status'    => 'error',
-                        'provider'  => 'ollama',
-                        'config_id' => $config->id,
-                        'error'     => 'Cannot connect to Ollama at ' . $url,
+                        'status'        => 'ok',
+                        'provider'      => 'ollama',
+                        'config_id'     => $config->id,
+                        'models'        => $cached['models'],
+                        'version'       => $cached['version'],
+                        'endpoint'      => $url,
+                        'default_model' => $config->model,
+                        'error'         => null,
                     ];
 
                 case 'openai':
