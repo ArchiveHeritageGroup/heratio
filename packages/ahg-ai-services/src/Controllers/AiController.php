@@ -2059,12 +2059,14 @@ class AiController extends Controller
                 ->where('status', 'pending')
                 ->delete();
 
-            $extractionId = DB::table('ahg_ner_extraction')->insertGetId([
-                'object_id'    => $objectId,
-                'backend_used' => 'local',
-                'status'       => 'pending',
-                'extracted_at' => now(),
-            ]);
+            // #1472: open a ledger row and CLOSE it below. This used to insert
+            // status='pending' and never come back, so the table recorded that a
+            // scan had started and never what became of it - 192 rows stuck
+            // 'pending' with entity_count 0 while their entities sat in
+            // ahg_ner_entity, and the POPIA stats that read these two columns
+            // under-reporting by half.
+            $extractionId = \AhgAiServices\Support\NerExtractionLedger::open($objectId, 'local');
+            $savedEntities = 0;
 
             if (!empty($detailedEntities)) {
                 // entities_v2 path: real offsets + real (or null) score.
@@ -2102,7 +2104,13 @@ class AiController extends Controller
                         ['start' => (int) ($rec['offset_start'] ?? 0), 'end' => (int) ($rec['offset_end'] ?? 0)],
                         $score
                     );
+                    $savedEntities++;
                 }
+
+                // A count of 0 here is a real result - scanned, found nothing -
+                // and is now distinguishable from a scan that never finished.
+                \AhgAiServices\Support\NerExtractionLedger::complete($extractionId, $savedEntities);
+
                 return;
             }
 
@@ -2134,9 +2142,15 @@ class AiController extends Controller
                     ]);
 
                     $this->promoteMention($nerEntityId, $sourceText);
+                    $savedEntities++;
                 }
             }
+
+            \AhgAiServices\Support\NerExtractionLedger::complete($extractionId, $savedEntities);
         } catch (\Exception $e) {
+            // A failed scan is not a clean scan. Record it as failed so the two
+            // stay apart, which is the ambiguity that hid this for seven months.
+            \AhgAiServices\Support\NerExtractionLedger::fail($extractionId ?? null, $e->getMessage());
             \Log::error("NER save error: " . $e->getMessage());
         }
     }

@@ -468,7 +468,38 @@ class NerService
      *                                         Null falls back to IO i18n fetch (lossy).
      * @return int  Count of created access points
      */
+    /**
+     * Record a NER run in `ahg_ner_extraction`, then do the work (#1472).
+     *
+     * This path - the one `ahg:ai-ner` and `ahg:ai-process-pending` use - wrote
+     * entities to `ahg_ner_entity` and never touched the extraction ledger at
+     * all, so scheduled NER was invisible in it. Combined with the controller
+     * path opening rows it never closed, the table showed nothing completed
+     * since 25 January while 2,108 entities sat in storage.
+     *
+     * The ledger is best-effort: a failure to record must never lose entities
+     * that were successfully extracted, so open() returns null rather than
+     * throwing and the work proceeds regardless.
+     */
     public function createAccessPoints(int $informationObjectId, array $entities, ?string $sourceText = null): int
+    {
+        $ledgerId = \AhgAiServices\Support\NerExtractionLedger::open($informationObjectId, 'local');
+
+        try {
+            $count = $this->createAccessPointsInner($informationObjectId, $entities, $sourceText);
+        } catch (\Throwable $e) {
+            // A scan that threw is NOT a scan that found nothing.
+            \AhgAiServices\Support\NerExtractionLedger::fail($ledgerId, $e->getMessage());
+
+            throw $e;
+        }
+
+        \AhgAiServices\Support\NerExtractionLedger::complete($ledgerId, $count);
+
+        return $count;
+    }
+
+    private function createAccessPointsInner(int $informationObjectId, array $entities, ?string $sourceText = null): int
     {
         // heratio#132: prefer the detailed entities_v2 records from the most
         // recent extract() call. They carry real character offsets + a real
