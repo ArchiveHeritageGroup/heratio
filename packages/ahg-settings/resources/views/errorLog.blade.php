@@ -121,6 +121,16 @@
               <td class="small text-muted">{{ $entry->id }}</td>
               <td class="small text-nowrap">
                 {{ $entry->created_at }}
+                @php $__occ = (int) ($entry->occurrences ?? 1); @endphp
+                @if($__occ > 1)
+                  {{-- Repeating faults are collapsed into ONE row rather than re-inserted each
+                       time, so show the true count and the span - otherwise a fault that fired
+                       76 times reads as a single event. --}}
+                  <br><span class="badge bg-danger" title="{{ __('Times this exact fault has recurred') }}">&times;{{ number_format($__occ) }}</span>
+                  @if($entry->last_seen_at ?? null)
+                    <br><span class="text-muted">{{ __('last') }} {{ $entry->last_seen_at }}</span>
+                  @endif
+                @endif
                 @if($entry->request_id ?? null)
                   <br><code class="small">{{ substr($entry->request_id, 0, 12) }}...</code>
                 @endif

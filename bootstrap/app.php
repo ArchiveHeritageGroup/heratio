@@ -154,10 +154,52 @@ return Application::configure(basePath: dirname(__DIR__))
                 $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
                 $level = $statusCode >= 500 ? 'error' : ($statusCode >= 400 ? 'warning' : 'error');
 
+                $message = mb_substr($e->getMessage() ?: get_class($e), 0, 65535);
+
+                // Collapse a REPEATING fault into one row with a count, instead of a
+                // fresh row per occurrence. A persistent condition - the AI gateway
+                // key exhausting its quota on 2026-08-20, say - otherwise wrote the
+                // identical "Scheduled command [ahg:cron-run] failed" row every five
+                // minutes: 13 an hour, on two instances, for 11 hours. Clearing the
+                // log refilled it within minutes because nothing about the condition
+                // had changed, and the repetition buried the one-off errors that
+                // actually needed reading.
+                //
+                // The fingerprint is the identity of the FAULT, not of the request:
+                // class + message + file + line. Same fault -> bump occurrences and
+                // last_seen_at, leaving created_at as the first sighting. Different
+                // fault, or one already resolved by an operator, -> a new row.
+                $fingerprint = sha1(get_class($e).'|'.$message.'|'.$e->getFile().'|'.$e->getLine());
+
+                // Guarded: the columns arrive in a migration, and code is deployed
+                // before migrations run, so a deploy must not fatal in that window.
+                static $hasDedupe = null;
+                if ($hasDedupe === null) {
+                    $hasDedupe = \Illuminate\Support\Facades\Schema::hasColumn('ahg_error_log', 'fingerprint');
+                }
+
+                if ($hasDedupe) {
+                    $existing = DB::table('ahg_error_log')
+                        ->where('fingerprint', $fingerprint)
+                        ->whereNull('resolved_at')
+                        ->orderByDesc('id')
+                        ->first();
+
+                    if ($existing) {
+                        DB::table('ahg_error_log')->where('id', $existing->id)->update([
+                            'occurrences' => DB::raw('occurrences + 1'),
+                            'last_seen_at' => now(),
+                            'is_read' => 0,   // a recurrence is unread again
+                        ]);
+
+                        return false;
+                    }
+                }
+
                 DB::table('ahg_error_log')->insert([
                     'level' => $level,
                     'status_code' => $statusCode,
-                    'message' => mb_substr($e->getMessage() ?: get_class($e), 0, 65535),
+                    'message' => $message,
                     'file' => $e->getFile(),
                     'line' => $e->getLine(),
                     'exception_class' => get_class($e),
@@ -171,7 +213,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'trace' => mb_substr($e->getTraceAsString(), 0, 65535),
                     'is_read' => 0,
                     'created_at' => now(),
-                ]);
+                ] + ($hasDedupe ? ['fingerprint' => $fingerprint, 'occurrences' => 1, 'last_seen_at' => now()] : []));
             } catch (\Throwable $logException) {
                 // Don't let logging failure break the app
             }
