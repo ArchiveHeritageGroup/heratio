@@ -1136,6 +1136,11 @@ class VendorController extends Controller
             'quote_reference' => $request->input('quote_reference'),
             'invoice_reference' => $request->input('invoice_reference'),
             'invoice_date' => $request->input('invoice_date') ?: null,
+            // #1478: the edit form has always offered a Completion Date and
+            // this extractor never carried it, so it was discarded on save.
+            // Distinct from actual_return_date - work can finish before the
+            // item comes back.
+            'completion_date' => $request->input('completion_date') ?: null,
             'payment_status' => $request->input('payment_status', 'pending'),
             'total_insured_value' => $request->input('total_insured_value') ?: null,
             'insurance_arranged' => $request->input('insurance_arranged') ? 1 : 0,

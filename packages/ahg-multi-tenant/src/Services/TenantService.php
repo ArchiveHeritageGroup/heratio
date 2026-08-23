@@ -15,6 +15,7 @@ namespace AhgMultiTenant\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class TenantService
@@ -30,7 +31,22 @@ class TenantService
 
     public function getTenants(): Collection
     {
-        return DB::table('ahg_tenant')->orderBy('name')->get();
+        // user_count is rendered on the tenant list and was never computed, so
+        // every tenant showed 0 users regardless of how many it had (#1478).
+        // A correlated subquery rather than a join, so a tenant with no users
+        // still appears and no row is duplicated per user.
+        $query = DB::table('ahg_tenant');
+
+        if (Schema::hasTable('ahg_tenant_user')) {
+            $query->select('ahg_tenant.*')->selectSub(
+                DB::table('ahg_tenant_user')
+                    ->whereColumn('ahg_tenant_user.tenant_id', 'ahg_tenant.id')
+                    ->selectRaw('COUNT(*)'),
+                'user_count'
+            );
+        }
+
+        return $query->orderBy('name')->get();
     }
 
     public function getTenant(int $id): ?object

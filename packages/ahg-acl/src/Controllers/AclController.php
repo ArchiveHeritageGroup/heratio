@@ -452,6 +452,14 @@ class AclController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|integer|min:1|exists:user,id',
             'classification_id' => 'required|integer|min:1|exists:security_classification,id',
+            // #1478: the form has always collected these and the save path has
+            // always dropped them. expiry_date is the form's name for the
+            // expires_at column.
+            'expiry_date' => 'nullable|date',
+            'notes' => 'nullable|string|max:65535',
+            'vetting_authority' => 'nullable|string|max:255',
+            'vetting_date' => 'nullable|date',
+            'vetting_reference' => 'nullable|string|max:255',
         ]);
 
         $grantedBy = auth()->id() ?? 1;
@@ -459,7 +467,14 @@ class AclController extends Controller
         $this->service->setUserClearance(
             (int) $validated['user_id'],
             (int) $validated['classification_id'],
-            $grantedBy
+            $grantedBy,
+            [
+                'expires_at'        => $validated['expiry_date'] ?? null,
+                'notes'             => $validated['notes'] ?? null,
+                'vetting_authority' => $validated['vetting_authority'] ?? null,
+                'vetting_date'      => $validated['vetting_date'] ?? null,
+                'vetting_reference' => $validated['vetting_reference'] ?? null,
+            ]
         );
 
         return redirect()->route('acl.clearances')

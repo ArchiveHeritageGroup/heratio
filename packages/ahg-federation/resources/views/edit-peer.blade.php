@@ -164,11 +164,11 @@
 
                         <div class="mb-3" id="oai-metadata-prefix-row"
                              style="{{ $peerType !== 'oai_pmh' ? 'display:none' : '' }}">
-                            <label for="metadata_prefix" class="form-label">Metadata Prefix <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                            <select class="form-select" id="metadata_prefix" name="metadata_prefix">
-                                <option value="oai_dc" {{ ($peer->metadata_prefix ?? '') === 'oai_dc' ? 'selected' : '' }}>oai_dc (Dublin Core)</option>
-                                <option value="oai_ead" {{ ($peer->metadata_prefix ?? '') === 'oai_ead' ? 'selected' : '' }}>oai_ead (EAD)</option>
-                                <option value="oai_eac" {{ ($peer->metadata_prefix ?? '') === 'oai_eac' ? 'selected' : '' }}>oai_eac (EAC-CPF)</option>
+                            <label for="default_metadata_prefix" class="form-label">Metadata Prefix <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <select class="form-select" id="default_metadata_prefix" name="default_metadata_prefix">
+                                <option value="oai_dc" {{ ($peer->default_metadata_prefix ?? '') === 'oai_dc' ? 'selected' : '' }}>oai_dc (Dublin Core)</option>
+                                <option value="oai_ead" {{ ($peer->default_metadata_prefix ?? '') === 'oai_ead' ? 'selected' : '' }}>oai_ead (EAD)</option>
+                                <option value="oai_eac" {{ ($peer->default_metadata_prefix ?? '') === 'oai_eac' ? 'selected' : '' }}>oai_eac (EAC-CPF)</option>
                             </select>
                         </div>
 
@@ -186,16 +186,16 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="set_spec" class="form-label">Set Spec (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                            <input type="text" class="form-control" id="set_spec" name="set_spec"
-                                   value="{{ $peer->set_spec ?? old('set_spec', '') }}">
+                            <label for="default_set" class="form-label">Set Spec (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <input type="text" class="form-control" id="default_set" name="default_set"
+                                   value="{{ $peer->default_set ?? old('default_set', '') }}">
                             <div class="form-text">Restrict harvesting to a specific OAI set</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="harvest_interval" class="form-label">Harvest Interval (hours) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                            <input type="number" class="form-control" id="harvest_interval" name="harvest_interval"
-                                   value="{{ $peer->harvest_interval ?? old('harvest_interval', 24) }}" min="1">
+                            <label for="harvest_interval_hours" class="form-label">Harvest Interval (hours) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <input type="number" class="form-control" id="harvest_interval_hours" name="harvest_interval_hours"
+                                   value="{{ $peer->harvest_interval_hours ?? old('harvest_interval_hours', 24) }}" min="1">
                         </div>
                     </div>
                 </div>

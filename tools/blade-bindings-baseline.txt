@@ -9,9 +9,6 @@ packages/ahg-acl/resources/views/security/object.blade.php	new_name
 packages/ahg-acl/resources/views/security/user-clearance.blade.php	new_name
 packages/ahg-acl/resources/views/security/user-clearance.blade.php	renewal_requested_date
 packages/ahg-acl/resources/views/security/user-clearance.blade.php	two_factor_verified_at
-packages/ahg-acl/resources/views/security/user-clearance.blade.php	vetting_authority
-packages/ahg-acl/resources/views/security/user-clearance.blade.php	vetting_date
-packages/ahg-acl/resources/views/security/user-clearance.blade.php	vetting_reference
 packages/ahg-acl/resources/views/security/user.blade.php	grantedByUsername ?? granted_by_username
 packages/ahg-acl/resources/views/security/user.blade.php	new_name
 packages/ahg-cart/resources/views/admin-settings.blade.php	tax_rate
@@ -22,8 +19,6 @@ packages/ahg-exhibition/resources/views/_object-list-csv.blade.php	display_locat
 packages/ahg-exhibition/resources/views/checklists.blade.php	checklist_name
 packages/ahg-exhibition/resources/views/storyline.blade.php	stop_order
 packages/ahg-exhibition/resources/views/storylines.blade.php	stop_count
-packages/ahg-federation/resources/views/edit-peer.blade.php	harvest_interval
-packages/ahg-federation/resources/views/edit-peer.blade.php	set_spec
 packages/ahg-function-manage/resources/views/show.blade.php	relation_dates
 packages/ahg-gallery/resources/views/gallery/facility-report.blade.php	climate_control
 packages/ahg-gallery/resources/views/gallery/facility-report.blade.php	report_date
@@ -39,7 +34,6 @@ packages/ahg-information-object-manage/resources/views/_event.blade.php	eventsRe
 packages/ahg-information-object-manage/resources/views/_related-events.blade.php	eventsRelatedByobjectId
 packages/ahg-information-object-manage/resources/views/_related-material-descriptions.blade.php	relationsRelatedByobjectId
 packages/ahg-information-object-manage/resources/views/_related-material-descriptions.blade.php	relationsRelatedBysubjectId
-packages/ahg-information-object-manage/resources/views/digitalobject/edit-page.blade.php	display_as_compound
 packages/ahg-information-object-manage/resources/views/digitalobject/edit.blade.php	canThumbnail
 packages/ahg-information-object-manage/resources/views/digitalobject/edit.blade.php	displayAsCompoundObject
 packages/ahg-information-object-manage/resources/views/do-edit.blade.php	canThumbnail
@@ -68,17 +62,12 @@ packages/ahg-marketplace/resources/views/my-following.blade.php	listing_count
 packages/ahg-marketplace/resources/views/seller-listing-edit.blade.php	auction_buy_now_price
 packages/ahg-marketplace/resources/views/seller-listing-edit.blade.php	auction_reserve_price
 packages/ahg-marketplace/resources/views/seller-listing-edit.blade.php	auction_start_price
-packages/ahg-multi-tenant/resources/views/index.blade.php	user_count
 packages/ahg-naz/resources/views/researcher-view.blade.php	material_consulted
 packages/ahg-repository-manage/resources/views/_upload-limit.blade.php	disk_usage
-packages/ahg-repository-manage/resources/views/edit.blade.php	repository_type
 packages/ahg-repository-manage/resources/views/upload-limit-exceeded.blade.php	disk_usage
 packages/ahg-research/resources/views/research/collections.blade.php	items_count
 packages/ahg-research/resources/views/research/custody-chain.blade.php	staff_name
 packages/ahg-research/resources/views/research/custody-return-verify.blade.php	expected_return
-packages/ahg-research/resources/views/research/edit-researcher-type.blade.php	max_advance_days
-packages/ahg-research/resources/views/research/edit-researcher-type.blade.php	max_hours_per_day
-packages/ahg-research/resources/views/research/edit-researcher-type.blade.php	max_materials
 packages/ahg-research/resources/views/research/source-assessment.blade.php	authenticity_notes
 packages/ahg-research/resources/views/research/trust-score.blade.php	metric_name
 packages/ahg-research/resources/views/research/view-booking.blade.php	researcher_institution
@@ -98,4 +87,3 @@ packages/ahg-term-taxonomy/resources/views/edit.blade.php	is_protected
 packages/ahg-user-manage/resources/views/index-actor-acl.blade.php	access_label
 packages/ahg-user-manage/resources/views/index-information-object-acl.blade.php	access_label
 packages/ahg-user-manage/resources/views/index-repository-acl.blade.php	access_label
-packages/ahg-vendor/resources/views/edit-transaction.blade.php	completion_date

@@ -26,6 +26,7 @@
 namespace AhgAcl\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AclService
 {
@@ -745,8 +746,27 @@ class AclService
     /**
      * Set or update a user's security clearance and log the change.
      */
-    public function setUserClearance(int $userId, int $classificationId, int $grantedBy): void
+    public /**
+     * Grant or update a user's security clearance.
+     *
+     * $details carries the fields the clearance form has always collected and
+     * this method has always discarded - #1478. Expiry, notes and the vetting
+     * evidence (who vetted, when, under what reference) are the substance of a
+     * clearance decision; a record that asks for them and keeps only the
+     * classification is not an auditable one.
+     *
+     * @param array<string,mixed> $details expires_at, notes, vetting_authority,
+     *                                     vetting_date, vetting_reference
+     */
+    function setUserClearance(int $userId, int $classificationId, int $grantedBy, array $details = []): void
     {
+        $optional = [];
+        foreach (['expires_at', 'notes', 'vetting_authority', 'vetting_date', 'vetting_reference'] as $col) {
+            if (array_key_exists($col, $details) && Schema::hasColumn('user_security_clearance', $col)) {
+                $optional[$col] = $details[$col] !== '' ? $details[$col] : null;
+            }
+        }
+
         $now = now()->toDateTimeString();
 
         // Check if user already has a clearance
@@ -757,14 +777,14 @@ class AclService
         if ($existing) {
             DB::table('user_security_clearance')
                 ->where('user_id', $userId)
-                ->update([
+                ->update($optional + [
                     'classification_id' => $classificationId,
                     'granted_by' => $grantedBy,
                     'granted_at' => $now,
                 ]);
             $action = 'clearance_updated';
         } else {
-            DB::table('user_security_clearance')->insert([
+            DB::table('user_security_clearance')->insert($optional + [
                 'user_id' => $userId,
                 'classification_id' => $classificationId,
                 'granted_by' => $grantedBy,

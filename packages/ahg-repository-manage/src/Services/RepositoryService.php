@@ -504,6 +504,9 @@ class RepositoryService
                 'desc_detail_id' => $data['desc_detail_id'] ?? null,
                 'desc_identifier' => $data['desc_identifier'] ?? null,
                 'upload_limit' => $data['upload_limit'] ?? null,
+                // #1478: the edit form has always offered a Type field and the
+                // create path never stored it.
+                'repository_type' => $data['repository_type'] ?? null,
                 'source_culture' => $this->culture,
             ]);
 
@@ -611,7 +614,7 @@ class RepositoryService
         DB::transaction(function () use ($id, $data) {
             // 1. Update repository record
             $repoUpdate = [];
-            foreach (['identifier', 'desc_status_id', 'desc_detail_id', 'desc_identifier', 'upload_limit'] as $field) {
+            foreach (['identifier', 'desc_status_id', 'desc_detail_id', 'desc_identifier', 'upload_limit', 'repository_type'] as $field) {
                 if (array_key_exists($field, $data)) {
                     $repoUpdate[$field] = $data[$field];
                 }

@@ -525,6 +525,7 @@ class RepositoryController extends Controller
             'sources', 'revision_history',
             // Repository
             'identifier', 'desc_status_id', 'desc_detail_id', 'desc_identifier', 'upload_limit',
+            'repository_type',   // #1478: offered by the form, stripped here, so never reached the service
             // Repository i18n (ISDIAH)
             'geocultural_context', 'collecting_policies', 'buildings', 'holdings',
             'finding_aids', 'opening_times', 'access_conditions', 'disabled_access',
