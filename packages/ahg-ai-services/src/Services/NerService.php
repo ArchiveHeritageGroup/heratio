@@ -28,6 +28,7 @@
 namespace AhgAiServices\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -486,7 +487,7 @@ class NerService
         $ledgerId = \AhgAiServices\Support\NerExtractionLedger::open($informationObjectId, 'local');
 
         try {
-            $count = $this->createAccessPointsInner($informationObjectId, $entities, $sourceText);
+            $count = $this->createAccessPointsInner($informationObjectId, $entities, $sourceText, $ledgerId);
         } catch (\Throwable $e) {
             // A scan that threw is NOT a scan that found nothing.
             \AhgAiServices\Support\NerExtractionLedger::fail($ledgerId, $e->getMessage());
@@ -499,7 +500,46 @@ class NerService
         return $count;
     }
 
-    private function createAccessPointsInner(int $informationObjectId, array $entities, ?string $sourceText = null): int
+    /**
+     * The single writer for ahg_ner_entity - #1479.
+     *
+     * Both extraction paths used to insert here directly, and NEITHER set
+     * extraction_id. The ledger therefore recorded that a run produced N
+     * entities while none of those entities could be attributed back to the
+     * run that produced them: #1472 wrote a backfill to adopt the orphans, but
+     * the writer kept making new ones. Two hand-maintained copies of one insert
+     * is how that happens, so there is now one.
+     *
+     * $confidence is deliberately nullable and is NEVER defaulted to a number.
+     * The legacy path has no per-entity score and spaCy emits none today;
+     * writing 1.0 to fill the column would assert a certainty nothing measured.
+     */
+    private function insertNerEntity(
+        int $informationObjectId,
+        string $entityType,
+        string $value,
+        ?float $confidence,
+        ?int $ledgerId
+    ): int {
+        $row = [
+            'object_id'    => $informationObjectId,
+            'entity_type'  => $entityType,
+            'entity_value' => $value,
+            'confidence'   => $confidence,
+            'status'       => 'pending',
+            'created_at'   => now(),
+        ];
+
+        // Guarded so an instance whose #1472 migration has not run still writes
+        // entities rather than erroring on an absent column.
+        if ($ledgerId !== null && Schema::hasColumn('ahg_ner_entity', 'extraction_id')) {
+            $row['extraction_id'] = $ledgerId;
+        }
+
+        return (int) DB::table('ahg_ner_entity')->insertGetId($row);
+    }
+
+    private function createAccessPointsInner(int $informationObjectId, array $entities, ?string $sourceText = null, ?int $ledgerId = null): int
     {
         // heratio#132: prefer the detailed entities_v2 records from the most
         // recent extract() call. They carry real character offsets + a real
@@ -507,7 +547,7 @@ class NerService
         // engine far more accurately than the legacy stripos re-derivation.
         $detailed = $this->lastDetailedEntities();
         if (!empty($detailed)) {
-            return $this->createAccessPointsFromDetailed($informationObjectId, $detailed, $sourceText);
+            return $this->createAccessPointsFromDetailed($informationObjectId, $detailed, $sourceText, $ledgerId);
         }
 
         // Legacy path: the API did not return entities_v2 (pre-deploy) or
@@ -536,14 +576,11 @@ class NerService
                     continue;
                 }
 
-                $nerEntityId = (int) DB::table('ahg_ner_entity')->insertGetId([
-                    'object_id'    => $informationObjectId,
-                    'entity_type'  => $entityType,
-                    'entity_value' => $value,
-                    'confidence'   => null,
-                    'status'       => 'pending',
-                    'created_at'   => now(),
-                ]);
+                // Null confidence is honest here: this path has value + type
+                // only, with no per-entity score to record.
+                $nerEntityId = $this->insertNerEntity(
+                    $informationObjectId, $entityType, $value, null, $ledgerId
+                );
 
                 $this->maybePromoteToMention($nerEntityId, $sourceText);
 
@@ -565,7 +602,7 @@ class NerService
      *
      * @param list<array{value:string,type:string,offset_start:int,offset_end:int,score:float|null}> $detailed
      */
-    private function createAccessPointsFromDetailed(int $informationObjectId, array $detailed, ?string $sourceText): int
+    private function createAccessPointsFromDetailed(int $informationObjectId, array $detailed, ?string $sourceText, ?int $ledgerId = null): int
     {
         $count = 0;
 
@@ -594,14 +631,9 @@ class NerService
                 continue;
             }
 
-            $nerEntityId = (int) DB::table('ahg_ner_entity')->insertGetId([
-                'object_id'    => $informationObjectId,
-                'entity_type'  => $entityType,
-                'entity_value' => $value,
-                'confidence'   => $score,
-                'status'       => 'pending',
-                'created_at'   => now(),
-            ]);
+            $nerEntityId = $this->insertNerEntity(
+                $informationObjectId, $entityType, $value, $score, $ledgerId
+            );
 
             $this->maybePromoteToMention(
                 $nerEntityId,

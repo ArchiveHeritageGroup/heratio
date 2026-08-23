@@ -97,6 +97,46 @@ class NerExtractionLedger
     public static function complete(?int $id, int $entityCount): void
     {
         self::finish($id, self::COMPLETED, max(0, $entityCount));
+        self::warnIfUnreconciled($id, max(0, $entityCount));
+    }
+
+    /**
+     * Warn when the count this row claims does not match the entities actually
+     * linked to it - #1479.
+     *
+     * The whole purpose of the ledger is attribution: which run produced which
+     * entity. Before this, both writers inserted entities without setting
+     * extraction_id, so every row claimed a count of entities that could not be
+     * reached from it - and nothing noticed for months. The #1472 migration
+     * already logs when the ledger fails to reconcile after a backfill; doing
+     * the same at WRITE time is what would have caught this on the first run.
+     *
+     * Warn only. A logging check must never be able to fail an extraction that
+     * otherwise succeeded.
+     */
+    private static function warnIfUnreconciled(?int $id, int $claimed): void
+    {
+        if ($id === null || $id <= 0 || ! self::ready()) {
+            return;
+        }
+
+        try {
+            if (! Schema::hasColumn('ahg_ner_entity', 'extraction_id')) {
+                return;
+            }
+
+            $linked = (int) DB::table('ahg_ner_entity')->where('extraction_id', $id)->count();
+
+            if ($linked !== $claimed) {
+                Log::warning(
+                    "NER extraction {$id} does not reconcile: claims {$claimed} entit(ies), "
+                    . "{$linked} carry extraction_id={$id}. Entities written without a ledger link "
+                    . 'cannot be attributed to the run that produced them (#1479).'
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::warning('NerExtractionLedger reconciliation check failed: '.$e->getMessage());
+        }
     }
 
     /** The scan itself failed - distinct from finding nothing. */

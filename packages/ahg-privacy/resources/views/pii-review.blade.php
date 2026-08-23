@@ -91,11 +91,31 @@ $typeBadges = [
                                 </a>
                             </td>
                             <td class="text-center">
+                                {{-- #1480: confidence is legitimately NULL when the
+                                     extractor returned no per-entity score - spaCy
+                                     emits none today, and the legacy path has value
+                                     and type only. round(null * 100) is 0, which was
+                                     then styled text-danger, so "we have no score"
+                                     rendered as "0%, low confidence" in red: the
+                                     opposite of the truth, and a number where there
+                                     is no measurement. Absent and zero are different
+                                     states and must not look alike. --}}
                                 @php
-$conf = round($entity->confidence * 100);
-                                $confClass = $conf >= 80 ? 'text-success' : ($conf >= 60 ? 'text-warning' : 'text-danger');
-@endphp
-                                <span class="{{ $confClass }}">{{ $conf }}%</span>
+                                    $conf = $entity->confidence === null
+                                        ? null
+                                        : round(((float) $entity->confidence) * 100);
+                                    $confClass = $conf === null
+                                        ? 'text-muted'
+                                        : ($conf >= 80 ? 'text-success' : ($conf >= 60 ? 'text-warning' : 'text-danger'));
+                                @endphp
+                                @if($conf === null)
+                                    <span class="{{ $confClass }}"
+                                          title="{{ __('The extractor returned no per-entity score for this detection. Not the same as a score of zero.') }}">
+                                        {{ __('Not scored') }}
+                                    </span>
+                                @else
+                                    <span class="{{ $confClass }}">{{ $conf }}%</span>
+                                @endif
                             </td>
                             <td>
                                 <div class="d-flex gap-1">
