@@ -86,7 +86,13 @@
     {{-- Compliance Score --}}
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            {{-- Solid background-color FIRST, gradient second. The card's text
+                 is text-white, so if the gradient does not paint - a print
+                 stylesheet, a reduced-transparency setting, an overriding theme
+                 rule - the score renders white on white and is invisible. It
+                 was doing exactly that. A colour floor costs nothing and means
+                 the number is always readable. --}}
+            <div class="card bg-gradient" style="background-color: #6b4fa8; background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="card-body text-white text-center py-4">
                     <h5 class="mb-3">
                         @if($currentJurisdiction !== 'all' && isset($jurisdictions[$currentJurisdiction]))
