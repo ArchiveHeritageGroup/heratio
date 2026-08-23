@@ -1095,11 +1095,24 @@ class AclController extends Controller
 
     public function userClearance(int $id)
     {
-        $user = DB::table('user')->where('id', $id)->first() ?? (object) ['id' => $id, 'username' => 'Unknown'];
+        // #1478: the view refers to $targetUser throughout - deliberately, to
+        // distinguish the subject of the clearance from the operator viewing
+        // the page - and this passed $user, so every request to this route
+        // raised "Undefined variable $targetUser" and returned 500. The
+        // clearance form has therefore never been reachable through the UI.
+        $targetUser = DB::table('user')->where('id', $id)->first()
+            ?? (object) ['id' => $id, 'username' => 'Unknown'];
         $clearance = $this->service->getUserClearance($id);
         $accessHistory = collect();
 
-        return view('ahg-acl::security.user-clearance', compact('user', 'clearance', 'accessHistory'));
+        // #1478: the view populates its REQUIRED clearance-level select from
+        // $classifications ?? [], and this never passed it - so the select
+        // rendered with no options and the form could not be submitted even
+        // once the page stopped 500ing. getClassificationLevels() has existed
+        // on the service all along.
+        $classifications = $this->service->getClassificationLevels();
+
+        return view('ahg-acl::security.user-clearance', compact('targetUser', 'clearance', 'accessHistory', 'classifications'));
     }
 
     public function userSecurity(int $id)

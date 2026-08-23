@@ -124,7 +124,12 @@
               <div class="mb-3">
                 <label class="form-label">{{ __('Expiry Date') }}</label>
                 <input type="date" name="expiry_date" class="form-control"
-                       value="{{ $clearance->expiry_date ?? '' }}">
+                       {{-- #1478: the column is expires_at, not expiry_date - the
+                            form POSTS expiry_date and the controller maps it - so a
+                            saved expiry never came back and the field looked blank
+                            on every revisit. Trimmed to Y-m-d because it is stored
+                            as a datetime and <input type="date"> rejects the time. --}}
+                       value="{{ !empty($clearance->expires_at) ? substr((string) $clearance->expires_at, 0, 10) : '' }}">
               </div>
             </div>
           </div>
