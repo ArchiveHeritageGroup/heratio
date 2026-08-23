@@ -81,15 +81,15 @@
                             @endphp
                             <tr>
                                 <td>{{ $policy->policy_number ?? '-' }}</td>
-                                <td>{{ $policy->provider_name ?? '-' }}</td>
-                                <td>{{ ucfirst(str_replace('_', ' ', $policy->coverage_type ?? '-')) }}</td>
+                                <td>{{ $policy->insurer ?? '-' }}</td>
+                                <td>{{ ucfirst(str_replace('_', ' ', $policy->policy_type ?? '-')) }}</td>
                                 <td>
-                                    {{ $policy->coverage_currency ?? $defaultCurrency }}
-                                    {{ number_format($policy->coverage_amount ?? 0, 2) }}
+                                    {{ $policy->currency ?? $defaultCurrency }}
+                                    {{ number_format($policy->sum_insured ?? 0, 2) }}
                                 </td>
                                 <td>
-                                    {{ $policy->premium_currency ?? $defaultCurrency }}
-                                    {{ number_format($policy->premium_amount ?? 0, 2) }}
+                                    {{ $policy->currency ?? $defaultCurrency }}
+                                    {{ number_format($policy->premium ?? 0, 2) }}
                                 </td>
                                 <td>
                                     {{ !empty($policy->coverage_start) ? \Carbon\Carbon::parse($policy->coverage_start)->format('j M Y') : '-' }} -

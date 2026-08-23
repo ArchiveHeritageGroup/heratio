@@ -12,13 +12,11 @@ packages/ahg-acl/resources/views/security/user-clearance.blade.php	two_factor_ve
 packages/ahg-acl/resources/views/security/user.blade.php	grantedByUsername ?? granted_by_username
 packages/ahg-acl/resources/views/security/user.blade.php	new_name
 packages/ahg-cart/resources/views/admin-settings.blade.php	tax_rate
-packages/ahg-core/resources/views/add-digital-object.blade.php	diskUsage
 packages/ahg-core/resources/views/components/autocomplete.blade.php	creator_id
 packages/ahg-display/resources/views/display/_browse_content.blade.php	reference_path
 packages/ahg-exhibition/resources/views/_object-list-csv.blade.php	display_location
 packages/ahg-exhibition/resources/views/checklists.blade.php	checklist_name
 packages/ahg-exhibition/resources/views/storyline.blade.php	stop_order
-packages/ahg-exhibition/resources/views/storylines.blade.php	stop_count
 packages/ahg-function-manage/resources/views/show.blade.php	relation_dates
 packages/ahg-gallery/resources/views/gallery/facility-report.blade.php	climate_control
 packages/ahg-gallery/resources/views/gallery/facility-report.blade.php	report_date
@@ -38,10 +36,6 @@ packages/ahg-information-object-manage/resources/views/digitalobject/edit.blade.
 packages/ahg-information-object-manage/resources/views/digitalobject/edit.blade.php	displayAsCompoundObject
 packages/ahg-information-object-manage/resources/views/do-edit.blade.php	canThumbnail
 packages/ahg-information-object-manage/resources/views/do-edit.blade.php	displayAsCompoundObject
-packages/ahg-ipsas/resources/views/insurance.blade.php	coverage_currency
-packages/ahg-ipsas/resources/views/insurance.blade.php	coverage_type
-packages/ahg-ipsas/resources/views/insurance.blade.php	premium_amount
-packages/ahg-ipsas/resources/views/insurance.blade.php	premium_currency
 packages/ahg-jobs-manage/resources/views/show.blade.php	error_output
 packages/ahg-landing-page/resources/views/_block-card.blade.php	child_blocks
 packages/ahg-landing-page/resources/views/blocks/_block_row_1_col.blade.php	child_blocks
@@ -54,18 +48,8 @@ packages/ahg-landing-page/resources/views/blocks/_block_row_3_col.blade.php	chil
 packages/ahg-landing-page/resources/views/blocks/_block_row_3_col.blade.php	computed_data
 packages/ahg-landing-page/resources/views/index.blade.php	computed_data
 packages/ahg-landing-page/resources/views/my-dashboard.blade.php	computed_data
-packages/ahg-marketplace/resources/views/admin-listing-review.blade.php	auction_start_price
-packages/ahg-marketplace/resources/views/admin-reports.blade.php	net_seller_payouts
-packages/ahg-marketplace/resources/views/admin-seller-verify.blade.php	follower_count
 packages/ahg-marketplace/resources/views/listing.blade.php	category_slug
-packages/ahg-marketplace/resources/views/my-following.blade.php	listing_count
-packages/ahg-marketplace/resources/views/seller-listing-edit.blade.php	auction_buy_now_price
-packages/ahg-marketplace/resources/views/seller-listing-edit.blade.php	auction_reserve_price
-packages/ahg-marketplace/resources/views/seller-listing-edit.blade.php	auction_start_price
 packages/ahg-naz/resources/views/researcher-view.blade.php	material_consulted
-packages/ahg-repository-manage/resources/views/_upload-limit.blade.php	disk_usage
-packages/ahg-repository-manage/resources/views/upload-limit-exceeded.blade.php	disk_usage
-packages/ahg-research/resources/views/research/collections.blade.php	items_count
 packages/ahg-research/resources/views/research/custody-chain.blade.php	staff_name
 packages/ahg-research/resources/views/research/custody-return-verify.blade.php	expected_return
 packages/ahg-research/resources/views/research/source-assessment.blade.php	authenticity_notes
@@ -80,9 +64,7 @@ packages/ahg-rights-holder-manage/resources/views/extendedRights/_rights-display
 packages/ahg-rights-holder-manage/resources/views/extendedRights/_rights-display.blade.php	rs_name
 packages/ahg-rights-holder-manage/resources/views/extendedRights/_rights-display.blade.php	rs_uri
 packages/ahg-security-clearance/resources/views/clearance/view-request.blade.php	object_classification_color
-packages/ahg-semantic-search/resources/views/terms.blade.php	synonym_count
 packages/ahg-settings/resources/views/errorLog.blade.php	request_url
-packages/ahg-settings/resources/views/webhooks.blade.php	delivery_count
 packages/ahg-term-taxonomy/resources/views/edit.blade.php	is_protected
 packages/ahg-user-manage/resources/views/index-actor-acl.blade.php	access_label
 packages/ahg-user-manage/resources/views/index-information-object-acl.blade.php	access_label

@@ -3770,7 +3770,29 @@ class MarketplaceService
      */
     public function getListingById(int $id): ?object
     {
-        return DB::table($this->listingTable)->where('id', $id)->first();
+        // The admin review screen shows Starting Bid and Reserve Price from
+        // auction_start_price / auction_reserve_price, which this query never
+        // produced - so both rendered as 0 and '-' on every auction listing
+        // (#1478). The values live on marketplace_auction; aliased here rather
+        // than renamed in the views, because the "auction_" prefixed names are
+        // what the listing screens read while starting_bid / reserve_price are
+        // the auction table's own column names.
+        $query = DB::table($this->listingTable)->where($this->listingTable . '.id', $id);
+
+        if (Schema::hasTable('marketplace_auction')) {
+            $query->leftJoin('marketplace_auction as ma', 'ma.listing_id', '=', $this->listingTable . '.id')
+                ->select(
+                    $this->listingTable . '.*',
+                    'ma.starting_bid as auction_start_price',
+                    'ma.reserve_price as auction_reserve_price',
+                    'ma.buy_now_price as auction_buy_now_price',
+                    'ma.current_bid',
+                    'ma.bid_count',
+                    'ma.end_time as auction_end_time'
+                );
+        }
+
+        return $query->first();
     }
 
     /**
@@ -3959,7 +3981,20 @@ class MarketplaceService
 
     public function getSellerById(int $id): ?object
     {
-        return DB::table($this->sellerTable)->where('id', $id)->first();
+        // follower_count is rendered on the seller verification screen and was
+        // never computed, so every seller showed 0 followers (#1478).
+        $query = DB::table($this->sellerTable)->where($this->sellerTable . '.id', $id);
+
+        if (Schema::hasTable($this->followTable)) {
+            $query->select($this->sellerTable . '.*')->selectSub(
+                DB::table($this->followTable)
+                    ->whereColumn($this->followTable . '.seller_id', $this->sellerTable . '.id')
+                    ->selectRaw('COUNT(*)'),
+                'follower_count'
+            );
+        }
+
+        return $query->first();
     }
 
     public function getSellerPayouts(int $sellerId, int $limit = 50, int $offset = 0): array
@@ -4046,10 +4081,23 @@ class MarketplaceService
             ->where('f.user_id', $userId)
             ->where('s.is_active', 1);
         $total = (clone $query)->count();
+        // listing_count is rendered per seller on my-following and was never
+        // computed, so every seller showed 0 listings (#1478).
+        $columns = ['s.*', 'f.created_at as followed_at'];
+        if (Schema::hasTable($this->listingTable)) {
+            $query->selectSub(
+                DB::table($this->listingTable)
+                    ->whereColumn($this->listingTable . '.seller_id', 's.id')
+                    ->selectRaw('COUNT(*)'),
+                'listing_count'
+            );
+            $columns[] = 'listing_count';
+        }
+
         $items = $query->orderByDesc('f.created_at')
             ->offset($offset)
             ->limit($limit)
-            ->get(['s.*', 'f.created_at as followed_at']);
+            ->get($columns);
         return ['items' => $items, 'total' => (int) $total];
     }
 

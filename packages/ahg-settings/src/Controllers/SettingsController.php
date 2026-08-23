@@ -2492,7 +2492,18 @@ class SettingsController extends Controller
 
                 return redirect()->route('settings.webhooks')->with('success', 'Webhook created.');
             }
-            $webhooks = DB::table('ahg_webhook')->orderBy('name')->get()->map(function ($w) {
+            // delivery_count is rendered on this list and was never computed,
+            // so every webhook showed 0 deliveries however many it had (#1478).
+            $webhookQuery = DB::table('ahg_webhook');
+            if (Schema::hasTable('ahg_webhook_delivery')) {
+                $webhookQuery->select('ahg_webhook.*')->selectSub(
+                    DB::table('ahg_webhook_delivery')
+                        ->whereColumn('ahg_webhook_delivery.webhook_id', 'ahg_webhook.id')
+                        ->selectRaw('COUNT(*)'),
+                    'delivery_count'
+                );
+            }
+            $webhooks = $webhookQuery->orderBy('name')->get()->map(function ($w) {
                 $w->events = json_decode($w->events, true) ?: [];
 
                 return $w;

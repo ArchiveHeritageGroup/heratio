@@ -75,17 +75,25 @@ class ExhibitionService
                 ->leftJoin('slug', 'eo.information_object_id', '=', 'slug.object_id')
                 ->where('eo.exhibition_id', $id)
                 ->select('eo.*', 'ioi.title as object_title', 'slug.slug')
-                ->orderBy('eo.sort_order')
+                ->orderBy('eo.sequence_order')
                 ->get();
 
+            // stop_count is rendered on the storylines list and was never
+            // computed, so every storyline showed 0 stops (#1478).
             $exhibition->storylines = DB::table('exhibition_storyline')
                 ->where('exhibition_id', $id)
-                ->orderBy('sort_order')
+                ->select('exhibition_storyline.*')
+                ->selectSub(DB::table('exhibition_storyline_stop')
+                    ->whereColumn('exhibition_storyline_stop.storyline_id', 'exhibition_storyline.id')
+                    ->selectRaw('COUNT(*)'),
+                'stop_count'
+            )
+                ->orderBy('sequence_order')
                 ->get();
 
             $exhibition->sections = DB::table('exhibition_section')
                 ->where('exhibition_id', $id)
-                ->orderBy('sort_order')
+                ->orderBy('sequence_order')
                 ->get();
 
             $exhibition->events = DB::table('exhibition_event')
@@ -95,7 +103,10 @@ class ExhibitionService
 
             $exhibition->checklists = DB::table('exhibition_checklist')
                 ->where('exhibition_id', $id)
-                ->orderBy('category')
+                // exhibition_checklist has no `category` - the column is
+                // checklist_type. ORDER BY on a column that does not exist is a
+                // hard SQL error, so this threw rather than sorting wrongly.
+                ->orderBy('checklist_type')
                 ->get();
         }
 
@@ -345,7 +356,7 @@ class ExhibitionService
             ->leftJoin('slug', 'eo.information_object_id', '=', 'slug.object_id')
             ->where('eo.exhibition_id', $exhibitionId)
             ->select('eo.*', 'ioi.title as object_title', 'slug.slug')
-            ->orderBy('eo.sort_order')
+            ->orderBy('eo.sequence_order')
             ->get();
     }
 
@@ -353,7 +364,13 @@ class ExhibitionService
     {
         return DB::table('exhibition_storyline')
             ->where('exhibition_id', $exhibitionId)
-            ->orderBy('sort_order')
+            ->select('exhibition_storyline.*')
+            ->selectSub(DB::table('exhibition_storyline_stop')
+                ->whereColumn('exhibition_storyline_stop.storyline_id', 'exhibition_storyline.id')
+                ->selectRaw('COUNT(*)'),
+            'stop_count'
+            )
+            ->orderBy('sequence_order')
             ->get();
     }
 

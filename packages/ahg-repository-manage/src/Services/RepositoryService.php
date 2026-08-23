@@ -29,6 +29,7 @@ use AhgCore\Constants\TermId;
 use AhgCore\Services\EncryptionService;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class RepositoryService
@@ -45,6 +46,29 @@ class RepositoryService
     /**
      * Get a repository by slug with all ISDIAH + ISAAR fields.
      */
+    /**
+     * Bytes currently stored against a repository - #1478.
+     *
+     * The upload-limit screens read `disk_usage` off the repository row, but
+     * `repository` has only `upload_limit`; nothing has ever stored or computed
+     * usage, so the screen reported 0 GB used no matter how full the repository
+     * was - which is precisely the number an operator is on that page to check.
+     *
+     * Summed on demand rather than denormalised onto the row: it is needed on
+     * two screens, and a stored counter would drift on every delete.
+     */
+    public function diskUsageBytes(int $repositoryId): int
+    {
+        if (! Schema::hasTable('digital_object') || ! Schema::hasTable('information_object')) {
+            return 0;
+        }
+
+        return (int) DB::table('digital_object as do')
+            ->join('information_object as io', 'io.id', '=', 'do.object_id')
+            ->where('io.repository_id', $repositoryId)
+            ->sum('do.byte_size');
+    }
+
     public function getBySlug(string $slug): ?object
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');

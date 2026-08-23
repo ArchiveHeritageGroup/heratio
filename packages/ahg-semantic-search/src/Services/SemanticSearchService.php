@@ -26,6 +26,7 @@
 namespace AhgSemanticSearch\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class SemanticSearchService
 {
@@ -77,6 +78,18 @@ class SemanticSearchService
     public function getTerms(array $filters = []): \Illuminate\Support\Collection
     {
         $query = DB::table('ahg_thesaurus_term');
+
+        // synonym_count is rendered on the term list and was never computed, so
+        // every term showed 0 synonyms however many it had (#1478). Correlated
+        // subquery, so a term with none still lists and no row is duplicated.
+        if (Schema::hasTable('ahg_thesaurus_synonym')) {
+            $query->select('ahg_thesaurus_term.*')->selectSub(
+                DB::table('ahg_thesaurus_synonym')
+                    ->whereColumn('ahg_thesaurus_synonym.term_id', 'ahg_thesaurus_term.id')
+                    ->selectRaw('COUNT(*)'),
+                'synonym_count'
+            );
+        }
 
         if (! empty($filters['search'])) {
             $query->where('term', 'LIKE', '%'.$filters['search'].'%');

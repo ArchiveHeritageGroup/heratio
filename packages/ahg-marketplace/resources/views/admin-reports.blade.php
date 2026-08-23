@@ -14,10 +14,16 @@
 @section('content')
 
 @php
-    $totalRevenue     = (float) ($revenueStats->total_revenue ?? 0);
-    $totalCommission  = (float) ($revenueStats->total_commission ?? 0);
-    $netSellerPayouts = (float) ($revenueStats->net_seller_payouts ?? 0);
-    $txnCount         = (int) ($revenueStats->transaction_count ?? 0);
+    {{-- #1478: getRevenueStats() returns an ARRAY, and these read it as an
+         object - so every figure on this report rendered 0 regardless of
+         takings. Two of the four keys were also wrong: the service reports
+         total_seller_amount and total_sales, not net_seller_payouts and
+         transaction_count. Array access with the real keys. --}}
+    $revenueStats     = (array) ($revenueStats ?? []);
+    $totalRevenue     = (float) ($revenueStats['total_revenue'] ?? 0);
+    $totalCommission  = (float) ($revenueStats['total_commission'] ?? 0);
+    $netSellerPayouts = (float) ($revenueStats['total_seller_amount'] ?? 0);
+    $txnCount         = (int) ($revenueStats['total_sales'] ?? 0);
 
     $maxRevenue = 0;
     if (!empty($monthlyRevenue)) {

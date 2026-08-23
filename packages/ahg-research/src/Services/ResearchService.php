@@ -32,6 +32,7 @@ use AhgResearch\Mail\BookingCancelledMail;
 use AhgResearch\Mail\BookingConfirmedMail;
 use AhgResearch\Mail\BookingCreatedMail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -392,10 +393,20 @@ class ResearchService
 
     public function getCollections(int $researcherId): array
     {
-        return DB::table('research_collection')
-            ->where('researcher_id', $researcherId)
-            ->orderBy('name')
-            ->get()->toArray();
+        // items_count is rendered on the collections list and was never
+        // computed, so every collection showed 0 items (#1478).
+        $query = DB::table('research_collection')->where('researcher_id', $researcherId);
+
+        if (Schema::hasTable('research_collection_item')) {
+            $query->select('research_collection.*')->selectSub(
+                DB::table('research_collection_item')
+                    ->whereColumn('research_collection_item.collection_id', 'research_collection.id')
+                    ->selectRaw('COUNT(*)'),
+                'items_count'
+            );
+        }
+
+        return $query->orderBy('name')->get()->toArray();
     }
 
     public function getCollection(int $id): ?object

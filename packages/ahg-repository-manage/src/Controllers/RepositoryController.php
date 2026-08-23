@@ -478,6 +478,10 @@ class RepositoryController extends Controller
             ->orderBy('user.id')
             ->value('user.email') ?? '';
 
+        // disk_usage is read off the repository row by this view and has never
+        // existed as a column, so the page reported 0 GB used (#1478).
+        $repository->disk_usage = $this->service->diskUsageBytes((int) $repository->id);
+
         return view('ahg-repository-manage::upload-limit-exceeded', [
             'repository' => $repository,
             'adminEmail' => $adminEmail,
