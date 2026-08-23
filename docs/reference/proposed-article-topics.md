@@ -10,7 +10,7 @@
 ## Proposed batch (2026-08-15)
 
 ### Continuing the "___ was never the hard part / governance" series
-1. **The Scanner Was Never the Hard Part** - why digitisation projects fail after the images are made: duplicates, missing text layers, 1-bit/bi-tonal masters. Grounded in the RFQ-00205 delivery audit (anonymised in the public draft) and the toolkit's Flaws-and-Corrections. **[DRAFTED - `docs/articles/scanner-was-never-the-hard-part.md` (+ LinkedIn); held for the next round, not yet published]**
+1. **The Scanner Was Never the Hard Part** - why digitisation projects fail after the images are made: duplicates, missing text layers, 1-bit/bi-tonal masters. Grounded in the national heritage delivery audit (client anonymised in all outgoing material) and the toolkit's Flaws-and-Corrections. **[DRAFTED - `docs/articles/scanner-was-never-the-hard-part.md` (+ LinkedIn); held for the next round, not yet published]**
 2. **Born-Digital Was Never a Digitisation Problem** - born-digital is custody, not capture; OAIS/PREMIS/METS/PRONOM. From Digitisation Toolkit Part 4. **[PUBLISHED - blog #33, 2026-08-15; `docs/articles/born-digital-was-never-a-digitisation-problem.md`]**
 
 ### From the Digitisation Toolkit
