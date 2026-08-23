@@ -5,7 +5,7 @@ Purpose: hand the SLIMS-side findings and four code-verified Heratio defects to 
 
 ## Background in one paragraph
 
-SITA asked for an evaluation of SLIMS/Brocade (a ~1.1M-line MUMPS ILS serving ~1,300 SA public libraries, unmaintainable locally) and whether to modernise or migrate. A depth-verified, code-level functional comparison against Heratio concluded that Heratio is the recommended migration target (over Koha): it already carries an ILS module and, decisively, the GRAP 103 heritage-asset accounting that was the compliance driver. Full analysis and build plan are in three documents in `/usr/share/nginx/slims/`:
+The client asked for an evaluation of SLIMS/Brocade (a ~1.1M-line MUMPS ILS serving ~1,300 SA public libraries, unmaintainable locally) and whether to modernise or migrate. A depth-verified, code-level functional comparison against Heratio concluded that Heratio is the recommended migration target (over Koha): it already carries an ILS module and, decisively, the GRAP 103 heritage-asset accounting that was the compliance driver. Full analysis and build plan are in three documents in `/usr/share/nginx/slims/`:
 
 - `AHG-SLIMS-2026-001 ... Technical Evaluation and Modernisation Options v1.0.docx`
 - `AHG-SLIMS-2026-002 ... Heratio vs SLIMS Brocade Functional Gap Analysis v1.0.docx`
@@ -52,7 +52,7 @@ Note the shared root cause of Defects 2-4: a `library_biblio_*` / interop-backbo
 
 ## Part 2: The strategic frame the dev session should know
 
-If SITA proceeds, Heratio becomes the SLIMS migration target (Option F in the pack). The build roadmap (Combined Pack section 5) is summarised here so dev work aligns.
+If the client proceeds, Heratio becomes the SLIMS migration target (Option F in the pack). The build roadmap (Combined Pack section 5) is summarised here so dev work aligns.
 
 Foundational decision: model the 1,300 branches as repository rows in ONE shared Heratio instance (not one instance per branch). Heratio's shared-DB, repository-scoped multi-tenancy then gives a single scalable index, a union catalogue for free, and the substrate for branch-aware circulation.
 

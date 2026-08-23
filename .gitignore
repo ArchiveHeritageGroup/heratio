@@ -117,3 +117,7 @@ public/vendor/ahg-theme-b5/css/ahg-generated.css
 
 # Generated client hand-off documents (branded DOCX; sources live in docs/help)
 docs/handouts/
+
+# Local operational data - never publish (v1.154.633 incident)
+/storage/backups-offsite/
+/storage/europeana/
