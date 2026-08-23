@@ -308,7 +308,7 @@
             {{-- alternate_titles: optional, CCO 3.2 --}}
             <div class="cco-field level-optional" data-field="alternate_titles">
               <div class="field-header">
-                <label for="alternate_titles">
+                <label for="alternate_title">
                   Alternate titles
                 </label>
                 <span class="field-badges">
@@ -320,7 +320,7 @@
                 </button>
               </div>
               <div class="field-input">
-                <textarea class="form-control" id="alternate_titles" name="alternate_titles" rows="2">{{ old('alternate_titles', $artwork->alternate_titles ?? '') }}</textarea>
+                <textarea class="form-control" id="alternate_title" name="alternate_title" rows="2">{{ old('alternate_title', $artwork->alternate_title ?? '') }}</textarea>
               </div>
               <div class="field-help" id="help-alternate_titles" style="display: none;">
                 <div class="help-content">

@@ -27,6 +27,7 @@
 
 namespace AhgGallery\Services;
 
+use AhgCore\Support\CcoFields;
 use AhgCore\Constants\TermId;
 use AhgCore\Services\SettingHelper;
 use AhgCore\Traits\WithCultureFallback;
@@ -130,6 +131,10 @@ class GalleryService
                 'mm.cataloger_name',
                 'mm.cataloging_date',
             ])
+            // The CCO fields added in #1478. Selected from the shared list so
+            // the edit form repopulates what was saved - a field that saves but
+            // renders empty next time is the same bug wearing a different hat.
+            ->addSelect(CcoFields::select('mm'))
             ->first();
 
         // #74 encryption_field_access_restrictions: decrypt the two
@@ -478,7 +483,8 @@ class GalleryService
                 'rights_holder' => $data['rights_holder'] ?? null,
                 'cataloger_name' => $data['cataloger_name'] ?? null,
                 'cataloging_date' => $data['cataloging_date'] ?? null,
-            ]);
+            
+            ] + CcoFields::values($data));
 
             // Generate slug
             $baseSlug = Str::slug($data['title'] ?: 'untitled');
@@ -632,6 +638,11 @@ class GalleryService
                 'cataloger_name' => $data['cataloger_name'] ?? null,
                 'cataloging_date' => $data['cataloging_date'] ?? null,
             ];
+
+            // The CCO fields the form had been collecting and discarding
+            // (#1478). Shared list, so the museum service cannot drift from
+            // this one the way the two whitelists drifted before.
+            $metaFields = array_merge($metaFields, CcoFields::values($data));
 
             if ($metadataExists) {
                 DB::table('museum_metadata')->where('object_id', $ioId)->update($metaFields);

@@ -27,6 +27,7 @@
 
 namespace AhgGallery\Controllers;
 
+use AhgCore\Support\CcoFields;
 use AhgCore\Constants\TermId;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\DigitalObjectService;
@@ -395,7 +396,7 @@ class GalleryController extends Controller
             'cataloger_name' => 'nullable|string|max:255',
             'cataloging_date' => 'nullable|string|max:255',
             'repository_id' => 'nullable|integer',
-        ]);
+        ] + CcoFields::rules());
 
         $slug = $this->service->create($request->all(), app()->getLocale());
 
@@ -462,7 +463,7 @@ class GalleryController extends Controller
             'cataloger_name' => 'nullable|string|max:255',
             'cataloging_date' => 'nullable|string|max:255',
             'repository_id' => 'nullable|integer',
-        ]);
+        ] + CcoFields::rules());
 
         $this->service->update($slug, $request->all(), app()->getLocale());
 

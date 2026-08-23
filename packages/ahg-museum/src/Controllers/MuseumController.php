@@ -27,6 +27,7 @@
 
 namespace AhgMuseum\Controllers;
 
+use AhgCore\Support\CcoFields;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\DigitalObjectService;
 use AhgCore\Services\SettingHelper;
@@ -319,7 +320,7 @@ class MuseumController extends Controller
             'condition_date' => 'nullable|date',
             'treatment_date' => 'nullable|date',
             'cataloging_date' => 'nullable|date',
-        ]);
+        ] + CcoFields::rules());
 
         $slug = $this->service->create($request->all());
 
@@ -364,7 +365,7 @@ class MuseumController extends Controller
             'condition_date' => 'nullable|date',
             'treatment_date' => 'nullable|date',
             'cataloging_date' => 'nullable|date',
-        ]);
+        ] + CcoFields::rules());
 
         $this->service->update($slug, $request->all());
 

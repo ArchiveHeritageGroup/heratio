@@ -27,6 +27,7 @@
 
 namespace AhgMuseum\Services;
 
+use AhgCore\Support\CcoFields;
 use AhgCore\Services\SettingHelper;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
@@ -203,6 +204,9 @@ class MuseumService
                 'museum_metadata.edition_size',
                 'display_object_config.primary_profile_id',
             ])
+            // The CCO fields added in #1478, from the shared list, so the edit
+            // form repopulates what was saved.
+            ->addSelect(CcoFields::select())
             ->first();
 
         // #74 encryption_field_access_restrictions: decrypt the two
@@ -686,7 +690,8 @@ class MuseumService
                 'edition_size' => $data['edition_size'] ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]);
+            
+            ] + CcoFields::values($data));
 
             // Insert display_object_config
             DB::table('display_object_config')->insert([
@@ -880,7 +885,7 @@ class MuseumService
                     'edition_number' => $data['edition_number'] ?? null,
                     'edition_size' => $data['edition_size'] ?? null,
                     'updated_at' => now(),
-                ]);
+                ] + CcoFields::values($data));
 
             // Update object.updated_at
             DB::table('object')
