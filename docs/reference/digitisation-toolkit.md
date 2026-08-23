@@ -77,7 +77,7 @@ AI may assist digitisation but never replaces professional judgement; where used
 
 Acceptance instruments: the **master listing/manifest** (one row per item/file: reference, filename, type, pages, ppi, format, checksum, status), an **exceptions report**, a **checksum manifest** (fixity), and a **delivery audit matrix** (A1-A12 pass/fail per batch with evidence; A12 only where AI is used).
 
-## Tender-flaw lessons (from the Freedom Park RFQ-00205 delivery audit)
+## Tender-flaw lessons (from a national heritage delivery audit)
 
 Spec flaws cause delivery defects - design them out:
 
