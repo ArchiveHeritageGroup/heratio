@@ -126,6 +126,108 @@ class LibraryBranchCirculationTest extends TestCase
         $this->assertSame(1, $this->circ->resolveMaxRenewals(self::MATERIAL, 'public', 1, self::BRANCH_A));
     }
 
+    /** Create an item, a copy at $branchId, a patron, and return [copyId, patronId]. */
+    private function fixture(?int $branchId, string $patronType = 'public'): array
+    {
+        $itemId = DB::table('library_item')->insertGetId([
+            'information_object_id' => 0,
+            'material_type' => self::MATERIAL,
+            'created_at' => now(),
+        ]);
+
+        $copyId = DB::table('library_copy')->insertGetId([
+            'library_item_id' => $itemId,
+            'copy_number' => 1,
+            'barcode' => 'BR-' . uniqid('', true),
+            'branch_id' => $branchId,
+            'status' => LibraryCirculationService::STATUS_AVAILABLE,
+            'created_at' => now(),
+        ]);
+
+        $patronId = DB::table('library_patron')->insertGetId([
+            'card_number' => 'BR-' . uniqid('', true),
+            'patron_type' => $patronType,
+            'first_name' => 'Branch',
+            'last_name' => 'Fixture',
+            'membership_start' => now()->toDateString(),
+            'max_checkouts' => 5,
+            'borrowing_status' => 'active',
+            'total_fines_owed' => 0,
+            'created_at' => now(),
+        ]);
+
+        return [$copyId, $patronId];
+    }
+
+    public function test_checkout_list_is_scoped_to_one_branch(): void
+    {
+        $this->rule(LibraryBranch::ALL, '*', 14);
+
+        [$copyA, $patronA] = $this->fixture(self::BRANCH_A);
+        [$copyB, $patronB] = $this->fixture(self::BRANCH_B);
+
+        $this->circ->checkout($copyA, $patronA);
+        $this->circ->checkout($copyB, $patronB);
+
+        $atA = $this->circ->listCheckouts(['status' => 'active', 'branch_id' => self::BRANCH_A]);
+        $atB = $this->circ->listCheckouts(['status' => 'active', 'branch_id' => self::BRANCH_B]);
+
+        $this->assertCount(1, $atA);
+        $this->assertCount(1, $atB);
+        $this->assertNotSame($atA[0]->id, $atB[0]->id);
+    }
+
+    public function test_a_null_branch_filter_means_every_branch_not_none(): void
+    {
+        // The distinction that makes single-outlet installs keep working: null
+        // is the consortium view, not an empty scope.
+        $this->rule(LibraryBranch::ALL, '*', 14);
+
+        [$copyA, $patronA] = $this->fixture(self::BRANCH_A);
+        [$copyB, $patronB] = $this->fixture(self::BRANCH_B);
+        $this->circ->checkout($copyA, $patronA);
+        $this->circ->checkout($copyB, $patronB);
+
+        $all = $this->circ->listCheckouts(['status' => 'active', 'branch_id' => null]);
+
+        $this->assertGreaterThanOrEqual(2, count($all));
+    }
+
+    public function test_a_loan_predating_the_branch_column_is_still_listed_via_its_copy(): void
+    {
+        $this->rule(LibraryBranch::ALL, '*', 14);
+        [$copyA, $patronA] = $this->fixture(self::BRANCH_A);
+
+        $checkoutId = $this->circ->checkout($copyA, $patronA);
+
+        // Simulate history: the loan itself carries no branch, but its copy does.
+        DB::table('library_checkout')->where('id', $checkoutId)->update(['branch_id' => null]);
+
+        $atA = $this->circ->listCheckouts(['status' => 'active', 'branch_id' => self::BRANCH_A]);
+
+        $this->assertCount(1, $atA, 'a pre-branch loan vanished from its own branch list');
+    }
+
+    public function test_overdue_list_derives_patron_name_and_days_overdue(): void
+    {
+        $this->rule(LibraryBranch::ALL, '*', 14);
+        [$copyA, $patronA] = $this->fixture(self::BRANCH_A);
+        $checkoutId = $this->circ->checkout($copyA, $patronA);
+
+        // Six days past due.
+        DB::table('library_checkout')->where('id', $checkoutId)
+            ->update(['due_date' => now()->subDays(6)->toDateString()]);
+
+        $overdue = collect($this->circ->listOverdue())->firstWhere('id', $checkoutId);
+
+        $this->assertNotNull($overdue, 'the overdue loan was not listed');
+        // These three were bound in the view but never selected by the query,
+        // so every row rendered blank / 0 / 0.00 before this fix.
+        $this->assertSame('Branch Fixture', $overdue->patron_name);
+        $this->assertSame(6, $overdue->days_overdue);
+        $this->assertNull($overdue->fine_amount, 'no fine row exists yet, so it is not zero but unknown');
+    }
+
     public function test_checkout_records_the_branch_and_lends_on_its_loan_period(): void
     {
         $this->rule(LibraryBranch::ALL, '*', 21);

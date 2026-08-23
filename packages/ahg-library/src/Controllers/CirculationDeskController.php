@@ -57,13 +57,50 @@ class CirculationDeskController extends Controller
         $scanError = $request->session()->get('circulation_scan_error');
         $request->session()->forget(['circulation_scan_result', 'circulation_scan_error']);
 
-        $loans = collect($this->circ->listCheckouts(['status' => 'active']));
+        // Null means every branch, which is both the consortium view and the
+        // right answer for a single-outlet service - see LibraryBranch.
+        $operatorBranch = LibraryBranch::operatorBranchId();
+
+        $loans = collect($this->circ->listCheckouts([
+            'status' => 'active',
+            'branch_id' => $operatorBranch,
+        ]));
 
         return view('ahg-library::circulation.index', [
-            'scanResult' => $scanResult,
-            'scanError'  => $scanError,
-            'loans'      => $loans,
+            'scanResult'     => $scanResult,
+            'scanError'      => $scanError,
+            'loans'          => $loans,
+            'branchAware'    => LibraryBranch::available(),
+            'branchOptions'  => LibraryBranch::available() ? LibraryBranch::options() : [],
+            'operatorBranch' => $operatorBranch,
+            'operatorBranchName' => LibraryBranch::name($operatorBranch),
+            'seesAllBranches' => LibraryBranch::operatorSeesAllBranches(),
         ]);
+    }
+
+    /**
+     * POST /library-manage/circulation/branch
+     * Choose which branch this operator is working at. Remembered for the
+     * shift and, where the table exists, persisted for the next sign-in.
+     */
+    public function chooseBranch(Request $request)
+    {
+        $validated = $request->validate([
+            'branch_id' => 'nullable|integer|min:0',
+        ]);
+
+        // 0 or absent is the deliberate "all branches" choice, not a missing
+        // value - the form submits it as a real option.
+        $branchId = (int) ($validated['branch_id'] ?? 0);
+        LibraryBranch::chooseOperatorBranch($branchId > 0 ? $branchId : null);
+
+        $name = LibraryBranch::name($branchId > 0 ? $branchId : null);
+
+        return redirect()
+            ->route('library.circulation.index')
+            ->with('success', $name !== null
+                ? __('Now working at :branch.', ['branch' => $name])
+                : __('Now showing every branch.'));
     }
 
     /**

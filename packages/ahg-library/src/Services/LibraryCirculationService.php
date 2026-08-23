@@ -491,9 +491,14 @@ class LibraryCirculationService
         return $count;
     }
 
-    public function listOverdue(): array
+    /**
+     * Overdue loans, optionally only those made at one branch. Null means
+     * every branch - the consortium view, and also the right answer for a
+     * single-outlet service, so it must not be treated as "no access".
+     */
+    public function listOverdue(?int $branchId = null): array
     {
-        return DB::table('library_checkout as c')
+        $q = DB::table('library_checkout as c')
             ->join('library_patron as p', 'c.patron_id', '=', 'p.id')
             ->leftJoin('library_copy as cp', 'c.copy_id', '=', 'cp.id')
             ->leftJoin('library_item as li', 'cp.library_item_id', '=', 'li.id')
@@ -502,15 +507,76 @@ class LibraryCirculationService
                   ->where('i18n.culture', '=', app()->getLocale());
             })
             ->where('c.status', 'active')
-            ->whereDate('c.due_date', '<', date('Y-m-d'))
-            ->select(
-                'c.id', 'c.due_date', 'c.checkout_date',
-                'p.first_name', 'p.last_name', 'p.email', 'p.card_number',
-                'cp.barcode', 'li.call_number', 'i18n.title',
-            )
+            ->whereDate('c.due_date', '<', date('Y-m-d'));
+
+        $this->scopeToBranch($q, $branchId);
+
+        $rows = $q->select(
+            'c.id', 'c.due_date', 'c.checkout_date', 'c.patron_id',
+            'p.first_name', 'p.last_name', 'p.email', 'p.card_number',
+            'cp.barcode', 'li.call_number', 'i18n.title',
+        )
             ->orderBy('c.due_date')
             ->get()
             ->all();
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        // The overdue view binds patron_name, days_overdue and fine_amount, none
+        // of which this query ever selected - so it showed a blank patron, 0 days
+        // and 0.00 for every row. Same defect shape as #1477 on the loan-rules
+        // screen: a plausible-looking table contradicting the real data.
+        //
+        // Derived here rather than in SQL because the library package's tests run
+        // on SQLite, where DATEDIFF and CONCAT are not available.
+        $fines = DB::table('library_fine')
+            ->whereIn('checkout_id', array_map(static fn ($r) => $r->id, $rows))
+            ->where('fine_type', 'overdue')
+            ->where('status', 'outstanding')
+            ->pluck('amount', 'checkout_id');
+
+        $today = strtotime(date('Y-m-d'));
+
+        foreach ($rows as $row) {
+            $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+            $row->patron_name = $name !== '' ? $name : ($row->card_number ?? '');
+
+            $due = strtotime((string) $row->due_date);
+            $row->days_overdue = $due === false ? 0 : max(0, (int) floor(($today - $due) / 86400));
+
+            // Null rather than 0 where no fine row exists yet: a fine accrues on
+            // return or on the nightly run, so "not yet calculated" is a real
+            // state and is not the same as "nothing owed".
+            $row->fine_amount = isset($fines[$row->id]) ? (float) $fines[$row->id] : null;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Restrict a checkout query to one branch. A loan made before the branch
+     * axis existed has branch_id NULL; it is matched by falling back to the
+     * branch of the copy, so history does not vanish from a branch's list the
+     * moment scoping is switched on.
+     */
+    protected function scopeToBranch($query, ?int $branchId): void
+    {
+        if ($branchId === null || ! $this->hasBranchColumn('library_checkout')) {
+            return;
+        }
+
+        $copyScoped = $this->hasBranchColumn('library_copy');
+
+        $query->where(function ($w) use ($branchId, $copyScoped) {
+            $w->where('c.branch_id', $branchId);
+            if ($copyScoped) {
+                $w->orWhere(function ($legacy) use ($branchId) {
+                    $legacy->whereNull('c.branch_id')->where('cp.branch_id', $branchId);
+                });
+            }
+        });
     }
 
     public function listCheckouts(array $filters = []): array
@@ -531,6 +597,11 @@ class LibraryCirculationService
         }
         if (!empty($filters['patron_id'])) {
             $q->where('c.patron_id', $filters['patron_id']);
+        }
+        // array_key_exists, not !empty: a branch_id of null is a meaningful
+        // "every branch" and must not be confused with "filter not supplied".
+        if (array_key_exists('branch_id', $filters)) {
+            $this->scopeToBranch($q, $filters['branch_id'] !== null ? (int) $filters['branch_id'] : null);
         }
 
         return $q->select(

@@ -26,6 +26,7 @@
 namespace AhgLibrary\Support;
 
 use AhgCore\Services\AhgSettingsService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -63,6 +64,9 @@ class LibraryBranch
 
     private static array $options = [];
 
+    /** Keyed by connection, for the same reason as $available. */
+    private static array $staffTable = [];
+
     /**
      * Whether this installation can express a branch at all. False on an
      * instance whose migration has not yet run.
@@ -90,6 +94,7 @@ class LibraryBranch
     {
         self::$available = [];
         self::$options = [];
+        self::$staffTable = [];
     }
 
     /**
@@ -179,6 +184,143 @@ class LibraryBranch
         }
 
         return self::$options[$key] = $options;
+    }
+
+    // ── The operator's branch - #1473 Phase 2 ───────────────────────────
+
+    /** Session key holding a branch chosen for this shift. */
+    public const SESSION_KEY = 'library_operator_branch';
+
+    /** Session value meaning the operator has deliberately chosen every branch. */
+    public const SESSION_ALL = 'all';
+
+    /**
+     * The branch whose work the signed-in operator should be looking at, or
+     * null for "everything" - which is both the consortium view and the
+     * correct answer for a single-outlet service that has never named a
+     * branch. A null here must therefore never be read as "no access".
+     *
+     * A choice made this shift wins over the stored one, so covering another
+     * counter for an afternoon does not require an administrator.
+     */
+    public static function operatorBranchId(): ?int
+    {
+        if (! self::available()) {
+            return null;
+        }
+
+        $session = self::sessionChoice();
+        if ($session === self::SESSION_ALL) {
+            return null;
+        }
+        if (is_int($session)) {
+            return $session;
+        }
+
+        $row = self::staffRow();
+        if ($row === null || (int) ($row->all_branches ?? 0) === 1) {
+            return null;
+        }
+
+        $branch = $row->branch_id ?? null;
+
+        return $branch !== null ? (int) $branch : null;
+    }
+
+    /**
+     * Whether the operator is looking across every branch. Distinct from
+     * operatorBranchId() returning null, which it also does when nobody has
+     * ever nominated a branch - the screens word those two states differently.
+     */
+    public static function operatorSeesAllBranches(): bool
+    {
+        if (! self::available()) {
+            return true;
+        }
+
+        if (self::sessionChoice() === self::SESSION_ALL) {
+            return true;
+        }
+
+        $row = self::staffRow();
+
+        return $row !== null && (int) ($row->all_branches ?? 0) === 1;
+    }
+
+    /**
+     * Remember the operator's choice for this shift and, where the table is
+     * present, persist it so the next sign-in starts at the same counter.
+     * Passing null selects every branch.
+     */
+    public static function chooseOperatorBranch(?int $branchId): void
+    {
+        $value = $branchId !== null && $branchId > 0 ? $branchId : self::SESSION_ALL;
+
+        if (function_exists('session') && app()->bound('session')) {
+            session()->put(self::SESSION_KEY, $value);
+        }
+
+        $userId = self::currentUserId();
+        if ($userId === null || ! self::staffTableExists()) {
+            return;
+        }
+
+        DB::table('library_staff_branch')->updateOrInsert(
+            ['user_id' => $userId],
+            [
+                'branch_id' => is_int($value) ? $value : null,
+                'all_branches' => $value === self::SESSION_ALL ? 1 : 0,
+                'updated_at' => now(),
+            ]
+        );
+    }
+
+    /** The branch choice held for this shift: an int, SESSION_ALL, or null. */
+    private static function sessionChoice(): int|string|null
+    {
+        if (! function_exists('session') || ! app()->bound('session')) {
+            return null;
+        }
+
+        $value = session()->get(self::SESSION_KEY);
+
+        if ($value === self::SESSION_ALL) {
+            return self::SESSION_ALL;
+        }
+
+        return is_numeric($value) && (int) $value > 0 ? (int) $value : null;
+    }
+
+    private static function staffRow(): ?object
+    {
+        $userId = self::currentUserId();
+        if ($userId === null || ! self::staffTableExists()) {
+            return null;
+        }
+
+        return DB::table('library_staff_branch')->where('user_id', $userId)->first();
+    }
+
+    private static function currentUserId(): ?int
+    {
+        if (! app()->bound('auth') || ! Auth::check()) {
+            return null;
+        }
+
+        $id = Auth::id();
+
+        return $id !== null ? (int) $id : null;
+    }
+
+    private static function staffTableExists(): bool
+    {
+        $key = self::connectionKey();
+
+        if (! array_key_exists($key, self::$staffTable)) {
+            self::$staffTable[$key] = Schema::hasTable('library_staff_branch');
+        }
+
+        return self::$staffTable[$key];
     }
 
     /** Display name for one branch id, or null when it is not a repository. */

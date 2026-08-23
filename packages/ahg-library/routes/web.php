@@ -305,6 +305,11 @@ Route::middleware('opac.enabled')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/library-manage/circulation', [CirculationDeskController::class, 'index'])->name('library.circulation.index');
     Route::post('/library-manage/circulation/scan', [CirculationDeskController::class, 'scan'])->name('library.circulation.scan')->middleware('acl:update');
+    // Choosing which branch you are working at is not a change to catalogue
+    // data, so it sits behind plain auth rather than acl:update - a read-only
+    // staffer still needs their lists scoped to their own counter (#1473).
+    Route::post('/library-manage/circulation/branch', [CirculationDeskController::class, 'chooseBranch'])
+        ->name('library.circulation.branch');
     Route::get('/library-manage/circulation/checkout/{copyId}', [CirculationDeskController::class, 'checkoutForm'])
         ->name('library.circulation.checkout')->where('copyId', '[0-9]+');
     Route::post('/library-manage/circulation/checkout', [CirculationDeskController::class, 'doCheckout'])

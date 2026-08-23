@@ -16,6 +16,39 @@
         </div>
     </div>
 
+    {{-- Which branch this operator is working at (#1473 Phase 2). Only shown
+         where the branch axis exists AND more than one repository is defined:
+         a single-outlet service should not be asked to choose between one
+         option, and would read the control as an unfinished setting. --}}
+    @if(($branchAware ?? false) && count($branchOptions ?? []) > 1)
+        <form method="post" action="{{ route('library.circulation.branch') }}"
+              class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+            @csrf
+            <label for="branch_id" class="form-label mb-0 small text-secondary">
+                <i class="fas fa-code-branch me-1"></i>{{ __('Working at') }}
+            </label>
+            <select name="branch_id" id="branch_id" class="form-select form-select-sm w-auto"
+                    onchange="this.form.submit()">
+                <option value="0" {{ ($operatorBranch ?? null) === null ? 'selected' : '' }}>
+                    {{ __('All branches') }}
+                </option>
+                @foreach($branchOptions as $bid => $bname)
+                    <option value="{{ $bid }}" {{ (int) ($operatorBranch ?? 0) === (int) $bid ? 'selected' : '' }}>
+                        {{ $bname }}
+                    </option>
+                @endforeach
+            </select>
+            <noscript><button type="submit" class="btn btn-sm atom-btn-white">{{ __('Change') }}</button></noscript>
+            <span class="small text-secondary">
+                @if(($operatorBranch ?? null) !== null)
+                    {{ __('Loans below are those made at :branch.', ['branch' => $operatorBranchName]) }}
+                @else
+                    {{ __('Loans below are from every branch.') }}
+                @endif
+            </span>
+        </form>
+    @endif
+
     {{-- Quick-action links --}}
     <div class="d-flex gap-2 flex-wrap mb-3">
         <a href="{{ route('library.circulation.index') . '?new_patron=1' }}" class="btn btn-sm atom-btn-white">

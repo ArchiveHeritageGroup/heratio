@@ -729,8 +729,12 @@ class LibraryController extends Controller
 
     public function overdue()
     {
+        // Scoped to the operator's branch; null is every branch (#1473).
+        $branchId = LibraryBranch::operatorBranchId();
+
         return view('ahg-library::circulation.overdue', [
-            'overdueItems' => collect($this->circ->listOverdue()),
+            'overdueItems' => collect($this->circ->listOverdue($branchId)),
+            'branchName'   => LibraryBranch::name($branchId),
         ]);
     }
 

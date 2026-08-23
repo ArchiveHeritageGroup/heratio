@@ -1,8 +1,9 @@
 -- =============================================================================
--- 04_library_branch.sql - the circulation branch axis (#1473)
+-- 04_library_branch.sql - the circulation branch axis (#1473, Phases 1 and 2)
 -- =============================================================================
--- Mirrors the columns added by
---   packages/ahg-library/database/migrations/2026_08_23_000100_add_branch_to_library_circulation.php
+-- Mirrors the schema added by
+--   .../migrations/2026_08_23_000100_add_branch_to_library_circulation.php   (Phase 1)
+--   .../migrations/2026_08_23_000200_create_library_staff_branch.php         (Phase 2)
 -- into the core schema, because a fresh install and the CI test database are
 -- built by loading database/core/0*.sql and never run package migrations. A
 -- column that exists only in a migration is therefore absent from every test
@@ -114,3 +115,18 @@ SET @stmt := (SELECT IF(
     'ALTER TABLE `library_loan_rule` ADD UNIQUE KEY `uk_branch_type_patron` (`branch_id`, `material_type`, `patron_type`)',
     'DO 0'));
 PREPARE s FROM @stmt; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- =============================================================================
+-- Phase 2: which branch a member of counter staff is working at.
+-- =============================================================================
+-- CREATE TABLE IF NOT EXISTS is idempotent on its own, so this one needs no
+-- prepared-statement guard. user_id references `user`.id - the AtoM-style table
+-- Heratio authenticates against - not the unused Laravel `users`.
+CREATE TABLE IF NOT EXISTS `library_staff_branch` (
+  `user_id` int NOT NULL COMMENT 'user.id',
+  `branch_id` int DEFAULT NULL COMMENT 'repository.id - the branch this operator works at',
+  `all_branches` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Consortium staff: may see across every branch',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  KEY `idx_staff_branch` (`branch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
