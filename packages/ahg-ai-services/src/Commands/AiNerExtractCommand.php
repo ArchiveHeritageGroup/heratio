@@ -27,6 +27,7 @@ class AiNerExtractCommand extends Command
     protected $signature = 'ahg:ai-ner
         {--limit=        : Maximum number of objects to process (0/blank = all matching)}
         {--unprocessed   : Only objects that have no ahg_ner_entity rows yet}
+        {--ids=          : Comma-separated information_object ids to process, in place of the usual sweep}
         {--batch=20      : Reporting batch size}
         {--culture=en    : i18n culture to read descriptions from}
         {--dry-run       : List the objects that would be processed, extract nothing}';
@@ -41,6 +42,16 @@ class AiNerExtractCommand extends Command
         $dryRun  = (bool) $this->option('dry-run');
         $onlyUnprocessed = (bool) $this->option('unprocessed');
 
+        // Named objects, rather than the id-ascending sweep. Needed whenever a
+        // specific record has to be (re-)extracted - after a correction, or to
+        // prepare a demonstration - because the sweep would otherwise have to
+        // walk every lower id first, spending gateway quota on records nobody
+        // asked about.
+        $ids = array_values(array_filter(array_map(
+            'intval',
+            preg_split('/[^0-9]+/', (string) $this->option('ids'), -1, PREG_SPLIT_NO_EMPTY) ?: []
+        )));
+
         $query = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', function ($j) use ($culture) {
                 $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $culture);
@@ -50,6 +61,10 @@ class AiNerExtractCommand extends Command
             ->where('ioi.scope_and_content', '!=', '')
             ->orderBy('io.id')
             ->select('io.id', 'ioi.title', 'ioi.scope_and_content');
+
+        if ($ids !== []) {
+            $query->whereIn('io.id', $ids);
+        }
 
         if ($onlyUnprocessed) {
             $query->whereNotExists(function ($sub) {

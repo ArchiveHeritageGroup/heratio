@@ -91,6 +91,12 @@
       @method('PUT')
     @endif
 
+    {{-- Carries the Object Template choice with the form. Nothing server-side
+         is template-conditional yet, so this is currently inert on save - but
+         without it the sidebar pills have nowhere to put the selection, which
+         is half of why they did nothing at all. --}}
+    <input type="hidden" name="template" value="{{ old('template', 'general') }}">
+
     <div class="accordion" id="museumAccordion">
 
       {{-- ===== 1. Object/Work (CCO Ch 2) ===== --}}
@@ -1492,6 +1498,27 @@
   'use strict';
   document.addEventListener('DOMContentLoaded', function() {
     updateCompleteness();
+
+    // Object Template pills. The sidebar was copied from the gallery form
+    // without the behaviour that drives it: the anchors are javascript:void(0)
+    // with a data-template attribute, `active` was hardcoded on General, and no
+    // handler was ever bound - so four of the five could not be selected at all.
+    // Toggling happens in place rather than by reloading, for the reason set
+    // out in the gallery view: nothing server-side is template-conditional yet,
+    // so a reload only reverted the pill and risked discarding half-entered
+    // input. The choice is written to a hidden field so it is submitted with
+    // the form and can be acted on when template-conditional fields exist.
+    document.querySelectorAll('.template-option').forEach(function(opt) {
+      opt.addEventListener('click', function(e) {
+        e.preventDefault();
+        var tpl = this.getAttribute('data-template');
+        document.querySelectorAll('.template-option').forEach(function(o) { o.classList.remove('active'); });
+        this.classList.add('active');
+        var form = document.getElementById('editForm');
+        var templateInput = form && form.querySelector('input[name="template"]');
+        if (templateInput) templateInput.value = tpl;
+      });
+    });
     var form = document.getElementById('editForm');
     if (form) {
       form.addEventListener('input', function() { setTimeout(updateCompleteness, 100); });

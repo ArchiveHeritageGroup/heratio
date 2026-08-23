@@ -48,7 +48,7 @@ export default defineConfig({
   testDir: './tests/e2e',
   // The 'demo' project (video walkthroughs) lives under tests/e2e/demo and is
   // excluded from the normal browser projects so it never runs in CI matrices.
-  testIgnore: ['**/demo/**'],
+  testIgnore: ['**/demo/**', '**/talk/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -96,6 +96,27 @@ export default defineConfig({
       testDir: './tests/e2e/demo',
       testMatch: /auth\.setup\.ts/,
       testIgnore: [],
+    },
+    {
+      // Still screenshots for the conference deck. Separate from 'demo' (which
+      // records narrated video) because these need no slowMo, no video and a
+      // slide-shaped viewport, and because each run captures an authenticated
+      // and an anonymous context side by side.
+      name: 'talk',
+      testDir: './tests/e2e/talk',
+      // Override the top-level ignore, which excludes this directory from the
+      // browser matrices.
+      testIgnore: [],
+      fullyParallel: false,
+      timeout: 300000,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1600, height: 1000 },
+        video: 'off',
+        screenshot: 'off',
+        actionTimeout: 20000,
+        navigationTimeout: 45000,
+      },
     },
     {
       name: 'demo',

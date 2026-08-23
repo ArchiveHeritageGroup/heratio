@@ -1227,9 +1227,9 @@ class PrivacyController extends Controller
         try {
             $text = trim(($object->title ?? '').' '.($object->scope_and_content ?? ''));
             if ($text !== '') {
-                $r = app(\AhgPrivacy\Services\PiiScanService::class)->scan($text);
-                if (is_array($r)) {
-                    $scanResult = array_merge($scanResult, $r);
+                $findings = app(\AhgPrivacy\Services\PiiScanService::class)->scan($text);
+                if (is_array($findings)) {
+                    $scanResult = $this->shapeScanResult($findings);
                 }
             }
         } catch (\Throwable $e) { /* best-effort scan */
@@ -1240,6 +1240,88 @@ class PrivacyController extends Controller
 
         return view('privacy::pii-scan-object', compact('object', 'scanResult', 'riskColors', 'typeColors'));
     }
+
+    /**
+     * Turn PiiScanService::scan()'s flat finding list into the structure the
+     * pii-scan-object view reads.
+     *
+     * scan() returns a LIST of findings; the view wants entities plus a summary
+     * and a risk score. The previous code did array_merge() of the list into the
+     * keyed defaults, which appended numeric keys nothing reads and left
+     * 'entities' empty - so this screen reported "No PII detected in this
+     * record" and 0/0/0/0 for EVERY record, however much it contained. Same
+     * family as #1478: a view fed a shape its producer never returns.
+     *
+     * Bands follow the confidences the scanner actually emits - 0.95 card,
+     * 0.92 email, 0.90 checksum-valid ID, 0.80 phone, 0.55 date of birth, and
+     * 0.30 for an ID whose checksum fails. High is therefore "the pattern
+     * validated", medium "matched but unverified", low "shape only".
+     *
+     * @param  array<int,array<string,mixed>>  $findings
+     * @return array<string,mixed>
+     */
+    private function shapeScanResult(array $findings): array
+    {
+        // The view badges entities by an uppercase vocabulary; the service
+        // names its types in snake_case. Map rather than rename either, since
+        // the service's names are persisted in ahg_pii_scan_report.hits_by_type.
+        $labels = [
+            'national_id'   => 'SA_ID',
+            'email'         => 'EMAIL',
+            'phone'         => 'PHONE_SA',
+            'credit_card'   => 'CREDIT_CARD',
+            'date_of_birth' => 'DATE',
+            'ip'            => 'IP',
+        ];
+
+        $entities = [];
+        $high = $medium = $low = 0;
+
+        foreach ($findings as $f) {
+            $confidence = (float) ($f['confidence'] ?? 0);
+            if ($confidence >= 0.85) {
+                $risk = 'high';
+                $high++;
+            } elseif ($confidence >= 0.60) {
+                $risk = 'medium';
+                $medium++;
+            } else {
+                $risk = 'low';
+                $low++;
+            }
+
+            $type = (string) ($f['type'] ?? 'unknown');
+            $entities[] = [
+                'type'       => $labels[$type] ?? strtoupper($type),
+                'value'      => (string) ($f['value'] ?? ''),
+                'confidence' => $confidence,
+                // The view reads risk_level, not risk. Naming it anything else
+                // silently renders every row as the ?? 'low' fallback - which
+                // is the #1478 defect, and this comment exists because the
+                // first cut of this method did exactly that.
+                'risk_level' => $risk,
+                'source'     => __('Pattern scan'),
+            ];
+        }
+
+        // A blunt but honest score: a validated identifier weighs far more than
+        // a bare date. Capped at 100 so a long record cannot imply certainty it
+        // has not earned.
+        $score = min(100, ($high * 25) + ($medium * 10) + ($low * 3));
+
+        return [
+            'entities'       => $entities,
+            'fields_scanned' => [__('Title'), __('Scope and content')],
+            'risk_score'     => $score,
+            'summary'        => [
+                'total'       => count($entities),
+                'high_risk'   => $high,
+                'medium_risk' => $medium,
+                'low_risk'    => $low,
+            ],
+        ];
+    }
+
 
     public function piiScan()
     {

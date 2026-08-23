@@ -140,6 +140,8 @@ $typeColors = [
                                             'ORG' => 'bg-secondary',
                                             'GPE' => 'bg-secondary',
                                             'DATE' => 'bg-light text-dark',
+                                            'CREDIT_CARD' => 'bg-danger',
+                                            'IP' => 'bg-info text-dark',
                                         ];
                                         $color = $typeColors[$entity['type']] ?? 'bg-primary';
 @endphp
