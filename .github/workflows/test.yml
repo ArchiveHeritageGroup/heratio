@@ -80,6 +80,22 @@ jobs:
               -not -path '*/worktree/*' \
               -print0 | xargs -0 -n1 -P4 php -l > /dev/null
 
+      # #1478. `php -l` cannot see this class of defect: a Blade view reading
+      # $row->prop with a ?? fallback, where the query behind that row never
+      # produces prop. It is valid PHP, so it never errors - the fallback simply
+      # fires on every row and the screen reports a value that is not the data.
+      # Three shipped that way (the loan-rules screen, the checkout preview, and
+      # the overdue list, which showed a blank patron / 0 days / 0.00 fine on
+      # every row for its whole life).
+      #
+      # This gate does NOT fail on the existing 131 findings - fixing those is a
+      # separate project, tracked on #1478 and recorded in
+      # tools/blade-bindings-baseline.txt. It fails only on something NEW, so the
+      # population cannot grow while triage proceeds, and the baseline may only
+      # shrink. Needs no database: the scan is repo-only and deterministic.
+      - name: Blade binding check (#1478 - no NEW always-fallback bindings)
+        run: php tools/scan-blade-bindings.php --check
+
   # #48 security gates: gitleaks (fail) + composer audit (warn) + npm audit (fail at high+).
   # The 2026-04-30 credential leak (Merlot@123 et al.) is the motivation here -
   # gitleaks would have caught the secret before it landed in git history.

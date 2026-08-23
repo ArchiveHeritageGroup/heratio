@@ -42,6 +42,10 @@
 //   php tools/scan-blade-bindings.php --baseline   # record current state
 //   php tools/scan-blade-bindings.php --check      # CI: fail on anything NEW
 //
+// Repo-only: no database, no Laravel bootstrap, no network. Deterministic on any
+// checkout, which is what makes the baseline comparable between a developer's
+// machine and CI.
+//
 // --check is the point of the tool. The existing population is large enough
 // that fixing it is a project; the guard stops it growing in the meantime, and
 // the baseline may only ever shrink.
@@ -60,44 +64,6 @@ foreach ($args as $a) {
     } else {
         fwrite(STDERR, "unknown option: $a\n");
         exit(2);
-    }
-}
-
-/** Every column name in the app database, or [] when no database is reachable. */
-function schemaColumns(string $root): array
-{
-    $env = $root . '/.env';
-    if (! is_readable($env)) {
-        return [];
-    }
-
-    $cfg = [];
-    foreach (file($env, FILE_IGNORE_NEW_LINES) as $line) {
-        if (preg_match('/^(DB_HOST|DB_PORT|DB_DATABASE|DB_USERNAME|DB_PASSWORD)=(.*)$/', $line, $m)) {
-            $cfg[$m[1]] = trim($m[2], "\"' \r");
-        }
-    }
-    if (empty($cfg['DB_DATABASE'])) {
-        return [];
-    }
-
-    try {
-        $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s',
-            $cfg['DB_HOST'] ?? '127.0.0.1', $cfg['DB_PORT'] ?? '3306', $cfg['DB_DATABASE']);
-        $pdo = new PDO($dsn, $cfg['DB_USERNAME'] ?? '', $cfg['DB_PASSWORD'] ?? '',
-            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-        $stmt = $pdo->prepare(
-            'SELECT DISTINCT LOWER(column_name) FROM information_schema.columns WHERE table_schema = ?'
-        );
-        $stmt->execute([$cfg['DB_DATABASE']]);
-
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
-    } catch (Throwable $e) {
-        // No database is a soft failure. The identifier sweep below still runs,
-        // and the scan simply reports more candidates than it would otherwise.
-        fwrite(STDERR, "note: no database reachable ({$e->getMessage()}); schema check skipped\n");
-
-        return [];
     }
 }
 
@@ -122,10 +88,18 @@ function walk(string $dir, callable $accept): Generator
 
 echo "scanning...\n";
 
-$columns = array_flip(schemaColumns($root));
-
 // Identifiers from every non-Blade source. Generous on purpose: if a name is
 // written anywhere in PHP, SQL or JS, something plausibly produces it.
+//
+// NO DATABASE IS CONSULTED, and none is needed. An earlier cut queried
+// information_schema for every column name; running it both ways over this repo
+// gave an identical 131 findings across 73 files, because a column created by a
+// migration is named as a PHP string (`$table->string('foo')`) and one created
+// by an install.sql is named in the DDL - so the sweep below already has them.
+// Dropping the query removes a real failure mode as well as a dependency: the
+// CI database is built from database/core/*.sql alone and carries far fewer
+// tables than a full install, so a baseline recorded against a developer's
+// database would have reported phantom regressions in CI.
 $identifiers = [];
 foreach (['packages', 'app', 'database'] as $base) {
     foreach (walk($root . '/' . $base, static fn ($n) =>
@@ -141,11 +115,8 @@ foreach (['packages', 'app', 'database'] as $base) {
 /** getFooBarAttribute-style accessors resolve to snake_case columns. */
 $snake = static fn (string $s): string => strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $s));
 
-$producible = static function (string $prop) use ($columns, $identifiers, $snake): bool {
-    $l = strtolower($prop);
-
-    return isset($columns[$l]) || isset($identifiers[$l])
-        || isset($columns[$snake($prop)]) || isset($identifiers[$snake($prop)]);
+$producible = static function (string $prop) use ($identifiers, $snake): bool {
+    return isset($identifiers[strtolower($prop)]) || isset($identifiers[$snake($prop)]);
 };
 
 $findings = [];
@@ -177,8 +148,8 @@ foreach (walk($root . '/packages', static fn ($n) => str_ends_with($n, '.blade.p
 $findings = array_values(array_unique($findings));
 sort($findings);
 
-printf("%d blade files scanned, %d schema columns, %d non-blade identifiers\n",
-    $bladeCount, count($columns), count($identifiers));
+printf("%d blade files scanned, %d non-blade identifiers\n",
+    $bladeCount, count($identifiers));
 printf("%d always-fallback chain(s) in %d file(s)\n\n",
     count($findings), count(array_unique(array_map(static fn ($f) => explode("\t", $f)[0], $findings))));
 
