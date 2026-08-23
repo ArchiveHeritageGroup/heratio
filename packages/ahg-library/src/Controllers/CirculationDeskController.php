@@ -27,10 +27,12 @@ namespace AhgLibrary\Controllers;
 
 use AhgLibrary\Services\LibraryCirculationService;
 use AhgLibrary\Services\LibraryPatronService;
+use AhgLibrary\Support\LibraryBranch;
 use AhgLibrary\Support\LibrarySettings;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CirculationDeskController extends Controller
 {
@@ -183,10 +185,17 @@ class CirculationDeskController extends Controller
                 $j->on('li.information_object_id', '=', 'i18n.id')
                   ->where('i18n.culture', '=', app()->getLocale());
             })
-            ->where('cp.id', $copyId)
-            ->select('cp.id', 'cp.barcode', 'cp.shelf_location', 'cp.status as copy_status',
-                     'li.id as item_id', 'li.call_number', 'li.material_type', 'i18n.title')
-            ->first();
+            ->where('cp.id', $copyId);
+
+        // Selected only where it exists, so the desk keeps working on an
+        // instance whose #1473 migration has not run yet.
+        $columns = ['cp.id', 'cp.barcode', 'cp.shelf_location', 'cp.status as copy_status',
+                    'li.id as item_id', 'li.call_number', 'li.material_type', 'i18n.title'];
+        if (Schema::hasColumn('library_copy', 'branch_id')) {
+            $columns[] = 'cp.branch_id';
+        }
+
+        $copy = $copy->select($columns)->first();
 
         if (!$copy) {
             abort(404);
@@ -195,14 +204,25 @@ class CirculationDeskController extends Controller
         $patronId = (int) $request->query('patron', 0);
         $patron = $patronId ? $this->patrons->get($patronId) : null;
 
+        // The preview must resolve against the same branch the checkout will
+        // use, or the screen quotes one due date and the transaction writes
+        // another - the failure shape #1477 was filed for.
+        $branchId = LibraryBranch::resolve(
+            null,
+            $copyId,
+            $patron ? (int) $patron->id : null
+        );
+
         $loanDays = $copy->material_type
-            ? $this->circ->resolveLoanDays($copy->material_type, $patron->patron_type ?? 'adult')
-            : $this->settings->defaultLoanDays();
+            ? $this->circ->resolveLoanDays($copy->material_type, $patron->patron_type ?? 'adult', $branchId)
+            : LibrarySettings::defaultLoanDays($branchId);
 
         return view('ahg-library::circulation.checkout', [
-            'copy'      => $copy,
-            'patron'    => $patron,
-            'loanDays'  => $loanDays,
+            'copy'       => $copy,
+            'patron'     => $patron,
+            'loanDays'   => $loanDays,
+            'branchId'   => $branchId,
+            'branchName' => LibraryBranch::name($branchId),
         ]);
     }
 
@@ -215,10 +235,16 @@ class CirculationDeskController extends Controller
         $validated = $request->validate([
             'copy_id'  => 'required|integer|min:1',
             'patron_id'=> 'required|integer|min:1',
+            'branch_id'=> 'nullable|integer|min:1',
         ]);
 
         $userId = auth()->check() ? auth()->id() : null;
-        $checkoutId = $this->circ->checkout((int) $validated['copy_id'], (int) $validated['patron_id'], $userId);
+        $checkoutId = $this->circ->checkout(
+            (int) $validated['copy_id'],
+            (int) $validated['patron_id'],
+            $userId,
+            isset($validated['branch_id']) ? (int) $validated['branch_id'] : null
+        );
 
         if (!$checkoutId) {
             return redirect()

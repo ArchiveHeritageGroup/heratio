@@ -29,6 +29,7 @@ namespace AhgLibrary\Controllers;
 
 use AhgLibrary\Services\LibraryIllService;
 use AhgLibrary\Services\LibraryService;
+use AhgLibrary\Support\LibraryBranch;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
@@ -717,8 +718,12 @@ class LibraryController extends Controller
 
     public function loanRules()
     {
+        $branchAware = LibraryBranch::available();
+
         return view('ahg-library::circulation.loan-rules', [
             'rules' => collect($this->circ->getLoanRules()),
+            'branchAware' => $branchAware,
+            'branchLabels' => $branchAware ? LibraryBranch::options() : [],
         ]);
     }
 

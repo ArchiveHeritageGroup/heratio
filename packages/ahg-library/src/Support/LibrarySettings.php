@@ -37,14 +37,37 @@ class LibrarySettings
 {
     // ── Circulation ────────────────────────────────────────────────────
 
-    public static function defaultLoanDays(): int
+    /**
+     * Per-branch overlay over a global circulation setting - #1473. A branch
+     * that has nominated its own value uses it; every other branch keeps the
+     * installation-wide one, so adding branches never silently changes the
+     * behaviour of an outlet that did not ask for it.
+     *
+     * Overlay keys are the global key suffixed with _branch_<repository id>.
+     * A suffix rather than a new table because these are sparse - a service
+     * typically overrides one or two values at a handful of outlets, and a
+     * table would mean a join on the hot path of every checkout.
+     */
+    private static function branchInt(string $key, int $default, ?int $branchId): int
     {
-        return AhgSettingsService::getInt('library_default_loan_days', 14);
+        if ($branchId !== null && $branchId > 0) {
+            $override = AhgSettingsService::get($key . '_branch_' . $branchId);
+            if ($override !== null && $override !== '') {
+                return (int) $override;
+            }
+        }
+
+        return AhgSettingsService::getInt($key, $default);
     }
 
-    public static function maxRenewals(): int
+    public static function defaultLoanDays(?int $branchId = null): int
     {
-        return AhgSettingsService::getInt('library_max_renewals', 2);
+        return self::branchInt('library_default_loan_days', 14, $branchId);
+    }
+
+    public static function maxRenewals(?int $branchId = null): int
+    {
+        return self::branchInt('library_max_renewals', 2, $branchId);
     }
 
     public static function autoFine(): bool

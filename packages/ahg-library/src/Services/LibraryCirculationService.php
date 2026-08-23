@@ -25,9 +25,11 @@
 
 namespace AhgLibrary\Services;
 
+use AhgLibrary\Support\LibraryBranch;
 use AhgLibrary\Support\LibrarySettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class LibraryCirculationService
 {
@@ -36,34 +38,77 @@ class LibraryCirculationService
     public const STATUS_ON_HOLD = 'on_hold';
 
     /**
-     * Resolve the loan period for a (material_type, patron_type) pair via
-     * library_loan_rule, falling back to library_default_loan_days when no
-     * matching rule exists. Wildcards: rules with patron_type='*' apply to
-     * all patron types.
+     * Per-table branch_id availability, keyed by connection then table. Not a
+     * flat per-process cache: this process can serve more than one database -
+     * see the note in LibraryBranch::available().
      */
-    public function resolveLoanDays(string $materialType, string $patronType): int
-    {
-        $rule = DB::table('library_loan_rule')
+    private static array $branchColumns = [];
+
+    /**
+     * Find the loan rule governing a transaction. Resolution runs most
+     * specific first: a rule for this exact branch beats an all-branches rule
+     * (branch_id = 0), and within that a rule naming this patron type beats
+     * the '*' wildcard. Returns null when nothing covers the combination and
+     * the caller should fall back to the global setting.
+     *
+     * All three rule consumers go through here. They used to carry three
+     * separate copies of this query, which is why the branch axis had to be
+     * added in three places to be added at all - and how two of them came to
+     * differ from the third on is_loanable.
+     */
+    protected function matchRule(
+        string $materialType,
+        string $patronType,
+        ?int $branchId = null,
+        bool $loanableOnly = false
+    ): ?object {
+        $query = DB::table('library_loan_rule')
             ->where('material_type', $materialType)
-            ->whereIn('patron_type', [$patronType, '*'])
-            ->where('is_loanable', 1)
-            ->orderByRaw("CASE WHEN patron_type = ? THEN 0 ELSE 1 END", [$patronType])
+            ->whereIn('patron_type', [$patronType, '*']);
+
+        if ($loanableOnly) {
+            $query->where('is_loanable', 1);
+        }
+
+        if (LibraryBranch::available()) {
+            $exact = $branchId !== null && $branchId !== LibraryBranch::ALL ? $branchId : null;
+
+            if ($exact !== null) {
+                $query->whereIn('branch_id', [$exact, LibraryBranch::ALL])
+                    ->orderByRaw('CASE WHEN branch_id = ? THEN 0 ELSE 1 END', [$exact]);
+            } else {
+                $query->where('branch_id', LibraryBranch::ALL);
+            }
+        }
+
+        return $query
+            ->orderByRaw('CASE WHEN patron_type = ? THEN 0 ELSE 1 END', [$patronType])
             ->first();
+    }
+
+    /**
+     * Resolve the loan period for a (branch, material_type, patron_type)
+     * combination via library_loan_rule, falling back to the branch's
+     * library_default_loan_days when no matching rule exists.
+     */
+    public function resolveLoanDays(string $materialType, string $patronType, ?int $branchId = null): int
+    {
+        $rule = $this->matchRule($materialType, $patronType, $branchId, true);
 
         return $rule
             ? (int) $rule->loan_period_days
-            : LibrarySettings::defaultLoanDays();
+            : LibrarySettings::defaultLoanDays($branchId);
     }
 
-    public function resolveMaxRenewals(string $materialType, string $patronType, int $patronCap): int
-    {
-        $rule = DB::table('library_loan_rule')
-            ->where('material_type', $materialType)
-            ->whereIn('patron_type', [$patronType, '*'])
-            ->orderByRaw("CASE WHEN patron_type = ? THEN 0 ELSE 1 END", [$patronType])
-            ->first();
+    public function resolveMaxRenewals(
+        string $materialType,
+        string $patronType,
+        int $patronCap,
+        ?int $branchId = null
+    ): int {
+        $rule = $this->matchRule($materialType, $patronType, $branchId);
 
-        $ruleMax = $rule ? (int) $rule->max_renewals : LibrarySettings::maxRenewals();
+        $ruleMax = $rule ? (int) $rule->max_renewals : LibrarySettings::maxRenewals($branchId);
         return min($ruleMax, $patronCap);
     }
 
@@ -72,9 +117,9 @@ class LibraryCirculationService
      * or null when blocked (copy unavailable / patron over-limit / patron
      * suspended / fine threshold exceeded).
      */
-    public function checkout(int $copyId, int $patronId, ?int $userId = null): ?int
+    public function checkout(int $copyId, int $patronId, ?int $userId = null, ?int $branchId = null): ?int
     {
-        return DB::transaction(function () use ($copyId, $patronId, $userId) {
+        return DB::transaction(function () use ($copyId, $patronId, $userId, $branchId) {
             $copy = DB::table('library_copy')->where('id', $copyId)->lockForUpdate()->first();
             if (!$copy || $copy->status !== self::STATUS_AVAILABLE) {
                 return null;
@@ -101,9 +146,16 @@ class LibraryCirculationService
 
             $item = DB::table('library_item')->where('id', $copy->library_item_id)->first();
             $materialType = $item->material_type ?? 'monograph';
-            $loanDays = $this->resolveLoanDays($materialType, $patron->patron_type);
 
-            $newId = DB::table('library_checkout')->insertGetId([
+            // Resolution order is the desk's explicit choice, then the copy's
+            // own branch, then the patron's home branch, then the configured
+            // default. $copy is already loaded and locked here, so its branch
+            // is handed over directly rather than re-read inside the
+            // transaction.
+            $branchId = LibraryBranch::resolve($branchId ?? ($copy->branch_id ?? null), null, $patronId);
+            $loanDays = $this->resolveLoanDays($materialType, $patron->patron_type, $branchId);
+
+            $row = [
                 'copy_id' => $copyId,
                 'patron_id' => $patronId,
                 'checkout_date' => now(),
@@ -112,7 +164,12 @@ class LibraryCirculationService
                 'status' => 'active',
                 'checked_out_by' => $userId,
                 'created_at' => now(),
-            ]);
+            ];
+            if ($this->hasBranchColumn('library_checkout')) {
+                $row['branch_id'] = $branchId;
+            }
+
+            $newId = DB::table('library_checkout')->insertGetId($row);
 
             DB::table('library_copy')->where('id', $copyId)->update([
                 'status' => self::STATUS_CHECKED_OUT,
@@ -176,7 +233,17 @@ class LibraryCirculationService
             $copy = DB::table('library_copy')->where('id', $c->copy_id)->first();
             $item = $copy ? DB::table('library_item')->where('id', $copy->library_item_id)->first() : null;
             $materialType = $item->material_type ?? 'monograph';
-            $maxRenewals = $this->resolveMaxRenewals($materialType, $patron->patron_type, (int) $patron->max_renewals);
+            // The loan already records where it was made; fall back to the
+            // copy only for loans predating the branch column. $copy can be
+            // null here, so it is guarded rather than chained.
+            $branchId = $c->branch_id ?? $copy?->branch_id ?? null;
+            $branchId = $branchId !== null ? (int) $branchId : null;
+            $maxRenewals = $this->resolveMaxRenewals(
+                $materialType,
+                $patron->patron_type,
+                (int) $patron->max_renewals,
+                $branchId
+            );
 
             if ($c->renewed_count >= $maxRenewals) {
                 return false;
@@ -194,7 +261,7 @@ class LibraryCirculationService
                 }
             }
 
-            $loanDays = $this->resolveLoanDays($materialType, $patron->patron_type);
+            $loanDays = $this->resolveLoanDays($materialType, $patron->patron_type, $branchId);
             $newDue = date('Y-m-d', strtotime($c->due_date . " +{$loanDays} days"));
 
             DB::table('library_checkout')->where('id', $checkoutId)->update([
@@ -211,7 +278,7 @@ class LibraryCirculationService
      * Place a hold on a library_item (bibliographic record). queue_position
      * is the count of pending holds + 1, capped by library_hold_max_queue.
      */
-    public function placeHold(int $itemId, int $patronId): ?int
+    public function placeHold(int $itemId, int $patronId, ?int $pickupBranchId = null): ?int
     {
         $patron = DB::table('library_patron')->where('id', $patronId)->first();
         if (!$patron || $patron->borrowing_status !== 'active') {
@@ -235,7 +302,7 @@ class LibraryCirculationService
         }
 
         $expiryDays = LibrarySettings::holdExpiryDays();
-        return (int) DB::table('library_hold')->insertGetId([
+        $row = [
             'library_item_id' => $itemId,
             'patron_id' => $patronId,
             'hold_date' => now(),
@@ -243,7 +310,15 @@ class LibraryCirculationService
             'queue_position' => $itemHolds + 1,
             'status' => 'pending',
             'created_at' => now(),
-        ]);
+        ];
+
+        // A hold is collected somewhere; absent an explicit pickup point, the
+        // patron's home branch is the only defensible default.
+        if ($this->hasBranchColumn('library_hold')) {
+            $row['branch_id'] = LibraryBranch::resolve($pickupBranchId, null, $patronId);
+        }
+
+        return (int) DB::table('library_hold')->insertGetId($row);
     }
 
     public function cancelHold(int $holdId, ?string $reason = null): bool
@@ -316,11 +391,17 @@ class LibraryCirculationService
             return;
         }
 
-        $rule = DB::table('library_loan_rule')
-            ->where('material_type', $item->material_type ?? 'monograph')
-            ->whereIn('patron_type', [$patron->patron_type, '*'])
-            ->orderByRaw("CASE WHEN patron_type = ? THEN 0 ELSE 1 END", [$patron->patron_type])
-            ->first();
+        // Fines accrue under the rules of the branch that lent the copy, not
+        // the branch reading the report.
+        $branchId = LibraryBranch::available()
+            ? ($checkout->branch_id ?? ($copy->branch_id ?? null))
+            : null;
+
+        $rule = $this->matchRule(
+            $item->material_type ?? 'monograph',
+            $patron->patron_type,
+            $branchId !== null ? (int) $branchId : null
+        );
         $perDay = $rule ? (float) $rule->fine_per_day : 1.00;
         $cap = $rule ? ($rule->fine_cap !== null ? (float) $rule->fine_cap : null) : null;
 
@@ -463,9 +544,41 @@ class LibraryCirculationService
             ->all();
     }
 
+    /**
+     * Whether a given circulation table can store a branch yet. Checked per
+     * table rather than once, because an instance can be mid-deploy: new code
+     * is serving requests before its migration has run.
+     */
+    /** Test seam - schema changes within a process are otherwise invisible. */
+    public static function forgetSchemaCache(): void
+    {
+        self::$branchColumns = [];
+        LibraryBranch::forgetSchemaCache();
+    }
+
+    protected function hasBranchColumn(string $table): bool
+    {
+        $key = LibraryBranch::connectionKey();
+
+        if (! isset(self::$branchColumns[$key][$table])) {
+            self::$branchColumns[$key][$table] = Schema::hasTable($table)
+                && Schema::hasColumn($table, 'branch_id');
+        }
+
+        return self::$branchColumns[$key][$table];
+    }
+
     public function getLoanRules(): array
     {
-        return DB::table('library_loan_rule')
+        $query = DB::table('library_loan_rule');
+
+        if (LibraryBranch::available()) {
+            // All-branches rules first, then each branch's overrides, so the
+            // screen reads as "the default, and what departs from it".
+            $query->orderBy('branch_id');
+        }
+
+        return $query
             ->orderBy('material_type')
             ->orderBy('patron_type')
             ->get()

@@ -92,10 +92,23 @@
                 <dl class="row mb-0">
                     <dt class="col-sm-3">{{ __('Loan Period') }}</dt>
                     <dd class="col-sm-9">{{ $loanDays }} {{ __('days') }}</dd>
+
+                    {{-- Which branch's rules produced that period (#1473). Shown
+                         only where a branch resolved, so a single-outlet service
+                         is not given a column it has no use for. --}}
+                    @if(!empty($branchName))
+                        <dt class="col-sm-3">{{ __('Branch') }}</dt>
+                        <dd class="col-sm-9">{{ $branchName }}</dd>
+                    @endif
                 </dl>
             </div>
         </div>
 
+        {{-- Carried through so the transaction records the branch the operator
+             was actually shown, not one re-resolved at POST time. --}}
+        @if(!empty($branchId))
+            <input type="hidden" name="branch_id" value="{{ (int) $branchId }}">
+        @endif
         <input type="hidden" name="copy_id" value="{{ $copy->id ?? 0 }}">
 
         <div class="d-flex gap-2">
