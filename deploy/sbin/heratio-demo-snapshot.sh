@@ -12,10 +12,15 @@ export MYSQL_PWD="$(printf '%s' "${raw#DB_PASSWORD=}" | tr -d '\r' | sed -e 's/^
 DB="$(grep -m1 '^DB_DATABASE=' "$ENV" | cut -d= -f2- | tr -d '\r')"
 [ "$DB" = "heratio" ] || { echo "SAFETY: live DB is '$DB', expected heratio - abort"; exit 1; }
 ts="$(date +%Y%m%d-%H%M%S)"
-mysqldump --defaults-file=/dev/null -u root --single-transaction --quick --routines --triggers "$DB" \
-  | gzip > "$OUT/heratio-demo.sql.gz.tmp"
+# umask 077: the baseline is a full dump of the live demo database and carries
+# email_setting.smtp_password in plaintext. It was being written 0644 on a NAS
+# path readable by every account on this host (found 2026-08-24). The mode is
+# set inside the subshell so the .tmp is never briefly readable either.
+( umask 077; mysqldump --defaults-file=/dev/null -u root --single-transaction --quick --routines --triggers "$DB" \
+  | gzip > "$OUT/heratio-demo.sql.gz.tmp" )
 mv "$OUT/heratio-demo.sql.gz.tmp" "$OUT/heratio-demo.sql.gz"
 cp "$OUT/heratio-demo.sql.gz" "$OUT/heratio-demo-$ts.sql.gz"
+chmod 600 "$OUT/heratio-demo.sql.gz" "$OUT/heratio-demo-$ts.sql.gz" 2>/dev/null || true
 
 # Stamp the baseline with the app version it was taken from. heratio-demo-reset.sh
 # refuses to restore a baseline whose version does not match the deployed code -

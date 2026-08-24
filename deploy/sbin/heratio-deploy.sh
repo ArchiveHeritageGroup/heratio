@@ -126,7 +126,17 @@ if [ -d "$(dirname "$BASELINE_DIR")" ]; then BACKUP_DIR="$BASELINE_DIR"
 else BACKUP_DIR="/var/backups/heratio-deploy/$DB"; fi
 mkdir -p "$BACKUP_DIR"
 dst="$BACKUP_DIR/pre-deploy-$ts.sql.gz"
-_backup(){ mysqldump --defaults-file=/dev/null -u "$DB_USER" --no-tablespaces --single-transaction --quick --routines --triggers "$DB" | gzip > "$dst"; }
+# umask 077 for the dump window: a database dump contains everything the
+# database contains - user rows, session data, and email_setting.smtp_password
+# in plaintext. These were being created 0644 on a host carrying ~10 non-root
+# service accounts, so every one of them could read every backup (found
+# 2026-08-24; 251 existing dumps were world- or group-readable). chmod after
+# the fact would still leave a window where the file exists and is readable.
+# The rc is captured and re-returned: the caller is `if _backup && _backup_ok`,
+# and ending the function on `chmod ... || true` would make it ALWAYS report
+# success. _backup_ok would still catch a bad dump via the completion marker,
+# but a wrapper must not quietly change the status its caller tests on.
+_backup(){ ( umask 077; mysqldump --defaults-file=/dev/null -u "$DB_USER" --no-tablespaces --single-transaction --quick --routines --triggers "$DB" | gzip > "$dst" ); local rc=$?; chmod 600 "$dst" 2>/dev/null || true; return $rc; }
 # A dump is only real if it ends with mysqldump's completion marker: a truncated or
 # permission-refused dump can still leave a valid-looking .gz behind.
 _backup_ok(){ [ -s "$dst" ] && zcat "$dst" 2>/dev/null | tail -5 | grep -q 'Dump completed'; }
