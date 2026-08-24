@@ -29,7 +29,7 @@
         <div class="col-md-6">
           <dl class="row mb-0">
             <dt class="col-sm-4">Date</dt>
-            <dd class="col-sm-8">{{ e($booking->date ?? '-') }}</dd>
+            <dd class="col-sm-8">{{ e($booking->booking_date ?? '-') }}</dd>
             <dt class="col-sm-4">Start Time</dt>
             <dd class="col-sm-8">{{ e($booking->start_time ?? '-') }}</dd>
             <dt class="col-sm-4">End Time</dt>

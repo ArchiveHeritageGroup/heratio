@@ -862,13 +862,24 @@ class SecurityClearanceController extends Controller
                 $join->on('sar.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
             })
             ->leftJoin('slug as s', 'sar.object_id', '=', 's.object_id')
+            // #1478 The review screen shows the classification the requested
+            // object actually carries - the single fact an approver needs to
+            // weigh the request - and neither object_classification_name nor
+            // object_classification_color was selected. The name guards the
+            // block, so it never rendered on any request.
+            ->leftJoin('object_security_classification as osc', function ($join) {
+                $join->on('sar.object_id', '=', 'osc.object_id')->where('osc.active', '=', 1);
+            })
+            ->leftJoin('security_classification as osc_sc', 'osc_sc.id', '=', 'osc.classification_id')
             ->where('sar.id', $id)
             ->select(
                 'sar.*',
                 'u.username',
                 DB::raw('COALESCE(ai.authorized_form_of_name, u.username) as user_name'),
                 'ioi.title as object_title',
-                's.slug'
+                's.slug',
+                'osc_sc.name as object_classification_name',
+                'osc_sc.color as object_classification_color'
             )
             ->first();
 

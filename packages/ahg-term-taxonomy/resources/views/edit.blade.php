@@ -55,9 +55,17 @@
             {{-- Name --}}
             <div class="mb-3">
               <label for="name" class="form-label">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              {{--
+                A `disabled` guard keyed on a term "is protected" flag used to
+                sit here. No term table has such a column, nothing writes one,
+                and the string appeared nowhere else in the codebase - so the
+                guard never fired and the field has always been editable. It is
+                removed rather than wired because this schema has no notion of a
+                term that may not be renamed; cultural protocol (term_protocol,
+                #1388) governs who may SEE a term, not who may rename it.
+              --}}
               <input type="text" name="name" id="name" class="form-control" required
-                     value="{{ old('name', $term->name ?? '') }}"
-                     @if($term && ($term->is_protected ?? false)) disabled @endif>
+                     value="{{ old('name', $term->name ?? '') }}">
             </div>
 
             {{-- Use for --}}

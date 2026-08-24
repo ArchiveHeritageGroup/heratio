@@ -40,6 +40,10 @@ Route::prefix('admin/naz')->middleware(['web', 'auth', 'admin']) /* #1354 */->gr
     Route::get('/researchers', [$c, 'researchers'])->name('ahgnaz.researchers');
     Route::get('/researchers/create', [$c, 'researcherCreate'])->name('ahgnaz.researcher-create');
     Route::post('/researchers/create', [$c, 'researcherStore'])->name('ahgnaz.researcher-store')->middleware('acl:create');
+    // #1478 The edit form: researcherUpdate() existed with no way to reach it.
+    // This must be declared BEFORE /researchers/{id} or "edit" would be matched
+    // as an id.
+    Route::get('/researchers/{id}/edit', [$c, 'researcherEdit'])->name('ahgnaz.researcher-edit')->middleware('acl:update');
     Route::get('/researchers/{id}', [$c, 'researcherView'])->name('ahgnaz.researcher-view');
     Route::post('/researchers/{id}', [$c, 'researcherUpdate'])->name('ahgnaz.researcher-update')->middleware('acl:update');
 

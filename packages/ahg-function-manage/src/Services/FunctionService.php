@@ -145,6 +145,29 @@ class FunctionService
     /**
      * Get related functions (bidirectional via relation table).
      */
+    /**
+     * The dates a relation is qualified by, as one displayable string - #1478.
+     *
+     * The show page reads `relation_dates` on every related entity and no query
+     * produced it, so the date line never appeared on any relationship.
+     *
+     * relation_i18n.date is free text an archivist typed ("1910 to 1948",
+     * "circa 1960") and wins where it exists, because it says what the
+     * structured columns cannot. Otherwise the structured start/end are joined
+     * with a hyphen, and a relation with an open end reads "1910 -".
+     */
+    private function relationDatesExpression(): \Illuminate\Database\Query\Expression
+    {
+        return DB::raw("COALESCE(
+            NULLIF(relation_i18n.date, ''),
+            NULLIF(NULLIF(TRIM(CONCAT(
+                COALESCE(relation.start_date, ''),
+                CASE WHEN relation.start_date IS NOT NULL OR relation.end_date IS NOT NULL THEN ' - ' ELSE '' END,
+                COALESCE(relation.end_date, '')
+            )), '-'), '')
+        ) as relation_dates");
+    }
+
     public function getRelatedFunctions(int $functionId): \Illuminate\Support\Collection
     {
         $asSubject = DB::table('relation')
@@ -154,11 +177,16 @@ class FunctionService
                     ->where('function_object_i18n.culture', '=', $this->culture);
             })
             ->join('slug', 'function_object.id', '=', 'slug.object_id')
+            ->leftJoin('relation_i18n', function ($j) {
+                $j->on('relation.id', '=', 'relation_i18n.id')
+                    ->where('relation_i18n.culture', '=', $this->culture);
+            })
             ->where('relation.subject_id', $functionId)
             ->select([
                 'function_object.id',
                 'function_object_i18n.authorized_form_of_name',
                 'slug.slug',
+                $this->relationDatesExpression(),
             ])
             ->get();
 
@@ -169,11 +197,16 @@ class FunctionService
                     ->where('function_object_i18n.culture', '=', $this->culture);
             })
             ->join('slug', 'function_object.id', '=', 'slug.object_id')
+            ->leftJoin('relation_i18n', function ($j) {
+                $j->on('relation.id', '=', 'relation_i18n.id')
+                    ->where('relation_i18n.culture', '=', $this->culture);
+            })
             ->where('relation.object_id', $functionId)
             ->select([
                 'function_object.id',
                 'function_object_i18n.authorized_form_of_name',
                 'slug.slug',
+                $this->relationDatesExpression(),
             ])
             ->get();
 
@@ -192,12 +225,17 @@ class FunctionService
                     ->where('information_object_i18n.culture', '=', $this->culture);
             })
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->leftJoin('relation_i18n', function ($j) {
+                $j->on('relation.id', '=', 'relation_i18n.id')
+                    ->where('relation_i18n.culture', '=', $this->culture);
+            })
             ->where('relation.subject_id', $functionId)
             ->where('information_object.id', '!=', 1)
             ->select([
                 'information_object.id',
                 'information_object_i18n.title',
                 'slug.slug',
+                $this->relationDatesExpression(),
             ])
             ->distinct()
             ->limit(50)

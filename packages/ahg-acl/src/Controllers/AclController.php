@@ -977,13 +977,24 @@ class AclController extends Controller
         return redirect()->route('acl.security-dashboard')->with('success', 'Classification applied.');
     }
 
-    public function declassification(int $id)
+    /**
+     * Declassification management - the due and scheduled lists.
+     *
+     * This method's body was a copy of the per-object declassification FORM in
+     * ahg-security-clearance, so it passed $object / $currentClassification /
+     * $classifications to a view that reads none of them, and never passed the
+     * two the view actually loops. Both tables were therefore empty on every
+     * request: the page reported "No declassifications currently due" and "No
+     * future declassifications scheduled" whatever the schedule held.
+     */
+    public function declassification()
     {
-        $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
-        $currentClassification = null;
-        $classifications = $this->service->getClassificationLevels();
+        $schedule = new \AhgCore\Services\DeclassificationScheduleService();
 
-        return view('ahg-acl::security.declassification', compact('object', 'currentClassification', 'classifications'));
+        return view('ahg-acl::security.declassification', [
+            'dueDeclassifications' => $schedule->due(100),
+            'scheduled' => $schedule->scheduled(),
+        ]);
     }
 
     public function declassifyStore(Request $request)

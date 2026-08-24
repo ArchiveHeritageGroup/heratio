@@ -753,7 +753,28 @@ class NazController extends Controller
 
     public function researcherCreate()
     {
-        return view('naz::researcher-create');
+        return view('naz::researcher-create', ['researcher' => null]);
+    }
+
+    /**
+     * Edit an existing researcher - #1478.
+     *
+     * researcherUpdate() has always existed, complete with validation, PII
+     * encryption and an audit entry, and there was no GET form and no route
+     * that could reach it. The researcher view's Edit button pointed at
+     * `ahgnaz.researcher-edit`, which was never defined, so that page threw a
+     * RouteNotFoundException for every researcher rather than rendering.
+     *
+     * PII is decrypted for the form exactly as researcherView does it,
+     * otherwise the operator would be shown ciphertext and would save it back.
+     */
+    public function researcherEdit(int $id)
+    {
+        $row = DB::table('naz_researcher')->where('id', $id)->firstOrFail();
+
+        return view('naz::researcher-create', [
+            'researcher' => $this->decryptResearcherPii($row),
+        ]);
     }
 
     public function researcherStore(Request $request)
@@ -810,10 +831,31 @@ class NazController extends Controller
             ->orderByDesc('start_date')
             ->get();
 
-        $visits = DB::table('naz_research_visit')
-            ->where('researcher_id', $id)
-            ->orderByDesc('visit_date')
+        // #1478 The visits table on this page read material_consulted, purpose
+        // and status; naz_research_visit has none of the three, so three of its
+        // four columns were blank or "-" on every visit ever shown.
+        //
+        //  - what was consulted is materials_provided, falling back to what was
+        //    requested when nothing was recorded as handed over;
+        //  - the purpose belongs to the PERMIT the visit was made under;
+        //  - a visit has no status column, but it has check-in and check-out
+        //    times, which say exactly where the visit got to. It is derived
+        //    rather than invented, and never borrows the permit's status -
+        //    that describes the permit, not the visit.
+        $visits = DB::table('naz_research_visit as v')
+            ->leftJoin('naz_research_permit as p', 'v.permit_id', '=', 'p.id')
+            ->where('v.researcher_id', $id)
+            ->orderByDesc('v.visit_date')
             ->limit(50)
+            ->select(
+                'v.*',
+                DB::raw("COALESCE(NULLIF(v.materials_provided, ''), v.materials_requested) as material_consulted"),
+                'p.research_purpose as purpose',
+                DB::raw("CASE
+                    WHEN v.check_out_time IS NOT NULL THEN 'completed'
+                    WHEN v.check_in_time IS NOT NULL THEN 'in_progress'
+                    ELSE 'scheduled' END as status")
+            )
             ->get();
 
         return view('naz::researcher-view', compact('researcher', 'permits', 'visits'));

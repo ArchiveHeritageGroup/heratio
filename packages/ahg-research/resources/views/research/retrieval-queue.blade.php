@@ -123,6 +123,20 @@
                                     @if(in_array($req->status, ['delivered', 'in_use']))
                                         <button type="button" class="btn btn-outline-secondary action-btn" data-id="{{ $req->id }}" data-action="mark_returned" title="{{ __('Return') }}"><i class="fas fa-undo"></i></button>
                                     @endif
+                                    {{--
+                                      #1478 Chain of custody. These three screens
+                                      existed with no route behind them. The
+                                      status shortcuts above change the status
+                                      and write NO custody row; these record the
+                                      movement in research_custody_handoff.
+                                    --}}
+                                    @if(! in_array($req->status, ['delivered', 'in_use', 'returned']))
+                                        <a href="{{ route('research.custodyCheckout', ['id' => $req->id]) }}" class="btn btn-outline-warning" title="{{ __('Record checkout') }}"><i class="fas fa-arrow-right-from-bracket"></i></a>
+                                    @endif
+                                    @if(in_array($req->status, ['delivered', 'in_use']))
+                                        <a href="{{ route('research.custodyReturn', ['id' => $req->id]) }}" class="btn btn-outline-success" title="{{ __('Verify return') }}"><i class="fas fa-clipboard-check"></i></a>
+                                    @endif
+                                    <a href="{{ route('research.custodyChain', ['id' => $req->id]) }}" class="btn btn-outline-primary" title="{{ __('Chain of custody') }}"><i class="fas fa-link"></i></a>
                                 </div>
                             </td>
                         </tr>

@@ -737,7 +737,11 @@ class AclService
                 'sc.name as classification_name',
                 'sc.level as classification_level',
                 'sc.color as classification_color',
-                'ai.authorized_form_of_name as granted_by_name'
+                'ai.authorized_form_of_name as granted_by_name',
+                // The username is a real fallback: a user row need not have an
+                // actor_i18n name, and "granted by System" is a false statement
+                // when a person granted it.
+                'u.username as granted_by_username'
             )
             ->where('uc.user_id', $userId)
             ->first();
@@ -809,6 +813,14 @@ class AclService
      */
     public function getAccessRequests(?string $status = 'pending'): \Illuminate\Support\Collection
     {
+        // The review screen shows "current level -> requested level" and the
+        // requester's e-mail. security_access_request carries only the
+        // REQUESTED classification, so the current one comes from the
+        // requester's standing clearance (user_security_clearance is unique
+        // per user, so this join cannot multiply rows). Neither
+        // current_classification nor email was previously selected, so the
+        // badge read "None" and the e-mail line was blank on every request
+        // regardless of what the requester actually held.
         $query = DB::table('security_access_request as sar')
             ->leftJoin('user as u', 'u.id', '=', 'sar.user_id')
             ->leftJoin('actor_i18n as ai', function ($join) {
@@ -816,13 +828,17 @@ class AclService
                     ->where('ai.culture', '=', 'en');
             })
             ->leftJoin('security_classification as sc', 'sc.id', '=', 'sar.classification_id')
+            ->leftJoin('user_security_clearance as usc', 'usc.user_id', '=', 'sar.user_id')
+            ->leftJoin('security_classification as sc_current', 'sc_current.id', '=', 'usc.classification_id')
             ->select(
                 'sar.*',
                 'ai.authorized_form_of_name as user_name',
                 'u.username',
+                'u.email',
                 'sc.name as classification_name',
                 'sc.code as classification_code',
-                'sc.color as classification_color'
+                'sc.color as classification_color',
+                'sc_current.name as current_classification'
             );
 
         if ($status !== null) {

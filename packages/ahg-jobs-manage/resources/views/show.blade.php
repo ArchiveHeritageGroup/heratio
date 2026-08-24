@@ -75,26 +75,22 @@
     </div>
   </div>
 
+  {{--
+    The job table records ONE log column, `output`, and a failing job writes its
+    error into it (ImportJob: "Import failed: ...", FindingAidJob: "ERROR: ...").
+    There is no error_output column and nothing has ever written one, so the red
+    Error(s) card below used to be unreachable and a failed job's error was shown
+    in the neutral grey Output card as though it were ordinary progress. The
+    status decides which card the same text is presented in.
+  --}}
   @if($job->output)
+    @php $jobFailed = (int) ($job->status_id ?? 0) === 185; @endphp
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">{{ __('Output') }}</h5>
+      <div class="card-header @if($jobFailed) bg-danger text-white @endif" @if(! $jobFailed) style="background:var(--ahg-primary);color:#fff" @endif>
+        <h5 class="mb-0">{{ $jobFailed ? __('Error(s)') : __('Output') }}</h5>
       </div>
       <div class="card-body p-0">
-        <pre class="mb-0 p-3" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ $job->output }}</pre>
-      </div>
-    </div>
-  @endif
-
-  @if($job->status_id == 185 && ($job->error_output ?? null))
-    <div class="card mb-4">
-      <div class="card-header bg-danger text-white">
-        <h5 class="mb-0">{{ __('Error(s)') }}</h5>
-      </div>
-      <div class="card-body p-0">
-        <div class="alert alert-danger mb-0 rounded-0 border-0">
-          <pre class="mb-0" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ $job->error_output }}</pre>
-        </div>
+        <pre class="mb-0 p-3 @if($jobFailed) text-danger @endif" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ $job->output }}</pre>
       </div>
     </div>
   @endif

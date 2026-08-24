@@ -66,6 +66,39 @@ class ResearchRoomsController extends Controller
         ));
     }
 
+    /**
+     * One reading room, with its seats - #1478.
+     *
+     * The view existed with no route and no controller action behind it, so
+     * the room detail page could not be reached at all and the rooms list had
+     * nowhere to link but straight to the edit form.
+     *
+     * Seat occupancy is derived from research_reading_room_seat.status, which
+     * is what ResearchSeatsController writes ('occupied'); there is no
+     * is_occupied column and never was.
+     */
+    public function viewRoom(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+
+        $room = $this->service->getReadingRoom($id);
+
+        if (! $room) {
+            abort(404);
+        }
+
+        $seats = DB::table('research_reading_room_seat')
+            ->where('reading_room_id', $id)
+            ->orderBy('sort_order')
+            ->orderBy('seat_number')
+            ->get();
+
+        return view('research::research.view-room', array_merge(
+            $this->getSidebarData('rooms'),
+            compact('room', 'seats')
+        ));
+    }
+
     public function editRoom(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');

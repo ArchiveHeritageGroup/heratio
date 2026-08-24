@@ -297,7 +297,7 @@
                title="{{ $period->name }}">
                 <div class="heritage-timeline-label">
                     <span class="heritage-period-name">{{ $period->short_name ?? $period->name }}</span>
-                    <span class="heritage-period-years">{{ $period->start_year }}{{ $period->end_year ? '-' . ($period->end_year > 2000 ? 'Present' : $period->end_year) : '+' }}</span>
+                    <span class="heritage-period-years">{{ $period->year_label ?? '' }}</span>
                 </div>
             </a>
             @endforeach

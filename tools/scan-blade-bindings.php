@@ -126,6 +126,19 @@ foreach (walk($root . '/packages', static fn ($n) => str_ends_with($n, '.blade.p
     $src = (string) file_get_contents($file);
     $rel = ltrim(str_replace($root, '', $file), '/');
 
+    // Blade comments are not code. Reusable components document their own usage
+    // in a {{-- --}} block, and that example names properties the component
+    // never reads - ahg-core's autocomplete component documents
+    // `old('creator_id', $io->creator_id ?? '')` as a CALLER's argument. Reading
+    // those as bindings reports a defect in a comment, and a tool that cries
+    // wolf gets switched off. Replaced with blank lines rather than removed so
+    // the reported context stays on the right line.
+    $src = (string) preg_replace_callback(
+        '/\{\{--.*?--\}\}/s',
+        static fn (array $m): string => str_repeat("\n", substr_count($m[0], "\n")),
+        $src
+    );
+
     // One or more `$var->prop ??` in sequence - the whole alternative chain.
     if (! preg_match_all('/((?:\$[A-Za-z_]\w*->\w+\s*\?\?\s*)+)/', $src, $chains)) {
         continue;

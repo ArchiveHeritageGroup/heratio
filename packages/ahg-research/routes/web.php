@@ -33,6 +33,7 @@ use AhgResearch\Controllers\ResearchNotificationsController;
 use AhgResearch\Controllers\ResearchRoomsController;
 use AhgResearch\Controllers\ResearchSeatsController;
 use AhgResearch\Controllers\ResearchEquipmentController;
+use AhgResearch\Controllers\ResearchCustodyController;
 use AhgResearch\Controllers\ResearchRetrievalQueueController;
 use AhgResearch\Controllers\ResearchDocumentTemplatesController;
 use AhgResearch\Controllers\ResearchSavedSearchesController;
@@ -426,11 +427,19 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::post('/admin/metadata-suggestions/{id}/reject', [ResearchAdminController::class, 'rejectMetadataSuggestion'])->name('admin.metadataSuggestions.reject')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/bookings', [ResearchBookingsController::class, 'bookings'])->name('bookings');
     Route::get('/rooms', [ResearchRoomsController::class, 'rooms'])->name('rooms');
+    // #1478 The room detail view shipped with no route behind it.
+    Route::get('/rooms/{id}', [ResearchRoomsController::class, 'viewRoom'])->name('viewRoom')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/editRoom', [ResearchRoomsController::class, 'editRoom'])->name('editRoom');
     Route::match(['get', 'post'], '/seats', [ResearchSeatsController::class, 'seats'])->name('seats');
     Route::match(['get', 'post'], '/equipment', [ResearchEquipmentController::class, 'equipment'])->name('equipment');
     Route::get('/equipment-history/{id}', [ResearchEquipmentController::class, 'equipmentHistory'])->name('equipmentHistory')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/retrievalQueue', [ResearchRetrievalQueueController::class, 'retrievalQueue'])->name('retrievalQueue');
+    // #1478 Chain of custody. The three views and research_custody_handoff
+    // shipped with no controller, service or route behind them; these are the
+    // entry points that were missing.
+    Route::get('/custody/{id}/chain', [ResearchCustodyController::class, 'chain'])->name('custodyChain')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/custody/{id}/checkout', [ResearchCustodyController::class, 'checkout'])->name('custodyCheckout')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/custody/{id}/return', [ResearchCustodyController::class, 'returnVerify'])->name('custodyReturn')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/walkIn', [ResearchWalkInsController::class, 'walkIn'])->name('walkIn');
     Route::match(['get', 'post'], '/adminTypes', [ResearchAdminReferenceController::class, 'adminTypes'])->name('adminTypes');
     Route::match(['get', 'post'], '/adminStatistics', [ResearchAdminReferenceController::class, 'adminStatistics'])->name('adminStatistics');

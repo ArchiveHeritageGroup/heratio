@@ -19,13 +19,13 @@
 @if(!empty($seats))
 <div class="card mb-4"><div class="card-header">Seats ({{ count($seats) }})</div><div class="card-body p-0">
     <table class="table table-sm mb-0"><thead class="table-light"><tr><th>{{ __('Seat') }}</th><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th></tr></thead><tbody>
-        @foreach($seats as $s)<tr><td>{{ e($s->label ?? 'Seat #' . $s->id) }}</td><td>{{ e($s->equipment_type ?? 'standard') }}</td><td><span class="badge bg-{{ ($s->is_occupied ?? false) ? 'danger' : 'success' }}">{{ ($s->is_occupied ?? false) ? 'Occupied' : 'Available' }}</span></td></tr>@endforeach
+        @foreach($seats as $s)<tr><td>{{ e($s->seat_label ?: ('Seat ' . ($s->seat_number ?? $s->id))) }}</td><td>{{ e($s->seat_type ?? 'standard') }}</td><td>@php $occupied = ($s->status ?? '') === 'occupied'; @endphp<span class="badge bg-{{ $occupied ? 'danger' : 'success' }}">{{ $occupied ? 'Occupied' : 'Available' }}</span></td></tr>@endforeach
     </tbody></table>
 </div></div>
 @endif
 </div><div class="col-md-4">
 <div class="card mb-4"><div class="card-header"><h6 class="mb-0">{{ __('Opening Hours') }}</h6></div><div class="card-body small">
-    @if(!empty($room->opening_hours)){{ e($room->opening_hours) }}@else <span class="text-muted">{{ __('Not specified') }}</span>@endif
+    @if(!empty($room->operating_hours)){{ e($room->operating_hours) }}@elseif(!empty($room->opening_time) || !empty($room->closing_time)){{ e(trim(($room->days_open ?? '') . ' ' . ($room->opening_time ?? '') . ' - ' . ($room->closing_time ?? ''))) }}@else <span class="text-muted">{{ __('Not specified') }}</span>@endif
 </div></div>
 <div class="d-flex flex-column gap-2">
     <a href="{{ route('research.editRoom', ['id' => $room->id ?? 0]) }}" class="btn btn-outline-primary"><i class="fas fa-edit me-1"></i>{{ __('Edit Room') }}</a>

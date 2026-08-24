@@ -69,7 +69,10 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/acl/compartment-access', [AclController::class, 'compartmentAccess'])->name('acl.compartment-access');
     Route::get('/admin/acl/classify/{id}', [AclController::class, 'classify'])->name('acl.classify')->where('id', '[0-9]+');
     Route::post('/admin/acl/classify', [AclController::class, 'classifyStore'])->name('acl.classify-store');
-    Route::get('/admin/acl/declassification/{id}', [AclController::class, 'declassification'])->name('acl.declassification')->where('id', '[0-9]+');
+    // A management LIST of due and scheduled declassifications, not a
+    // per-object form - the {id} segment was inherited from the copy-pasted
+    // form method and the view never read it.
+    Route::get('/admin/acl/declassification', [AclController::class, 'declassification'])->name('acl.declassification');
     Route::post('/admin/acl/declassify', [AclController::class, 'declassifyStore'])->name('acl.declassify-store');
     Route::get('/admin/acl/security-report', [AclController::class, 'securityReport'])->name('acl.security-report');
     Route::get('/admin/acl/security-compliance', [AclController::class, 'securityCompliance'])->name('acl.security-compliance');

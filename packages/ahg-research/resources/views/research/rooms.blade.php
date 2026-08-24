@@ -55,6 +55,7 @@
                 @endif
             </div>
             <div class="card-footer bg-transparent">
+                <a href="{{ route('research.viewRoom', ['id' => $room->id]) }}" class="btn btn-sm btn-outline-secondary me-1" title="{{ __('View room') }}"><i class="fas fa-eye"></i></a>
                 <a href="{{ route('research.editRoom', ['id' => $room->id]) }}" class="btn btn-sm btn-outline-primary">
                     <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
                 </a>

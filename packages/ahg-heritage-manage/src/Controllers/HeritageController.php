@@ -33,6 +33,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgCore\Services\HierarchyQueryService;
+use AhgHeritageManage\Support\TimelinePeriodLabel;
 
 class HeritageController extends Controller
 {
@@ -126,6 +127,7 @@ class HeritageController extends Controller
                     // in the table 5x and squash the "Explore by Time" bar.
                     ->unique(fn ($p) => ($p->short_name ?? $p->name) . '|' . $p->start_year)
                     ->values();
+                TimelinePeriodLabel::decorate($timelinePeriods);
             }
         } catch (\Exception $e) {
             $timelinePeriods = collect();
@@ -305,6 +307,7 @@ class HeritageController extends Controller
                     ->get()
                     ->unique(fn ($p) => ($p->short_name ?? $p->name) . '|' . $p->start_year)
                     ->values();
+                TimelinePeriodLabel::decorate($periods);
             }
         } catch (\Exception $e) {
             $periods = collect();
@@ -343,10 +346,12 @@ class HeritageController extends Controller
                     ->get()
                     ->unique(fn ($p) => ($p->short_name ?? $p->name) . '|' . $p->start_year)
                     ->values();
+                TimelinePeriodLabel::decorate($periods);
 
                 $currentPeriod = DB::table('heritage_timeline_period')
                     ->where('id', $period_id)
                     ->first();
+                TimelinePeriodLabel::decorateOne($currentPeriod);
 
                 if ($currentPeriod) {
                     $baseQuery = DB::table('information_object as io')
@@ -2025,6 +2030,7 @@ class HeritageController extends Controller
                     ->orderBy('start_year')
                     ->get()
                     ->toArray();
+                TimelinePeriodLabel::decorate($periods);
             }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
@@ -2052,6 +2058,7 @@ class HeritageController extends Controller
                 $period = DB::table('heritage_timeline_period')
                     ->where('id', $period_id)
                     ->first();
+                TimelinePeriodLabel::decorateOne($period);
 
                 if ($period) {
                     $baseQuery = DB::table('information_object as io')

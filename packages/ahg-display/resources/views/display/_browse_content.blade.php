@@ -628,9 +628,13 @@
           // are 200px tall, and small thumbnails (~100px) upscale to a blur.
           // Filter empty strings - a blank thumbnail column would otherwise render <img src="">
           // and surface a browser broken-image icon instead of the typed fallback below.
+          // `reference_path` used to sit second in this list. Nothing in the
+          // codebase produces that name - DisplayController assigns $obj->reference
+          // and $obj->thumbnail - so it was a dead alternate (#1478). thumbnail_path
+          // is kept: the actor and information-object browse services do produce it,
+          // so it remains a real fallback if this partial is ever fed from one.
           $__candidates = array_filter([
               $obj->reference ?? null,
-              $obj->reference_path ?? null,
               $obj->thumbnail_path ?? null,
               $obj->thumbnail ?? null,
           ], fn ($v) => is_string($v) && trim($v) !== '');

@@ -19,7 +19,11 @@
 
 @section('content')
 @php
-    $statusColors = ['active' => 'success', 'inactive' => 'secondary', 'suspended' => 'warning', 'blacklisted' => 'danger', 'pending' => 'warning'];
+    // The first five are researcher/permit states; the last three are the
+    // derived VISIT states (see NazController::researcherView). One map, because
+    // the visits table below shares this array.
+    $statusColors = ['active' => 'success', 'inactive' => 'secondary', 'suspended' => 'warning', 'blacklisted' => 'danger', 'pending' => 'warning',
+                     'completed' => 'success', 'in_progress' => 'info', 'scheduled' => 'secondary'];
     $typeColors   = ['local' => 'success', 'foreign' => 'info', 'institutional' => 'secondary'];
 @endphp
 
@@ -205,7 +209,7 @@
                                 <td>{{ \Carbon\Carbon::parse($visit->visit_date)->format('j M Y') }}</td>
                                 <td>{{ $visit->material_consulted ?? '-' }}</td>
                                 <td>{{ $visit->purpose ?? '-' }}</td>
-                                <td><span class="badge bg-{{ $statusColors[$visit->status ?? 'pending'] ?? 'secondary' }}">{{ ucfirst($visit->status ?? '') }}</span></td>
+                                <td><span class="badge bg-{{ $statusColors[$visit->status ?? 'scheduled'] ?? 'secondary' }}">{{ ucfirst(str_replace('_', ' ', $visit->status ?? '')) }}</span></td>
                             </tr>
                         @endforeach
                         </tbody>

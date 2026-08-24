@@ -50,15 +50,15 @@
                     <i class="fas fa-info-circle fa-2x me-3"></i>
                     <div>
                       <strong>{{ __('Current Clearance:') }}</strong>
-                      <span class="badge fs-6" style="background-color: {{ $clearance->classificationColor ?? $clearance->color ?? '#666' }};">
-                        {{ $clearance->classificationName ?? $clearance->name ?? '' }}
+                      <span class="badge fs-6" style="background-color: {{ $clearance->classification_color ?? '#666' }};">
+                        {{ $clearance->classification_name ?? '' }}
                       </span>
                       <br>
                       <small class="text-muted">
-                        Granted by {{ $clearance->grantedByUsername ?? $clearance->granted_by_username ?? 'System' }}
-                        on {{ ($clearance->grantedAt ?? $clearance->granted_at ?? null) ? date('F j, Y', strtotime($clearance->grantedAt ?? $clearance->granted_at)) : 'Unknown' }}
-                        @if($clearance->expiresAt ?? $clearance->expires_at ?? null)
-                          | Expires: {{ date('F j, Y', strtotime($clearance->expiresAt ?? $clearance->expires_at)) }}
+                        Granted by {{ $clearance->granted_by_name ?? $clearance->granted_by_username ?? 'System' }}
+                        on {{ ($clearance->granted_at ?? null) ? date('F j, Y', strtotime($clearance->granted_at)) : 'Unknown' }}
+                        @if($clearance->expires_at ?? null)
+                          | Expires: {{ date('F j, Y', strtotime($clearance->expires_at)) }}
                         @endif
                       </small>
                     </div>
@@ -83,7 +83,7 @@
                     <option value="">-- Select Classification --</option>
                     @foreach($classifications ?? [] as $c)
                       <option value="{{ $c->id }}"
-                              {{ ($clearance && ($clearance->classificationId ?? $clearance->classification_id ?? null) == $c->id) ? 'selected' : '' }}
+                              {{ ($clearance && ($clearance->classification_id ?? null) == $c->id) ? 'selected' : '' }}
                               style="background-color: {{ $c->color }}20;">
                         {{ $c->name }} (Level {{ $c->level }})
                       </option>
@@ -99,7 +99,7 @@
                     <i class="fas fa-calendar-times me-1"></i>Expiry Date
                   </label>
                   <input type="date" name="expires_at" id="expires_at" class="form-control"
-                         value="{{ ($clearance && ($clearance->expiresAt ?? $clearance->expires_at ?? null)) ? date('Y-m-d', strtotime($clearance->expiresAt ?? $clearance->expires_at)) : '' }}"
+                         value="{{ ($clearance && ($clearance->expires_at ?? null)) ? date('Y-m-d', strtotime($clearance->expires_at)) : '' }}"
                          min="{{ date('Y-m-d', strtotime('+1 day')) }}">
                   <div class="form-text">
                     Leave empty for no automatic expiry.

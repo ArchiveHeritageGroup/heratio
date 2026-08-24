@@ -243,7 +243,16 @@ class ResearchService
             ->join('research_researcher as r', 'b.researcher_id', '=', 'r.id')
             ->join('research_reading_room as rm', 'b.reading_room_id', '=', 'rm.id')
             ->where('b.id', $id)
+            // The researcher_* aliases are what the booking views read. The bare
+            // first_name / last_name / email / institution are kept alongside
+            // them because other callers of getBooking() use those names; the
+            // aliases are additive, not a rename. researcher_name has no column
+            // at all - it is composed here so every screen composes it the same
+            // way (#1478).
             ->select('b.*', 'r.first_name', 'r.last_name', 'r.email', 'r.institution',
+                DB::raw("TRIM(CONCAT(COALESCE(r.first_name, ''), ' ', COALESCE(r.last_name, ''))) as researcher_name"),
+                'r.email as researcher_email',
+                'r.institution as researcher_institution',
                 'rm.name as room_name', 'rm.location as room_location')
             ->first();
         if ($booking) {

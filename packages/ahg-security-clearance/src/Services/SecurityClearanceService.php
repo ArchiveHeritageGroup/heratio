@@ -639,12 +639,7 @@ class SecurityClearanceService
                 ->where('updated_at', '>=', now()->subDays(7))
                 ->count();
 
-            if (Schema::hasTable('object_declassification_schedule')) {
-                $stats['reviews_due'] = DB::table('object_declassification_schedule')
-                    ->where('scheduled_date', '<=', now()->addDays(30))
-                    ->where('processed', 0)
-                    ->count();
-            }
+            $stats['reviews_due'] = (new \AhgCore\Services\DeclassificationScheduleService())->dueCount();
 
             $stats['clearances_by_level'] = DB::table('user_security_clearance as usc')
                 ->join('security_classification as sc', 'usc.classification_id', '=', 'sc.id')
@@ -717,36 +712,14 @@ class SecurityClearanceService
         }
     }
 
+    /**
+     * Delegated to AhgCore so ahg-acl's declassification management page and
+     * this dashboard read the schedule through one query. ahg-acl and this
+     * package cannot see each other; ahg-core is the dependency they share.
+     */
     public function getDueDeclassifications(int $limit = 10): array
     {
-        if (! Schema::hasTable('object_declassification_schedule')) {
-            return [];
-        }
-
-        try {
-            return DB::table('object_declassification_schedule as ods')
-                ->leftJoin('information_object_i18n as ioi', function ($join) {
-                    $join->on('ods.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
-                })
-                ->leftJoin('information_object as io', 'ods.object_id', '=', 'io.id')
-                ->leftJoin('security_classification as sc_from', 'ods.from_classification_id', '=', 'sc_from.id')
-                ->leftJoin('security_classification as sc_to', 'ods.to_classification_id', '=', 'sc_to.id')
-                ->where('ods.scheduled_date', '<=', now()->addDays(30))
-                ->where('ods.processed', 0)
-                ->select(
-                    'ods.*',
-                    'ioi.title',
-                    'io.identifier',
-                    'sc_from.name as from_classification',
-                    'sc_to.name as to_classification'
-                )
-                ->orderBy('ods.scheduled_date')
-                ->limit($limit)
-                ->get()
-                ->toArray();
-        } catch (\Exception $e) {
-            return [];
-        }
+        return (new \AhgCore\Services\DeclassificationScheduleService())->due($limit)->toArray();
     }
 
     // =========================================================================
