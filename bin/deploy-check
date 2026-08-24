@@ -102,6 +102,63 @@ else
     fail=1
 fi
 
+#-- 4. mail goes to a sink, unless sending is declared ------------------------
+# Asks the RUNNING application where mail would go, NOT .env. This exists
+# because .env lied for months: AppServiceProvider::configureMailFromDatabase()
+# overrides mail.default at boot from the `email_setting` table, so an instance
+# whose .env said MAIL_MAILER=log was sending live Gmail. A QA crawler filled the
+# contact form 7 times on 2026-08-24 before anyone noticed - 14 real messages.
+#
+# Sink-by-default: an instance that resolves to a live sender FAILS here until
+# someone declares it deliberate with MAIL_ALLOW_SEND=1 in .env. That way a
+# re-armed mailer announces itself, rather than announcing itself in somebody's
+# inbox days later. Sending mail and not sending mail look identical from
+# outside, which is why this is worth a hard check rather than a warning.
+echo -en "4. mail goes to a sink … "
+MAILER=$(artisan tinker --execute="echo config('mail.default');" 2>/dev/null | tr -d "\r\n[:space:]")
+SMTP_HOST=$(artisan tinker --execute="echo (string) config('mail.mailers.smtp.host');" 2>/dev/null | tr -d "\r\n[:space:]")
+ENV_MAILER=$(grep -m1 '^MAIL_MAILER=' .env 2>/dev/null | cut -d= -f2- | tr -d "\r\"'")
+ALLOW=$(grep -m1 '^MAIL_ALLOW_SEND=' .env 2>/dev/null | cut -d= -f2- | tr -d "\r\"'")
+
+# A local sink (mailpit/mailhog) is still a sink even though the mailer is smtp.
+IS_SINK=0
+case "$MAILER" in
+    log|array|null) IS_SINK=1 ;;
+    smtp) case "$SMTP_HOST" in 127.0.0.1|localhost|::1|mailpit|mailhog) IS_SINK=1 ;; esac ;;
+esac
+
+if [ -z "$MAILER" ]; then
+    echo -e "${YEL}SKIP${NC} (could not ask the app - artisan unavailable)"
+elif [ "$IS_SINK" = 1 ]; then
+    dest="$MAILER"
+    [ "$MAILER" = smtp ] && dest="smtp -> $SMTP_HOST (local sink)"
+    echo -e "${GRN}OK${NC}  $dest"
+elif [ "$ALLOW" = "1" ]; then
+    dest="$MAILER"
+    [ "$MAILER" = smtp ] && dest="smtp -> $SMTP_HOST"
+    [ "$MAILER" = sendmail ] && dest="sendmail -> $(readlink -f /usr/sbin/sendmail 2>/dev/null || echo /usr/sbin/sendmail)"
+    echo -e "${GRN}OK${NC}  $dest ${YEL}(sending declared via MAIL_ALLOW_SEND=1)${NC}"
+else
+    echo -e "${RED}FAIL${NC}  this instance would SEND real mail"
+    echo -e "   resolved mail.default : ${RED}${MAILER}${NC}"
+    [ "$MAILER" = smtp ] && echo -e "   smtp host             : ${SMTP_HOST}"
+    if [ "$MAILER" = sendmail ]; then
+        echo -e "   sendmail is           : $(readlink -f /usr/sbin/sendmail 2>/dev/null || echo /usr/sbin/sendmail)"
+        echo -e "   ${YEL}NOTE${NC} on this host that is msmtp, which relays to a real account -"
+        echo -e "        check /etc/msmtprc and /var/log/msmtp.log."
+    fi
+    echo -e "   .env says MAIL_MAILER : ${ENV_MAILER:-<unset>}"
+    # Only worth saying when they actually disagree - that divergence IS the bug
+    # class this check exists for, and printing it every time would train people
+    # to skip the line.
+    if [ -n "$ENV_MAILER" ] && [ "$ENV_MAILER" != "$MAILER" ]; then
+        echo -e "   ${YEL}.env does NOT match what the app resolves - something overrides it"
+        echo -e "        at boot (email_setting.smtp_enabled=1 is the usual culprit).${NC}"
+    fi
+    echo -e "   Fix: set the instance to a sink, or declare it with MAIL_ALLOW_SEND=1 in .env."
+    fail=1
+fi
+
 echo
 if [ "$fail" = 0 ]; then
     echo -e "${GRN}deploy-check passed.${NC}"
