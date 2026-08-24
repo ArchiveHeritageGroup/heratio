@@ -224,20 +224,27 @@ git commit -m "$COMMIT_MSG"
 echo -e "${BLUE}[2/3] Creating tag ${TAG}...${NC}"
 git tag -a "${TAG}" -m "${MSG}"
 
-echo -e "${BLUE}[3/3] Pushing to origin...${NC}"
-# Push the CURRENT branch tip straight to remote main (fast-forwards from any
-# working branch). Using `HEAD:main` instead of `main` avoids the recurring
-# non-fast-forward rejection caused by a stale local `main` ref, which (under
-# `set -e`) also aborted the tag push + lock re-arm below.
-git push origin HEAD:main
-git push origin "${TAG}"
-
-# One-shot unlocks expire here — successful push re-arms the lock. Future
-# changes to locked paths require a fresh ./bin/unlock invocation.
+# One-shot unlocks expire HERE, not after the push. The unlock exists to permit
+# the commit, and the commit has happened - the local release is complete at
+# this point. It used to sit below `git push`, which meant that on heratio-dev,
+# where the push ALWAYS fails (origin is HTTPS and the www-data deploy key is
+# rejected), the cleanup never ran even once: `set -e` exits the script first.
+# The unlock list therefore accumulated every unlock ever issued - 158 stale
+# tokens by 2026-08-24, neutralising 47 of the 74 lock entries. A lock manifest
+# that is silently disarmed by its own release script protects nothing.
 if [ -f ".git/UNLOCKED" ]; then
     rm -f ".git/UNLOCKED"
     echo -e "${YELLOW}Cleared one-shot unlock list. Lock manifest is fully active again.${NC}"
 fi
+
+echo -e "${BLUE}[3/3] Pushing to origin...${NC}"
+# Push the CURRENT branch tip straight to remote main (fast-forwards from any
+# working branch). Using `HEAD:main` instead of `main` avoids the recurring
+# non-fast-forward rejection caused by a stale local `main` ref, which (under
+# `set -e`) also aborted the tag push. The lock re-arm no longer sits below
+# this - it runs above, so a push failure cannot strand it.
+git push origin HEAD:main
+git push origin "${TAG}"
 
 #===============================================================================
 # GitHub Release

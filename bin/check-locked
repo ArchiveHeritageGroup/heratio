@@ -73,7 +73,17 @@ if [ -z "$CHANGED" ]; then
 fi
 
 # Read locked entries (strip blank lines and comments).
-mapfile -t LOCKED < <(grep -vE '^\s*(#|$)' "$MANIFEST" | sed 's/[[:space:]]*$//')
+#
+# INLINE comments are stripped too. They did not used to be, and the result was
+# that any entry written as `packages/ahg-cart/    # cart.add` became the
+# literal string "packages/ahg-cart/    # cart.add" and matched no path on
+# earth - a dead lock that looked live in the manifest. 45 of 74 entries were
+# in that state when this was found (2026-08-24). Keep the two sed stages in
+# this order: kill the inline comment first, then any whitespace it left behind.
+mapfile -t LOCKED < <(grep -vE '^\s*(#|$)' "$MANIFEST" \
+    | sed -E 's/[[:space:]]+#.*$//' \
+    | sed 's/[[:space:]]*$//' \
+    | grep -vE '^$')
 
 # Read unlocked entries (one-shot tokens written by ./bin/unlock).
 UNLOCKED=()

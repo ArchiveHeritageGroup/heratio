@@ -7,6 +7,8 @@
 # Lines starting with # are comments. Blank lines are ignored.
 # A trailing slash means "everything under this directory, recursively".
 # Without a trailing slash, the entry matches an exact file.
+# A trailing `# note` on an entry is stripped before matching (since
+# 2026-08-24); previously it was not, which silently killed the lock.
 #
 # Lock established 2026-05-05 to fully protect the archival-record show
 # page (/{slug}) and every link target reachable from it. See
@@ -187,7 +189,9 @@ packages/ahg-settings/resources/views/visible-elements.blade.php  # #98 mods_hea
 # SharePoint NO-PUSH policy — never commits, never releases. See
 # /opt/ahg-sp-integration/F3/ for the canonical source of truth and
 # memory/f3_federation_sharepoint_local.md for the rationale.
-# (Inline comments are NOT stripped from entries — keep these clean.)
+# (Inline comments ARE stripped from entries as of 2026-08-24 — an entry may
+# carry a trailing `# note`. Before that they were not, so 45 of the 74 entries
+# below silently matched nothing.)
 packages/ahg-federation/src/Connectors/
 packages/ahg-federation/src/Services/FederatedSearchService.php
 packages/ahg-federation/src/Controllers/FederationController.php

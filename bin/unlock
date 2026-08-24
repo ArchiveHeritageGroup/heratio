@@ -70,7 +70,10 @@ for path in "$@"; do
                 */) [[ "$path" == "$lp"* ]] && UNDER_LOCK=1 && break ;;
                 *)  [[ "$path" == "$lp" ]]  && UNDER_LOCK=1 && break ;;
             esac
-        done < <(grep -vE '^\s*(#|$)' "${ROOT}/.locked-paths")
+        done < <(grep -vE '^\s*(#|$)' "${ROOT}/.locked-paths" \
+            | sed -E 's/[[:space:]]+#.*$//' \
+            | sed 's/[[:space:]]*$//' \
+            | grep -vE '^$')
         if [ "$UNDER_LOCK" -eq 0 ]; then
             echo -e "${YELLOW}note:${NC} '${path}' is not in .locked-paths — unlock is a no-op for it" >&2
         fi
