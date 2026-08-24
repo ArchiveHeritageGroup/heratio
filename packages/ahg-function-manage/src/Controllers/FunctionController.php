@@ -90,6 +90,17 @@ class FunctionController extends Controller
         $relatedFunctions = $this->service->getRelatedFunctions($function->id);
         $relatedResources = $this->service->getRelatedResources($function->id);
 
+        // #1478 The show page loops all five of these and this method passed
+        // none of them. Every section is `isset()`-guarded, so nothing threw -
+        // the parallel and other forms of the name, the related authority
+        // records and the language and script of the description simply never
+        // appeared on any function page, however much was recorded.
+        $parallelNames = $this->service->getParallelNames($function->id);
+        $otherNames = $this->service->getOtherNames($function->id);
+        $relatedActors = $this->service->getRelatedActors($function->id);
+        $languages = $this->service->getLanguages($function->id);
+        $scripts = $this->service->getScripts($function->id);
+
         $canUpdate = auth()->check();
         $canDelete = auth()->check() && \AhgCore\Services\AclService::canAdmin(auth()->id());
         $canCreate = auth()->check();
@@ -101,6 +112,11 @@ class FunctionController extends Controller
             'descriptionDetail' => $descriptionDetail,
             'relatedFunctions' => $relatedFunctions,
             'relatedResources' => $relatedResources,
+            'parallelNames' => $parallelNames,
+            'otherNames' => $otherNames,
+            'relatedActors' => $relatedActors,
+            'languages' => $languages,
+            'scripts' => $scripts,
             'canUpdate' => $canUpdate,
             'canDelete' => $canDelete,
             'canCreate' => $canCreate,

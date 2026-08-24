@@ -146,6 +146,171 @@ class FunctionService
      * Get related functions (bidirectional via relation table).
      */
     /**
+     * ISDF 5.1.2 parallel forms and 5.1.3 other forms of the name - #1478.
+     *
+     * The show page had sections for both and the controller passed neither, so
+     * they were `isset()`-guarded into silence: nothing threw and nothing
+     * rendered, however many names a function actually carried.
+     *
+     * Both live in `other_name`, told apart by their type term. The term is
+     * matched by NAME, never by a baked-in id: a seeded taxonomy term gets
+     * whatever id the instance hands out, so a hardcoded 148 would be correct on
+     * exactly one installation.
+     *
+     * "Standardized form" is deliberately NOT folded into other forms. It is an
+     * ISAAR element for authority records and not an ISDF element for functions;
+     * showing it here would put a value under a heading that does not describe
+     * it.
+     */
+    public function getParallelNames(int $functionId): \Illuminate\Support\Collection
+    {
+        return $this->namesOfType($functionId, 'Parallel form');
+    }
+
+    public function getOtherNames(int $functionId): \Illuminate\Support\Collection
+    {
+        return $this->namesOfType($functionId, 'Other form');
+    }
+
+    /**
+     * The names of one type, as plain strings - the view lists them directly.
+     */
+    private function namesOfType(int $functionId, string $typeName): \Illuminate\Support\Collection
+    {
+        return DB::table('other_name')
+            ->join('other_name_i18n', function ($j) {
+                $j->on('other_name.id', '=', 'other_name_i18n.id')
+                    ->where('other_name_i18n.culture', '=', $this->culture);
+            })
+            ->join('term_i18n as type_i18n', function ($j) use ($typeName) {
+                $j->on('other_name.type_id', '=', 'type_i18n.id')
+                    ->where('type_i18n.culture', '=', $this->culture)
+                    ->where('type_i18n.name', '=', $typeName);
+            })
+            ->where('other_name.object_id', $functionId)
+            ->whereNotNull('other_name_i18n.name')
+            ->where('other_name_i18n.name', '!=', '')
+            ->orderBy('other_name.id')
+            ->pluck('other_name_i18n.name');
+    }
+
+    /**
+     * ISDF 5.4.3 language(s) and script(s) of the description - #1478.
+     *
+     * Stored on the `property` table under the names `language` and `script`,
+     * as a serialized PHP array - the shape AtoM writes and the shape
+     * ActorService already reads. Decoding is done with allowed_classes=false:
+     * this is data, and it must never be able to instantiate an object.
+     *
+     * Codes are mapped to their display names through the canonical
+     * LanguageOptions list so a function page reads "English", not "en", and
+     * reads it the same way every other page does.
+     */
+    public function getLanguages(int $functionId): array
+    {
+        return $this->labelCodes($this->propertyArray($functionId, 'language'), 'languages');
+    }
+
+    public function getScripts(int $functionId): array
+    {
+        return $this->labelCodes($this->propertyArray($functionId, 'script'), 'scripts');
+    }
+
+    private function propertyArray(int $functionId, string $name): array
+    {
+        $raw = DB::table('property')
+            ->leftJoin('property_i18n', function ($j) {
+                $j->on('property.id', '=', 'property_i18n.id')
+                    ->where('property_i18n.culture', '=', $this->culture);
+            })
+            ->where('property.object_id', $functionId)
+            ->where('property.name', $name)
+            ->value('property_i18n.value');
+
+        if (! $raw) {
+            return [];
+        }
+
+        $decoded = @unserialize($raw, ['allowed_classes' => false]);
+
+        // A single value is stored plain, not serialized.
+        return is_array($decoded) ? array_values(array_filter($decoded)) : [$raw];
+    }
+
+    /**
+     * Turn stored codes into display names, leaving anything unrecognised as it
+     * was rather than dropping it - an unknown code is still information.
+     */
+    private function labelCodes(array $codes, string $which): array
+    {
+        if ($codes === []) {
+            return [];
+        }
+
+        $map = [];
+        if (class_exists(\AhgCore\Support\LanguageOptions::class)) {
+            $map = $which === 'languages'
+                ? \AhgCore\Support\LanguageOptions::descriptionLanguages()
+                : \AhgCore\Support\LanguageOptions::scripts();
+        }
+
+        return array_map(static fn ($c) => $map[$c] ?? $c, $codes);
+    }
+
+    /**
+     * ISDF 6.1 related authority records - #1478.
+     *
+     * A function-actor relation can be recorded from either end, so both are
+     * read and merged; the inverse query in ActorService writes the actor as
+     * subject and the function as object, but nothing enforces that direction.
+     * `object.class_name` is checked so a function-to-function relation cannot
+     * arrive here dressed as an actor.
+     *
+     * The check is `QubitActor` exactly, and NOT the wider set of actor
+     * subclasses (QubitRepository, QubitDonor, QubitRightsHolder, QubitUser),
+     * even though all of them are rows in `actor`. The view links each result to
+     * `actor.show`, and ActorService restricts that route to QubitActor -
+     * verified live: /actor/<a-repository-slug> returns 404 while
+     * /actor/<an-actor-slug> returns 200. Widening this filter would render
+     * links straight to a 404, and QubitUser rows are login accounts that are
+     * not authority records at all.
+     */
+    public function getRelatedActors(int $functionId): \Illuminate\Support\Collection
+    {
+        $asObject = $this->relatedActorQuery('relation.object_id', 'relation.subject_id', $functionId);
+        $asSubject = $this->relatedActorQuery('relation.subject_id', 'relation.object_id', $functionId);
+
+        return $asObject->merge($asSubject)->unique('id')->values();
+    }
+
+    private function relatedActorQuery(string $functionSide, string $actorSide, int $functionId): \Illuminate\Support\Collection
+    {
+        return DB::table('relation')
+            ->join('actor', $actorSide, '=', 'actor.id')
+            ->join('object', 'actor.id', '=', 'object.id')
+            ->leftJoin('actor_i18n', function ($j) {
+                $j->on('actor.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
+            ->leftJoin('relation_i18n', function ($j) {
+                $j->on('relation.id', '=', 'relation_i18n.id')
+                    ->where('relation_i18n.culture', '=', $this->culture);
+            })
+            ->where($functionSide, $functionId)
+            ->where('object.class_name', 'QubitActor')
+            ->select(
+                'actor.id',
+                'actor.description_identifier',
+                'actor_i18n.authorized_form_of_name',
+                'slug.slug',
+                'relation_i18n.description as relation_description',
+                $this->relationDatesExpression()
+            )
+            ->get();
+    }
+
+    /**
      * The dates a relation is qualified by, as one displayable string - #1478.
      *
      * The show page reads `relation_dates` on every related entity and no query
