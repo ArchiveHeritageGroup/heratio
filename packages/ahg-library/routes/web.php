@@ -191,6 +191,13 @@ Route::middleware('auth')->group(function () {
 
     // ── Loan Rules & Overdue (read-only management views) ─────────────────
     Route::get('/library-manage/circulation/loan-rules', [LibraryController::class, 'loanRules'])->name('library.loan-rules');
+    // #1473: library_loan_rule had no create, update or delete anywhere - the
+    // only surface was a read-only list, so the table that decides loan periods
+    // and fine rates could only be edited in SQL.
+    Route::post('/library-manage/circulation/loan-rules', [LibraryController::class, 'saveLoanRule'])
+        ->name('library.loan-rules.save')->middleware('acl:update');
+    Route::post('/library-manage/circulation/loan-rules/{id}/delete', [LibraryController::class, 'deleteLoanRule'])
+        ->name('library.loan-rules.delete')->whereNumber('id')->middleware('acl:delete');
     Route::get('/library-manage/circulation/overdue', [LibraryController::class, 'overdue'])->name('library.overdue');
     // Standalone index + bare checkout form (no copyId) -- needed by sidebar nav links
     Route::get('/library-manage/circulation', [LibraryController::class, 'circulation'])->name('library.circulation');

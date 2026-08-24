@@ -716,6 +716,36 @@ class LibraryController extends Controller
         ]);
     }
 
+    /** Create or update a loan rule - #1473. */
+    public function saveLoanRule(Request $request)
+    {
+        $data = $request->validate([
+            'branch_id'           => 'nullable|integer|min:0',
+            'material_type'       => 'required|string|max:50',
+            'patron_type'         => 'nullable|string|max:30',
+            'loan_period_days'    => 'required|integer|min:0|max:3650',
+            'renewal_period_days' => 'nullable|integer|min:0|max:3650',
+            'max_renewals'        => 'nullable|integer|min:0|max:99',
+            'fine_per_day'        => 'nullable|numeric|min:0',
+            'fine_cap'            => 'nullable|numeric|min:0',
+            'grace_period_days'   => 'nullable|integer|min:0|max:365',
+            'is_loanable'         => 'nullable|boolean',
+            'notes'               => 'nullable|string|max:65535',
+        ]);
+
+        $this->circ->saveLoanRule($data);
+
+        return redirect()->route('library.loan-rules')->with('success', __('Loan rule saved.'));
+    }
+
+    /** Delete a loan rule - #1473. */
+    public function deleteLoanRule(Request $request, int $id)
+    {
+        $this->circ->deleteLoanRule($id);
+
+        return redirect()->route('library.loan-rules')->with('success', __('Loan rule deleted.'));
+    }
+
     public function loanRules()
     {
         $branchAware = LibraryBranch::available();
@@ -1015,7 +1045,11 @@ class LibraryController extends Controller
                 'search' => $request->query('q'),
                 'status' => $request->query('status'),
                 'type' => $request->query('type'),
+                // #1473: null means every branch, which is both the consortium
+                // view and the right answer for a single-outlet service.
+                'branch_id' => LibraryBranch::operatorBranchId(),
             ])),
+            'branchName' => LibraryBranch::name(LibraryBranch::operatorBranchId()),
         ]);
     }
 

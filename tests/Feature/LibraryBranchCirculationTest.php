@@ -228,6 +228,72 @@ class LibraryBranchCirculationTest extends TestCase
         $this->assertNull($overdue->fine_amount, 'no fine row exists yet, so it is not zero but unknown');
     }
 
+    public function test_hold_queue_position_is_per_pickup_branch(): void
+    {
+        $this->rule(LibraryBranch::ALL, '*', 14);
+        [$copyA, $patronA] = $this->fixture(self::BRANCH_A);
+        [, $patronA2] = $this->fixture(self::BRANCH_A);
+        [, $patronB] = $this->fixture(self::BRANCH_B);
+
+        $itemId = (int) DB::table('library_copy')->where('id', $copyA)->value('library_item_id');
+
+        $h1 = $this->circ->placeHold($itemId, $patronA, self::BRANCH_A);
+        $h2 = $this->circ->placeHold($itemId, $patronA2, self::BRANCH_A);
+        $h3 = $this->circ->placeHold($itemId, $patronB, self::BRANCH_B);
+
+        // Branch B's first patron is first in B's queue, not third overall. A
+        // patron collecting at B is not behind the people waiting at A.
+        $this->assertSame(1, (int) DB::table('library_hold')->where('id', $h1)->value('queue_position'));
+        $this->assertSame(2, (int) DB::table('library_hold')->where('id', $h2)->value('queue_position'));
+        $this->assertSame(1, (int) DB::table('library_hold')->where('id', $h3)->value('queue_position'));
+    }
+
+    public function test_a_returned_copy_promotes_the_hold_at_its_own_branch(): void
+    {
+        $this->rule(LibraryBranch::ALL, '*', 14);
+        [$copyB, $patronB] = $this->fixture(self::BRANCH_B);
+        $itemId = (int) DB::table('library_copy')->where('id', $copyB)->value('library_item_id');
+
+        // Somebody waiting at A, somebody waiting at B.
+        [, $patronA] = $this->fixture(self::BRANCH_A);
+        $this->circ->placeHold($itemId, $patronA, self::BRANCH_A);
+        $this->circ->placeHold($itemId, $patronB, self::BRANCH_B);
+
+        // A copy shelved at B is checked out and returned there.
+        [, $borrower] = $this->fixture(self::BRANCH_B);
+        $checkoutId = $this->circ->checkout($copyB, $borrower);
+        $this->assertNotNull($checkoutId);
+        $this->circ->return($checkoutId);
+
+        $ready = DB::table('library_hold')
+            ->where('library_item_id', $itemId)->where('status', 'ready')->first();
+
+        $this->assertNotNull($ready, 'no hold was promoted');
+        $this->assertSame(self::BRANCH_B, (int) $ready->branch_id,
+            'a copy returned at branch B promoted a hold at another branch');
+    }
+
+    public function test_saving_a_rule_twice_edits_it_instead_of_duplicating(): void
+    {
+        $id = $this->circ->saveLoanRule([
+            'branch_id' => self::BRANCH_A, 'material_type' => self::MATERIAL,
+            'patron_type' => 'student', 'loan_period_days' => 3, 'is_loanable' => 1,
+        ]);
+        $again = $this->circ->saveLoanRule([
+            'branch_id' => self::BRANCH_A, 'material_type' => self::MATERIAL,
+            'patron_type' => 'student', 'loan_period_days' => 7, 'is_loanable' => 1,
+        ]);
+
+        // (branch, material, patron) is the table's unique key, so the second
+        // save must edit the first rather than fail on a duplicate.
+        $this->assertSame($id, $again);
+        $this->assertSame(7, (int) DB::table('library_loan_rule')->where('id', $id)->value('loan_period_days'));
+        $this->assertSame(7, $this->circ->resolveLoanDays(self::MATERIAL, 'student', self::BRANCH_A));
+
+        $this->assertTrue($this->circ->deleteLoanRule($id));
+        $this->assertFalse(DB::table('library_loan_rule')->where('id', $id)->exists());
+    }
+
     public function test_checkout_records_the_branch_and_lends_on_its_loan_period(): void
     {
         $this->rule(LibraryBranch::ALL, '*', 21);

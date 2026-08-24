@@ -87,6 +87,20 @@ class LibraryCirculationService
     }
 
     /**
+     * The loan rule governing a (branch, material, patron) combination, for
+     * callers outside this service - #1473.
+     *
+     * LibraryOverdueNoticeService carried a FOURTH copy of this lookup, which
+     * ignored the branch axis entirely, so an overdue notice quoted the
+     * system-wide fine rate even where the lending branch had its own rule.
+     * v1.154.634 consolidated three copies; this is the one that was missed.
+     */
+    public function ruleFor(string $materialType, string $patronType, ?int $branchId = null): ?object
+    {
+        return $this->matchRule($materialType, $patronType, $branchId);
+    }
+
+    /**
      * Resolve the loan period for a (branch, material_type, patron_type)
      * combination via library_loan_rule, falling back to the branch's
      * library_default_loan_days when no matching rule exists.
@@ -206,7 +220,12 @@ class LibraryCirculationService
 
             // Promote a held copy if anyone's queued for this item.
             $copy = DB::table('library_copy')->where('id', $checkout->copy_id)->first();
-            $promoted = $copy ? $this->promoteNextHold((int) $copy->library_item_id) : false;
+            $promoted = $copy
+                ? $this->promoteNextHold(
+                    (int) $copy->library_item_id,
+                    isset($copy->branch_id) && $copy->branch_id !== null ? (int) $copy->branch_id : null
+                )
+                : false;
 
             DB::table('library_copy')->where('id', $checkout->copy_id)->update([
                 'status' => $promoted ? self::STATUS_ON_HOLD : self::STATUS_AVAILABLE,
@@ -293,6 +312,9 @@ class LibraryCirculationService
             return null;
         }
 
+        // The queue cap is a property of the item across the whole service: a
+        // consortium should not be able to exceed it by spreading holds over
+        // branches.
         $itemHolds = DB::table('library_hold')
             ->where('library_item_id', $itemId)
             ->whereIn('status', ['pending', 'ready'])
@@ -301,13 +323,26 @@ class LibraryCirculationService
             return null;
         }
 
+        // Queue POSITION, by contrast, is per pickup branch - #1473. A patron
+        // collecting at branch B is not behind the people waiting at branch A;
+        // they are waiting for a copy that will be routed to B. Numbering them
+        // globally told them they were fifth in a queue they were not in.
+        $pickup = LibraryBranch::resolve($pickupBranchId, null, $patronId);
+        $position = $this->hasBranchColumn('library_hold') && $pickup !== null
+            ? DB::table('library_hold')
+                ->where('library_item_id', $itemId)
+                ->where('branch_id', $pickup)
+                ->whereIn('status', ['pending', 'ready'])
+                ->count() + 1
+            : $itemHolds + 1;
+
         $expiryDays = LibrarySettings::holdExpiryDays();
         $row = [
             'library_item_id' => $itemId,
             'patron_id' => $patronId,
             'hold_date' => now(),
             'expiry_date' => date('Y-m-d', strtotime("+{$expiryDays} days")),
-            'queue_position' => $itemHolds + 1,
+            'queue_position' => $position,
             'status' => 'pending',
             'created_at' => now(),
         ];
@@ -315,7 +350,7 @@ class LibraryCirculationService
         // A hold is collected somewhere; absent an explicit pickup point, the
         // patron's home branch is the only defensible default.
         if ($this->hasBranchColumn('library_hold')) {
-            $row['branch_id'] = LibraryBranch::resolve($pickupBranchId, null, $patronId);
+            $row['branch_id'] = $pickup;
         }
 
         return (int) DB::table('library_hold')->insertGetId($row);
@@ -336,21 +371,40 @@ class LibraryCirculationService
      * librarian sees there's a patron waiting. Returns true when something
      * was promoted (caller flips the copy to on_hold status).
      */
-    protected function promoteNextHold(int $itemId): bool
+    protected function promoteNextHold(int $itemId, ?int $branchId = null): bool
     {
-        $next = DB::table('library_hold')
+        // A copy returned at branch B satisfies the queue at B first. Only when
+        // nobody is waiting there does it go to the service-wide queue - which
+        // is what routing a hold to a pickup point actually means.
+        $query = DB::table('library_hold')
             ->where('library_item_id', $itemId)
-            ->where('status', 'pending')
-            ->orderBy('queue_position')
-            ->first();
+            ->where('status', 'pending');
+
+        if ($branchId !== null && $this->hasBranchColumn('library_hold')) {
+            $atBranch = (clone $query)->where('branch_id', $branchId)
+                ->orderBy('queue_position')->first();
+            if ($atBranch) {
+                return $this->markHoldReady((int) $atBranch->id);
+            }
+        }
+
+        $next = $query->orderBy('queue_position')->first();
         if (!$next) {
             return false;
         }
-        DB::table('library_hold')->where('id', $next->id)->update([
+
+        return $this->markHoldReady((int) $next->id);
+    }
+
+    /** Flip one hold to ready so the desk sees a patron is waiting. */
+    protected function markHoldReady(int $holdId): bool
+    {
+        DB::table('library_hold')->where('id', $holdId)->update([
             'status' => 'ready',
             'notification_sent' => 0,
             'updated_at' => now(),
         ]);
+
         return true;
     }
 
@@ -637,6 +691,55 @@ class LibraryCirculationService
         }
 
         return self::$branchColumns[$key][$table];
+    }
+
+    /**
+     * Create or update one loan rule - #1473.
+     *
+     * There has never been a create, update or delete for library_loan_rule
+     * anywhere in the codebase: the only surface was a read-only list, so rules
+     * could be changed by hand in SQL or not at all. That is a poor position for
+     * a table that decides loan periods and fine rates.
+     *
+     * Keyed on (branch_id, material_type, patron_type), which is the table's own
+     * unique constraint - so saving the same combination twice edits the rule
+     * rather than failing on a duplicate key.
+     */
+    public function saveLoanRule(array $data): int
+    {
+        $branchId = isset($data['branch_id']) && (int) $data['branch_id'] > 0
+            ? (int) $data['branch_id']
+            : LibraryBranch::ALL;
+
+        $key = [
+            'material_type' => (string) $data['material_type'],
+            'patron_type'   => (string) ($data['patron_type'] ?? '*'),
+        ];
+        if (LibraryBranch::available()) {
+            $key['branch_id'] = $branchId;
+        }
+
+        $values = [
+            'loan_period_days'    => (int) ($data['loan_period_days'] ?? 14),
+            'renewal_period_days' => (int) ($data['renewal_period_days'] ?? ($data['loan_period_days'] ?? 14)),
+            'max_renewals'        => (int) ($data['max_renewals'] ?? 2),
+            'fine_per_day'        => (float) ($data['fine_per_day'] ?? 0),
+            'fine_cap'            => ($data['fine_cap'] ?? null) !== null && $data['fine_cap'] !== ''
+                ? (float) $data['fine_cap'] : null,
+            'grace_period_days'   => (int) ($data['grace_period_days'] ?? 0),
+            'is_loanable'         => ! empty($data['is_loanable']) ? 1 : 0,
+            'notes'               => ($data['notes'] ?? null) ?: null,
+        ];
+
+        DB::table('library_loan_rule')->updateOrInsert($key, $values);
+
+        return (int) DB::table('library_loan_rule')->where($key)->value('id');
+    }
+
+    /** Delete one loan rule. */
+    public function deleteLoanRule(int $id): bool
+    {
+        return DB::table('library_loan_rule')->where('id', $id)->delete() > 0;
     }
 
     public function getLoanRules(): array

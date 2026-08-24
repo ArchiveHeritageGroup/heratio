@@ -31,6 +31,7 @@
           <th>{{ __('Grace (days)') }}</th>
           <th>{{ __('Fine/Day') }}</th>
           <th>{{ __('Loanable') }}</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -59,16 +60,89 @@
                 <span class="badge bg-secondary">{{ __('No') }}</span>
               @endif
             </td>
+            <td class="text-end">
+              <form method="post" action="{{ route('library.loan-rules.delete', $r->id) }}"
+                    onsubmit="return confirm('{{ __('Delete this loan rule?') }}');">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+            </td>
           </tr>
         @empty
           <tr>
-            <td colspan="{{ ($branchAware ?? false) ? 8 : 7 }}" class="text-muted text-center py-3">
+            <td colspan="{{ ($branchAware ?? false) ? 9 : 8 }}" class="text-muted text-center py-3">
               {{ __('No rules.') }}
             </td>
           </tr>
         @endforelse
       </tbody>
     </table>
+  </div>
+</div>
+
+{{-- #1473: an editor, because until now library_loan_rule had no create,
+     update or delete anywhere in the codebase. Saving a combination that
+     already exists edits it rather than failing, because (branch, material,
+     patron) is the table's own unique key. --}}
+<div class="card mt-4">
+  <div class="card-header"><i class="fas fa-plus me-2"></i>{{ __('Add or edit a rule') }}</div>
+  <div class="card-body">
+    <form method="post" action="{{ route('library.loan-rules.save') }}" class="row g-3">
+      @csrf
+      @if($branchAware ?? false)
+        <div class="col-md-3">
+          <label class="form-label" for="lr_branch">{{ __('Branch') }}</label>
+          <select name="branch_id" id="lr_branch" class="form-select">
+            <option value="0">{{ __('All branches') }}</option>
+            @foreach($branchLabels ?? [] as $bid => $bname)
+              <option value="{{ $bid }}">{{ $bname }}</option>
+            @endforeach
+          </select>
+        </div>
+      @endif
+      <div class="col-md-3">
+        <label class="form-label" for="lr_material">{{ __('Material Type') }} <span class="text-danger">*</span></label>
+        <input type="text" name="material_type" id="lr_material" class="form-control" required
+               placeholder="monograph">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="lr_patron">{{ __('Patron Type') }}</label>
+        <input type="text" name="patron_type" id="lr_patron" class="form-control" value="*"
+               placeholder="* = all">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="lr_days">{{ __('Loan (days)') }} <span class="text-danger">*</span></label>
+        <input type="number" name="loan_period_days" id="lr_days" class="form-control" min="0" value="14" required>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="lr_renew">{{ __('Renewals') }}</label>
+        <input type="number" name="max_renewals" id="lr_renew" class="form-control" min="0" value="2">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="lr_grace">{{ __('Grace (days)') }}</label>
+        <input type="number" name="grace_period_days" id="lr_grace" class="form-control" min="0" value="0">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="lr_fine">{{ __('Fine/Day') }}</label>
+        <input type="number" step="0.01" name="fine_per_day" id="lr_fine" class="form-control" min="0" value="0.00">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="lr_cap">{{ __('Fine cap') }}</label>
+        <input type="number" step="0.01" name="fine_cap" id="lr_cap" class="form-control" min="0"
+               placeholder="{{ __('none') }}">
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <div class="form-check">
+          <input type="checkbox" name="is_loanable" id="lr_loanable" class="form-check-input" value="1" checked>
+          <label class="form-check-label" for="lr_loanable">{{ __('Loanable') }}</label>
+        </div>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>{{ __('Save rule') }}</button>
+      </div>
+    </form>
   </div>
 </div>
 @endsection

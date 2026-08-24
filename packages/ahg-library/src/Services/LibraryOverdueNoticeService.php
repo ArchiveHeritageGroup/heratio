@@ -23,6 +23,8 @@
 
 namespace AhgLibrary\Services;
 
+use AhgLibrary\Services\LibraryCirculationService;
+use AhgLibrary\Support\LibraryBranch;
 use AhgLibrary\Support\LibrarySettings;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +74,11 @@ class LibraryOverdueNoticeService
                 'p.id as patron_id', 'p.first_name', 'p.last_name', 'p.email', 'p.patron_type',
                 'cp.barcode', 'li.call_number', 'li.material_type', 'i18n.title'
             )
+            // #1473: a notice must say which branch the loan was made at, and
+            // must quote THAT branch's fine rate. Selected only where the
+            // column exists so an instance mid-deploy still sends notices.
+            ->when(Schema::hasColumn('library_checkout', 'branch_id'), fn ($q) => $q->addSelect('c.branch_id'))
+            ->when(Schema::hasColumn('library_copy', 'branch_id'), fn ($q) => $q->addSelect('cp.branch_id as copy_branch_id'))
             ->orderBy('c.id')
             ->chunk(200, function ($rows) use (&$stats, $templates, $today, $dryRun) {
                 foreach ($rows as $row) {
@@ -147,11 +154,13 @@ class LibraryOverdueNoticeService
     protected function buildTokens(object $row, int $daysOverdue): array
     {
         $materialType = $row->material_type ?: 'monograph';
-        $rule = DB::table('library_loan_rule')
-            ->where('material_type', $materialType)
-            ->whereIn('patron_type', [$row->patron_type ?? '*', '*'])
-            ->orderByRaw("CASE WHEN patron_type = ? THEN 0 ELSE 1 END", [$row->patron_type ?? '*'])
-            ->first();
+
+        // The branch that lent the item decides the rate, not the system default.
+        $branchId = $row->branch_id ?? $row->copy_branch_id ?? null;
+        $branchId = $branchId !== null ? (int) $branchId : null;
+
+        $rule = app(LibraryCirculationService::class)
+            ->ruleFor($materialType, (string) ($row->patron_type ?? '*'), $branchId);
 
         $perDay = $rule ? (float) $rule->fine_per_day : 1.00;
         $grace  = $rule ? (int) $rule->grace_period_days : 0;
@@ -172,6 +181,9 @@ class LibraryOverdueNoticeService
             'fine_per_day' => number_format($perDay, 2),
             'fine_amount'  => number_format($fineAmount, 2),
             'library_name' => LibrarySettings::libraryName(),
+            // {{branch_name}} falls back to the library name so an existing
+            // template that has never heard of branches still reads correctly.
+            'branch_name'  => LibraryBranch::name($branchId) ?? LibrarySettings::libraryName(),
         ];
     }
 

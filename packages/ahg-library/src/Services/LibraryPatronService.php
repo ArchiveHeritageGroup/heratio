@@ -27,6 +27,7 @@ namespace AhgLibrary\Services;
 
 use AhgLibrary\Support\LibrarySettings;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -53,6 +54,18 @@ class LibraryPatronService
         }
         if (!empty($filters['type'])) {
             $q->where('patron_type', $filters['type']);
+        }
+        // #1473: scope to the operator's home branch. array_key_exists, not
+        // !empty, because a branch_id of null is a meaningful "every branch"
+        // and must not be read as "filter not supplied". A patron with no home
+        // branch stays visible everywhere - they belong to the service, and
+        // hiding them would lose them.
+        if (array_key_exists('branch_id', $filters) && $filters['branch_id'] !== null
+            && Schema::hasColumn('library_patron', 'branch_id')) {
+            $branchId = (int) $filters['branch_id'];
+            $q->where(function ($w) use ($branchId) {
+                $w->where('branch_id', $branchId)->orWhereNull('branch_id');
+            });
         }
 
         return $q->orderBy('last_name')->orderBy('first_name')->get()->all();
