@@ -81,6 +81,11 @@ deploy/nginx/heratio.theahg.co.za.conf|/etc/nginx/sites-enabled/heratio.theahg.c
 deploy/nginx/heratio-dev.conf|/etc/nginx/sites-enabled/heratio-dev.conf|exact
 deploy/nginx/sasaarchive.theahg.co.za.conf|/etc/nginx/sites-enabled/sasaarchive.theahg.co.za.conf|exact
 deploy/nginx/conf.d-heratio-browse-shed.conf|/etc/nginx/conf.d/heratio-browse-shed.conf|exact
+# Host-wide nightly --all-databases dump. Not a Heratio script by ownership,
+# but it writes the backups that carry Heratio's data (and every other app's),
+# and its umask fix would otherwise be lost on a host rebuild with nothing to
+# notice. Installed to /usr/local/bin, unlike the deploy/sbin scripts.
+deploy/bin/mysql_full_dump.sh|/usr/local/bin/mysql_full_dump.sh|exact
 config/cantaloupe/nginx-iiif-snippet.conf|/etc/nginx/snippets/heratio-iiif.conf|rendered
 config/cantaloupe/delegates.rb.template|/opt/cantaloupe-5.0.6/delegates.rb|inform
 "
@@ -94,6 +99,13 @@ say "==> host-config drift check"
 
 while IFS='|' read -r repo live mode; do
     [ -z "${repo:-}" ] && continue
+    # Skip comment lines. The manifest had no comment support, so a '# note'
+    # line was read as a repo path and reported as "missing in repo" - the same
+    # defect .locked-paths carried until it was fixed earlier today, where 45 of
+    # 74 entries silently matched nothing because an inline comment was taken as
+    # part of the path. A manifest that cannot be annotated gets annotated
+    # anyway, and then lies about it.
+    case "$repo" in \#*) continue ;; esac
 
     if [ ! -f "$ROOT/$repo" ]; then
         say "  \033[33mmissing in repo\033[0m  $repo"
