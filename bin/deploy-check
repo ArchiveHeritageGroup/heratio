@@ -159,6 +159,34 @@ else
     fail=1
 fi
 
+#-- 5. recent inbound mail (REPORTS, never blocks) ----------------------------
+# Checks 1-4 ask whether the thing you are about to deploy is sound. This asks
+# whether somebody has already told us it is not. On 2026-08-24 four fault
+# reports from a user arrived over about two hours while unrelated releases went
+# out, and the first was read only after the third had been fixed.
+#
+# It NEVER sets fail. A waiting report might be about the very thing you are
+# shipping, or might be unrelated - that is a judgement for the person
+# deploying, not for a script. And a mail server having a bad afternoon must not
+# be able to stop a release. Reads through the Workbench Graph client (which
+# owns the OAuth refresh and the encrypted token) via ahg-archive's
+# mail-check.cjs; the account is resolved by UPN, so it is independent of which
+# repo calls it. Wrapped in `timeout` because it makes a network call and this
+# script must not be able to hang a deploy.
+MAIL_CHECK_BIN="${MAIL_CHECK_BIN:-/usr/share/nginx/archive/atom-framework/bin/mail-check.cjs}"
+MAIL_CHECK_HOURS="${MAIL_CHECK_HOURS:-24}"
+echo "5. recent inbound mail …"
+if [ "${SKIP_MAIL_CHECK:-0}" = "1" ]; then
+    echo -e "   ${YEL}SKIP${NC} - SKIP_MAIL_CHECK=1"
+elif [ ! -x "$MAIL_CHECK_BIN" ]; then
+    echo -e "   ${YEL}SKIP${NC} - $MAIL_CHECK_BIN not present (it lives in another repo)"
+elif ! command -v node >/dev/null 2>&1; then
+    echo -e "   ${YEL}SKIP${NC} - node not available"
+else
+    timeout 45 node "$MAIL_CHECK_BIN" --hours "$MAIL_CHECK_HOURS" 2>/dev/null \
+        || echo -e "   ${YEL}SKIP${NC} - mail check did not complete (timeout or auth); not treated as a failure"
+fi
+
 echo
 if [ "$fail" = 0 ]; then
     echo -e "${GRN}deploy-check passed.${NC}"
