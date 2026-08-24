@@ -46,7 +46,7 @@ The AtoM AHG Framework extends Access to Memory (AtoM) with advanced AI-powered 
 2. Navigate to **Admin** → **AHG Settings**
 3. Select the desired settings module
 
-<img src="/plugins/ahgHelpPlugin/images/accessing-ahg-settings.png" alt="AHG Settings" width="500">
+<img src="/images/help/accessing-ahg-settings.png" alt="AHG Settings" width="500">
 
 ---
 
@@ -96,7 +96,7 @@ Navigate to: **Admin** → **AHG Settings** → **AI Services**
 
 ### Workflow Diagram
 
-<img src="/plugins/ahgHelpPlugin/images/ai-services-workflow.png" alt="AI Services Workflow" width="500">
+<img src="/images/help/ai-services-workflow.png" alt="AI Services Workflow" width="500">
 
 ---
 
@@ -115,7 +115,7 @@ NER automatically identifies and classifies named entities in text:
 
 ### How NER Works
 
-<img src="/plugins/ahgHelpPlugin/images/ner_processing_flow.png" alt="NER Processing" width="500">
+<img src="/images/help/ner_processing_flow.png" alt="NER Processing" width="500">
 
 ### Text Sources
 
@@ -146,7 +146,7 @@ AI Summarization automatically generates concise summaries from PDF documents an
 
 ### Summarization Workflow
 
-<img src="/plugins/ahgHelpPlugin/images/summarization_workflow.png" alt="Summarization Workflow" width="500">
+<img src="/images/help/summarization_workflow.png" alt="Summarization Workflow" width="500">
 
 ### Best Practices
 
@@ -189,7 +189,7 @@ Navigate to: `/ner/review` or **Admin** → **NER Review**
 
 ### Dashboard Features
 
-<img src="/plugins/ahgHelpPlugin/images/ner_review_dashboard_layout.png" alt="NER Review Dashboard" width="500">
+<img src="/images/help/ner_review_dashboard_layout.png" alt="NER Review Dashboard" width="500">
 
 ### Review Actions
 
