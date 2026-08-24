@@ -53,9 +53,9 @@
                     @if(isset($groupPermission[$groupId]))
                       @php $permission = $groupPermission[$groupId]; @endphp
                       @if($permission->action === 'translate' && !empty($permission->languages))
-                        {{ $permission->access_label ?? ($permission->grant_deny ? 'Grant' : 'Deny') }}: {{ implode(', ', $permission->languages) }}
+                        {{ $permission->grant_deny ? 'Grant' : 'Deny' }}: {{ implode(', ', $permission->languages) }}
                       @else
-                        {{ $permission->access_label ?? ($permission->grant_deny ? 'Grant' : 'Deny') }}
+                        {{ $permission->grant_deny ? 'Grant' : 'Deny' }}
                       @endif
                     @else
                       -

@@ -37,23 +37,23 @@
     <tbody>
       @forelse($items as $r)
       <tr>
-        <td><strong>{{ e($r->institution_name ?? $r->venue_name ?? '-') }}</strong></td>
-        <td>{{ $r->loan_number ?? $r->loan_id ?? '-' }}</td>
-        <td>{{ ucfirst($r->report_type ?? $r->type ?? '-') }}</td>
+        <td><strong>{{ e($r->institution_name ?? '-') }}</strong></td>
+        <td>{{ $r->loan_id ?? '-' }}</td>
+        <td>{{ ucfirst($r->report_type ?? $r->report_type ?? '-') }}</td>
         <td class="text-center">
-          @if($r->fire_safety ?? false)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-danger"></i>@endif
+          @if($r->fire_detection ?? false)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-danger"></i>@endif
         </td>
         <td class="text-center">
-          @if($r->climate_control ?? false)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-danger"></i>@endif
+          @if($r->climate_controlled ?? false)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-danger"></i>@endif
         </td>
         <td class="text-center">
-          @if($r->security ?? false)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-danger"></i>@endif
+          @if($r->security_24hr ?? false)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-danger"></i>@endif
         </td>
         <td class="text-center">
           @if($r->trained_handlers ?? false)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-danger"></i>@endif
         </td>
         <td class="text-center">
-          @if($r->approved ?? $r->is_approved ?? false)
+          @if($r->approved ?? $r->approved ?? false)
             <span class="badge bg-success">{{ __('Yes') }}</span>
           @else
             <span class="badge bg-warning">{{ __('Pending') }}</span>

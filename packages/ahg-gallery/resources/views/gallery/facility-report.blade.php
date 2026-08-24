@@ -8,12 +8,12 @@
   <div class="card-body">
     @if(isset($report))
     <div class="row"><div class="col-md-6"><dl>
-      @if($report->institution ?? null)<dt>Institution</dt><dd>{{ $report->institution }}</dd>@endif
+      @if($report->institution_name ?? null)<dt>Institution</dt><dd>{{ $report->institution_name }}</dd>@endif
       @if($report->report_type ?? null)<dt>Type</dt><dd>{{ ucfirst($report->report_type) }}</dd>@endif
-      @if($report->report_date ?? null)<dt>Date</dt><dd>{{ $report->report_date }}</dd>@endif
+      @if($report->completed_date ?? null)<dt>Date</dt><dd>{{ $report->completed_date }}</dd>@endif
     </dl></div><div class="col-md-6"><dl>
       <dt>Fire Detection</dt><dd>{{ ($report->fire_detection ?? false) ? 'Yes' : 'No' }}</dd>
-      <dt>Climate Control</dt><dd>{{ ($report->climate_control ?? false) ? 'Yes' : 'No' }}</dd>
+      <dt>Climate Control</dt><dd>{{ ($report->climate_controlled ?? false) ? 'Yes' : 'No' }}</dd>
       <dt>24hr Security</dt><dd>{{ ($report->security_24hr ?? false) ? 'Yes' : 'No' }}</dd>
       <dt>Trained Handlers</dt><dd>{{ ($report->trained_handlers ?? false) ? 'Yes' : 'No' }}</dd>
     </dl></div></div>

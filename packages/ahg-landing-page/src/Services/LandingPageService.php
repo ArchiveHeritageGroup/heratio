@@ -71,7 +71,52 @@ class LandingPageService
             $query->where('b.is_visible', 1);
         }
 
-        return $query->orderBy('b.position')->get();
+        $blocks = $query->orderBy('b.position')->get();
+
+        // #1478: the row/column block templates read $block->child_blocks and
+        // nothing ever attached them, so a row block - whose entire purpose is
+        // to hold children - rendered an empty row on every page. Children are
+        // fetched in one query and grouped, rather than one query per row.
+        return $this->attachChildBlocks($blocks, $pageId, $visibleOnly);
+    }
+
+    /**
+     * Attach each block's children, keyed by column_slot order then position.
+     *
+     * @param  \Illuminate\Support\Collection<int,object>  $blocks
+     * @return \Illuminate\Support\Collection<int,object>
+     */
+    private function attachChildBlocks(
+        \Illuminate\Support\Collection $blocks,
+        int $pageId,
+        bool $visibleOnly
+    ): \Illuminate\Support\Collection {
+        if ($blocks->isEmpty()) {
+            return $blocks;
+        }
+
+        $childQuery = DB::table('atom_landing_page_block as b')
+            ->leftJoin('atom_landing_page_block_type as bt', 'b.block_type_id', '=', 'bt.id')
+            ->where('b.page_id', $pageId)
+            ->whereIn('b.parent_block_id', $blocks->pluck('id')->all())
+            ->select('b.*', 'bt.label as type_label', 'bt.icon as type_icon', 'bt.machine_name',
+                'bt.config_schema', 'bt.default_config');
+
+        if ($visibleOnly) {
+            $childQuery->where('b.is_visible', 1);
+        }
+
+        $children = $childQuery
+            ->orderBy('b.column_slot')
+            ->orderBy('b.position')
+            ->get()
+            ->groupBy('parent_block_id');
+
+        foreach ($blocks as $block) {
+            $block->child_blocks = $children->get($block->id, collect())->values();
+        }
+
+        return $blocks;
     }
 
     public function getBlockTypes(): \Illuminate\Support\Collection

@@ -2,24 +2,14 @@ packages/ahg-accession-manage/resources/views/attachments.blade.php	size_display
 packages/ahg-accession-manage/resources/views/valuation.blade.php	valuator_name
 packages/ahg-acl/resources/views/pending-requests.blade.php	current_classification
 packages/ahg-acl/resources/views/security/declassification.blade.php	to_name
-packages/ahg-acl/resources/views/security/object-view.blade.php	classified_by_name
-packages/ahg-acl/resources/views/security/object.blade.php	changed_by_username
-packages/ahg-acl/resources/views/security/object.blade.php	classifiedByUsername ?? classified_by_username
-packages/ahg-acl/resources/views/security/object.blade.php	new_name
-packages/ahg-acl/resources/views/security/user-clearance.blade.php	new_name
 packages/ahg-acl/resources/views/security/user-clearance.blade.php	renewal_requested_date
 packages/ahg-acl/resources/views/security/user-clearance.blade.php	two_factor_verified_at
 packages/ahg-acl/resources/views/security/user.blade.php	grantedByUsername ?? granted_by_username
-packages/ahg-acl/resources/views/security/user.blade.php	new_name
 packages/ahg-core/resources/views/components/autocomplete.blade.php	creator_id
 packages/ahg-display/resources/views/display/_browse_content.blade.php	reference_path
 packages/ahg-exhibition/resources/views/_object-list-csv.blade.php	display_location
 packages/ahg-exhibition/resources/views/checklists.blade.php	checklist_name
 packages/ahg-function-manage/resources/views/show.blade.php	relation_dates
-packages/ahg-gallery/resources/views/gallery/facility-report.blade.php	climate_control
-packages/ahg-gallery/resources/views/gallery/facility-report.blade.php	report_date
-packages/ahg-gallery/resources/views/galleryReports/facility-reports.blade.php	climate_control
-packages/ahg-gallery/resources/views/galleryReports/facility-reports.blade.php	fire_safety
 packages/ahg-gallery/resources/views/galleryReports/spaces.blade.php	wall_length
 packages/ahg-heritage-manage/resources/views/analytics-content.blade.php	issue_type
 packages/ahg-heritage-manage/resources/views/analytics-search.blade.php	total_clicks
@@ -35,14 +25,9 @@ packages/ahg-information-object-manage/resources/views/digitalobject/edit.blade.
 packages/ahg-information-object-manage/resources/views/do-edit.blade.php	canThumbnail
 packages/ahg-information-object-manage/resources/views/do-edit.blade.php	displayAsCompoundObject
 packages/ahg-jobs-manage/resources/views/show.blade.php	error_output
-packages/ahg-landing-page/resources/views/_block-card.blade.php	child_blocks
-packages/ahg-landing-page/resources/views/blocks/_block_row_1_col.blade.php	child_blocks
 packages/ahg-landing-page/resources/views/blocks/_block_row_1_col.blade.php	computed_data
-packages/ahg-landing-page/resources/views/blocks/_block_row_2_col.blade.php	child_blocks
 packages/ahg-landing-page/resources/views/blocks/_block_row_2_col.blade.php	computed_data
-packages/ahg-landing-page/resources/views/blocks/_block_row_2_col_public.blade.php	child_blocks
 packages/ahg-landing-page/resources/views/blocks/_block_row_2_col_public.blade.php	computed_data
-packages/ahg-landing-page/resources/views/blocks/_block_row_3_col.blade.php	child_blocks
 packages/ahg-landing-page/resources/views/blocks/_block_row_3_col.blade.php	computed_data
 packages/ahg-landing-page/resources/views/index.blade.php	computed_data
 packages/ahg-landing-page/resources/views/my-dashboard.blade.php	computed_data
@@ -53,15 +38,6 @@ packages/ahg-research/resources/views/research/custody-return-verify.blade.php	e
 packages/ahg-research/resources/views/research/view-booking.blade.php	researcher_institution
 packages/ahg-research/resources/views/research/view-room.blade.php	is_occupied
 packages/ahg-ric/resources/views/_ric-view-repository.blade.php	geo_cultural_context
-packages/ahg-rights-holder-manage/resources/views/extendedRights/_rights-display.blade.php	cc_code
-packages/ahg-rights-holder-manage/resources/views/extendedRights/_rights-display.blade.php	cc_name
-packages/ahg-rights-holder-manage/resources/views/extendedRights/_rights-display.blade.php	cc_uri
-packages/ahg-rights-holder-manage/resources/views/extendedRights/_rights-display.blade.php	rs_code
-packages/ahg-rights-holder-manage/resources/views/extendedRights/_rights-display.blade.php	rs_name
-packages/ahg-rights-holder-manage/resources/views/extendedRights/_rights-display.blade.php	rs_uri
 packages/ahg-security-clearance/resources/views/clearance/view-request.blade.php	object_classification_color
 packages/ahg-settings/resources/views/errorLog.blade.php	request_url
 packages/ahg-term-taxonomy/resources/views/edit.blade.php	is_protected
-packages/ahg-user-manage/resources/views/index-actor-acl.blade.php	access_label
-packages/ahg-user-manage/resources/views/index-information-object-acl.blade.php	access_label
-packages/ahg-user-manage/resources/views/index-repository-acl.blade.php	access_label

@@ -1087,8 +1087,28 @@ class AclController extends Controller
 
     public function objectView(int $id)
     {
-        $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
+        $culture = app()->getLocale();
+
+        $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', $culture)->first()
+            ?? DB::table('information_object_i18n')->where('id', $id)->first()
+            ?? (object) ['id' => $id, 'title' => 'Unknown'];
+
+        // #1478: this was hardcoded null, so the Object Security Details page
+        // showed nothing about the object's security - the one thing it exists
+        // to show. The view reads name, color, classified_at and
+        // classified_by_name, so the classification and the person who set it
+        // both have to be joined in.
         $objectClassification = null;
+        if (Schema::hasTable('object_security_classification')) {
+            $objectClassification = DB::table('object_security_classification as osc')
+                ->leftJoin('security_classification as sc', 'sc.id', '=', 'osc.classification_id')
+                ->leftJoin('user as u', 'u.id', '=', 'osc.classified_by')
+                ->where('osc.object_id', $id)
+                ->where('osc.active', 1)
+                ->orderByDesc('osc.classified_at')
+                ->select('osc.*', 'sc.name', 'sc.color', 'u.username as classified_by_name')
+                ->first();
+        }
 
         return view('ahg-acl::security.object-view', compact('object', 'objectClassification'));
     }
@@ -1103,7 +1123,22 @@ class AclController extends Controller
         $targetUser = DB::table('user')->where('id', $id)->first()
             ?? (object) ['id' => $id, 'username' => 'Unknown'];
         $clearance = $this->service->getUserClearance($id);
+
+        // #1478: user_security_clearance_log has been written on every grant,
+        // update and revocation and never read - $accessHistory was a hardcoded
+        // empty collection, so the history panel showed nothing while the audit
+        // trail existed all along.
         $accessHistory = collect();
+        if (Schema::hasTable('user_security_clearance_log')) {
+            $accessHistory = DB::table('user_security_clearance_log as l')
+                ->leftJoin('security_classification as sc', 'sc.id', '=', 'l.classification_id')
+                ->leftJoin('user as u', 'u.id', '=', 'l.changed_by')
+                ->where('l.user_id', $id)
+                ->orderByDesc('l.created_at')
+                ->limit(100)
+                ->select('l.*', 'sc.name as new_name', 'u.username as changed_by_username')
+                ->get();
+        }
 
         // #1478: the view populates its REQUIRED clearance-level select from
         // $classifications ?? [], and this never passed it - so the select
