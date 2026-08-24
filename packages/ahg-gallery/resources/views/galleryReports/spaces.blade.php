@@ -39,7 +39,7 @@
         <td><strong>{{ e($s->name ?? '-') }}</strong></td>
         <td>{{ e($s->venue_name ?? '-') }}</td>
         <td class="text-end">{{ $s->area_sqm ?? $s->floor_area ?? '-' }}</td>
-        <td class="text-end">{{ $s->wall_length ?? '-' }}</td>
+        <td class="text-end">{{ $s->wall_length_m ?? '-' }}</td>
         <td class="text-end">{{ $s->ceiling_height ?? $s->height ?? '-' }}</td>
         <td class="text-center">
           @if($s->climate_controlled ?? false)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-muted"></i>@endif

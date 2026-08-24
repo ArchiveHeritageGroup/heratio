@@ -131,13 +131,19 @@ foreach (walk($root . '/packages', static fn ($n) => str_ends_with($n, '.blade.p
         continue;
     }
 
+    // A property the view ASSIGNS to itself is produced by the view, not by the
+    // query - `$row->checklist_name = ...` a few lines above the read. Those are
+    // false positives, and reporting them trains people to ignore the tool.
+    preg_match_all('/->(\w+)\s*=(?!=)/', $src, $assigned);
+    $localAssigned = array_flip($assigned[1] ?? []);
+
     foreach ($chains[1] as $chain) {
         preg_match_all('/\$[A-Za-z_]\w*->(\w+)/', $chain, $props);
         if (empty($props[1])) {
             continue;
         }
         foreach ($props[1] as $prop) {
-            if ($producible($prop)) {
+            if ($producible($prop) || isset($localAssigned[$prop])) {
                 continue 2;   // one live alternative rescues the whole chain
             }
         }

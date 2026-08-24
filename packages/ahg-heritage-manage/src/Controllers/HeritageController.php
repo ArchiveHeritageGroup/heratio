@@ -27,6 +27,7 @@
 
 namespace AhgHeritageManage\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -1317,7 +1318,40 @@ class HeritageController extends Controller
     }
 
     public function myContributions() { return view('ahg-heritage-manage::my-contributions', ['items' => collect()]); }
-    public function myAccessRequests() { return view('ahg-heritage-manage::my-access-requests', ['items' => collect()]); }
+    /**
+     * The signed-in user's heritage access requests - #1478.
+     *
+     * This was a one-line stub returning ['items' => collect()], so the page
+     * showed nothing however many requests the user had made. The view also
+     * loops $requests, not $items, so even a populated 'items' would not have
+     * rendered - two faults, either one enough to keep the page empty.
+     *
+     * purpose_name comes from heritage_access_purpose where a purpose was
+     * chosen, falling back to the free-text purpose the requester typed. The
+     * purpose table carries no name column of its own on this schema, so the
+     * free text is the honest label rather than an invented one.
+     */
+    public function myAccessRequests()
+    {
+        $requests = collect();
+
+        if (Auth::check() && Schema::hasTable('heritage_access_request')) {
+            $culture = app()->getLocale();
+
+            $requests = DB::table('heritage_access_request as r')
+                ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
+                    $j->on('ioi.id', '=', 'r.object_id')->where('ioi.culture', '=', $culture);
+                })
+                ->leftJoin('slug as s', 's.object_id', '=', 'r.object_id')
+                ->where('r.user_id', Auth::id())
+                ->orderByDesc('r.created_at')
+                ->select('r.*', 'ioi.title as object_title', 's.slug',
+                    DB::raw('r.purpose_text as purpose_name'))
+                ->get();
+        }
+
+        return view('ahg-heritage-manage::my-access-requests', compact('requests'));
+    }
     public function requestAccess(int $id = null) { return view('ahg-heritage-manage::request-access', ['items' => collect()]); }
 
     /**

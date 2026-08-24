@@ -3779,10 +3779,17 @@ class MarketplaceService
         // the auction table's own column names.
         $query = DB::table($this->listingTable)->where($this->listingTable . '.id', $id);
 
+        // #1478: the listing page builds its breadcrumb from category_slug, and
+        // marketplace_listing stores only category_id - so the category link
+        // pointed nowhere on every listing.
+        if (Schema::hasTable('marketplace_category')) {
+            $query->leftJoin('marketplace_category as mc', 'mc.id', '=', $this->listingTable . '.category_id')
+                ->select($this->listingTable . '.*', 'mc.slug as category_slug', 'mc.name as category_name');
+        }
+
         if (Schema::hasTable('marketplace_auction')) {
             $query->leftJoin('marketplace_auction as ma', 'ma.listing_id', '=', $this->listingTable . '.id')
-                ->select(
-                    $this->listingTable . '.*',
+                ->addSelect(
                     'ma.starting_bid as auction_start_price',
                     'ma.reserve_price as auction_reserve_price',
                     'ma.buy_now_price as auction_buy_now_price',

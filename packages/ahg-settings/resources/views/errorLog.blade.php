@@ -152,10 +152,10 @@
               <td>
                 <div class="fw-bold small">{{ e($entry->exception_class ?? '') }}</div>
                 <div class="small" style="word-break:break-word">{{ e($entry->message) }}</div>
-                @if($entry->url ?? ($entry->request_url ?? null))
+                @if($entry->url ?? null)
                   <div class="small text-muted" style="word-break:break-all">
                     <span class="badge bg-light text-dark">{{ $entry->request_method ?? ($entry->http_method ?? ($entry->method ?? 'GET')) }}</span>
-                    {{ e($entry->url ?? $entry->request_url) }}
+                    {{ e($entry->url) }}
                   </div>
                 @endif
                 @if($entry->resolved_at)

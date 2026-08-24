@@ -58,20 +58,24 @@
               {{ e($clearance->vetting_authority ?? '-') }}
             </p>
             <p>
+              {{-- #1478: user_security_clearance records no two_factor_verified
+                   and no two_factor_verified_at, so the affirmative branch could
+                   never run and every clearance showed a "No" badge - asserting
+                   that two-factor was NOT verified, when the truth is that it is
+                   not tracked at all. Absent and negative are different states.
+                   The badge now says so; restore the yes/no the moment the
+                   columns exist. --}}
               <strong>2FA Verified:</strong><br>
-              @if($clearance->two_factor_verified ?? false)
-                <span class="badge bg-success">{{ __('Yes') }}</span>
-                <small class="text-muted">({{ $clearance->two_factor_verified_at ?? '' }})</small>
-              @else
-                <span class="badge bg-warning">No</span>
-              @endif
+              <span class="badge bg-secondary" title="{{ __('This installation does not record two-factor verification against a clearance.') }}">
+                {{ __('Not recorded') }}
+              </span>
             </p>
           </div>
         </div>
 
         @if(($clearance->renewal_status ?? '') === 'pending')
         <div class="alert alert-warning">
-          <strong>{{ __('Renewal Requested:') }}</strong> {{ $clearance->renewal_requested_date ?? '' }}
+          <strong>{{ __('Renewal Requested') }}</strong>
           <form action="{{ route('acl.set-clearance') }}" method="post" class="mt-2">
             @csrf
             <input type="hidden" name="user_id" value="{{ $targetUser->id }}">
