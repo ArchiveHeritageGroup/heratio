@@ -26,6 +26,7 @@
 namespace AhgExhibition\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ExhibitionService
 {
@@ -372,6 +373,57 @@ class ExhibitionService
             )
             ->orderBy('sequence_order')
             ->get();
+    }
+
+    /**
+     * Stops belonging to a storyline, in route order - #1481.
+     *
+     * The storyline view reads $storyline->stops and nothing ever populated it,
+     * so the stop list rendered empty on every storyline no matter how many
+     * stops the table held.
+     */
+    public function getStorylineStops(int $storylineId): \Illuminate\Support\Collection
+    {
+        if (! Schema::hasTable('exhibition_storyline_stop')) {
+            return collect();
+        }
+
+        return DB::table('exhibition_storyline_stop')
+            ->where('storyline_id', $storylineId)
+            ->orderBy('sequence_order')
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * Add a stop to a storyline - #1481.
+     *
+     * The "Add Stop" form has existed since the view was written and posted to
+     * a GET-only route, so it raised a 405 rather than saving; nothing anywhere
+     * wrote exhibition_storyline_stop. sequence_order defaults to the end of
+     * the route when the caller does not choose a position.
+     */
+    public function createStorylineStop(int $storylineId, array $data): int
+    {
+        $order = $data['sequence_order'] ?? null;
+        if ($order === null || $order === '') {
+            $order = ((int) DB::table('exhibition_storyline_stop')
+                ->where('storyline_id', $storylineId)
+                ->max('sequence_order')) + 1;
+        }
+
+        return (int) DB::table('exhibition_storyline_stop')->insertGetId([
+            'storyline_id'           => $storylineId,
+            // NOT NULL with a foreign key onto exhibition_object: a stop is a
+            // stop AT an object, which is why the form now has to choose one.
+            'exhibition_object_id'   => (int) ($data['exhibition_object_id'] ?? 0),
+            'title'                  => $data['title'] ?? '',
+            'narrative_text'         => $data['narrative_text'] ?? null,
+            'audio_duration_seconds' => ($data['audio_duration_seconds'] ?? null) ?: null,
+            'sequence_order'         => (int) $order,
+            'created_at'             => now(),
+            'updated_at'             => now(),
+        ]);
     }
 
     public function getStoryline(int $id): ?object

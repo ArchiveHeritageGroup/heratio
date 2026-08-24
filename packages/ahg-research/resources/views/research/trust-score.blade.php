@@ -26,8 +26,15 @@
 </div>
 @if(!empty($qualityMetrics))
 <div class="card"><div class="card-header"><h5 class="mb-0">{{ __('Quality Metrics') }}</h5></div><div class="card-body p-0">
-    <table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Metric') }}</th><th>{{ __('Value') }}</th><th>{{ __('Weight') }}</th></tr></thead><tbody>
-        @foreach($qualityMetrics as $m)<tr><td>{{ e($m->metric_name ?? '') }}</td><td>{{ number_format($m->metric_value ?? 0, 2) }}</td><td>{{ $m->weight ?? '-' }}</td></tr>@endforeach
+    {{-- #1481: research_quality_metric stores metric_type and metric_value.
+         There is no metric_name (aliased in the controller) and no weight at
+         all - nothing in the platform weights these metrics, so a Weight
+         column could only ever show a dash. Dropped rather than faked, on the
+         same principle as Max Items in #1477. `source_service` is shown
+         instead: which service produced the figure is real, and is exactly the
+         provenance question a researcher would ask of a trust metric. --}}
+    <table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Metric') }}</th><th>{{ __('Value') }}</th><th>{{ __('Source') }}</th></tr></thead><tbody>
+        @foreach($qualityMetrics as $m)<tr><td>{{ e($m->metric_name ?? '') }}</td><td>{{ number_format($m->metric_value ?? 0, 2) }}</td><td>{{ e($m->source_service ?? '-') }}</td></tr>@endforeach
     </tbody></table>
 </div></div>
 @endif

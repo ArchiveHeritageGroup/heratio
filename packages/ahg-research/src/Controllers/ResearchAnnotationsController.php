@@ -55,6 +55,65 @@ class ResearchAnnotationsController extends Controller
         $this->service = $service;
     }
 
+    /**
+     * Annotation Studio for one description - #1481.
+     *
+     * The view and the annotation store/update/destroy routes have existed all
+     * along; only the page itself had no route, so the sidebar link 404d.
+     */
+    public function annotationStudio(Request $request, int $objectId)
+    {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (! $researcher) {
+            return redirect()->route('researcher.register');
+        }
+
+        $culture = app()->getLocale();
+
+        $object = DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
+                $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $culture);
+            })
+            ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
+            ->where('io.id', $objectId)
+            ->select('io.id', 'io.identifier', 'ioi.title', 's.slug')
+            ->first();
+        abort_unless($object, 404);
+
+        $objectTitle = $object->title ?? '';
+        $objectSlug = $object->slug ?? '';
+        $objectIdentifier = $object->identifier ?? '';
+        $objectType = 'information_object';
+
+        $annotations = DB::table('research_annotation')
+            ->where('object_id', $objectId)
+            ->where('researcher_id', $researcher->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        // A reference image if the description has one; the studio switches to
+        // image mode when it does, and to text mode when it does not.
+        $imageUrl = DB::table('digital_object')
+            ->where('object_id', $objectId)
+            ->whereIn('usage_id', [141, 142])
+            ->orderBy('usage_id')
+            ->value('path');
+        $hasImage = ! empty($imageUrl);
+        $defaultMode = $hasImage ? 'image' : 'text';
+        $model = null;
+
+        return view('research::research.annotation-studio', array_merge(
+            $this->getSidebarData('annotations'),
+            compact(
+                'objectId', 'objectTitle', 'objectSlug', 'objectIdentifier', 'objectType',
+                'annotations', 'imageUrl', 'hasImage', 'defaultMode', 'model'
+            )
+        ));
+    }
+
     public function annotations(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');

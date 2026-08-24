@@ -80,7 +80,7 @@
               <div class="d-flex">
                 <div class="stop-number me-3">
                   <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold;">
-                    {{ $st->stop_order ?? ($index + 1) }}
+                    {{ $st->sequence_order ?? ($index + 1) }}
                   </div>
                 </div>
                 <div class="flex-grow-1">
@@ -163,25 +163,41 @@
         <h5 class="modal-title">{{ __('Add Stop') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form method="post" action="{{ route('exhibition.storyline', ['exhibitionId' => $exId, 'storylineId' => $slId]) }}">
+      {{-- #1481: this posted to the GET storyline route and raised a 405, and
+           its field names matched no column. Both fixed; the names below are
+           exactly the exhibition_storyline_stop columns. --}}
+      <form method="post" action="{{ route('exhibition.storyline.stops.store', ['exhibitionId' => $exId, 'storylineId' => $slId]) }}">
         @csrf
         <div class="modal-body">
+          <div class="mb-3">
+            {{-- A stop is a stop AT an object: exhibition_storyline_stop
+                 .exhibition_object_id is NOT NULL with a foreign key, so the
+                 form has to choose one. It never used to, which is the other
+                 reason nothing could be saved. --}}
+            <label class="form-label">{{ __('Object') }} <span class="text-danger">*</span></label>
+            <select name="exhibition_object_id" class="form-select" required>
+              <option value="">{{ __('Choose an object in this exhibition') }}</option>
+              @foreach($objects ?? [] as $obj)
+                <option value="{{ $obj->id }}">{{ $obj->object_title ?? ('#' . $obj->id) }}</option>
+              @endforeach
+            </select>
+          </div>
           <div class="mb-3">
             <label class="form-label">Stop Title <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" required>
           </div>
           <div class="mb-3">
             <label class="form-label">{{ __('Narrative Content') }}</label>
-            <textarea name="narrative_content" class="form-control" rows="5"></textarea>
+            <textarea name="narrative_text" class="form-control" rows="5"></textarea>
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ __('Duration (seconds)') }}</label>
-              <input type="number" name="duration_seconds" class="form-control" min="0">
+              <input type="number" name="audio_duration_seconds" class="form-control" min="0">
             </div>
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ __('Stop Order') }}</label>
-              <input type="number" name="stop_order" class="form-control" min="1" value="{{ count($stops) + 1 }}">
+              <input type="number" name="sequence_order" class="form-control" min="1" value="{{ count($stops) + 1 }}">
             </div>
           </div>
         </div>

@@ -252,6 +252,16 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
     // Annotations (extracted to ResearchAnnotationsController - stage 2, issue #1253)
     Route::get('/annotations', [ResearchAnnotationsController::class, 'annotations'])->name('annotations');
+
+    // #1481: the Research Tools sidebar has always linked to these three, and
+    // none had a route - every link returned 404. Views, tables and (for
+    // annotations) the save routes already existed.
+    Route::match(['get', 'post'], '/source-assessment/{objectId}', [ResearchAssessmentsController::class, 'sourceAssessment'])
+        ->name('source-assessment')->whereNumber('objectId');
+    Route::get('/trust-score/{objectId}', [ResearchAssessmentsController::class, 'trustScore'])
+        ->name('trust-score')->whereNumber('objectId');
+    Route::get('/annotation-studio/{objectId}', [ResearchAnnotationsController::class, 'annotationStudio'])
+        ->name('annotation-studio')->whereNumber('objectId');
     Route::post('/annotations', [ResearchAnnotationsController::class, 'storeAnnotation'])->name('annotations.store');
     Route::put('/annotations/{id}', [ResearchAnnotationsController::class, 'updateAnnotation'])->name('annotations.update')->where('id', '[0-9]+');
     Route::delete('/annotations/{id}', [ResearchAnnotationsController::class, 'destroyAnnotation'])->name('annotations.destroy')->where('id', '[0-9]+');

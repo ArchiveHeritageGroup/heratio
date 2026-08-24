@@ -190,7 +190,42 @@ class ExhibitionController extends Controller
         $storyline = $this->service->getStoryline($storylineId);
         abort_unless($storyline, 404);
 
-        return view('ahg-exhibition::storyline', compact('exhibition', 'storyline'));
+        // #1481: the view reads $storyline->stops and nothing populated it, so
+        // the stop list rendered empty on every storyline.
+        $storyline->stops = $this->service->getStorylineStops($storylineId);
+
+        // A stop must name an exhibition object (NOT NULL + FK), so the form
+        // needs something to choose from.
+        $objects = $this->service->get($exhibitionId, true)->objects ?? collect();
+
+        return view('ahg-exhibition::storyline', compact('exhibition', 'storyline', 'objects'));
+    }
+
+    /**
+     * Add a stop to a storyline - #1481.
+     *
+     * The form has existed since the view was written and posted to the GET
+     * route above, so pressing "Add Stop" raised a 405 and nothing ever wrote
+     * exhibition_storyline_stop.
+     */
+    public function storeStorylineStop(Request $request, int $exhibitionId, int $storylineId)
+    {
+        abort_unless($this->service->get($exhibitionId), 404);
+        abort_unless($this->service->getStoryline($storylineId), 404);
+
+        $data = $request->validate([
+            'exhibition_object_id'   => 'required|integer|exists:exhibition_object,id',
+            'title'                  => 'required|string|max:255',
+            'narrative_text'         => 'nullable|string|max:65535',
+            'audio_duration_seconds' => 'nullable|integer|min:0',
+            'sequence_order'         => 'nullable|integer|min:1',
+        ]);
+
+        $this->service->createStorylineStop($storylineId, $data);
+
+        return redirect()
+            ->route('exhibition.storyline', ['exhibitionId' => $exhibitionId, 'storylineId' => $storylineId])
+            ->with('success', __('Stop added.'));
     }
 
     public function sections(int $id)

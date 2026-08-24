@@ -25,6 +25,9 @@ Route::middleware('auth')->prefix('exhibition')->group(function () {
     Route::get('/{id}/object-list/csv', [ExhibitionController::class, 'objectListCsv'])->name('exhibition.objectListCsv');
     Route::get('/{id}/storylines', [ExhibitionController::class, 'storylines'])->name('exhibition.storylines');
     Route::get('/{exhibitionId}/storyline/{storylineId}', [ExhibitionController::class, 'storyline'])->name('exhibition.storyline');
+    // #1481: the Add Stop form posted to the GET route above and raised a 405.
+    Route::post('/{exhibitionId}/storyline/{storylineId}/stops', [ExhibitionController::class, 'storeStorylineStop'])
+        ->name('exhibition.storyline.stops.store');
     Route::get('/{id}/sections', [ExhibitionController::class, 'sections'])->name('exhibition.sections');
     Route::get('/{id}/events', [ExhibitionController::class, 'events'])->name('exhibition.events');
     Route::get('/{id}/checklists', [ExhibitionController::class, 'checklists'])->name('exhibition.checklists');
