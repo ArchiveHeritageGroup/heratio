@@ -96,6 +96,16 @@ jobs:
       - name: Blade binding check (#1478 - no NEW always-fallback bindings)
         run: php tools/scan-blade-bindings.php --check
 
+      # The other half of the same defect family (#1481). The binding scanner
+      # finds a view READING what its query never produces; this finds a form
+      # WRITING what no PHP ever reads. Neither can see the other's class: the
+      # exhibition storyline form contributed one binding finding while having
+      # four broken fields and no POST route, which is why #1478's count was a
+      # floor rather than a total. Same shrink-only baseline, same no-database
+      # requirement.
+      - name: Form field check (#1481 - no NEW unconsumed form fields)
+        run: php tools/scan-form-fields.php --check
+
   # #48 security gates: gitleaks (fail) + composer audit (warn) + npm audit (fail at high+).
   # The 2026-04-30 credential leak (Merlot@123 et al.) is the motivation here -
   # gitleaks would have caught the secret before it landed in git history.
