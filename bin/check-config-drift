@@ -86,6 +86,8 @@ deploy/nginx/conf.d-heratio-browse-shed.conf|/etc/nginx/conf.d/heratio-browse-sh
 # and its umask fix would otherwise be lost on a host rebuild with nothing to
 # notice. Installed to /usr/local/bin, unlike the deploy/sbin scripts.
 deploy/bin/mysql_full_dump.sh|/usr/local/bin/mysql_full_dump.sh|exact
+deploy/bin/vm-backup.sh|/usr/local/sbin/vm-backup.sh|exact
+deploy/cron/vm-backup|/etc/cron.d/vm-backup|exact
 config/cantaloupe/nginx-iiif-snippet.conf|/etc/nginx/snippets/heratio-iiif.conf|rendered
 config/cantaloupe/delegates.rb.template|/opt/cantaloupe-5.0.6/delegates.rb|inform
 "

@@ -1,0 +1,11 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=""
+# Live VM backup to the NAS - see #1486. Guests keep running throughout.
+# 22:00 because the 01:00-07:30 overnight window is already full and measured
+# throughput is ~25 MB/s, so the large domains need many hours. The script picks
+# tonight's domains by weekday: Mon atom, Tue archivematica, Wed rari-dev/atom28/
+# atom210, Thu heratio-dev/ahgerp, Sat Mogalakwena (~1 TB, ~11h - hence weekend).
+# Fri and Sun are deliberately spare, for a retry after a failure.
+# Domain XML for every domain is written on EVERY run, including spare nights.
+0 22 * * * root /usr/local/sbin/vm-backup.sh >/dev/null 2>&1
