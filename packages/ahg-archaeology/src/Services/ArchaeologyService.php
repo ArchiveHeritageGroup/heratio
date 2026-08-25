@@ -1032,15 +1032,52 @@ class ArchaeologyService
         }
 
         // Directed later-than edges between groups.
+        //
+        // The key is the node PAIR, so a pair carrying more than one later-than
+        // relationship collapses to a single arrow. That used to be decided by
+        // read order - the last row won. It is now deliberate: the more specific
+        // relationship wins, because `cuts` and `fills` describe HOW one context
+        // is later than another while `above` only says THAT it is. Losing the
+        // specific label to an arbitrary iteration order was the accident (#1482).
+        $specificity = ['above' => 0, 'fills' => 1, 'cuts' => 2];
         $edges = [];
         foreach ($rels as $r) {
             if (in_array($r->relationship_type, ['above', 'cuts', 'fills'], true)) {
                 $a = $find($r->context_id);
                 $b = $find($r->related_context_id);
                 if ($a !== $b) {
-                    $edges[$a.'|'.$b] = $r->relationship_type;
+                    $k = $a.'|'.$b;
+                    $existing = $edges[$k] ?? null;
+                    if ($existing === null
+                        || ($specificity[$r->relationship_type] ?? 0) > ($specificity[$existing] ?? 0)) {
+                        $edges[$k] = $r->relationship_type;
+                    }
                 }
             }
+        }
+
+        // TRANSITIVE REDUCTION (#1482). A Harris Matrix is defined by the removal
+        // of relationships another path already implies - that removal is what
+        // makes the diagram readable, and without it a few hundred contexts
+        // degrade into the unreadable web the matrix was invented to avoid.
+        //
+        // Redundancy here is not bad data. A recorder who observes that 1001
+        // overlies 1002, 1002 overlies 1003 AND 1001 overlies 1003 has recorded
+        // three true statements; the third simply carries no information the
+        // diagram does not already express.
+        //
+        // Runs AFTER the same_as union-find, because merging two contexts into
+        // one node can create redundancy that did not exist between them.
+        //
+        // Guarded on acyclicity, and that guard is the point: transitive
+        // reduction is only well defined on a DAG, and a contradictory sequence
+        // must be shown AS RECORDED so the archaeologist can see the
+        // contradiction. Tidying a graph you have just declared impossible would
+        // hide the very thing the reader needs.
+        $redundantRemoved = 0;
+        $cycleNodes = [];
+        if (! $this->edgesHaveCycle($edges, array_keys($groups), $cycleNodes)) {
+            [$edges, $redundantRemoved] = self::reduceTransitively($edges);
         }
 
         // Kahn longest-path layering (level 0 = latest, at the top).
@@ -1098,10 +1135,167 @@ class ArchaeologyService
             'tiers'              => $tiers,
             'edges'              => $edges,
             'has_cycle'          => $hasCycle,
+            // #1482: report what the reduction took out rather than doing it
+            // silently. An archaeologist may reasonably want to know their
+            // recording contained implied relationships - that is a fact about
+            // the record, not an internal detail of the drawing.
+            'redundant_removed'  => $redundantRemoved,
+            // And when the sequence IS contradictory, name the contexts involved.
+            // "There is a cycle somewhere among your 200 contexts" is not
+            // something anyone can act on; these are the ones to go and check.
+            'cycle_nodes'        => $hasCycle ? $this->cycleContextNumbers($groups, $cycleNodes) : [],
             'mermaid'            => $mm,
             'context_count'      => $contexts->count(),
             'relationship_count' => intdiv($rels->count(), 2),
         ];
+    }
+
+    /**
+     * Transitive reduction of a DAG's edge set - the operation that makes a
+     * Harris Matrix a Harris Matrix (#1482).
+     *
+     * Drops a -> b wherever b is already reachable from a by a longer path, so
+     * the diagram shows only relationships nothing else implies. Redundancy is
+     * not bad data: a recorder who observes 1001 over 1002, 1002 over 1003 and
+     * 1001 over 1003 has recorded three true statements, and the third simply
+     * adds nothing the drawing does not already say.
+     *
+     * Extracted rather than left inline so it can be tested without a database.
+     * The archaeology tables are created by migration and the CI test database
+     * is built from database/core/*.sql alone (#1471), so a DB-backed test of
+     * this would skip in CI and prove nothing. The algorithm is pure graph
+     * logic; it deserves a test that actually runs.
+     *
+     * CALLERS MUST CHECK ACYCLICITY FIRST. Transitive reduction is only defined
+     * on a DAG, and a contradictory sequence must be shown as recorded so the
+     * archaeologist can see the contradiction rather than have it tidied away.
+     *
+     * @param  array<string,string>  $edges  keyed "a|b" => relationship type
+     * @return array{0: array<string,string>, 1: int}  reduced edges, count removed
+     */
+    public static function reduceTransitively(array $edges): array
+    {
+        $adj = [];
+        foreach ($edges as $k => $t) {
+            [$a, $b] = explode('|', $k);
+            $adj[$a][] = $b;
+        }
+
+        $removed = 0;
+        foreach (array_keys($edges) as $k) {
+            [$a, $b] = explode('|', $k);
+
+            $seen = [];
+            $stack = [];
+            foreach ($adj[$a] ?? [] as $n) {
+                if ((string) $n !== (string) $b) {
+                    $stack[] = $n;
+                }
+            }
+
+            $implied = false;
+            while ($stack) {
+                $n = array_pop($stack);
+                if ((string) $n === (string) $b) {
+                    $implied = true;
+                    break;
+                }
+                if (isset($seen[$n])) {
+                    continue;
+                }
+                $seen[$n] = true;
+                foreach ($adj[$n] ?? [] as $m) {
+                    $stack[] = $m;
+                }
+            }
+
+            // Reachability is tested against the FULL edge set throughout, never
+            // against a set being mutated mid-loop: on a DAG that yields the
+            // unique reduction, while reducing as you go can drop an edge that a
+            // later test still depended on.
+            if ($implied) {
+                unset($edges[$k]);
+                $removed++;
+            }
+        }
+
+        return [$edges, $removed];
+    }
+
+    /**
+     * Kahn pass used only to answer "is this graph cyclic", before the
+     * transitive reduction decides whether it may run. Fills $cycleNodes with
+     * the group ids still carrying in-degree when the queue drains - exactly the
+     * nodes caught in the contradiction.
+     *
+     * @param  array<string,string>  $edges  keyed "a|b"
+     * @param  array<int,int|string>  $nodes
+     * @param  array<int,string>  $cycleNodes  out-param
+     */
+    private function edgesHaveCycle(array $edges, array $nodes, array &$cycleNodes): bool
+    {
+        $adj = $indeg = [];
+        foreach ($nodes as $n) {
+            $adj[$n] = [];
+            $indeg[$n] = 0;
+        }
+        foreach ($edges as $k => $t) {
+            [$a, $b] = explode('|', $k);
+            $adj[$a][] = $b;
+            $indeg[$b]++;
+        }
+
+        $queue = [];
+        foreach ($nodes as $n) {
+            if ($indeg[$n] === 0) {
+                $queue[] = $n;
+            }
+        }
+
+        $processed = 0;
+        while ($queue) {
+            $g = array_shift($queue);
+            $processed++;
+            foreach ($adj[$g] as $h) {
+                if (--$indeg[$h] === 0) {
+                    $queue[] = $h;
+                }
+            }
+        }
+
+        if ($processed >= count($nodes)) {
+            return false;
+        }
+
+        $cycleNodes = [];
+        foreach ($indeg as $n => $d) {
+            if ($d > 0) {
+                $cycleNodes[] = (string) $n;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Turn the group ids caught in a cycle into context numbers a person can
+     * look up on a context sheet.
+     *
+     * @param  array<int|string,array<int,object>>  $groups
+     * @param  array<int,string>  $cycleNodes
+     * @return array<int,string>
+     */
+    private function cycleContextNumbers(array $groups, array $cycleNodes): array
+    {
+        $out = [];
+        foreach ($cycleNodes as $g) {
+            foreach ($groups[$g] ?? [] as $m) {
+                $out[] = (string) $m->context_number;
+            }
+        }
+        sort($out);
+
+        return $out;
     }
 
     /**
