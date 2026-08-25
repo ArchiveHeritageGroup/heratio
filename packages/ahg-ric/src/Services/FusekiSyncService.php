@@ -2,7 +2,6 @@
 
 namespace AhgRic\Services;
 
-use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Dispatch;
@@ -106,12 +105,16 @@ class FusekiSyncService
             // from settings (same keys as SparqlUpdateService uses) and dispatch
             // a FusekiSyncJob containing the ready-to-post SPARQL UPDATE text.
             try {
-                $base = rtrim($this->setting('fuseki_endpoint', config('ahg-ric.fuseki_endpoint', config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio'))), '/');
-                $updateEndpoint = $this->setting('fuseki_update_endpoint', config('heratio.fuseki_update_endpoint', $base . '/update'));
-                $username = $this->setting('fuseki_username', config('heratio.fuseki_update_username'));
-                $password = SecretCrypto::reveal($this->setting('fuseki_password', config('heratio.fuseki_update_password'))); // #1395(D) decrypt-at-rest
-                $timeoutSeconds = (int) $this->setting('fuseki_update_timeout', config('heratio.fuseki_update_timeout', 30));
-
+                // #1487. Endpoint and credentials come from SparqlUpdateService,
+                // which is the ONE place that resolves them - and the only place
+                // that enforces the write dataset matching the read dataset. This
+                // block used to repeat the whole lookup, so the queued path (and
+                // fuseki_queue_enabled=1 is the default on every instance) wrote
+                // wherever the stored setting pointed, guard or no guard.
+                $updateEndpoint = $this->upd->updateEndpoint();
+                $username       = $this->upd->username();
+                $password       = $this->upd->password();
+                $timeoutSeconds = $this->upd->timeoutSeconds();
                 Dispatch::dispatch(new \AhgRic\Jobs\FusekiSyncJob($updateEndpoint, $username, $password, $timeoutSeconds, $update));
                 return ['ok' => true, 'status' => 202, 'error' => null];
             } catch (\Throwable $e) {

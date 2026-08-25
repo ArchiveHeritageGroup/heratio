@@ -66,13 +66,72 @@ class SparqlUpdateService
             '/'
         );
 
+        $derived = $base . '/update';
+
         $this->updateEndpoint = $this->setting(
             'fuseki_update_endpoint',
-            config('heratio.fuseki_update_endpoint', $base . '/update')
+            config('heratio.fuseki_update_endpoint', $derived)
         );
+
+        // #1487. The write endpoint MUST target the same Fuseki dataset as the
+        // read endpoint. A stored absolute `fuseki_update_endpoint` silently
+        // overrides the value derived from `fuseki_endpoint`, so the two drift
+        // apart and NOTHING fails: Fuseki happily accepts an UPDATE against any
+        // dataset it serves.
+        //
+        // Found on dev reading `/ric` (648 rico:Record) while writing to
+        // `/openric-model` - which is the RiC-O ONTOLOGY, 19,992 triples and
+        // zero Records. Every write had been landing in the ontology dataset.
+        //
+        // The read endpoint is treated as authoritative for which dataset this
+        // instance uses, because that is the one the application demonstrably
+        // reads back from. A cross-dataset write is never intentional here, so
+        // this corrects rather than merely warns - but it warns loudly too,
+        // since the stored setting is still wrong and will mislead the next
+        // person to read the admin page.
+        if (self::datasetOf($this->updateEndpoint) !== self::datasetOf($base)) {
+            Log::warning('Fuseki update endpoint targets a different dataset than the query endpoint; using the query dataset instead', [
+                'configured_update_endpoint' => $this->updateEndpoint,
+                'query_endpoint'             => $base,
+                'using'                      => $derived,
+                'fix'                        => "set ahg_settings.fuseki_update_endpoint to {$derived} or delete the row so it derives",
+            ]);
+            $this->updateEndpoint = $derived;
+        }
         $this->username = $this->setting('fuseki_username', config('heratio.fuseki_update_username'));
         $this->password = SecretCrypto::reveal($this->setting('fuseki_password', config('heratio.fuseki_update_password'))); // #1395(D) decrypt-at-rest
         $this->timeoutSeconds = (int) $this->setting('fuseki_update_timeout', config('heratio.fuseki_update_timeout', 30));
+    }
+
+    /**
+     * The resolved write target and credentials.
+     *
+     * #1487. FusekiSyncService used to resolve all of this a SECOND time for
+     * its queued path, which meant the dataset guard above protected only the
+     * synchronous path while `fuseki_queue_enabled=1` - the actual default on
+     * every instance - bypassed it entirely. Two copies of one lookup is how
+     * they drift; this session has now seen that shape four times in the
+     * loan-rule query alone. One resolution, exposed.
+     */
+    public function updateEndpoint(): string
+    {
+        return $this->updateEndpoint;
+    }
+
+    public function username(): ?string
+    {
+        return $this->username;
+    }
+
+    /** Already decrypted via SecretCrypto::reveal in the constructor. */
+    public function password(): ?string
+    {
+        return $this->password;
+    }
+
+    public function timeoutSeconds(): int
+    {
+        return $this->timeoutSeconds;
     }
 
     private function setting(string $key, $default = null)
@@ -83,6 +142,26 @@ class SparqlUpdateService
         } catch (\Throwable $e) {
             return $default;
         }
+    }
+
+    /**
+     * The Fuseki dataset name a URL addresses - the FIRST path segment.
+     *
+     * http://host:3030/ric            -> ric
+     * http://host:3030/ric/update     -> ric
+     * http://host:3030/openric-model/ -> openric-model
+     *
+     * Assumes Fuseki is served at the root of its host, which is how it is
+     * deployed here. Behind a path prefix this would need the prefix stripped
+     * first; it returns '' for a URL with no path, which compares equal only
+     * to another path-less URL and so cannot produce a false mismatch.
+     */
+    private static function datasetOf(?string $url): string
+    {
+        $path = parse_url((string) $url, PHP_URL_PATH) ?: '';
+        $segments = array_values(array_filter(explode('/', $path), 'strlen'));
+
+        return $segments[0] ?? '';
     }
 
     /**
