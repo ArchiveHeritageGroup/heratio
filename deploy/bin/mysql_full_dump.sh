@@ -58,6 +58,12 @@ NOTIFY_DIR="/var/spool/workbench/notifications"
 # succeeds instead of losing the whole day. mysqldump's stderr is captured so
 # the next genuine failure records WHY, not just an exit code.
 ERRFILE=$(mktemp)
+# Durable copy of mysqldump's stderr, kept ONLY when an attempt fails.
+# $ERRFILE is a mktemp that the next attempt truncates and that used to be
+# rm -f'd BEFORE the failure branch below ever read it - so the one artefact
+# naming the offending table was destroyed on every failure since June, and
+# the alert fell back to guessing "check /root/.my.cnf". See #1491.
+ERR_KEEP="/var/log/mysql_full_dump-stderr-${DATE}.log"
 attempt=1; MAX_ATTEMPTS=2; RC=1; BYTES=0
 while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
     log "mysqldump attempt $attempt/$MAX_ATTEMPTS"
@@ -79,7 +85,13 @@ while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
     set -e
     BYTES=$(stat -c%s "$DUMP_FILE" 2>/dev/null || echo 0)
     if [ "$RC" -eq 0 ] && [ "$BYTES" -ge "$MIN_BYTES" ]; then break; fi
-    log "attempt $attempt failed (rc=$RC, ${BYTES}B): $(tail -n 2 "$ERRFILE" 2>/dev/null | tr '\n' ' ' | tr -s ' ')"
+    log "attempt $attempt failed (rc=$RC, ${BYTES}B): $(tail -n 5 "$ERRFILE" 2>/dev/null | tr '\n' ' ' | tr -s ' ' | cut -c1-500)"
+    # Append, never overwrite: attempt 2 truncates $ERRFILE, and the two
+    # attempts can fail for different reasons.
+    { echo "=== attempt $attempt  rc=$RC  ${BYTES}B  $(date '+%Y-%m-%d %H:%M:%S') ==="
+      cat "$ERRFILE" 2>/dev/null
+      echo; } >> "$ERR_KEEP" 2>/dev/null || true
+    chmod 600 "$ERR_KEEP" 2>/dev/null || true
     attempt=$((attempt + 1))
     [ "$attempt" -le "$MAX_ATTEMPTS" ] && { log "retrying in 60s…"; sleep 60; }
 done
@@ -90,7 +102,31 @@ rm -f "$ERRFILE"
 # file, ring Johan's bell, and DO NOT prune the good historical backups.
 if [ "$RC" -ne 0 ] || [ "$BYTES" -lt "$MIN_BYTES" ]; then
     log "ERROR: mysqldump failed (rc=$RC) or dump too small (${BYTES}B) — removing bad file, skipping retention prune"
-    [ -d "$NOTIFY_DIR" ] && printf '{"username":"johan","title":"MySQL backup FAILED","message":"mysqldump rc=%s size=%sB — check /root/.my.cnf. Old backups left intact.","eventType":"alert"}\n' "$RC" "$BYTES" > "$NOTIFY_DIR/mysql-backup-$DATE.json" 2>/dev/null || true
+    # Carry the ACTUAL error into the alert instead of guessing.
+    #
+    # if-blocks rather than `[ test ] && action` for legibility only. To be
+    # clear, since it is easy to get wrong in the other direction: `&&` would
+    # ALSO be safe here. Under `set -e` a command that fails is exempt when it
+    # is not the final command of an `&&` list, so `[ -z "$X" ] && X=default`
+    # does NOT exit when the test is false. Verified, not assumed.
+    #
+    # Quotes, backslashes, tabs and newlines are stripped because this is
+    # hand-built JSON and mysqldump error text contains all of them - one
+    # unescaped quote puts the file in notifications/failed/ and nobody is told.
+    # grep -v drops this script's own "=== attempt N ===" separators, which
+    # otherwise lead the alert and push the actual error off the end of a phone
+    # notification. What Johan reads first should be mysqldump's words.
+    ERR_MSG=$(grep -v '^=== attempt' "$ERR_KEEP" 2>/dev/null | grep -v '^[[:space:]]*$' \
+        | tail -n 3 | tr '\n\r\t' '   ' | tr -d '"\\' | tr -s ' ' | cut -c1-240 || true)
+    if [ -z "$ERR_MSG" ]; then
+        ERR_MSG="no stderr captured"
+    fi
+    if [ -d "$NOTIFY_DIR" ]; then
+        printf '{"username":"johan","title":"MySQL backup FAILED","message":"mysqldump rc=%s size=%sB. Error: %s | full stderr kept at %s. Old backups left intact.","eventType":"alert"}\n' \
+            "$RC" "$BYTES" "$ERR_MSG" "$ERR_KEEP" \
+            > "$NOTIFY_DIR/$(date +%Y%m%dT%H%M%S)-mysql-backup-$DATE.json" 2>/dev/null || true
+    fi
+    log "stderr preserved at $ERR_KEEP"
     rm -f "$DUMP_FILE"
     exit 1
 fi
