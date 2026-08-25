@@ -18,7 +18,23 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
 
     <div class="row g-4 mb-4">
       @foreach([['total_items','Total Items'],['total_views','Total Views (30d)'],['total_downloads','Downloads (30d)'],['avg_ctr','Avg Click-Through']] as [$key,$label])
-      <div class="col-md-3"><div class="card border-0 shadow-sm text-center"><div class="card-body"><h3 class="mb-0">{{ $key==='avg_ctr' ? ($summary[$key] ?? 0).'%' : number_format($summary[$key] ?? 0) }}</h3><small class="text-muted">{{ $label }}</small></div></div></div>
+      {{--
+        #1478: this printed 0 for views, downloads and click-through, which read
+        as a measurement - "nobody looked at anything" - when the truth is that
+        this instance has no view- or download-tracking table at all. Absent and
+        zero are different states. The controller returns null for the untracked
+        figures and they render as "not tracked"; restore the number when a
+        tracking table exists.
+      --}}
+      @php $val = $summary[$key] ?? null; @endphp
+      <div class="col-md-3"><div class="card border-0 shadow-sm text-center"><div class="card-body">
+        @if($val === null)
+          <h3 class="mb-0 text-muted" style="font-size:1.1rem" title="{{ __('This instance records no view or download statistics') }}">{{ __('Not tracked') }}</h3>
+        @else
+          <h3 class="mb-0">{{ $key==='avg_ctr' ? $val.'%' : number_format($val) }}</h3>
+        @endif
+        <small class="text-muted">{{ $label }}</small>
+      </div></div></div>
       @endforeach
     </div>
 
@@ -41,7 +57,7 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
           <div class="card-body p-0">
             @if(!empty($lowPerforming))
             <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Item') }}</th><th class="text-center">{{ __('Views') }}</th><th>{{ __('Issue') }}</th></tr></thead><tbody>
-              @foreach(array_slice($lowPerforming,0,10) as $item)<tr><td>{{ mb_strimwidth($item->title ?? '',0,30,'...') }}</td><td class="text-center">{{ number_format($item->view_count ?? 0) }}</td><td><span class="badge bg-warning">{{ $item->issue ?? 'Low visibility' }}</span></td></tr>@endforeach
+              @foreach(array_slice($lowPerforming,0,10) as $item)<tr><td>{{ mb_strimwidth($item->title ?? '',0,30,'...') }}</td><td class="text-center text-muted">{{ isset($item->view_count) ? number_format($item->view_count) : '—' }}</td><td><span class="badge bg-warning">{{ $item->issue ?? 'Low visibility' }}</span></td></tr>@endforeach
             </tbody></table></div>
             @else<p class="text-muted text-center py-4">All content performing well!</p>@endif
           </div>

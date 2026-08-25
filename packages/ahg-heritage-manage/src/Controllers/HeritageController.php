@@ -1652,8 +1652,216 @@ class HeritageController extends Controller
     public function adminPopia() { return view('ahg-heritage-manage::admin-popia', ['items' => collect()]); }
     public function adminUsers() { return view('ahg-heritage-manage::admin-users', ['items' => collect()]); }
     public function analyticsAlerts() { return view('ahg-heritage-manage::analytics-alerts', ['stats' => [], 'records' => []]); }
-    public function analyticsContent() { return view('ahg-heritage-manage::analytics-content', ['stats' => [], 'records' => []]); }
-    public function analyticsSearch() { return view('ahg-heritage-manage::analytics-search', ['stats' => [], 'records' => []]); }
+    /**
+     * Content insights - #1478. Was a one-line stub returning ['stats','records']
+     * while the view reads $contentData and $qualityIssues, so the page showed
+     * nothing on every request.
+     *
+     * WHAT THIS PAGE CAN AND CANNOT KNOW. The quality checks below are computed
+     * from the records themselves and are real. Views, downloads and
+     * click-through are NOT: this instance has no view- or download-tracking
+     * table of any kind, so there is nothing to report. They are returned as
+     * null rather than 0, and the view renders "not tracked" - 0 views would
+     * read as a measurement meaning nobody looked, which is a different and
+     * false statement. That distinction is the whole subject of #1478.
+     */
+    public function analyticsContent()
+    {
+        $contentData = [
+            'summary' => ['total_items' => 0, 'total_views' => null, 'total_downloads' => null, 'avg_ctr' => null],
+            'top_content' => [],
+            'low_performing' => [],
+        ];
+        $qualityIssues = [];
+
+        try {
+            $culture = app()->getLocale();
+
+            $published = fn () => DB::table('information_object as io')
+                ->where('io.id', '!=', 1)
+                ->whereExists(function ($sub) {
+                    $sub->select(DB::raw(1))->from('status as pub')
+                        ->whereRaw('pub.object_id = io.id')
+                        ->where('pub.type_id', '=', 158)
+                        ->where('pub.status_id', '=', 160);
+                });
+
+            $contentData['summary']['total_items'] = (clone $published())->count();
+
+            $withI18n = fn () => (clone $published())
+                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
+                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+                })
+                ->leftJoin('slug as s', 's.object_id', '=', 'io.id');
+
+            // No scope and content - the element that says what a record IS.
+            $missing = (clone $withI18n())
+                ->where(function ($w) {
+                    $w->whereNull('i18n.scope_and_content')->orWhere('i18n.scope_and_content', '');
+                })
+                ->limit(25)
+                ->select('i18n.title', 's.slug', DB::raw("'missing_description' as issue_type"),
+                    DB::raw("'No scope and content recorded' as details"))
+                ->get();
+
+            // Published, described, but nothing digitised against it.
+            $noDigital = (clone $withI18n())
+                ->whereNotExists(function ($sub) {
+                    $sub->select(DB::raw(1))->from('digital_object as d')
+                        ->whereRaw('d.object_id = io.id')->whereNull('d.parent_id');
+                })
+                ->limit(25)
+                ->select('i18n.title', 's.slug', DB::raw("'no_digital_object' as issue_type"),
+                    DB::raw("'No digital object attached' as details"))
+                ->get();
+
+            // Described but thin: no extent and no access conditions.
+            $poor = (clone $withI18n())
+                ->whereNotNull('i18n.scope_and_content')->where('i18n.scope_and_content', '!=', '')
+                ->where(function ($w) {
+                    $w->whereNull('i18n.extent_and_medium')->orWhere('i18n.extent_and_medium', '');
+                })
+                ->where(function ($w) {
+                    $w->whereNull('i18n.access_conditions')->orWhere('i18n.access_conditions', '');
+                })
+                ->limit(25)
+                ->select('i18n.title', 's.slug', DB::raw("'poor_metadata' as issue_type"),
+                    DB::raw("'No extent and no access conditions' as details"))
+                ->get();
+
+            // broken_links is a type the view colours but nothing here produces:
+            // detecting a dead link means fetching every URL in the corpus, which
+            // is a scheduled job and not something a page load may do. Absent
+            // rather than faked.
+            $qualityIssues = $missing->concat($noDigital)->concat($poor)->all();
+
+            // "Needs attention" is driven by the quality checks, not by view
+            // counts - those do not exist. Each row carries its issue label; the
+            // view's view_count column falls back to 0 and is why the template
+            // now labels that column honestly.
+            $contentData['low_performing'] = collect($qualityIssues)
+                ->take(10)
+                ->map(function ($r) {
+                    $r->issue = match ($r->issue_type) {
+                        'missing_description' => 'No description',
+                        'no_digital_object' => 'Not digitised',
+                        default => 'Thin metadata',
+                    };
+
+                    return $r;
+                })
+                ->all();
+        } catch (\Throwable $e) {
+            // Leave the honest empty state rather than half a page.
+        }
+
+        // The view rebinds $qualityIssues from $contentData['quality_issues'] in
+        // its own @php block, so a separately-passed $qualityIssues is silently
+        // overwritten with []. Passing it BOTH ways would be superstition; it
+        // goes where the view actually reads it. Caught by checking the rendered
+        // HTML rather than the controller's return value - the exact mistake
+        // this whole issue is about, nearly shipped inside the fix for it.
+        $contentData['quality_issues'] = $qualityIssues;
+
+        return view('ahg-heritage-manage::analytics-content', compact('contentData'));
+    }
+    /**
+     * Search analytics from ahg_search_query_log - #1478.
+     *
+     * This was a one-line stub returning ['stats' => [], 'records' => []] while
+     * the view loops $popularQueries, $zeroResultQueries, $trendingQueries,
+     * $conversion and $patterns. None of those names was ever passed, so the
+     * page rendered its empty state on every request whatever had been searched.
+     *
+     * Everything here comes from ahg_search_query_log, which records the query,
+     * how many results it returned, whether a result was clicked and when. No
+     * figure on this page is estimated.
+     */
+    public function analyticsSearch()
+    {
+        $empty = [
+            'popularQueries' => [], 'zeroResultQueries' => [], 'trendingQueries' => [],
+            'conversion' => ['total_searches' => 0, 'result_rate' => 0, 'conversion_rate' => 0],
+            'patterns' => [],
+        ];
+
+        if (! Schema::hasTable('ahg_search_query_log')) {
+            return view('ahg-heritage-manage::analytics-search', $empty);
+        }
+
+        try {
+            $since = now()->subDays(30);
+
+            $agg = fn () => DB::table('ahg_search_query_log')
+                ->where('executed_at', '>=', $since)
+                ->groupBy('query')
+                ->select(
+                    DB::raw('query as query_text'),
+                    DB::raw('COUNT(*) as search_count'),
+                    // click_position is null when nothing was clicked, so a
+                    // count of non-null rows IS the click count.
+                    DB::raw('SUM(CASE WHEN click_position IS NOT NULL THEN 1 ELSE 0 END) as total_clicks'),
+                    DB::raw('MAX(executed_at) as last_searched')
+                );
+
+            $popularQueries = (clone $agg())->orderByDesc('search_count')->limit(10)->get()->all();
+
+            $zeroResultQueries = (clone $agg())->having(DB::raw('MAX(result_count)'), '=', 0)
+                ->orderByDesc('search_count')->limit(10)->get()->all();
+
+            $total = DB::table('ahg_search_query_log')->where('executed_at', '>=', $since)->count();
+            $withResults = DB::table('ahg_search_query_log')->where('executed_at', '>=', $since)->where('result_count', '>', 0)->count();
+            $withClicks = DB::table('ahg_search_query_log')->where('executed_at', '>=', $since)->whereNotNull('click_position')->count();
+
+            $conversion = [
+                'total_searches' => $total,
+                'result_rate' => $total ? round($withResults / $total * 100, 1) : 0,
+                'conversion_rate' => $total ? round($withClicks / $total * 100, 1) : 0,
+            ];
+
+            $patterns = ['by_day_of_week' => DB::table('ahg_search_query_log')
+                ->where('executed_at', '>=', $since)
+                ->groupBy(DB::raw('DAYNAME(executed_at)'))
+                ->pluck(DB::raw('COUNT(*)'), DB::raw('DAYNAME(executed_at)'))
+                ->all()];
+
+            // Trending: this week against the one before. A query with no prior
+            // searches is NOT reported as infinite growth - it has no trend yet,
+            // only a first appearance, and "+100%" for a single search would be
+            // the most misleading number on the page.
+            $thisWeek = $this->searchCountsBetween(now()->subDays(7), now());
+            $lastWeek = $this->searchCountsBetween(now()->subDays(14), now()->subDays(7));
+
+            $trendingQueries = [];
+            foreach ($thisWeek as $q => $now) {
+                $before = $lastWeek[$q] ?? 0;
+                if ($before > 0 && $now > $before) {
+                    $trendingQueries[] = [
+                        'query' => $q,
+                        'growth_percent' => (int) round(($now - $before) / $before * 100),
+                    ];
+                }
+            }
+            usort($trendingQueries, fn ($a, $b) => $b['growth_percent'] <=> $a['growth_percent']);
+            $trendingQueries = array_slice($trendingQueries, 0, 9);
+
+            return view('ahg-heritage-manage::analytics-search', compact(
+                'popularQueries', 'zeroResultQueries', 'trendingQueries', 'conversion', 'patterns'
+            ));
+        } catch (\Throwable $e) {
+            return view('ahg-heritage-manage::analytics-search', $empty);
+        }
+    }
+
+    /** Query => search count within a window, for the trend comparison. */
+    private function searchCountsBetween($from, $to): array
+    {
+        return DB::table('ahg_search_query_log')
+            ->whereBetween('executed_at', [$from, $to])
+            ->groupBy('query')
+            ->pluck(DB::raw('COUNT(*)'), 'query')
+            ->all();
+    }
     public function custodianBatch() { return view('ahg-heritage-manage::custodian-batch', ['items' => collect()]); }
     public function custodianHistory() { return view('ahg-heritage-manage::custodian-history', ['items' => collect()]); }
     public function custodianItem(int $id) { return view('ahg-heritage-manage::custodian-item', ['items' => collect()]); }

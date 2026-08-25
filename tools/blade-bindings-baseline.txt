@@ -1,8 +1,1 @@
-packages/ahg-heritage-manage/resources/views/analytics-content.blade.php	issue_type
-packages/ahg-heritage-manage/resources/views/analytics-search.blade.php	total_clicks
-packages/ahg-landing-page/resources/views/blocks/_block_row_1_col.blade.php	computed_data
-packages/ahg-landing-page/resources/views/blocks/_block_row_2_col.blade.php	computed_data
-packages/ahg-landing-page/resources/views/blocks/_block_row_2_col_public.blade.php	computed_data
-packages/ahg-landing-page/resources/views/blocks/_block_row_3_col.blade.php	computed_data
-packages/ahg-landing-page/resources/views/index.blade.php	computed_data
-packages/ahg-landing-page/resources/views/my-dashboard.blade.php	computed_data
+
