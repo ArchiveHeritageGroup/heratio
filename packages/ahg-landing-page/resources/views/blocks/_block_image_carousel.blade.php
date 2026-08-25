@@ -60,7 +60,24 @@ $carouselId = 'carousel-' . uniqid();
 
   @if ($showViewAll && $collectionSlug)
     <div class="text-center mt-3">
-      <a href="{{ route('iiif-collection.show', ['slug' => $collectionSlug]) }}" class="btn btn-outline-primary">
+      @php
+        // #1478: this was route('iiif-collection.show'), which does not exist -
+        // there is no such route name in ahg-iiif-collection. It never threw
+        // because computed_data was always null, so the carousel loop never ran
+        // and this line was never reached. Populating the data exposed it: the
+        // empty data was hiding a broken route the same way a ?? fallback hides
+        // a wrong column.
+        //
+        // iiif-collection.view takes an {id}; config['collection_id'] holds a
+        // SLUG here ("mobrey-family-archive-3"), so the slug-taking route is
+        // iiif.viewer. Guarded with Route::has so a landing page cannot 500 on
+        // an instance where ahg-iiif-collection is not installed - it falls
+        // back to the record page, which always exists.
+        $viewAllUrl = \Illuminate\Support\Facades\Route::has('iiif.viewer')
+            ? route('iiif.viewer', ['slug' => $collectionSlug])
+            : url('/'.$collectionSlug);
+      @endphp
+      <a href="{{ $viewAllUrl }}" class="btn btn-outline-primary">
         View All <i class="bi bi-arrow-right"></i>
       </a>
     </div>

@@ -116,7 +116,45 @@ class LandingPageService
             $block->child_blocks = $children->get($block->id, collect())->values();
         }
 
+        // #1478: the last of it. Every block partial reads $data, which the page
+        // templates take from $block->computed_data, and nothing ever computed
+        // it - so statistics showed no figures, recent items no items and the
+        // map no locations, on every page. Resolved for children as well as
+        // parents: a data block inside a row block is the normal arrangement,
+        // and resolving only the top level would have fixed the six findings
+        // while leaving the blocks people actually lay out still empty.
+        $this->attachComputedData($blocks);
+        foreach ($blocks as $block) {
+            $this->attachComputedData($block->child_blocks);
+        }
+
         return $blocks;
+    }
+
+    /**
+     * Attach computed_data to each block from its own config. One resolver
+     * instance for the whole page so its per-entity count cache is shared
+     * across blocks - a page with a statistics block and a browse-panels block
+     * asks for the same record count twice.
+     *
+     * @param  iterable<int,object>  $blocks
+     */
+    private function attachComputedData($blocks): void
+    {
+        static $resolver = null;
+        $resolver ??= new BlockDataResolver();
+
+        foreach ($blocks as $block) {
+            $config = $block->config ?? null;
+            if (is_string($config)) {
+                $config = json_decode($config, true) ?: [];
+            }
+
+            $block->computed_data = $resolver->resolve(
+                $block->machine_name ?? null,
+                is_array($config) ? $config : []
+            );
+        }
     }
 
     public function getBlockTypes(): \Illuminate\Support\Collection
