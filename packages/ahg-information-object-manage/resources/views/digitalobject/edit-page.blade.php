@@ -128,8 +128,11 @@
                     <div class="mb-3">
                         <label for="display_as_compound" class="form-label">{{ __('View children as compound?') }}</label>
                         <select class="form-select" id="display_as_compound" name="display_as_compound">
-                            <option value="1" @selected($do->display_as_compound ?? false)>Yes</option>
-                            <option value="0" @selected(!($do->display_as_compound ?? false))>No</option>
+                            {{-- #1481: was $do->display_as_compound, a column digital_object
+                                 does not have, so this always rendered "No". The stored
+                                 value now comes from the controller. --}}
+                            <option value="1" @selected($displayAsCompound ?? true)>Yes</option>
+                            <option value="0" @selected(!($displayAsCompound ?? true))>No</option>
                         </select>
                     </div>
                     @endif

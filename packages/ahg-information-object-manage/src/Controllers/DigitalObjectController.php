@@ -807,6 +807,12 @@ class DigitalObjectController extends Controller
             'mediaTypes' => $mediaTypes,
             'mediaIcon' => $mediaIcon,
             'hasChildren' => $hasChildren,
+            // Read back so the select shows the stored choice instead of
+            // defaulting to No on every visit. Null means never chosen, which
+            // the view treats as the current default (show them).
+            'displayAsCompound' => \AhgCore\Support\PropertyRow::bool(
+                (int) $doRow->object_id, 'displayAsCompoundObject', true, 'digital_object'
+            ),
         ]);
     }
 
@@ -838,6 +844,25 @@ class DigitalObjectController extends Controller
         // Update media type
         if ($request->filled('media_type_id')) {
             $updates['media_type_id'] = (int) $request->input('media_type_id');
+        }
+
+        // #1481: "View children as compound?" was offered on this form, read from
+        // $do->display_as_compound - a column digital_object does not have - and
+        // discarded on submit, because update() only ever saved media_type_id.
+        // The control has therefore always shown "No" and never remembered a
+        // choice. Stored the way AtoM stores it, as a property named
+        // displayAsCompoundObject on the INFORMATION object (it governs how that
+        // record presents its children, not a fact about this one file).
+        if ($request->has('display_as_compound')) {
+            $row = DB::table('digital_object')->where('id', $id)->first(['object_id']);
+            if ($row && $row->object_id) {
+                \AhgCore\Support\PropertyRow::set(
+                    (int) $row->object_id,
+                    'displayAsCompoundObject',
+                    $request->boolean('display_as_compound') ? '1' : '0',
+                    'digital_object'
+                );
+            }
         }
 
         if (!empty($updates)) {

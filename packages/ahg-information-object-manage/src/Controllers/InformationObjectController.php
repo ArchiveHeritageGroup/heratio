@@ -541,11 +541,24 @@ class InformationObjectController extends Controller
         // frequently stale; see HierarchyQueryService.)
         $childThumbnails = collect();
         $carouselIds = [];
-        if (class_exists(\AhgCore\Services\HierarchyQueryService::class)) {
+
+        // #1481: "View children as compound?" on the digital-object edit page
+        // decides whether this record presents its children as one compound
+        // object - the carousel strip below - or leaves them to be reached
+        // individually. Until now the control stored nothing and nothing read
+        // it, so the carousel always rendered regardless of what was chosen.
+        //
+        // Absent means never chosen, and defaults to TRUE so existing records
+        // keep behaving exactly as they do today. Only an explicit "No" turns
+        // the strip off, which is what makes the control safe to honour.
+        $displayAsCompound = \AhgCore\Support\PropertyRow::bool(
+            (int) $io->id, 'displayAsCompoundObject', true, 'digital_object'
+        );
+        if ($displayAsCompound && class_exists(\AhgCore\Services\HierarchyQueryService::class)) {
             $carouselIds = app(\AhgCore\Services\HierarchyQueryService::class)
                 ->descendantIds('information_object', (int) $io->id, false);
         }
-        if (empty($carouselIds)) {
+        if ($displayAsCompound && empty($carouselIds)) {
             $carouselIds = $children->pluck('id')->toArray();
         }
         // Guard the IN() against MySQL's placeholder ceiling on huge collections;
