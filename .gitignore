@@ -121,3 +121,7 @@ docs/handouts/
 # Local operational data - never publish (v1.154.633 incident)
 /storage/backups-offsite/
 /storage/europeana/
+
+# per-instance module switches - markers are local to the instance
+/.disabled-modules/*
+!/.disabled-modules/README.md
