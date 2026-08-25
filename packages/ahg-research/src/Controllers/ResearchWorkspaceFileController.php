@@ -93,7 +93,10 @@ class ResearchWorkspaceFileController extends Controller
 
         return view('research::research.workspace-files', array_merge(
             $this->getSidebarData('workspaces'),
-            compact('researcher', 'workspace', 'workspaceId', 'files', 'storage', 'isOwner')
+            compact('researcher', 'workspace', 'workspaceId', 'files', 'storage', 'isOwner'),
+            // #1492: so the upload box can state the limit rather than letting
+            // the user discover it by having a large file rejected.
+            ['maxUploadMb' => $this->quota->maxUploadMb()]
         ));
     }
 
@@ -111,8 +114,16 @@ class ResearchWorkspaceFileController extends Controller
             abort(403);
         }
 
+        // #1492. `required|file` alone left the ceiling at PHP's
+        // upload_max_filesize - 2 GB on the heratio and sasa pools. The storage
+        // quota below is a TOTAL, checked after the file is already written, so
+        // it cannot refuse one oversized upload.
+        $maxKb = $this->quota->maxUploadKb();
         $request->validate([
-            'file' => 'required|file',
+            'file' => 'required|file|max:' . $maxKb,
+        ], [
+            'file.max' => 'That file is larger than the ' . $this->quota->maxUploadMb()
+                . ' MB limit for a single upload.',
         ]);
 
         $upload = $request->file('file');
@@ -182,6 +193,43 @@ class ResearchWorkspaceFileController extends Controller
     /**
      * Stream a workspace file back to the researcher (download-quota gated).
      */
+    /**
+     * Pull a document from an external URL into this workspace. #1492.
+     *
+     * The heavy lifting - SSRF guard on every redirect hop, size cap enforced
+     * during the transfer, content-type sniffed from the bytes rather than the
+     * header, storage quota, provenance - lives in ResearchSourceFetchService.
+     * This method is only auth, validation and the flash message.
+     */
+    public function fetch(Request $request, int $workspaceId)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (! is_object($researcher) || ! isset($researcher->id)) {
+            return $researcher; // redirect response
+        }
+
+        if (! $this->canAccess($workspaceId, (int) $researcher->id)) {
+            abort(403);
+        }
+
+        $request->validate([
+            'source_url' => 'required|url|max:1024',
+        ], [
+            'source_url.url' => 'Enter a full http:// or https:// address.',
+        ]);
+
+        $result = app(\AhgResearch\Services\ResearchSourceFetchService::class)
+            ->fetchToWorkspace((string) $request->input('source_url'), $workspaceId, (int) $researcher->id);
+
+        if (! $result['ok']) {
+            return redirect()->route('research.workspace.files', $workspaceId)
+                ->with('error', $result['error']);
+        }
+
+        return redirect()->route('research.workspace.files', $workspaceId)
+            ->with('success', 'Fetched "' . $result['file_name'] . '" into this workspace.');
+    }
+
     public function download(int $workspaceId, int $fileId)
     {
         $researcher = $this->getResearcherOrRedirect();

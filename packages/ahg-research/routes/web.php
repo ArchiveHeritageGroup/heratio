@@ -211,6 +211,8 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     // #1325 Researcher workspace files (storage-quota enforced uploads/downloads)
     Route::get('/workspaces/{workspaceId}/files', [ResearchWorkspaceFileController::class, 'index'])->name('workspace.files')->where('workspaceId', '[0-9]+');
     Route::post('/workspaces/{workspaceId}/files', [ResearchWorkspaceFileController::class, 'store'])->name('workspace.files.store')->where('workspaceId', '[0-9]+');
+    // #1492 pull a document from an external URL into the workspace
+    Route::post('/workspaces/{workspaceId}/files/fetch', [ResearchWorkspaceFileController::class, 'fetch'])->name('workspace.files.fetch')->where('workspaceId', '[0-9]+');
     Route::get('/workspaces/{workspaceId}/files/{fileId}/download', [ResearchWorkspaceFileController::class, 'download'])->name('workspace.files.download')->where(['workspaceId' => '[0-9]+', 'fileId' => '[0-9]+']);
     Route::delete('/workspaces/{workspaceId}/files/{fileId}', [ResearchWorkspaceFileController::class, 'destroy'])->name('workspace.files.destroy')->where(['workspaceId' => '[0-9]+', 'fileId' => '[0-9]+']);
 

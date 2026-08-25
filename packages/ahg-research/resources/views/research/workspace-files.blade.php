@@ -83,6 +83,36 @@
             @error('file')
                 <div class="text-danger small mt-1">{{ $message }}</div>
             @enderror
+            {{-- #1492: state the ceiling up front. Before this the only way to
+                 learn it was to pick a large file and have it rejected. --}}
+            @isset($maxUploadMb)
+                <div class="form-text">{{ __('Maximum :size MB per file.', ['size' => $maxUploadMb]) }}</div>
+            @endisset
+        </form>
+
+        {{-- #1492: bring a document in from an external source, rather than only
+             bookmarking where it lives. Same size limit and storage quota as an
+             upload; the URL is SSRF-guarded on every redirect hop server-side. --}}
+        <hr class="my-3">
+        <form method="POST" action="{{ route('research.workspace.files.fetch', $workspaceId) }}">
+            @csrf
+            <label class="form-label fw-semibold" for="source_url">
+                <i class="fas fa-link me-1"></i>{{ __('Fetch from a URL') }}
+            </label>
+            <div class="input-group">
+                <input type="url" id="source_url" name="source_url" inputmode="url"
+                       class="form-control @error('source_url') is-invalid @enderror"
+                       placeholder="https://example.org/paper.pdf" required>
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="fas fa-cloud-download-alt me-1"></i>{{ __('Fetch') }}
+                </button>
+            </div>
+            @error('source_url')
+                <div class="text-danger small mt-1">{{ $message }}</div>
+            @enderror
+            <div class="form-text">
+                {{ __('The document is downloaded into this workspace with its source URL and checksum recorded. Same :size MB limit.', ['size' => $maxUploadMb ?? '']) }}
+            </div>
         </form>
     </div>
 </div>

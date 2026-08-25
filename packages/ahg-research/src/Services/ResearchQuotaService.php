@@ -30,6 +30,128 @@ class ResearchQuotaService
     /** Precedence high -> low. Per-metric: first policy with a non-null value wins. */
     private const PRECEDENCE = ['user', 'project', 'role', 'global'];
 
+    /** Fallback per-file upload ceiling when nothing is configured. */
+    private const DEFAULT_MAX_UPLOAD_MB = 100;
+
+    /**
+     * Maximum size of a SINGLE uploaded or fetched file, in bytes. #1492.
+     *
+     * The storage quota above governs a researcher's TOTAL footprint and is
+     * checked only after a file has been received and written, so it cannot stop
+     * one oversized upload - it absorbs it and then complains. A researcher with
+     * no policy row resolves to max_storage_bytes = null, i.e. unlimited, so
+     * before this there was no per-file ceiling at all: validation was
+     * `'file' => 'required|file'` and the effective limit was PHP's
+     * upload_max_filesize, which on the heratio and sasa pools is 2 GB.
+     *
+     * Configurable via ahg_settings.research_max_upload_mb. Clamped to PHP's own
+     * ceiling because accepting a value above upload_max_filesize would promise
+     * something the request can never deliver - the file is rejected by PHP
+     * before Laravel ever validates it, and the user sees an empty upload rather
+     * than a size error.
+     *
+     * ONE lookup, used by every upload path. Three call sites each reading the
+     * setting themselves is how they drift apart - see #1487, where exactly that
+     * shape meant a guard protected one path while the active one bypassed it.
+     */
+    public function maxUploadBytes(): int
+    {
+        $mb = null;
+
+        try {
+            if (Schema::hasTable('ahg_settings')) {
+                $raw = DB::table('ahg_settings')
+                    ->where('setting_key', 'research_max_upload_mb')
+                    ->value('setting_value');
+                if ($raw !== null && $raw !== '' && (int) $raw > 0) {
+                    $mb = (int) $raw;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Settings unavailable (fresh install, migration in flight): fall
+            // through to the default rather than failing the upload.
+        }
+
+        $bytes = ($mb ?? self::DEFAULT_MAX_UPLOAD_MB) * 1024 * 1024;
+
+        // Clamp to what PHP will actually accept in THIS request. Promising more
+        // than upload_max_filesize means PHP discards the file before Laravel
+        // validates it and the user sees an empty upload, not a size error.
+        //
+        // NOTE this is SAPI-dependent and that is deliberate: fpm here allows
+        // 2G while the CLI ini allows 2M. It is correct for the HTTP upload path
+        // and WRONG for anything server-side, which is why fetching a document
+        // from a URL uses maxFetchBytes() below - upload_max_filesize has no
+        // bearing on a file this server retrieves itself, and a queued fetch
+        // runs under the CLI SAPI where this would clamp to 2 MB.
+        $iniBytes = self::iniBytes((string) ini_get('upload_max_filesize'));
+        if ($iniBytes > 0 && $bytes > $iniBytes) {
+            $bytes = $iniBytes;
+        }
+
+        return $bytes;
+    }
+
+    /**
+     * Ceiling for a document this server fetches itself, in bytes. #1492.
+     *
+     * Same configured size as an upload, but NOT clamped to
+     * upload_max_filesize: that ini governs multipart form uploads and is
+     * meaningless for an outbound HTTP GET. A fetch typically runs queued under
+     * the CLI SAPI, where clamping would silently cut the limit to 2 MB on this
+     * host.
+     */
+    public function maxFetchBytes(): int
+    {
+        $mb = null;
+
+        try {
+            if (Schema::hasTable('ahg_settings')) {
+                $raw = DB::table('ahg_settings')
+                    ->where('setting_key', 'research_max_upload_mb')
+                    ->value('setting_value');
+                if ($raw !== null && $raw !== '' && (int) $raw > 0) {
+                    $mb = (int) $raw;
+                }
+            }
+        } catch (\Throwable $e) {
+            // fall through to the default
+        }
+
+        return ($mb ?? self::DEFAULT_MAX_UPLOAD_MB) * 1024 * 1024;
+    }
+
+    /** The same limit in whole MB, for display. */
+    public function maxUploadMb(): int
+    {
+        return (int) floor($this->maxUploadBytes() / 1024 / 1024);
+    }
+
+    /** Laravel's `max:` rule counts KILOBYTES, not bytes. */
+    public function maxUploadKb(): int
+    {
+        return (int) floor($this->maxUploadBytes() / 1024);
+    }
+
+    /** Parse a php.ini shorthand size ("2G", "64M", "512K") into bytes. */
+    private static function iniBytes(string $value): int
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return 0;
+        }
+
+        $unit = strtolower(substr($value, -1));
+        $num  = (int) $value;
+
+        return match ($unit) {
+            'g' => $num * 1024 * 1024 * 1024,
+            'm' => $num * 1024 * 1024,
+            'k' => $num * 1024,
+            default => (int) $value,
+        };
+    }
+
     /**
      * Effective limits for a researcher (optionally within a project context).
      *
