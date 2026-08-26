@@ -21,4 +21,4 @@
 # fopen(...c+) "No such file or directory" 500s on /api/ric/v1/* endpoints).
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
-0 * * * * www-data flock -n /run/lock/heratio-facet-cache.lock -c 'for d in dam heratio; do echo "[$(date -Iseconds)] facet-cache: $d"; DB_DATABASE=$d /usr/bin/php8.3 /usr/share/nginx/heratio/artisan ahg:refresh-facet-cache 2>&1 || echo "  failed $d"; done >> /var/log/facet-cache.log 2>&1'
+0 0,4-23 * * * www-data flock -n /run/lock/heratio-facet-cache.lock -c 'for d in dam heratio; do echo "[$(date -Iseconds)] facet-cache: $d"; DB_DATABASE=$d /usr/bin/php8.3 /usr/share/nginx/heratio/artisan ahg:refresh-facet-cache 2>&1 || echo "  failed $d"; done >> /var/log/facet-cache.log 2>&1'

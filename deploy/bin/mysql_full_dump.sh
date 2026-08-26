@@ -64,6 +64,31 @@ ERRFILE=$(mktemp)
 # naming the offending table was destroyed on every failure since June, and
 # the alert fell back to guessing "check /root/.my.cnf". See #1491.
 ERR_KEEP="/var/log/mysql_full_dump-stderr-${DATE}.log"
+# Tables whose DATA is excluded from the dump. #1491.
+#
+# display_facet_cache is a DERIVED CACHE, rebuilt hourly by
+# ahg:refresh-facet-cache, and it is what has been breaking this dump: on
+# 2026-08-26 attempt 1 died with "Error 1412: Table definition has changed"
+# while dumping it, at 5,192,911,527 bytes - within 2 KB of the 24 Aug failure,
+# i.e. the same point every time. The facet cron fires at 01:00:01, the same
+# second this script starts.
+#
+# Excluding it removes the collision and ~240 MB (atom and heratio hold 120 MB
+# each across 9 databases). Losing the contents costs nothing: the next hourly
+# rebuild repopulates it.
+#
+# The STRUCTURE is still dumped, appended below - `--ignore-table` drops the
+# CREATE TABLE as well as the rows, and a restore from this file alone would
+# then be missing a table the application expects.
+EXCLUDE_DATA_TABLE="display_facet_cache"
+mapfile -t FACET_DBS < <(mysql --defaults-file=/root/.my.cnf -N -e \
+    "SELECT table_schema FROM information_schema.tables WHERE table_name='${EXCLUDE_DATA_TABLE}';" 2>/dev/null || true)
+IGNORE_ARGS=()
+for _db in "${FACET_DBS[@]}"; do
+    [ -n "$_db" ] && IGNORE_ARGS+=( "--ignore-table=${_db}.${EXCLUDE_DATA_TABLE}" )
+done
+log "excluding ${EXCLUDE_DATA_TABLE} data from ${#IGNORE_ARGS[@]} database(s); structure still dumped"
+
 attempt=1; MAX_ATTEMPTS=2; RC=1; BYTES=0
 while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
     log "mysqldump attempt $attempt/$MAX_ATTEMPTS"
@@ -79,7 +104,7 @@ while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
     # silently disabling the retry and the too-small-file guard below.
     _prev_umask=$(umask)
     umask 077
-    /usr/bin/mysqldump --defaults-file=/root/.my.cnf --all-databases --single-transaction --routines --triggers 2>"$ERRFILE" | gzip > "$DUMP_FILE"
+    /usr/bin/mysqldump --defaults-file=/root/.my.cnf --all-databases --single-transaction --routines --triggers "${IGNORE_ARGS[@]}" 2>"$ERRFILE" | gzip > "$DUMP_FILE"
     RC=${PIPESTATUS[0]}
     umask "$_prev_umask"
     set -e
@@ -129,6 +154,29 @@ if [ "$RC" -ne 0 ] || [ "$BYTES" -lt "$MIN_BYTES" ]; then
     log "stderr preserved at $ERR_KEEP"
     rm -f "$DUMP_FILE"
     exit 1
+fi
+
+# Append the excluded table's STRUCTURE, so a restore from this file alone still
+# has it. Concatenated gzip members decompress as one continuous stream, so this
+# is appended rather than re-compressed - and it runs only on the success path,
+# after the guard above, so a failed dump is never extended.
+#
+# NOT folded into the main pipeline: `{ a; b; } | gzip` would make
+# PIPESTATUS[0] report the group (i.e. gzip) instead of mysqldump, silently
+# disabling the retry and the too-small-file guard. Same trap as the umask.
+if [ "${#FACET_DBS[@]}" -gt 0 ]; then
+    _prev_umask=$(umask)
+    umask 077
+    {
+        for _db in "${FACET_DBS[@]}"; do
+            [ -n "$_db" ] || continue
+            echo "USE \`${_db}\`;"
+            /usr/bin/mysqldump --defaults-file=/root/.my.cnf --no-data --skip-comments \
+                "$_db" "$EXCLUDE_DATA_TABLE" 2>/dev/null || true
+        done
+    } | gzip >> "$DUMP_FILE"
+    umask "$_prev_umask"
+    log "appended ${EXCLUDE_DATA_TABLE} structure for ${#FACET_DBS[@]} database(s)"
 fi
 
 SIZE=$(du -h "$DUMP_FILE" | cut -f1)
