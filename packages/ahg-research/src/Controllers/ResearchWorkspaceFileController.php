@@ -218,16 +218,26 @@ class ResearchWorkspaceFileController extends Controller
             'source_url.url' => 'Enter a full http:// or https:// address.',
         ]);
 
-        $result = app(\AhgResearch\Services\ResearchSourceFetchService::class)
-            ->fetchToWorkspace((string) $request->input('source_url'), $workspaceId, (int) $researcher->id);
+        $url = (string) $request->input('source_url');
 
-        if (! $result['ok']) {
+        // Fail fast on a URL that can never be fetched, so the researcher is
+        // told at the form instead of receiving a notification minutes later
+        // and finding nothing in the workspace. The job re-asserts the guard
+        // before it downloads: this check is for the person, that one is for
+        // safety, and DNS can change between dispatch and execution.
+        try {
+            app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($url);
+        } catch (\Throwable $e) {
             return redirect()->route('research.workspace.files', $workspaceId)
-                ->with('error', $result['error']);
+                ->with('error', 'That URL cannot be fetched: ' . $e->getMessage());
         }
 
+        // Queued: a 100 MB ceiling and a 30s HTTP timeout meant a slow source
+        // held a php-fpm worker open while the researcher watched a spinner.
+        \AhgResearch\Jobs\ResearchSourceFetchJob::dispatch($url, $workspaceId, (int) $researcher->id);
+
         return redirect()->route('research.workspace.files', $workspaceId)
-            ->with('success', 'Fetched "' . $result['file_name'] . '" into this workspace.');
+            ->with('success', 'Fetching that document now. It will appear here shortly, and you will be notified when it is done.');
     }
 
     public function download(int $workspaceId, int $fileId)

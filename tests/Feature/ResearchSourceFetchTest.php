@@ -84,6 +84,31 @@ class ResearchSourceFetchTest extends TestCase
         $this->assertGreaterThan(0, $quota->maxUploadKb());
     }
 
+    /**
+     * A refusal must NOT be a job failure. An SSRF rejection, an oversized
+     * document or a disallowed type are correct outcomes: retrying them just
+     * re-proves the same refusal and, worse, a job that lands in failed_jobs
+     * looks like an outage to whoever reads that table.
+     */
+    public function test_a_refused_url_notifies_and_does_not_fail_the_job(): void
+    {
+        if (! Schema::hasTable('research_notification')) {
+            $this->markTestSkipped('research_notification not present');
+        }
+
+        $before = DB::table('research_notification')->count();
+
+        // Run the job body directly - dispatching would need a worker.
+        (new \AhgResearch\Jobs\ResearchSourceFetchJob('http://169.254.169.254/latest/meta-data/', 1, 1))
+            ->handle(app(ResearchSourceFetchService::class));
+
+        $note = DB::table('research_notification')->orderByDesc('id')->first();
+
+        $this->assertSame($before + 1, DB::table('research_notification')->count());
+        $this->assertSame('source_fetch_failed', $note->type);
+        $this->assertStringContainsStringIgnoringCase('blocked host', (string) $note->message);
+    }
+
     public function test_the_configured_limit_is_honoured(): void
     {
         if (! Schema::hasTable('ahg_settings')) {

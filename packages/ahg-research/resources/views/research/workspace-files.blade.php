@@ -111,7 +111,7 @@
                 <div class="text-danger small mt-1">{{ $message }}</div>
             @enderror
             <div class="form-text">
-                {{ __('The document is downloaded into this workspace with its source URL and checksum recorded. Same :size MB limit.', ['size' => $maxUploadMb ?? '']) }}
+                {{ __('Fetched in the background and added here when done, with its source URL and checksum recorded. Same :size MB limit.', ['size' => $maxUploadMb ?? '']) }}
             </div>
         </form>
     </div>
