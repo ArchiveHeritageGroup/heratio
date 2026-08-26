@@ -237,6 +237,28 @@ if [ -f ".git/UNLOCKED" ]; then
     echo -e "${YELLOW}Cleared one-shot unlock list. Lock manifest is fully active again.${NC}"
 fi
 
+# Signal the local queue workers to pick up the code we just committed.
+#
+# This instance is a RELEASE SOURCE, not a deploy target: heratio-deploy.sh
+# restarts the workers on heratio and sasa, but nothing ever restarts the ones
+# here. A `queue:work` process loads the application ONCE and keeps serving jobs
+# from that copy, so dev's worker went on running whatever code was current when
+# it last started - found 2026-08-26 at 1 day 17 hours old, i.e. serving jobs
+# from a release two days stale, which makes dev useless for testing anything
+# queued and does it silently.
+#
+# `queue:restart` rather than `systemctl restart`: it needs no root (this script
+# runs as www-data), it lets a worker finish the job in hand instead of killing
+# it mid-flight, and the unit is Restart=always/RestartSec=10s so systemd brings
+# it straight back.
+#
+# ABOVE the push, for the same reason the unlock cleanup is: dev's push always
+# fails and `set -e` would exit before this ever ran.
+if [ -f artisan ]; then
+    php artisan queue:restart >/dev/null 2>&1 || true
+    echo -e "${YELLOW}Signalled local queue workers to reload (they hold the OLD code otherwise).${NC}"
+fi
+
 echo -e "${BLUE}[3/3] Pushing to origin...${NC}"
 # Push the CURRENT branch tip straight to remote main (fast-forwards from any
 # working branch). Using `HEAD:main` instead of `main` avoids the recurring
