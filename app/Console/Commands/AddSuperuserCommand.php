@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -32,9 +33,11 @@ class AddSuperuserCommand extends Command
             return self::FAILURE;
         }
 
-        // Generate password hash (SHA-1 with salt)
-        $salt = bin2hex(random_bytes(16)); // 32-char hex salt
-        $passwordHash = sha1($salt.$password);
+        // Hash through the SAME implementation the login uses - see the note in
+        // ResetPasswordCommand. A bare sha1 here produced superuser accounts
+        // that could never sign in, because AtomUserProvider verifies with
+        // password_verify() and a raw SHA-1 is not a crypt hash.
+        ['salt' => $salt, 'password_hash' => $passwordHash] = LoginController::hashPassword($password);
 
         try {
             DB::beginTransaction();

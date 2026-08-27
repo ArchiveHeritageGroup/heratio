@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\DB;
 
 class ResetPasswordCommand extends Command
@@ -37,9 +38,16 @@ class ResetPasswordCommand extends Command
             return self::FAILURE;
         }
 
-        // Generate new salt and hash (SHA-1 with salt)
-        $salt = bin2hex(random_bytes(16)); // 32-char hex salt
-        $passwordHash = sha1($salt.$password);
+        // Hash through the SAME implementation the login uses.
+        //
+        // This wrote a bare sha1($salt.$password), but AtomUserProvider
+        // verifies with password_verify(sha1(salt . plaintext), password_hash)
+        // - and password_verify against a raw SHA-1 can never return true. So
+        // every account reset by this command was locked out permanently, with
+        // no error at reset time and "credentials do not match our records" at
+        // login. LoginController::hashPassword is the one definition of the
+        // scheme; a fourth copy is how this drifted in the first place.
+        ['salt' => $salt, 'password_hash' => $passwordHash] = LoginController::hashPassword($password);
 
         try {
             DB::table('user')
