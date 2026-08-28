@@ -98,8 +98,9 @@
   {{-- Banner image (matching AtoM) --}}
   @php
     $bannerRelPath = '/uploads/r/' . ($repository->slug ?? '') . '/conf/banner.png';
-    $bannerAbsPath = '/usr/share/nginx/archive' . $bannerRelPath;
-    $hasBanner = $repository->slug && is_file($bannerAbsPath);
+    $uploadsRoot = rtrim((string) config('heratio.uploads_path'), '/');
+    $bannerAbsPath = $uploadsRoot . '/r/' . ($repository->slug ?? '') . '/conf/banner.png';
+    $hasBanner = $repository->slug && '' !== $uploadsRoot && is_file($bannerAbsPath);
   @endphp
   @if($hasBanner)
     <div class="row mb-3" id="repository-banner">

@@ -155,9 +155,16 @@ class RepositoryBrowseService extends BrowseService
             $thematicArea = $ta ?: '';
         }
 
-        // Check for logo
+        // Check for logo. /uploads/ is served from the configured uploads root,
+        // so the existence check has to look in the same place the browser will.
+        // This used to hardcode /usr/share/nginx/archive/uploads, which is one
+        // instance's setting - correct there, wrong on every other install, and
+        // wrong in both directions: a logo that exists goes unshown, and an
+        // <img> renders for one that is not where the request will land.
         $logoPath = '/uploads/r/'.($row->slug ?? '').'/conf/logo.png';
-        $hasLogo = $row->slug && file_exists('/usr/share/nginx/archive/uploads/r/'.$row->slug.'/conf/logo.png');
+        $uploadsRoot = rtrim((string) config('heratio.uploads_path'), '/');
+        $hasLogo = $row->slug && '' !== $uploadsRoot
+            && is_file($uploadsRoot.'/r/'.$row->slug.'/conf/logo.png');
 
         return [
             'id' => $row->id,

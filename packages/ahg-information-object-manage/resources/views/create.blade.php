@@ -10,7 +10,17 @@
       $repoId = \Illuminate\Support\Facades\DB::table('information_object')->where('id', $parentId)->value('repository_id');
       $repoSlug = $repoId ? \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $repoId)->value('slug') : null;
     @endphp
-    @if($repoSlug)
+    @php
+      // Only render the logo when the file is actually there. Relying on the
+      // onerror handler alone hid the broken image but still fired the request,
+      // so every description created under a repository without a logo logged a
+      // 404 in the console. onerror stays as a guard for the file disappearing
+      // between this check and the request.
+      $uploadsRoot = rtrim((string) config('heratio.uploads_path'), '/');
+      $hasRepoLogo = $repoSlug && '' !== $uploadsRoot
+          && is_file($uploadsRoot . '/r/' . $repoSlug . '/conf/logo.png');
+    @endphp
+    @if($hasRepoLogo)
       <div class="repository-logo mb-3 mx-auto">
         <a class="text-decoration-none" href="{{ url('/repository/' . $repoSlug) }}">
           <img alt="{{ __('Go to repository') }}" class="img-fluid img-thumbnail border-4 shadow-sm bg-white"
