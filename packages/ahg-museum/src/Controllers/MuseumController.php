@@ -665,16 +665,150 @@ class MuseumController extends Controller
         ]);
     }
 
+    /**
+     * Side-by-side comparison of museum objects.
+     *
+     * Was `$objects = collect();` - a hardcoded empty collection, so the page
+     * rendered an empty row for every request and no comparison was possible.
+     *
+     * Nothing in the codebase linked to this route, so the parameter contract
+     * was undefined; it is now `?with=slug,slug`. The base object is always
+     * first, and the view divides a 12-column grid by the object count, so the
+     * total is capped at FOUR - beyond that each card is a 2-column sliver and
+     * the comparison stops being readable.
+     *
+     * Every object is ACL-gated individually. Comparison must not become a way
+     * to read a record you could not open on its own.
+     */
     public function objectComparison(Request $request, string $slug)
     {
-        $objects = collect();
+        $slugs = collect([$slug])
+            ->merge(explode(',', (string) $request->query('with', '')))
+            ->map(fn ($s) => trim((string) $s))
+            ->filter()
+            ->unique()
+            ->take(4);
+
+        $objects = $slugs->map(function (string $s) {
+                $obj = $this->service->getBySlug($s);
+                if (! $obj) {
+                    return null;
+                }
+
+                if (! \AhgCore\Services\AclService::hasPermission(
+                    \Illuminate\Support\Facades\Auth::id(), 'read', (int) $obj->id
+                )) {
+                    return null;
+                }
+
+                $meta = $this->service->getMuseumMetadata((int) $obj->id);
+
+                // The view wants a single date string; the schema stores a range.
+                $from = $meta['creation_date_earliest'] ?? null;
+                $to   = $meta['creation_date_latest'] ?? null;
+                $obj->creation_date_display = $meta['creation_date_display']
+                    ?? (($from && $to && $from !== $to) ? $from . '-' . $to : ($from ?: $to));
+
+                $obj->work_type        = $meta['work_type'] ?? ($obj->work_type ?? null);
+                $obj->creator_identity = $meta['creator_identity'] ?? null;
+
+                return $obj;
+            })
+            ->filter()
+            ->values();
+
+        if ($objects->isEmpty()) {
+            abort(404);
+        }
+
         return view('ahg-museum::museum.object-comparison', compact('objects'));
     }
 
+    /** Core CCO fields the completeness score is measured against. */
+    private const QUALITY_FIELDS = [
+        'work_type'         => 'Work type',
+        'classification'    => 'Classification',
+        'materials'         => 'Materials',
+        'techniques'        => 'Techniques',
+        'measurements'      => 'Measurements',
+        'creator_identity'  => 'Creator',
+        'creation_place'    => 'Creation place',
+        'cultural_context'  => 'Cultural context',
+        'current_location'  => 'Current location',
+    ];
+
+    /**
+     * Cataloguing-completeness dashboard for museum records.
+     *
+     * Was a hardcoded `$overallScore = 0; $analyzedRecords = 0;` with an 'N/A'
+     * grade - so it reported a permanent zero regardless of the catalogue, which
+     * is worse than showing nothing: it asserts a measurement that was never
+     * taken.
+     *
+     * A field counts as present if it is populated on museum_metadata OR on any
+     * museum_metadata_i18n row. The translatable fields live in both - the parent
+     * carries the base value and i18n the translations - so counting only the
+     * parent would under-report a record catalogued in another language, and a
+     * completeness metric that penalises translation would be actively harmful.
+     */
     public function qualityDashboard()
     {
-        $overallScore = 0; $analyzedRecords = 0; $overallGrade = ['grade' => 'N/A', 'label' => '']; $missingFieldCounts = [];
-        return view('ahg-museum::dashboard.index', compact('overallScore', 'analyzedRecords', 'overallGrade', 'missingFieldCounts'));
+        $total = (int) DB::table('museum_metadata')->count();
+
+        $missingFieldCounts = [];
+        $populatedCells     = 0;
+
+        // museum_metadata_i18n is created by a migration and is NOT in
+        // database/core/*.sql, which is what CI builds its test database from
+        // (#1471) - so joining it unconditionally passes locally and throws
+        // "Base table or view not found" in CI and on any instance that has not
+        // run migrations. Guarded, the count degrades to the parent table:
+        // slightly under-reported for records catalogued only in translation,
+        // which is far better than a 500.
+        $hasI18n = \Illuminate\Support\Facades\Schema::hasTable('museum_metadata_i18n');
+
+        foreach (self::QUALITY_FIELDS as $column => $label) {
+            $query = DB::table('museum_metadata as mm');
+
+            if ($hasI18n) {
+                $query->leftJoin('museum_metadata_i18n as mmi', 'mmi.id', '=', 'mm.id')
+                    ->where(function ($q) use ($column) {
+                        $q->where(function ($p) use ($column) {
+                            $p->whereNotNull('mm.' . $column)->where('mm.' . $column, '<>', '');
+                        })->orWhere(function ($p) use ($column) {
+                            $p->whereNotNull('mmi.' . $column)->where('mmi.' . $column, '<>', '');
+                        });
+                    });
+            } else {
+                $query->whereNotNull('mm.' . $column)->where('mm.' . $column, '<>', '');
+            }
+
+            $present = (int) $query->distinct()->count('mm.id');
+
+            $missingFieldCounts[$label] = max(0, $total - $present);
+            $populatedCells            += $present;
+        }
+
+        $cells        = $total * count(self::QUALITY_FIELDS);
+        $overallScore = $cells > 0 ? (int) round($populatedCells / $cells * 100) : 0;
+
+        $overallGrade = match (true) {
+            $total === 0        => ['grade' => 'N/A', 'label' => 'No museum records to assess'],
+            $overallScore >= 90 => ['grade' => 'A', 'label' => 'Excellent'],
+            $overallScore >= 75 => ['grade' => 'B', 'label' => 'Good'],
+            $overallScore >= 60 => ['grade' => 'C', 'label' => 'Adequate'],
+            $overallScore >= 40 => ['grade' => 'D', 'label' => 'Needs attention'],
+            default             => ['grade' => 'E', 'label' => 'Substantially incomplete'],
+        };
+
+        arsort($missingFieldCounts);
+
+        return view('ahg-museum::dashboard.index', [
+            'overallScore'       => $overallScore,
+            'analyzedRecords'    => $total,
+            'overallGrade'       => $overallGrade,
+            'missingFieldCounts' => $missingFieldCounts,
+        ]);
     }
 
     public function missingField(string $field)
