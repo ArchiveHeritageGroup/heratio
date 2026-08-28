@@ -19,6 +19,20 @@ cd /var/www/heratio
 
 MARKER=storage/.heratio-installed
 
+# A published default is not a password. The example ships CHANGEME_ placeholders
+# so a copy-paste deploy cannot silently run on credentials that are in the public
+# repo; refuse to boot rather than come up reachable with known values.
+for _v in DB_PASSWORD DB_ROOT_PASSWORD ADMIN_PASSWORD; do
+    case "${!_v:-}" in
+        CHANGEME_*|"")
+            echo "[init] FATAL: $_v is unset or still the placeholder from .env.docker.example." >&2
+            echo "[init] Edit docker/.env.docker and set a real value before starting the stack." >&2
+            exit 1
+            ;;
+    esac
+done
+
+
 mysql_run() {
     mysql --protocol=TCP \
           -h "${DB_HOST:-mysql}" \

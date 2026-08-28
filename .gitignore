@@ -125,3 +125,6 @@ docs/handouts/
 # per-instance module switches - markers are local to the instance
 /.disabled-modules/*
 !/.disabled-modules/README.md
+
+# local docker stack config, copied from .env.docker.example
+docker/.env.docker
