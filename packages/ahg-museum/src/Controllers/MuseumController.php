@@ -612,12 +612,57 @@ class MuseumController extends Controller
         return redirect()->route('museum.show', $slug)->with('success', 'Files uploaded.');
     }
 
+    /**
+     * Provenance and custody history for a museum object.
+     *
+     * This used to be `$provenanceChain = collect();` - a hardcoded empty
+     * collection, so the page rendered "No provenance data." for every object
+     * forever, while `provenance_entry` held real chains against those very
+     * objects (53 rows on dev at the time of writing, one object with 7).
+     *
+     * A museum record IS an information object - MuseumService::getBySlug()
+     * queries `information_object` and filters on the presence of
+     * museum_metadata - so its id is the information_object_id these tables key
+     * on, and the data was always reachable.
+     *
+     * Reads through ahg-io-manage's ProvenanceService rather than requerying:
+     * that service already owns the chain, overview, documents and timeline,
+     * and a second implementation of one lookup is how the two drift apart.
+     * Resolution is class_exists-guarded because ahg-museum has no declared
+     * dependency on that package; where it is absent the page degrades to the
+     * old empty state instead of 500ing.
+     *
+     * Gated with the same ACL check the information-object provenance page
+     * uses: if you may READ the object, you may see its provenance. Provenance
+     * carries acquisition prices, Nazi-era due-diligence findings and cultural
+     * property status - it must not be looser than the record it describes.
+     */
     public function provenance(string $slug)
     {
         $museum = $this->service->getBySlug($slug);
         if (!$museum) abort(404);
-        $provenanceChain = collect();
-        return view('ahg-museum::museum.provenance', ['resource' => $museum, 'provenanceChain' => $provenanceChain]);
+
+        abort_unless(
+            \AhgCore\Services\AclService::hasPermission(
+                \Illuminate\Support\Facades\Auth::id(),
+                'read',
+                (int) $museum->id
+            ),
+            403
+        );
+
+        $svc = class_exists(\AhgInformationObjectManage\Services\ProvenanceService::class)
+            ? app(\AhgInformationObjectManage\Services\ProvenanceService::class)
+            : null;
+
+        $objectId = (int) $museum->id;
+
+        return view('ahg-museum::museum.provenance', [
+            'resource'        => $museum,
+            'provenanceChain' => $svc ? $svc->getChain($objectId)     : collect(),
+            'overview'        => $svc ? $svc->getOverview($objectId)  : null,
+            'documents'       => $svc ? $svc->getDocuments($objectId) : collect(),
+        ]);
     }
 
     public function objectComparison(Request $request, string $slug)
