@@ -86,6 +86,41 @@ NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
 DATE=$(date +%Y-%m-%d)
 TAG="v${NEW_VERSION}"
 
+# Do not release onto a tag that already exists.
+#
+# The next version used to be computed from version.json alone. That is only
+# correct while version.json and the tags agree, and they come apart in two
+# ordinary situations: another session releases at the same time, or a release's
+# own version.json bump fails to persist - which is what happens when a root-run
+# git leaves the file root-owned and the next www-data release cannot write it.
+# Either way the file lags the tags, the next patch computes a number already in
+# use, and the push is rejected AFTER the commit and tag have been made, leaving
+# a half-done release to unpick by hand. That happened twice on 2026-08-29.
+#
+# Learning about other people's tags is best effort and must never block a
+# release: dev cannot reach origin over HTTPS, so a failed fetch here is normal.
+_ORIGIN_URL=$(git config --get remote.origin.url 2>/dev/null || true)
+case "$_ORIGIN_URL" in
+    https://github.com/*) _SSH_URL="git@github.com:${_ORIGIN_URL#https://github.com/}" ;;
+    *)                    _SSH_URL="" ;;
+esac
+timeout 20 git fetch --tags --quiet origin >/dev/null 2>&1 || true
+if [ -n "$_SSH_URL" ]; then
+    timeout 20 git fetch --tags --quiet "$_SSH_URL" >/dev/null 2>&1 || true
+fi
+
+if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
+    _TAKEN="${TAG}"
+    while git rev-parse -q --verify "refs/tags/v${MAJOR}.${MINOR}.${PATCH}" >/dev/null 2>&1; do
+        PATCH=$((PATCH + 1))
+    done
+    NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+    TAG="v${NEW_VERSION}"
+    echo -e "${YELLOW}  ${_TAKEN} already exists - version.json was behind the tags.${NC}"
+    echo -e "${YELLOW}  Releasing ${TAG} instead. Someone released concurrently, or a${NC}"
+    echo -e "${YELLOW}  previous bump did not persist (check version.json ownership).${NC}"
+fi
+
 echo -e "New version:     ${GREEN}${TAG}${NC}"
 echo -e "Message:         ${MSG}"
 [[ -n "$ISSUE_ARG" ]] && echo -e "Issues:          #${ISSUE_ARG}"
