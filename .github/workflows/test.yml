@@ -188,7 +188,7 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema + base seeds
+      - name: Create database + load core schema + base seeds + run migrations
         # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
         # tables: object, information_object, actor, term, slug, ...) and
         # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
@@ -215,6 +215,16 @@ jobs:
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # #1471: CI built its test database from core SQL + seeds and never ran
+          # migrations, so it tested a schema no deployed instance runs - 142 tables
+          # behind dev, with migration-only hardening simply absent. The status.id
+          # FK from #1470 is the worked example: without it CI accepts an id-less
+          # INSERT that every real instance rejects, so a whole class of defect can
+          # be reintroduced with CI staying green. Runs AFTER the seeds because the
+          # backfill migrations rehome seeded rows. Root credentials because the
+          # schema above was loaded as root; --env=testing supplies APP_KEY.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan migrate --force --env=testing
       - name: Run Unit Tests
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit --testsuite=Unit --colors=always --testdox
@@ -255,7 +265,7 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema + base seeds
+      - name: Create database + load core schema + base seeds + run migrations
         # bin/install Stage 6 loads database/core/0[0-3]_* against a fresh
         # database. Tests need the same ~995 tables (object, information_object,
         # actor, term, slug, ...) — without this load, php artisan test
@@ -278,6 +288,16 @@ jobs:
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # #1471: CI built its test database from core SQL + seeds and never ran
+          # migrations, so it tested a schema no deployed instance runs - 142 tables
+          # behind dev, with migration-only hardening simply absent. The status.id
+          # FK from #1470 is the worked example: without it CI accepts an id-less
+          # INSERT that every real instance rejects, so a whole class of defect can
+          # be reintroduced with CI staying green. Runs AFTER the seeds because the
+          # backfill migrations rehome seeded rows. Root credentials because the
+          # schema above was loaded as root; --env=testing supplies APP_KEY.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan migrate --force --env=testing
       - name: Run Feature Tests
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit --testsuite=Feature --colors=always --testdox
@@ -319,7 +339,7 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema + base seeds
+      - name: Create database + load core schema + base seeds + run migrations
         # bin/install Stage 6 loads database/core/0[0-3]_* against a fresh
         # database. Tests need the same ~995 tables (object, information_object,
         # actor, term, slug, ...) — without this load, php artisan test
@@ -342,6 +362,16 @@ jobs:
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # #1471: CI built its test database from core SQL + seeds and never ran
+          # migrations, so it tested a schema no deployed instance runs - 142 tables
+          # behind dev, with migration-only hardening simply absent. The status.id
+          # FK from #1470 is the worked example: without it CI accepts an id-less
+          # INSERT that every real instance rejects, so a whole class of defect can
+          # be reintroduced with CI staying green. Runs AFTER the seeds because the
+          # backfill migrations rehome seeded rows. Root credentials because the
+          # schema above was loaded as root; --env=testing supplies APP_KEY.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan migrate --force --env=testing
       - name: Run Tests with Coverage
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit \
@@ -436,7 +466,7 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema + base seeds
+      - name: Create database + load core schema + base seeds + run migrations
         # bin/install Stage 6 loads database/core/0[0-3]_* against a fresh
         # database. Tests need the same ~995 tables (object, information_object,
         # actor, term, slug, ...) — without this load, php artisan test
@@ -459,6 +489,16 @@ jobs:
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # #1471: CI built its test database from core SQL + seeds and never ran
+          # migrations, so it tested a schema no deployed instance runs - 142 tables
+          # behind dev, with migration-only hardening simply absent. The status.id
+          # FK from #1470 is the worked example: without it CI accepts an id-less
+          # INSERT that every real instance rejects, so a whole class of defect can
+          # be reintroduced with CI staying green. Runs AFTER the seeds because the
+          # backfill migrations rehome seeded rows. Root credentials because the
+          # schema above was loaded as root; --env=testing supplies APP_KEY.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan migrate --force --env=testing
       - name: Check CriticalPath Tests
         run: |
           if [ -d tests/CriticalPath ] && [ "$(ls -A tests/CriticalPath/*.php 2>/dev/null)" ]; then
@@ -504,7 +544,7 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema + base seeds
+      - name: Create database + load core schema + base seeds + run migrations
         # bin/install Stage 6 loads database/core/0[0-3]_* against a fresh
         # database. Tests need the same ~995 tables (object, information_object,
         # actor, term, slug, ...) — without this load, php artisan test
@@ -527,6 +567,16 @@ jobs:
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # #1471: CI built its test database from core SQL + seeds and never ran
+          # migrations, so it tested a schema no deployed instance runs - 142 tables
+          # behind dev, with migration-only hardening simply absent. The status.id
+          # FK from #1470 is the worked example: without it CI accepts an id-less
+          # INSERT that every real instance rejects, so a whole class of defect can
+          # be reintroduced with CI staying green. Runs AFTER the seeds because the
+          # backfill migrations rehome seeded rows. Root credentials because the
+          # schema above was loaded as root; --env=testing supplies APP_KEY.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan migrate --force --env=testing
       - name: Discover Package Tests
         run: |
           for dir in packages/*/tests; do
