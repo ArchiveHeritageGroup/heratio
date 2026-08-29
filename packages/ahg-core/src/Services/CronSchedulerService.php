@@ -139,9 +139,17 @@ class CronSchedulerService
         // Close the tracking row + emit Prometheus metric.
         $this->tracker?->markFinished($runId, $exitCode, $output);
 
-        // Truncate output to last 5000 chars for storage
-        if (strlen($output) > 5000) {
-            $output = '... (truncated) ...'.substr($output, -5000);
+        // Truncate output to the last 5000 CHARACTERS for storage.
+        //
+        // strlen()/substr() count bytes. Cutting at byte -5000 lands inside a
+        // multi-byte character often enough to matter, and the result opens with
+        // a dangling continuation byte - invalid UTF-8, which MySQL rejects with
+        // error 1366 on last_run_output. Progress bars make it near-certain
+        // rather than rare: they emit long runs of identical 3-byte characters
+        // (U+2593 DARK SHADE), so roughly two cuts in three fall mid-character.
+        $output = $this->tidyCommandOutput($output);
+        if (mb_strlen($output, 'UTF-8') > 5000) {
+            $output = '... (truncated) ...'.mb_substr($output, -5000, null, 'UTF-8');
         }
 
         $updateData = [
@@ -160,7 +168,28 @@ class CronSchedulerService
             $this->notifyJobFailure($schedule, $output);
         }
 
-        DB::table($this->table)->where('id', $schedule->id)->update($updateData);
+        // Recording the outcome must never CHANGE the outcome. This update used to
+        // run bare: when it threw, the exception propagated out of the run and
+        // ahg:cron-run exited 1, so a command that had already completed
+        // successfully was reported as a failure. A write that only stores what
+        // happened cannot be allowed to rewrite what happened.
+        try {
+            DB::table($this->table)->where('id', $schedule->id)->update($updateData);
+        } catch (\Throwable $e) {
+            Log::warning('cron: could not record the outcome of '.$schedule->slug.' - the run itself is unaffected', [
+                'slug' => $schedule->slug,
+                'status' => $status,
+                'error' => $e->getMessage(),
+            ]);
+            // Retry without the output, which is the only field big or oddly
+            // encoded enough to be the cause, so the status is still recorded.
+            try {
+                $updateData['last_run_output'] = null;
+                DB::table($this->table)->where('id', $schedule->id)->update($updateData);
+            } catch (\Throwable $inner) {
+                Log::error('cron: outcome for '.$schedule->slug.' could not be recorded at all: '.$inner->getMessage());
+            }
+        }
 
         return [
             'id' => $schedule->id,
@@ -169,6 +198,30 @@ class CronSchedulerService
             'duration_ms' => $durationMs,
             'next_run' => $nextRun->toDateTimeString(),
         ];
+    }
+
+    /**
+     * Collapse console progress output before it is stored.
+     *
+     * A progress bar rewrites one line with carriage returns; captured to a
+     * string it becomes thousands of characters of block glyphs that no operator
+     * will read, and it crowds the tail of the log - which is the part worth
+     * keeping - out of the 5000 we retain. Keep only the final state of each
+     * rewritten line.
+     */
+    protected function tidyCommandOutput(string $output): string
+    {
+        if ($output === '' || ! str_contains($output, "\r")) {
+            return $output;
+        }
+
+        $lines = [];
+        foreach (preg_split("/\n/", $output) as $line) {
+            $parts = explode("\r", $line);
+            $lines[] = rtrim(end($parts));
+        }
+
+        return implode("\n", $lines);
     }
 
     /**
