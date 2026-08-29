@@ -1,5 +1,29 @@
 # API Comparison - AtoM vs Heratio
 
+> **HISTORICAL - do not use as a reference. Superseded 2026-08-29.**
+>
+> This was a gap analysis written on 2026-03-17, when Heratio's API was 18
+> read-only v1 endpoints with no key management. Everything below describes that
+> state and the backlog to close it. **That backlog has been delivered**, so the
+> "What Heratio HAS" and "What's MISSING" sections are now wrong in the direction
+> that matters: they tell a reader Heratio has no write API.
+>
+> As of v1.154.692 the API has **212 routes** - 150 GET, 34 POST, 17 DELETE,
+> 10 PUT, 1 PATCH - across v1 and v2, with working key management
+> (`GET`/`POST /api/v2/keys`) and live keys in `ahg_api_key`.
+>
+> Authentication is **not OAuth 2.0**, and nothing here should be read as saying
+> it is. There is no Passport and no Sanctum in the codebase. The API uses a
+> bespoke key scheme: an `X-API-Key` header (or `X-REST-API-Key`, or
+> `Authorization: Bearer`), a 48-character key stored sha256-hashed in
+> `ahg_api_key`, with per-key scopes, a rate limit and an expiry. See
+> `packages/ahg-api/src/Middleware/ApiAuthenticate.php`.
+>
+> **For the current API, read [`api-user-guide.md`](api-user-guide.md).**
+>
+> Kept rather than deleted because the priority ordering records why the API was
+> built in the sequence it was.
+
 Generated: 2026-03-17
 
 ## Current State
