@@ -211,6 +211,14 @@ class ArchaeologyService
             ->leftJoin('term_i18n as period', function ($j) use ($culture) {
                 $j->on('period.id', '=', 'o.period_id')->where('period.culture', '=', $culture);
             })
+            // The context is the most important attribute an excavated find has -
+            // a find without it is an object with no provenance. This join was
+            // missing, so the Context column on the site page rendered "-" for
+            // every find even when o.context_id was correctly set, which reads as
+            // "the link was never made" and invites someone to repair data that
+            // is already right.
+            ->leftJoin('archaeology_context as ctx', 'ctx.id', '=', 'o.context_id')
+            ->leftJoin('slug as ctxslug', 'ctxslug.object_id', '=', 'ctx.information_object_id')
             ->where('o.status', 'active');
 
         foreach (['site_id', 'material_id', 'object_type_id', 'period_id'] as $key) {
@@ -238,6 +246,8 @@ class ArchaeologyService
                 'otype.name as object_type_name',
                 'mat.name as material_name',
                 'period.name as period_name',
+                'ctx.context_number',
+                'ctxslug.slug as context_slug',
             ])
             ->paginate($perPage)
             ->withQueryString();

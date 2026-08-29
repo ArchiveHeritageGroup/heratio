@@ -160,7 +160,21 @@
             <td><a href="{{ route('archaeology.object', $f->id) }}">{{ $f->accession_number }}</a></td>
             <td>{{ $f->object_type_name ?: '-' }}</td>
             <td>{{ $f->material_name ?: '-' }}</td>
-            <td>{{ $f->context_reference ?: '-' }}</td>
+            {{-- Prefer the real linked context over the free-text reference. The
+                 free-text field is for a reference recorded on paper that has no
+                 context record; when the find IS linked, showing that field alone
+                 rendered "-" and hid a link that was correctly made. --}}
+            <td>
+              @if($f->context_number)
+                @if($f->context_slug)
+                  <a href="{{ url('/'.$f->context_slug) }}">{{ $f->context_number }}</a>
+                @else
+                  {{ $f->context_number }}
+                @endif
+              @else
+                {{ $f->context_reference ?: '-' }}
+              @endif
+            </td>
             <td class="text-end">{{ number_format($f->item_count) }}</td>
           </tr>
         @endforeach
