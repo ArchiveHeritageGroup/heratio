@@ -230,6 +230,47 @@ class EsReindexCommand extends Command
         } else {
             $this->warn("  No MySQL reindex method for {$type}, skipping.");
         }
+
+        if ($type === 'informationobject') {
+            $this->verifyFieldTypes($targetIndex);
+        }
+    }
+
+    /**
+     * Confirm the fields whose TYPE carries meaning actually have it.
+     *
+     * A wrongly typed field does not fail a query, it returns nothing, so this
+     * is the difference between a reindex that reports success and one you can
+     * believe. `gis` must be a geo_point for map search (#650); `workKey` must
+     * be an unanalyzed keyword or the work-set terms-aggregation cannot collapse
+     * manifestations of the same Work (#763).
+     */
+    protected function verifyFieldTypes(string $index): void
+    {
+        $expected = ['gis' => 'geo_point', 'workKey' => 'keyword'];
+
+        $resp = Http::get("{$this->host}/{$index}/_mapping");
+        if (! $resp->successful()) {
+            $this->warn("  Could not read back the mapping for {$index} to verify it.");
+
+            return;
+        }
+
+        $props = $resp->json()[$index]['mappings']['properties'] ?? [];
+        $wrong = [];
+        foreach ($expected as $field => $type) {
+            $actual = $props[$field]['type'] ?? (isset($props[$field]) ? 'object' : 'missing');
+            if ($actual !== $type) {
+                $wrong[] = "{$field} is {$actual}, expected {$type}";
+            }
+        }
+
+        if ($wrong === []) {
+            return;
+        }
+
+        $this->error('  MAPPING IS WRONG on '.$index.': '.implode('; ', $wrong));
+        $this->error('  Searches against these fields will return nothing rather than error. Field types cannot be changed in place - the index has to be recreated.');
     }
 
     /**
@@ -274,6 +315,26 @@ class EsReindexCommand extends Command
             $additions['embargoUntil'] = ['type' => 'date'];
         }
 
+        // Library fields. The doc builder emits all seven for any record with a
+        // library row, and none of them exist in the cloned AtoM mapping, which
+        // is dynamic:strict - so ES rejected those documents outright and they
+        // were simply absent from search. Identifiers and enumerated values are
+        // keywords because they are matched exactly, never analysed; the prose
+        // fields are text so they are searchable.
+        foreach ([
+            'isbn' => 'keyword',
+            'callNumber' => 'keyword',
+            'seriesIssn' => 'keyword',
+            'materialType' => 'keyword',
+            'seriesTitle' => 'text',
+            'summary' => 'text',
+            'contentsNote' => 'text',
+        ] as $field => $type) {
+            if (!isset($props[$field])) {
+                $additions[$field] = ['type' => $type];
+            }
+        }
+
         if (empty($additions)) {
             return;
         }
@@ -285,7 +346,11 @@ class EsReindexCommand extends Command
         if ($resp->successful()) {
             $this->info('  Added mappings to '.$targetIndex.': '.implode(',', array_keys($additions)));
         } else {
-            $this->warn('  Failed to add mappings to '.$targetIndex.': '.$resp->body());
+            // An error, not a warning. A geo_point that silently stayed an object
+            // does not fail a query - it just returns nothing, which reads as
+            // "no results" rather than "misconfigured index".
+            $this->error('  FAILED to add mappings to '.$targetIndex.': '.$resp->body());
+            $this->error('  Field types are now whatever the first document implies. Recreate the index; types cannot be changed in place.');
         }
     }
 
@@ -338,13 +403,48 @@ class EsReindexCommand extends Command
         if (! empty($rawSettings['analysis'])) {
             $settings['analysis'] = $rawSettings['analysis'];
         }
+        // Carry the source's field cap across. A mapping big enough to need a
+        // raised limit is exactly the mapping that cannot be cloned under the
+        // 1000-field default: archive_qubitinformationobject flattens to 1479
+        // fields and sets its own limit of 3000. Copying the mapping without the
+        // limit that makes it legal fails every time.
+        if (! empty($rawSettings['mapping'])) {
+            $settings['mapping'] = $rawSettings['mapping'];
+        }
 
-        Http::put("{$this->host}/{$target}", [
+        $resp = Http::put("{$this->host}/{$target}", [
             'settings' => $settings,
             'mappings' => $mapping,
         ]);
 
-        $this->info("  Created {$target} with mapping from {$source} ({$settings['number_of_shards']} shards)");
+        if ($resp->successful()) {
+            $this->info("  Created {$target} with mapping from {$source} ({$settings['number_of_shards']} shards)");
+
+            return;
+        }
+
+        // Never claim an index was created when it was not. This message used to
+        // print unconditionally, so a failed clone was reported as success; the
+        // mapping step then 404'd on an index that did not exist, and ES quietly
+        // auto-created it from the first bulk write with DYNAMIC mapping. That is
+        // how an index ends up with gis as an object instead of a geo_point and
+        // workKey as text instead of keyword - broken geo search and broken
+        // work-set clustering, with nothing in the log to say so.
+        $this->error("  Could NOT clone mapping from {$source}: ".$resp->body());
+
+        $shards = $this->option('shards') ? (int) $this->option('shards') : 4;
+        $fallback = Http::put("{$this->host}/{$target}", [
+            'settings' => ['number_of_shards' => $shards, 'number_of_replicas' => 1],
+        ]);
+
+        if ($fallback->successful()) {
+            // The index must exist before the explicit mapping additions run,
+            // otherwise they 404 and the field types are decided by whatever the
+            // first document happens to look like.
+            $this->warn("  Created {$target} WITHOUT the source mapping - explicit field types still apply, analysers do not.");
+        } else {
+            $this->error("  Could not create {$target} at all: ".$fallback->body());
+        }
     }
 
     /**
@@ -980,7 +1080,16 @@ class EsReindexCommand extends Command
                         ->filter(fn ($item) => isset($item['index']['error']))
                         ->count();
                     if ($errCount > 0) {
-                        $this->warn("  {$errCount} documents had indexing errors");
+                        // Say WHY, not just how many. A strict mapping rejects a
+                        // document for one unmapped field, and a bare count gives
+                        // the operator nothing to act on - the records are simply
+                        // absent from search with no way to tell which or why.
+                        $first = collect($result['items'] ?? [])
+                            ->first(fn ($item) => isset($item['index']['error']));
+                        $id = $first['index']['_id'] ?? '?';
+                        $reason = $first['index']['error']['reason'] ?? 'unknown';
+                        $this->error("  {$errCount} documents REJECTED by Elasticsearch and are missing from search");
+                        $this->error("    first: id {$id}: ".substr($reason, 0, 300));
                     }
                 }
             }
