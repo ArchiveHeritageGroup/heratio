@@ -188,6 +188,16 @@ class DescriptionController extends BaseApiController
             'sources' => 'nullable|string',
             'revision_history' => 'nullable|string',
             'publication_status' => 'nullable|in:draft,published',
+            // #1496 ISAD(G) 3.1.3 Date(s). Both halves are kept deliberately:
+            // start/end are normalised and sortable, date_display preserves what
+            // the archivist actually wrote ("circa 1890s"). Neither alone is
+            // enough. Type resolves through the Event Types vocabulary rather
+            // than accepting a free string.
+            'dates' => 'sometimes|array',
+            'dates.*.type' => 'required_with:dates|string|max:255',
+            'dates.*.start_date' => 'nullable|date',
+            'dates.*.end_date' => 'nullable|date',
+            'dates.*.date_display' => 'nullable|string|max:1024',
         ]);
 
         // Resolve parent
@@ -289,6 +299,27 @@ class DescriptionController extends BaseApiController
                 'status_id' => $statusId,
             ]);
 
+            // An unknown event type is rejected rather than stored as NULL. A date
+            // that silently loses its type is worse than a refused request: the
+            // record looks complete and the caller never learns it was dropped.
+            foreach (($input['dates'] ?? []) as $i => $d) {
+                if (\AhgCore\Support\EventRow::resolveType((string) ($d['type'] ?? '')) === null) {
+                    return $this->error(
+                        'Unprocessable Entity',
+                        "dates.{$i}.type '".($d['type'] ?? '')."' is not a known event type. Valid types: "
+                            .implode(', ', \AhgCore\Support\EventRow::types()).'.',
+                        422
+                    );
+                }
+            }
+
+            // #1496: ISAD(G) 3.1.3 Date(s). Written through EventRow so the event
+            // is a proper class-table-inheritance child of `object` rather than a
+            // row with an invented id.
+            if (! empty($input['dates'])) {
+                \AhgCore\Support\EventRow::replaceFor($objectId, $input['dates'], $this->culture);
+            }
+
             // Trigger webhook
             $this->webhooks->trigger('item.created', 'informationobject', $objectId, [
                 'slug' => $slug,
@@ -337,6 +368,16 @@ class DescriptionController extends BaseApiController
             'sources' => 'nullable|string',
             'revision_history' => 'nullable|string',
             'publication_status' => 'nullable|in:draft,published',
+            // #1496 ISAD(G) 3.1.3 Date(s). Both halves are kept deliberately:
+            // start/end are normalised and sortable, date_display preserves what
+            // the archivist actually wrote ("circa 1890s"). Neither alone is
+            // enough. Type resolves through the Event Types vocabulary rather
+            // than accepting a free string.
+            'dates' => 'sometimes|array',
+            'dates.*.type' => 'required_with:dates|string|max:255',
+            'dates.*.start_date' => 'nullable|date',
+            'dates.*.end_date' => 'nullable|date',
+            'dates.*.date_display' => 'nullable|string|max:1024',
         ]);
 
         DB::transaction(function () use ($id, $input) {
@@ -353,6 +394,27 @@ class DescriptionController extends BaseApiController
                 'reproduction_conditions', 'physical_characteristics', 'finding_aids',
                 'location_of_originals', 'location_of_copies', 'related_units_of_description',
                 'rules', 'sources', 'revision_history'];
+            // An unknown event type is rejected rather than stored as NULL. A date
+            // that silently loses its type is worse than a refused request: the
+            // record looks complete and the caller never learns it was dropped.
+            foreach (($input['dates'] ?? []) as $i => $d) {
+                if (\AhgCore\Support\EventRow::resolveType((string) ($d['type'] ?? '')) === null) {
+                    return $this->error(
+                        'Unprocessable Entity',
+                        "dates.{$i}.type '".($d['type'] ?? '')."' is not a known event type. Valid types: "
+                            .implode(', ', \AhgCore\Support\EventRow::types()).'.',
+                        422
+                    );
+                }
+            }
+
+            // #1496: dates are replaced wholesale when the key is present, and
+            // left completely alone when it is absent - so a PUT that does not
+            // mention dates cannot silently delete them.
+            if (array_key_exists('dates', $input)) {
+                \AhgCore\Support\EventRow::replaceFor($id, $input['dates'] ?? [], $this->culture);
+            }
+
             $i18nUpdate = array_intersect_key($input, array_flip($i18nFields));
             if (! empty($i18nUpdate)) {
                 DB::table('information_object_i18n')
