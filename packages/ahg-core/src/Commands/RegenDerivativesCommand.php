@@ -47,6 +47,16 @@ class RegenDerivativesCommand extends Command
             $this->line(json_encode(['ok' => $ok, 'failed' => $failed, 'results' => $results], JSON_PRETTY_PRINT));
         } else {
             $this->info("ok={$ok} failed={$failed}");
+            // Say WHY, not just how many. Without this the scheduled run recorded
+            // "ok=30 failed=4" and threw the reason away, so a failure that was
+            // identical across all four - and trivially fixable - sat unexplained
+            // in the cron history. The reason only appeared under --json, which
+            // nothing scheduled passes.
+            foreach ($results as $r) {
+                if (($r['status'] ?? '') === 'fail') {
+                    $this->error("  id {$r['id']}: ".$r['error']);
+                }
+            }
         }
 
         return $failed === 0 ? self::SUCCESS : self::FAILURE;

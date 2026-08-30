@@ -491,6 +491,19 @@ class DerivativeService
                 ->where('id', $existing->id)
                 ->update($data);
         } else {
+            // digital_object is a class-table-inheritance child of `object` and
+            // its id carries no AUTO_INCREMENT, so the id must be allocated from
+            // `object` first. Without it the insert fails with "Field 'id' doesn't
+            // have a default value" and the derivative is never created - which
+            // meant a master that had NO derivatives could never gain any, while
+            // one that already had them refreshed fine, because that path is an
+            // UPDATE. The nightly regen reported "ok=30 failed=4" for exactly
+            // this reason and discarded the cause.
+            $data['id'] = DB::table('object')->insertGetId([
+                'class_name' => 'QubitDigitalObject',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
             DB::table('digital_object')->insert($data);
         }
     }
