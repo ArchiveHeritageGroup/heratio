@@ -56,10 +56,67 @@ class CronSchedulerService
             })
             ->where(function ($q) {
                 $q->whereNull('last_run_status')
-                    ->orWhere('last_run_status', '!=', 'running');
+                    ->orWhere('last_run_status', '!=', 'running')
+                    // Reclaim a stale lock. 'running' is set before the command
+                    // starts and only cleared when it finishes, so a run that dies
+                    // without writing a terminal status - a crash, an OOM kill, a
+                    // deploy restart mid-run, a timeout - leaves the row marked
+                    // running FOREVER and this query never returns it again. The
+                    // schedule is then silently disabled for good: no error, no
+                    // failure count, just a job that stops happening. On the demo
+                    // that hid qdrant-image-index being dead for 14 days and
+                    // search-update for 12 hours. A row still running past its own
+                    // timeout cannot be a live run, so treat it as abandoned.
+                    ->orWhere(function ($stale) {
+                        $stale->where('last_run_status', 'running')
+                            ->whereNotNull('last_run_at')
+                            ->whereRaw('DATE_ADD(last_run_at, INTERVAL GREATEST(COALESCE(timeout_minutes, 60), 1) MINUTE) < ?', [Carbon::now()]);
+                    });
             })
             ->orderBy('sort_order')
             ->get();
+    }
+
+    /**
+     * Mark schedules abandoned when they are still 'running' past their timeout.
+     *
+     * getDueSchedules() will pick these up regardless; this records WHY the gap
+     * happened rather than letting the next successful run paper over it, so the
+     * run history shows an abandoned run instead of an unexplained silence.
+     *
+     * @return int number of locks reclaimed
+     */
+    public function reclaimStaleLocks(): int
+    {
+        // Compare against the APP clock, not MySQL's. last_run_at is written by
+        // PHP in the app timezone (UTC here) while MySQL NOW() returns the server
+        // timezone (SAST) - two hours apart. Using NOW() made every row look two
+        // hours older than it was, so a 60-minute timeout would have reclaimed
+        // every genuinely running job on its first pass and killed live work.
+        $stale = DB::table($this->table)
+            ->where('last_run_status', 'running')
+            ->whereNotNull('last_run_at')
+            ->whereRaw('DATE_ADD(last_run_at, INTERVAL GREATEST(COALESCE(timeout_minutes, 60), 1) MINUTE) < ?', [Carbon::now()])
+            ->get(['id', 'slug', 'last_run_at', 'timeout_minutes']);
+
+        foreach ($stale as $row) {
+            Log::warning('cron: reclaiming a stale lock on '.$row->slug, [
+                'slug' => $row->slug,
+                'running_since' => $row->last_run_at,
+                'timeout_minutes' => $row->timeout_minutes,
+            ]);
+
+            DB::table($this->table)->where('id', $row->id)->update([
+                'last_run_status' => 'failed',
+                'last_run_output' => '[abandoned] still marked running since '.$row->last_run_at
+                    .', past its '.($row->timeout_minutes ?: 60).'-minute timeout. The process left no terminal status'
+                    .' - it was killed, crashed, or the host restarted mid-run. Lock reclaimed so the schedule resumes.',
+                'total_failures' => DB::raw('total_failures + 1'),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
+
+        return $stale->count();
     }
 
     /**
@@ -73,6 +130,15 @@ class CronSchedulerService
         }
 
         $results = [];
+
+        // Record any abandoned runs before selecting what is due, so the history
+        // shows an abandoned run rather than an unexplained gap. getDueSchedules()
+        // would return them either way; this is what makes the cause visible.
+        $reclaimed = $this->reclaimStaleLocks();
+        if ($reclaimed > 0) {
+            $results[] = ['status' => 'reclaimed', 'count' => $reclaimed];
+        }
+
         $due = $this->getDueSchedules();
         $maxConcurrent = $this->getJobsSetting('jobs_max_concurrent', 2);
         $running = 0;
