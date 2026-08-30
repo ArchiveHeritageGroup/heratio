@@ -290,6 +290,12 @@ class GalleryController extends Controller
         // subtree via the closure, so a gallery collection shows a carousel of its
         // child artworks. Empty (hidden) for a single leaf artwork. Matches the
         // archival + DAM + museum show fix.
+        // #1493: honour the 'Digital object carousel' switch on Admin -> Settings ->
+        // Default page elements. It has always been written by that form and read by
+        // nothing, so unticking it did nothing at all. Gated here rather than in the
+        // view so a disabled carousel also skips the queries that build it.
+        $carouselOn = \AhgCore\Support\DisplayToggles::carousel();
+
         $childThumbnails = collect();
         $carouselIds = [];
         if (class_exists(\AhgCore\Services\HierarchyQueryService::class)) {
@@ -300,7 +306,7 @@ class GalleryController extends Controller
             $carouselIds = array_slice($carouselIds, 0, 20000);
         }
         if (!empty($carouselIds)) {
-            $childThumbnails = DB::table('digital_object')
+            $childThumbnails = ! $carouselOn ? collect() : DB::table('digital_object')
                 ->join('slug', 'digital_object.object_id', '=', 'slug.object_id')
                 ->join('information_object_i18n', function ($join) use ($culture) {
                     $join->on('digital_object.object_id', '=', 'information_object_i18n.id')

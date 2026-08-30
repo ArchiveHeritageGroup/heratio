@@ -243,6 +243,12 @@ class MuseumController extends Controller
         // the first level still shows the carousel. Feeds the shared
         // _digital-object-viewer partial (its strip is gated on $childThumbnails).
         // Mirrors the archival + DAM show fix.
+        // #1493: honour the 'Digital object carousel' switch on Admin -> Settings ->
+        // Default page elements. It has always been written by that form and read by
+        // nothing, so unticking it did nothing at all. Gated here rather than in the
+        // view so a disabled carousel also skips the queries that build it.
+        $carouselOn = \AhgCore\Support\DisplayToggles::carousel();
+
         $childThumbnails = collect();
         $carouselIds = [];
         if (class_exists(\AhgCore\Services\HierarchyQueryService::class)) {
@@ -253,7 +259,7 @@ class MuseumController extends Controller
             $carouselIds = array_slice($carouselIds, 0, 20000);
         }
         if (!empty($carouselIds)) {
-            $childThumbnails = DB::table('digital_object')
+            $childThumbnails = ! $carouselOn ? collect() : DB::table('digital_object')
                 ->join('slug', 'digital_object.object_id', '=', 'slug.object_id')
                 ->join('information_object_i18n', function ($join) use ($culture) {
                     $join->on('digital_object.object_id', '=', 'information_object_i18n.id')
