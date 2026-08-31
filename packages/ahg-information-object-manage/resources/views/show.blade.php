@@ -56,6 +56,25 @@
     </div>
   </div>
 
+  {{-- Scan to this record. Placed BEFORE the @auth block deliberately: the point
+       of a QR on a record page is that someone with a phone - in a reading room,
+       at an exhibition case, holding a printed finding aid - can reach the
+       record, and most of those people are not signed in. Rendered locally by
+       QrCodeService, so which record is being viewed never leaves the instance. --}}
+  @php $ahgQr = \AhgCore\Services\QrCodeService::dataUri(url('/'.$io->slug), 160); @endphp
+  @if($ahgQr)
+  <div class="card mb-3">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+      <i class="fas fa-qrcode me-1"></i> {{ __('Scan this record') }}
+    </div>
+    <div class="card-body p-2 text-center">
+      <img src="{{ $ahgQr }}" alt="{{ __('QR code linking to this record') }}"
+           style="max-width:160px;width:100%;height:auto">
+      <div class="small text-muted mt-1 text-break">{{ url('/'.$io->slug) }}</div>
+    </div>
+  </div>
+  @endif
+
   {{-- ===== Authenticated-only management sections ===== --}}
   @auth
 
