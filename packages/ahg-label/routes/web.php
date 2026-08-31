@@ -18,3 +18,18 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/label/generate', [\AhgLabel\Controllers\LabelController::class, 'generate'])->name('ahglabel.generate');
     Route::post('/label/batch-print', [\AhgLabel\Controllers\LabelController::class, 'batchPrint'])->name('ahglabel.batch');
 });
+
+// Storage containers. Staff-facing: a QR on a box is scanned in a store room by
+// someone who works there, and the holdings list must not become a way for an
+// anonymous visitor to enumerate what is in the building.
+//
+// Under /admin/storage/ rather than /storage/ for two reasons that both bite
+// silently. nginx denies ^/storage/ on every instance because that is Laravel's
+// own storage directory, so a /storage route 403s before it ever reaches PHP.
+// And a single-segment /containers would be swallowed by the /{slug} record
+// catch-all, whose exclusion list lives in a locked path.
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/admin/storage/containers', [\AhgLabel\Controllers\ContainerController::class, 'index'])->name('ahglabel.containers');
+    Route::get('/admin/storage/container/{id}', [\AhgLabel\Controllers\ContainerController::class, 'show'])->where('id', '[0-9]+')->name('ahglabel.container');
+    Route::post('/admin/storage/containers/labels', [\AhgLabel\Controllers\ContainerController::class, 'print'])->name('ahglabel.container.labels');
+});
