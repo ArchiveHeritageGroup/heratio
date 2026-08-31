@@ -158,10 +158,12 @@ class IdentifierController extends BaseApiController
                         ],
                         'qr' => [
                             'url' => $qrUrl,
-                            'svg' => sprintf(
-                                '<img src="https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=%s" alt="QR" />',
-                                urlencode($qrUrl)
-                            ),
+                            // Was an <img> pointing at chart.googleapis.com, which
+                            // Google retired - the field advertised a QR and served
+                            // a 404. Rendered locally now, and the key is honest
+                            // about what it holds: real SVG markup, not a tag.
+                            'svg' => \AhgCore\Services\QrCodeService::svg($qrUrl, 150),
+                            'data_uri' => \AhgCore\Services\QrCodeService::dataUri($qrUrl, 150),
                         ],
                     ],
                 ],

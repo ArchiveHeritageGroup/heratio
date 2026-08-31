@@ -132,7 +132,7 @@
 
                     <div id="qrSection">
                         <img id="qrImg" class="qr-img"
-                             src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ rawurlencode($qrUrl) }}"
+                             src="{{ \AhgCore\Services\QrCodeService::dataUri($qrUrl, 120) }}"
                              alt="{{ __('QR Code') }}">
                     </div>
                 </div>

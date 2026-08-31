@@ -75,7 +75,7 @@
           </div>
         @endif
         @if ($showQr)
-          <div><img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ rawurlencode($label['qrUrl']) }}" alt="{{ __('QR Code') }}"></div>
+          <div><img class="qr-img" src="{{ \AhgCore\Services\QrCodeService::dataUri($label['qrUrl'], 120) }}" alt="{{ __('QR Code') }}"></div>
         @endif
       </div>
     @endforeach
