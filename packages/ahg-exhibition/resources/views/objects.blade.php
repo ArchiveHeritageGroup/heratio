@@ -199,6 +199,26 @@
         <a href="{{ route('exhibition.sections', ['id' => $exId]) }}" class="list-group-item list-group-item-action">
           <i class="fas fa-th-large me-2"></i> {{ __('Manage Sections') }}
         </a>
+        @php
+          // Slugs of the objects placed in this exhibition. The batch label
+          // printer already takes slugs and now renders a local QR per label;
+          // this hands it the exhibition's objects so a curator does not have to
+          // reselect them one by one to print case labels.
+          $ahgLabelSlugs = collect($objects ?? [])->pluck('slug')->filter()->unique()->take(100)->values();
+        @endphp
+        @if($ahgLabelSlugs->isNotEmpty() && \Illuminate\Support\Facades\Route::has('ahglabel.batch'))
+        <form method="POST" action="{{ route('ahglabel.batch') }}" target="_blank" class="m-0">
+          @csrf
+          @foreach($ahgLabelSlugs as $ahgSlug)
+            <input type="hidden" name="slugs[]" value="{{ $ahgSlug }}">
+          @endforeach
+          <input type="hidden" name="show_qr" value="1">
+          <button type="submit" class="list-group-item list-group-item-action w-100 text-start border-0">
+            <i class="fas fa-qrcode me-2"></i> {{ __('Print object labels with QR') }}
+            <span class="text-muted small">({{ $ahgLabelSlugs->count() }})</span>
+          </button>
+        </form>
+        @endif
       </div>
     </div>
   </div>
