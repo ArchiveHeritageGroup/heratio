@@ -54,14 +54,46 @@ test('capture harris matrix manual screenshots', async ({ page }) => {
   await shot(page, `/archaeology/harris/site/${SITE_BAD}/report`, '06-consistency-report-findings');
   await shot(page, `/archaeology/harris/site/${SITE_OK}/import-lst`, '07-import-lst');
   await shot(page, `/archaeology/harris/site/${SITE_OK}/import-relationships`, '08-import-relationships');
-  await shot(page, `/archaeology/site/${SITE_OK}/contexts/import`, '09-import-contexts-csv');
+  
+  // A real preview: upload a deliberately flawed relationship CSV so the manual
+  // can show what refusals actually look like, rather than an empty form.
+  const fs = await import('fs');
+  const os = await import('os');
+  const tmp = path.join(os.tmpdir(), 'harris-demo-relationships.csv');
+  fs.writeFileSync(tmp, [
+    'siteCode,sourceID,stratRelationship,targetID',
+    'BLB-2026,1005,overlies,1010',
+    'BLB-2026,1001,contemporary with,1005',
+    'BLB-2026,1001,above,9999',
+    'BLB-2026,1001,frobnicates,1002',
+    'OTHER-DIG,1,above,2',
+    'BLB-2026,1002,above,1001',
+    '',
+  ].join('\n'));
 
-  // a single context + its printable sheet
-  const ctxLink = await page.locator('a[href*="/archaeology/context/"]').first().getAttribute('href').catch(() => null);
-  if (ctxLink) {
-    const id = (ctxLink.match(/context\/(\d+)/) || [])[1];
-    if (id) {
-      await shot(page, `/archaeology/context/${id}`, '10-context-detail');
-    }
+  await page.goto(`${BASE}/archaeology/harris/site/${SITE_OK}/import-relationships`, { waitUntil: 'domcontentloaded' });
+  // Scope to the upload form. A bare button[type=submit] click lands on the
+  // page's SEARCH form and navigates to /glam/browse instead.
+  const upload = page.locator('form:has(input[type="file"])').first();
+  await upload.locator('input[type="file"]').setInputFiles(tmp);
+  await upload.locator('button[type="submit"]').first().click();
+  await page.waitForLoadState('networkidle').catch(() => {});
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: path.join(OUT, '09-import-relationships-preview.png'), fullPage: true });
+  console.log(`SHOT 09-import-relationships-preview  url=${page.url()}`);
+
+  await shot(page, `/archaeology/site/${SITE_OK}/contexts/import`, '10-import-contexts-csv');
+
+  // one context record + its printable sheet
+  await page.goto(`${BASE}/archaeology/site/${SITE_OK}/contexts`, { waitUntil: 'domcontentloaded' });
+  // Must be a real context id - a[href*="/context/"] also matches /context/create.
+  const hrefs = await page.locator('a[href*="/archaeology/context/"]').evaluateAll(
+    (as) => as.map((a) => a.getAttribute('href'))
+  );
+  const ctxHref = hrefs.find((h) => /\/archaeology\/context\/\d+(?:$|[?#])/.test(h || '')) || null;
+  const id = ctxHref ? (ctxHref.match(/context\/(\d+)/) || [])[1] : null;
+  console.log(`context link found: ${ctxHref}`);
+  if (id) {
+    await shot(page, `/archaeology/context/${id}`, '11-context-detail');
   }
 });
