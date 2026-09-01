@@ -780,12 +780,10 @@ class ArchaeologyService
         }
 
         $meta = self::REL_TYPES[$type];
-        if ($meta['dir'] !== 'none') {
-            [$later, $earlier] = $meta['dir'] === 'later' ? [$contextId, $relatedId] : [$relatedId, $contextId];
-            // Cycle if the "earlier" context is already later than the "later" one.
-            if ($this->laterThanReaches($earlier, $later)) {
-                return ['ok' => false, 'error' => 'That would create a stratigraphic loop (the other context is already earlier in the sequence).'];
-            }
+        if ($this->wouldCloseLoop($contextId, $relatedId, $type)) {
+            return ['ok' => false, 'error' => $type === 'same_as'
+                ? 'That would create a stratigraphic loop: these contexts are already ordered one after the other, so they cannot also be the same unit.'
+                : 'That would create a stratigraphic loop (the other context is already earlier in the sequence).'];
         }
 
         $now = now();
@@ -1312,26 +1310,174 @@ class ArchaeologyService
      * Can $from reach $target following later-than edges (above/cuts/fills:
      * source is later than target)? Used to reject cycles before insertion.
      */
-    private function laterThanReaches(int $from, int $target): bool
+    /**
+     * Would adding this relationship put a loop in the later-than graph? #1499.
+     *
+     * The check runs over the SAME node graph the matrix itself is built from,
+     * which means it applies the same_as union-find before looking for a cycle.
+     * That matters in both directions, and the previous check missed both:
+     *
+     *   - `same_as` was skipped entirely, because it has no direction of its own.
+     *     But same_as MERGES two contexts into one node, so asserting it between
+     *     two contexts that are already ordered one after the other closes a loop
+     *     just as surely as a backwards `above`.
+     *   - a DIRECTIONAL edge was tested on raw context ids rather than on merged
+     *     nodes, so `A same_as B` + `B above C` + `C above A` was accepted: A on
+     *     its own reaches nothing, while the node {A,B} it belongs to is above C.
+     *
+     * `bonds_with` and `abuts` need no check and get none. They assert physical
+     * contact rather than identity, so the matrix builder neither unions them nor
+     * draws a later-than edge for them, and they cannot order anything.
+     */
+    private function wouldCloseLoop(int $contextId, int $relatedId, string $type): bool
     {
-        $edges = DB::table('archaeology_context_relationship')
-            ->whereIn('relationship_type', ['above', 'cuts', 'fills'])
-            ->get(['context_id', 'related_context_id'])
-            ->groupBy('context_id');
+        if (! isset(self::REL_TYPES[$type]) || ! Schema::hasTable('archaeology_context_relationship')) {
+            return false;
+        }
+        if ($type !== 'same_as' && self::REL_TYPES[$type]['dir'] === 'none') {
+            return false;   // bonds_with / abuts - no ordering, nothing to close
+        }
 
+        // Scope to the one site. Relationships never cross sites, and loading a
+        // whole installation's stratigraphy to answer a question about one dig
+        // gets slower with every excavation added.
+        $siteId = DB::table('archaeology_context')->where('id', $contextId)->value('site_id');
+        if (! $siteId) {
+            return false;
+        }
+        $ids = DB::table('archaeology_context')->where('site_id', $siteId)->pluck('id')->all();
+        if (! $ids) {
+            return false;
+        }
+
+        $rels = DB::table('archaeology_context_relationship')
+            ->whereIn('context_id', $ids)
+            ->whereIn('related_context_id', $ids)
+            ->whereIn('relationship_type', ['above', 'cuts', 'fills', 'same_as'])
+            ->get(['context_id', 'related_context_id', 'relationship_type'])
+            ->map(fn ($r) => [(int) $r->context_id, (int) $r->related_context_id, (string) $r->relationship_type])
+            ->all();
+
+        return self::closesLoop($rels, $contextId, $relatedId, $type);
+    }
+
+    /**
+     * Would adding this relationship put a loop in the later-than graph? #1499.
+     *
+     * Pure graph logic, separated from the query for the same reason
+     * reduceTransitively() is: the archaeology tables are migration-created and
+     * the CI test database is built from database/core/*.sql alone (#1471), so a
+     * DB-backed test of this would skip in CI and prove nothing.
+     *
+     * The decision runs over the SAME node graph the matrix is built from, which
+     * means it applies the same_as union-find BEFORE looking for a cycle. That
+     * matters in both directions, and the previous check missed both:
+     *
+     *   - `same_as` was skipped entirely, because it has no direction of its own.
+     *     But same_as MERGES two contexts into one node, so asserting it between
+     *     two contexts already ordered one after the other closes a loop just as
+     *     surely as a backwards `above` does.
+     *   - a DIRECTIONAL edge was tested on raw context ids rather than on merged
+     *     nodes, so `A same_as B` + `B above C` + `C above A` was accepted: A on
+     *     its own reaches nothing, while the node {A,B} it belongs to is above C.
+     *
+     * `bonds_with` and `abuts` need no check and get none. They assert physical
+     * contact rather than identity, so the matrix builder neither unions them nor
+     * draws a later-than edge for them, and they cannot order anything.
+     *
+     * @param  array<int,array{0:int,1:int,2:string}>  $rels  [context, related, type]
+     */
+    public static function closesLoop(array $rels, int $contextId, int $relatedId, string $type): bool
+    {
+        if (! isset(self::REL_TYPES[$type])) {
+            return false;
+        }
+        $meta = self::REL_TYPES[$type];
+        if ($type !== 'same_as' && $meta['dir'] === 'none') {
+            return false;
+        }
+        if ($contextId === $relatedId) {
+            return true;
+        }
+
+        $parent = [];
+        $find = function (int $x) use (&$parent): int {
+            if (! isset($parent[$x])) {
+                $parent[$x] = $x;
+            }
+            while ($parent[$x] !== $x) {
+                $parent[$x] = $parent[$parent[$x]] ?? $parent[$x];
+                $x = $parent[$x];
+            }
+
+            return $x;
+        };
+        $union = function (int $x, int $y) use (&$parent, $find): void {
+            $rx = $find($x);
+            $ry = $find($y);
+            if ($rx !== $ry) {
+                $parent[$rx] = $ry;
+            }
+        };
+
+        foreach ($rels as [$from, $to, $t]) {
+            if ($t === 'same_as') {
+                $union($from, $to);
+            }
+        }
+        if ($type === 'same_as') {
+            $union($contextId, $relatedId);   // the proposed merge
+        }
+
+        $start = $type === 'same_as' ? $find($contextId) : $find(
+            $meta['dir'] === 'later' ? $contextId : $relatedId
+        );
+
+        // Later-than adjacency BETWEEN NODES, not between raw contexts.
+        $adj = [];
+        foreach ($rels as [$from, $to, $t]) {
+            if ($t === 'same_as') {
+                continue;
+            }
+            $x = $find($from);
+            $y = $find($to);
+            if ($x === $y) {
+                // Both ends landed in ONE node, so that node is later than
+                // itself. When the merge we are proposing is what collapsed
+                // them, this edge IS the loop being created - it must not be
+                // discarded as a self-edge, which is what hid the original
+                // `D above E` then `E same_as D` case.
+                if ($type === 'same_as' && $x === $start) {
+                    return true;
+                }
+
+                continue;
+            }
+            $adj[$x][] = $y;
+        }
+
+        if ($type !== 'same_as') {
+            $end = $find($meta['dir'] === 'later' ? $relatedId : $contextId);
+            if ($start === $end) {
+                return true;   // already one unit; it cannot be later than itself
+            }
+            $adj[$start][] = $end;   // the proposed edge
+        }
+
+        // Can the affected node reach itself in one step or more?
         $seen = [];
-        $stack = [$from];
+        $stack = $adj[$start] ?? [];
         while ($stack) {
             $n = (int) array_pop($stack);
-            if ($n === $target) {
+            if ($n === $start) {
                 return true;
             }
             if (isset($seen[$n])) {
                 continue;
             }
             $seen[$n] = true;
-            foreach ($edges[$n] ?? [] as $e) {
-                $stack[] = (int) $e->related_context_id;
+            foreach ($adj[$n] ?? [] as $m) {
+                $stack[] = $m;
             }
         }
 

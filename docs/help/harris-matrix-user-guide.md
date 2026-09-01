@@ -106,11 +106,17 @@ appears without being asked for. Never enter both halves yourself.
 sequence containing a loop cannot be ordered, so the matrix cannot be drawn at all.
 Better to refuse the entry than to accept it and produce an undrawable matrix.
 
-> **One gap to know about.** The loop guard checks *directional* relationships. A
-> `same_as` between two contexts that are already superposed can still introduce a
-> contradiction, because `same_as` has no direction of its own to check. The
-> consistency report catches this afterwards and reports it as a loop, which is what
-> the teaching example in section 5 demonstrates.
+The guard reasons over the same merged graph the matrix itself is built from, so it
+also refuses a `same_as` between two contexts that are already ordered one after the
+other. Asserting that two superposed contexts are one unit closes a loop just as
+surely as a backwards `above` does. `bonds_with` and `abuts` are never refused: they
+assert physical contact rather than identity, and order nothing.
+
+> **Then why does the report still check for loops?** Because the form is not the only
+> way data arrives. Migrations, direct database work, and records created before this
+> guard existed can all carry a contradiction the form would refuse today. The
+> teaching site in section 6 is exactly that case: its loop was recorded before the
+> guard covered `same_as`, and the report still reports it.
 
 ---
 
@@ -373,5 +379,5 @@ missing between the groups.
 
 ---
 
-*Heratio v1.154.705. Figures captured from the demo instance; regenerate them with
+*Heratio v1.154.707. Figures captured from the demo instance; regenerate them with
 `tests/e2e/docs-harris-matrix-screenshots.spec.js`.*
