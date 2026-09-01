@@ -64,8 +64,14 @@
     <a class="btn btn-sm atom-btn-white" href="{{ route('harris.export.datapackage', $site->id) }}">
       <i class="fas fa-box me-1"></i>{{ __('Export Data Package') }}
     </a>
+    <a class="btn btn-sm atom-btn-white" href="{{ route('harris.export.phaser', $site->id) }}">
+      <i class="fas fa-file-csv me-1"></i>{{ __('Export relationships CSV') }}
+    </a>
     <a class="btn btn-sm atom-btn-white" href="{{ route('harris.import.lst', $site->id) }}">
       <i class="fas fa-file-import me-1"></i>{{ __('Import LST') }}
+    </a>
+    <a class="btn btn-sm atom-btn-white" href="{{ route('harris.import.relationships', $site->id) }}">
+      <i class="fas fa-diagram-project me-1"></i>{{ __('Import relationships CSV') }}
     </a>
   </div>
 
