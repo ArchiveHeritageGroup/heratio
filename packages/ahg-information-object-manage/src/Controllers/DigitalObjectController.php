@@ -394,6 +394,75 @@ class DigitalObjectController extends Controller
     }
 
     /**
+     * Promote an attached object to primary. #1489.
+     *
+     * The `acl:update` route middleware is a GLOBAL permission check, so the
+     * per-RECORD check has to happen here - the same one the management panel
+     * uses to decide whether to render these controls at all. Promoting changes
+     * what every viewer and every export sees as the record's image, so it must
+     * not be looser than editing the record.
+     */
+    public function attachSetPrimary(Request $request, int $id)
+    {
+        $svc = app(\AhgCore\Services\AttachedDigitalObjectService::class);
+        $ioId = $svc->ownerIoId($id);
+        if (! $ioId) {
+            abort(404);
+        }
+        abort_unless(
+            \AhgCore\Services\AclService::hasPermission(auth()->id(), 'update', (int) $ioId),
+            403
+        );
+
+        $result = $svc->setPrimary($id);
+        $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');
+
+        if (empty($result['ok'])) {
+            return redirect()->route('informationobject.show', $slug)
+                ->with('error', $result['error'] ?? 'Could not set the primary object.');
+        }
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $ioId, 'information_object', 'digital_object_set_primary', [
+            'data' => ['link_id' => $id],
+        ]);
+
+        return redirect()->route('informationobject.show', $slug)
+            ->with('success', 'Primary image updated.');
+    }
+
+    /** Reorder a description's attached objects. #1489. */
+    public function attachReorder(Request $request, string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (! $io) {
+            abort(404);
+        }
+        abort_unless(
+            \AhgCore\Services\AclService::hasPermission(auth()->id(), 'update', (int) $io->id),
+            403
+        );
+
+        $order = $request->input('order', []);
+        if (is_string($order)) {
+            $order = array_filter(explode(',', $order), fn ($v) => $v !== '');
+        }
+
+        $svc = app(\AhgCore\Services\AttachedDigitalObjectService::class);
+        $moved = $svc->reorder((int) $io->id, (array) $order);
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'digital_object_reorder', [
+            'data' => ['order' => array_values((array) $order)],
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'moved' => $moved]);
+        }
+
+        return redirect()->route('informationobject.show', $slug)
+            ->with('success', 'Order updated.');
+    }
+
+    /**
      * Bulk folder upload (closes #folder-upload-on-iio-page user request).
      *
      * Accepts a multipart payload with digital_objects[] (the files) and

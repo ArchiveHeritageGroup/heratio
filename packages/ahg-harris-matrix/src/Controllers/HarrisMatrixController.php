@@ -15,7 +15,6 @@ use AhgArchaeology\Services\ArchaeologyService;
 use AhgHarrisMatrix\Services\HarrisMatrixService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class HarrisMatrixController extends Controller
 {
@@ -94,7 +93,14 @@ class HarrisMatrixController extends Controller
                 $matched = count($parsed['units']) - count($unmatched);
 
                 if ($request->isMethod('post') && $request->boolean('commit')) {
-                    $committed = $this->commit($parsed['rows'], $contexts);
+                    // Shared apply path with the CSV import. It routes every row
+                    // through ArchaeologyService::addRelationship(), so the
+                    // self-relation check and the CYCLE GUARD apply to an LST
+                    // import exactly as they do to typed entry. The previous
+                    // hand-rolled insert here wrote straight to the table and
+                    // could therefore record a stratigraphic loop that the form
+                    // itself would have refused.
+                    $committed = $this->harris->importRelationshipRows($siteId, $parsed['rows'], true);
                 }
             }
         }
@@ -105,47 +111,62 @@ class HarrisMatrixController extends Controller
     }
 
     /**
-     * Write the parsed relationships, reciprocally.
-     *
-     * archaeology_context_relationship stores both directions of every
-     * relationship - the base module's own convention - so each row here writes
-     * the pair. Rows naming a unit this site does not have are skipped and
-     * counted, never invented.
-     *
-     * @param  array<int,array{source:string,type:string,target:string,line:int}>  $rows
+     * PHASER four-column relationship CSV for one site.
      */
-    private function commit(array $rows, $contexts): array
+    public function exportPhaserCsv(int $siteId)
     {
-        $inverse = ['above' => 'below', 'below' => 'above', 'same_as' => 'same_as'];
-        $written = 0;
-        $skipped = 0;
+        abort_unless($this->archaeology->site($siteId), 404);
 
-        foreach ($rows as $row) {
-            $from = $contexts->get($row['source']);
-            $to = $contexts->get($row['target']);
-            if (! $from || ! $to || ! isset($inverse[$row['type']])) {
-                $skipped++;
-                continue;
-            }
+        return response($this->harris->exportPhaserCsv($siteId), 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="harris-site-'.$siteId.'-relationships.csv"',
+        ]);
+    }
 
-            foreach ([[$from->id, $to->id, $row['type']], [$to->id, $from->id, $inverse[$row['type']]]] as [$a, $b, $type]) {
-                $exists = DB::table('archaeology_context_relationship')
-                    ->where('context_id', $a)->where('related_context_id', $b)
-                    ->where('relationship_type', $type)->exists();
-                if (! $exists) {
-                    DB::table('archaeology_context_relationship')->insert([
-                        'context_id' => $a,
-                        'related_context_id' => $b,
-                        'relationship_type' => $type,
-                        'note' => 'Imported from LST',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                    $written++;
-                }
+    /** A ready-to-fill relationship CSV template. */
+    public function relationshipTemplate()
+    {
+        return response($this->harris->relationshipCsvTemplate(), 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="harris-relationships-template.csv"',
+        ]);
+    }
+
+    /**
+     * Import a PHASER relationship CSV.
+     *
+     * Uploading previews; the commit is a second, explicit step. The preview is
+     * a REAL run inside a transaction that is rolled back, so the counts and
+     * warnings it shows are the ones a commit would produce - not an estimate
+     * from a different code path that could disagree with it.
+     */
+    public function importRelationships(Request $request, int $siteId)
+    {
+        $site = $this->archaeology->site($siteId);
+        abort_unless($site, 404);
+
+        $parsed = null;
+        $result = null;
+        $committed = false;
+
+        if ($request->hasFile('csv')) {
+            $request->validate([
+                'csv' => 'required|file|mimetypes:text/plain,text/csv,application/csv,application/vnd.ms-excel|max:4096',
+            ]);
+
+            $parsed = $this->harris->parsePhaserCsv(
+                (string) file_get_contents($request->file('csv')->getRealPath()),
+                (string) ($site->site_number ?? '') !== '' ? (string) $site->site_number : null
+            );
+
+            if ($parsed['error'] === null) {
+                $committed = $request->isMethod('post') && $request->boolean('commit');
+                $result = $this->harris->importRelationshipRows($siteId, $parsed['rows'], $committed);
             }
         }
 
-        return ['written' => $written, 'skipped' => $skipped];
+        return view('ahg-harris-matrix::import-relationships', compact(
+            'site', 'siteId', 'parsed', 'result', 'committed'
+        ));
     }
 }

@@ -505,4 +505,342 @@ class HarrisMatrixService
 
         return ['contexts' => $rows, 'observations' => $observations];
     }
+    // ── Relationship interchange (CSV) ──────────────────────────────────
+
+    /**
+     * Spellings an excavator may reasonably write, mapped onto REL_TYPES.
+     *
+     * Normalised before lookup by folding underscores and hyphens to spaces and
+     * collapsing runs of whitespace, so "cut by", "cut_by" and "Cut-By" are one
+     * thing and each variant does not need its own entry.
+     */
+    public const RELATIONSHIP_SYNONYMS = [
+        'later' => 'above',
+        'later than' => 'above',
+        'over' => 'above',
+        'overlies' => 'above',
+        'earlier' => 'below',
+        'earlier than' => 'below',
+        'under' => 'below',
+        'underlies' => 'below',
+        'cut by' => 'cut_by',
+        'filled by' => 'filled_by',
+        'same as' => 'same_as',
+        'equal' => 'same_as',
+        'equal to' => 'same_as',
+        'equals' => 'same_as',
+        'correlates with' => 'same_as',
+        'bonds with' => 'bonds_with',
+        'butts' => 'abuts',
+        'abuts against' => 'abuts',
+    ];
+
+    /**
+     * Relations we refuse to guess at, with the reason shown to the operator.
+     *
+     * `contemporary_with` is the same judgement parseLst() already makes: it is a
+     * chronological claim about two DISTINCT units, while same_as means one unit
+     * recorded twice and bonds_with/abuts both assert physical contact. None of
+     * them is what "contemporary" says, so it is reported rather than mapped.
+     */
+    public const RELATIONSHIP_UNSUPPORTED = [
+        'contemporary' => 'contemporary_with has no equivalent here - same_as means one unit recorded twice, and bonds_with and abuts both assert physical contact, which "contemporary" does not claim',
+        'contemporary with' => 'contemporary_with has no equivalent here - same_as means one unit recorded twice, and bonds_with and abuts both assert physical contact, which "contemporary" does not claim',
+    ];
+
+    /**
+     * Parse CSV text into header-keyed rows.
+     *
+     * Takes the CONTENTS rather than a path, matching parseLst() - the caller
+     * has already read the upload and nothing here should care where it came
+     * from. Strips a UTF-8 BOM off the first header cell, which Excel writes and
+     * which would otherwise make the first column name unmatchable.
+     *
+     * @return array{rows: array<int,array<string,string>>, error: ?string}
+     */
+    public function parseCsv(string $contents, string $required = ''): array
+    {
+        $handle = fopen('php://temp', 'r+');
+        fwrite($handle, $contents);
+        rewind($handle);
+
+        $header = fgetcsv($handle);
+        if ($header === false || $header === null || $header === [null]) {
+            fclose($handle);
+
+            return ['rows' => [], 'error' => 'The file is empty.'];
+        }
+
+        $header[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) $header[0]);
+        $header = array_map(static fn ($h) => strtolower(trim((string) $h)), $header);
+
+        if ($required !== '' && ! in_array($required, $header, true)) {
+            fclose($handle);
+
+            return ['rows' => [], 'error' => "The file has no {$required} column."];
+        }
+
+        $rows = [];
+        while (($line = fgetcsv($handle)) !== false) {
+            if (count($line) === 1 && ($line[0] === null || trim((string) $line[0]) === '')) {
+                continue;   // blank line, not a row
+            }
+            $row = [];
+            foreach ($header as $i => $name) {
+                $row[$name] = isset($line[$i]) ? trim((string) $line[$i]) : '';
+            }
+            $rows[] = $row;
+        }
+        fclose($handle);
+
+        return ['rows' => $rows, 'error' => null];
+    }
+
+    /**
+     * Parse PHASER's four-column relationship CSV into import rows.
+     *
+     * Columns: siteCode, sourceID, stratRelationship, targetID.
+     *
+     * siteCode is READ but never used to choose the site. The operator already
+     * picked the site; silently importing into whatever a file names would be a
+     * good way to write another dig's stratigraphy into this one. Rows naming a
+     * different site are counted per code and reported, so a file covering
+     * several sites says so instead of appearing to import cleanly.
+     *
+     * @return array{rows: array<int,array{source:string,type:string,target:string,line:int}>, error: ?string, other_sites: array<string,int>}
+     */
+    public function parsePhaserCsv(string $contents, ?string $expectedSiteCode = null): array
+    {
+        $parsed = $this->parseCsv($contents, 'sourceid');
+        if ($parsed['error'] !== null) {
+            return ['rows' => [], 'error' => $parsed['error'], 'other_sites' => []];
+        }
+
+        $rows = [];
+        $otherSites = [];
+
+        foreach ($parsed['rows'] as $i => $row) {
+            $code = trim((string) ($row['sitecode'] ?? ''));
+
+            if ($expectedSiteCode !== null && $code !== '' && strcasecmp($code, $expectedSiteCode) !== 0) {
+                $otherSites[$code] = ($otherSites[$code] ?? 0) + 1;
+
+                continue;
+            }
+
+            $rows[] = [
+                'source' => (string) ($row['sourceid'] ?? ''),
+                'type' => (string) ($row['stratrelationship'] ?? ''),
+                'target' => (string) ($row['targetid'] ?? ''),
+                'line' => $i + 2,   // +2: one for the header, one for 1-based lines
+            ];
+        }
+
+        return ['rows' => $rows, 'error' => null, 'other_sites' => $otherSites];
+    }
+
+    /**
+     * A site's stratigraphy as PHASER four-column CSV.
+     *
+     * ONE ROW PER LOGICAL RELATIONSHIP. archaeology_context_relationship stores
+     * both directions of every relationship, so emitting every stored row would
+     * hand a consumer twice the statements the excavator recorded - "A above B"
+     * and "B below A" are one observation written twice, not two observations.
+     *
+     * For directional types the later-than direction is kept, because that is the
+     * one carrying the sequence; its reciprocal says the same thing backwards.
+     * Symmetric types (same_as, bonds_with, abuts) have no direction to prefer,
+     * so they are canonicalised on the sorted pair instead.
+     */
+    public function exportPhaserCsv(int $siteId): string
+    {
+        $site = $this->archaeology->site($siteId);
+        $contexts = $this->archaeology->contextsForSite($siteId);
+        $byId = $contexts->keyBy('id')->map(fn ($c) => (string) $c->context_number);
+
+        $siteCode = (string) ($site->site_number ?? '');
+        $out = [['siteCode', 'sourceID', 'stratRelationship', 'targetID']];
+        $seen = [];
+
+        foreach ($this->relationshipsForSite($siteId, $contexts->pluck('id')->all()) as $rel) {
+            $source = $byId->get((int) $rel->context_id);
+            $target = $byId->get((int) $rel->related_context_id);
+            if ($source === null || $target === null) {
+                continue;
+            }
+
+            $type = (string) $rel->relationship_type;
+            $direction = ArchaeologyService::REL_TYPES[$type]['dir'] ?? 'none';
+
+            if ($direction === 'earlier') {
+                continue;   // its reciprocal carries the same observation
+            }
+
+            $key = $direction === 'none'
+                ? $type.'|'.(strcmp($source, $target) <= 0 ? $source.'|'.$target : $target.'|'.$source)
+                : $source.'|'.$type.'|'.$target;
+
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $out[] = [$siteCode, $source, $type, $target];
+        }
+
+        return $this->toCsv($out);
+    }
+
+    /** A ready-to-fill relationship CSV: the PHASER header and one worked row. */
+    public function relationshipCsvTemplate(): string
+    {
+        return $this->toCsv([
+            ['siteCode', 'sourceID', 'stratRelationship', 'targetID'],
+            ['BBF-2026', '1002', 'above', '1005'],
+        ]);
+    }
+
+    /**
+     * Resolve a written relationship name to a REL_TYPES key.
+     *
+     * @return array{0: ?string, 1: ?string} [type, reason-it-was-refused]
+     */
+    private function relationshipType(string $raw): array
+    {
+        $key = strtolower(trim($raw));
+        if ($key === '') {
+            return [null, 'no relationship given'];
+        }
+
+        $key = preg_replace('/\s+/', ' ', str_replace(['_', '-'], ' ', $key));
+
+        if (isset(self::RELATIONSHIP_UNSUPPORTED[$key])) {
+            return [null, self::RELATIONSHIP_UNSUPPORTED[$key]];
+        }
+
+        $type = self::RELATIONSHIP_SYNONYMS[$key] ?? str_replace(' ', '_', $key);
+
+        return isset(ArchaeologyService::REL_TYPES[$type])
+            ? [$type, null]
+            : [null, "unknown relationship '{$raw}'"];
+    }
+
+    /**
+     * Apply parsed relationship rows to a site.
+     *
+     * Every row goes through ArchaeologyService::addRelationship(), so
+     * reciprocity, the self-relation check and the CYCLE GUARD apply exactly as
+     * they do to typed entry - an import cannot introduce a contradiction the
+     * form would have refused.
+     *
+     * The whole run is wrapped in a transaction that is rolled back unless
+     * $commit is true, so a preview reports real counts and real warnings from a
+     * real run without writing anything. A relationship that is already recorded
+     * counts as a duplicate, not a failure: re-importing the same file is safe
+     * and should say so rather than look like an error.
+     *
+     * @param  array<int,array{source:string,type:string,target:string,line:int}>  $rows
+     * @return array{added:int,duplicate:int,skipped:int,warnings:array<int,string>,committed:bool}
+     */
+    public function importRelationshipRows(int $siteId, array $rows, bool $commit): array
+    {
+        $result = ['added' => 0, 'duplicate' => 0, 'skipped' => 0, 'warnings' => [], 'committed' => false];
+
+        if (! $this->available()) {
+            $result['warnings'][] = 'The archaeology tables are not installed.';
+
+            return $result;
+        }
+
+        $idByNumber = $this->archaeology->contextsForSite($siteId)
+            ->mapWithKeys(fn ($c) => [(string) $c->context_number => (int) $c->id]);
+
+        if ($idByNumber->isEmpty()) {
+            $result['warnings'][] = 'This site has no contexts, so there is nothing to relate. Import the contexts first.';
+
+            return $result;
+        }
+
+        DB::beginTransaction();
+        try {
+            foreach ($rows as $i => $row) {
+                $line = (int) ($row['line'] ?? $i + 2);
+                $source = trim((string) ($row['source'] ?? ''));
+                $target = trim((string) ($row['target'] ?? ''));
+                $rawType = trim((string) ($row['type'] ?? ''));
+
+                if ($source === '' || $target === '' || $rawType === '') {
+                    $result['skipped']++;
+                    $result['warnings'][] = "Line {$line}: source, relationship and target are all required.";
+
+                    continue;
+                }
+
+                [$type, $reason] = $this->relationshipType($rawType);
+                if ($type === null) {
+                    $result['skipped']++;
+                    $result['warnings'][] = "Line {$line}: {$reason}.";
+
+                    continue;
+                }
+
+                if (! $idByNumber->has($source) || ! $idByNumber->has($target)) {
+                    $missing = $idByNumber->has($source) ? $target : $source;
+                    $result['skipped']++;
+                    $result['warnings'][] = "Line {$line}: context '{$missing}' is not recorded on this site.";
+
+                    continue;
+                }
+
+                $before = $this->relationshipExists($idByNumber->get($source), $idByNumber->get($target), $type);
+                $outcome = $this->archaeology->addRelationship(
+                    $idByNumber->get($source), $idByNumber->get($target), $type, 'Imported from CSV'
+                );
+
+                if (! empty($outcome['ok'])) {
+                    $before ? $result['duplicate']++ : $result['added']++;
+
+                    continue;
+                }
+
+                $result['skipped']++;
+                $result['warnings'][] = "Line {$line}: {$source} {$rawType} {$target} - ".($outcome['error'] ?? 'refused');
+            }
+
+            if ($commit) {
+                DB::commit();
+                $result['committed'] = true;
+            } else {
+                DB::rollBack();
+            }
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            $result['warnings'][] = 'Import failed: '.$e->getMessage();
+        }
+
+        return $result;
+    }
+
+    /** Whether this exact directed edge is already recorded. */
+    private function relationshipExists(int $contextId, int $relatedId, string $type): bool
+    {
+        return DB::table('archaeology_context_relationship')
+            ->where('context_id', $contextId)
+            ->where('related_context_id', $relatedId)
+            ->where('relationship_type', $type)
+            ->exists();
+    }
+
+    /** Rows to RFC 4180 CSV text. */
+    private function toCsv(array $rows): string
+    {
+        $handle = fopen('php://temp', 'r+');
+        foreach ($rows as $row) {
+            fputcsv($handle, $row);
+        }
+        rewind($handle);
+        $csv = (string) stream_get_contents($handle);
+        fclose($handle);
+
+        return $csv;
+    }
 }

@@ -260,6 +260,8 @@ Route::middleware('auth')->group(function () {
     // #1447 - attach N additional digital objects to one description (no child records).
     Route::post('/informationobject/{slug}/attachments', [DigitalObjectController::class, 'attachStore'])->name('io.attachments.store')->middleware('acl:create');
     Route::delete('/informationobject/attachment/{id}', [DigitalObjectController::class, 'attachDelete'])->name('io.attachments.delete')->middleware('acl:delete')->where('id', '[0-9]+');
+    Route::post('/informationobject/attachment/{id}/primary', [DigitalObjectController::class, 'attachSetPrimary'])->name('io.attachments.primary')->middleware('acl:update')->where('id', '[0-9]+');
+    Route::post('/informationobject/{slug}/attachments/reorder', [DigitalObjectController::class, 'attachReorder'])->name('io.attachments.reorder')->middleware('acl:update');
     Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload');
     // Per-file AJAX stage for the multiFileUpload widget (returns blueimp JSON with tmpName).
     Route::post('/informationobject/{slug}/multiFileUpload/store', [DigitalObjectController::class, 'multiFileUploadStore'])->name('io.multiFileUpload.store')->middleware('acl:create');

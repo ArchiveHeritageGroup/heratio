@@ -52,6 +52,17 @@ class AhgHarrisMatrixServiceProvider extends ServiceProvider
 
             $router->match(['get', 'post'], '/site/{siteId}/import-lst', [\AhgHarrisMatrix\Controllers\HarrisMatrixController::class, 'importLst'])
                 ->whereNumber('siteId')->name('harris.import.lst')->middleware('acl:update');
+
+            $router->get('/site/{siteId}/relationships.csv', [\AhgHarrisMatrix\Controllers\HarrisMatrixController::class, 'exportPhaserCsv'])
+                ->whereNumber('siteId')->name('harris.export.phaser');
+
+            // Static template - no site, so no siteId. Declared before the
+            // site-scoped import so the literal path cannot be shadowed.
+            $router->get('/relationships-template.csv', [\AhgHarrisMatrix\Controllers\HarrisMatrixController::class, 'relationshipTemplate'])
+                ->name('harris.relationships.template');
+
+            $router->match(['get', 'post'], '/site/{siteId}/import-relationships', [\AhgHarrisMatrix\Controllers\HarrisMatrixController::class, 'importRelationships'])
+                ->whereNumber('siteId')->name('harris.import.relationships')->middleware('acl:update');
         });
     }
 }

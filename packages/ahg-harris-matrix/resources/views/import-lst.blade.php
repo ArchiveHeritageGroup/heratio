@@ -48,8 +48,17 @@
 
     @if($committed)
       <div class="alert alert-success">
-        {{ __(':written relationship row(s) written, :skipped row(s) skipped.', $committed) }}
+        {{ __(':added relationship(s) added, :duplicate already recorded, :skipped skipped.', [
+            'added' => $committed['added'], 'duplicate' => $committed['duplicate'], 'skipped' => $committed['skipped']]) }}
       </div>
+      @if(!empty($committed['warnings']))
+        <div class="alert alert-warning">
+          <strong>{{ __('Rows that were not imported:') }}</strong>
+          <ul class="mb-0 mt-1 small">
+            @foreach(array_slice($committed['warnings'], 0, 50) as $w)<li>{{ $w }}</li>@endforeach
+          </ul>
+        </div>
+      @endif
     @elseif(!empty($parsed['rows']))
       <form method="post" action="{{ route('harris.import.lst', $siteId) }}" enctype="multipart/form-data">
         @csrf

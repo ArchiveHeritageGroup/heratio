@@ -229,4 +229,152 @@ class AttachedDigitalObjectService
 
         return DB::table(self::TABLE)->where('id', $linkId)->value('information_object_id');
     }
+    /**
+     * The description's PRIMARY master digital object, or null.
+     *
+     * The primary is the row carrying object_id = the description with no
+     * parent - the legacy master. Derivatives carry the same object_id but a
+     * parent_id, so the parent_id test is what separates them; ordering by
+     * usage_id = master first mirrors DigitalObjectService::getForObject(),
+     * which tolerates legacy uploads stored with a thumbnail usage id.
+     */
+    public function primaryMaster(int $ioId): ?object
+    {
+        return DB::table('digital_object')
+            ->where('object_id', $ioId)
+            ->whereNull('parent_id')
+            ->orderByRaw('usage_id = ? DESC', [DigitalObjectService::USAGE_MASTER])
+            ->orderBy('id')
+            ->first();
+    }
+
+    /**
+     * Promote an attached object to be the description's primary.
+     *
+     * #1489. The primary is decided by digital_object.object_id and a great deal
+     * of legacy code reads it that way, so promoting MOVES object_id rather than
+     * setting a flag beside it. A second notion of "primary" living in the link
+     * table would drift from the first the moment anything wrote only one of
+     * them - the same failure shape as #1478. For that reason the link table
+     * stays what it has always been: the EXTRAS, never the primary. is_primary
+     * is forced to 0 on every row here so a stale flag cannot start disagreeing
+     * with object_id.
+     *
+     * The swap is symmetric: the outgoing primary is demoted into the link table
+     * at the slot the incoming one vacated, so the gallery order does not jump.
+     * Both master AND derivative rows move together, because a derivative left
+     * behind with the old object_id would leak into every `WHERE object_id = IO`
+     * read - the list thumbnail and the EAD/IIIF/RiC exports.
+     *
+     * @return array{ok:bool, error?:string}
+     */
+    public function setPrimary(int $linkId): array
+    {
+        if (! self::available()) {
+            return ['ok' => false, 'error' => 'Multiple attachments are not available on this installation.'];
+        }
+
+        $link = DB::table(self::TABLE)->where('id', $linkId)->first();
+        if (! $link) {
+            return ['ok' => false, 'error' => 'That attachment no longer exists.'];
+        }
+
+        $ioId = (int) $link->information_object_id;
+        $newMasterId = (int) $link->digital_object_id;
+
+        if (! DB::table('digital_object')->where('id', $newMasterId)->exists()) {
+            return ['ok' => false, 'error' => 'That attachment points at a digital object that has been deleted.'];
+        }
+
+        DB::transaction(function () use ($ioId, $newMasterId, $link) {
+            $old = $this->primaryMaster($ioId);
+
+            if ($old && (int) $old->id !== $newMasterId) {
+                // Demote: clear object_id from the outgoing master and everything
+                // hanging off it, then record it as an ordinary attachment in the
+                // slot the incoming object is about to leave.
+                $this->moveObjectId((int) $old->id, null);
+                DB::table(self::TABLE)->insert([
+                    'information_object_id' => $ioId,
+                    'digital_object_id' => (int) $old->id,
+                    'sort_order' => (int) $link->sort_order,
+                    'is_primary' => 0,
+                    'caption' => null,
+                    'role' => null,
+                    'created_by' => auth()->id(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // Promote, then drop the link row: the primary is never in this table.
+            $this->moveObjectId($newMasterId, $ioId);
+            DB::table(self::TABLE)->where('id', $link->id)->delete();
+
+            // Belt and braces - the column is vestigial and must stay that way.
+            DB::table(self::TABLE)->where('information_object_id', $ioId)
+                ->where('is_primary', '!=', 0)->update(['is_primary' => 0]);
+        });
+
+        return ['ok' => true];
+    }
+
+    /** Set object_id on a master and every derivative hanging off it. */
+    private function moveObjectId(int $masterId, ?int $objectId): void
+    {
+        DB::table('digital_object')
+            ->where(function ($q) use ($masterId) {
+                $q->where('id', $masterId)->orWhere('parent_id', $masterId);
+            })
+            ->update(['object_id' => $objectId]);
+    }
+
+    /**
+     * Reorder a description's attachments. #1489.
+     *
+     * Takes the link ids in the order the curator wants them. Ids that do not
+     * belong to this description are ignored rather than trusted - the order
+     * arrives from the browser - and any attachment the payload omits keeps a
+     * stable position AFTER the ones it names, so a partial or stale list can
+     * never silently drop a row out of the gallery.
+     *
+     * @param  array<int,int|string>  $linkIds
+     * @return int number of rows repositioned
+     */
+    public function reorder(int $ioId, array $linkIds): int
+    {
+        if (! self::available()) {
+            return 0;
+        }
+
+        $owned = DB::table(self::TABLE)->where('information_object_id', $ioId)
+            ->orderBy('sort_order')->orderBy('id')->pluck('id')->all();
+        if (! $owned) {
+            return 0;
+        }
+
+        $wanted = [];
+        foreach ($linkIds as $id) {
+            $id = (int) $id;
+            if (in_array($id, $owned, true) && ! in_array($id, $wanted, true)) {
+                $wanted[] = $id;
+            }
+        }
+        foreach ($owned as $id) {          // anything not named keeps its relative place, at the end
+            if (! in_array($id, $wanted, true)) {
+                $wanted[] = $id;
+            }
+        }
+
+        $n = 0;
+        DB::transaction(function () use ($wanted, $ioId, &$n) {
+            foreach ($wanted as $i => $id) {
+                $n += DB::table(self::TABLE)->where('id', $id)
+                    ->where('information_object_id', $ioId)
+                    ->update(['sort_order' => $i + 1, 'updated_at' => now()]);
+            }
+        });
+
+        return $n;
+    }
 }

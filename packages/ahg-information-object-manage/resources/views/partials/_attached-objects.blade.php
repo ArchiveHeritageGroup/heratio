@@ -14,6 +14,19 @@
     $__canEditAttachments = auth()->check()
         && \AhgCore\Services\AclService::hasPermission(auth()->id(), 'update', (int) $__io->id);
     $__doUrl = fn ($do) => $do ? \AhgCore\Services\DigitalObjectService::getUrl($do) : null;
+
+    // #1489: the primary is digital_object.object_id, never a flag in the link
+    // table, so it is fetched separately and is NOT one of $__attached.
+    $__primary = $__canEditAttachments ? $__svc->primaryMaster((int) $__io->id) : null;
+
+    // Move up / move down post the WHOLE resulting order, so the endpoint stays
+    // one operation and a stale page cannot half-apply a swap.
+    $__ids = $__attached->pluck('link_id')->values()->all();
+    $__swap = function (int $i, int $j) use ($__ids) {
+        if (! isset($__ids[$i], $__ids[$j])) { return null; }
+        $o = $__ids; [$o[$i], $o[$j]] = [$o[$j], $o[$i]];
+        return implode(',', $o);
+    };
   @endphp
 
   {{-- #1447 (c): attached objects DISPLAY now lives in the imageflow carousel
@@ -28,8 +41,22 @@
       </div>
       <div class="card-body">
 
+        {{-- What "primary" currently is, shown before the controls that change it. --}}
+        <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
+          <span class="badge" style="background:#10373E">{{ __('Primary') }}</span>
+          @if($__primary)
+            @php $__pThumb = $__doUrl($__primary); @endphp
+            @if($__pThumb && str_starts_with((string) ($__primary->mime_type ?? ''), 'image/'))
+              <img src="{{ $__pThumb }}" alt="" style="height:44px;width:44px;object-fit:cover;border-radius:3px;">
+            @endif
+            <span class="small text-muted">{{ \Illuminate\Support\Str::limit($__primary->name ?? '', 48) }}</span>
+          @else
+            <span class="small text-muted">{{ __('This description has no primary object. Promote one below.') }}</span>
+          @endif
+        </div>
+
         @if($__attached->isNotEmpty())
-          <div class="row g-3">
+          <div class="row g-3" data-attach-sortable data-reorder-url="{{ route('io.attachments.reorder', $__io->slug) }}">
             @foreach($__attached as $att)
               @php
                 // Public-facing viewers get a derivative (reference, else thumbnail);
@@ -40,7 +67,7 @@
                     : $__doUrl($att->reference ?: $att->thumbnail);
                 $isImage = $att->master && str_starts_with((string) ($att->master->mime_type ?? ''), 'image/');
               @endphp
-              <div class="col-6 col-md-4 col-lg-3">
+              <div class="col-6 col-md-4 col-lg-3" data-link-id="{{ $att->link_id }}" @if($__canEditAttachments) draggable="true" @endif>
                 <div class="border rounded h-100 d-flex flex-column">
                   <a href="{{ $open ?: '#' }}" @if($open) target="_blank" rel="noopener" @endif class="text-center p-2 flex-grow-1 d-flex align-items-center justify-content-center" style="min-height:120px;background:#f6f8f8;">
                     @if($isImage && $thumb)
@@ -53,11 +80,37 @@
                     @if($att->role)<span class="badge bg-secondary">{{ $att->role }}</span>@endif
                     @if($att->caption)<div class="text-muted mt-1">{{ \Illuminate\Support\Str::limit($att->caption, 60) }}</div>@endif
                     @if($__canEditAttachments)
-                      <form method="post" action="{{ route('io.attachments.delete', $att->link_id) }}" class="mt-1"
-                            onsubmit="return confirm('{{ __('Remove this attached object?') }}');">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-outline-danger py-0"><i class="fas fa-trash me-1"></i>{{ __('Remove') }}</button>
-                      </form>
+                      @php
+                        $__up = $__swap($loop->index, $loop->index - 1);
+                        $__down = $__swap($loop->index, $loop->index + 1);
+                      @endphp
+                      <div class="d-flex flex-wrap gap-1 mt-1">
+                        {{-- Promoting MOVES object_id; the outgoing primary drops
+                             into this list at the slot this object vacates. --}}
+                        <form method="post" action="{{ route('io.attachments.primary', $att->link_id) }}">
+                          @csrf
+                          <button type="submit" class="btn btn-sm btn-outline-success py-0" title="{{ __('Use this as the record image') }}">
+                            <i class="fas fa-star me-1"></i>{{ __('Make primary') }}
+                          </button>
+                        </form>
+                        {{-- Plain form posts, so reordering works with no JS at
+                             all; the drag handler below is an enhancement. --}}
+                        <form method="post" action="{{ route('io.attachments.reorder', $__io->slug) }}">
+                          @csrf
+                          <input type="hidden" name="order" value="{{ $__up }}">
+                          <button type="submit" class="btn btn-sm btn-outline-secondary py-0" @disabled(!$__up) title="{{ __('Move earlier') }}"><i class="fas fa-arrow-left"></i></button>
+                        </form>
+                        <form method="post" action="{{ route('io.attachments.reorder', $__io->slug) }}">
+                          @csrf
+                          <input type="hidden" name="order" value="{{ $__down }}">
+                          <button type="submit" class="btn btn-sm btn-outline-secondary py-0" @disabled(!$__down) title="{{ __('Move later') }}"><i class="fas fa-arrow-right"></i></button>
+                        </form>
+                        <form method="post" action="{{ route('io.attachments.delete', $att->link_id) }}"
+                              onsubmit="return confirm('{{ __('Remove this attached object?') }}');">
+                          @csrf @method('DELETE')
+                          <button type="submit" class="btn btn-sm btn-outline-danger py-0"><i class="fas fa-trash"></i></button>
+                        </form>
+                      </div>
                     @endif
                   </div>
                 </div>
@@ -92,5 +145,61 @@
 
       </div>
     </div>
+
+    {{-- #1489 drag-reorder. Strictly an ENHANCEMENT: the arrow buttons above are
+         ordinary form posts and remain the working path if this never runs. Uses
+         plain DOM + fetch with no library, because the theme bundle does not
+         reliably expose a global for anything heavier. --}}
+    @once
+    <script>
+    (function () {
+      document.querySelectorAll('[data-attach-sortable]').forEach(function (grid) {
+        if (grid.dataset.attachBound) { return; }
+        grid.dataset.attachBound = '1';
+        var dragged = null;
+
+        grid.addEventListener('dragstart', function (e) {
+          dragged = e.target.closest('[data-link-id]');
+          if (dragged) { e.dataTransfer.effectAllowed = 'move'; dragged.style.opacity = '0.4'; }
+        });
+        grid.addEventListener('dragend', function () {
+          if (dragged) { dragged.style.opacity = ''; }
+          dragged = null;
+        });
+        grid.addEventListener('dragover', function (e) {
+          if (!dragged) { return; }
+          e.preventDefault();
+          var over = e.target.closest('[data-link-id]');
+          if (!over || over === dragged) { return; }
+          var rect = over.getBoundingClientRect();
+          var after = (e.clientX - rect.left) > rect.width / 2;
+          grid.insertBefore(dragged, after ? over.nextSibling : over);
+        });
+        grid.addEventListener('drop', function (e) {
+          e.preventDefault();
+          if (!dragged) { return; }
+          var order = Array.prototype.map.call(
+            grid.querySelectorAll('[data-link-id]'), function (n) { return n.dataset.linkId; }
+          );
+          var token = document.querySelector('meta[name="csrf-token"]');
+          fetch(grid.dataset.reorderUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-CSRF-TOKEN': token ? token.getAttribute('content') : '',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ order: order })
+          }).then(function (r) {
+            // A failure must not leave the screen showing an order the server
+            // did not accept, so reload rather than keep the optimistic DOM.
+            if (!r.ok) { window.location.reload(); }
+          }).catch(function () { window.location.reload(); });
+        });
+      });
+    })();
+    </script>
+    @endonce
   @endif
 @endif
