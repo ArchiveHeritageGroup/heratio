@@ -36,7 +36,8 @@ class AiSyncEntityCacheCommand extends Command
         {--limit=1000        : Maximum objects to process}
         {--object-id=        : Sync a single object only}
         {--since-id=         : Only objects with id > this value}
-        {--min-confidence=0.70 : Minimum NER confidence to sync}
+        {--min-confidence=0.70 : Minimum NER confidence to sync (unscored entities are INCLUDED; see --require-score)}
+        {--require-score : Sync only entities that carry a confidence score, excluding unscored ones}
         {--clean-orphaned    : Remove cached ner rows whose object no longer exists}
         {--stats             : Show statistics and exit}
         {--dry-run           : Report what would change, write nothing}';
@@ -62,12 +63,30 @@ class AiSyncEntityCacheCommand extends Command
         }
 
         $minConf = (float) ($this->option('min-confidence') ?: 0.70);
+        $requireScore = (bool) $this->option('require-score');
+
+        // #1480: an UNSCORED entity is not a low-confidence entity. spaCy emits no
+        // per-entity score at all, so every entity it produces has NULL confidence
+        // - and `confidence >= 0.70` is false for NULL in SQL, which silently drops
+        // all of them. That became live the moment v1.154.647 stopped fabricating
+        // 1.0 to fill the column: the number got honest and the work disappeared.
+        // Unscored entities are therefore included by default and --require-score
+        // is there for anyone who genuinely wants scored-only.
+        $applyConfidence = function ($q) use ($minConf, $requireScore) {
+            if ($requireScore) {
+                return $q->where('confidence', '>=', $minConf);
+            }
+
+            return $q->where(function ($w) use ($minConf) {
+                $w->where('confidence', '>=', $minConf)->orWhereNull('confidence');
+            });
+        };
         $limit   = (int) ($this->option('limit') ?: 1000);
         $dryRun  = (bool) $this->option('dry-run');
 
         $objectsQuery = DB::table('ahg_ner_entity')
             ->whereIn('status', ['linked', 'approved'])
-            ->where('confidence', '>=', $minConf)
+            ->tap($applyConfidence)
             ->orderBy('object_id')
             ->select('object_id')
             ->distinct();
@@ -98,7 +117,7 @@ class AiSyncEntityCacheCommand extends Command
             $entities = DB::table('ahg_ner_entity')
                 ->where('object_id', $objectId)
                 ->whereIn('status', ['linked', 'approved'])
-                ->where('confidence', '>=', $minConf)
+                ->tap($applyConfidence)
                 ->get();
 
             if ($dryRun) {

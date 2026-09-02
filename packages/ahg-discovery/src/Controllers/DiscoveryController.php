@@ -608,7 +608,7 @@ class DiscoveryController extends Controller
     {
         $query = trim($request->input('query', ''));
         $objectId = (int) $request->input('object_id', 0);
-        $sessionId = $request->input('session_id', '');
+        $sessionId = (string) $request->input('session_id', '');   // null-safe: see RicController::logs
         $logId = (int) $request->input('log_id', 0);
         $dwellMs = $request->has('dwell_ms') ? (int) $request->input('dwell_ms') : null;
 

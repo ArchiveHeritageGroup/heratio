@@ -60,11 +60,32 @@ trait ResearchControllerHelpers
         if (!Auth::check()) {
             return redirect()->route('login');
         }
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        $researcher = $this->researchService()->getResearcherByUserId(Auth::id());
         if (!$researcher) {
             return redirect()->route('researcher.register');
         }
         return $researcher;
+    }
+
+    /**
+     * The ResearchService this trait needs, without depending on the host
+     * controller having named its property `service`.
+     *
+     * 37 of the 39 controllers using this trait inject `protected ResearchService
+     * $service`, and the trait used to read that property directly. The two that
+     * do not - ResearchCustodyController (`$custody`) and ResearchQuotaController
+     * (`$quota`) - therefore threw "Undefined property ...::$service" the moment
+     * they rendered a sidebar, which is every page they serve. Reproduced on
+     * /research/custody/{id}/checkout.
+     *
+     * `isset()` rather than `property_exists()`: a typed property that has never
+     * been assigned still passes property_exists and then fatals on read.
+     */
+    private function researchService(): \AhgResearch\Services\ResearchService
+    {
+        return isset($this->service) && $this->service instanceof \AhgResearch\Services\ResearchService
+            ? $this->service
+            : app(\AhgResearch\Services\ResearchService::class);
     }
 
     /**
@@ -79,7 +100,7 @@ trait ResearchControllerHelpers
         $unreadNotifications = 0;
         $experienceLevel = 'intermediate';
         if (Auth::check()) {
-            $researcher = $this->service->getResearcherByUserId(Auth::id());
+            $researcher = $this->researchService()->getResearcherByUserId(Auth::id());
             if ($researcher) {
                 try {
                     $unreadNotifications = (int) DB::table('research_notification')

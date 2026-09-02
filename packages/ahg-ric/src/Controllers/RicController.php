@@ -238,8 +238,11 @@ class RicController extends Controller
             return view('ahg-ric::not-configured');
         }
 
-        $entityType = $request->input('entity_type', '');
-        $status = $request->input('status', '');
+        // (string) for the same reason as logs(): an empty submitted filter arrives
+        // as null, and where('entity_type', null) becomes WHERE entity_type IS NULL,
+        // so the page silently returns nothing instead of everything.
+        $entityType = (string) $request->input('entity_type', '');
+        $status = (string) $request->input('status', '');
 
         $query = DB::table('ric_sync_status')->orderByDesc('updated_at');
 
@@ -333,11 +336,18 @@ class RicController extends Controller
             return view('ahg-ric::not-configured');
         }
 
-        $operation = $request->input('operation', '');
-        $status = $request->input('status', '');
-        $entityType = $request->input('entity_type', '');
-        $dateFrom = $request->input('date_from', '');
-        $dateTo = $request->input('date_to', '');
+        // Cast to string at the point of read. ConvertEmptyStringsToNull rewrites
+        // an empty query parameter (`?date_from=`) to NULL, and input()'s default
+        // only applies when the key is ABSENT - so a present-but-empty filter
+        // arrived as null, sailed through the `!== ''` guard below, and reached
+        // whereDate('created_at', '>=', null), which throws "Illegal operator and
+        // value combination". The submitted filter form sends every field, empty
+        // or not, so this fired on an ordinary unfiltered search.
+        $operation = (string) $request->input('operation', '');
+        $status = (string) $request->input('status', '');
+        $entityType = (string) $request->input('entity_type', '');
+        $dateFrom = (string) $request->input('date_from', '');
+        $dateTo = (string) $request->input('date_to', '');
 
         $query = DB::table('ric_sync_log')->orderByDesc('created_at');
 
