@@ -128,3 +128,6 @@ docs/handouts/
 
 # local docker stack config, copied from .env.docker.example
 docker/.env.docker
+
+# local code-graph output (graphq/graphify); never committed
+graphify-out/

@@ -59,6 +59,27 @@ class ComplianceAutopilotService
         $this->dpia = $dpia ?? app(DpiaService::class);
     }
 
+    /**
+     * Finding types that must never become a declared CATEGORY OF PERSONAL DATA.
+     *
+     * `categories` from this method feeds two things that assert compliance
+     * facts: draftRopa() writes them into categories_of_data on an Article 30
+     * record, and draftRetentionSchedule() PERSISTS one RetentionProposal row
+     * per category for a data-protection officer to accept or reject.
+     *
+     * custom_term is an operator's watchlist word. Matching one says a word the
+     * archive asked to be told about is present - not that a category of
+     * personal data is processed. Letting it through meant a donor surname on
+     * the watchlist became a declared data category in the ROPA and a retention
+     * proposal in a DPO's queue. The rule this encodes, stated generally:
+     * promotion into a compliance artefact requires a finding the scanner can
+     * VALIDATE, not merely one that crossed a threshold.
+     *
+     * The hits are still counted and returned - see custom_term_hits - so the
+     * dashboard can report them. They are excluded from the artefacts, not hidden.
+     */
+    private const NON_CATEGORY_TYPES = ['custom_term'];
+
     /** Scan up to $limit catalogue descriptions for PII and aggregate by category. */
     public function scanCatalogue(int $limit = 300): array
     {
@@ -72,6 +93,8 @@ class ComplianceAutopilotService
         $agg = [];
         $withPii = 0;
         $scanned = 0;
+        $reviewHits = 0;
+        $reviewRecords = 0;
         foreach ($rows as $r) {
             $scanned++;
             $text = trim(strip_tags((string) $r->title.' '.(string) $r->scope_and_content));
@@ -84,8 +107,17 @@ class ComplianceAutopilotService
             }
             $withPii++;
             $seen = [];
+            $seenReview = false;
             foreach ($findings as $f) {
                 $t = $f['type'] ?? 'other';
+                if (in_array($t, self::NON_CATEGORY_TYPES, true)) {
+                    $reviewHits++;
+                    if (! $seenReview) {
+                        $seenReview = true;
+                        $reviewRecords++;
+                    }
+                    continue;
+                }
                 $agg[$t] = $agg[$t] ?? ['type' => $t, 'count' => 0, 'records' => 0, 'samples' => []];
                 $agg[$t]['count']++;
                 if (! isset($seen[$t])) {
@@ -104,7 +136,14 @@ class ComplianceAutopilotService
             $c['label'] = self::LABELS[$c['type']] ?? ucfirst(str_replace('_', ' ', $c['type']));
         }
 
-        return ['scanned' => $scanned, 'records_with_pii' => $withPii, 'categories' => $cats];
+        return [
+            'scanned'            => $scanned,
+            'records_with_pii'   => $withPii,
+            'categories'         => $cats,
+            // Reported alongside the categories, never inside them.
+            'custom_term_hits'   => $reviewHits,
+            'custom_term_records' => $reviewRecords,
+        ];
     }
 
     /** Build a ROPA (Article 30) draft from a scan result. Not saved - for review. */
@@ -398,15 +437,15 @@ A catalogue scan surfaced these categories of personal data: {$cats}.
 The high-risk triggers identified are: {$trigs}.
 
 Draft the assessment narrative. Provide:
-- description: one or two sentences describing the processing and the personal data involved.
-- necessity_proportionality: why the processing is necessary and proportionate for an archive's public-interest/archiving task.
-- risks_to_subjects: the concrete risks to data subjects arising from the categories and triggers above.
-- measures_to_mitigate: practical mitigation measures (access controls, field-level redaction, retention limits, audit logging, etc.).
-- residual_risks: the residual risk after mitigation, stated plainly.
+ - description: one or two sentences describing the processing and the personal data involved.
+ - necessity_proportionality: why the processing is necessary and proportionate for an archive's public-interest/archiving task.
+ - risks_to_subjects: the concrete risks to data subjects arising from the categories and triggers above.
+ - measures_to_mitigate: practical mitigation measures (access controls, field-level redaction, retention limits, audit logging, etc.).
+ - residual_risks: the residual risk after mitigation, stated plainly.
 
 Rules:
-- Ground every statement ONLY in the categories and triggers named above. Do NOT invent record contents, names, or facts.
-- Stay jurisdiction-neutral: refer to "the applicable data-protection regime" - do NOT name a specific country's law (no POPIA / GDPR / IPSAS by name).
+ - Ground every statement ONLY in the categories and triggers named above. Do NOT invent record contents, names, or facts.
+ - Stay jurisdiction-neutral: refer to "the applicable data-protection regime" - do NOT name a specific country's law (no POPIA / GDPR / IPSAS by name).
 Return STRICT JSON only: an object with keys description, necessity_proportionality, risks_to_subjects, measures_to_mitigate, residual_risks. No prose, no markdown.
 PROMPT;
 
@@ -496,14 +535,14 @@ A catalogue scan surfaced these categories of personal data (category key, human
 {$list}
 
 For EACH category key, propose:
-- retention_period: a short, defensible retention period (e.g. "7 years after last contact", "Permanent - archival value", "Until consent withdrawn + 1 year")
-- legal_basis: a GENERIC, jurisdiction-neutral basis, e.g. "per the applicable data-protection retention regime and the institution's appraisal/retention policy". Do NOT name a specific country's law (no POPIA / GDPR / IPSAS by name); the per-market module supplies that.
-- disposal_action: one of "Secure deletion", "Anonymise", "Transfer to permanent archive", "Periodic disposal review"
-- rationale: one sentence explaining the choice, referring only to the category named.
+ - retention_period: a short, defensible retention period (e.g. "7 years after last contact", "Permanent - archival value", "Until consent withdrawn + 1 year")
+ - legal_basis: a GENERIC, jurisdiction-neutral basis, e.g. "per the applicable data-protection retention regime and the institution's appraisal/retention policy". Do NOT name a specific country's law (no POPIA / GDPR / IPSAS by name); the per-market module supplies that.
+ - disposal_action: one of "Secure deletion", "Anonymise", "Transfer to permanent archive", "Periodic disposal review"
+ - rationale: one sentence explaining the choice, referring only to the category named.
 
 Rules:
-- Ground every suggestion ONLY in the category names above. Do NOT invent record contents, names, or facts.
-- Stay jurisdiction-neutral. Frame periods/bases generically.
+ - Ground every suggestion ONLY in the category names above. Do NOT invent record contents, names, or facts.
+ - Stay jurisdiction-neutral. Frame periods/bases generically.
 Return STRICT JSON only, an object keyed by the category key, each value an object with keys retention_period, legal_basis, disposal_action, rationale. No prose, no markdown.
 PROMPT;
 

@@ -1235,7 +1235,7 @@ class PrivacyController extends Controller
         } catch (\Throwable $e) { /* best-effort scan */
         }
 
-        $riskColors = ['low' => 'success', 'medium' => 'warning', 'high' => 'danger', 'critical' => 'dark'];
+        $riskColors = self::RISK_BANDS;
         $typeColors = ['PERSON' => 'primary', 'EMAIL' => 'danger', 'PHONE' => 'warning', 'ID_NUMBER' => 'danger', 'LOCATION' => 'info', 'ORG' => 'secondary'];
 
         return view('privacy::pii-scan-object', compact('object', 'scanResult', 'riskColors', 'typeColors'));
@@ -1252,14 +1252,66 @@ class PrivacyController extends Controller
      * record" and 0/0/0/0 for EVERY record, however much it contained. Same
      * family as #1478: a view fed a shape its producer never returns.
      *
-     * Bands follow the confidences the scanner actually emits - 0.95 card,
-     * 0.92 email, 0.90 checksum-valid ID, 0.80 phone, 0.55 date of birth, and
-     * 0.30 for an ID whose checksum fails. High is therefore "the pattern
-     * validated", medium "matched but unverified", low "shape only".
+     * Bands follow the confidences the scanner actually emits - 0.95 card or
+     * checksum-validated ID, 0.92 email, 0.90 custom term, 0.85 e164 phone,
+     * 0.80 local phone, 0.55 date of birth, and 0.30 for an ID whose checksum
+     * failed. High is therefore "the pattern validated", medium "matched but
+     * unverified", low "shape only".
+     *
+     * custom_term is deliberately OUTSIDE those bands. It is an operator's
+     * watchlist word, so the match is exact but the claim that the word is
+     * sensitive is an assertion, not a measurement - 0.90 is confidence in the
+     * MATCH, not in the risk. Banding it as high made one common surname turn
+     * every record containing it into a high-risk record and added 25 to the
+     * score each time. It gets its own 'review' level, is excluded from the
+     * three tallies and from the score, and is counted separately so the view
+     * can still say how many operator terms matched.
      *
      * @param  array<int,array<string,mixed>>  $findings
      * @return array<string,mixed>
      */
+    /**
+     * The single band vocabulary for the PII scan screen: band => bootstrap
+     * colour. bandFor() may return only these keys, and the view renders from
+     * this map rather than defining its own.
+     *
+     * It previously listed 'critical', which this scan path cannot emit - that
+     * band belongs to privacy_breach.severity, a different subsystem - while the
+     * view ignored the variable entirely and defined its own three-band map. So
+     * the advertised vocabulary and the rendered one were free to disagree, and
+     * adding a band to one would have rendered as an unstyled grey badge from
+     * the other's fallback. PiiScanServiceTest asserts the two stay in step.
+     */
+    public const RISK_BANDS = [
+        'low'    => 'success',
+        'medium' => 'warning',
+        'high'   => 'danger',
+        'review' => 'info',
+    ];
+
+    /**
+     * Which band a finding falls in. PURE - no state, no I/O - so the guarantee
+     * that it only ever returns a RISK_BANDS key is testable without a database.
+     *
+     * custom_term is banded before confidence is consulted at all: 0.90 is
+     * confidence in the MATCH, and an operator's watchlist word carries no
+     * measured risk to band.
+     */
+    public static function bandFor(string $type, float $confidence): string
+    {
+        if ($type === 'custom_term') {
+            return 'review';
+        }
+        if ($confidence >= 0.85) {
+            return 'high';
+        }
+        if ($confidence >= 0.60) {
+            return 'medium';
+        }
+
+        return 'low';
+    }
+
     private function shapeScanResult(array $findings): array
     {
         // The view badges entities by an uppercase vocabulary; the service
@@ -1272,25 +1324,29 @@ class PrivacyController extends Controller
             'credit_card'   => 'CREDIT_CARD',
             'date_of_birth' => 'DATE',
             'ip'            => 'IP',
+            'custom_term'   => 'CUSTOM_TERM',
         ];
 
         $entities = [];
-        $high = $medium = $low = 0;
+        $high = $medium = $low = $review = 0;
 
         foreach ($findings as $f) {
             $confidence = (float) ($f['confidence'] ?? 0);
-            if ($confidence >= 0.85) {
-                $risk = 'high';
+            $type = (string) ($f['type'] ?? 'unknown');
+
+            $risk = self::bandFor($type, $confidence);
+            // 'review' is surfaced to the reviewer but asserts nothing
+            // measurable, so it stays out of the three tallies and out of $score.
+            if ($risk === 'review') {
+                $review++;
+            } elseif ($risk === 'high') {
                 $high++;
-            } elseif ($confidence >= 0.60) {
-                $risk = 'medium';
+            } elseif ($risk === 'medium') {
                 $medium++;
             } else {
-                $risk = 'low';
                 $low++;
             }
 
-            $type = (string) ($f['type'] ?? 'unknown');
             $entities[] = [
                 'type'       => $labels[$type] ?? strtoupper($type),
                 'value'      => (string) ($f['value'] ?? ''),
@@ -1306,7 +1362,8 @@ class PrivacyController extends Controller
 
         // A blunt but honest score: a validated identifier weighs far more than
         // a bare date. Capped at 100 so a long record cannot imply certainty it
-        // has not earned.
+        // has not earned. $review contributes nothing by design - see the
+        // docblock; an operator watchlist hit is a prompt to look, not evidence.
         $score = min(100, ($high * 25) + ($medium * 10) + ($low * 3));
 
         return [
@@ -1318,6 +1375,7 @@ class PrivacyController extends Controller
                 'high_risk'   => $high,
                 'medium_risk' => $medium,
                 'low_risk'    => $low,
+                'review'      => $review,
             ],
         ];
     }

@@ -3633,10 +3633,24 @@ class SettingsController extends Controller
                 'dp_popia_fee',
                 'dp_popia_fee_special',
                 'dp_popia_response_days',
+                // Read by AhgPrivacy\Services\PiiScanService. They were only ever
+                // readable, never settable from anywhere - and the scanner read
+                // them from a table name that does not exist, so the jurisdiction
+                // silently stayed on GDPR whatever the deployment.
+                'privacy_jurisdiction',
+                'privacy_custom_terms',
             ];
             $checkboxes = ['dp_enabled', 'dp_notify_overdue'];
+            // Only written when the field is actually submitted. A form POST that
+            // omits them - a crawler walking admin pages has done this before -
+            // would otherwise blank an operator's term list without touching the
+            // page it came from.
+            $presenceGuarded = ['privacy_jurisdiction', 'privacy_custom_terms'];
 
             foreach ($keys as $key) {
+                if (in_array($key, $presenceGuarded, true) && ! $request->has($key)) {
+                    continue;
+                }
                 $value = in_array($key, $checkboxes)
                     ? ($request->has($key) ? '1' : '0')
                     : ($request->input($key, '') ?? '');
@@ -3652,7 +3666,12 @@ class SettingsController extends Controller
                 ->with('notice', 'Data protection settings saved.');
         }
 
-        return view('ahg-settings::data-protection-settings', compact('menu', 'settings'));
+        // Single source for the scanner's jurisdiction list: the
+        // privacy_jurisdiction registry, projected by the scanner itself so the
+        // label can say which codes it has patterns for.
+        $jurisdictionOptions = \AhgPrivacy\Services\PiiScanService::jurisdictionOptions();
+
+        return view('ahg-settings::data-protection-settings', compact('menu', 'settings', 'jurisdictionOptions'));
     }
 
     /**

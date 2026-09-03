@@ -31,7 +31,7 @@ final class PruneCommand extends Command
     {
         $configured = $this->option('years') !== null
             ? (float) $this->option('years')
-            : (float) (DB::table('ahg_setting')->where('key', 'ai_compliance.retention_years')->value('value') ?? 7);
+            : (float) (\AhgCore\Services\AhgSettingsService::get('ai_compliance.retention_years', 7) ?? 7);
 
         $threshold = now()->subDays((int) round($configured * 365));
 

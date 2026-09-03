@@ -54,6 +54,9 @@ final class PiiScanService
     /** Hard cap on findings returned per scan to keep memory bounded on large blobs. */
     public const MAX_FINDINGS = 500;
 
+    /** Ceiling on operator-defined terms - see resolveCustomTerms(). */
+    public const MAX_CUSTOM_TERMS = 200;
+
     /** @var array<string,array{pattern:string,confidence:float}> */
     private const BASE_PATTERNS = [
         // RFC 5322 simplified - good enough for catalog content; we DON'T try to
@@ -143,9 +146,22 @@ final class PiiScanService
 
     private string $jurisdiction;
 
-    public function __construct(?string $jurisdiction = null)
+    /**
+     * Explicit term list, bypassing the settings read. Null means "read the
+     * setting"; an array (including an empty one) is used as given, which is
+     * what makes collectCustomTerms() testable without a database.
+     *
+     * @var list<string>|null
+     */
+    private ?array $customTerms;
+
+    /**
+     * @param  list<string>|null  $customTerms
+     */
+    public function __construct(?string $jurisdiction = null, ?array $customTerms = null)
     {
         $this->jurisdiction = $jurisdiction ?: $this->resolveJurisdiction();
+        $this->customTerms = $customTerms;
     }
 
     /**
@@ -163,6 +179,7 @@ final class PiiScanService
         $this->collectNationalIds($text, $findings);
         $this->collectCreditCards($text, $findings);
         $this->collectDatesOfBirth($text, $findings);
+        $this->collectCustomTerms($text, $findings);
 
         // Stable ordering: by offset_start ascending, then confidence descending.
         usort($findings, static function (array $a, array $b): int {
@@ -636,18 +653,120 @@ final class PiiScanService
     // -----------------------------------------------------------------------
 
     /**
-     * Decide which jurisdictions' regex sets to apply. When the configured
-     * jurisdiction is gdpr (member-state-agnostic) or empty, we scan the union
-     * of POPIA, UK GDPR and CCPA patterns to maximise recall on free-text
-     * content uploaded from any market.
+     * Every jurisdiction code this scanner actually has patterns for, for the
+     * given type ('phone' or 'national_id'). Derived from the pattern
+     * constants rather than restated, so adding a market to either constant is
+     * the whole change - the previous hardcoded list had already drifted.
      *
-     * @return string[]
+     * @return list<string>
+     */
+    public static function supportedJurisdictions(string $type = 'phone'): array
+    {
+        return $type === 'national_id'
+            ? array_keys(self::NATIONAL_ID_PATTERNS)
+            : array_keys(self::PHONE_PATTERNS);
+    }
+
+    /**
+     * Every jurisdiction code the scanner can be configured as, for any type.
+     *
+     * @return list<string>
+     */
+    public static function allSupportedJurisdictions(): array
+    {
+        $all = array_unique(array_merge(
+            self::supportedJurisdictions('phone'),
+            self::supportedJurisdictions('national_id')
+        ));
+        sort($all);
+
+        return array_values($all);
+    }
+
+    /**
+     * Options for the jurisdiction setting, read from the privacy_jurisdiction
+     * registry rather than restated.
+     *
+     * The settings form used to hardcode its own four-entry list, which had
+     * already drifted from the table: the form carried uk_gdpr and no pipeda,
+     * the table carried pipeda and no uk_gdpr. Enumerating one taxonomy in two
+     * places is what let them disagree, so the table is now the only source and
+     * uk_gdpr has been seeded into it.
+     *
+     * Each label says whether this scanner actually implements patterns for the
+     * code. One it does not implement no longer detects nothing - see
+     * jurisdictionsToScan() - but the operator should still be told they are
+     * getting the broad union rather than their own market's formats.
+     *
+     * @return array<string,string> code => label
+     */
+    public static function jurisdictionOptions(): array
+    {
+        $supported = self::allSupportedJurisdictions();
+
+        $options = [];
+        try {
+            if (Schema::hasTable('privacy_jurisdiction')) {
+                $rows = DB::table('privacy_jurisdiction')
+                    ->where('is_active', 1)
+                    ->orderBy('sort_order')
+                    ->get(['code', 'name', 'country']);
+                foreach ($rows as $r) {
+                    $label = trim((string) $r->name.' ('.(string) $r->country.')');
+                    if (! in_array((string) $r->code, $supported, true)) {
+                        $label .= ' - no market-specific patterns';
+                    }
+                    $options[(string) $r->code] = $label;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fall through to the minimal pair below.
+        }
+
+        // Never render an empty select: a fresh install has no table yet, and
+        // gdpr is this scanner's own default so it must always be choosable.
+        if ($options === []) {
+            $options = [
+                'popia' => 'POPIA (South Africa)',
+                'gdpr'  => 'GDPR (European Union)',
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
+     * Decide which jurisdictions' regex sets to apply.
+     *
+     * Two cases widen to the union rather than narrowing to one set:
+     *
+     *  - gdpr, or empty. GDPR is member-state-agnostic and has no single
+     *    national-ID format of its own, so it means "scan everything" rather
+     *    than "scan the GDPR set".
+     *
+     *  - a configured jurisdiction this scanner has NO pattern set for. This
+     *    is the important one. Returning [$this->jurisdiction] handed
+     *    collectPhones()/collectNationalIds() a key their isset() guards then
+     *    skipped, so the scan produced ZERO phone and ZERO national-ID
+     *    findings and reported success. It was reachable today: privacy_
+     *    jurisdiction seeds 'pipeda', which neither pattern constant carries.
+     *    Over-detection routed to a human reviewer is the right failure
+     *    direction for a PII scanner; a silent zero is not.
+     *
+     * @return list<string>
      */
     private function jurisdictionsToScan(string $type): array
     {
+        $available = self::supportedJurisdictions($type);
+
         if ($this->jurisdiction === 'gdpr' || $this->jurisdiction === '') {
-            return ['gdpr', 'popia', 'uk_gdpr', 'ccpa'];
+            return $available;
         }
+
+        if (! in_array($this->jurisdiction, $available, true)) {
+            return $available;
+        }
+
         return [$this->jurisdiction];
     }
 
@@ -730,16 +849,113 @@ final class PiiScanService
         return $accepted;
     }
 
+    /**
+     * Parse the operator's raw term list into terms. PURE - no settings, no DB.
+     *
+     * Extracted as a static for the same reason ArchaeologyService::closesLoop()
+     * is: CI builds its test database from database/core/*.sql alone, so a
+     * DB-backed test would skip in CI and prove nothing. Everything about this
+     * that is worth asserting is a string transformation, so it is testable
+     * only if it is reachable without a settings read.
+     *
+     * One term per line; commas and semicolons also separate, so a column
+     * pasted from a spreadsheet works. Blank entries are dropped, duplicates
+     * collapse case-insensitively while keeping the first spelling the operator
+     * used, and a cap keeps a pasted essay from turning every scan into a linear
+     * walk over thousands of patterns.
+     *
+     * @return list<string>
+     */
+    public static function parseCustomTerms(string $raw): array
+    {
+        if (trim($raw) === '') {
+            return [];
+        }
+
+        $parts = preg_split('/[\r\n,;]+/', $raw) ?: [];
+        $terms = [];
+        foreach ($parts as $part) {
+            $t = trim($part);
+            // Two characters minimum: a single letter matches most documents and
+            // would bury the real findings under noise.
+            if (mb_strlen($t) < 2) {
+                continue;
+            }
+            $key = mb_strtolower($t);
+            if (! isset($terms[$key])) {
+                $terms[$key] = $t;
+            }
+        }
+
+        return array_slice(array_values($terms), 0, self::MAX_CUSTOM_TERMS);
+    }
+
+    /**
+     * Operator-defined words to flag, from ahg_settings.privacy_custom_terms.
+     *
+     * The pattern detectors answer "does this LOOK like an identifier". They
+     * cannot answer "is this name, place or project sensitive HERE", which is a
+     * judgement only the archive holds - a donor's surname, a village, a case
+     * reference. Without this there was no way to express that, so the scan
+     * silently could not find the things an operator most wanted found.
+     *
+     * @return list<string>
+     */
+    private function resolveCustomTerms(): array
+    {
+        if ($this->customTerms !== null) {
+            return $this->customTerms;
+        }
+
+        try {
+            $raw = (string) (\AhgCore\Services\AhgSettingsService::get('privacy_custom_terms', '') ?? '');
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        return self::parseCustomTerms($raw);
+    }
+
+    /**
+     * Match each operator term as a whole word, case-insensitively.
+     *
+     * preg_quote is not optional here: the list is free text, so a term like
+     * "C++" or "Smith (Jr.)" would otherwise be compiled as a pattern and
+     * either throw or match wildly. The \b guards are applied only when the
+     * term starts/ends with a word character - "C++" has no trailing word
+     * boundary to anchor to, and demanding one would never match.
+     *
+     * Confidence 0.90: the match itself is exact, so it sits just under the
+     * checksum-validated 0.95 - but it is NOT 1.0, because that the term is
+     * sensitive is the operator's assertion, not something measured here.
+     *
+     * @param array<int,array> $findings
+     */
+    private function collectCustomTerms(string $text, array &$findings): void
+    {
+        foreach ($this->resolveCustomTerms() as $term) {
+            $quoted = preg_quote($term, '/');
+            $lead   = preg_match('/^\w/u', $term) ? '\b' : '';
+            $trail  = preg_match('/\w$/u', $term) ? '\b' : '';
+            $this->collectByPattern(
+                $text,
+                $findings,
+                'custom_term',
+                '/' . $lead . $quoted . $trail . '/iu',
+                0.90
+            );
+        }
+    }
+
     private function resolveJurisdiction(): string
     {
         try {
-            if (! Schema::hasTable('ahg_setting')) {
-                return 'gdpr';
-            }
-            $row = DB::table('ahg_setting')->where('key', 'privacy_jurisdiction')->first(['value']);
-            $value = $row->value ?? null;
-            if (is_string($value) && $value !== '') {
-                return strtolower($value);
+        // ahg_setting (singular) does not exist - the table is ahg_settings, with
+        // setting_key/setting_value columns. Every read of the singular name was
+        // hasTable-guarded and so failed silently to its default, forever.
+            $value = \AhgCore\Services\AhgSettingsService::get('privacy_jurisdiction', null);
+            if (is_string($value) && trim($value) !== '') {
+                return strtolower(trim($value));
             }
         } catch (\Throwable $e) {
             // ignore - fall through to default

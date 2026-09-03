@@ -119,6 +119,46 @@
       </div>
     </div>
 
+    {{-- PII scanning: what the scanner looks for --}}
+    <div class="card mb-4">
+      <div class="card-header fw-bold" style="background:#10373E;color:#fff">
+        <i class="fas fa-search me-1"></i>{{ __('PII Scanning') }}
+      </div>
+      <div class="card-body">
+
+        <div class="mb-3">
+          <label for="privacy_jurisdiction" class="form-label fw-bold">{{ __('Scanning jurisdiction') }}</label>
+          {{-- Options come from the privacy_jurisdiction registry, never from a
+               list typed here - the hardcoded one had already drifted out of
+               step with the table it was meant to mirror. --}}
+          <select class="form-select" id="privacy_jurisdiction" name="privacy_jurisdiction">
+            @foreach($jurisdictionOptions as $code => $label)
+              <option value="{{ $code }}" @selected(($settings['privacy_jurisdiction'] ?? 'gdpr') === $code)>{{ $label }}</option>
+            @endforeach
+          </select>
+          <div class="form-text">
+            {{ __('Decides which national ID and telephone formats the scanner recognises. A South African ID number is not matched while this is set to GDPR.') }}
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <label for="privacy_custom_terms" class="form-label fw-bold">{{ __('Additional words to scan for') }}</label>
+          <textarea class="form-control font-monospace" id="privacy_custom_terms" name="privacy_custom_terms"
+                    rows="8" spellcheck="false"
+                    placeholder="{{ __("Blaauwbosch
+van der Merwe
+Kerkstraat") }}">{{ $settings['privacy_custom_terms'] ?? '' }}</textarea>
+          <div class="form-text">
+            {{ __('One term per line; commas and semicolons also separate, so a column pasted from a spreadsheet works. Matching is whole-word and ignores case. Up to :max terms.', ['max' => \AhgPrivacy\Services\PiiScanService::MAX_CUSTOM_TERMS]) }}
+          </div>
+          <div class="form-text">
+            {{ __('The built-in detectors answer whether something looks like an identifier - an email address, an ID number, a card. They cannot know that a particular surname, farm or case reference is sensitive in this collection. That judgement is yours, and this is where you record it.') }}
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     {{-- Save --}}
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">

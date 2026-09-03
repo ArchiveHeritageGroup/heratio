@@ -234,12 +234,10 @@ class Article30Service
     private function resolveControllerName(): ?string
     {
         try {
-            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_setting')) {
-                $row = \Illuminate\Support\Facades\DB::table('ahg_setting')
-                    ->where('key', 'privacy_controller_name')->first(['value']);
-                if (isset($row->value) && $row->value !== '') {
-                    return (string) $row->value;
-                }
+            // See PiiScanService::resolveJurisdiction(): the table is ahg_settings.
+            $v = \AhgCore\Services\AhgSettingsService::get('privacy_controller_name', null);
+            if (is_string($v) && trim($v) !== '') {
+                return trim($v);
             }
         } catch (\Throwable $e) {
             // ignore - settings table may not exist on a fresh install

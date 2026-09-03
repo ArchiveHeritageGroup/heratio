@@ -623,12 +623,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // the cursor + selection state match the highlighted button.
             setTool(currentTool || 'select');
           } else {
-            // Use the rescaler so existing redaction rectangles scale with the
-            // canvas instead of staying at their original pixel coordinates.
-            rescaleFabricObjectsAndResize(viewport.width, viewport.height);
+            // Resize, then rebuild from the normalised coordinates. This
+            // replaces a rescale-only pass that never cleared the previous
+            // page's rectangles nor loaded the incoming page's own.
             fabricCanvas.setWidth(viewport.width);
             fabricCanvas.setHeight(viewport.height);
-            fabricCanvas.renderAll();
+            renderRegionsForPage();
           }
           // Track pdf-canvas's current position so the Fabric overlay aligns
           // when the PDF is centered (margin: 0 auto) at narrow zoom levels.
@@ -736,12 +736,11 @@ document.addEventListener('DOMContentLoaded', function() {
       var regionId = ++regionIdCounter;
       activeRect.regionId = regionId;
 
+      // Geometry is NOT passed here: addRegion() derives the normalised
+      // fractions from fabricObj, and those are the only copy trusted. Carrying
+      // pixels alongside them would be a second representation free to drift.
       addRegion({
         id: regionId,
-        left: Math.round(activeRect.left),
-        top: Math.round(activeRect.top),
-        width: Math.round(activeRect.width),
-        height: Math.round(activeRect.height),
         page: currentPage,
         fabricObj: activeRect,
       });
@@ -761,12 +760,9 @@ document.addEventListener('DOMContentLoaded', function() {
     fabricCanvas.on('object:modified', function(opt) {
       const obj = opt.target;
       if (obj && obj.regionId) {
-        updateRegion(obj.regionId, {
-          left: Math.round(obj.left),
-          top: Math.round(obj.top),
-          width: Math.round(obj.width * obj.scaleX),
-          height: Math.round(obj.height * obj.scaleY),
-        });
+        var moved = regions.find(function (r) { return r.id === obj.regionId; });
+        if (moved) { setRegionNorm(moved, obj); }
+        updateRegion(obj.regionId, {});
       }
     });
   }
@@ -833,7 +829,95 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================================================================
   // Region Management
   // =========================================================================
+  // ---------------------------------------------------------------------
+  // Coordinates are held NORMALISED (0-1 fractions of the canvas) on every
+  // region, and that is the only copy trusted.
+  //
+  // They used to be held as canvas PIXELS and converted at save time by
+  // dividing by the CURRENT canvas width. That is only correct while the
+  // canvas has not changed size since the rectangle was drawn - and it changes
+  // on every zoom step and on every page turn, because PDF pages need not be
+  // the same size. Nothing wrote the rescaled values back either: the
+  // object:modified handler fires on a user drag, not on a programmatic
+  // resize. So a region drawn on page 1 and saved after visiting page 2 was
+  // divided by page 2's width and stored in the wrong place.
+  // ---------------------------------------------------------------------
+  function canvasDims() {
+    return {
+      w: (fabricCanvas && fabricCanvas.getWidth())  || 1,
+      h: (fabricCanvas && fabricCanvas.getHeight()) || 1,
+    };
+  }
+
+  /** Record a region's geometry from its rect, as fractions of the canvas. */
+  function setRegionNorm(region, rect) {
+    if (!rect) return;
+    var d = canvasDims();
+    region.nleft   = rect.left / d.w;
+    region.ntop    = rect.top  / d.h;
+    region.nwidth  = (rect.width  * (rect.scaleX || 1)) / d.w;
+    region.nheight = (rect.height * (rect.scaleY || 1)) / d.h;
+  }
+
+  /** Canvas-pixel geometry for a region at the CURRENT canvas size. */
+  function regionPixels(region) {
+    var d = canvasDims();
+    return {
+      left:   Math.round((region.nleft   || 0) * d.w),
+      top:    Math.round((region.ntop    || 0) * d.h),
+      width:  Math.round((region.nwidth  || 0) * d.w),
+      height: Math.round((region.nheight || 0) * d.h),
+    };
+  }
+
+  function makeRegionRect(region) {
+    var px = regionPixels(region);
+    var rect = new fabric.Rect({
+      left: px.left, top: px.top, width: px.width, height: px.height,
+      fill: 'rgba(0, 0, 0, 0.6)',
+      stroke: '#ff4444', strokeWidth: 2, strokeDashArray: [5, 3],
+      selectable: currentTool === 'select',
+      evented: currentTool === 'select',
+    });
+    rect.regionId = region.id;
+    return rect;
+  }
+
+  /**
+   * Draw ONLY the regions belonging to the page on screen.
+   *
+   * The overlay is one Fabric canvas shared by every page, so without this
+   * every rectangle from every page stayed on it: page 1's boxes sat on top of
+   * page 5, and a box drawn on page 2 could never be told apart from them.
+   * Page turns previously only RESCALED whatever was already there and never
+   * loaded the incoming page's own regions.
+   *
+   * `regions` deliberately keeps every page's entries - only what is DRAWN is
+   * filtered. Save posts the whole array and the server replaces all rows for
+   * the record, so sending just the visible page would delete every other
+   * page's redactions.
+   */
+  function renderRegionsForPage() {
+    if (!fabricCanvas) return;
+    fabricCanvas.getObjects().slice().forEach(function (o) {
+      if (o.regionId) { fabricCanvas.remove(o); }
+    });
+    regions.forEach(function (r) {
+      if (!CONFIG.isPdf || (r.page || 1) === currentPage) {
+        var rect = makeRegionRect(r);
+        r.fabricObj = rect;
+        fabricCanvas.add(rect);
+      } else {
+        r.fabricObj = null;   // not on screen; deleteRegion/highlight guard on this
+      }
+    });
+    fabricCanvas.calcOffset();
+    fabricCanvas.requestRenderAll();
+    renderRegionList();
+  }
+
   function addRegion(region) {
+    setRegionNorm(region, region.fabricObj);
     regions.push(region);
     renderRegionList();
     updateRegionCount();
@@ -881,11 +965,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let html = '';
     regions.forEach(function(region) {
-      html += '<div class="region-item" data-region-id="' + region.id + '" style="cursor:pointer;">' +
+      // Pixels are derived for display only; the fractions are the truth.
+      var px = regionPixels(region);
+      var offPage = CONFIG.isPdf && (region.page || 1) !== currentPage;
+      html += '<div class="region-item' + (offPage ? ' region-item-offpage' : '') + '" data-region-id="' + region.id + '" style="cursor:pointer;' + (offPage ? 'opacity:.55;' : '') + '">' +
         '<div class="d-flex justify-content-between align-items-start">' +
           '<div>' +
-            '<div class="region-label"><i class="fas fa-vector-square text-danger me-1"></i> Region #' + region.id + '</div>' +
-            '<div class="region-coords">x:' + region.left + ' y:' + region.top + ' w:' + region.width + ' h:' + region.height +
+            '<div class="region-label"><i class="fas fa-vector-square text-danger me-1"></i> Region #' + region.id +
+              (offPage ? ' <span class="badge bg-secondary ms-1">page ' + (region.page || 1) + '</span>' : '') + '</div>' +
+            '<div class="region-coords">x:' + px.left + ' y:' + px.top + ' w:' + px.width + ' h:' + px.height +
             (CONFIG.isPdf ? ' p:' + region.page : '') + '</div>' +
           '</div>' +
           '<button type="button" class="btn btn-sm atom-atom-btn-outline-danger btn-delete-region" data-region-id="' + region.id + '" title="Delete region">' +
@@ -920,7 +1008,18 @@ document.addEventListener('DOMContentLoaded', function() {
   // colour for ~1s so it's obvious which one was clicked.
   function highlightRegion(regionId) {
     var region = regions.find(function (r) { return r.id === regionId; });
-    if (!region || !region.fabricObj || !fabricCanvas) return;
+    if (!region || !fabricCanvas) return;
+
+    // The list shows every page's regions, so the one clicked may not be on
+    // screen. Turn to its page first, then highlight once it has been drawn -
+    // otherwise clicking an off-page entry silently does nothing.
+    if (CONFIG.isPdf && (region.page || 1) !== currentPage) {
+      currentPage = region.page || 1;
+      renderPdfPage(currentPage);
+      setTimeout(function () { highlightRegion(regionId); }, 350);
+      return;
+    }
+    if (!region.fabricObj) return;
     var rect = region.fabricObj;
 
     // Toggle the sidebar's active state.
@@ -946,52 +1045,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1200);
   }
 
+  /**
+   * Seed `regions` from the stored rows - EVERY page, not just the one on
+   * screen - then draw the current page through the shared renderer.
+   *
+   * It used to add a fabric.Rect for every row on whatever page happened to be
+   * open, which is how page 5 ended up wearing page 1's rectangles.
+   */
   function loadExistingRedactions() {
     if (!CONFIG.existingRedactions || !Array.isArray(CONFIG.existingRedactions)) return;
+    if (!fabricCanvas) return;
 
-    CONFIG.existingRedactions.forEach(function(r) {
-      if (!fabricCanvas) return;
+    var d = canvasDims();
 
-      // If the row was saved with normalized=1 (0-1 fractions of canvas),
-      // multiply by current canvas dims to get the canvas-pixel coords the
-      // Fabric.Rect needs. normalized=0 (legacy pixel coords) is used as-is.
-      var canvasW = fabricCanvas.getWidth()  || 1;
-      var canvasH = fabricCanvas.getHeight() || 1;
+    CONFIG.existingRedactions.forEach(function (r) {
+      // normalized=1 rows are already fractions. Legacy normalized=0 rows hold
+      // pixels from the canvas they were drawn on, and that canvas size is not
+      // recorded anywhere - the current one is the only available referent, so
+      // they are converted against it and become fractions from here on.
       var isNorm = (r.normalized | 0) === 1;
-      var left   = isNorm ? (r.left   * canvasW) : (r.left   || r.x || 0);
-      var top    = isNorm ? (r.top    * canvasH) : (r.top    || r.y || 0);
-      var w      = isNorm ? (r.width  * canvasW) : (r.width  || 100);
-      var h      = isNorm ? (r.height * canvasH) : (r.height || 50);
-
-      const rect = new fabric.Rect({
-        left: left,
-        top:  top,
-        width: w,
-        height: h,
-        fill: 'rgba(0, 0, 0, 0.6)',
-        stroke: '#ff4444',
-        strokeWidth: 2,
-        strokeDashArray: [5, 3],
-        selectable: currentTool === 'select',
-        evented: currentTool === 'select',
-      });
-
-      const regionId = ++regionIdCounter;
-      rect.regionId = regionId;
-      fabricCanvas.add(rect);
-
-      addRegion({
-        id: regionId,
-        left: Math.round(rect.left),
-        top: Math.round(rect.top),
-        width: Math.round(rect.width),
-        height: Math.round(rect.height),
-        page: r.page || 1,
-        fabricObj: rect,
-      });
+      var region = {
+        id:      ++regionIdCounter,
+        page:    r.page || 1,
+        nleft:   isNorm ? (r.left   || 0) : ((r.left   || r.x || 0) / d.w),
+        ntop:    isNorm ? (r.top    || 0) : ((r.top    || r.y || 0) / d.h),
+        nwidth:  isNorm ? (r.width  || 0) : ((r.width  || 100)      / d.w),
+        nheight: isNorm ? (r.height || 0) : ((r.height || 50)       / d.h),
+        fabricObj: null,
+      };
+      regions.push(region);
     });
 
-    if (fabricCanvas) fabricCanvas.renderAll();
+    renderRegionsForPage();
+    updateRegionCount();
   }
 
   // =========================================================================
@@ -1032,42 +1118,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!pdfCanvas || !wrap) return;
     wrap.style.left = pdfCanvas.offsetLeft + 'px';
     wrap.style.top  = pdfCanvas.offsetTop  + 'px';
+    // Fabric caches where the canvas sits on the page and maps pointer events
+    // through that cache. Moving the wrapper in CSS does not update it, so
+    // after a page turn - which resizes the canvas and can scroll the document
+    // - a drag was translated to the wrong canvas coordinates and the new
+    // rectangle was silently dropped. Drawing simply stopped working on any
+    // page but the first, with no error.
+    fabricCanvas.calcOffset();
   }
 
-  // Rescale every Fabric object by the ratio between old/new canvas dims,
-  // then resize the canvas. Without this, rectangles drawn at one zoom level
-  // stay at their original pixel coordinates when the canvas grows or
-  // shrinks - visually drifting away from the underlying content.
-  function rescaleFabricObjectsAndResize(newW, newH) {
-    if (!fabricCanvas) return;
-    var oldW = fabricCanvas.getWidth() || newW;
-    var oldH = fabricCanvas.getHeight() || newH;
-    var rx = newW / oldW;
-    var ry = newH / oldH;
-    fabricCanvas.setWidth(newW);
-    fabricCanvas.setHeight(newH);
-    if (Math.abs(rx - 1) < 1e-6 && Math.abs(ry - 1) < 1e-6) {
-      fabricCanvas.requestRenderAll();
-      return;
-    }
-    fabricCanvas.forEachObject(function (obj) {
-      obj.set({
-        left:   obj.left   * rx,
-        top:    obj.top    * ry,
-        width:  obj.width  * rx,
-        height: obj.height * ry,
-        // Also scale strokeWidth proportionally so the dashed border stays
-        // visually consistent. Most drawn rects have strokeWidth 2.
-        strokeWidth: (obj.strokeWidth || 0) * Math.min(rx, ry),
-      });
-      // Update internal coordinate cache so hit-testing matches.
-      obj.setCoords();
-    });
-    fabricCanvas.requestRenderAll();
-  }
-
-  // Re-render the PDF at the current zoomLevel and rescale Fabric objects to
-  // match. Used by zoom-in/out/fit (and could be reused by page nav).
+  // Re-render the PDF at the current zoomLevel, then rebuild the overlay from
+  // the normalised coordinates. Used by zoom-in/out/fit (and could be reused by
+  // page nav). It used to rescale the existing Fabric objects by the old/new
+  // dimension ratio; rebuilding from the fractions is exact at every zoom step
+  // and cannot accumulate rounding drift across repeated zooms.
   function redrawPdfAtCurrentZoom() {
     if (!CONFIG.isPdf || !pdfDoc) return;
     pdfDoc.getPage(currentPage).then(function (page) {
@@ -1078,7 +1142,9 @@ document.addEventListener('DOMContentLoaded', function() {
       pdfCanvas.width  = viewport.width;
       page.render({ canvasContext: pdfCanvas.getContext('2d'), viewport: viewport })
         .promise.then(syncFabricPositionToPdfCanvas);
-      rescaleFabricObjectsAndResize(viewport.width, viewport.height);
+      fabricCanvas.setWidth(viewport.width);
+      fabricCanvas.setHeight(viewport.height);
+      renderRegionsForPage();
       // Also sync immediately + after a beat (for the case where the layout
       // settles a frame after the resize).
       syncFabricPositionToPdfCanvas();
@@ -1128,16 +1194,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // PDF points / image pixels at the file's native resolution. With
     // normalised=1 the renderer multiplies by the file's actual page/image
     // size at apply time, which is independent of editor zoom.
-    var canvasW = (fabricCanvas && fabricCanvas.getWidth())  || 1;
-    var canvasH = (fabricCanvas && fabricCanvas.getHeight()) || 1;
+    // Already normalised on the region itself - see setRegionNorm(). Dividing
+    // again by the CURRENT canvas would misplace every region belonging to a
+    // page or zoom level other than the one on screen.
     const payload = {
       information_object_id: CONFIG.objectId,
       regions: regions.map(function(r) {
         return {
-          left:       r.left   / canvasW,
-          top:        r.top    / canvasH,
-          width:      r.width  / canvasW,
-          height:     r.height / canvasH,
+          left:       r.nleft   || 0,
+          top:        r.ntop    || 0,
+          width:      r.nwidth  || 0,
+          height:     r.nheight || 0,
           page:       r.page || 1,
           normalized: 1,
         };

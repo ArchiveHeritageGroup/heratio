@@ -529,8 +529,9 @@ CREATE TABLE IF NOT EXISTS `privacy_approval_log` (
 INSERT IGNORE INTO `privacy_jurisdiction` (`code`, `name`, `full_name`, `country`, `region`, `regulator`, `regulator_url`, `dsar_days`, `breach_hours`, `effective_date`, `icon`, `is_active`, `sort_order`) VALUES
 ('popia', 'POPIA', 'Protection of Personal Information Act', 'South Africa', 'Africa', 'Information Regulator', 'https://inforegulator.org.za/', 30, 72, '2021-07-01', '🇿🇦', 1, 1),
 ('gdpr', 'GDPR', 'General Data Protection Regulation', 'European Union', 'Europe', 'European Data Protection Board', 'https://edpb.europa.eu/', 30, 72, '2018-05-25', '🇪🇺', 1, 2),
-('pipeda', 'PIPEDA', 'Personal Information Protection and Electronic Documents Act', 'Canada', 'North America', 'Office of the Privacy Commissioner', 'https://www.priv.gc.ca/', 30, 72, '2000-01-01', '🇨🇦', 0, 3),
-('ccpa', 'CCPA', 'California Consumer Privacy Act', 'United States', 'North America', 'California Attorney General', 'https://oag.ca.gov/privacy/ccpa', 45, 72, '2020-01-01', '🇺🇸', 0, 4)
+('uk_gdpr', 'UK GDPR', 'UK General Data Protection Regulation (Data Protection Act 2018)', 'United Kingdom', 'Europe', 'Information Commissioner''s Office', 'https://ico.org.uk/', 30, 72, '2021-01-01', '🇬🇧', 1, 3),
+('pipeda', 'PIPEDA', 'Personal Information Protection and Electronic Documents Act', 'Canada', 'North America', 'Office of the Privacy Commissioner', 'https://www.priv.gc.ca/', 30, 72, '2000-01-01', '🇨🇦', 0, 4),
+('ccpa', 'CCPA', 'California Consumer Privacy Act', 'United States', 'North America', 'California Attorney General', 'https://oag.ca.gov/privacy/ccpa', 45, 72, '2020-01-01', '🇺🇸', 0, 5)
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- Default Retention Schedules

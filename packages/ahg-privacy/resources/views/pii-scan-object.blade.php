@@ -37,8 +37,11 @@
     @endif
 
     <!-- Summary Cards -->
+    {{-- `col` rather than `col-md-3`: the row carries four tiles normally and
+         five when operator watchlist terms matched, and auto-width absorbs
+         both without wrapping. --}}
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md">
             <div class="card {{ ($scanResult['summary']['total'] ?? 0) > 0 ? 'bg-warning text-dark' : 'bg-success text-white' }}">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ $scanResult['summary']['total'] ?? 0 }}</h2>
@@ -46,7 +49,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md">
             <div class="card {{ ($scanResult['summary']['high_risk'] ?? 0) > 0 ? 'bg-danger text-white' : 'bg-light' }}">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ $scanResult['summary']['high_risk'] ?? 0 }}</h2>
@@ -54,7 +57,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md">
             <div class="card bg-info text-white">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ $scanResult['summary']['medium_risk'] ?? 0 }}</h2>
@@ -62,7 +65,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md">
             <div class="card bg-secondary text-white">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ $scanResult['summary']['low_risk'] ?? 0 }}</h2>
@@ -70,6 +73,18 @@
                 </div>
             </div>
         </div>
+        @if(($scanResult['summary']['review'] ?? 0) > 0)
+        {{-- Operator watchlist matches. Shown, but deliberately not a risk band:
+             they carry no measured risk and contribute nothing to the score. --}}
+        <div class="col-md">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h2 class="display-5 text-info">{{ $scanResult['summary']['review'] }}</h2>
+                    <p class="mb-0">{{ __('For Review') }}</p>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- Risk Score -->
@@ -160,7 +175,10 @@ $conf = round(($entity['confidence'] ?? 0) * 100);
                                     <td class="text-center">
                                         @php
 $risk = $entity['risk_level'] ?? 'low';
-                                        $riskColors = ['high' => 'danger', 'medium' => 'warning', 'low' => 'secondary'];
+                                        // Use the map the controller passes rather than redefining one
+                                        // here: the local copy had drifted to three bands while the
+                                        // controller advertised four, so a new band rendered as an
+                                        // unstyled grey badge that looked like a bug.
 @endphp
                                         <span class="badge bg-{{ $riskColors[$risk] ?? 'secondary' }}">{{ ucfirst($risk) }}</span>
                                     </td>

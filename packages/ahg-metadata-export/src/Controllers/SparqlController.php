@@ -137,11 +137,11 @@ class SparqlController extends Controller
      */
     private function configuredBearerToken(): ?string
     {
-        if (! Schema::hasTable('ahg_setting')) {
-            return null;
-        }
-        $val = DB::table('ahg_setting')->where('key', 'sparql_bearer_token')->value('value');
-        $val = trim((string) ($val ?? ''));
+        // The table is ahg_settings (setting_key/setting_value). Reading the
+        // singular name always failed its hasTable guard, so this returned null
+        // every time and bearer auth could never succeed - fail-CLOSED, so no
+        // access was granted that should not have been, but the feature was dead.
+        $val = trim((string) (\AhgCore\Services\AhgSettingsService::get('sparql_bearer_token', '') ?? ''));
         return $val === '' ? null : $val;
     }
 
