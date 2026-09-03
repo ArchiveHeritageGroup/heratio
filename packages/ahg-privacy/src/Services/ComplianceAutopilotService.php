@@ -437,15 +437,15 @@ A catalogue scan surfaced these categories of personal data: {$cats}.
 The high-risk triggers identified are: {$trigs}.
 
 Draft the assessment narrative. Provide:
- - description: one or two sentences describing the processing and the personal data involved.
- - necessity_proportionality: why the processing is necessary and proportionate for an archive's public-interest/archiving task.
- - risks_to_subjects: the concrete risks to data subjects arising from the categories and triggers above.
- - measures_to_mitigate: practical mitigation measures (access controls, field-level redaction, retention limits, audit logging, etc.).
- - residual_risks: the residual risk after mitigation, stated plainly.
+- description: one or two sentences describing the processing and the personal data involved.
+- necessity_proportionality: why the processing is necessary and proportionate for an archive's public-interest/archiving task.
+- risks_to_subjects: the concrete risks to data subjects arising from the categories and triggers above.
+- measures_to_mitigate: practical mitigation measures (access controls, field-level redaction, retention limits, audit logging, etc.).
+- residual_risks: the residual risk after mitigation, stated plainly.
 
 Rules:
- - Ground every statement ONLY in the categories and triggers named above. Do NOT invent record contents, names, or facts.
- - Stay jurisdiction-neutral: refer to "the applicable data-protection regime" - do NOT name a specific country's law (no POPIA / GDPR / IPSAS by name).
+- Ground every statement ONLY in the categories and triggers named above. Do NOT invent record contents, names, or facts.
+- Stay jurisdiction-neutral: refer to "the applicable data-protection regime" - do NOT name a specific country's law (no POPIA / GDPR / IPSAS by name).
 Return STRICT JSON only: an object with keys description, necessity_proportionality, risks_to_subjects, measures_to_mitigate, residual_risks. No prose, no markdown.
 PROMPT;
 
@@ -535,14 +535,14 @@ A catalogue scan surfaced these categories of personal data (category key, human
 {$list}
 
 For EACH category key, propose:
- - retention_period: a short, defensible retention period (e.g. "7 years after last contact", "Permanent - archival value", "Until consent withdrawn + 1 year")
- - legal_basis: a GENERIC, jurisdiction-neutral basis, e.g. "per the applicable data-protection retention regime and the institution's appraisal/retention policy". Do NOT name a specific country's law (no POPIA / GDPR / IPSAS by name); the per-market module supplies that.
- - disposal_action: one of "Secure deletion", "Anonymise", "Transfer to permanent archive", "Periodic disposal review"
- - rationale: one sentence explaining the choice, referring only to the category named.
+- retention_period: a short, defensible retention period (e.g. "7 years after last contact", "Permanent - archival value", "Until consent withdrawn + 1 year")
+- legal_basis: a GENERIC, jurisdiction-neutral basis, e.g. "per the applicable data-protection retention regime and the institution's appraisal/retention policy". Do NOT name a specific country's law (no POPIA / GDPR / IPSAS by name); the per-market module supplies that.
+- disposal_action: one of "Secure deletion", "Anonymise", "Transfer to permanent archive", "Periodic disposal review"
+- rationale: one sentence explaining the choice, referring only to the category named.
 
 Rules:
- - Ground every suggestion ONLY in the category names above. Do NOT invent record contents, names, or facts.
- - Stay jurisdiction-neutral. Frame periods/bases generically.
+- Ground every suggestion ONLY in the category names above. Do NOT invent record contents, names, or facts.
+- Stay jurisdiction-neutral. Frame periods/bases generically.
 Return STRICT JSON only, an object keyed by the category key, each value an object with keys retention_period, legal_basis, disposal_action, rationale. No prose, no markdown.
 PROMPT;
 

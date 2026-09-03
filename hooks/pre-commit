@@ -18,7 +18,9 @@
 #      run of three or more consecutive lines starting with `+` or `-` outside
 #      a unified-diff context. The pattern is the smoking gun of a unified
 #      diff pasted as file content. Scoped to source files (*.php, *.js, *.ts,
-#      *.blade.php) so a deliberate .patch / .diff commit isn't blocked.
+#      *.blade.php) so a deliberate .patch / .diff commit isn't blocked, and
+#      heredoc / nowdoc bodies are exempt because a markdown bullet list in a
+#      prompt template has the same line shape as a deletion hunk.
 #
 # Bypass requires --no-verify, which is reserved for the user. CLAUDE.md
 # already forbids skipping hooks via --no-verify in normal automated work.
@@ -84,8 +86,37 @@ for f in "${STAGED[@]}"; do
             # awk: count runs of consecutive lines starting with + or - (but
             # not ++ or --, which appear in legitimate code as ++var/--var).
             # If any run reaches 3, flag the file.
+            #
+            # Heredoc and nowdoc bodies are skipped. A heredoc is where prose
+            # legitimately lives in this codebase - LLM prompt templates and
+            # generated markdown - and a markdown bullet list is a run of
+            # lines opening with "- " at column 1, which by line shape alone
+            # is indistinguishable from a deletion hunk. Two files were
+            # therefore uncommittable from the day this gate shipped:
+            # ComplianceAutopilotService (the DPIA and retention prompts) and
+            # AnnexIvCommand (the Annex IV markdown template). Neither had
+            # anything wrong with it.
+            #
+            # The trade-off is that a diff pasted INSIDE a heredoc is no
+            # longer caught. That is the right trade: such a paste sits in a
+            # string literal, so it cannot fail to parse or swallow a closing
+            # brace, and those are the failures this gate exists to stop.
             if awk '
-                BEGIN { run = 0 }
+                BEGIN { run = 0; hd = "" }
+                # Inside a heredoc body: look only for its terminator.
+                hd != "" {
+                    if ($0 ~ "^[ \t]*" hd "([^A-Za-z0-9_]|$)") { hd = "" }
+                    run = 0
+                    next
+                }
+                # Opening line: <<<ID, <<<"ID" or <<<\047ID\047 ending the line.
+                /<<<[ \t]*[\047"]?[A-Za-z_][A-Za-z0-9_]*[\047"]?[ \t]*\r?$/ {
+                    hd = $0
+                    sub(/^.*<<<[ \t]*/, "", hd)
+                    gsub(/[^A-Za-z0-9_]/, "", hd)
+                    run = 0
+                    next
+                }
                 /^[+-][^+-]/ { run++; if (run >= 3) { print NR; exit 1 } next }
                 { run = 0 }
             ' "$f" >/dev/null 2>&1; then

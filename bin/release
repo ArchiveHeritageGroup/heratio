@@ -246,18 +246,28 @@ mkdir -p "${SESSION_LOG_DIR}"
     echo "https://github.com/ArchiveHeritageGroup/heratio/releases/tag/${TAG}"
 } > "${SESSION_LOG_FILE}"
 
-# Best-effort drop into the KM ingest spool when it exists. Never fail the
-# release because the spool isn't there.
-if [[ -d /var/spool/km-ingest ]]; then
-    cp "${SESSION_LOG_FILE}" "/var/spool/km-ingest/heratio-${TAG}-$(date +%s).md" 2>/dev/null \
-        || echo -e "${YELLOW}(KM spool drop skipped — permission)${NC}"
-fi
-
 git add -- "${SESSION_LOG_FILE}"
 git commit -m "$COMMIT_MSG"
 
 echo -e "${BLUE}[2/3] Creating tag ${TAG}...${NC}"
 git tag -a "${TAG}" -m "${MSG}"
+
+# Best-effort drop into the KM ingest spool when it exists. Never fail the
+# release because the spool isn't there.
+#
+# BELOW the commit and tag, ABOVE the push, and both halves of that matter.
+# It used to sit above `git commit`, which meant a commit refused by
+# hooks/pre-commit had already published a session log to KM describing a
+# release that does not exist. Not hypothetical: v1.154.710 was refused by the
+# diff-marker gate on its first attempt and left an orphan spool file behind,
+# so KM carried the release before the repo did. It stays above `git push` for
+# the same reason the unlock cleanup does - on heratio-dev the push always
+# fails and `set -e` would exit before this ran, and the commit and tag are
+# real whether or not the push succeeds.
+if [[ -d /var/spool/km-ingest ]]; then
+    cp "${SESSION_LOG_FILE}" "/var/spool/km-ingest/heratio-${TAG}-$(date +%s).md" 2>/dev/null \
+        || echo -e "${YELLOW}(KM spool drop skipped - permission)${NC}"
+fi
 
 # One-shot unlocks expire HERE, not after the push. The unlock exists to permit
 # the commit, and the commit has happened - the local release is complete at
