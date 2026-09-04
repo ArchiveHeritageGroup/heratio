@@ -762,6 +762,25 @@
         document.addEventListener('DOMContentLoaded', function() {
           var __vid = '{{ $viewerId }}';
           var __imgUrl = '{{ url($imgSrc) }}';
+          @if(! ($canBypassRedaction ?? false) && ! empty($visualRedactions) && count($visualRedactions) && count($__viewerObjects) < 2)
+            // Mirador embeds its own OpenSeadragon, created with an element
+            // rather than an id, so it is not in OpenSeadragon's registry and
+            // the redaction shim cannot reach it to place overlays. Rather than
+            // leave it showing the unredacted scan - or hide it, which is what
+            // v1.154.714 did - hand it the server-side burnt-in derivative,
+            // which is the stronger answer anyway: an overlay only covers the
+            // pixels on screen, while the tiles underneath stay downloadable.
+            //
+            // Set BEFORE initIiifViewer because Mirador may be the record's
+            // default mode and is then built during init, well before the
+            // redaction partial further down the page runs.
+            //
+            // Single-object records only. The multi-object manifest builds a
+            // canvas per digital object and this endpoint serves one master per
+            // record, so a multi-object record keeps the fail-closed hide.
+            window.AHG_REDACTED_ASSET = window.AHG_REDACTED_ASSET || {};
+            window.AHG_REDACTED_ASSET[__vid] = {!! json_encode(route('io.privacy.redacted-asset', $io->slug)) !!};
+          @endif
           initIiifViewer(__vid, __imgUrl, {!! json_encode($io->title) !!}, '{{ $vType }}', {!! json_encode($__viewerObjects) !!});
 
           // TIFF / no-Cantaloupe fallback: the OSD + Mirador deep-zoom modes need a

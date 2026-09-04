@@ -155,9 +155,24 @@ class SpectrumComplianceTest extends TestCase
         ]);
     }
 
+    /**
+     * The chain fires into the lowest-id ACTIVE workflow carrying the target
+     * procedure, so a test that creates its own workflow is not automatically
+     * the one that receives the task. heratio_test is seeded with Spectrum
+     * workflows - cataloguing is id 205 - and every workflow this test creates
+     * has a higher id, so the task was spawned into the seeded workflow and
+     * the count on the test's own workflow never moved. `spawned` was 1 all
+     * along; it was the second assertion that failed.
+     */
+    private function isolateProcedures(string ...$procedures): void
+    {
+        DB::table('ahg_workflow')->whereIn('spectrum_procedure', $procedures)->update(['is_active' => 0]);
+    }
+
     public function test_apply_chain_spawns_downstream_task(): void
     {
         // Two workflows: acquisition + cataloguing
+        $this->isolateProcedures('acquisition', 'cataloguing');
         $acqId = $this->makeSpectrumWorkflow('acquisition');
         $acqStep = $this->makeStep($acqId, 'Acq step', 1);
         $catId = $this->makeSpectrumWorkflow('cataloguing');
@@ -184,6 +199,10 @@ class SpectrumComplianceTest extends TestCase
 
     public function test_apply_chain_does_not_double_spawn(): void
     {
+        // Same isolation as above. Without it this test passed for the wrong
+        // reason: both applies targeted the seeded workflow, so the second was
+        // blocked by the guard whether or not the first had spawned anything.
+        $this->isolateProcedures('acquisition', 'cataloguing');
         $acqId = $this->makeSpectrumWorkflow('acquisition');
         $acqStep = $this->makeStep($acqId, 'A', 1);
         $catId = $this->makeSpectrumWorkflow('cataloguing');
@@ -195,9 +214,11 @@ class SpectrumComplianceTest extends TestCase
             'trigger_event' => 'on_complete', 'is_active' => true,
         ]);
 
-        $this->svc->applyChainOnTaskApproved($taskId);
+        $r1 = $this->svc->applyChainOnTaskApproved($taskId);
         $r2 = $this->svc->applyChainOnTaskApproved($taskId);
+        $this->assertSame(1, $r1['spawned'], 'first apply must spawn');
         $this->assertSame(0, $r2['spawned'], 'second apply must not double-spawn');
+        $this->assertSame(1, DB::table('ahg_workflow_task')->where('workflow_id', $catId)->count());
     }
 
     public function test_find_overdue_returns_old_pending_tasks(): void

@@ -420,6 +420,18 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
             };
         }
 
+        // A record with redactions is served the burnt-in derivative instead.
+        // The image service MUST be dropped with it: Cantaloupe tiles the
+        // ORIGINAL file, so leaving the service in the manifest would let
+        // Mirador deep-zoom straight past the redaction. The page sets this
+        // only for a non-admin viewer of a single-object record; see
+        // _digital-object-viewer.blade.php.
+        var redactedAssetUrl = (window.AHG_REDACTED_ASSET || {})[vid];
+        if (redactedAssetUrl) {
+            miradorImageUrl = redactedAssetUrl;
+            miradorService = null;
+        }
+
         // Probe the real image dimensions before building the manifest. Mirador
         // sizes its canvas from manifest width/height, so a wrong value parks
         // the image in a corner of an oversized empty canvas.

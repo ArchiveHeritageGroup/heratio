@@ -55,7 +55,40 @@ class SeedSpectrumCommandTest extends TestCase
         $this->assertSame($firstSteps, DB::table('ahg_workflow_step')->count());
     }
 
-    public function test_only_flag_installs_just_named_procedures(): void
+    /**
+     * --only restricts which procedures the command TOUCHES, which is the only
+     * thing it can promise on a populated database.
+     *
+     * This asserted that loans_in and audit were absent from ahg_workflow
+     * entirely, which could never hold: the test database is built from
+     * database/core/*.sql, and that seeds all 21 Spectrum workflows, so the
+     * assertion failed on data that was there before the command ran. The
+     * command itself was correct throughout.
+     *
+     * Touched means updated_at moved, so --overwrite is used: without it every
+     * named procedure already exists and is skipped, and the run proves
+     * nothing either way.
+     */
+    public function test_only_flag_touches_just_named_procedures(): void
+    {
+        $stale = '2000-01-01 00:00:00';
+        DB::table('ahg_workflow')->whereNotNull('spectrum_procedure')->update(['updated_at' => $stale]);
+
+        $this->artisan('workflow:seed-spectrum --overwrite --only=object_entry --only=cataloguing')
+            ->assertSuccessful();
+
+        $touched = DB::table('ahg_workflow')
+            ->whereNotNull('spectrum_procedure')
+            ->where('updated_at', '>', $stale)
+            ->pluck('spectrum_procedure')
+            ->sort()
+            ->values()
+            ->toArray();
+
+        $this->assertSame(['cataloguing', 'object_entry'], $touched, '--only must touch exactly the named procedures');
+    }
+
+    public function test_named_procedures_exist_after_seeding(): void
     {
         $this->artisan('workflow:seed-spectrum --only=object_entry --only=cataloguing')->assertSuccessful();
 
@@ -66,8 +99,6 @@ class SeedSpectrumCommandTest extends TestCase
 
         $this->assertContains('object_entry', $procedures);
         $this->assertContains('cataloguing', $procedures);
-        $this->assertNotContains('loans_in', $procedures, '--only must exclude other procedures');
-        $this->assertNotContains('audit', $procedures);
     }
 
     public function test_overwrite_replaces_steps_for_existing_workflow(): void

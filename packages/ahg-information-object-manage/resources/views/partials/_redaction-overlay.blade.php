@@ -195,10 +195,14 @@
       // ── Fail closed ────────────────────────────────────────────────────
       //
       // A canvas viewer this shim cannot mask must not simply show the record
-      // unredacted, which is what happened before. Mirador is the remaining
-      // case: it is a second tiled viewer with its own overlay model and is
-      // not handled here, so it is hidden rather than left open. OSD is only
-      // hidden if placing its overlays actually failed.
+      // unredacted. Mirador cannot be masked from here - it builds its own
+      // OpenSeadragon from an element rather than an id, so it never enters
+      // OpenSeadragon's registry - but it does not need to be: the page hands
+      // it the server-side burnt-in derivative instead, which also stops the
+      // underlying tiles being downloadable. Where that could not be arranged,
+      // which today is a record with more than one digital object, it is
+      // hidden rather than left open. OSD is only hidden if placing its
+      // overlays actually failed.
       function hide(el, why) {
         if (!el || el.dataset.ahgRedactionHidden === '1') return;
         el.dataset.ahgRedactionHidden = '1';
@@ -223,9 +227,12 @@
           }
         }
 
+        // Mirador is safe when it was given the burnt-in derivative; hide it
+        // only when it was not, so it is still showing the original.
+        var servedRedacted = !!(window.AHG_REDACTED_ASSET || {})['iiif-viewer-' + ioId];
         var mirador = document.getElementById('mirador-iiif-viewer-' + ioId);
-        if (visible(mirador)) {
-          hide(mirador, 'Mirador cannot be masked by this shim');
+        if (! servedRedacted && visible(mirador)) {
+          hide(mirador, 'Mirador was not given a redacted derivative for this record');
         }
 
         paint();

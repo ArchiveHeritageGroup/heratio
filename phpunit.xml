@@ -26,29 +26,23 @@
         </testsuite>
 
         <!-- Package-level tests -->
-        <!-- Only includes packages with actual test directories -->
+        <!--
+             Every package, by glob. This was a hand-maintained list of 13
+             directories, and a package whose tests were not on it simply never
+             ran in CI: 26 packages with real tests were invisible, ahg-privacy
+             among them, so the 26 tests written for the PII scan criteria at
+             v1.154.710 protected nothing until v1.154.712. Only the "All" suite
+             globbed, and All was itself broken (see its excludes), so nothing
+             ran them. A list that has to be updated by hand to keep coverage is
+             a list that silently loses coverage; the glob cannot.
+
+             The two exclusions are the same ones All carries, for the same
+             reasons - see the comments there.
+        -->
         <testsuite name="Package">
-            <directory>packages/ahg-ric/tests</directory>
-            <directory>packages/ahg-doi-manage/tests</directory>
-            <directory>packages/ahg-security-clearance/tests</directory>
-            <directory>packages/ahg-multi-tenant/tests</directory>
-            <directory>packages/ahg-request-publish/tests</directory>
-            <directory>packages/ahg-research/tests</directory>
-            <directory>packages/ahg-core/tests</directory>
-            <directory>packages/ahg-donor-manage/tests</directory>
-            <directory>packages/ahg-vendor/tests</directory>
-            <directory>packages/ahg-search/tests</directory>
-            <directory>packages/ahg-federation/tests</directory>
-            <!-- ahg-privacy's 43 tests are pure-logic (no DB, no container) and
-                 ran nowhere until v1.154.712: only the "All" suite globs
-                 packages/*/tests, and CI does not run "All" because an
-                 unrelated tree outside this repo leaks into it. They passed the
-                 whole time, which is why nobody noticed they were not protecting
-                 anything. -->
-            <directory>packages/ahg-privacy/tests</directory>
-            <directory>packages/ahg-information-object-manage/tests</directory>
-            <!-- Additional packages will be added here as tests are created -->
-            <!-- See docs/package-classification.md for priority order -->
+            <directory>packages/*/tests</directory>
+            <exclude>packages/ahg-z3950/tests</exclude>
+            <exclude>packages/ahg-mva-claims/tests</exclude>
         </testsuite>
 
         <!-- All tests combined -->
