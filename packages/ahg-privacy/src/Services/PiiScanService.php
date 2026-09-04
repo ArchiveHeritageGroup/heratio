@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace AhgPrivacy\Services;
 
+use AhgPrivacy\Services\PrivacyService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -797,21 +798,17 @@ final class PiiScanService
 
         $options = [];
         try {
-            if (Schema::hasTable('privacy_jurisdiction')) {
-                $rows = DB::table('privacy_jurisdiction')
-                    ->where('is_active', 1)
-                    ->orderBy('sort_order')
-                    ->get(['code', 'name', 'country']);
-                foreach ($rows as $r) {
-                    $label = trim((string) $r->name.' ('.(string) $r->country.')');
-                    if (! in_array((string) $r->code, $supported, true)) {
-                        $label .= ' - no market-specific patterns';
-                    }
-                    $options[(string) $r->code] = $label;
+            foreach (PrivacyService::activeJurisdictions() as $code => $info) {
+                $label = trim((string) $info['name'].' ('.(string) $info['country'].')');
+                if (! in_array((string) $code, $supported, true)) {
+                    $label .= ' - no market-specific patterns';
                 }
+                $options[(string) $code] = $label;
             }
         } catch (\Throwable $e) {
-            // Fall through to the minimal pair below.
+            // Fall through to the minimal pair below. The reader touches the
+            // DB, so this still has to catch: jurisdictionOptions() is called
+            // from contexts with no database at all.
         }
 
         // Never render an empty select: a fresh install has no table yet, and

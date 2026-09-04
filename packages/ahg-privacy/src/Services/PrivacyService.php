@@ -82,6 +82,29 @@ class PrivacyService
     }
 
     /**
+     * One jurisdiction as an object, for the views that render a single active
+     * regime rather than a list.
+     *
+     * Returns the named code when the registry carries it, otherwise the first
+     * active one, otherwise null - which is what the dashboard did inline, kept
+     * exactly. It hands back an object because the dashboard view reads
+     * `$activeJurisdiction->name`, and an object built from activeJurisdictions()
+     * rather than the raw table row, so callers depend on this service's shape
+     * and not on the columns.
+     */
+    public static function activeJurisdiction(?string $code = null): ?object
+    {
+        $all = self::activeJurisdictions();
+        if ($all === []) {
+            return null;
+        }
+
+        $key = ($code !== null && isset($all[$code])) ? $code : array_key_first($all);
+
+        return (object) ($all[$key] + ['code' => $key]);
+    }
+
+    /**
      * The same list grouped by region, for menus that head their sections.
      * Region order follows sort_order, so the registry decides it.
      */

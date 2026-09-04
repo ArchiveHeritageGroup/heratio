@@ -62,40 +62,14 @@ class PrivacyController extends Controller
     {
         $currentJurisdiction = $request->input('jurisdiction', 'all');
 
-        // Build jurisdictions map from DB
-        $jurisdictions = [];
-        $activeJurisdiction = null;
-        if (Schema::hasTable('privacy_jurisdiction')) {
-            $rows = DB::table('privacy_jurisdiction')
-                ->where('is_active', 1)
-                ->orderBy('sort_order')
-                ->get();
-            foreach ($rows as $j) {
-                $jurisdictions[$j->code] = [
-                    'name' => $j->name,
-                    'full_name' => $j->full_name,
-                    'country' => $j->country,
-                    'region' => $j->region,
-                    'icon' => $j->icon ?: 'un',
-                    'dsar_days' => (int) ($j->dsar_days ?? 30),
-                    'breach_hours' => (int) ($j->breach_hours ?? 72),
-                    'effective_date' => $j->effective_date,
-                    'regulator' => $j->regulator,
-                    'regulator_url' => $j->regulator_url,
-                ];
-            }
-            if ($currentJurisdiction !== 'all' && isset($rows)) {
-                foreach ($rows as $j) {
-                    if ($j->code === $currentJurisdiction) {
-                        $activeJurisdiction = $j;
-                        break;
-                    }
-                }
-            }
-            if (! $activeJurisdiction && $rows->count() > 0) {
-                $activeJurisdiction = $rows->first();
-            }
-        }
+        // Both from the shared reader. This method kept its own copy of the
+        // registry query and field mapping until v1.154.718, one of three in
+        // this controller - the same duplication that let the seed drift out of
+        // step with the product for months.
+        $jurisdictions = \AhgPrivacy\Services\PrivacyService::activeJurisdictions();
+        $activeJurisdiction = \AhgPrivacy\Services\PrivacyService::activeJurisdiction(
+            $currentJurisdiction === 'all' ? null : $currentJurisdiction
+        );
 
         // Scope filter helper
         $scope = function ($q) use ($currentJurisdiction) {
@@ -449,29 +423,7 @@ class PrivacyController extends Controller
 
     public function config(Request $request)
     {
-        $jurisdictions = [];
-        if (Schema::hasTable('privacy_jurisdiction')) {
-            foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
-                $jurisdictions[$j->code] = [
-                    'name' => $j->name,
-                    'full_name' => $j->full_name,
-                    'country' => $j->country,
-                    'region' => $j->region,
-                    'regulator' => $j->regulator,
-                    'regulator_url' => $j->regulator_url,
-                    'dsar_days' => (int) ($j->dsar_days ?? 30),
-                    'breach_hours' => (int) ($j->breach_hours ?? 72),
-                    'effective_date' => $j->effective_date,
-                    'icon' => $j->icon ?: 'un',
-                ];
-            }
-        }
-        if (empty($jurisdictions)) {
-            $jurisdictions = [
-                'popia' => ['name' => 'POPIA', 'full_name' => 'Protection of Personal Information Act', 'country' => 'South Africa', 'region' => 'Africa', 'regulator' => 'Information Regulator', 'regulator_url' => 'https://inforegulator.org.za', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2021-07-01', 'icon' => 'za'],
-                'gdpr' => ['name' => 'GDPR', 'full_name' => 'General Data Protection Regulation', 'country' => 'European Union', 'region' => 'Europe', 'regulator' => 'European Data Protection Board', 'regulator_url' => 'https://edpb.europa.eu', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2018-05-25', 'icon' => 'eu'],
-            ];
-        }
+        $jurisdictions = \AhgPrivacy\Services\PrivacyService::activeJurisdictions();
 
         $currentJurisdiction = $request->input('jurisdiction', array_key_first($jurisdictions));
         if (! isset($jurisdictions[$currentJurisdiction])) {
@@ -1107,17 +1059,11 @@ class PrivacyController extends Controller
                 ->get();
         }
 
-        $jurisdictions = [];
-        if (Schema::hasTable('privacy_jurisdiction')) {
-            foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
-                $jurisdictions[$j->code] = [
-                    'name' => $j->name,
-                    'full_name' => $j->full_name,
-                    'country' => $j->country,
-                    'icon' => $j->icon ?: 'un',
-                ];
-            }
-        }
+        // Was a narrower hand-built map of the same rows. The shared reader
+        // returns a superset, which the view ignores, and brings the missing
+        // fallback with it - an install with no registry table used to render
+        // an empty jurisdiction list here.
+        $jurisdictions = \AhgPrivacy\Services\PrivacyService::activeJurisdictions();
 
         return view('privacy::officer-list', compact('officers', 'jurisdictions'));
     }

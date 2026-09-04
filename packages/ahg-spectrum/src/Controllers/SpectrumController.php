@@ -1938,13 +1938,15 @@ class SpectrumController extends Controller
         // jurisdiction is shown now.
         $jurisdictions = \AhgPrivacy\Services\PrivacyService::activeJurisdictions();
 
-        // Active jurisdiction from DB
-        $activeJurisdiction = null;
-        if (Schema::hasTable('privacy_jurisdiction')) {
-            $activeJurisdiction = DB::table('privacy_jurisdiction')
-                ->where('is_active', 1)
-                ->first();
-        }
+        // The jurisdiction the page is actually showing. This used to be
+        // ->where('is_active', 1)->first() with no code filter and no ordering,
+        // so it returned whichever active row MySQL happened to yield - not the
+        // operator's selection, and not even deterministically the same one
+        // between requests. The header above the stats could therefore name a
+        // different regime from the one the figures were filtered by.
+        $activeJurisdiction = \AhgPrivacy\Services\PrivacyService::activeJurisdiction(
+            $currentJurisdiction === 'all' ? null : $currentJurisdiction
+        );
 
         // DSAR stats
         $dsarStats = ['pending' => 0, 'overdue' => 0];
