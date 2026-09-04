@@ -75,6 +75,35 @@ class PrivacyService
     }
 
     /**
+     * A stored redaction rectangle as left/top/width/height.
+     *
+     * privacy_visual_redaction.coordinates holds two shapes. The editor writes
+     * left/top/width/height, but half the rows on this instance are
+     * x/y/width/height, and the editor's own loader has always read either -
+     * `$coords['left'] ?? $coords['x'] ?? 0`. The public overlay did not: it
+     * read `coords.top` and `coords.left` alone, so an x/y row gave it
+     * undefined, `undefined * width` produced NaN, and the browser dropped the
+     * top and left declarations while keeping width and height. The mask still
+     * drew, at its static position, at the right size, over the wrong part of
+     * the image - which is worse than not drawing, because the page looks
+     * redacted.
+     *
+     * One reader for both callers, rather than the fallback chain repeated in
+     * PHP and again in JavaScript, so a third shape has one place to be taught.
+     */
+    public static function redactionRect($coordinates): array
+    {
+        $c = is_string($coordinates) ? (json_decode($coordinates, true) ?: []) : (array) ($coordinates ?: []);
+
+        return [
+            'left' => (float) ($c['left'] ?? $c['x'] ?? 0),
+            'top' => (float) ($c['top'] ?? $c['y'] ?? 0),
+            'width' => (float) ($c['width'] ?? $c['w'] ?? 0),
+            'height' => (float) ($c['height'] ?? $c['h'] ?? 0),
+        ];
+    }
+
+    /**
      * Save (insert or update) a visual redaction.
      */
     public function saveRedaction(array $data): int

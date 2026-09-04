@@ -183,11 +183,14 @@ class RedactionRenderService
 
         $out = [];
         foreach ($rows as $r) {
-            $coords = json_decode((string) ($r->coordinates ?? '{}'), true) ?: [];
-            $top    = (float) ($coords['top']    ?? 0);
-            $left   = (float) ($coords['left']   ?? 0);
-            $width  = (float) ($coords['width']  ?? 0);
-            $height = (float) ($coords['height'] ?? 0);
+            // Through the shared reader: this read 'top'/'left' with no
+            // fallback, so a row stored as x/y burned the mask at (0,0) at the
+            // right size - into a derivative file, where it stays.
+            $rect   = \AhgInformationObjectManage\Services\PrivacyService::redactionRect($r->coordinates ?? '{}');
+            $top    = $rect['top'];
+            $left   = $rect['left'];
+            $width  = $rect['width'];
+            $height = $rect['height'];
             if ($width <= 0 || $height <= 0) continue; // skip zero-sized
             $out[] = [
                 'page'       => (int) ($r->page_number ?: 1),

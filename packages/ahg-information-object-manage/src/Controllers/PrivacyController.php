@@ -218,13 +218,13 @@ class PrivacyController extends Controller
         // the `normalized` flag so the editor's loader can scale 0-1 fractions
         // back into canvas pixels at the current zoom level.
         $redactionRegions = $existingRedactions->map(function ($r) {
-            $coords = is_string($r->coordinates) ? json_decode($r->coordinates, true) : (array) $r->coordinates;
+            $rect = \AhgInformationObjectManage\Services\PrivacyService::redactionRect($r->coordinates);
             return [
                 'id'         => $r->id,
-                'left'       => $coords['left'] ?? $coords['x'] ?? 0,
-                'top'        => $coords['top'] ?? $coords['y'] ?? 0,
-                'width'      => $coords['width'] ?? $coords['w'] ?? 100,
-                'height'     => $coords['height'] ?? $coords['h'] ?? 50,
+                'left'       => $rect['left'],
+                'top'        => $rect['top'],
+                'width'      => $rect['width'],
+                'height'     => $rect['height'],
                 'normalized' => (int) ($r->normalized ?? 0),
                 'page'       => $r->page_number,
                 'label'      => $r->label,
@@ -394,7 +394,7 @@ class PrivacyController extends Controller
             ->map(fn ($r) => [
                 'page'       => (int) $r->page_number,
                 'type'       => (string) $r->region_type,
-                'coords'     => json_decode((string) $r->coordinates, true) ?? [],
+                'coords'     => \AhgInformationObjectManage\Services\PrivacyService::redactionRect($r->coordinates),
                 'normalized' => (int) $r->normalized,
                 'source'     => (string) $r->source,
                 'label'      => $r->label,

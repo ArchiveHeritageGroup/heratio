@@ -867,9 +867,12 @@ class InformationObjectController extends Controller
                     ->orderBy('page_number')
                     ->orderBy('id')
                     ->get();
-                // Decode the coordinates JSON once so the view doesn't have to.
+                // Decode the coordinates JSON once so the view doesn't have to,
+                // and through the shared reader so the overlay sees one shape.
+                // It used to decode raw, which handed an x/y row straight to a
+                // renderer that only knows left/top.
                 foreach ($visualRedactions as $r) {
-                    $r->coords = json_decode((string) ($r->coordinates ?? '{}'), true) ?: [];
+                    $r->coords = \AhgInformationObjectManage\Services\PrivacyService::redactionRect($r->coordinates ?? '{}');
                 }
             }
         } catch (\Throwable $e) { /* table missing in some installs */ }

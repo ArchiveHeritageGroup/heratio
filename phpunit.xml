@@ -46,6 +46,7 @@
                  whole time, which is why nobody noticed they were not protecting
                  anything. -->
             <directory>packages/ahg-privacy/tests</directory>
+            <directory>packages/ahg-information-object-manage/tests</directory>
             <!-- Additional packages will be added here as tests are created -->
             <!-- See docs/package-classification.md for priority order -->
         </testsuite>
@@ -61,6 +62,20 @@
                  here so the build is not red on known-incomplete work; remove
                  this line when #1135 is resolved. -->
             <exclude>packages/ahg-z3950/tests</exclude>
+            <!-- ahg-mva-claims is not a Heratio package. On instances that
+                 develop it, packages/ahg-mva-claims is a symlink into a
+                 separate application (composer.json carries the requirement
+                 per-instance and is skip-worktree, so it never commits), and
+                 the glob above follows the symlink. Its tests extend
+                 AhgMvaClaims\Tests\TestCase, which lives in that package's
+                 autoload-dev and a path repository does not merge, so building
+                 the suite aborts with "Class not found" before a single test
+                 runs - taking the whole All suite with it. That is why the 43
+                 ahg-privacy tests sat unrun until v1.154.712: All was the only
+                 suite that globbed them, and All had not worked in months.
+                 PHPUnit ignores an exclude path that does not exist, so this
+                 line is inert on instances without the symlink. -->
+            <exclude>packages/ahg-mva-claims/tests</exclude>
         </testsuite>
     </testsuites>
 
