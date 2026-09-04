@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace AhgPrivacy\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -156,6 +157,17 @@ final class PiiScanService
     private ?array $customTerms;
 
     /**
+     * Patterns that could not be evaluated during the last scan().
+     *
+     * Non-empty means the scan is INCOMPLETE, and an empty findings list from
+     * it says nothing about the record. Read it with scanErrors() before
+     * treating a clean result as clean.
+     *
+     * @var array<int,string>
+     */
+    private array $scanErrors = [];
+
+    /**
      * @param  list<string>|null  $customTerms
      */
     public function __construct(?string $jurisdiction = null, ?array $customTerms = null)
@@ -172,6 +184,7 @@ final class PiiScanService
     public function scan(string $text): array
     {
         $findings = [];
+        $this->scanErrors = [];
 
         $this->collectEmails($text, $findings);
         $this->collectPhones($text, $findings);
@@ -197,6 +210,27 @@ final class PiiScanService
         }
 
         return $findings;
+    }
+
+    /**
+     * Patterns that failed to evaluate during the last scan().
+     *
+     * Empty is the normal case and means the scan ran in full. Non-empty means
+     * no findings list from that scan can be read as "this record is clean",
+     * and in particular that it must not be turned into an Article 30 record or
+     * a retention proposal.
+     *
+     * @return array<int,string>
+     */
+    public function scanErrors(): array
+    {
+        return $this->scanErrors;
+    }
+
+    /** True when the last scan() evaluated every pattern it attempted. */
+    public function lastScanWasComplete(): bool
+    {
+        return $this->scanErrors === [];
     }
 
     /**
@@ -517,7 +551,7 @@ final class PiiScanService
                 continue;
             }
             $cfg = self::NATIONAL_ID_PATTERNS[$j];
-            if (! preg_match_all($cfg['pattern'], $text, $matches, PREG_OFFSET_CAPTURE)) {
+            if (! $this->matchAll($cfg['pattern'], $text, $matches, "national_id:{$j}")) {
                 continue;
             }
             foreach ($matches[0] as $match) {
@@ -545,7 +579,7 @@ final class PiiScanService
     /** @param array<int,array> $findings */
     private function collectCreditCards(string $text, array &$findings): void
     {
-        if (! preg_match_all(self::BASE_PATTERNS['credit_card']['pattern'], $text, $matches, PREG_OFFSET_CAPTURE)) {
+        if (! $this->matchAll(self::BASE_PATTERNS['credit_card']['pattern'], $text, $matches, 'credit_card')) {
             return;
         }
         foreach ($matches[0] as $match) {
@@ -571,7 +605,7 @@ final class PiiScanService
     /** @param array<int,array> $findings */
     private function collectDatesOfBirth(string $text, array &$findings): void
     {
-        if (! preg_match_all(self::BASE_PATTERNS['date_of_birth']['pattern'], $text, $matches, PREG_OFFSET_CAPTURE)) {
+        if (! $this->matchAll(self::BASE_PATTERNS['date_of_birth']['pattern'], $text, $matches, 'date_of_birth')) {
             return;
         }
         $currentYear = (int) date('Y');
@@ -596,10 +630,54 @@ final class PiiScanService
         }
     }
 
+    /**
+     * preg_match_all, with engine FAILURE told apart from no-match.
+     *
+     * preg_match_all returns 0 when it found nothing and false when it could
+     * not run - a backtrack or recursion limit, or bad UTF-8 under /u. Both are
+     * falsy, so `if (! preg_match_all(...)) return;` reports a clean record for
+     * a scan that never happened. In this class "clean" is not a neutral
+     * answer: it feeds an Article 30 record and a RetentionProposal a DPO is
+     * asked to accept, so a scan that failed must never be recorded as one that
+     * found nothing.
+     *
+     * None of the patterns here can currently fail: each was driven against
+     * adversarial input (500k-digit runs, 200k-element alternations) and every
+     * one returned a clean 0. They are all linear, with no nested quantifier to
+     * backtrack through. So this guard is for the patterns that are not written
+     * yet, and there are known to be several - ndpa and kenya_dpa are active in
+     * the registry today with no market-specific patterns at all, and the
+     * settings form says so. A checksum-bearing national-identifier pattern is
+     * exactly the shape that can blow a limit.
+     *
+     * Reported by a sibling instance that had the live version of this: a
+     * redaction filter whose every failure was swallowed by a bare catch, so it
+     * served the original page for months while every other signal said fine.
+     *
+     * @param  array<int,mixed>|null  $matches
+     */
+    private function matchAll(string $pattern, string $text, ?array &$matches, string $label): bool
+    {
+        $result = preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE);
+
+        if ($result === false) {
+            $this->scanErrors[] = $label;
+            Log::error('[pii-scan] pattern could not be evaluated - this scan is INCOMPLETE and must not be read as clean', [
+                'pattern' => $label,
+                'error' => preg_last_error_msg(),
+                'text_length' => strlen($text),
+            ]);
+
+            return false;
+        }
+
+        return $result > 0;
+    }
+
     /** @param array<int,array> $findings */
     private function collectByPattern(string $text, array &$findings, string $type, string $pattern, float $confidence): void
     {
-        if (! preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE)) {
+        if (! $this->matchAll($pattern, $text, $matches, $type)) {
             return;
         }
         foreach ($matches[0] as $match) {

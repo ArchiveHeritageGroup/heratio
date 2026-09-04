@@ -264,4 +264,50 @@ class PiiScanServiceTest extends TestCase
         $this->assertSame('medium', PrivacyController::bandFor('email', 0.60));
         $this->assertSame('low', PrivacyController::bandFor('email', 0.59));
     }
+
+    // ── an incomplete scan is not a clean scan ───────────────────────────
+
+    public function test_a_completed_scan_reports_no_errors(): void
+    {
+        $svc = new PiiScanService('gdpr', []);
+        $svc->scan('Contact a.person@example.test about the 1975 accession.');
+
+        $this->assertTrue($svc->lastScanWasComplete());
+        $this->assertSame([], $svc->scanErrors());
+    }
+
+    public function test_scan_errors_reset_between_scans(): void
+    {
+        $svc = new PiiScanService('gdpr', []);
+        $svc->scan('nothing of interest here');
+        $this->assertSame([], $svc->scanErrors());
+        $svc->scan('still nothing');
+        $this->assertSame([], $svc->scanErrors());
+    }
+
+    /**
+     * The distinction the guard exists for. preg_match_all returns 0 when it
+     * found nothing and false when it could not run, and as booleans those are
+     * the same value - so `if (! preg_match_all(...)) return;` reported a clean
+     * record for a scan that never happened.
+     *
+     * Failure is provoked with a pattern that cannot compile rather than one
+     * that backtracks: PCRE2 in PHP 8.3 optimises the classic catastrophic
+     * cases away, so they return a genuine 0 and prove nothing. The return
+     * value is what the guard tests, and it is false either way.
+     */
+    public function test_engine_failure_and_no_match_are_indistinguishable_as_booleans(): void
+    {
+        $failed = @preg_match_all('/[unterminated/', 'anything', $m1);
+        $noMatch = preg_match_all('/\bzzzz\b/', 'nothing here', $m2);
+
+        $this->assertFalse($failed, 'an unusable pattern returns false');
+        $this->assertSame(0, $noMatch, 'a working pattern that matches nothing returns 0');
+        $this->assertNotSame($failed, $noMatch, 'the two outcomes differ - but only by type');
+
+        // The trap: identical once coerced, which is how the old guard read them.
+        $this->assertSame((bool) $failed, (bool) $noMatch);
+        $this->assertFalse((bool) $failed);
+    }
+
 }
