@@ -23,17 +23,18 @@
                     {{ $currentJurisdiction === 'all' ? __('All Jurisdictions') : ($jurisdictions[$currentJurisdiction]['name'] ?? $currentJurisdiction) }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
+                    {{-- Registry-driven, from the same reader the privacy
+                         dashboard uses. Both menus hardcoded the same six
+                         jurisdictions, in two places that had to be kept in
+                         step by hand and were not. --}}
                     <li><a class="dropdown-item" href="{{ route('ahgspectrum.privacy-compliance') }}">{{ __('All Jurisdictions') }}</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><h6 class="dropdown-header"><i class="fas fa-globe-africa me-1"></i>{{ __('Africa') }}</h6></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgspectrum.privacy-compliance', ['jurisdiction' => 'popia']) }}"><span class="fi fi-za me-2"></span>POPIA (South Africa)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgspectrum.privacy-compliance', ['jurisdiction' => 'ndpa']) }}"><span class="fi fi-ng me-2"></span>NDPA (Nigeria)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgspectrum.privacy-compliance', ['jurisdiction' => 'kenya_dpa']) }}"><span class="fi fi-ke me-2"></span>Kenya DPA</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><h6 class="dropdown-header"><i class="fas fa-globe-europe me-1"></i>{{ __('International') }}</h6></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgspectrum.privacy-compliance', ['jurisdiction' => 'gdpr']) }}"><span class="fi fi-eu me-2"></span>GDPR (EU)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgspectrum.privacy-compliance', ['jurisdiction' => 'pipeda']) }}"><span class="fi fi-ca me-2"></span>PIPEDA (Canada)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgspectrum.privacy-compliance', ['jurisdiction' => 'ccpa']) }}"><span class="fi fi-us me-2"></span>CCPA (California)</a></li>
+                    @foreach(\AhgPrivacy\Services\PrivacyService::activeJurisdictionsByRegion() as $region => $regionJurisdictions)
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header"><i class="fas fa-globe me-1"></i>{{ __($region) }}</h6></li>
+                        @foreach($regionJurisdictions as $code => $info)
+                            <li><a class="dropdown-item" href="{{ route('ahgspectrum.privacy-compliance', ['jurisdiction' => $code]) }}"><span class="fi fi-{{ $info['icon'] }} me-2"></span>{{ $info['name'] }} ({{ $info['country'] }})</a></li>
+                        @endforeach
+                    @endforeach
                 </ul>
             </div>
             <a href="{{ route('ahgspectrum.privacy-admin') }}" class="btn btn-outline-secondary">
@@ -263,8 +264,11 @@
     {{-- Jurisdiction Info Cards --}}
     <div class="row">
         @php
+            // "All" shows every active jurisdiction. It used to show an
+            // Africa-only subset, which framed a jurisdiction-neutral product
+            // as regional and hid the regimes an operator had switched on.
             $displayJurisdictions = $currentJurisdiction === 'all'
-                ? $africanJurisdictions
+                ? $jurisdictions
                 : [$currentJurisdiction => $jurisdictions[$currentJurisdiction] ?? null];
         @endphp
         @foreach($displayJurisdictions as $code => $info)

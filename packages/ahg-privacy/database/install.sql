@@ -550,14 +550,20 @@ CREATE TABLE IF NOT EXISTS `privacy_approval_log` (
 -- ON DUPLICATE KEY UPDATE deliberately touches `name` only. Refreshing
 -- is_active here would silently re-enable a regime an operator had turned off
 -- on their own instance, every time they deploy.
+-- `icon` is an ISO 3166-1 alpha-2 code, NOT an emoji flag: the views render
+-- it as `<span class="fi fi-{icon}">` via the flag-icons CSS, and the readers
+-- default it to 'un' (that library's UN flag) when it is empty. This file
+-- seeded emoji until v1.154.713, so every flag on a fresh install rendered as
+-- the dead class `fi fi-🇿🇦` while heratio-dev, populated by hand, held the
+-- codes and looked correct.
 INSERT IGNORE INTO `privacy_jurisdiction` (`code`, `name`, `full_name`, `country`, `region`, `regulator`, `regulator_url`, `dsar_days`, `breach_hours`, `effective_date`, `icon`, `is_active`, `sort_order`) VALUES
-('popia', 'POPIA', 'Protection of Personal Information Act', 'South Africa', 'Africa', 'Information Regulator', 'https://inforegulator.org.za/', 30, 72, '2021-07-01', '🇿🇦', 1, 1),
-('ndpa', 'NDPA', 'Nigeria Data Protection Act', 'Nigeria', 'Africa', 'Nigeria Data Protection Commission', 'https://ndpc.gov.ng/', 30, 72, '2023-06-14', '🇳🇬', 1, 2),
-('kenya_dpa', 'Kenya DPA', 'Data Protection Act 2019', 'Kenya', 'Africa', 'Office of the Data Protection Commissioner', 'https://www.odpc.go.ke/', 30, 72, '2019-11-25', '🇰🇪', 1, 3),
-('gdpr', 'GDPR', 'General Data Protection Regulation', 'European Union', 'Europe', 'European Data Protection Board', 'https://edpb.europa.eu/', 30, 72, '2018-05-25', '🇪🇺', 1, 4),
-('uk_gdpr', 'UK GDPR', 'UK General Data Protection Regulation (Data Protection Act 2018)', 'United Kingdom', 'Europe', 'Information Commissioner''s Office', 'https://ico.org.uk/', 30, 72, '2021-01-01', '🇬🇧', 1, 5),
-('pipeda', 'PIPEDA', 'Personal Information Protection and Electronic Documents Act', 'Canada', 'North America', 'Office of the Privacy Commissioner', 'https://www.priv.gc.ca/', 30, 72, '2000-01-01', '🇨🇦', 1, 6),
-('ccpa', 'CCPA', 'California Consumer Privacy Act', 'United States', 'North America', 'California Attorney General', 'https://oag.ca.gov/privacy/ccpa', 45, 72, '2020-01-01', '🇺🇸', 1, 7)
+('popia', 'POPIA', 'Protection of Personal Information Act', 'South Africa', 'Africa', 'Information Regulator', 'https://inforegulator.org.za/', 30, 72, '2021-07-01', 'za', 1, 1),
+('ndpa', 'NDPA', 'Nigeria Data Protection Act', 'Nigeria', 'Africa', 'Nigeria Data Protection Commission', 'https://ndpc.gov.ng/', 30, 72, '2023-06-14', 'ng', 1, 2),
+('kenya_dpa', 'Kenya DPA', 'Data Protection Act 2019', 'Kenya', 'Africa', 'Office of the Data Protection Commissioner', 'https://www.odpc.go.ke/', 30, 72, '2019-11-25', 'ke', 1, 3),
+('gdpr', 'GDPR', 'General Data Protection Regulation', 'European Union', 'Europe', 'European Data Protection Board', 'https://edpb.europa.eu/', 30, 72, '2018-05-25', 'eu', 1, 4),
+('uk_gdpr', 'UK GDPR', 'UK General Data Protection Regulation (Data Protection Act 2018)', 'United Kingdom', 'Europe', 'Information Commissioner''s Office', 'https://ico.org.uk/', 30, 72, '2021-01-01', 'gb', 1, 5),
+('pipeda', 'PIPEDA', 'Personal Information Protection and Electronic Documents Act', 'Canada', 'North America', 'Office of the Privacy Commissioner', 'https://www.priv.gc.ca/', 30, 72, '2000-01-01', 'ca', 1, 6),
+('ccpa', 'CCPA', 'California Consumer Privacy Act', 'United States', 'North America', 'California Attorney General', 'https://oag.ca.gov/privacy/ccpa', 45, 72, '2020-01-01', 'us', 1, 7)
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- Default Retention Schedules

@@ -65,11 +65,14 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('Jurisdiction') }}</label>
+                                {{-- Registry-driven: this list used to be four
+                                     hardcoded options while the registry held
+                                     six, so a complainant could not name the
+                                     regime their own institution had chosen. --}}
                                 <select name="jurisdiction" class="form-select">
-                                    <option value="popia">{{ __('POPIA (South Africa)') }}</option>
-                                    <option value="ndpa">{{ __('NDPA (Nigeria)') }}</option>
-                                    <option value="kenya_dpa">{{ __('Kenya DPA') }}</option>
-                                    <option value="gdpr">{{ __('GDPR (EU)') }}</option>
+                                    @foreach(($jurisdictions ?? []) as $code => $info)
+                                        <option value="{{ $code }}">{{ $info['name'] }} ({{ $info['country'] }})</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>

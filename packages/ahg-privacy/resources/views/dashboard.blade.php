@@ -27,17 +27,20 @@
                     @endif
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
+                    {{-- Registry-driven. This menu used to hardcode six
+                         jurisdictions under two hand-written region headings,
+                         so it stayed the same list whatever the registry said:
+                         a regime switched off was still offered, and one added
+                         appeared nowhere. Region headings and their order now
+                         come from the registry too. --}}
                     <li><a class="dropdown-item" href="{{ route('ahgprivacy.dashboard') }}">{{ __('All Jurisdictions') }}</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><h6 class="dropdown-header"><i class="fas fa-globe-africa me-1"></i>{{ __('Africa') }}</h6></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgprivacy.dashboard', ['jurisdiction' => 'popia']) }}"><span class="fi fi-za me-2"></span>POPIA (South Africa)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgprivacy.dashboard', ['jurisdiction' => 'ndpa']) }}"><span class="fi fi-ng me-2"></span>NDPA (Nigeria)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgprivacy.dashboard', ['jurisdiction' => 'kenya_dpa']) }}"><span class="fi fi-ke me-2"></span>Kenya DPA</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><h6 class="dropdown-header"><i class="fas fa-globe-europe me-1"></i>{{ __('International') }}</h6></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgprivacy.dashboard', ['jurisdiction' => 'gdpr']) }}"><span class="fi fi-eu me-2"></span>GDPR (EU)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgprivacy.dashboard', ['jurisdiction' => 'pipeda']) }}"><span class="fi fi-ca me-2"></span>PIPEDA (Canada)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('ahgprivacy.dashboard', ['jurisdiction' => 'ccpa']) }}"><span class="fi fi-us me-2"></span>CCPA (California)</a></li>
+                    @foreach(\AhgPrivacy\Services\PrivacyService::activeJurisdictionsByRegion() as $region => $regionJurisdictions)
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header"><i class="fas fa-globe me-1"></i>{{ __($region) }}</h6></li>
+                        @foreach($regionJurisdictions as $code => $info)
+                            <li><a class="dropdown-item" href="{{ route('ahgprivacy.dashboard', ['jurisdiction' => $code]) }}"><span class="fi fi-{{ $info['icon'] }} me-2"></span>{{ $info['name'] }} ({{ $info['country'] }})</a></li>
+                        @endforeach
+                    @endforeach
                 </ul>
             </div>
             <a href="{{ route('ahgprivacy.report') }}" class="btn btn-outline-secondary">

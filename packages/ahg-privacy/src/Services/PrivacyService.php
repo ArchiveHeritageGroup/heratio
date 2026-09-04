@@ -22,9 +22,79 @@ namespace AhgPrivacy\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 
 class PrivacyService
 {
+    /**
+     * The jurisdictions an operator has switched on, keyed by code.
+     *
+     * The single reader of privacy_jurisdiction for anything that offers a
+     * choice. Menus and selects used to hardcode their own lists - the privacy
+     * dashboard and the Spectrum compliance page named six regimes each, the
+     * complaint form four, and SpectrumController carried a seventh copy as a
+     * PHP array - so switching a jurisdiction off in the registry left it
+     * offered everywhere, and adding one to the registry showed it nowhere.
+     * That is also how the seed drifted out of step with the product for
+     * months without anyone seeing it (v1.154.712).
+     *
+     * The fallback is deliberately the two regimes with full pattern sets that
+     * a bare install can rely on, so a missing table renders a usable menu
+     * rather than an empty one.
+     */
+    public static function activeJurisdictions(): array
+    {
+        $jurisdictions = [];
+
+        if (Schema::hasTable('privacy_jurisdiction')) {
+            $rows = DB::table('privacy_jurisdiction')
+                ->where('is_active', 1)
+                ->orderBy('sort_order')
+                ->get();
+
+            foreach ($rows as $j) {
+                $jurisdictions[$j->code] = [
+                    'name' => $j->name,
+                    'full_name' => $j->full_name,
+                    'country' => $j->country,
+                    'region' => $j->region ?: 'International',
+                    'regulator' => $j->regulator,
+                    'regulator_url' => $j->regulator_url,
+                    'dsar_days' => (int) ($j->dsar_days ?? 30),
+                    'breach_hours' => (int) ($j->breach_hours ?? 72),
+                    'effective_date' => $j->effective_date,
+                    // ISO 3166-1 alpha-2, rendered as `fi fi-<icon>` by the
+                    // flag-icons CSS. 'un' is that library's UN flag, which is
+                    // the right thing to show for a regime with no one country.
+                    'icon' => $j->icon ?: 'un',
+                ];
+            }
+        }
+
+        if ($jurisdictions === []) {
+            $jurisdictions = [
+                'popia' => ['name' => 'POPIA', 'full_name' => 'Protection of Personal Information Act', 'country' => 'South Africa', 'region' => 'Africa', 'regulator' => 'Information Regulator', 'regulator_url' => 'https://inforegulator.org.za', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2021-07-01', 'icon' => 'za'],
+                'gdpr' => ['name' => 'GDPR', 'full_name' => 'General Data Protection Regulation', 'country' => 'European Union', 'region' => 'Europe', 'regulator' => 'European Data Protection Board', 'regulator_url' => 'https://edpb.europa.eu', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2018-05-25', 'icon' => 'eu'],
+            ];
+        }
+
+        return $jurisdictions;
+    }
+
+    /**
+     * The same list grouped by region, for menus that head their sections.
+     * Region order follows sort_order, so the registry decides it.
+     */
+    public static function activeJurisdictionsByRegion(): array
+    {
+        $grouped = [];
+        foreach (self::activeJurisdictions() as $code => $info) {
+            $grouped[$info['region']][$code] = $info;
+        }
+
+        return $grouped;
+    }
+
     // =====================================================================
     //  Breach taxonomies (ported from PSIS PrivacyBreachService)
     // =====================================================================

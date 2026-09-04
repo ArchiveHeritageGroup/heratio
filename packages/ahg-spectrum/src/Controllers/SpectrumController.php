@@ -1929,48 +1929,14 @@ class SpectrumController extends Controller
     {
         $currentJurisdiction = $request->get('jurisdiction', 'all');
 
-        // Jurisdiction definitions
-        $jurisdictions = [
-            'popia'     => [
-                'name' => 'POPIA', 'country' => 'South Africa', 'icon' => 'za',
-                'full_name' => 'Protection of Personal Information Act', 'dsar_days' => 30,
-                'breach_hours' => 72, 'effective_date' => '2021-07-01',
-                'regulator' => 'Information Regulator', 'regulator_url' => 'https://inforegulator.org.za',
-            ],
-            'ndpa'      => [
-                'name' => 'NDPA', 'country' => 'Nigeria', 'icon' => 'ng',
-                'full_name' => 'Nigeria Data Protection Act', 'dsar_days' => 30,
-                'breach_hours' => 72, 'effective_date' => '2023-06-14',
-                'regulator' => 'NDPC', 'regulator_url' => 'https://ndpc.gov.ng',
-            ],
-            'kenya_dpa' => [
-                'name' => 'Kenya DPA', 'country' => 'Kenya', 'icon' => 'ke',
-                'full_name' => 'Data Protection Act 2019', 'dsar_days' => 30,
-                'breach_hours' => 72, 'effective_date' => '2019-11-25',
-                'regulator' => 'ODPC', 'regulator_url' => 'https://www.odpc.go.ke',
-            ],
-            'gdpr'      => [
-                'name' => 'GDPR', 'country' => 'EU', 'icon' => 'eu',
-                'full_name' => 'General Data Protection Regulation', 'dsar_days' => 30,
-                'breach_hours' => 72, 'effective_date' => '2018-05-25',
-                'regulator' => 'EDPB', 'regulator_url' => 'https://edpb.europa.eu',
-            ],
-            'pipeda'    => [
-                'name' => 'PIPEDA', 'country' => 'Canada', 'icon' => 'ca',
-                'full_name' => 'Personal Information Protection and Electronic Documents Act', 'dsar_days' => 30,
-                'breach_hours' => null, 'effective_date' => '2000-04-13',
-                'regulator' => 'OPC', 'regulator_url' => 'https://www.priv.gc.ca',
-            ],
-            'ccpa'      => [
-                'name' => 'CCPA', 'country' => 'California', 'icon' => 'us',
-                'full_name' => 'California Consumer Privacy Act', 'dsar_days' => 45,
-                'breach_hours' => null, 'effective_date' => '2020-01-01',
-                'regulator' => 'CPPA', 'regulator_url' => 'https://cppa.ca.gov',
-            ],
-        ];
-
-        // African jurisdictions subset for default "all" view
-        $africanJurisdictions = array_intersect_key($jurisdictions, array_flip(['popia', 'ndpa', 'kenya_dpa']));
+        // Jurisdiction definitions come from the registry, via the same
+        // reader the privacy dashboard uses. This method carried its own
+        // hardcoded copy of six regimes until v1.154.713, so a jurisdiction
+        // switched off in the registry was still offered here, and one added
+        // to it never appeared. The "all" view also showed an Africa-only
+        // subset, which is not how this product is positioned - every active
+        // jurisdiction is shown now.
+        $jurisdictions = \AhgPrivacy\Services\PrivacyService::activeJurisdictions();
 
         // Active jurisdiction from DB
         $activeJurisdiction = null;
@@ -2042,7 +2008,6 @@ class SpectrumController extends Controller
             'stats'                 => $stats,
             'currentJurisdiction'   => $currentJurisdiction,
             'jurisdictions'         => $jurisdictions,
-            'africanJurisdictions'  => $africanJurisdictions,
             'activeJurisdiction'    => $activeJurisdiction,
             'notificationCount'     => $notificationCount,
         ]);

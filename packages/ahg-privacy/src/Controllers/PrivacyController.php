@@ -54,6 +54,7 @@ class PrivacyController extends Controller
     {
         return view('privacy::complaint', [
             'complaintTypes' => $this->complaintTypes(),
+            'jurisdictions' => $this->loadJurisdictions(),
         ]);
     }
 
@@ -870,33 +871,14 @@ class PrivacyController extends Controller
      * minimal popia + gdpr seed when the table is empty so the page never
      * renders with no choices.
      */
+    /**
+     * Delegates to the shared reader so the registry has one interpretation.
+     * This method kept its own copy of the same query and fallback until
+     * v1.154.713.
+     */
     private function loadJurisdictions(): array
     {
-        $jurisdictions = [];
-        if (Schema::hasTable('privacy_jurisdiction')) {
-            foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
-                $jurisdictions[$j->code] = [
-                    'name' => $j->name,
-                    'full_name' => $j->full_name,
-                    'country' => $j->country,
-                    'region' => $j->region,
-                    'regulator' => $j->regulator,
-                    'regulator_url' => $j->regulator_url,
-                    'dsar_days' => (int) ($j->dsar_days ?? 30),
-                    'breach_hours' => (int) ($j->breach_hours ?? 72),
-                    'effective_date' => $j->effective_date,
-                    'icon' => $j->icon ?: 'un',
-                ];
-            }
-        }
-        if (empty($jurisdictions)) {
-            $jurisdictions = [
-                'popia' => ['name' => 'POPIA', 'full_name' => 'Protection of Personal Information Act',     'country' => 'South Africa',   'region' => 'Africa', 'regulator' => 'Information Regulator',           'regulator_url' => 'https://inforegulator.org.za', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2021-07-01', 'icon' => 'za'],
-                'gdpr' => ['name' => 'GDPR',  'full_name' => 'General Data Protection Regulation',         'country' => 'European Union', 'region' => 'Europe', 'regulator' => 'European Data Protection Board', 'regulator_url' => 'https://edpb.europa.eu',       'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2018-05-25', 'icon' => 'eu'],
-            ];
-        }
-
-        return $jurisdictions;
+        return \AhgPrivacy\Services\PrivacyService::activeJurisdictions();
     }
 
     public function dsarEdit(Request $request)
