@@ -56,7 +56,14 @@ class RedactionRenderService
             ->where('regions_hash', $hash)
             ->first();
         if ($cached && file_exists($cached->redacted_path)) {
-            return $cached->redacted_path;
+            // regions_hash covers the REGIONS, not the output format, so a row
+            // written before the transcode landed still points at a perfectly
+            // valid .tiff derivative and would be served forever. Re-render
+            // when the stored extension is not the one we would write now.
+            $wantExt = self::derivativeExtension((string) $master->name, $fileType);
+            if (strtolower(pathinfo($cached->redacted_path, PATHINFO_EXTENSION)) === $wantExt) {
+                return $cached->redacted_path;
+            }
         }
 
         // Otherwise render fresh.
@@ -64,7 +71,7 @@ class RedactionRenderService
         if (!is_dir($cacheDir)) {
             @mkdir($cacheDir, 0755, true);
         }
-        $ext = pathinfo($master->name, PATHINFO_EXTENSION);
+        $ext = self::derivativeExtension((string) $master->name, $fileType);
         $outputPath = $cacheDir . '/' . substr($hash, 0, 16) . '.' . $ext;
 
         $ok = $fileType === 'pdf'
@@ -209,6 +216,58 @@ class RedactionRenderService
     {
         // Stable ordering - same regions in same order produce same hash.
         return hash('sha256', json_encode($regions));
+    }
+
+    /**
+     * Image formats a browser will actually render.
+     *
+     * Everything else - TIFF, JP2 and friends - is transcoded to JPEG for the
+     * derivative. The redaction path cannot go through Cantaloupe, because
+     * Cantaloupe tiles the ORIGINAL file and would happily serve tiles of the
+     * very content being hidden, so it also gives up Cantaloupe's transcode.
+     * Without this the burnt-in derivative kept the master's extension: a
+     * redacted TIFF was written as TIFF and served as image/tiff, which no
+     * browser renders, so Mirador showed nothing at all. Fail-safe, but only
+     * by accident, and archival TIFF is exactly what the deep-zoom viewers are
+     * for.
+     */
+    private const WEB_RENDERABLE = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+    private const MIME_BY_EXT = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'pdf' => 'application/pdf',
+    ];
+
+    /**
+     * The extension the derivative is written with - which is also what the
+     * Python redactor picks its output format from.
+     */
+    public static function derivativeExtension(string $sourceName, string $fileType): string
+    {
+        $ext = strtolower(pathinfo($sourceName, PATHINFO_EXTENSION));
+
+        if ($fileType === 'pdf') {
+            return 'pdf';
+        }
+
+        return in_array($ext, self::WEB_RENDERABLE, true) ? $ext : 'jpg';
+    }
+
+    /**
+     * Content type for a rendered derivative, read off the derivative itself.
+     *
+     * The caller must NOT reuse the master's mime type: after a transcode the
+     * two disagree, and the browser believes the header.
+     */
+    public static function mimeForPath(string $path): string
+    {
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        return self::MIME_BY_EXT[$ext] ?? 'application/octet-stream';
     }
 
     private function fileTypeFor(object $master): string

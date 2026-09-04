@@ -468,9 +468,16 @@ class PrivacyController extends Controller
             return $this->streamOriginal($master);
         }
 
+        // Read the type off the DERIVATIVE, never off the master. A redacted
+        // TIFF is transcoded to JPEG so a browser can display it, and sending
+        // the master's image/tiff for that file makes the browser refuse it -
+        // which is how Mirador ended up showing nothing for image masters.
+        $redactedName = pathinfo((string) $master->name, PATHINFO_FILENAME)
+            . '.' . pathinfo($redactedPath, PATHINFO_EXTENSION);
+
         return response()->file($redactedPath, [
-            'Content-Type'        => $master->mime_type ?: 'application/octet-stream',
-            'Content-Disposition' => 'inline; filename="' . basename($master->name) . '"',
+            'Content-Type'        => RedactionRenderService::mimeForPath($redactedPath),
+            'Content-Disposition' => 'inline; filename="' . $redactedName . '"',
             'X-Heratio-Redacted'  => '1',
         ]);
     }
