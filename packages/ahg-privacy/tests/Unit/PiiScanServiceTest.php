@@ -310,4 +310,72 @@ class PiiScanServiceTest extends TestCase
         $this->assertFalse((bool) $failed);
     }
 
+
+    // ── only a passed checksum may assert a category ─────────────────────
+
+    /**
+     * A number that fails its own check digit looks like an identifier and is
+     * not one. It used to drop to 0.3, band 'low', count toward the risk score
+     * and enter categories_of_data on an Article 30 record - a legal document
+     * asserting the institution processes national identifiers, on the strength
+     * of a value the scanner had itself just disproved.
+     */
+    public function test_a_failed_checksum_bands_review_however_confident(): void
+    {
+        foreach ([0.0, 0.3, 0.6, 0.85, 0.95, 1.0] as $confidence) {
+            $this->assertSame(
+                'review',
+                PrivacyController::bandFor('national_id', $confidence, false),
+                "a failed checksum must band review at confidence {$confidence}"
+            );
+        }
+    }
+
+    public function test_a_passed_checksum_bands_on_confidence_as_before(): void
+    {
+        $this->assertSame('high', PrivacyController::bandFor('national_id', 0.95, true));
+        $this->assertSame('medium', PrivacyController::bandFor('national_id', 0.60, true));
+        $this->assertSame('low', PrivacyController::bandFor('national_id', 0.30, true));
+    }
+
+    /**
+     * null is "no checksum exists for this jurisdiction", not "it failed".
+     * Reading it as a failure would silently mute every jurisdiction that has
+     * no validator - which today is most of them.
+     */
+    public function test_no_checksum_at_all_is_not_treated_as_a_failure(): void
+    {
+        $this->assertSame('high', PrivacyController::bandFor('national_id', 0.95, null));
+        $this->assertSame('high', PrivacyController::bandFor('national_id', 0.95));
+    }
+
+    public function test_scanner_records_whether_the_checksum_passed(): void
+    {
+        $svc = new PiiScanService('popia', []);
+
+        $good = $svc->scan('ID number 8001015001084 on the admission form.');
+        $ids = array_values(array_filter($good, fn ($f) => $f['type'] === 'national_id'));
+        $this->assertNotEmpty($ids, 'precondition: the valid ID is detected');
+        $this->assertTrue($ids[0]['validated']);
+        $this->assertSame('high', PrivacyController::bandFor('national_id', $ids[0]['confidence'], $ids[0]['validated']));
+
+        $bad = $svc->scan('ID number 8001015001080 on the admission form.');
+        $ids = array_values(array_filter($bad, fn ($f) => $f['type'] === 'national_id'));
+        $this->assertNotEmpty($ids, 'a failed checksum is still surfaced, not discarded');
+        $this->assertFalse($ids[0]['validated']);
+        $this->assertSame('review', PrivacyController::bandFor('national_id', $ids[0]['confidence'], $ids[0]['validated']));
+    }
+
+    /**
+     * Findings are stored as JSON, so rows written before this change carry no
+     * `validated` key at all. They must keep the band they already had rather
+     * than all become 'review' the moment the code ships.
+     */
+    public function test_a_finding_stored_before_this_change_is_unaffected(): void
+    {
+        $legacy = ['type' => 'national_id', 'confidence' => 0.95];
+        $validated = array_key_exists('validated', $legacy) ? $legacy['validated'] : null;
+
+        $this->assertSame('high', PrivacyController::bandFor($legacy['type'], $legacy['confidence'], $validated));
+    }
 }

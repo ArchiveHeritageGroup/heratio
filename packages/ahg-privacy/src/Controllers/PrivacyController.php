@@ -1279,9 +1279,19 @@ class PrivacyController extends Controller
      * confidence in the MATCH, and an operator's watchlist word carries no
      * measured risk to band.
      */
-    public static function bandFor(string $type, float $confidence): string
+    public static function bandFor(string $type, float $confidence, ?bool $validated = null): string
     {
         if ($type === 'custom_term') {
+            return 'review';
+        }
+        // A checksum that RAN and FAILED. The value looks like an identifier
+        // and is not one, so it is worth a reviewer's eye and worth nothing as
+        // an assertion: it used to drop to 0.3, band 'low', and still count
+        // toward the score and enter categories_of_data on an Article 30
+        // record. Only a passed checksum, or a type that has no checksum to
+        // fail, may do that. null means no validator exists for this
+        // jurisdiction and is deliberately NOT treated as a failure.
+        if ($validated === false) {
             return 'review';
         }
         if ($confidence >= 0.85) {
@@ -1316,7 +1326,8 @@ class PrivacyController extends Controller
             $confidence = (float) ($f['confidence'] ?? 0);
             $type = (string) ($f['type'] ?? 'unknown');
 
-            $risk = self::bandFor($type, $confidence);
+            $validated = array_key_exists('validated', $f) ? $f['validated'] : null;
+            $risk = self::bandFor($type, $confidence, $validated === null ? null : (bool) $validated);
             // 'review' is surfaced to the reviewer but asserts nothing
             // measurable, so it stays out of the three tallies and out of $score.
             if ($risk === 'review') {

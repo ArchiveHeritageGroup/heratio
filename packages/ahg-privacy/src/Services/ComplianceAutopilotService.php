@@ -78,6 +78,12 @@ class ComplianceAutopilotService
      * The hits are still counted and returned - see custom_term_hits - so the
      * dashboard can report them. They are excluded from the artefacts, not hidden.
      */
+    /**
+     * Types that can never declare a category of personal data, whatever their
+     * confidence. See also the per-finding `validated` check in scanCatalogue():
+     * a national_id whose checksum failed is barred too, but by its value
+     * rather than by its type.
+     */
     private const NON_CATEGORY_TYPES = ['custom_term'];
 
     /** Scan up to $limit catalogue descriptions for PII and aggregate by category. */
@@ -110,7 +116,16 @@ class ComplianceAutopilotService
             $seenReview = false;
             foreach ($findings as $f) {
                 $t = $f['type'] ?? 'other';
-                if (in_array($t, self::NON_CATEGORY_TYPES, true)) {
+                // A finding is barred from the categories either because its
+                // TYPE asserts nothing measurable (an operator watchlist term),
+                // or because its own checksum ran and failed. The second is not
+                // a property of the type - the same national_id type produces
+                // both - so it cannot be expressed in NON_CATEGORY_TYPES and has
+                // to be read off the finding. `validated` is null when no
+                // checksum exists for that jurisdiction, which is not a failure
+                // and must not be read as one.
+                $failedItsOwnCheck = array_key_exists('validated', $f) && $f['validated'] === false;
+                if ($failedItsOwnCheck || in_array($t, self::NON_CATEGORY_TYPES, true)) {
                     $reviewHits++;
                     if (! $seenReview) {
                         $seenReview = true;

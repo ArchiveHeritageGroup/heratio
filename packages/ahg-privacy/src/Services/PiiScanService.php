@@ -557,13 +557,25 @@ final class PiiScanService
             foreach ($matches[0] as $match) {
                 $value = (string) $match[0];
                 $confidence = $cfg['confidence'];
-                if ($cfg['validator'] !== null && ! $this->{$cfg['validator']}($value)) {
-                    // Pattern matched but checksum failed: lower confidence
-                    // rather than discard - useful signal during review.
-                    $confidence = max(0.3, $confidence - 0.4);
-                } elseif ($cfg['validator'] !== null) {
-                    $confidence = min(0.95, $confidence + 0.2);
+
+                // `validated` is the whole basis on which this finding may
+                // become a compliance assertion, so it records what was
+                // actually established rather than how sure the match felt:
+                //   true  - a checksum ran and passed
+                //   false - a checksum ran and FAILED
+                //   null  - no checksum exists for this jurisdiction, so
+                //           nothing was established either way
+                // Only true may declare a category of personal data. A number
+                // that fails its own check digit is evidence for a reviewer,
+                // not grounds for an Article 30 entry.
+                $validated = null;
+                if ($cfg['validator'] !== null) {
+                    $validated = (bool) $this->{$cfg['validator']}($value);
+                    $confidence = $validated
+                        ? min(0.95, $confidence + 0.2)
+                        : max(0.3, $confidence - 0.4);
                 }
+
                 $offset = (int) $match[1];
                 $findings[] = [
                     'type'         => 'national_id',
@@ -571,6 +583,7 @@ final class PiiScanService
                     'offset_start' => $offset,
                     'offset_end'   => $offset + strlen($value),
                     'confidence'   => $confidence,
+                    'validated'    => $validated,
                 ];
             }
         }

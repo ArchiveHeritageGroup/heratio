@@ -74,8 +74,11 @@
             </div>
         </div>
         @if(($scanResult['summary']['review'] ?? 0) > 0)
-        {{-- Operator watchlist matches. Shown, but deliberately not a risk band:
-             they carry no measured risk and contribute nothing to the score. --}}
+        {{-- Findings that assert nothing measurable: an operator watchlist term,
+             or an identifier whose own checksum ran and failed. Shown, because a
+             reviewer should see them, but deliberately not a risk band - they
+             contribute nothing to the score and cannot declare a category of
+             personal data on an Article 30 record. --}}
         <div class="col-md">
             <div class="card border-info">
                 <div class="card-body text-center">
