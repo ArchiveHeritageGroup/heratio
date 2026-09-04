@@ -121,29 +121,35 @@ class VendorEncryptionAuditTest extends TestCase
     // #1263 audit
     // ---------------------------------------------------------------------
     //
-    // AuditLog::capture* writes a security_audit_log row directly via
-    // writeDirect() when no request is bound (CLI / queue context), and
-    // otherwise stashes onto the bound request for the audit middleware to
-    // persist on the real HTTP response. The PHPUnit process has a bound
-    // request, so we assert BOTH:
-    //   - the persisted row, by exercising writeDirect through the service in
-    //     a no-request context (a real Job/closure dispatched on the sync
-    //     queue runs with the request unbound for the closure's lifetime); and
-    //   - here, more simply, the stashed audit.diff payload the middleware
-    //     would persist verbatim - that is the service's actual output and is
-    //     where redaction lives.
+    // AuditLog::capture* has two outputs. Under an HTTP request it stashes the
+    // payload on the request for the audit middleware to persist with its row;
+    // in console or queue context it writes a security_audit_log row itself via
+    // writeDirect(). Either way the same payload is recorded, and redaction
+    // happens in the service before either path sees it.
+    //
+    // These tests used to read the `audit.diff` request attribute, because
+    // PHPUnit does have a bound request. That stopped being the deciding factor
+    // at v1.154.610, which switched stash() on runningInConsole() rather than on
+    // whether a request is bound - the old test caught only app('request')
+    // THROWING, and Laravel hands console and queue code a synthetic request
+    // instead, so every edit made by an artisan command, a queued job or a
+    // seeder set attributes nobody would ever read. PHPUnit is always console,
+    // so the stash branch is now unreachable from here. Nothing was lost, it
+    // moved - and the row is the better assertion anyway, being what an auditor
+    // actually reads.
 
-    private function freshRequest(): void
+    /**
+     * The audit payload for an object, as AuditLog actually recorded it.
+     */
+    private function auditPayload(string $objectType, int $objectId): ?array
     {
-        // Reset audit.* attributes between capture calls so each assertion
-        // reads the latest stash.
-        $req = $this->app['request'];
-        $req->attributes->remove('audit.diff');
-    }
+        $row = DB::table('security_audit_log')
+            ->where('object_type', $objectType)
+            ->where('object_id', $objectId)
+            ->orderByDesc('id')
+            ->first();
 
-    private function stashedDiff(): ?array
-    {
-        return $this->app['request']->attributes->get('audit.diff');
+        return $row ? json_decode((string) $row->details, true) : null;
     }
 
     public function test_create_edit_delete_emit_audit_payload_without_raw_pii(): void
@@ -151,11 +157,10 @@ class VendorEncryptionAuditTest extends TestCase
         $this->enableEncryption(true);
         $svc = new VendorService;
 
-        // CREATE -> a request is bound, so the payload is stashed onto it.
         $vendorId = $svc->createVendor($this->vendorData('Audit Vendor'));
 
-        $createDiff = $this->stashedDiff();
-        $this->assertNotNull($createDiff, 'create should stash an audit payload');
+        $createDiff = $this->auditPayload('vendor', $vendorId);
+        $this->assertNotNull($createDiff, 'create should record an audit payload');
         $encoded = json_encode($createDiff);
         $this->assertStringNotContainsString('1234567890', $encoded, 'no raw bank number in snapshot');
         $this->assertStringNotContainsString('vendor@example.test', $encoded, 'no raw email in snapshot');
@@ -163,16 +168,14 @@ class VendorEncryptionAuditTest extends TestCase
         $this->assertTrue(! empty($createDiff['created']));
 
         // EDIT -> assert changed_fields tracks the non-PII change.
-        $this->freshRequest();
         $svc->updateVendor($vendorId, ['notes' => 'changed note', 'updated_at' => now()]);
-        $editDiff = $this->stashedDiff();
+        $editDiff = $this->auditPayload('vendor', $vendorId);
         $this->assertNotNull($editDiff);
         $this->assertContains('notes', $editDiff['changed_fields'] ?? []);
 
         // DELETE -> assert the delete payload + row removal.
-        $this->freshRequest();
         $svc->deleteVendor($vendorId);
-        $delDiff = $this->stashedDiff();
+        $delDiff = $this->auditPayload('vendor', $vendorId);
         $this->assertNotNull($delDiff);
         $this->assertTrue(! empty($delDiff['deleted']));
         $this->assertStringNotContainsString('1234567890', json_encode($delDiff));
@@ -226,7 +229,6 @@ class VendorEncryptionAuditTest extends TestCase
         $svc = new VendorService;
 
         $vendorId = $svc->createVendor($this->vendorData('Audit Vendor Contact'));
-        $this->freshRequest();
         $contactId = $svc->createContact([
             'vendor_id' => $vendorId,
             'name' => 'Bob',
@@ -234,8 +236,8 @@ class VendorEncryptionAuditTest extends TestCase
             'created_at' => now(),
         ]);
 
-        $diff = $this->stashedDiff();
-        $this->assertNotNull($diff, 'contact create should stash an audit payload');
+        $diff = $this->auditPayload('vendor_contact', $contactId);
+        $this->assertNotNull($diff, 'contact create should record an audit payload');
         $this->assertStringNotContainsString('bob@example.test', json_encode($diff));
         $this->assertTrue(! empty($diff['created']));
     }

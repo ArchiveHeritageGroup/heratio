@@ -526,12 +526,38 @@ CREATE TABLE IF NOT EXISTS `privacy_approval_log` (
 -- =====================================================
 
 -- Default Jurisdictions
+--
+-- This table decides what an operator can SELECT as their jurisdiction:
+-- PiiScanService::jurisdictionOptions() reads it with `is_active = 1`. It does
+-- NOT decide what the scanner can detect - that is derived from the pattern
+-- constants, and a code with no market-specific patterns is still offered, and
+-- still labelled as such.
+--
+-- Every jurisdiction the product advertises has to be seeded here, or the
+-- product offers a regime it will not let anyone choose. It did: the privacy
+-- dashboard and the Spectrum compliance page have always listed six regimes
+-- (popia, ndpa, kenya_dpa, gdpr, pipeda, ccpa) and the complaint form four,
+-- while this seed shipped five, two of them inactive - so a fresh install
+-- advertised Nigeria, Kenya, Canada and the United States and then offered
+-- three choices. ndpa and kenya_dpa existed only in the heratio-dev database,
+-- added by hand, which is why the gap survived: on the one instance anyone
+-- tested, the registry was right. Nigeria and Kenya are named target markets.
+--
+-- Metadata for the two new rows comes from the definitions already in
+-- SpectrumController::privacyCompliance() rather than from anywhere new, with
+-- the regulator abbreviations expanded to match this file's style.
+--
+-- ON DUPLICATE KEY UPDATE deliberately touches `name` only. Refreshing
+-- is_active here would silently re-enable a regime an operator had turned off
+-- on their own instance, every time they deploy.
 INSERT IGNORE INTO `privacy_jurisdiction` (`code`, `name`, `full_name`, `country`, `region`, `regulator`, `regulator_url`, `dsar_days`, `breach_hours`, `effective_date`, `icon`, `is_active`, `sort_order`) VALUES
 ('popia', 'POPIA', 'Protection of Personal Information Act', 'South Africa', 'Africa', 'Information Regulator', 'https://inforegulator.org.za/', 30, 72, '2021-07-01', '🇿🇦', 1, 1),
-('gdpr', 'GDPR', 'General Data Protection Regulation', 'European Union', 'Europe', 'European Data Protection Board', 'https://edpb.europa.eu/', 30, 72, '2018-05-25', '🇪🇺', 1, 2),
-('uk_gdpr', 'UK GDPR', 'UK General Data Protection Regulation (Data Protection Act 2018)', 'United Kingdom', 'Europe', 'Information Commissioner''s Office', 'https://ico.org.uk/', 30, 72, '2021-01-01', '🇬🇧', 1, 3),
-('pipeda', 'PIPEDA', 'Personal Information Protection and Electronic Documents Act', 'Canada', 'North America', 'Office of the Privacy Commissioner', 'https://www.priv.gc.ca/', 30, 72, '2000-01-01', '🇨🇦', 0, 4),
-('ccpa', 'CCPA', 'California Consumer Privacy Act', 'United States', 'North America', 'California Attorney General', 'https://oag.ca.gov/privacy/ccpa', 45, 72, '2020-01-01', '🇺🇸', 0, 5)
+('ndpa', 'NDPA', 'Nigeria Data Protection Act', 'Nigeria', 'Africa', 'Nigeria Data Protection Commission', 'https://ndpc.gov.ng/', 30, 72, '2023-06-14', '🇳🇬', 1, 2),
+('kenya_dpa', 'Kenya DPA', 'Data Protection Act 2019', 'Kenya', 'Africa', 'Office of the Data Protection Commissioner', 'https://www.odpc.go.ke/', 30, 72, '2019-11-25', '🇰🇪', 1, 3),
+('gdpr', 'GDPR', 'General Data Protection Regulation', 'European Union', 'Europe', 'European Data Protection Board', 'https://edpb.europa.eu/', 30, 72, '2018-05-25', '🇪🇺', 1, 4),
+('uk_gdpr', 'UK GDPR', 'UK General Data Protection Regulation (Data Protection Act 2018)', 'United Kingdom', 'Europe', 'Information Commissioner''s Office', 'https://ico.org.uk/', 30, 72, '2021-01-01', '🇬🇧', 1, 5),
+('pipeda', 'PIPEDA', 'Personal Information Protection and Electronic Documents Act', 'Canada', 'North America', 'Office of the Privacy Commissioner', 'https://www.priv.gc.ca/', 30, 72, '2000-01-01', '🇨🇦', 1, 6),
+('ccpa', 'CCPA', 'California Consumer Privacy Act', 'United States', 'North America', 'California Attorney General', 'https://oag.ca.gov/privacy/ccpa', 45, 72, '2020-01-01', '🇺🇸', 1, 7)
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- Default Retention Schedules

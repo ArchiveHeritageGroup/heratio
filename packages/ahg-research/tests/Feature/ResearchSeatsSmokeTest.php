@@ -20,13 +20,12 @@ class ResearchSeatsSmokeTest extends TestCase
     public function test_seats_index_requires_admin()
     {
         $response = $this->get('/research/seats');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 
     public function test_seats_post_requires_admin()
     {
         $response = $this->post('/research/seats', ['room_id' => 1, 'form_action' => 'create']);
-        // Admin gate runs before CSRF/controller logic; anonymous -> 403.
-        $this->assertContains($response->getStatusCode(), [403, 419]);
+        $this->assertAdminGated($response);
     }
 }

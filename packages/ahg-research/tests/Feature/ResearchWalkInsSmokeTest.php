@@ -20,7 +20,7 @@ class ResearchWalkInsSmokeTest extends TestCase
     public function test_walk_in_index_requires_admin()
     {
         $response = $this->get('/research/walkIn');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 
     public function test_walk_in_register_post_requires_admin()
@@ -30,7 +30,6 @@ class ResearchWalkInsSmokeTest extends TestCase
             'first_name'  => 'Test',
             'last_name'   => 'Visitor',
         ]);
-        // Admin gate runs before CSRF/controller logic; anonymous -> 403.
-        $this->assertContains($response->getStatusCode(), [403, 419]);
+        $this->assertAdminGated($response);
     }
 }

@@ -19,12 +19,12 @@ class ResearchEquipmentSmokeTest extends TestCase
     public function test_equipment_index_requires_admin()
     {
         $response = $this->get('/research/equipment');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 
     public function test_equipment_history_requires_admin()
     {
         $response = $this->get('/research/equipment-history/1');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 }

@@ -20,12 +20,12 @@ class ResearchRoomsSmokeTest extends TestCase
     public function test_rooms_index_requires_admin()
     {
         $response = $this->get('/research/rooms');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 
     public function test_edit_room_requires_admin()
     {
         $response = $this->get('/research/editRoom');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 }

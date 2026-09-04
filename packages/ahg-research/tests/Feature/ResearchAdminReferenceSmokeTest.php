@@ -23,24 +23,24 @@ class ResearchAdminReferenceSmokeTest extends TestCase
     public function test_admin_types_requires_admin()
     {
         $response = $this->get('/research/adminTypes');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 
     public function test_admin_statistics_requires_admin()
     {
         $response = $this->get('/research/adminStatistics');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 
     public function test_admin_statistics_alias_requires_admin()
     {
         $response = $this->get('/research/admin/statistics');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 
     public function test_institutions_requires_admin()
     {
         $response = $this->get('/research/institutions');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 }

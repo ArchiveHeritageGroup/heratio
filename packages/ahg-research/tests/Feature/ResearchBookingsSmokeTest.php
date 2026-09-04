@@ -40,13 +40,13 @@ class ResearchBookingsSmokeTest extends TestCase
     public function test_bookings_queue_requires_admin()
     {
         $response = $this->get('/research/bookings');
-        $response->assertForbidden();
+        $this->assertAdminGated($response);
     }
 
     public function test_admin_bookings_alias_requires_admin()
     {
         $response = $this->get('/research/admin/bookings');
-        $response->assertForbidden();
+        $this->assertAdminGated($response);
     }
 
     // ------------------------------------------------------------------

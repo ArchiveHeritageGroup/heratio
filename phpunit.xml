@@ -39,6 +39,13 @@
             <directory>packages/ahg-vendor/tests</directory>
             <directory>packages/ahg-search/tests</directory>
             <directory>packages/ahg-federation/tests</directory>
+            <!-- ahg-privacy's 43 tests are pure-logic (no DB, no container) and
+                 ran nowhere until v1.154.712: only the "All" suite globs
+                 packages/*/tests, and CI does not run "All" because an
+                 unrelated tree outside this repo leaks into it. They passed the
+                 whole time, which is why nobody noticed they were not protecting
+                 anything. -->
+            <directory>packages/ahg-privacy/tests</directory>
             <!-- Additional packages will be added here as tests are created -->
             <!-- See docs/package-classification.md for priority order -->
         </testsuite>

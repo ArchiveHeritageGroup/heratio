@@ -20,7 +20,7 @@ class ResearchRetrievalQueueSmokeTest extends TestCase
     public function test_retrieval_queue_index_requires_admin()
     {
         $response = $this->get('/research/retrievalQueue');
-        $response->assertStatus(403);
+        $this->assertAdminGated($response);
     }
 
     public function test_retrieval_queue_post_requires_admin()
@@ -29,7 +29,6 @@ class ResearchRetrievalQueueSmokeTest extends TestCase
             'form_action' => 'mark_delivered',
             'request_id'  => 1,
         ]);
-        // Admin gate runs before CSRF/controller logic; anonymous -> 403.
-        $this->assertContains($response->getStatusCode(), [403, 419]);
+        $this->assertAdminGated($response);
     }
 }
