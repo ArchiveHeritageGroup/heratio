@@ -75,7 +75,7 @@ class ComplianceAutopilotService
      * promotion into a compliance artefact requires a finding the scanner can
      * VALIDATE, not merely one that crossed a threshold.
      *
-     * The hits are still counted and returned - see custom_term_hits - so the
+     * The hits are still counted and returned - see review_hits - so the
      * dashboard can report them. They are excluded from the artefacts, not hidden.
      */
     /**
@@ -156,6 +156,16 @@ class ComplianceAutopilotService
             'records_with_pii'   => $withPii,
             'categories'         => $cats,
             // Reported alongside the categories, never inside them.
+            // Findings barred from the categories: an operator watchlist term,
+            // an identifier whose checksum failed, a Luhn-passing number with
+            // no issuer prefix. These were reported as custom_term_hits when
+            // watchlist terms were the only thing that could land here, and
+            // that name stopped being true at v1.154.717 - a barcode counted
+            // as a "custom term hit" is the same kind of wrong answer as a
+            // barcode counted as a payment card. The old keys are kept as
+            // aliases so nothing reading them breaks.
+            'review_hits'    => $reviewHits,
+            'review_records' => $reviewRecords,
             'custom_term_hits'   => $reviewHits,
             'custom_term_records' => $reviewRecords,
         ];

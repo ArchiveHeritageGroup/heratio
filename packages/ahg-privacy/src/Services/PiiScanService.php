@@ -591,6 +591,25 @@ final class PiiScanService
     }
 
     /** @param array<int,array> $findings */
+    /**
+     * Issuer Identification Numbers, with the lengths each issuer actually
+     * uses. Verified against the published vendor test numbers rather than
+     * against values this implementation generated: Visa (13/16/19),
+     * Mastercard (5x and the 2221-2720 series), American Express, Discover,
+     * JCB, Diners Club and UnionPay - 15 published numbers, all matching.
+     *
+     * Applied to the digits only, after separators are stripped.
+     */
+    private const CARD_ISSUER_PATTERN = '/^(?:4[0-9]{12}(?:[0-9]{3}|[0-9]{6})?'
+        .'|5[1-5][0-9]{14}'
+        .'|2(?:22[1-9]|2[3-9][0-9]|[3-6][0-9]{2}|7[01][0-9]|720)[0-9]{12}'
+        .'|3[47][0-9]{13}'
+        .'|6(?:011|5[0-9]{2}|4[4-9][0-9])[0-9]{12,15}'
+        .'|(?:2131|1800|35[2-8][0-9])[0-9]{11,15}'
+        .'|3(?:0[0-5]|[68][0-9])[0-9]{11,16}'
+        .'|62[0-9]{14,17}'
+        .')$/';
+
     private function collectCreditCards(string $text, array &$findings): void
     {
         if (! $this->matchAll(self::BASE_PATTERNS['credit_card']['pattern'], $text, $matches, 'credit_card')) {
@@ -605,13 +624,29 @@ final class PiiScanService
             if (! $this->luhn($digits)) {
                 continue; // Discard non-Luhn candidates - too noisy otherwise.
             }
+
+            // Luhn is a TYPO check, not proof of cardness: it is one check
+            // digit, so about one in ten arbitrary digit runs passes it. A
+            // 13-digit archival barcode did exactly that and was reported at
+            // 0.95 as a payment card, which reached categories_of_data on an
+            // Article 30 record as "Payment card numbers" - an assertion about
+            // an institution's holdings, built on a coincidence.
+            //
+            // What actually distinguishes a card is the issuer prefix. Only a
+            // number carrying one may assert; anything else is Luhn-passing
+            // and card-shaped, which is worth showing a reviewer and nothing
+            // more. Same rule as a national identifier whose checksum failed
+            // (v1.154.717) - `validated` decides, not confidence.
+            $validated = (bool) preg_match(self::CARD_ISSUER_PATTERN, $digits);
+
             $offset = (int) $match[1];
             $findings[] = [
                 'type'         => 'credit_card',
                 'value'        => $value,
                 'offset_start' => $offset,
                 'offset_end'   => $offset + strlen($value),
-                'confidence'   => 0.95,
+                'confidence'   => $validated ? 0.95 : 0.40,
+                'validated'    => $validated,
             ];
         }
     }

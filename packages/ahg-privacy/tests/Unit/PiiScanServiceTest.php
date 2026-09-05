@@ -378,4 +378,71 @@ class PiiScanServiceTest extends TestCase
 
         $this->assertSame('high', PrivacyController::bandFor($legacy['type'], $legacy['confidence'], $validated));
     }
+
+    // ── Luhn is a typo check, not proof of cardness ──────────────────────
+
+    /**
+     * The record that found this: information_object_i18n 906002 reads
+     * "Barcode 123 1764827606 barcode". Thirteen digits, and it passes Luhn by
+     * coincidence - one check digit means roughly one in ten arbitrary digit
+     * runs does. It was reported as a payment card at 0.95, entered the
+     * catalogue scan's categories as "Payment card numbers", and from there
+     * fed both the Article 30 draft and a RetentionProposal that persists
+     * automatically for a DPO to accept.
+     */
+    public function test_a_barcode_that_passes_luhn_by_chance_cannot_assert(): void
+    {
+        $svc = new PiiScanService('popia', []);
+        $cards = array_values(array_filter(
+            $svc->scan('Barcode 123 1764827606 barcode'),
+            fn ($f) => $f['type'] === 'credit_card'
+        ));
+
+        $this->assertNotEmpty($cards, 'still surfaced - a reviewer should see a card-shaped number');
+        $this->assertFalse($cards[0]['validated'], 'no issuer prefix, so it may not assert');
+        $this->assertSame('review', PrivacyController::bandFor('credit_card', $cards[0]['confidence'], $cards[0]['validated']));
+    }
+
+    /**
+     * Published vendor test numbers, not values this implementation produced -
+     * testing a checksum against its own output proves nothing.
+     */
+    public static function publishedCardNumbers(): array
+    {
+        return [
+            'Visa 16' => ['4111 1111 1111 1111'],
+            'Visa alt' => ['4012 8888 8888 1881'],
+            'Mastercard' => ['5555 5555 5555 4444'],
+            'Mastercard 2-series' => ['2223 0031 2200 3222'],
+            'Amex' => ['3782 822463 10005'],
+            'Discover' => ['6011 1111 1111 1117'],
+            'JCB' => ['3530 1113 3330 0000'],
+            'Diners' => ['3056 930902 5904'],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('publishedCardNumbers')]
+    public function test_a_genuine_card_still_asserts(string $number): void
+    {
+        $svc = new PiiScanService('popia', []);
+        $cards = array_values(array_filter(
+            $svc->scan("Payment reference {$number} on file"),
+            fn ($f) => $f['type'] === 'credit_card'
+        ));
+
+        $this->assertNotEmpty($cards, "{$number} should be detected");
+        $this->assertTrue($cards[0]['validated'], "{$number} carries a real issuer prefix");
+        $this->assertSame('high', PrivacyController::bandFor('credit_card', $cards[0]['confidence'], $cards[0]['validated']));
+    }
+
+    public function test_a_number_that_fails_luhn_is_not_reported_at_all(): void
+    {
+        $svc = new PiiScanService('popia', []);
+        $cards = array_filter(
+            $svc->scan('Reference 4111 1111 1111 1112 in the file'),
+            fn ($f) => $f['type'] === 'credit_card'
+        );
+
+        $this->assertSame([], $cards, 'a failed check digit is not card-shaped enough to mention');
+    }
 }
