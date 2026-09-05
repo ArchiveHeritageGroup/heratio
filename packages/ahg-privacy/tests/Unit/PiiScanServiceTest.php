@@ -445,4 +445,144 @@ class PiiScanServiceTest extends TestCase
 
         $this->assertSame([], $cards, 'a failed check digit is not card-shaped enough to mention');
     }
+
+    // ── an identity number carries a date of birth ───────────────────────
+
+    /**
+     * Found by scanning the real catalogue: "Demo DO Fonds 1784035271814".
+     * That is a millisecond epoch timestamp - 2026-07-14 13:21:11 - and it was
+     * reported as a VALIDATED South African identity number at 0.90, which
+     * drafted a "National identifiers" retention proposal. Its first six digits
+     * are 178403, and there is no month 84. The validator checked length and
+     * Luhn and nothing else, and a timestamp is thirteen digits that passes
+     * Luhn about one time in ten. This catalogue had two.
+     */
+    public function test_an_epoch_timestamp_is_not_a_validated_identity_number(): void
+    {
+        $svc = new PiiScanService('popia', []);
+
+        foreach (['1784035271814', '1784038368393'] as $timestamp) {
+            $ids = array_values(array_filter(
+                $svc->scan("Demo DO Fonds {$timestamp}"),
+                fn ($f) => $f['type'] === 'national_id'
+            ));
+
+            $this->assertNotEmpty($ids, 'still surfaced for a reviewer');
+            $this->assertFalse($ids[0]['validated'], "{$timestamp} has no valid date of birth in it");
+            $this->assertSame('review', PrivacyController::bandFor('national_id', $ids[0]['confidence'], $ids[0]['validated']));
+        }
+    }
+
+    public function test_a_real_shaped_identity_number_still_validates(): void
+    {
+        $svc = new PiiScanService('popia', []);
+        $ids = array_values(array_filter(
+            $svc->scan('ID 8001015001084 on the form'),
+            fn ($f) => $f['type'] === 'national_id'
+        ));
+
+        $this->assertNotEmpty($ids);
+        $this->assertTrue($ids[0]['validated'], '800101 is 1980-01-01, a real date');
+    }
+
+    /**
+     * The seeded demonstration identity numbers must keep validating. Their
+     * date is real (870314) and only the citizenship digit is impossible, which
+     * is deliberately not checked - rejecting on it would collapse the very
+     * confidence gate ahg:privacy-seed-demo-pii exists to show.
+     */
+    public function test_the_demonstration_identity_numbers_are_unaffected(): void
+    {
+        $svc = new PiiScanService('popia', []);
+        $ids = array_values(array_filter(
+            $svc->scan('Identity number 8703145127289 in the register'),
+            fn ($f) => $f['type'] === 'national_id'
+        ));
+
+        $this->assertNotEmpty($ids);
+        $this->assertTrue($ids[0]['validated']);
+    }
+
+    /** 29 February is valid in one century and not the other, so accept either. */
+    public function test_a_leap_day_birth_date_is_not_rejected_on_century_ambiguity(): void
+    {
+        $svc = new PiiScanService('popia', []);
+        // 000229 - 2000 was a leap year, 1900 was not.
+        $found = false;
+        for ($check = 0; $check <= 9; $check++) {
+            $candidate = '000229500108'.$check;
+            $ids = array_values(array_filter(
+                $svc->scan("ID {$candidate} here"),
+                fn ($f) => $f['type'] === 'national_id'
+            ));
+            if ($ids && $ids[0]['validated']) { $found = true; break; }
+        }
+        $this->assertTrue($found, 'a 29 February date valid in 2000 must not be rejected');
+    }
+
+    // ── a date without context is not a date of birth ────────────────────
+
+    /**
+     * The record that found this: "WhatsApp Image 2026-07-10 at 09.27.44".
+     * A filename. It was read as a date of birth and put "Date of birth" on an
+     * Article 30 draft. Nothing about a bare date says birth rather than
+     * accession, exposure or hearing - an archive is made of dates - and the
+     * existing year bound could not help, because that one is in the past.
+     */
+    public function test_a_bare_date_cannot_assert(): void
+    {
+        $svc = new PiiScanService('popia', []);
+
+        foreach ([
+            'WhatsApp Image 2026-07-10 at 09.27.44',
+            'Accession received 2019-03-04 from the estate',
+            'Photograph exposed 1961-08-19, Kimberley',
+        ] as $text) {
+            $dates = array_values(array_filter($svc->scan($text), fn ($f) => $f['type'] === 'date_of_birth'));
+            $this->assertNotEmpty($dates, "still surfaced: {$text}");
+            $this->assertFalse($dates[0]['validated'], "no birth context in: {$text}");
+            $this->assertSame('review', PrivacyController::bandFor('date_of_birth', $dates[0]['confidence'], $dates[0]['validated']));
+        }
+    }
+
+    public function test_a_date_with_birth_context_still_asserts(): void
+    {
+        $svc = new PiiScanService('popia', []);
+
+        foreach (['Subject born 1954-11-02 in Kimberley', 'Date of birth: 1954-11-02', 'D.O.B 1954-11-02'] as $text) {
+            $dates = array_values(array_filter($svc->scan($text), fn ($f) => $f['type'] === 'date_of_birth'));
+            $this->assertNotEmpty($dates, $text);
+            $this->assertTrue($dates[0]['validated'], $text);
+        }
+    }
+
+    /**
+     * The gate matches whole words, never substrings. A sibling instance had a
+     * financial gate keyed on 'ref' with a substring match, so it fired inside
+     * 'reference' - a word in nearly every archival description - and the gate
+     * meant to suppress false positives was open almost always.
+     */
+    public function test_the_gate_does_not_fire_on_a_substring(): void
+    {
+        $svc = new PiiScanService('popia', []);
+        // "rebirth" and "birthplace" contain "birth"; only the whole word counts.
+        $dates = array_values(array_filter(
+            $svc->scan('Catalogue of the Rebirth Collection, item dated 1961-08-19'),
+            fn ($f) => $f['type'] === 'date_of_birth'
+        ));
+
+        $this->assertNotEmpty($dates);
+        $this->assertFalse($dates[0]['validated'], '"Rebirth" is not a claim about anyone being born');
+    }
+
+    /** The window follows the match, so a mention far away cannot legitimise it. */
+    public function test_context_far_from_the_match_does_not_count(): void
+    {
+        $svc = new PiiScanService('popia', []);
+        $text = 'Birth register of the parish. '.str_repeat('Further correspondence follows. ', 6).'Item dated 1961-08-19.';
+        $dates = array_values(array_filter($svc->scan($text), fn ($f) => $f['type'] === 'date_of_birth'));
+
+        $this->assertNotEmpty($dates);
+        $this->assertFalse($dates[0]['validated'], 'the word is in the field but nowhere near the date');
+    }
 }

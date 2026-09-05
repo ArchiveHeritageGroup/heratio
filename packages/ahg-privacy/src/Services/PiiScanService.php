@@ -562,10 +562,12 @@ final class PiiScanService
                 // `validated` is the whole basis on which this finding may
                 // become a compliance assertion, so it records what was
                 // actually established rather than how sure the match felt:
-                //   true  - a checksum ran and passed
-                //   false - a checksum ran and FAILED
-                //   null  - no checksum exists for this jurisdiction, so
-                //           nothing was established either way
+                //   true  - corroborated, by a checksum here and by the
+                //           surrounding prose for types that have none
+                //   false - the corroboration was attempted and FAILED
+                //   null  - nothing to corroborate against, so nothing was
+                //           established either way
+                // Only true may declare a category of personal data.
                 // Only true may declare a category of personal data. A number
                 // that fails its own check digit is evidence for a reviewer,
                 // not grounds for an Article 30 entry.
@@ -652,6 +654,42 @@ final class PiiScanService
     }
 
     /** @param array<int,array> $findings */
+    /**
+     * Is one of these words near the match?
+     *
+     * A pattern with no checksum cannot corroborate itself, so the only
+     * evidence available is the prose around it. Two details decide whether
+     * such a gate works at all:
+     *
+     * WORD BOUNDARIES, never str_contains. A sibling instance on PSIS had a
+     * financial gate keyed on 'ref' with a substring match, so it fired inside
+     * 'reference' - a word in nearly every archival description - and the gate
+     * that existed to suppress false positives was open almost always. A
+     * substring gate is not a gate.
+     *
+     * WINDOWED ON THE MATCH, never the whole field. Scanning the field would
+     * let one mention of "birth" three paragraphs away legitimise every date in
+     * a long scope note.
+     *
+     * @param  array<int,string>  $keywords
+     */
+    private function hasContextNear(string $text, int $offset, array $keywords, int $window = 50): bool
+    {
+        $from = max(0, $offset - $window);
+        $context = strtolower(substr($text, $from, ($offset - $from) + $window));
+
+        foreach ($keywords as $keyword) {
+            if (preg_match('/\b'.preg_quote(strtolower($keyword), '/').'\b/u', $context)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Words that make a bare date a claim about a person's birth. */
+    private const DOB_CONTEXT = ['born', 'birth', 'birthday', 'birthdate', 'dob', 'd.o.b', 'date of birth', 'b.', 'geboren', 'gebore'];
+
     private function collectDatesOfBirth(string $text, array &$findings): void
     {
         if (! $this->matchAll(self::BASE_PATTERNS['date_of_birth']['pattern'], $text, $matches, 'date_of_birth')) {
@@ -669,12 +707,26 @@ final class PiiScanService
                 }
             }
             $offset = (int) $match[1];
+
+            // A date has no checksum, and an archive is made of dates. Nothing
+            // about "2026-07-10" says birth rather than accession, exposure,
+            // hearing or - the record that found this - the moment a phone
+            // wrote a file: "WhatsApp Image 2026-07-10 at 09.27.44" was read as
+            // a date of birth and put "Date of birth" on an Article 30 draft.
+            //
+            // So the surrounding prose is the only evidence there is, and a
+            // date without it may be shown to a reviewer but may not assert.
+            $validated = $this->hasContextNear($text, $offset, self::DOB_CONTEXT);
+
             $findings[] = [
                 'type'         => 'date_of_birth',
                 'value'        => $value,
                 'offset_start' => $offset,
                 'offset_end'   => $offset + strlen($value),
-                'confidence'   => self::BASE_PATTERNS['date_of_birth']['confidence'],
+                'confidence'   => $validated
+                    ? self::BASE_PATTERNS['date_of_birth']['confidence']
+                    : 0.30,
+                'validated'    => $validated,
             ];
         }
     }
@@ -772,6 +824,34 @@ final class PiiScanService
         if (! preg_match('/^\d{13}$/', $value) || $value === str_repeat('0', 13)) {
             return false;
         }
+
+        // The first six digits are a date of birth, YYMMDD, and that is a hard
+        // rule of the format rather than a convention. Checking only length and
+        // Luhn accepted anything with the right number of digits and a lucky
+        // check digit: a millisecond epoch timestamp in a demo record's title,
+        // 1784035271814, was reported as a VALIDATED national identifier at
+        // 0.90 and drafted a "National identifiers" retention proposal. Its
+        // first six digits are 178403 - month 84. A timestamp is thirteen
+        // digits and passes Luhn about one time in ten, and this catalogue had
+        // two of them.
+        //
+        // The year is two digits and so ambiguous, and only 29 February
+        // depends on it, so a date is accepted if it is valid in either
+        // century rather than guessing which one is meant.
+        $month = (int) substr($value, 2, 2);
+        $day = (int) substr($value, 4, 2);
+        $yy = (int) substr($value, 0, 2);
+        if (! checkdate($month, $day, 1900 + $yy) && ! checkdate($month, $day, 2000 + $yy)) {
+            return false;
+        }
+
+        // Deliberately NOT checked: the citizenship digit, which is 0 or 1 on a
+        // real identity number. ahg:privacy-seed-demo-pii sets it to 2 so its
+        // records "cannot belong to a living person", and rejecting on it would
+        // collapse that demonstration - both of its ID-shaped strings would
+        // score 0.30 and the confidence gate it exists to show would vanish.
+        // Worth revisiting together with that seeder, not on its own.
+
         return $this->luhn($value);
     }
 

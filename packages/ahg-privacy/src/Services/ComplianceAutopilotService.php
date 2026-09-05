@@ -86,6 +86,25 @@ class ComplianceAutopilotService
      */
     private const NON_CATEGORY_TYPES = ['custom_term'];
 
+    /**
+     * Is this a seeded demonstration record rather than a real holding?
+     *
+     * ahg:privacy-seed-demo-pii deliberately labels its records three ways -
+     * "Every record is titled [SYNTHETIC], carries a banner in its scope note,
+     * and is filed under one clearly-named parent, so a screenshot that escapes
+     * the room still says what it is." Two of those three are checked here, so
+     * a record has to lose both markers before it is mistaken for a holding.
+     *
+     * Matching is on the explicit markers, never on the bare word: archival
+     * descriptions legitimately discuss synthetic fibres, synthetic dyes and
+     * synthetic biology, and excluding those would hide real personal data.
+     */
+    public static function isDemonstrationRecord(?string $title, ?string $text): bool
+    {
+        return str_starts_with(ltrim((string) $title), '[SYNTHETIC]')
+            || str_contains((string) $text, 'SYNTHETIC DEMONSTRATION RECORD');
+    }
+
     /** Scan up to $limit catalogue descriptions for PII and aggregate by category. */
     public function scanCatalogue(int $limit = 300): array
     {
@@ -98,6 +117,7 @@ class ComplianceAutopilotService
 
         $agg = [];
         $withPii = 0;
+        $syntheticRecords = 0;
         $scanned = 0;
         $reviewHits = 0;
         $reviewRecords = 0;
@@ -107,6 +127,24 @@ class ComplianceAutopilotService
             if ($text === '') {
                 continue;
             }
+
+            // A demonstration record is not a holding, and an Article 30 record
+            // or a retention rule drafted from one asserts something about the
+            // institution that is not true. Both accepted retention proposals
+            // on heratio-dev traced entirely to this seed set - "Phone numbers"
+            // from four synthetic records and "Payment card numbers" from the
+            // published Visa test number in a fifth.
+            //
+            // Excluded HERE, at the aggregation, and not in PiiScanService: the
+            // per-record scanner must still find PII in these records, because
+            // demonstrating that it does is what they exist for. Only the
+            // compliance artefacts are protected.
+            if (self::isDemonstrationRecord($r->title ?? null, $text)) {
+                $syntheticRecords++;
+
+                continue;
+            }
+
             $findings = $scanner->scan($text);
             if (! $findings) {
                 continue;
@@ -166,6 +204,9 @@ class ComplianceAutopilotService
             // aliases so nothing reading them breaks.
             'review_hits'    => $reviewHits,
             'review_records' => $reviewRecords,
+            // Reported rather than silently dropped: an exclusion nobody can
+            // see is its own kind of wrong answer.
+            'synthetic_excluded' => $syntheticRecords,
             'custom_term_hits'   => $reviewHits,
             'custom_term_records' => $reviewRecords,
         ];
