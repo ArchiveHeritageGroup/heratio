@@ -3417,6 +3417,60 @@ class ExhibitionSpaceService
      * state. Polled ~2-3x/sec by the walkthrough. $isDocent (decided by the controller
      * from auth) gates docent role + tour control; visitors can never set tour state.
      */
+    /**
+     * How often a beat bothers to collect stale presence rows. 1 in N.
+     *
+     * The GC is NOT load-bearing: both queries below already filter on
+     * last_seen >= now-12s, so a stale row is invisible to visitors whether or
+     * not it has been deleted. Its only job is to stop the table growing.
+     *
+     * Running it on every beat made GC load scale with the square of the
+     * audience - each of N visitors beats 2-3 times a second, and every beat
+     * swept the whole building - and it deadlocked in production on 7 Sep 2026
+     * against the upsert directly above it. The two take locks in opposite
+     * orders on the same rows: the upsert holds a row via uq_building_token and
+     * wants the (building_id, last_seen) range, while a concurrent delete holds
+     * that range and wants the row. Both indexes are correct and present; the
+     * collision is the ordering, not the plan.
+     *
+     * Sampling makes the GC rate roughly constant instead of growing with the
+     * crowd, which is right, because the reason to collect does not grow with
+     * the crowd either. One visitor still sweeps about every ten seconds.
+     */
+    private const PRESENCE_GC_ODDS = 25;
+
+    /**
+     * Best-effort sweep of stale presence rows.
+     *
+     * Deadlock and lock-wait are swallowed BY NAME - 1213 and 1205 - and
+     * nothing else is. A bare catch here would hide a missing table or a
+     * permissions failure behind the same silence, and this table's history is
+     * already one concurrency bug found only because it threw loudly (the
+     * updateOrInsert 1062 that became the upsert above).
+     *
+     * Losing a sweep costs nothing: the row stays invisible to visitors and the
+     * next beat collects it.
+     */
+    private function gcStalePresence(string $building, \Illuminate\Support\Carbon $now): void
+    {
+        if (random_int(1, self::PRESENCE_GC_ODDS) !== 1) {
+            return;
+        }
+
+        try {
+            DB::table('ahg_exhibition_presence')
+                ->where('building_id', $building)
+                ->where('last_seen', '<', $now->copy()->subSeconds(15))
+                ->delete();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $code = (int) ($e->errorInfo[1] ?? 0);
+            if ($code !== 1213 && $code !== 1205) {
+                throw $e;
+            }
+            // Lost the race to a concurrent beat. The next one collects.
+        }
+    }
+
     public function presenceBeat(object $space, array $in, bool $isDocent = false): array
     {
         if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_presence')) {
@@ -3452,8 +3506,7 @@ class ExhibitionSpaceService
             ['building_id', 'session_token'],
             array_keys($row)
         );
-        DB::table('ahg_exhibition_presence')->where('building_id', $building)
-            ->where('last_seen', '<', $now->copy()->subSeconds(15))->delete();   // GC stale
+        $this->gcStalePresence($building, $now);
 
         $peers = DB::table('ahg_exhibition_presence')
             ->where('building_id', $building)
