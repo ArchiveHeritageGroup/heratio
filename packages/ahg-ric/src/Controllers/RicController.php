@@ -2264,35 +2264,47 @@ SPARQL;
         }
         // Event URIs
         if (preg_match('/\/(production|accumulation|activity|event)\/(\d+)$/', $uri, $m)) {
-            $event = DB::table('event as e')
-                ->leftJoin('event_i18n as ei', function ($j) use ($culture) {
-                    $j->on('e.id', '=', 'ei.id')->where('ei.culture', '=', $culture);
-                })
-                ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
-                    $j->on('e.type_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-                })
-                ->where('e.id', $m[2])
-                ->select('ti.name as type_name', 'ei.date as date_text')
-                ->first();
+            // The event row itself is not culture-dependent; only its labels
+            // are. Resolving them with the same $cultures walk the branches
+            // above use is both correct and one less join - the culture-joined
+            // form closed over $culture, which nothing in this method has ever
+            // assigned.
+            $event = DB::table('event')->where('id', $m[2])->select('id', 'type_id')->first();
             if ($event) {
-                $label = $event->type_name ?: ucfirst($m[1]);
-                if ($event->date_text) {
-                    $label .= ': ' . $event->date_text;
+                $typeName = null;
+                $dateText = null;
+                foreach ($cultures as $c) {
+                    $typeName = $typeName ?: DB::table('term_i18n')
+                        ->where('id', $event->type_id)->where('culture', $c)->value('name');
+                    $dateText = $dateText ?: DB::table('event_i18n')
+                        ->where('id', $event->id)->where('culture', $c)->value('date');
+                    if ($typeName && $dateText) {
+                        break;
+                    }
+                }
+                $label = $typeName ?: ucfirst($m[1]);
+                if ($dateText) {
+                    $label .= ': ' . $dateText;
                 }
                 return $label;
             }
         }
         // Instantiation URIs (digital objects)
         if (preg_match('/\/instantiation\/(\d+)$/', $uri, $m)) {
-            $do = DB::table('digital_object as d')
-                ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                    $j->on('d.object_id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-                })
-                ->where('d.id', $m[1])
-                ->select('d.name', 'd.mime_type', 'ioi.title')
+            $do = DB::table('digital_object')
+                ->where('id', $m[1])
+                ->select('name', 'mime_type', 'object_id')
                 ->first();
             if ($do) {
-                $label = $do->name ?: ($do->title ? $do->title . ' (file)' : null);
+                $title = null;
+                foreach ($cultures as $c) {
+                    $title = DB::table('information_object_i18n')
+                        ->where('id', $do->object_id)->where('culture', $c)->value('title');
+                    if ($title) {
+                        break;
+                    }
+                }
+                $label = $do->name ?: ($title ? $title . ' (file)' : null);
                 if ($label) {
                     $ext  = pathinfo($label, PATHINFO_EXTENSION);
                     $base = pathinfo($label, PATHINFO_FILENAME);

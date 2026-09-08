@@ -180,12 +180,46 @@ class DerivativeService
      *
      * @return array{thumbnail: bool, reference: bool, errors: string[]}
      */
+    /**
+     * Formats ImageMagick can actually rasterise here.
+     *
+     * Everything with a master row was handed to `convert` regardless of what
+     * it was, so a text file, a spreadsheet or an audio recording produced two
+     * logged ERRORs apiece - "improper image header" - every time derivatives
+     * were regenerated. On heratio.org that was 24 files and 164 error lines in
+     * a single day, and it is very likely what exited ahg:cron-run non-zero 69
+     * times: the scheduler reports the command failed, and the real cause is
+     * buried in a log nobody reads because it is full of these.
+     *
+     * A .csv has no thumbnail. That is not an error, it is a fact about CSVs,
+     * and recording it as a failure trains people to ignore the error log.
+     */
+    private const RASTERISABLE = [
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tif', 'tiff', 'jp2', 'jpx', 'jpf', 'jpm',
+        'psd', 'eps', 'ai', 'pdf', 'svg', 'ico', 'heic', 'heif', 'avif',
+        'raw', 'cr2', 'nef', 'arw', 'dng', 'orf', 'rw2',
+    ];
+
+    /** Can a raster derivative be made from this master at all? */
+    public static function isRasterisable(?string $name, ?string $mimeType = null): bool
+    {
+        $mime = strtolower(trim((string) $mimeType));
+        if ($mime !== '' && (str_starts_with($mime, 'audio/') || str_starts_with($mime, 'video/')
+            || str_starts_with($mime, 'text/') || $mime === 'application/json')) {
+            return false;
+        }
+
+        return in_array(strtolower(pathinfo((string) $name, PATHINFO_EXTENSION)), self::RASTERISABLE, true);
+    }
+
     public function regenerateDerivatives(int $digitalObjectId): array
     {
         $result = [
             'thumbnail' => false,
             'reference' => false,
             'errors' => [],
+            'skipped' => false,
+            'reason' => null,
         ];
 
         // Get the master digital object
@@ -217,6 +251,36 @@ class DerivativeService
         $masterPath = $this->resolvePath($master->path, $master->name);
         if (! file_exists($masterPath)) {
             $result['errors'][] = 'Master file not found on disk: '.$masterPath;
+
+            return $result;
+        }
+
+        // Nothing to rasterise. Reported as skipped rather than as two errors,
+        // because "a CSV has no thumbnail" is not a failure and logging it as
+        // one is how an error log becomes unreadable.
+        if (! self::isRasterisable($master->name ?? null, $master->mime_type ?? null)) {
+            $result['skipped'] = true;
+            $result['reason'] = 'not a rasterisable format';
+
+            return $result;
+        }
+
+        // Ciphertext this instance cannot open. isFileEncrypted() below detects
+        // only Heratio's own AHG_ENC_DERIV_v1 envelope, which it can decrypt;
+        // the foreign AHG-ENC-V2 envelope carried by masters ingested from
+        // external AHG tooling exists in EncryptionService for DETECTION ONLY,
+        // and nothing here decrypts it. Falling through handed those bytes to
+        // ImageMagick, which answered "Not a JPEG file: starts with 0x41 0x48"
+        // - and 0x41 0x48 is "AH", the start of the envelope itself.
+        //
+        // That message is worse than useless: it says the file is corrupt when
+        // it is intact and merely encrypted, so the honest response to it is to
+        // re-ingest or delete a perfectly good master. Three of the four real
+        // images failing on heratio.org were this.
+        $encryption = app(\AhgCore\Services\EncryptionService::class);
+        if ($encryption->isFileEncryptedAtRest($masterPath) && ! $encryption->isFileEncrypted($masterPath)) {
+            $result['skipped'] = true;
+            $result['reason'] = 'encrypted at rest by external tooling; no derivative can be generated';
 
             return $result;
         }
