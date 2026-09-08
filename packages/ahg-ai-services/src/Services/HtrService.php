@@ -41,8 +41,49 @@ class HtrService
         // the gateway's legacy HTR proxy. HTR_SERVICE_URL stays a developer-
         // only override, no longer the production source of truth.
         $htrUrl = rtrim($this->setting('htr_url', 'https://ai.theahg.co.za/ai/v1/htr'), '/');
-        $this->baseUrl = rtrim(env('HTR_SERVICE_URL', $htrUrl . '/legacy'), '/');
+
+        // A HTR_SERVICE_URL pointing at a raw node is IGNORED, matching what
+        // DonutService already does for DONUT_SERVICE_URL (#1368). The comment
+        // above has said "developer-only override, no longer the production
+        // source of truth" since #131, but nothing enforced it - and both
+        // heratio and heratio-dev still carried
+        // HTR_SERVICE_URL=http://192.168.0.115:5006 in .env, so on every
+        // instance that mattered the override WAS the production source of
+        // truth. .115 is standby-only with a broken driver and nothing is
+        // listening on 5006, so the health check simply timed out against it,
+        // twice a day, direct to a GPU node port the gateway rule forbids.
+        //
+        // Enforcing it here rather than editing .env on each box is deliberate:
+        // a protection that has to be re-applied per instance is one that
+        // eventually is not, which is exactly how a fix from #131 was still
+        // being bypassed months later.
+        $override = (string) env('HTR_SERVICE_URL', '');
+        $this->baseUrl = ($override !== '' && ! self::looksLikeNode($override))
+            ? rtrim($override, '/')
+            : $htrUrl . '/legacy';
         $this->apiKey  = $this->setting('api_key', '');
+    }
+
+    /**
+     * Where HTR actually lives, after the gateway default and the node guard
+     * have been applied. The view needs this; it must not re-derive it from
+     * env, which is how it ended up with a hardcoded .115 fallback.
+     */
+    public function baseUrl(): string
+    {
+        return $this->baseUrl;
+    }
+
+    /**
+     * True when a URL points at a raw GPU node rather than the gateway.
+     *
+     * Same test DonutService uses (#1368). Kept as a copy rather than shared
+     * because the two services are in different packages and this is four
+     * lines; if a third caller appears it belongs in AiServicesSettings.
+     */
+    public static function looksLikeNode(string $url): bool
+    {
+        return (bool) preg_match('~:11434|://(?:127\.0\.0\.1|localhost|192\.168\.|10\.|172\.(?:1[6-9]|2\d|3[01])\.)~i', $url);
     }
 
     /** heratio#131 - resolve an AI setting (ahg_ner_settings, then ahg_ai_settings general). */

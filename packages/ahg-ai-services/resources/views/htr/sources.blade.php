@@ -227,7 +227,12 @@
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const htrUrl = @json(rtrim(env('HTR_SERVICE_URL', 'http://192.168.0.115:5006'), '/'));
+  {{-- Never a raw GPU node. This fell back to http://192.168.0.115:5006 - a
+       standby-only host with a broken driver and nothing listening - and read
+       HTR_SERVICE_URL directly, so it bypassed the guard in HtrService as well
+       as the gateway. The service is the single source of truth for where HTR
+       lives; the view asks it. --}}
+  const htrUrl = @json(rtrim(app(\AhgAiServices\Services\HtrService::class)->baseUrl(), '/'));
 
   // Download button handlers
   document.querySelectorAll('.btn-download').forEach(function(btn) {
