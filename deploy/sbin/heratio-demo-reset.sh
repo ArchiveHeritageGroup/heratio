@@ -63,7 +63,43 @@ else
 fi
 
 systemctl stop heratio-queue-worker@1.service 2>/dev/null || true
-if zcat "$BASE" | mysql --defaults-file=/dev/null -u root "$DB"; then echo "restore OK"; else echo "restore FAILED"; fi
+# Clear any triggers still attached before restoring. Trigger names are unique per
+# SCHEMA, not per table, so a single trigger surviving from a half-applied previous
+# run makes the dump's CREATE TRIGGER fail and takes the whole restore down with it.
+# That is what happened on 28 Aug 2026: "ERROR 1359: Trigger already exists" on
+# ahg_audit_log_no_update_chained. Dropping first is safe because the dump recreates
+# every trigger it needs.
+# Distinguish "no triggers" from "the sweep could not run" - a sweep that fails
+# quietly and calls itself skipped is how the restore hits the error it is meant
+# to prevent.
+_TRG_SQL="$(mysql --defaults-file=/dev/null -u root -N -B "$DB" -e \
+  "SELECT CONCAT('DROP TRIGGER IF EXISTS \`', trigger_name, '\`;') FROM information_schema.triggers WHERE trigger_schema = '$DB';")" || _TRG_SQL="__FAILED__"
+if [ "$_TRG_SQL" = "__FAILED__" ]; then
+    echo "pre-restore trigger sweep COULD NOT RUN - the restore may fail on 'Trigger already exists'"
+elif [ -z "$_TRG_SQL" ]; then
+    echo "pre-restore: no triggers to clear"
+elif printf '%s\n' "$_TRG_SQL" | mysql --defaults-file=/dev/null -u root "$DB"; then
+    echo "pre-restore: dropped $(printf '%s\n' "$_TRG_SQL" | grep -c 'DROP TRIGGER') trigger(s)"
+else
+    echo "pre-restore trigger sweep FAILED - the restore may fail on 'Trigger already exists'"
+fi
+
+# A failed restore is fatal. This used to log "restore FAILED" and carry straight on
+# through the truncate, the article re-apply, the onboard and the help re-ingest,
+# then finish with "=== demo reset done ===". A run that reports success it did not
+# achieve is worse than one that stops: it leaves a half-applied database looking
+# like a completed reset, and the next person to run heratio-demo-snapshot.sh would
+# freeze that state as the demo's permanent baseline.
+if zcat "$BASE" | mysql --defaults-file=/dev/null -u root "$DB"; then
+    echo "restore OK"
+else
+    echo "restore FAILED - ABORTING the rest of the reset."
+    echo "       ${DB} may now be half-applied. Check it before trusting the demo,"
+    echo "       and do NOT run heratio-demo-snapshot.sh until it is verified healthy."
+    systemctl start heratio-queue-worker@1.service 2>/dev/null || true
+    echo "[$(date)] === demo reset ABORTED (restore failed) ==="
+    exit 1
+fi
 # ahg_error_log is ephemeral operational diagnostics, not demo content. The baseline
 # dump has months-old error rows baked in that otherwise resurrect every night; wipe
 # it so the demo's error log starts each day clean (real same-day errors still log).

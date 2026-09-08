@@ -6,6 +6,19 @@
 set -euo pipefail
 ENV=/usr/share/nginx/heratio/.env
 OUT=/mnt/nas/heratio/demo-baseline
+NAS_ROOT=/mnt/nas/heratio
+
+# The baseline lives on an NFS automount. Unmounted, this path still EXISTS as an
+# ordinary local directory, so mkdir -p would happily create it and the snapshot
+# would land on local disk. Nothing would report an error: heratio-demo-reset.sh
+# reads the baseline from the real NAS path, so it would keep seeing the OLD dump
+# and the OLD version stamp, abort every night on a version mismatch, and the
+# rotation would quietly stop while this script reported success each time.
+if ! mountpoint -q "$NAS_ROOT"; then
+    echo "ABORT: $NAS_ROOT is not mounted. Refusing to write the baseline to local disk."
+    exit 1
+fi
+
 mkdir -p "$OUT"
 raw="$(grep -m1 '^DB_PASSWORD=' "$ENV")"
 export MYSQL_PWD="$(printf '%s' "${raw#DB_PASSWORD=}" | tr -d '\r' | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'\$/\1/")"
