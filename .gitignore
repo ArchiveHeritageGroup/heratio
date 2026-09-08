@@ -131,3 +131,18 @@ docker/.env.docker
 
 # local code-graph output (graphq/graphify); never committed
 graphify-out/
+
+# Commercially sensitive reference documents. These live on the instances and
+# in KM; this repository is PUBLIC and they must never be committed to it.
+#
+# They were ignored only by a hand-edited .gitignore on the production instance,
+# held in place with `git update-index --skip-worktree`. That worked until it
+# didn't: skip-worktree makes git refuse to merge ANY incoming change to the
+# file, so the 1.154.709 -> 1.154.723 deploy aborted on it, and the obvious
+# unblock - take the repo's version - would have silently dropped these lines
+# and left both documents untracked-but-not-ignored, one `git add -A` away from
+# a public push. Ignoring them here means no instance needs a local deviation.
+#
+# Neither file has ever been committed. Keep it that way.
+docs/reference/registry-records-training-tender-pricing.md
+docs/reference/ahg-ownership-and-succession.md
