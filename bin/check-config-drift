@@ -59,9 +59,14 @@ declare -a TMPS=()
 cleanup() { local t; for t in "${TMPS[@]:-}"; do [ -n "${t:-}" ] && rm -f "$t" 2>/dev/null; done; }
 report_error() {
     # Always to stderr, regardless of --quiet.
-    echo -e "\033[31mERROR\033[0m [$SELF] $*" >&2
-    # TODO(callhub): once the CallHub error API is available (requested from the
-    # Workbench/CallHub session) POST "$*" here so failures also surface on CallHub.
+    echo -e "[31mERROR[0m [$SELF] $*" >&2
+    # Also surface on CallHub via the shared reporter: it writes the bus drop and
+    # opens a ticket with correct JSON encoding, deduped on service:fault:week.
+    # Stable --fault; the reporter never fails, so it cannot break the run.
+    if [ -x "$REPORTER" ]; then
+        "$REPORTER" --service heratio --fault "config-drift-selfcheck" --title "check-config-drift internal error" --message "$*" >/dev/null 2>&1 || true
+    fi
+    return 0
 }
 trap "cleanup" EXIT
 trap 'report_error "interrupted by signal"; cleanup; exit 130' INT TERM
@@ -77,6 +82,7 @@ DRIFTED_LIST=""
 # alerted on, so a persistent drift on a schedule is not re-reported every run.
 INBOX="${WORKBENCH_NOTIFICATIONS_INBOX:-/var/spool/workbench/notifications}"
 STATE="${CONFIG_DRIFT_STATE:-/var/spool/workbench/.heratio-config-drift.last}"
+REPORTER="${AHG_REPORT_ERROR:-/usr/share/nginx/workbench/bin/ahg-report-error}"
 
 # ---------------------------------------------------------------------------
 # Manifest: <repo path>|<installed path>|<mode>
@@ -186,41 +192,55 @@ if [ "$DRIFT" = "1" ]; then
     # Cron here runs with MAILTO="" by convention, so a scheduled run would
     # otherwise report drift to nobody. Drop it on the Workbench notification
     # bus instead, which is the surface an operator actually watches.
-    if [ "$NOTIFY" = "1" ] && [ -d "$INBOX" ]; then
+    if [ "$NOTIFY" = "1" ]; then
         drifted="$(printf '%s' "$DRIFTED_LIST" | sed 's/^,//')"
         # de-dup: raise only when the drift signature changes, so a persistent
-        # drift is not re-reported each run. The CallHub hook, when added, sits
-        # inside this same gate so it cannot duplicate either.
+        # drift is not re-reported each run. The stable --fault key means CallHub
+        # also collapses repeats within an ISO week - two layers, no duplicate calls.
         sig="$drifted"
         last=""; [ -r "$STATE" ] && last="$(cat "$STATE" 2>/dev/null)"
         if [ -n "$sig" ] && [ "$sig" = "$last" ]; then
             say "  drift unchanged since the last alert - not re-notifying"
         else
-            tmp="$(mktemp)" || { report_error "mktemp failed - could not stage the drift notification"; exit 1; }
-            TMPS+=("$tmp")
-            if ! cat > "$tmp" <<JSON
+            title="Host config drift detected"
+            body="Tracked host config no longer matches this box: ${drifted}. Run bin/check-config-drift --diff as root, then decide which side is right - the live copy is usually the one that works."
+            raised=0
+            if [ -x "$REPORTER" ]; then
+                # Shared reporter: writes the bus notification AND opens a CallHub
+                # ticket, correct JSON. Stable --fault so a persistent drift is one
+                # ticket, not one per run. It never fails.
+                "$REPORTER" --service heratio --fault "config-drift" --title "$title" --message "$body" && raised=1
+                [ "$raised" = "1" ] && say "  drift reported via ahg-report-error (service=heratio fault=config-drift)"
+            elif [ -d "$INBOX" ]; then
+                # Fallback for a host without the shared reporter: hand-drop onto
+                # the bus. mktemp is 0600 and the watcher (service account) cannot
+                # read that, so chmod 644 before the move or it is quarantined.
+                tmp="$(mktemp)" || { report_error "mktemp failed - could not stage the drift notification"; exit 1; }
+                TMPS+=("$tmp")
+                if ! cat > "$tmp" <<JSON
 {
   "username": "johan",
-  "title": "Host config drift detected",
-  "message": "Tracked host config no longer matches this box: ${drifted}. Run bin/check-config-drift --diff as root, then decide which side is right - the live copy is usually the one that works.",
+  "title": "$title",
+  "message": "$body",
   "eventType": "alert"
 }
 JSON
-            then
-                report_error "failed to write the drift notification payload"
-                exit 1
-            fi
-            # mktemp creates 0600; the watcher runs as the service account and
-            # cannot read that, so an un-chmod'd drop is quarantined unread.
-            chmod 644 "$tmp" || report_error "chmod 644 failed - the watcher may be unable to read the notification"
-            dest="$INBOX/config-drift-$(date +%Y%m%d-%H%M%S).json"
-            if mv "$tmp" "$dest" 2>/dev/null && [ -r "$dest" ]; then
-                say "  notification staged on the Workbench bus ($dest)"
-                say "  (delivery is asynchronous - this confirms the drop landed readable, not that the watcher has consumed it)"
-                printf '%s\n' "$sig" > "$STATE" 2>/dev/null || report_error "could not record de-dup state at $STATE - may re-alert next run"
+                then
+                    report_error "failed to write the drift notification payload"
+                    exit 1
+                fi
+                chmod 644 "$tmp" || report_error "chmod 644 failed - the watcher may be unable to read the notification"
+                dest="$INBOX/config-drift-$(date +%Y%m%d-%H%M%S).json"
+                if mv "$tmp" "$dest" 2>/dev/null && [ -r "$dest" ]; then
+                    say "  notification staged on the Workbench bus ($dest)"
+                    raised=1
+                else
+                    report_error "could not place the drift notification in $INBOX (move or read-back failed)"
+                fi
             else
-                report_error "could not place the drift notification in $INBOX (move or read-back failed)"
+                report_error "no reporter and no writable inbox - drift alert not delivered"
             fi
+            [ "$raised" = "1" ] && { printf '%s\n' "$sig" > "$STATE" 2>/dev/null || report_error "could not record de-dup state at $STATE - may re-alert next run"; }
         fi
     fi
     exit 1
