@@ -33,7 +33,7 @@
 # License: AGPL-3.0-or-later
 #===============================================================================
 set -uo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/.." || { echo "ERROR [check-config-drift]: cannot change to repo root" >&2; exit 2; }
 ROOT="$(pwd)"
 
 SHOW_DIFF=0
@@ -50,11 +50,33 @@ done
 
 say() { [ "$QUIET" = "1" ] || echo -e "$@"; }
 
+# --- error handling --------------------------------------------------------
+# `set -e` is deliberately NOT used: diff returns non-zero on a genuine
+# difference and the comparison relies on that. Fallible operations are trapped
+# explicitly, at each point they occur, and reported through one central sink.
+SELF="$(basename "$0")"
+declare -a TMPS=()
+cleanup() { local t; for t in "${TMPS[@]:-}"; do [ -n "${t:-}" ] && rm -f "$t" 2>/dev/null; done; }
+report_error() {
+    # Always to stderr, regardless of --quiet.
+    echo -e "\033[31mERROR\033[0m [$SELF] $*" >&2
+    # TODO(callhub): once the CallHub error API is available (requested from the
+    # Workbench/CallHub session) POST "$*" here so failures also surface on CallHub.
+}
+trap "cleanup" EXIT
+trap 'report_error "interrupted by signal"; cleanup; exit 130' INT TERM
+
 DRIFT=0
 CHECKED=0
 SKIPPED=0
 UNREADABLE=0
 DRIFTED_LIST=""
+
+# Notification sink and de-dup state, defined once so both the drift and the
+# recovery paths use them. STATE holds the signature of the last drift we
+# alerted on, so a persistent drift on a schedule is not re-reported every run.
+INBOX="${WORKBENCH_NOTIFICATIONS_INBOX:-/var/spool/workbench/notifications}"
+STATE="${CONFIG_DRIFT_STATE:-/var/spool/workbench/.heratio-config-drift.last}"
 
 # ---------------------------------------------------------------------------
 # Manifest: <repo path>|<installed path>|<mode>
@@ -132,7 +154,7 @@ while IFS='|' read -r repo live mode; do
     CHECKED=$((CHECKED + 1))
     tmp=""
     case "$mode" in
-        rendered) tmp="$(mktemp)"; render_template "$ROOT/$repo" > "$tmp"; src="$tmp" ;;
+        rendered) tmp="$(mktemp)" || { report_error "mktemp failed while rendering $repo"; continue; }; TMPS+=("$tmp"); render_template "$ROOT/$repo" > "$tmp" || { report_error "render_template failed for $repo"; continue; }; src="$tmp" ;;
         *)        src="$ROOT/$repo" ;;
     esac
 
@@ -164,11 +186,19 @@ if [ "$DRIFT" = "1" ]; then
     # Cron here runs with MAILTO="" by convention, so a scheduled run would
     # otherwise report drift to nobody. Drop it on the Workbench notification
     # bus instead, which is the surface an operator actually watches.
-    INBOX="${WORKBENCH_NOTIFICATIONS_INBOX:-/var/spool/workbench/notifications}"
     if [ "$NOTIFY" = "1" ] && [ -d "$INBOX" ]; then
         drifted="$(printf '%s' "$DRIFTED_LIST" | sed 's/^,//')"
-        tmp="$(mktemp)"
-        cat > "$tmp" <<JSON
+        # de-dup: raise only when the drift signature changes, so a persistent
+        # drift is not re-reported each run. The CallHub hook, when added, sits
+        # inside this same gate so it cannot duplicate either.
+        sig="$drifted"
+        last=""; [ -r "$STATE" ] && last="$(cat "$STATE" 2>/dev/null)"
+        if [ -n "$sig" ] && [ "$sig" = "$last" ]; then
+            say "  drift unchanged since the last alert - not re-notifying"
+        else
+            tmp="$(mktemp)" || { report_error "mktemp failed - could not stage the drift notification"; exit 1; }
+            TMPS+=("$tmp")
+            if ! cat > "$tmp" <<JSON
 {
   "username": "johan",
   "title": "Host config drift detected",
@@ -176,9 +206,22 @@ if [ "$DRIFT" = "1" ]; then
   "eventType": "alert"
 }
 JSON
-        mv "$tmp" "$INBOX/config-drift-$(date +%Y%m%d-%H%M%S).json" 2>/dev/null \
-            && say "  notification raised on the Workbench bus" \
-            || rm -f "$tmp"
+            then
+                report_error "failed to write the drift notification payload"
+                exit 1
+            fi
+            # mktemp creates 0600; the watcher runs as the service account and
+            # cannot read that, so an un-chmod'd drop is quarantined unread.
+            chmod 644 "$tmp" || report_error "chmod 644 failed - the watcher may be unable to read the notification"
+            dest="$INBOX/config-drift-$(date +%Y%m%d-%H%M%S).json"
+            if mv "$tmp" "$dest" 2>/dev/null && [ -r "$dest" ]; then
+                say "  notification staged on the Workbench bus ($dest)"
+                say "  (delivery is asynchronous - this confirms the drop landed readable, not that the watcher has consumed it)"
+                printf '%s\n' "$sig" > "$STATE" 2>/dev/null || report_error "could not record de-dup state at $STATE - may re-alert next run"
+            else
+                report_error "could not place the drift notification in $INBOX (move or read-back failed)"
+            fi
+        fi
     fi
     exit 1
 fi
@@ -186,4 +229,7 @@ fi
 msg="\033[32mno drift\033[0m ($CHECKED compared, $SKIPPED not installed here"
 [ "$UNREADABLE" -gt 0 ] && msg="$msg, $UNREADABLE unreadable - rerun as root for full cover"
 say "$msg)"
+if [ "$NOTIFY" = "1" ] && [ -f "$STATE" ]; then
+    rm -f "$STATE" 2>/dev/null && say "  (a previously alerted drift has cleared - alert state reset)"
+fi
 exit 0
