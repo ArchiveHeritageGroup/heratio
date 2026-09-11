@@ -3221,6 +3221,26 @@ class InformationObjectController extends Controller
         $newLft = $parent->rgt;
         $newRgt = $parent->rgt + 1;
 
+        // Everything from here to dispatchStandardPersist() is one unit of work.
+        //
+        // It was not. The nested-set shift below rewrites lft/rgt across EVERY
+        // node to the right of the parent, and the object, information_object,
+        // i18n and slug rows were then inserted unguarded - so a failure at any
+        // later step committed a tree shifted by two for a record that might not
+        // exist, and left whatever rows had already landed. heratio.org hit
+        // exactly that on 8 Sep 2026: a 1062 on slug.slug_U_1 (unique on
+        // object_id) aborted a create at the slug insert, four statements in.
+        //
+        // Nothing was orphaned that time - no information_object or actor on
+        // prod lacks a slug - but that was luck, not design. A partially applied
+        // create here is silent: the damage is in lft/rgt, which nothing
+        // validates on read, and a corrupt nested set makes ancestor and
+        // descendant queries wrong for records that have nothing to do with the
+        // one that failed.
+        DB::beginTransaction();
+
+        try {
+
         // Shift existing nested set values to make room
         DB::table('information_object')
             ->where('rgt', '>=', $parent->rgt)
@@ -3282,7 +3302,13 @@ class InformationObjectController extends Controller
             'revision_history' => $request->input('revision_history'),
         ]);
 
-        // Generate slug
+        // Generate slug.
+        //
+        // The loop below is check-then-insert, so two creates with the same
+        // title can both find a slug free and both take it - the check proves
+        // nothing by the time the insert runs. The unique index is what actually
+        // decides, so let it, and try the next suffix when it says no rather
+        // than failing the whole create on a name collision.
         $baseSlug = Str::slug($request->input('title') ?: 'untitled');
         $slug = $baseSlug;
         $counter = 1;
@@ -3291,10 +3317,25 @@ class InformationObjectController extends Controller
             $counter++;
         }
 
-        DB::table('slug')->insert([
-            'object_id' => $objectId,
-            'slug' => $slug,
-        ]);
+        for ($attempt = 0; ; $attempt++) {
+            try {
+                DB::table('slug')->insert([
+                    'object_id' => $objectId,
+                    'slug' => $slug,
+                ]);
+                break;
+            } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+                // slug_U_1 is unique on object_id and slug_U_2 on slug. Only the
+                // second is a name race we can resolve by trying again; a
+                // duplicate object_id means this object already HAS a slug, and
+                // retrying with a different name would give it a second one.
+                if ($attempt >= 5 || DB::table('slug')->where('object_id', $objectId)->exists()) {
+                    throw $e;
+                }
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+        }
 
         // Publication status + closure node (#1461, #1462). This path wrote
         // neither: records created from the form landed in a state no operator
@@ -3374,6 +3415,14 @@ class InformationObjectController extends Controller
         // overlay its standard-specific fields via that standard's persist().
         // No-op (returns false) for ISAD or an unwired standard.
         $this->dispatchStandardPersist((int) $objectId, $request);
+
+        DB::commit();
+        } catch (\Throwable $e) {
+            // Rolled back rather than swallowed: the caller still sees the
+            // failure, and the tree is left as it was found.
+            DB::rollBack();
+            throw $e;
+        }
 
         return redirect()
             ->route('informationobject.show', $slug)
