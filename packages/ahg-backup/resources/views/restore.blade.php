@@ -217,7 +217,7 @@
         <label for="restore-confirm-phrase" class="form-label text-danger fw-bold">
           {{ __('Type') }} <code>RESTORE</code> {{ __('to confirm this irreversible operation') }}
         </label>
-        <input type="text" class="form-control" id="restore-confirm-phrase" autocomplete="off" spellcheck="false" placeholder="RESTORE">
+        <input type="text" class="form-control" id="restore-confirm-phrase" autocomplete="off" spellcheck="false" placeholder="{{ __('RESTORE') }}">
       </div>
 
       <button type="button" class="btn btn-outline-danger" id="btn-start-restore" onclick="confirmRestore()" disabled>

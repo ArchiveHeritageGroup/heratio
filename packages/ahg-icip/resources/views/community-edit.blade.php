@@ -77,7 +77,7 @@
                     @endforeach
                   </select>
                 @else
-                  <input type="text" name="region_module" class="form-control" value="{{ $community->region_module ?? '' }}" placeholder="e.g. za, sadc, international">
+                  <input type="text" name="region_module" class="form-control" value="{{ $community->region_module ?? '' }}" placeholder="{{ __('e.g. za, sadc, international') }}">
                 @endif
                 <div class="form-text">{{ __('Pluggable per-region pack this community belongs to (optional).') }}</div>
               </div>

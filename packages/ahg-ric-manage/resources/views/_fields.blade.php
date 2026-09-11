@@ -262,11 +262,11 @@
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small mb-0">{{ __('Start (ISO)') }}</label>
-                  <input type="text" name="events[{{ $eidx }}][start_date]" class="form-control form-control-sm" value="{{ $ev->start_date ?? '' }}" placeholder="YYYY-MM-DD">
+                  <input type="text" name="events[{{ $eidx }}][start_date]" class="form-control form-control-sm" value="{{ $ev->start_date ?? '' }}" placeholder="{{ __('YYYY-MM-DD') }}">
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small mb-0">{{ __('End (ISO)') }}</label>
-                  <input type="text" name="events[{{ $eidx }}][end_date]" class="form-control form-control-sm" value="{{ $ev->end_date ?? '' }}" placeholder="YYYY-MM-DD">
+                  <input type="text" name="events[{{ $eidx }}][end_date]" class="form-control form-control-sm" value="{{ $ev->end_date ?? '' }}" placeholder="{{ __('YYYY-MM-DD') }}">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small mb-0">{{ __('Note') }}</label>
@@ -301,11 +301,11 @@
               </div>
               <div class="col-md-3">
                 <label class="form-label small mb-0">{{ __('Start (ISO)') }}</label>
-                <input type="text" name="events[__IDX__][start_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD">
+                <input type="text" name="events[__IDX__][start_date]" class="form-control form-control-sm" placeholder="{{ __('YYYY-MM-DD') }}">
               </div>
               <div class="col-md-3">
                 <label class="form-label small mb-0">{{ __('End (ISO)') }}</label>
-                <input type="text" name="events[__IDX__][end_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD">
+                <input type="text" name="events[__IDX__][end_date]" class="form-control form-control-sm" placeholder="{{ __('YYYY-MM-DD') }}">
               </div>
               <div class="col-md-6">
                 <label class="form-label small mb-0">{{ __('Note') }}</label>

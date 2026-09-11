@@ -36,7 +36,7 @@
     <div class="row g-2">
       <div class="col-md-6">
         <label class="form-label small fw-bold">{{ __('DGS image folder (server path)') }}</label>
-        <input type="text" id="fs-folder" class="form-control form-control-sm" placeholder="/usr/share/nginx/heratio-dev/fs-metadata-capture/images/008066403">
+        <input type="text" id="fs-folder" class="form-control form-control-sm" placeholder="{{ __('/usr/share/nginx/heratio-dev/fs-metadata-capture/images/008066403') }}">
       </div>
       <div class="col-md-2"><label class="form-label small fw-bold">{{ __('Collection ID') }}</label><input type="text" id="fs-collection" class="form-control form-control-sm"></div>
       <div class="col-md-2"><label class="form-label small fw-bold">{{ __('PPQ ID') }}</label><input type="text" id="fs-ppq" class="form-control form-control-sm"></div>

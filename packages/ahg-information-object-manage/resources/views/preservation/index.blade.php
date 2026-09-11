@@ -454,9 +454,9 @@
             <label for="manifest_algorithm" class="form-label">{{ __('Checksum Algorithm') }}</label>
             <select name="manifest_algorithm" id="manifest_algorithm" class="form-select">
               <option value="sha256" selected>{{ __('SHA-256 (Recommended)') }}</option>
-              <option value="sha512">SHA-512</option>
-              <option value="sha1">SHA-1</option>
-              <option value="md5">MD5</option>
+              <option value="sha512">{{ __('SHA-512') }}</option>
+              <option value="sha1">{{ __('SHA-1') }}</option>
+              <option value="md5">{{ __('MD5') }}</option>
             </select>
           </div>
           <div class="row">

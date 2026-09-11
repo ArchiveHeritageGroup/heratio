@@ -26,10 +26,10 @@
         <div class="card mb-3">
           <div class="card-header">Works</div>
           <div class="card-body">
-            <label class="form-label" for="object_ids_manual">Record id(s)</label>
+            <label class="form-label" for="object_ids_manual">{{ __('Record id(s)') }}</label>
             <input type="text" class="form-control" id="object_ids_manual" name="object_ids_manual"
                    value="{{ collect($works)->pluck('id')->implode(' ') }}"
-                   placeholder="e.g. 12345 12346" aria-describedby="idsHelp">
+                   placeholder="{{ __('e.g. 12345 12346') }}" aria-describedby="idsHelp">
             <div class="form-text" id="idsHelp">The information-object id of each work, separated by spaces or commas.</div>
 
             @foreach($works as $w)
@@ -56,17 +56,17 @@
           <div class="card-header">Placement</div>
           <div class="card-body">
             <div class="row g-3">
-              <div class="col-md-6"><label class="form-label" for="placement_building">Building</label>
+              <div class="col-md-6"><label class="form-label" for="placement_building">{{ __('Building') }}</label>
                 <input type="text" class="form-control" id="placement_building" name="placement_building" value="{{ $values['placement_building'] }}"></div>
-              <div class="col-md-3"><label class="form-label" for="placement_floor">Floor</label>
+              <div class="col-md-3"><label class="form-label" for="placement_floor">{{ __('Floor') }}</label>
                 <input type="text" class="form-control" id="placement_floor" name="placement_floor" value="{{ $values['placement_floor'] }}"></div>
-              <div class="col-md-3"><label class="form-label" for="placement_room">Room</label>
+              <div class="col-md-3"><label class="form-label" for="placement_room">{{ __('Room') }}</label>
                 <input type="text" class="form-control" id="placement_room" name="placement_room" value="{{ $values['placement_room'] }}"></div>
-              <div class="col-md-6"><label class="form-label" for="placement_occupant">Occupant</label>
+              <div class="col-md-6"><label class="form-label" for="placement_occupant">{{ __('Occupant') }}</label>
                 <input type="text" class="form-control" id="placement_occupant" name="placement_occupant" value="{{ $values['placement_occupant'] }}"></div>
-              <div class="col-md-6"><label class="form-label" for="department">Department</label>
+              <div class="col-md-6"><label class="form-label" for="department">{{ __('Department') }}</label>
                 <input type="text" class="form-control" id="department" name="department" value="{{ $values['department'] }}"></div>
-              <div class="col-12"><label class="form-label" for="placement_notes">Placement notes</label>
+              <div class="col-12"><label class="form-label" for="placement_notes">{{ __('Placement notes') }}</label>
                 <textarea class="form-control" id="placement_notes" name="placement_notes" rows="2">{{ $values['placement_notes'] }}</textarea></div>
             </div>
           </div>
@@ -78,17 +78,17 @@
           <div class="card-header">When and why</div>
           <div class="card-body">
             <div class="row g-3">
-              <div class="col-6"><label class="form-label" for="requested_from">From</label>
+              <div class="col-6"><label class="form-label" for="requested_from">{{ __('From') }}</label>
                 <input type="date" class="form-control" id="requested_from" name="requested_from" value="{{ $values['requested_from'] }}"></div>
-              <div class="col-6"><label class="form-label" for="requested_to">To</label>
+              <div class="col-6"><label class="form-label" for="requested_to">{{ __('To') }}</label>
                 <input type="date" class="form-control" id="requested_to" name="requested_to" value="{{ $values['requested_to'] }}"></div>
-              <div class="col-12"><label class="form-label" for="purpose">Purpose</label>
+              <div class="col-12"><label class="form-label" for="purpose">{{ __('Purpose') }}</label>
                 <select class="form-select" id="purpose" name="purpose">
                   @foreach(['' => '- choose -', 'office' => 'Office', 'boardroom' => 'Boardroom', 'shared workspace' => 'Shared workspace', 'event' => 'Event', 'other' => 'Other'] as $k => $lbl)
                     <option value="{{ $k }}" @selected($values['purpose'] === $k)>{{ $lbl }}</option>
                   @endforeach
                 </select></div>
-              <div class="col-12"><label class="form-label" for="justification">Justification</label>
+              <div class="col-12"><label class="form-label" for="justification">{{ __('Justification') }}</label>
                 <textarea class="form-control" id="justification" name="justification" rows="4">{{ $values['justification'] }}</textarea></div>
             </div>
           </div>

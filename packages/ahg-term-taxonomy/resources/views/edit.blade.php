@@ -102,8 +102,8 @@
                   @php $pf = old('protocol_label_family', $tp->label_family ?? ''); @endphp
                   <select name="protocol_label_family" class="form-select form-select-sm">
                     <option value="">-</option>
-                    <option value="tk" @selected($pf === 'tk')>TK</option>
-                    <option value="bc" @selected($pf === 'bc')>BC</option>
+                    <option value="tk" @selected($pf === 'tk')>{{ __('TK') }}</option>
+                    <option value="bc" @selected($pf === 'bc')>{{ __('BC') }}</option>
                   </select>
                 </div>
                 <div class="col-md-3">
@@ -125,12 +125,12 @@
                       @endif
                     </select>
                   @else
-                    <input type="text" name="protocol_label_code" class="form-control form-control-sm" value="{{ $plc }}" placeholder="tk_secret">
+                    <input type="text" name="protocol_label_code" class="form-control form-control-sm" value="{{ $plc }}" placeholder="{{ __('tk_secret') }}">
                   @endif
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small mb-1">{{ __('Region module') }}</label>
-                  <input type="text" name="protocol_region_module" class="form-control form-control-sm" value="{{ old('protocol_region_module', $tp->region_module ?? '') }}" placeholder="southern_africa">
+                  <input type="text" name="protocol_region_module" class="form-control form-control-sm" value="{{ old('protocol_region_module', $tp->region_module ?? '') }}" placeholder="{{ __('southern_africa') }}">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small mb-1">{{ __('Owning community (actor id)') }}</label>

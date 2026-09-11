@@ -34,7 +34,7 @@
                     <label class="form-label">{{ __('Description standard (columns)') }}</label>
                     <select name="standard" class="form-select">
                         <option value="">{{ __('Auto (match the records\' standard)') }}</option>
-                        <option value="isad">ISAD(G)</option>
+                        <option value="isad">{{ __('ISAD(G)') }}</option>
                         <option value="dc">{{ __('Dublin Core') }}</option>
                     </select>
                     <small class="text-muted">{{ __('Auto uses the dominant standard among the exported records. Choose Dublin Core to force DC element columns.') }}</small>

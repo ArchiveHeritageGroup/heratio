@@ -22,7 +22,7 @@
     <div class="table-responsive">
       <table class="table table-hover align-middle">
         <thead class="table-light">
-          <tr><th>Work</th><th>Request</th><th>With</th><th>Placement</th><th>Due back</th><th></th></tr>
+          <tr><th>{{ __('Work') }}</th><th>{{ __('Request') }}</th><th>{{ __('With') }}</th><th>{{ __('Placement') }}</th><th>{{ __('Due back') }}</th><th></th></tr>
         </thead>
         <tbody>
           @foreach($placements as $p)

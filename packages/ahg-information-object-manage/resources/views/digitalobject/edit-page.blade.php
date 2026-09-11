@@ -131,8 +131,8 @@
                             {{-- #1481: was $do->display_as_compound, a column digital_object
                                  does not have, so this always rendered "No". The stored
                                  value now comes from the controller. --}}
-                            <option value="1" @selected($displayAsCompound ?? true)>Yes</option>
-                            <option value="0" @selected(!($displayAsCompound ?? true))>No</option>
+                            <option value="1" @selected($displayAsCompound ?? true)>{{ __('Yes') }}</option>
+                            <option value="0" @selected(!($displayAsCompound ?? true))>{{ __('No') }}</option>
                         </select>
                     </div>
                     @endif

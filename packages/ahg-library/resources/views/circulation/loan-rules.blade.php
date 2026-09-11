@@ -105,12 +105,12 @@
       <div class="col-md-3">
         <label class="form-label" for="lr_material">{{ __('Material Type') }} <span class="text-danger">*</span></label>
         <input type="text" name="material_type" id="lr_material" class="form-control" required
-               placeholder="monograph">
+               placeholder="{{ __('monograph') }}">
       </div>
       <div class="col-md-2">
         <label class="form-label" for="lr_patron">{{ __('Patron Type') }}</label>
         <input type="text" name="patron_type" id="lr_patron" class="form-control" value="*"
-               placeholder="* = all">
+               placeholder="{{ __('* = all') }}">
       </div>
       <div class="col-md-2">
         <label class="form-label" for="lr_days">{{ __('Loan (days)') }} <span class="text-danger">*</span></label>

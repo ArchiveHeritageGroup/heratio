@@ -22,25 +22,25 @@
       <form method="post" action="{{ route('artwork-request.approvers') }}" class="row g-3 align-items-end">
         @csrf
         <input type="hidden" name="form_action" value="add">
-        <div class="col-md-4"><label class="form-label" for="user_ref">User</label>
-          <input type="text" class="form-control" id="user_ref" name="user_ref" list="userList" placeholder="username or email" required>
+        <div class="col-md-4"><label class="form-label" for="user_ref">{{ __('User') }}</label>
+          <input type="text" class="form-control" id="user_ref" name="user_ref" list="userList" placeholder="{{ __('username or email') }}" required>
           <datalist id="userList">
             @foreach($candidates as $u)<option value="{{ $u->username }}">{{ $u->email }}</option>@endforeach
           </datalist></div>
-        <div class="col-md-4"><label class="form-label" for="department">Department (optional)</label>
-          <input type="text" class="form-control" id="department" name="department" list="deptList" placeholder="general queue if blank">
+        <div class="col-md-4"><label class="form-label" for="department">{{ __('Department (optional)') }}</label>
+          <input type="text" class="form-control" id="department" name="department" list="deptList" placeholder="{{ __('general queue if blank') }}">
           <datalist id="deptList">@foreach($departments as $d)<option value="{{ $d }}">@endforeach</datalist></div>
         <div class="col-md-2 form-check mb-2 ms-2">
           <input type="checkbox" class="form-check-input" id="email_notifications" name="email_notifications" value="1" checked>
-          <label class="form-check-label" for="email_notifications">Email them</label></div>
-        <div class="col-md-1 d-grid"><button type="submit" class="btn btn-primary">Add</button></div>
+          <label class="form-check-label" for="email_notifications">{{ __('Email them') }}</label></div>
+        <div class="col-md-1 d-grid"><button type="submit" class="btn btn-primary">{{ __('Add') }}</button></div>
       </form>
     </div>
   </div>
 
   <div class="table-responsive">
     <table class="table align-middle">
-      <thead class="table-light"><tr><th>User</th><th>Department</th><th>Email</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+      <thead class="table-light"><tr><th>{{ __('User') }}</th><th>{{ __('Department') }}</th><th>{{ __('Email') }}</th><th>{{ __('Status') }}</th><th class="text-end">{{ __('Actions') }}</th></tr></thead>
       <tbody>
         @forelse($approvers as $a)
           <tr class="{{ $a->active ? '' : 'text-muted' }}">
@@ -69,7 +69,7 @@
                 @csrf
                 <input type="hidden" name="form_action" value="remove">
                 <input type="hidden" name="approver_id" value="{{ $a->id }}">
-                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ __('Remove') }}</button>
               </form>
             </td>
           </tr>

@@ -92,7 +92,7 @@
       <div class="card-header">{{ __('Dating + investigation') }}</div>
       <div class="card-body">
         <div class="row g-3">
-          <div class="col-md-3"><label class="form-label">{{ __('Date earliest') }}</label><input type="text" name="date_earliest" class="form-control" value="{{ $val('date_earliest') }}" placeholder="c. 1200 AD"></div>
+          <div class="col-md-3"><label class="form-label">{{ __('Date earliest') }}</label><input type="text" name="date_earliest" class="form-control" value="{{ $val('date_earliest') }}" placeholder="{{ __('c. 1200 AD') }}"></div>
           <div class="col-md-3"><label class="form-label">{{ __('Date latest') }}</label><input type="text" name="date_latest" class="form-control" value="{{ $val('date_latest') }}"></div>
           <div class="col-md-6"><label class="form-label">{{ __('Dating note') }}</label><input type="text" name="dating_note" class="form-control" value="{{ $val('dating_note') }}"></div>
           <div class="col-md-3 d-flex align-items-end">

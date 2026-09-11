@@ -3,7 +3,7 @@
 @section('content')
 <div class="container py-4">
 
-  <nav aria-label="breadcrumb"><ol class="breadcrumb">
+  <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('archaeology.site', $site->id) }}">{{ __('Site') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('archaeology.contexts', $site->id) }}">{{ __('Stratigraphy') }}</a></li>
     <li class="breadcrumb-item active">{{ __('Consistency') }}</li>

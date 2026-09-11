@@ -39,7 +39,7 @@
     <div class="sub">{{ $context->site->title ?? 'Site' }} &middot; {{ $context->site->site_number ?? '' }}</div>
   </div>
 
-  <h2>Context sheet</h2>
+  <h2>{{ __('Context sheet') }}</h2>
   <table class="kv">
     <tr><td class="k">Type</td><td>{{ $context->type_name ?: '-' }}</td>
         <td class="k">Phase</td><td>{{ $context->phase_name ?: '-' }}</td></tr>
@@ -55,15 +55,15 @@
   </table>
 
   @if($context->description)
-    <h2>Description</h2>
+    <h2>{{ __('Description') }}</h2>
     <div class="prose">{{ $context->description }}</div>
   @endif
   @if($context->interpretation)
-    <h2>Interpretation</h2>
+    <h2>{{ __('Interpretation') }}</h2>
     <div class="prose">{{ $context->interpretation }}</div>
   @endif
 
-  <h2>Stratigraphic relationships</h2>
+  <h2>{{ __('Stratigraphic relationships') }}</h2>
   @if(collect($relationships)->isEmpty())
     <p class="muted">No relationships recorded.</p>
   @else
@@ -81,7 +81,7 @@
     <p class="muted">No finds catalogued to this context.</p>
   @else
     <table class="grid">
-      <thead><tr><th style="width:30%">Accession no.</th><th>Title</th></tr></thead>
+      <thead><tr><th style="width:30%">{{ __('Accession no.') }}</th><th>{{ __('Title') }}</th></tr></thead>
       <tbody>
         @foreach($context->finds as $f)
           <tr><td>{{ $f->accession_number }}</td><td>{{ $f->title ?: 'Untitled' }}</td></tr>

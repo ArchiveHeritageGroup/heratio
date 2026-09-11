@@ -48,7 +48,7 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label class="form-label" for="am_ss_url">{{ __('Storage Service URL') }}</label>
-              <input type="url" name="settings[am_ss_url]" id="am_ss_url" class="form-control" value="{{ $settings['am_ss_url'] ?? '' }}" placeholder="https://archivematica-ss.example.org">
+              <input type="url" name="settings[am_ss_url]" id="am_ss_url" class="form-control" value="{{ $settings['am_ss_url'] ?? '' }}" placeholder="{{ __('https://archivematica-ss.example.org') }}">
               <small class="text-muted">{{ __('Base URL of the Archivematica Storage Service API.') }}</small>
             </div>
             <div class="mb-3">
@@ -75,7 +75,7 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label class="form-label" for="am_dashboard_url">{{ __('Dashboard URL') }}</label>
-              <input type="url" name="settings[am_dashboard_url]" id="am_dashboard_url" class="form-control" value="{{ $settings['am_dashboard_url'] ?? '' }}" placeholder="https://archivematica.example.org">
+              <input type="url" name="settings[am_dashboard_url]" id="am_dashboard_url" class="form-control" value="{{ $settings['am_dashboard_url'] ?? '' }}" placeholder="{{ __('https://archivematica.example.org') }}">
               <small class="text-muted">{{ __('Base URL of the Archivematica Dashboard API.') }}</small>
             </div>
             <div class="mb-3">
@@ -106,7 +106,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label" for="am_transfer_source_path">{{ __('Transfer source path') }}</label>
-              <input type="text" name="settings[am_transfer_source_path]" id="am_transfer_source_path" class="form-control" value="{{ $settings['am_transfer_source_path'] ?? '' }}" placeholder="/transfer-source">
+              <input type="text" name="settings[am_transfer_source_path]" id="am_transfer_source_path" class="form-control" value="{{ $settings['am_transfer_source_path'] ?? '' }}" placeholder="{{ __('/transfer-source') }}">
               <small class="text-muted">{{ __('Path Archivematica reads transfers from.') }}</small>
             </div>
             <div class="mb-3">

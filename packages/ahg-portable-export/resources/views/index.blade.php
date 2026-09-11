@@ -155,7 +155,7 @@
               </div>
               <div id="destination-path-wrap" class="mt-2" style="display:none;">
                 <label for="destination_path" class="form-label small mb-1">{{ __('Target folder on the server (e.g. a mounted drive)') }}</label>
-                <input type="text" class="form-control" id="destination_path" name="destination_path" placeholder="/mnt/usb-drive/heratio-export">
+                <input type="text" class="form-control" id="destination_path" name="destination_path" placeholder="{{ __('/mnt/usb-drive/heratio-export') }}">
                 <div class="form-text">{{ __('The bundle is written straight to this directory - it must already exist and be writable by the server. No ZIP, no size cap.') }}</div>
               </div>
             </div>

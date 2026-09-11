@@ -44,7 +44,7 @@
           @csrf
           <div class="col-md-3">
             <label class="form-label small mb-0">{{ __('Source MIME') }}</label>
-            <input name="source_mime" class="form-control form-control-sm" placeholder="image/jpeg">
+            <input name="source_mime" class="form-control form-control-sm" placeholder="{{ __('image/jpeg') }}">
           </div>
           <div class="col-md-2">
             <label class="form-label small mb-0">{{ __('Purpose') }}</label>
@@ -59,11 +59,11 @@
           </div>
           <div class="col-md-1">
             <label class="form-label small mb-0">{{ __('Ext') }}</label>
-            <input name="target_ext" class="form-control form-control-sm" placeholder="tiff" required>
+            <input name="target_ext" class="form-control form-control-sm" placeholder="{{ __('tiff') }}" required>
           </div>
           <div class="col-md-2">
             <label class="form-label small mb-0">{{ __('Target MIME') }}</label>
-            <input name="target_mime" class="form-control form-control-sm" placeholder="image/tiff">
+            <input name="target_mime" class="form-control form-control-sm" placeholder="{{ __('image/tiff') }}">
           </div>
           <div class="col-md-2">
             <label class="form-label small mb-0">{{ __('Tool') }}</label>
@@ -75,7 +75,7 @@
           </div>
           <div class="col-md-2">
             <label class="form-label small mb-0">{{ __('PRONOM (opt)') }}</label>
-            <input name="source_pronom" class="form-control form-control-sm" placeholder="fmt/43">
+            <input name="source_pronom" class="form-control form-control-sm" placeholder="{{ __('fmt/43') }}">
           </div>
           <div class="col-md-1">
             <label class="form-label small mb-0">{{ __('Priority') }}</label>

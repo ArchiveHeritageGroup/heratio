@@ -24,7 +24,7 @@
 @section('content')
 <div class="container py-4">
 
-    <nav aria-label="breadcrumb">
+    <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb small">
             <li class="breadcrumb-item"><a href="{{ url('/museum/' . ($resource->slug ?? '')) }}">{{ $resource->title ?? __('Object') }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ __('Provenance') }}</li>

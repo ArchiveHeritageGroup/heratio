@@ -62,7 +62,7 @@
           </div>
           <div class="col-md-3">
             <label class="form-label">{{ __('Excavation ref') }}</label>
-            <input type="text" name="excavation_reference" class="form-control" value="{{ $val('excavation_reference') }}" placeholder="Trench A, spit 3">
+            <input type="text" name="excavation_reference" class="form-control" value="{{ $val('excavation_reference') }}" placeholder="{{ __('Trench A, spit 3') }}">
           </div>
           <div class="col-md-3">
             <label class="form-label">{{ __('Excavation date') }}</label>
@@ -75,11 +75,11 @@
           </div>
           <div class="col-md-3">
             <label class="form-label">{{ __('Date earliest') }}</label>
-            <input type="text" name="date_earliest" class="form-control" value="{{ $val('date_earliest') }}" placeholder="c. 1400 AD">
+            <input type="text" name="date_earliest" class="form-control" value="{{ $val('date_earliest') }}" placeholder="{{ __('c. 1400 AD') }}">
           </div>
           <div class="col-md-3">
             <label class="form-label">{{ __('Date latest') }}</label>
-            <input type="text" name="date_latest" class="form-control" value="{{ $val('date_latest') }}" placeholder="c. 1700 AD">
+            <input type="text" name="date_latest" class="form-control" value="{{ $val('date_latest') }}" placeholder="{{ __('c. 1700 AD') }}">
           </div>
 
           <div class="col-12">

@@ -102,7 +102,7 @@
             <div class="input-group">
                 <input type="url" id="source_url" name="source_url" inputmode="url"
                        class="form-control @error('source_url') is-invalid @enderror"
-                       placeholder="https://example.org/paper.pdf" required>
+                       placeholder="{{ __('https://example.org/paper.pdf') }}" required>
                 <button type="submit" class="btn btn-outline-primary">
                     <i class="fas fa-cloud-download-alt me-1"></i>{{ __('Fetch') }}
                 </button>

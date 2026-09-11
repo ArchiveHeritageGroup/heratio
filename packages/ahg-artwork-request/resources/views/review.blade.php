@@ -37,7 +37,7 @@
             <input type="hidden" name="request_id" value="{{ $r->id }}">
 
             <table class="table table-sm align-middle">
-              <thead><tr><th>Work</th><th style="width:220px">Decision</th><th>Availability at request</th></tr></thead>
+              <thead><tr><th>{{ __('Work') }}</th><th style="width:220px">{{ __('Decision') }}</th><th>{{ __('Availability at request') }}</th></tr></thead>
               <tbody>
                 @foreach($works[$r->id] ?? [] as $w)
                   <tr>
@@ -62,10 +62,10 @@
                 <input type="text" class="form-control" id="notes{{ $r->id }}" name="review_notes"></div>
               <div class="col-md-3"><label class="form-label" for="chan{{ $r->id }}">Decided</label>
                 <select class="form-select" id="chan{{ $r->id }}" name="decision_channel">
-                  <option value="system">Here, now</option>
-                  <option value="offline">Offline (recording a decision already made)</option>
+                  <option value="system">{{ __('Here, now') }}</option>
+                  <option value="offline">{{ __('Offline (recording a decision already made)') }}</option>
                 </select></div>
-              <div class="col-md-2 d-grid"><button type="submit" class="btn btn-primary">Record</button></div>
+              <div class="col-md-2 d-grid"><button type="submit" class="btn btn-primary">{{ __('Record') }}</button></div>
             </div>
           </form>
         </div>

@@ -491,7 +491,7 @@
           </div>
           <div class="col-md-6">
             <label class="form-label small">{{ __('Or External URL') }}</label>
-            <input type="url" name="external_url" class="form-control form-control-sm" placeholder="https://…">
+            <input type="url" name="external_url" class="form-control form-control-sm" placeholder="{{ __('https://…') }}">
           </div>
           <div class="col-md-8">
             <label class="form-label small">{{ __('Description') }}</label>

@@ -47,10 +47,10 @@
         <input type="text" id="organisation" name="organisation" required maxlength="200" value="{{ old('organisation') }}">
 
         <label for="current_atom_url">Current AtoM URL <span class="hint">(optional)</span></label>
-        <input type="url" id="current_atom_url" name="current_atom_url" maxlength="300" placeholder="https://archives.example.org" value="{{ old('current_atom_url') }}">
+        <input type="url" id="current_atom_url" name="current_atom_url" maxlength="300" placeholder="{{ __('https://archives.example.org') }}" value="{{ old('current_atom_url') }}">
 
         <label for="atom_version">AtoM version <span class="hint">(optional)</span></label>
-        <input type="text" id="atom_version" name="atom_version" maxlength="60" placeholder="e.g. 2.7" value="{{ old('atom_version') }}">
+        <input type="text" id="atom_version" name="atom_version" maxlength="60" placeholder="{{ __('e.g. 2.7') }}" value="{{ old('atom_version') }}">
 
         <label for="message">Anything else? <span class="hint">(optional)</span></label>
         <textarea id="message" name="message" maxlength="2000">{{ old('message') }}</textarea>

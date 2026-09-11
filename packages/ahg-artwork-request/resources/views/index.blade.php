@@ -27,7 +27,7 @@
       <table class="table table-hover align-middle">
         <thead class="table-light">
           <tr>
-            <th>Request</th><th>Works</th><th>Period</th><th>Placement</th><th>Status</th>
+            <th>{{ __('Request') }}</th><th>{{ __('Works') }}</th><th>{{ __('Period') }}</th><th>{{ __('Placement') }}</th><th>{{ __('Status') }}</th>
           </tr>
         </thead>
         <tbody>
