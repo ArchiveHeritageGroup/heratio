@@ -1659,7 +1659,9 @@ class DisplayController extends Controller
         if ($cached !== null) {
             return $cached;
         }
-        return $cached = SettingHelper::get('ahg_display_use_facet_denorm', '0') === '1';
+        // The flag is seeded into ahg_settings (AhgDisplayServiceProvider); SettingHelper
+        // reads the base `setting` table, where it never exists, so it was always off.
+        return $cached = \AhgCore\Services\AhgSettingsService::getBool('ahg_display_use_facet_denorm', false);
     }
 
     /**
@@ -1949,7 +1951,7 @@ class DisplayController extends Controller
      */
     protected function cachedCount($query): int
     {
-        $ttl = (int) SettingHelper::get('ahg_display_count_cache_ttl', 300);
+        $ttl = \AhgCore\Services\AhgSettingsService::getInt('ahg_display_count_cache_ttl', 300);
         if ($ttl <= 0) {
             return (int) $query->count();
         }
