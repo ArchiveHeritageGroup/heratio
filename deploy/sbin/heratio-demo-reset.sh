@@ -63,6 +63,26 @@ else
 fi
 
 systemctl stop heratio-queue-worker@1.service 2>/dev/null || true
+# Nothing may boot the app while the dump is replaying. Heratio packages auto-install
+# their tables at boot (CREATE TABLE IF NOT EXISTS from install.sql), so a request or a
+# scheduler tick landing between the dump's DROP TABLE and its CREATE TABLE recreates
+# the table and the dump's CREATE then fails. That is what happened on 15 Sep 2026:
+# "ERROR 1050: Table 'ahg_io_funding' already exists" at line 5311.
+# - web: artisan down makes public/index.php serve the maintenance page BEFORE the app
+#   boots, so no provider runs;
+# - scheduler: the cron entry takes /run/lock/heratio-schedule.lock with flock -n, so
+#   holding that lock here makes every tick skip until we release it.
+# The trap undoes both on every exit, including the abort path below.
+APP_DIR=/usr/share/nginx/heratio
+exec 9>/run/lock/heratio-schedule.lock
+flock -w 120 9 || echo "scheduler lock not acquired in 120s - restore may race a running tick"
+sudo -u www-data /usr/bin/php8.3 "$APP_DIR/artisan" down --retry=60 >/dev/null 2>&1 \
+  && echo "app in maintenance mode for the restore" || echo "artisan down FAILED - restore may race web requests"
+_reset_release() {
+  sudo -u www-data /usr/bin/php8.3 "$APP_DIR/artisan" up >/dev/null 2>&1 || rm -f "$APP_DIR/storage/framework/down" "$APP_DIR/storage/framework/maintenance.php"
+  flock -u 9 2>/dev/null || true
+}
+trap _reset_release EXIT
 # Clear any triggers still attached before restoring. Trigger names are unique per
 # SCHEMA, not per table, so a single trigger surviving from a half-applied previous
 # run makes the dump's CREATE TRIGGER fail and takes the whole restore down with it.
@@ -105,6 +125,11 @@ fi
 # it so the demo's error log starts each day clean (real same-day errors still log).
 mysql --defaults-file=/dev/null -u root "$DB" -e "TRUNCATE TABLE ahg_error_log;" 2>/dev/null \
   && echo "ahg_error_log truncated" || echo "ahg_error_log truncate skipped"
+
+# Restore finished: let requests and the scheduler back in before the long onboard.
+_reset_release
+trap - EXIT
+echo "app back online"
 
 # Re-apply the live Articles/blog section over the baseline (excludes it from the reset).
 if [ "$ART_OK" = "1" ] && [ -s "$ART_DUMP" ]; then
