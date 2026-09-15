@@ -31,8 +31,28 @@ First boot runs `docker/init.sh` which:
 5. Creates an admin user
 6. Drops + recreates the `heratio_*` Elasticsearch indices
 
-A marker at `storage/.heratio-installed` makes subsequent boots skip the
+A marker at `/var/lib/heratio-state/.heratio-installed` makes subsequent boots skip the
 schema/seed work - they only re-run pass-2 (idempotent) and verify ES is up.
+
+`.env` (with `APP_KEY`) and that marker live on the `heratio-state` volume, so a
+rebuild or recreate keeps them. If the marker is ever missing, init checks the
+database first and refuses to load the core schema over an existing install.
+
+**Upgrading a stack created before the `heratio-state` volume existed:** its
+`.env` lives only inside the old container. Copy it into the volume before
+recreating, or the new container generates a new `APP_KEY` (sessions and any
+encrypted values are lost; the database itself is protected by the guard):
+
+```bash
+docker cp heratio-app:/var/www/heratio/.env ./heratio.env
+docker compose -f docker/docker-compose.yml --env-file docker/.env.docker build heratio
+# seed the state volume with the existing .env before the new container first boots
+docker compose -f docker/docker-compose.yml --env-file docker/.env.docker run --rm --no-deps \
+  --entrypoint sh -v "$PWD/heratio.env:/tmp/heratio.env:ro" heratio \
+  -c 'cp /tmp/heratio.env /var/lib/heratio-state/.env && chmod 600 /var/lib/heratio-state/.env'
+docker compose -f docker/docker-compose.yml --env-file docker/.env.docker up -d --no-deps heratio
+rm ./heratio.env
+```
 
 Once healthy, point your browser at `http://<host>:8088/` and log in with the
 admin credentials from `.env.docker`.

@@ -11,13 +11,26 @@
 #   9.  admin user
 #  11.  Elasticsearch index create / clone
 #
-# A marker file at storage/.heratio-installed signals "schema already loaded";
-# subsequent boots only run plugin-install pass-2 (idempotent) + ES check.
+# A marker file signals "schema already loaded"; subsequent boots only run
+# plugin-install pass-2 (idempotent) + ES check.
+#
+# The marker and .env (APP_KEY) live in $STATE_DIR, a volume, because the
+# container filesystem is replaced on every rebuild/recreate. When both lived
+# only in the container, a recreate reloaded database/core/*.sql (1,100+ DROP
+# TABLE statements) over live data and generated a new APP_KEY.
 
 set -uo pipefail
 cd /var/www/heratio
 
-MARKER=storage/.heratio-installed
+STATE_DIR=${HERATIO_STATE_DIR:-/var/lib/heratio-state}
+MARKER=$STATE_DIR/.heratio-installed
+mkdir -p "$STATE_DIR"
+
+# Restore the persisted .env (and its APP_KEY) into a fresh container.
+if [ ! -f .env ] && [ -f "$STATE_DIR/.env" ]; then
+    cp "$STATE_DIR/.env" .env
+    echo "[init] restored .env from $STATE_DIR"
+fi
 
 # A published default is not a password. The example ships CHANGEME_ placeholders
 # so a copy-paste deploy cannot silently run on credentials that are in the public
@@ -77,6 +90,10 @@ AHG_CENTRAL_API_KEY=${AHG_CENTRAL_API_KEY:-}
 EOF
     php artisan key:generate --force --no-interaction
 fi
+# Persist .env on first boot, and for containers that predate $STATE_DIR.
+if [ ! -f "$STATE_DIR/.env" ]; then
+    cp .env "$STATE_DIR/.env" && chmod 600 "$STATE_DIR/.env"
+fi
 
 mkdir -p "${HERATIO_STORAGE_PATH:-storage/uploads}" \
          "${HERATIO_BACKUPS_PATH:-storage/backups}" \
@@ -86,6 +103,21 @@ mkdir -p "${HERATIO_STORAGE_PATH:-storage/uploads}" \
 chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
 # ─── Stage 6-7: schema (only first boot) ─────────────────────────────────────
+# Fail closed: never load the core schema over a database that already holds a
+# Heratio install, even with the marker missing. A lost marker must not cost data.
+if [ ! -f "$MARKER" ]; then
+    if ! EXISTING=$(mysql_run -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'information_object'" 2>/tmp/db-check.err); then
+        echo "[init] FATAL: cannot check the database for an existing install; refusing to load the schema." >&2
+        cat /tmp/db-check.err >&2
+        exit 1
+    fi
+    if [ "$EXISTING" != "0" ]; then
+        echo "[init] WARNING: marker missing but ${DB_DATABASE:-heratio} already has Heratio tables - NOT loading the core schema."
+        echo "[init] Writing the marker. If this really is a new install, drop the database first."
+        touch "$MARKER"
+    fi
+fi
+
 if [ ! -f "$MARKER" ]; then
     echo "[init] loading core schema"
     for sql in database/core/*.sql; do

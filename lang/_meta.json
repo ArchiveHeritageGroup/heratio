@@ -138,7 +138,10 @@
         "id": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 17056,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "is": {
             "credit": "AtoM / Artefactual community",
@@ -356,7 +359,10 @@
         "vi": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 17834,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "xh": {
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",

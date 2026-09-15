@@ -61,6 +61,8 @@ services:
     volumes:
       - heratio-storage:/var/www/heratio/storage/uploads
       - heratio-backups:/var/www/heratio/storage/backups
+      # .env (APP_KEY) + install marker; without this a rebuild reloads the core schema over live data
+      - heratio-state:/var/lib/heratio-state
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1/up"]
       interval: 30s
@@ -113,5 +115,6 @@ services:
 volumes:
   heratio-storage:
   heratio-backups:
+  heratio-state:
   heratio-mysql:
   heratio-es:
