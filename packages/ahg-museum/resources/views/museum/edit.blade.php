@@ -1332,7 +1332,7 @@
                   <select name="watermark_type_id" id="watermark_type_id" class="form-select">
                     <option value="">{{ __('Use default') }}</option>
                     @foreach($watermarkTypes ?? [] as $type)
-                      <option value="{{ $type->id }}" @selected(old('watermark_type_id', $watermarkSetting->watermark_type_id ?? '') == $type->id)>{{ $type->name }}</option>
+                      <option value="{{ $type->id }}" @selected(old('watermark_type_id', $watermarkSetting->watermark_type_id ?? '') == $type->id)>{{ __($type->name) }}</option>
                     @endforeach
                   </select>
                 </div>
@@ -1349,7 +1349,7 @@
                     <option value="">{{ __('None') }}</option>
                     @foreach($customWatermarks as $custom)
                       <option value="{{ $custom->id }}" @selected(old('custom_watermark_id', $watermarkSetting->custom_watermark_id ?? '') == $custom->id)>
-                        {{ $custom->name }}{{ $custom->object_id ? '' : ' (Global)' }}
+                        {{ $custom->name }}{{ $custom->object_id ? '' : ' (' . __('Global') . ')' }}
                       </option>
                     @endforeach
                   </select>

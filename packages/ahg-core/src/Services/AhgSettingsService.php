@@ -373,7 +373,7 @@ class AhgSettingsService
                 ->get();
 
             foreach ($terms as $term) {
-                $choices[$term->code] = $term->label;
+                $choices[$term->code] = self::localiseDropdownLabel($term);
             }
         } catch (\Exception $e) {
             // Table may not exist yet
@@ -400,6 +400,11 @@ class AhgSettingsService
                 ->orderBy('d.sort_order')
                 ->orderBy('d.label')
                 ->get()
+                ->map(function ($row) {
+                    $row->label = self::localiseDropdownLabel($row);
+
+                    return $row;
+                })
                 ->keyBy('code');
         } catch (\Exception $e) {
             return collect();
@@ -438,6 +443,7 @@ class AhgSettingsService
                 $j->on('di_fb.id', '=', 'd.id')->where('di_fb.culture', '=', 'en');
             });
             $select[] = DB::raw("COALESCE(NULLIF(di_cur.label, ''), NULLIF(di_fb.label, ''), d.label) AS label");
+            $select[] = DB::raw("(NULLIF(di_cur.label, '') IS NOT NULL) AS label_is_localised");
         } else {
             $select[] = 'd.label';
         }
@@ -480,10 +486,25 @@ class AhgSettingsService
                 ->where('d.code', $code)
                 ->first();
 
-            return ($row && $row->label !== null && $row->label !== '') ? $row->label : $code;
+            return ($row && $row->label !== null && $row->label !== '') ? self::localiseDropdownLabel($row) : $code;
         } catch (\Exception $e) {
             return $code;
         }
+    }
+
+    /**
+     * A label with no row in the current culture came from the English
+     * fallback; pass it through __() so lang/{locale}.json can translate it.
+     * A curated ahg_dropdown_i18n row always wins over the locale files.
+     */
+    protected static function localiseDropdownLabel(object $row): string
+    {
+        $label = (string) $row->label;
+        if (! empty($row->label_is_localised) || $label === '' || app()->getLocale() === 'en') {
+            return $label;
+        }
+
+        return __($label);
     }
 
     /**
