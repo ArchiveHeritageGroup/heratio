@@ -191,7 +191,7 @@
               <li class="page-item {{ $i == $page ? 'active' : '' }}"><a class="page-link" href="?{{ http_build_query(['q' => $query, 'type' => $type, 'page' => $i]) }}">{{ $i }}</a></li>
             @endfor
             @if ($page < $totalPages)
-              <li class="page-item"><a class="page-link" href="?{{ http_build_query(['q' => $query, 'type' => $type, 'page' => $page + 1]) }}">Next</a></li>
+              <li class="page-item"><a class="page-link" href="?{{ http_build_query(['q' => $query, 'type' => $type, 'page' => $page + 1]) }}">{{ __('Next') }}</a></li>
             @endif
           </ul>
         </nav>

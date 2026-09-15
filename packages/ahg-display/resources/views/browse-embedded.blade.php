@@ -501,7 +501,7 @@
         <nav class="mt-4">
           <ul class="pagination justify-content-center">
             <li class="page-item {{ $page <= 1 ? 'disabled' : '' }}">
-              <a class="page-link" href="{{ buildEmbeddedUrl($fp, ['page' => $page - 1]) }}">Previous</a>
+              <a class="page-link" href="{{ buildEmbeddedUrl($fp, ['page' => $page - 1]) }}">{{ __('Previous') }}</a>
             </li>
             @for($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++)
               <li class="page-item {{ $i == $page ? 'active' : '' }}">
@@ -509,7 +509,7 @@
               </li>
             @endfor
             <li class="page-item {{ $page >= $totalPages ? 'disabled' : '' }}">
-              <a class="page-link" href="{{ buildEmbeddedUrl($fp, ['page' => $page + 1]) }}">Next</a>
+              <a class="page-link" href="{{ buildEmbeddedUrl($fp, ['page' => $page + 1]) }}">{{ __('Next') }}</a>
             </li>
           </ul>
         </nav>

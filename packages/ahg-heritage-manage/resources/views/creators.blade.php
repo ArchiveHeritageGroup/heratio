@@ -49,9 +49,9 @@
 
     @if(isset($totalPages) && $totalPages > 1)
     <nav class="mt-4"><ul class="pagination justify-content-center">
-      @if(($page ?? 1) > 1)<li class="page-item"><a class="page-link" href="?page={{ $page - 1 }}{{ !empty($searchQuery) ? '&q='.urlencode($searchQuery) : '' }}">Previous</a></li>@endif
+      @if(($page ?? 1) > 1)<li class="page-item"><a class="page-link" href="?page={{ $page - 1 }}{{ !empty($searchQuery) ? '&q='.urlencode($searchQuery) : '' }}">{{ __('Previous') }}</a></li>@endif
       @for($i = max(1, ($page ?? 1) - 2); $i <= min($totalPages, ($page ?? 1) + 2); $i++)<li class="page-item {{ $i === ($page ?? 1) ? 'active' : '' }}"><a class="page-link" href="?page={{ $i }}{{ !empty($searchQuery) ? '&q='.urlencode($searchQuery) : '' }}">{{ $i }}</a></li>@endfor
-      @if(($page ?? 1) < $totalPages)<li class="page-item"><a class="page-link" href="?page={{ $page + 1 }}{{ !empty($searchQuery) ? '&q='.urlencode($searchQuery) : '' }}">Next</a></li>@endif
+      @if(($page ?? 1) < $totalPages)<li class="page-item"><a class="page-link" href="?page={{ $page + 1 }}{{ !empty($searchQuery) ? '&q='.urlencode($searchQuery) : '' }}">{{ __('Next') }}</a></li>@endif
     </ul></nav>
     @endif
     @else

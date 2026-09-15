@@ -140,10 +140,10 @@
                 <p class="text-center mb-1 small text-muted">Page {{ $listPage }} of {{ $listLastPage }} ({{ number_format($listTotal) }} terms)</p>
                 <ul class="pagination pagination-sm justify-content-center mb-0">
                   <li class="page-item {{ $listPage <= 1 ? 'disabled' : '' }}">
-                    <a class="page-link" href="{{ request()->fullUrlWithQuery(['listPage' => $listPage - 1]) }}">Previous</a>
+                    <a class="page-link" href="{{ request()->fullUrlWithQuery(['listPage' => $listPage - 1]) }}">{{ __('Previous') }}</a>
                   </li>
                   <li class="page-item {{ $listPage >= $listLastPage ? 'disabled' : '' }}">
-                    <a class="page-link" href="{{ request()->fullUrlWithQuery(['listPage' => $listPage + 1]) }}">Next</a>
+                    <a class="page-link" href="{{ request()->fullUrlWithQuery(['listPage' => $listPage + 1]) }}">{{ __('Next') }}</a>
                   </li>
                 </ul>
               </nav>
@@ -444,11 +444,11 @@
         @endforeach
         @if($lastPage > 1)
           <nav><ul class="pagination pagination-sm justify-content-center">
-            <li class="page-item {{ $page <= 1 ? 'disabled' : '' }}"><a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $page - 1]) }}">Previous</a></li>
+            <li class="page-item {{ $page <= 1 ? 'disabled' : '' }}"><a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $page - 1]) }}">{{ __('Previous') }}</a></li>
             @for($i = max(1, $page - 2); $i <= min($lastPage, $page + 2); $i++)
               <li class="page-item {{ $i == $page ? 'active' : '' }}"><a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $i]) }}">{{ $i }}</a></li>
             @endfor
-            <li class="page-item {{ $page >= $lastPage ? 'disabled' : '' }}"><a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $page + 1]) }}">Next</a></li>
+            <li class="page-item {{ $page >= $lastPage ? 'disabled' : '' }}"><a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $page + 1]) }}">{{ __('Next') }}</a></li>
           </ul></nav>
         @endif
       @else

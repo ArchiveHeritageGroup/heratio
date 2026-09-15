@@ -147,7 +147,7 @@
           <ul class="pagination pagination-sm justify-content-center">
             @if($page > 1)
               <li class="page-item">
-                <a class="page-link" href="{{ route('metadata-extraction.index', ['page' => $page - 1, 'mime_type' => $filterMimeType, 'extracted' => $filterExtracted]) }}">Previous</a>
+                <a class="page-link" href="{{ route('metadata-extraction.index', ['page' => $page - 1, 'mime_type' => $filterMimeType, 'extracted' => $filterExtracted]) }}">{{ __('Previous') }}</a>
               </li>
             @endif
 
@@ -159,7 +159,7 @@
 
             @if($page < $totalPages)
               <li class="page-item">
-                <a class="page-link" href="{{ route('metadata-extraction.index', ['page' => $page + 1, 'mime_type' => $filterMimeType, 'extracted' => $filterExtracted]) }}">Next</a>
+                <a class="page-link" href="{{ route('metadata-extraction.index', ['page' => $page + 1, 'mime_type' => $filterMimeType, 'extracted' => $filterExtracted]) }}">{{ __('Next') }}</a>
               </li>
             @endif
           </ul>

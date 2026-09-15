@@ -119,7 +119,7 @@
                         @endfor
                         @if($page < $lastPage)
                             <li class="page-item">
-                                <a class="page-link" href="{{ route('library.authority-index', array_merge(request()->query(), ['page' => $page + 1])) }}">Next</a>
+                                <a class="page-link" href="{{ route('library.authority-index', array_merge(request()->query(), ['page' => $page + 1])) }}">{{ __('Next') }}</a>
                             </li>
                         @endif
                     </ul>

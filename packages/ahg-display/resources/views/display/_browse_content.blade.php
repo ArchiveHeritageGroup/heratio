@@ -761,7 +761,7 @@
     <nav class="mt-4">
       <ul class="pagination justify-content-center">
         <li class="page-item {{ ($page ?? 1) <= 1 ? 'disabled' : '' }}">
-          <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => max(1, $page - 1)]) }}">Previous</a>
+          <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => max(1, $page - 1)]) }}">{{ __('Previous') }}</a>
         </li>
         @for($p = max(1, $page - 3); $p <= min($totalPages, $page + 3); $p++)
           <li class="page-item {{ $p == $page ? 'active' : '' }}">
@@ -769,7 +769,7 @@
           </li>
         @endfor
         <li class="page-item {{ ($page ?? 1) >= ($totalPages ?? 1) ? 'disabled' : '' }}">
-          <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => $page + 1]) }}">Next</a>
+          <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => $page + 1]) }}">{{ __('Next') }}</a>
         </li>
       </ul>
     </nav>

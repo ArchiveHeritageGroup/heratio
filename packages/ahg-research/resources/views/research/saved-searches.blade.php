@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 var html = '<div class="row mb-3">';
-                html += '<div class="col-md-4"><div class="card text-center"><div class="card-body py-2"><div class="fs-5 fw-bold">' + (d.previous_count || 0) + '</div><small class="text-muted">Previous</small></div></div></div>';
+                html += '<div class="col-md-4"><div class="card text-center"><div class="card-body py-2"><div class="fs-5 fw-bold">' + (d.previous_count || 0) + '</div><small class="text-muted">{{ __('Previous') }}</small></div></div></div>';
                 html += '<div class="col-md-4"><div class="card text-center"><div class="card-body py-2"><div class="fs-5 fw-bold">' + (d.current_count || 0) + '</div><small class="text-muted">Current</small></div></div></div>';
                 html += '<div class="col-md-4"><div class="card text-center"><div class="card-body py-2"><div class="fs-5 fw-bold">' + (d.unchanged_count || 0) + '</div><small class="text-muted">Unchanged</small></div></div></div>';
                 html += '</div>';

@@ -19542,5 +19542,6 @@
     "Voice & AI": "Voice & AI",
     "Environmental & Security": "Environmental & Security",
     "Z39.50 Client & Server": "Z39.50 Client & Server",
-    "My Tasks (:count pending)": "My Tasks (:count pending)"
+    "My Tasks (:count pending)": "My Tasks (:count pending)",
+    "Go to page :n": "Go to page :n"
 }

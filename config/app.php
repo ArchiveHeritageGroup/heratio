@@ -82,6 +82,11 @@ return [
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
+    // #1513: when true, the browser's Accept-Language header is ignored and
+    // anonymous visitors get 'locale' above. For single-language instances;
+    // ?sf_culture, the language switcher cookie and session still win.
+    'locale_ignore_accept_language' => (bool) env('LOCALE_IGNORE_ACCEPT_LANGUAGE', false),
+
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*

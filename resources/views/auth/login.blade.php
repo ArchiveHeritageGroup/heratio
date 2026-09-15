@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Log in - ' . ($themeData['siteTitle'] ?? 'Heratio'))
+@section('title', __('Log in') . ' - ' . ($themeData['siteTitle'] ?? 'Heratio'))
 @section('body-class', 'user login')
 
 @section('content')
@@ -10,14 +10,14 @@
       @foreach($errors->all() as $error)
         <div>{{ $error }}</div>
       @endforeach
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
   @if(session('warning'))
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
       {{ session('warning') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
 
@@ -32,19 +32,19 @@
             @if($message ?? null)
               {{ $message }}
             @else
-              Log in
+              {{ __('Log in') }}
             @endif
           </button>
         </h2>
         <div id="login-collapse" class="accordion-collapse collapse show" aria-labelledby="login-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
+              <label for="email" class="form-label">{{ __('Email') }}</label>
               <input type="email" class="form-control" id="email" name="email"
                      value="{{ old('email') }}" required autofocus autocomplete="email">
             </div>
             <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
+              <label for="password" class="form-label">{{ __('Password') }}</label>
               <input type="password" class="form-control" id="password" name="password"
                      required autocomplete="current-password">
             </div>
@@ -55,10 +55,10 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
       <button type="submit" class="btn atom-btn-outline-success">
-        <i class="fas fa-sign-in-alt me-1"></i> Log in
+        <i class="fas fa-sign-in-alt me-1"></i> {{ __('Log in') }}
       </button>
       <a href="{{ route('password.reset') }}" class="text-muted">
-        <i class="fas fa-key me-1"></i> Forgot password?
+        <i class="fas fa-key me-1"></i> {{ __('Forgot password?') }}
       </a>
     </div>
   </form>
@@ -68,12 +68,12 @@
   {{-- User Registration --}}
   <div class="card border-primary mb-3">
     <div class="card-body text-center">
-      <h5 class="card-title"><i class="fas fa-user-plus text-primary me-2"></i>New User?</h5>
+      <h5 class="card-title"><i class="fas fa-user-plus text-primary me-2"></i>{{ __('New User?') }}</h5>
       <p class="card-text text-muted">
-        Register for an account to access archival materials and services.
+        {{ __('Register for an account to access archival materials and services.') }}
       </p>
       <a href="{{ route('register') }}" class="btn btn-primary">
-        <i class="fas fa-user-plus me-2"></i> Register
+        <i class="fas fa-user-plus me-2"></i> {{ __('Register') }}
       </a>
     </div>
   </div>
@@ -81,12 +81,12 @@
   {{-- Researcher Registration --}}
   <div class="card border-success mb-3">
     <div class="card-body text-center">
-      <h5 class="card-title"><i class="fas fa-user-graduate text-success me-2"></i>New Researcher?</h5>
+      <h5 class="card-title"><i class="fas fa-user-graduate text-success me-2"></i>{{ __('New Researcher?') }}</h5>
       <p class="card-text text-muted">
-        Register to access the reading room, request archival materials, and save your research.
+        {{ __('Register to access the reading room, request archival materials, and save your research.') }}
       </p>
       <a href="{{ route('researcher.register') }}" class="btn btn-success">
-        <i class="fas fa-user-plus me-2"></i> Register as Researcher
+        <i class="fas fa-user-plus me-2"></i> {{ __('Register as Researcher') }}
       </a>
     </div>
   </div>
@@ -94,7 +94,7 @@
   {{-- Research Services Link --}}
   <div class="text-center mt-3">
     <a href="{{ url('/research/dashboard') }}" class="text-muted">
-      <i class="fas fa-book-reader me-1"></i> View Research Services
+      <i class="fas fa-book-reader me-1"></i> {{ __('View Research Services') }}
     </a>
   </div>
 

@@ -47,7 +47,11 @@ class SetLocale
         } elseif ($userLocale = $this->resolveFromAuthenticatedUser()) {
             App::setLocale($userLocale);
             session(['locale' => $userLocale]);
-        } elseif ($acceptLocale = $this->resolveFromAcceptLanguage($request)) {
+        } elseif (! config('app.locale_ignore_accept_language')
+            && ($acceptLocale = $this->resolveFromAcceptLanguage($request))) {
+            // #1513: LOCALE_IGNORE_ACCEPT_LANGUAGE=true skips this step, so a
+            // single-language instance (APP_LOCALE=ar) stays in its own language
+            // for anonymous visitors. Explicit choices above still win.
             // #675 Phase 1: only triggers when URL/session/cookie ALL missing -
             // i.e. first-time anonymous visitor. We DON'T persist via cookie
             // here; cookies are reserved for explicit user choices so a Chrome

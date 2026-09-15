@@ -83,7 +83,7 @@
           @endphp
           @if($page > 1)
             <li class="page-item">
-              <a class="page-link" href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'page' => $page - 1, 'sort' => request('sort')]) }}">Previous</a>
+              <a class="page-link" href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'page' => $page - 1, 'sort' => request('sort')]) }}">{{ __('Previous') }}</a>
             </li>
           @endif
           @for($p = 1; $p <= $totalPages; $p++)
@@ -93,7 +93,7 @@
           @endfor
           @if($page < $totalPages)
             <li class="page-item">
-              <a class="page-link" href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'page' => $page + 1, 'sort' => request('sort')]) }}">Next</a>
+              <a class="page-link" href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'page' => $page + 1, 'sort' => request('sort')]) }}">{{ __('Next') }}</a>
             </li>
           @endif
         </ul>

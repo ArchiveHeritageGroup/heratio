@@ -2,9 +2,11 @@
   <nav aria-label="{{ __('Page navigation') }}">
 
     <div class="result-count text-center mb-2">
-      Results {{ ($pager->getPage() - 1) * $pager->getMaxPerPage() + 1 }}
-      to {{ min($pager->getPage() * $pager->getMaxPerPage(), $pager->getNbResults()) }}
-      of {{ number_format($pager->getNbResults()) }}
+      {{ __('Results :from to :to of :total', [
+        'from' => ($pager->getPage() - 1) * $pager->getMaxPerPage() + 1,
+        'to' => min($pager->getPage() * $pager->getMaxPerPage(), $pager->getNbResults()),
+        'total' => number_format($pager->getNbResults()),
+      ]) }}
     </div>
 
     <ul class="pagination justify-content-center">
@@ -15,7 +17,7 @@
         </li>
       @else
         <li class="page-item">
-          <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $pager->getPreviousPage()]) }}">Previous</a>
+          <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $pager->getPreviousPage()]) }}">{{ __('Previous') }}</a>
         </li>
       @endif
 
@@ -28,7 +30,7 @@
           </li>
         @else
           <li class="page-item d-none d-sm-block">
-            <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $link]) }}" title="Go to page {{ $link }}">{{ $link }}</a>
+            <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $link]) }}" title="{{ __('Go to page :n', ['n' => $link]) }}">{{ $link }}</a>
           </li>
         @endif
       @endforeach
@@ -50,7 +52,7 @@
         </li>
       @else
         <li class="page-item">
-          <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $pager->getNextPage()]) }}" title="{{ __('Next') }}">Next</a>
+          <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $pager->getNextPage()]) }}" title="{{ __('Next') }}">{{ __('Next') }}</a>
         </li>
       @endif
     </ul>
