@@ -14,8 +14,8 @@
   } catch (\Exception $e) {}
 @endphp
 
-<a href="{{ route('cart.browse') }}" id="cart-tab-btn" data-count="{{ $cartCount }}" title="View Cart ({{ $cartCount }} {{ $cartCount === 1 ? 'item' : 'items' }})">
-  <i class="fas fa-shopping-cart me-1"></i>Cart
+<a href="{{ route('cart.browse') }}" id="cart-tab-btn" data-count="{{ $cartCount }}" title="{{ trans_choice('View Cart (:count item)|View Cart (:count items)', $cartCount, ['count' => $cartCount]) }}">
+  <i class="fas fa-shopping-cart me-1"></i>{{ __('Cart') }}
   <span class="cart-tab-badge">{{ $cartCount }}</span>
 </a>
 <style>

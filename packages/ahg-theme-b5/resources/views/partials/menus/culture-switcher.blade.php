@@ -95,11 +95,11 @@
         <li><hr class="dropdown-divider"></li>
         <li class="px-3 py-1">
           <small class="text-muted d-block" style="line-height:1.3;">
-            UI translations courtesy of
-            <a href="https://www.accesstomemory.org/" target="_blank" rel="noopener" class="text-decoration-none">AtoM</a>,
-            <a href="https://www.artefactual.com/" target="_blank" rel="noopener" class="text-decoration-none">Artefactual</a>,
-            and the AtoM community.<br>
-            South African languages by The AHG.
+            {!! __('UI translations courtesy of :atom, :artefactual, and the AtoM community.', [
+              'atom' => '<a href="https://www.accesstomemory.org/" target="_blank" rel="noopener" class="text-decoration-none">AtoM</a>',
+              'artefactual' => '<a href="https://www.artefactual.com/" target="_blank" rel="noopener" class="text-decoration-none">Artefactual</a>',
+            ]) !!}<br>
+            {{ __('South African languages by The AHG.') }}
           </small>
         </li>
       </ul>

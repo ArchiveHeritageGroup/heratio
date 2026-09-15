@@ -49,7 +49,7 @@
   {{-- The slide-out panel --}}
   <div id="feedback-panel" class="d-none">
     <div class="feedback-panel-header">
-      <strong><i class="fas fa-comment-alt me-1"></i>Feedback</strong>
+      <strong><i class="fas fa-comment-alt me-1"></i>{{ __('Feedback') }}</strong>
       <button type="button" id="feedback-panel-close" class="btn-close btn-close-white btn-sm" aria-label="{{ __('Close') }}"></button>
     </div>
     <form id="feedback-panel-form" method="POST" action="{{ url('/feedback/general') }}">

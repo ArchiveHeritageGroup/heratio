@@ -24,11 +24,12 @@
     <li><h6 class="dropdown-header">{{ __('Clipboard') }}</h6></li>
     <li class="text-muted text-nowrap px-3 pb-2">
       <span id="counts-block"
-            data-information-object-label="{{ config('app.ui_label_informationobject', 'Archival description') }}"
-            data-actor-object-label="{{ config('app.ui_label_actor', 'Authority record') }}"
-            data-repository-object-label="{{ config('app.ui_label_repository', 'Archival institution') }}"
+            data-count-format="{{ __(':label count: :count') }}"
+            data-information-object-label="{{ __(config('app.ui_label_informationobject', 'Archival description')) }}"
+            data-actor-object-label="{{ __(config('app.ui_label_actor', 'Authority record')) }}"
+            data-repository-object-label="{{ __(config('app.ui_label_repository', 'Archival institution')) }}"
             @if(auth()->check() && (auth()->user()->isEditor() || auth()->user()->isAdministrator()))
-              data-accession-object-label="{{ config('atom.app_ui_label_accessioncount', 'Accession') }}"
+              data-accession-object-label="{{ __(config('atom.app_ui_label_accessioncount', 'Accession')) }}"
             @endif>
       </span>
     </li>

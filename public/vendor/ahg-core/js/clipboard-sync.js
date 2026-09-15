@@ -41,11 +41,14 @@
       var actorLabel = countsBlock.getAttribute('data-actor-object-label') || 'Authority record';
       var repoLabel = countsBlock.getAttribute('data-repository-object-label') || 'Archival institution';
       var accessionLabel = countsBlock.getAttribute('data-accession-object-label') || 'Accession';
-      var html = ioLabel + ' count: ' + (items.informationObject ? items.informationObject.length : 0) + '<br>'
-        + actorLabel + ' count: ' + (items.actor ? items.actor.length : 0) + '<br>'
-        + repoLabel + ' count: ' + (items.repository ? items.repository.length : 0);
+      // ":label count: :count", translated server-side so the line follows the UI language.
+      var fmt = countsBlock.getAttribute('data-count-format') || ':label count: :count';
+      var line = function (label, n) { return fmt.replace(':label', label).replace(':count', n); };
+      var html = line(ioLabel, items.informationObject ? items.informationObject.length : 0) + '<br>'
+        + line(actorLabel, items.actor ? items.actor.length : 0) + '<br>'
+        + line(repoLabel, items.repository ? items.repository.length : 0);
       if (countsBlock.hasAttribute('data-accession-object-label')) {
-        html += '<br>' + accessionLabel + ' count: ' + (items.accession ? items.accession.length : 0);
+        html += '<br>' + line(accessionLabel, items.accession ? items.accession.length : 0);
       }
       countsBlock.innerHTML = html;
     }

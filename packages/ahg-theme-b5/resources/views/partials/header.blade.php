@@ -1,6 +1,6 @@
 {{-- Skip to main content (accessibility) --}}
 <div class="visually-hidden-focusable p-3 border-bottom">
-  <a class="btn atom-btn-outline-light btn-sm" href="#main-column">Skip to main content</a>
+  <a class="btn atom-btn-outline-light btn-sm" href="#main-column">{{ __('Skip to main content') }}</a>
 </div>
 
 {{-- Tighten vertical spacing when the navbar wraps onto multiple rows --}}

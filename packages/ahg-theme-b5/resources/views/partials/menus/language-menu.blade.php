@@ -5,6 +5,12 @@
     ->where('editable', 1)
     ->pluck('name')
     ->toArray();
+  // ICU has no native names for these, so getDisplayLanguage() falls back to
+  // the English exonym ("Venda", "Tswana"). Everything else keeps ICU's endonym.
+  $endonyms = [
+    'nr' => 'isiNdebele', 'nso' => 'Sepedi', 'st' => 'Sesotho', 'tn' => 'Setswana',
+    'ss' => 'siSwati', 've' => 'Tshivenda', 'ts' => 'Xitsonga', 'kj' => 'Oshikwanyama', 'umb' => 'Umbundu',
+  ];
 @endphp
 
 @if(count($langCodes) > 1)
@@ -19,7 +25,7 @@
     @foreach($langCodes as $code)
       <li>
         <a class="dropdown-item {{ $code === app()->getLocale() ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sf_culture' => $code]) }}">
-          {{ ucfirst(\Locale::getDisplayLanguage($code, $code)) }}
+          {{ $endonyms[$code] ?? ucfirst(\Locale::getDisplayLanguage($code, $code)) }}
         </a>
       </li>
     @endforeach

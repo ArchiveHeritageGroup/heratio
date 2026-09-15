@@ -3,7 +3,7 @@
 
 <!-- Skip Navigation -->
 <a href="#main-content" class="visually-hidden-focusable position-absolute top-0 start-0 p-2 bg-primary text-white z-3">
-    Skip to main content
+    {{ __('Skip to main content') }}
 </a>
 
 <!-- ARIA Live Region for AJAX announcements -->
