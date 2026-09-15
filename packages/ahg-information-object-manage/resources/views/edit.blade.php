@@ -104,7 +104,7 @@
                   <i class="fas fa-cog me-1" aria-hidden="true"></i>{{ __('Generate') }}
                 </button>
               </div>
-              <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Provide a specific local reference code, control number, or other unique identifier. The country and repository code will be automatically added from the linked repository record to form a full reference code. (ISAD 3.1.1)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
+              <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Provide a specific local reference code, control number, or other unique identifier. The country and repository code will be automatically added from the linked repository record to form a full reference code. (ISAD 3.1.1)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
             </div>
 
             {{-- Alternative identifiers multi-row --}}
@@ -138,7 +138,7 @@
               @error('title')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
-              <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
+              <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
             </div>
 
             <div class="mb-3">
@@ -155,7 +155,7 @@
 
             {{-- Events (dates) multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Date(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate. (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable."><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label class="form-label">Date(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate. (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable.') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <table class="table table-sm" id="events-table">
                 <thead>
                   <tr>
@@ -194,7 +194,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="level_of_description_id" class="form-label">Level of description <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the level of this unit of description. (ISAD 3.1.4)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="level_of_description_id" class="form-label">Level of description <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record the level of this unit of description. (ISAD 3.1.4)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <select class="form-select" id="level_of_description_id" name="level_of_description_id">
                 <option value="">- Select -</option>
                 @foreach($levels as $level)
@@ -223,7 +223,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="extent_and_medium" class="form-label">Extent and medium <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="extent_and_medium" class="form-label">Extent and medium <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="extent_and_medium" name="extent_and_medium" rows="3">{{ old('extent_and_medium', $io->extent_and_medium) }}</textarea>
             </div>
 
@@ -282,12 +282,12 @@
             ])
 
             <div class="mb-3">
-              <label for="archival_history" class="form-label">Archival history <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the successive transfers of ownership, responsibility and/or custody of the unit of description and indicate those actions, such as history of the arrangement, production of contemporary finding aids, re-use of the records for other purposes or software migrations, that have contributed to its present structure and arrangement. Give the dates of these actions, insofar as they can be ascertained. If the archival history is unknown, record that information. (ISAD 3.2.3)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="archival_history" class="form-label">Archival history <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record the successive transfers of ownership, responsibility and/or custody of the unit of description and indicate those actions, such as history of the arrangement, production of contemporary finding aids, re-use of the records for other purposes or software migrations, that have contributed to its present structure and arrangement. Give the dates of these actions, insofar as they can be ascertained. If the archival history is unknown, record that information. (ISAD 3.2.3)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="archival_history" name="archival_history" rows="3">{{ old('archival_history', $io->archival_history) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="acquisition" class="form-label">Immediate source of acquisition or transfer <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the source from which the unit of description was acquired and the date and/or method of acquisition if any or all of this information is not confidential. If the source is unknown, record that information. Optionally, add accession numbers or codes. (ISAD 3.2.4)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="acquisition" class="form-label">Immediate source of acquisition or transfer <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record the source from which the unit of description was acquired and the date and/or method of acquisition if any or all of this information is not confidential. If the source is unknown, record that information. Optionally, add accession numbers or codes. (ISAD 3.2.4)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="acquisition" name="acquisition" rows="3">{{ old('acquisition', $io->acquisition) }}</textarea>
             </div>
 
@@ -306,22 +306,22 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Give a summary of the scope (such as, time periods, geography) and content, (such as documentary forms, subject matter, administrative processes) of the unit of description, appropriate to the level of description. (ISAD 3.3.1)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Give a summary of the scope (such as, time periods, geography) and content, (such as documentary forms, subject matter, administrative processes) of the unit of description, appropriate to the level of description. (ISAD 3.3.1)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="scope_and_content" name="scope_and_content" rows="4">{{ old('scope_and_content', $io->scope_and_content) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material. (ISAD 3.3.2)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material. (ISAD 3.3.2)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="appraisal" name="appraisal" rows="3">{{ old('appraisal', $io->appraisal) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="accruals" class="form-label">Accruals <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Indicate if accruals are expected. Where appropriate, give an estimate of their quantity and frequency. (ISAD 3.3.3)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="accruals" class="form-label">Accruals <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Indicate if accruals are expected. Where appropriate, give an estimate of their quantity and frequency. (ISAD 3.3.3)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="accruals" name="accruals" rows="3">{{ old('accruals', $io->accruals) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="arrangement" class="form-label">System of arrangement <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Specify the internal structure, order and/or the system of classification of the unit of description. Note how these have been treated by the archivist. For electronic records, record or reference information on system design. (ISAD 3.3.4)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="arrangement" class="form-label">System of arrangement <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Specify the internal structure, order and/or the system of classification of the unit of description. Note how these have been treated by the archivist. For electronic records, record or reference information on system design. (ISAD 3.3.4)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="arrangement" name="arrangement" rows="3">{{ old('arrangement', $io->arrangement) }}</textarea>
             </div>
 
@@ -340,12 +340,12 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="access_conditions" class="form-label">Conditions governing access <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Specify the law or legal status, contract, regulation or policy that affects access to the unit of description. Indicate the extent of the period of closure and the date at which the material will open when appropriate. (ISAD 3.4.1)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="access_conditions" class="form-label">Conditions governing access <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Specify the law or legal status, contract, regulation or policy that affects access to the unit of description. Indicate the extent of the period of closure and the date at which the material will open when appropriate. (ISAD 3.4.1)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="access_conditions" name="access_conditions" rows="3">{{ old('access_conditions', $io->access_conditions) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="reproduction_conditions" class="form-label">Conditions governing reproduction <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Give information about conditions, such as copyright, governing the reproduction of the unit of description after access has been provided. If the existence of such conditions is unknown, record this. If there are no conditions, no statement is necessary. (ISAD 3.4.2)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="reproduction_conditions" class="form-label">Conditions governing reproduction <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Give information about conditions, such as copyright, governing the reproduction of the unit of description after access has been provided. If the existence of such conditions is unknown, record this. If there are no conditions, no statement is necessary. (ISAD 3.4.2)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="reproduction_conditions" name="reproduction_conditions" rows="3">{{ old('reproduction_conditions', $io->reproduction_conditions) }}</textarea>
             </div>
 
@@ -385,7 +385,7 @@
                 @endforeach
               </div>
               <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="languages-list" data-name="languages[]">{{ __('Add language') }}</button>
-              <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
+              <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
             </div>
 
             {{-- Script(s) of material - multi-row select --}}
@@ -411,11 +411,11 @@
                 @endforeach
               </div>
               <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-list" data-name="scripts[]">{{ __('Add script') }}</button>
-              <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
+              <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
             </div>
 
             <div class="mb-3">
-              <label for="language_notes" class="form-label">Language and script notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (ISAD 3.4.3)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="language_notes" class="form-label">Language and script notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (ISAD 3.4.3)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="language_notes" name="language_notes" rows="2">{{ old('language_notes', $io->language_notes ?? '') }}</textarea>
             </div>
 
@@ -425,7 +425,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="finding_aids" class="form-label">Finding aids <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Give information about any finding aids that the repository or records creator may have that provide information relating to the context and contents of the unit of description. If appropriate, include information on where to obtain a copy. (ISAD 3.4.5)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="finding_aids" class="form-label">Finding aids <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Give information about any finding aids that the repository or records creator may have that provide information relating to the context and contents of the unit of description. If appropriate, include information on where to obtain a copy. (ISAD 3.4.5)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="finding_aids" name="finding_aids" rows="3">{{ old('finding_aids', $io->finding_aids) }}</textarea>
             </div>
 
@@ -444,17 +444,17 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="location_of_originals" class="form-label">Existence and location of originals <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="If the original of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. If the originals no longer exist, or their location is unknown, give that information. (ISAD 3.5.1)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="location_of_originals" class="form-label">Existence and location of originals <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('If the original of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. If the originals no longer exist, or their location is unknown, give that information. (ISAD 3.5.1)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="location_of_originals" name="location_of_originals" rows="3">{{ old('location_of_originals', $io->location_of_originals) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="location_of_copies" class="form-label">Existence and location of copies <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="If the copy of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. (ISAD 3.5.2)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="location_of_copies" class="form-label">Existence and location of copies <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('If the copy of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. (ISAD 3.5.2)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="location_of_copies" name="location_of_copies" rows="3">{{ old('location_of_copies', $io->location_of_copies) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="related_units_of_description" class="form-label">Related units of description <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record information about units of description in the same repository or elsewhere that are related by provenance or other association(s). Use appropriate introductory wording and explain the nature of the relationship. If the related unit of description is a finding aid, use the finding aids element of description (3.4.5) to make the reference to it. (ISAD 3.5.3)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="related_units_of_description" class="form-label">Related units of description <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record information about units of description in the same repository or elsewhere that are related by provenance or other association(s). Use appropriate introductory wording and explain the nature of the relationship. If the related unit of description is a finding aid, use the finding aids element of description (3.4.5) to make the reference to it. (ISAD 3.5.3)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="related_units_of_description" name="related_units_of_description" rows="3">{{ old('related_units_of_description', $io->related_units_of_description) }}</textarea>
             </div>
 
@@ -671,7 +671,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="rules" class="form-label">Rules or conventions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the international, national and/or local rules or conventions followed in preparing the description. (ISAD 3.7.2)"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label for="rules" class="form-label">Rules or conventions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record the international, national and/or local rules or conventions followed in preparing the description. (ISAD 3.7.2)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <textarea class="form-control" id="rules" name="rules" rows="3">{{ old('rules', $io->rules) }}</textarea>
             </div>
 

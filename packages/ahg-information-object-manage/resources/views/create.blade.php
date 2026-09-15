@@ -125,7 +125,7 @@
                   <i class="fas fa-cog me-1" aria-hidden="true"></i>{{ __('Generate') }}
                 </button>
               </div>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Provide a specific local reference code, control number, or other unique identifier. The country and repository code will be automatically added from the linked repository record to form a full reference code. (ISAD 3.1.1)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Provide a specific local reference code, control number, or other unique identifier. The country and repository code will be automatically added from the linked repository record to form a full reference code. (ISAD 3.1.1)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             {{-- Alternative identifiers multi-row --}}
@@ -150,7 +150,7 @@
                 <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             {{-- Events (dates) multi-row --}}
@@ -170,7 +170,7 @@
                 <tbody></tbody>
               </table>
               <button type="button" class="btn btn-sm btn-outline-secondary" id="add-event-row">{{ __('Add date') }}</button>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate. (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable."><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate. (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable.') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -184,7 +184,7 @@
                 @endforeach
               </select>
               <div class="alert alert-info py-1 px-2 mt-1 mb-0 small"><em>{{ __('This field is marked as mandatory in the relevant descriptive standard.') }}</em></div>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the level of this unit of description. (ISAD 3.1.4)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record the level of this unit of description. (ISAD 3.1.4)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -193,7 +193,7 @@
                 <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <textarea class="form-control" id="extent_and_medium" name="extent_and_medium" rows="3">{{ old('extent_and_medium') }}</textarea>
               <div class="alert alert-info py-1 px-2 mt-1 mb-0 small"><em>{{ __('This field is marked as mandatory in the relevant descriptive standard.') }}</em></div>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>
@@ -219,7 +219,7 @@
               <div class="input-group input-group-sm mt-1">
                 <input type="text" class="form-control" id="creator-autocomplete-add" data-target="creator-list" data-field="creators" placeholder="{{ __('Type to add creator...') }}" autocomplete="off">
               </div>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the name of the organization(s) or the individual(s) responsible for the creation, accumulation and maintenance of the records in the unit of description. Search for an existing name in the authority records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new authority record. (ISAD 3.2.1)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record the name of the organization(s) or the individual(s) responsible for the creation, accumulation and maintenance of the records in the unit of description. Search for an existing name in the authority records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new authority record. (ISAD 3.2.1)') }}"><i class="fas fa-question-circle"></i></button>
               <div class="alert alert-info py-1 px-2 mt-1 mb-0 small"><em>{{ __('This field is marked as mandatory in the relevant descriptive standard.') }}</em></div>
             </div>
 
@@ -237,13 +237,13 @@
             <div class="mb-3">
               <label for="archival_history" class="form-label">{{ __('Archival history') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <textarea class="form-control" id="archival_history" name="archival_history" rows="3">{{ old('archival_history') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the successive transfers of ownership, responsibility and/or custody of the unit of description and indicate those actions, such as history of the arrangement, production of contemporary finding aids, re-use of the records for other purposes or software migrations, that have contributed to its present structure and arrangement. Give the dates of these actions, insofar as they can be ascertained. If the archival history is unknown, record that information. (ISAD 3.2.3)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record the successive transfers of ownership, responsibility and/or custody of the unit of description and indicate those actions, such as history of the arrangement, production of contemporary finding aids, re-use of the records for other purposes or software migrations, that have contributed to its present structure and arrangement. Give the dates of these actions, insofar as they can be ascertained. If the archival history is unknown, record that information. (ISAD 3.2.3)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="acquisition" class="form-label">{{ __('Immediate source of acquisition or transfer') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <textarea class="form-control" id="acquisition" name="acquisition" rows="3">{{ old('acquisition') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the source from which the unit of description was acquired and the date and/or method of acquisition if any or all of this information is not confidential. If the source is unknown, record that information. Optionally, add accession numbers or codes. (ISAD 3.2.4)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record the source from which the unit of description was acquired and the date and/or method of acquisition if any or all of this information is not confidential. If the source is unknown, record that information. Optionally, add accession numbers or codes. (ISAD 3.2.4)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>
@@ -261,25 +261,25 @@
             <div class="mb-3">
               <label for="scope_and_content" class="form-label">{{ __('Scope and content') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <textarea class="form-control" id="scope_and_content" name="scope_and_content" rows="4">{{ old('scope_and_content') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Give a summary of the scope (such as, time periods, geography) and content, (such as documentary forms, subject matter, administrative processes) of the unit of description, appropriate to the level of description. (ISAD 3.3.1)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Give a summary of the scope (such as, time periods, geography) and content, (such as documentary forms, subject matter, administrative processes) of the unit of description, appropriate to the level of description. (ISAD 3.3.1)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="appraisal" class="form-label">{{ __('Appraisal, destruction and scheduling') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="appraisal" name="appraisal" rows="3">{{ old('appraisal') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material. (ISAD 3.3.2)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material. (ISAD 3.3.2)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="accruals" class="form-label">{{ __('Accruals') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="accruals" name="accruals" rows="3">{{ old('accruals') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Indicate if accruals are expected. Where appropriate, give an estimate of their quantity and frequency. (ISAD 3.3.3)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Indicate if accruals are expected. Where appropriate, give an estimate of their quantity and frequency. (ISAD 3.3.3)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="arrangement" class="form-label">{{ __('System of arrangement') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <textarea class="form-control" id="arrangement" name="arrangement" rows="3">{{ old('arrangement') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Specify the internal structure, order and/or the system of classification of the unit of description. Note how these have been treated by the archivist. For electronic records, record or reference information on system design. (ISAD 3.3.4)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Specify the internal structure, order and/or the system of classification of the unit of description. Note how these have been treated by the archivist. For electronic records, record or reference information on system design. (ISAD 3.3.4)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>
@@ -297,13 +297,13 @@
             <div class="mb-3">
               <label for="access_conditions" class="form-label">{{ __('Conditions governing access') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="access_conditions" name="access_conditions" rows="3">{{ old('access_conditions') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Specify the law or legal status, contract, regulation or policy that affects access to the unit of description. Indicate the extent of the period of closure and the date at which the material will open when appropriate. (ISAD 3.4.1)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Specify the law or legal status, contract, regulation or policy that affects access to the unit of description. Indicate the extent of the period of closure and the date at which the material will open when appropriate. (ISAD 3.4.1)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="reproduction_conditions" class="form-label">{{ __('Conditions governing reproduction') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="reproduction_conditions" name="reproduction_conditions" rows="3">{{ old('reproduction_conditions') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Give information about conditions, such as copyright, governing the reproduction of the unit of description after access has been provided. If the existence of such conditions is unknown, record this. If there are no conditions, no statement is necessary. (ISAD 3.4.2)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Give information about conditions, such as copyright, governing the reproduction of the unit of description after access has been provided. If the existence of such conditions is unknown, record this. If there are no conditions, no statement is necessary. (ISAD 3.4.2)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             {{-- Language(s) of material - multi-row --}}
@@ -311,7 +311,7 @@
               <label class="form-label">{{ __('Language(s) of material') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div id="languages-list"></div>
               <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="languages-list" data-name="languages[]">{{ __('Add language') }}</button>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             {{-- Script(s) of material - multi-row --}}
@@ -319,13 +319,13 @@
               <label class="form-label">{{ __('Script(s) of material') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div id="scripts-list"></div>
               <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-list" data-name="scripts[]">{{ __('Add script') }}</button>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="language_notes" class="form-label">{{ __('Language and script notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="language_notes" name="language_notes" rows="2">{{ old('language_notes') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (ISAD 3.4.3)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (ISAD 3.4.3)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -338,7 +338,7 @@
             <div class="mb-3">
               <label for="finding_aids" class="form-label">{{ __('Finding aids') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <textarea class="form-control" id="finding_aids" name="finding_aids" rows="3">{{ old('finding_aids') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Give information about any finding aids that the repository or records creator may have that provide information relating to the context and contents of the unit of description. If appropriate, include information on where to obtain a copy. (ISAD 3.4.5)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Give information about any finding aids that the repository or records creator may have that provide information relating to the context and contents of the unit of description. If appropriate, include information on where to obtain a copy. (ISAD 3.4.5)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>
@@ -356,19 +356,19 @@
             <div class="mb-3">
               <label for="location_of_originals" class="form-label">{{ __('Existence and location of originals') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="location_of_originals" name="location_of_originals" rows="3">{{ old('location_of_originals') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="If the original of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. If the originals no longer exist, or their location is unknown, give that information. (ISAD 3.5.1)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('If the original of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. If the originals no longer exist, or their location is unknown, give that information. (ISAD 3.5.1)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="location_of_copies" class="form-label">{{ __('Existence and location of copies') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="location_of_copies" name="location_of_copies" rows="3">{{ old('location_of_copies') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="If the copy of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. (ISAD 3.5.2)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('If the copy of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. (ISAD 3.5.2)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="related_units_of_description" class="form-label">{{ __('Related units of description') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <textarea class="form-control" id="related_units_of_description" name="related_units_of_description" rows="3">{{ old('related_units_of_description') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record information about units of description in the same repository or elsewhere that are related by provenance or other association(s). Use appropriate introductory wording and explain the nature of the relationship. If the related unit of description is a finding aid, use the finding aids element of description (3.4.5) to make the reference to it. (ISAD 3.5.3)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record information about units of description in the same repository or elsewhere that are related by provenance or other association(s). Use appropriate introductory wording and explain the nature of the relationship. If the related unit of description is a finding aid, use the finding aids element of description (3.4.5) to make the reference to it. (ISAD 3.5.3)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             {{-- Publication notes multi-row --}}
@@ -480,7 +480,7 @@
             <div class="mb-3">
               <label for="rules" class="form-label">{{ __('Rules or conventions') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="rules" name="rules" rows="3">{{ old('rules') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the international, national and/or local rules or conventions followed in preparing the description. (ISAD 3.7.2)"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Record the international, national and/or local rules or conventions followed in preparing the description. (ISAD 3.7.2)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
