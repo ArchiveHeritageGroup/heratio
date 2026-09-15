@@ -19914,5 +19914,14 @@
     "Add new library item": "Add new library item",
     "Edit :title": "Edit :title",
     "Dimensions as displayed. Format: H × W × D (unit).": "Dimensions as displayed. Format: H × W × D (unit).",
-    ":label area": ":label area"
+    ":label area": ":label area",
+    "Accession records": "Accession records",
+    "Archival Holdings": "Archival Holdings",
+    "Archival institution permissions": "Archival institution permissions",
+    "Authority record permissions": "Authority record permissions",
+    "Browse Request for Publish": "Browse Request for Publish",
+    "Browse our collection": "Browse our collection",
+    "Description updates": "Description updates",
+    "Menus": "Menus",
+    "Themes": "Themes"
 }

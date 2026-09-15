@@ -19567,5 +19567,14 @@
     "Add new library item": "إضافة مادة مكتبية جديدة",
     "Edit :title": "تحرير :title",
     "Dimensions as displayed. Format: H × W × D (unit).": "الأبعاد كما تُعرض. الصيغة: الارتفاع × العرض × العمق (الوحدة).",
-    ":label area": "منطقة :label"
+    ":label area": "منطقة :label",
+    "Accession records": "سجلات المقتنيات",
+    "Archival Holdings": "المقتنيات الأرشيفية",
+    "Archival institution permissions": "صلاحيات المؤسسات الأرشيفية",
+    "Authority record permissions": "صلاحيات سجلات الاستناد",
+    "Browse Request for Publish": "تصفح طلبات النشر",
+    "Browse our collection": "تصفح مجموعتنا",
+    "Description updates": "تحديثات الوصف",
+    "Menus": "القوائم",
+    "Themes": "السمات"
 }
