@@ -324,7 +324,7 @@
 
         {{-- ─── Step 4: Generate ──────────────────────────────────── --}}
         <div class="wizard-panel" data-step="4" style="display:none;">
-          <h5 class="mb-3"><i class="fas fa-check-square me-2"></i>{{ __('Review &amp; Generate') }}</h5>
+          <h5 class="mb-3"><i class="fas fa-check-square me-2"></i>{{ __('Review & Generate') }}</h5>
           <p class="text-muted mb-3">Review your export settings and start generation.</p>
 
           <div class="card mb-3">

@@ -14,7 +14,7 @@
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-microphone me-2"></i>{{ __('Voice &amp; AI') }}</h1>
+<h1><i class="fas fa-microphone me-2"></i>{{ __('Voice & AI') }}</h1>
 <p class="text-muted">Voice interface and AI assistant settings</p>
 @endsection
 

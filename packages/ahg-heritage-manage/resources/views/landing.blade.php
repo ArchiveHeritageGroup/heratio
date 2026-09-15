@@ -26,7 +26,7 @@
              style="top: 1rem; right: 1rem; z-index: 5;">
             <a href="{{ url('/marketplace/browse') }}"
                class="btn btn-warning btn-sm fw-semibold shadow-sm">
-                <i class="fas fa-shopping-bag me-1"></i> {{ __('Browse &amp; Buy') }}
+                <i class="fas fa-shopping-bag me-1"></i> {{ __('Browse & Buy') }}
             </a>
             <a href="{{ url('/marketplace/register') }}"
                class="btn btn-light btn-sm fw-semibold shadow-sm">

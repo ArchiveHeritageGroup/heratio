@@ -62,7 +62,7 @@
     }
 @endphp
 
-<h1>{{ __('Preview &amp; Approve') }}</h1>
+<h1>{{ __('Preview & Approve') }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">

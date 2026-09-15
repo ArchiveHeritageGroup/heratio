@@ -71,7 +71,7 @@
 
     {{-- Card 2: Completeness & Quality --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-chart-bar me-2"></i>{{ __('Completeness &amp; Quality') }}</div>
+      <div class="card-header"><i class="fas fa-chart-bar me-2"></i>{{ __('Completeness & Quality') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">
@@ -125,7 +125,7 @@
 
     {{-- Card 4: Merge & Deduplication --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-code-branch me-2"></i>{{ __('Merge &amp; Deduplication') }}</div>
+      <div class="card-header"><i class="fas fa-code-branch me-2"></i>{{ __('Merge & Deduplication') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">

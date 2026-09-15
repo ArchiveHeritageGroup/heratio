@@ -123,7 +123,7 @@
       </div>
 
       {{-- Dates --}}
-      <div class="col-12"><hr><h6 class="text-muted">{{ __('Dates &amp; Cost') }}</h6></div>
+      <div class="col-12"><hr><h6 class="text-muted">{{ __('Dates & Cost') }}</h6></div>
       <div class="col-md-3">
         <label class="form-label">{{ __('Request Date') }}</label>
         <input type="date" name="request_date" value="{{ old('request_date', now()->toDateString()) }}" class="form-control">

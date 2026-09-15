@@ -270,7 +270,7 @@
             </div>
           @endif
 
-          <h6 class="border-bottom pb-2 mb-3 mt-4">{{ __('Insurance &amp; Fees') }}</h6>
+          <h6 class="border-bottom pb-2 mb-3 mt-4">{{ __('Insurance & Fees') }}</h6>
 
           @if($loan->insurance_type)
             <div class="row mb-2">

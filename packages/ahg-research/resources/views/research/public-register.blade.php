@@ -182,7 +182,7 @@
     <div class="d-flex justify-content-between">
       <a href="{{ route('login') }}" class="btn btn-link">Already have an account? Log in</a>
       <button type="submit" class="btn atom-btn-outline-success">
-        <i class="fas fa-paper-plane me-1"></i>{{ __('Create Account &amp; Register') }}
+        <i class="fas fa-paper-plane me-1"></i>{{ __('Create Account & Register') }}
       </button>
     </div>
   </form>

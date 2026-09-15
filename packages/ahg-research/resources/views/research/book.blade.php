@@ -73,7 +73,7 @@
 
     {{-- Date & Time --}}
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clock me-2"></i>{{ __('Date &amp; Time') }}</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clock me-2"></i>{{ __('Date & Time') }}</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">

@@ -141,7 +141,7 @@
                   </span>
                 @endif
                 <span class="d-lg-none mx-1" aria-hidden="true">{{ __('My Tasks') }}</span>
-                <span class="visually-hidden">My Tasks{{ $spectrumBellCount > 0 ? ' (' . $spectrumBellCount . ' pending)' : '' }}</span>
+                <span class="visually-hidden">{{ $spectrumBellCount > 0 ? __('My Tasks (:count pending)', ['count' => $spectrumBellCount]) : __('My Tasks') }}</span>
               </a>
             </li>
           @endif

@@ -102,7 +102,7 @@
     {{-- ===== 2. Asset Type & Classification ===== --}}
     <div class="card mb-3">
       <div class="card-header border-primary" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-tag me-1"></i> {{ __('Asset Type &amp; Classification') }}
+        <i class="fas fa-tag me-1"></i> {{ __('Asset Type & Classification') }}
       </div>
       <div class="card-body">
         <div class="mb-3">
@@ -751,7 +751,7 @@
     {{-- ===== 14. Format Holdings & Access ===== --}}
     <div class="card mb-3">
       <div class="card-header" style="background:#6c757d;color:#fff">
-        <i class="fas fa-archive me-1"></i> {{ __('Format Holdings &amp; Access') }}
+        <i class="fas fa-archive me-1"></i> {{ __('Format Holdings & Access') }}
       </div>
       <div class="card-body">
         <p class="text-muted small">Physical formats held at institutions</p>

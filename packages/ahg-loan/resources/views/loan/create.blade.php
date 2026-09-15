@@ -245,7 +245,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="insurance-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#insurance-collapse">
-            <i class="fas fa-shield-alt me-2"></i>{{ __('Insurance &amp; Fees') }}
+            <i class="fas fa-shield-alt me-2"></i>{{ __('Insurance & Fees') }}
           </button>
         </h2>
         <div id="insurance-collapse" class="accordion-collapse collapse show" aria-labelledby="insurance-heading">

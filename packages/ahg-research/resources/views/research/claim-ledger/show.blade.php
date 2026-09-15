@@ -108,7 +108,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">{{ __('Quotations (with page references)') }}</label>
-                        <textarea name="quotations" class="form-control form-control-sm" rows="3" placeholder="{{ __('e.g. &quot;...&quot; (Author 2019, p. 42)') }}">{{ $meta->quotations ?? '' }}</textarea>
+                        <textarea name="quotations" class="form-control form-control-sm" rows="3" placeholder="{{ __('e.g. "..." (Author 2019, p. 42)') }}">{{ $meta->quotations ?? '' }}</textarea>
                     </div>
 
                     <div class="mb-3">

@@ -626,7 +626,7 @@
             </div>
 
             {{-- Condition & Status --}}
-            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition &amp; Status') }}</h6>
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition & Status') }}</h6>
             <div class="row mb-3">
               <div class="col-md-6">
                 <label class="form-label">Condition <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

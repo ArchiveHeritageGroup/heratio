@@ -3,7 +3,7 @@
     <div class="max-w-5xl mx-auto py-8 px-4">
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">{{ __('Z39.50 Client &amp; Server') }}</h1>
+                <h1 class="text-2xl font-bold text-gray-900">{{ __('Z39.50 Client & Server') }}</h1>
                 <p class="text-sm text-gray-500 mt-1">Search remote bibliographic targets and import records.</p>
             </div>
             <a href="{{ route('z3950.admin') }}"

@@ -32,7 +32,7 @@
     {{-- AI & Processing Defaults --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('AI &amp; Processing Defaults') }}</h5>
+        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('AI & Processing Defaults') }}</h5>
       </div>
       <div class="card-body">
         <p class="text-muted mb-3">These defaults are pre-selected when creating a new ingest session. Users can override per session.</p>

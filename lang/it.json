@@ -18432,5 +18432,11 @@
     "— then come back here to connect them.": "poi torna qui per collegarli.",
     "— template applied to new agreements; existing buyer agreements keep the terms they were issued under": " - modello applicato a nuovi accordi; gli accordi esistenti del compratore mantengono i termini in base ai quali sono stati emessi",
     "…or paste ONIX XML": "...oppure incolla ONIX XML",
-    "— unassigned —": " - non assegnato - "
+    "— unassigned —": " - non assegnato - ",
+    "Split & Annotate": "Dividi & Annota",
+    "Ask a question... e.g. \"photographs of District Six in the 1960s\"": "Chiedi una domanda... ad esempio \"fotografie del District Six negli anni '60\"",
+    "Venue & Team": "Luogo & Squadra",
+    "Insurance & Fees": "Assicurazione & Tariffe",
+    "Checksums & Integrity": "Checksums & Integrità",
+    "Create Account & Register": "Crea Account & Registra"
 }

@@ -226,7 +226,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>{{ __('Compliance Issues &amp; Warnings') }}</h5>
+                        <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>{{ __('Compliance Issues & Warnings') }}</h5>
                     </div>
                     <div class="card-body">
                         @if (!empty($compliance['issues']))

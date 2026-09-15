@@ -128,7 +128,7 @@
         </div>
 
         <div class="card mb-4">
-          <div class="card-header"><h5 class="mb-0">{{ __('Conditions &amp; Restrictions') }}</h5></div>
+          <div class="card-header"><h5 class="mb-0">{{ __('Conditions & Restrictions') }}</h5></div>
           <div class="card-body">
             <div class="mb-3">
               <label class="form-label">{{ __('Conditions') }}</label>

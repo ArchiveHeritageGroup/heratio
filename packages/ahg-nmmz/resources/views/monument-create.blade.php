@@ -98,7 +98,7 @@
       </div>
 
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">{{ __('Legal &amp; Protection Status') }}</h5></div>
+        <div class="card-header"><h5 class="mb-0">{{ __('Legal & Protection Status') }}</h5></div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-4">

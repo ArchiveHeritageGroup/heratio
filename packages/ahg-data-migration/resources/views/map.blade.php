@@ -135,7 +135,7 @@
   {{-- Save mapping & action buttons --}}
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <h6 class="mb-0"><i class="fas fa-save"></i> {{ __('Save Mapping &amp; Actions') }}</h6>
+      <h6 class="mb-0"><i class="fas fa-save"></i> {{ __('Save Mapping & Actions') }}</h6>
     </div>
     <div class="card-body">
       <div class="row mb-3">

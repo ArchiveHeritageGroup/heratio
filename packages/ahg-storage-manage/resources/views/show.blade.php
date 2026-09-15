@@ -210,7 +210,7 @@
         @if(!empty($extendedData['climate_controlled']) || !empty($extendedData['security_level']) || !empty($extendedData['temperature_min']))
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Environmental &amp; Security') }}</h5>
+            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Environmental & Security') }}</h5>
           </div>
           <div class="card-body">
             <dl class="row mb-0">

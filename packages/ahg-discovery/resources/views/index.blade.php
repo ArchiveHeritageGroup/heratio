@@ -23,7 +23,7 @@
           </span>
           <input type="text" name="q" id="discovery-query"
                  class="form-control border-start-0 ps-0"
-                 placeholder="{{ __('Ask a question... e.g. &quot;photographs of District Six in the 1960s&quot;') }}"
+                 placeholder="{{ __('Ask a question... e.g. "photographs of District Six in the 1960s"') }}"
                  value="{{ e($query ?? '') }}" autocomplete="off" autofocus>
           <select name="type" class="form-select" style="max-width: 200px;">
             <option value="all" {{ ($type ?? '') === 'all' ? 'selected' : '' }}>{{ __('All types') }}</option>

@@ -14,7 +14,7 @@
                     <li class="breadcrumb-item active">Checksums &amp; Integrity</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-fingerprint me-2"></i>{{ __('Checksums &amp; Integrity') }}</h1>
+            <h1><i class="fas fa-fingerprint me-2"></i>{{ __('Checksums & Integrity') }}</h1>
             <p class="text-muted">TIFF-to-PDF merge jobs, checksum coverage and fixity verification</p>
         </div>
         <div class="col-auto">

@@ -13,7 +13,7 @@
     <i class="fas fa-tags me-2"></i>{{ __('TK Labels') }}
   </a>
   <a href="{{ route('ext-rights-admin.statements') }}" class="list-group-item list-group-item-action {{ request()->routeIs('ext-rights-admin.statements') ? 'active' : '' }}">
-    <i class="fas fa-balance-scale me-2"></i>{{ __('Statements &amp; Licenses') }}
+    <i class="fas fa-balance-scale me-2"></i>{{ __('Statements & Licenses') }}
   </a>
 </div>
 

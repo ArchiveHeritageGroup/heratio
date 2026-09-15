@@ -108,7 +108,7 @@
         <div class="btn-group btn-group-sm">
           <button class="btn atom-btn-white" id="btn-auto-rows" title="{{ __('Auto-detect rows') }}"><i class="fas fa-grip-lines me-1"></i>{{ __('Auto Rows') }}</button>
           <input type="number" class="form-control form-control-sm" id="row-count" value="7" min="1" max="20" style="width:50px;" title="{{ __('Number of rows') }}">
-          <button class="btn atom-btn-white" id="btn-split-go" title="{{ __('Split into row images') }}"><i class="fas fa-cut me-1"></i>{{ __('Split &amp; Annotate') }}</button>
+          <button class="btn atom-btn-white" id="btn-split-go" title="{{ __('Split into row images') }}"><i class="fas fa-cut me-1"></i>{{ __('Split & Annotate') }}</button>
         </div>
       </div>
       <div class="col-auto ms-auto">
@@ -227,7 +227,7 @@
           <li>Load image → click <strong>{{ __('Auto Rows') }}</strong> (set row count first)</li>
           <li>Use <strong>V</strong> to drag/resize row boxes to fit entries</li>
           <li><strong>{{ __('Delete') }}</strong> empty rows, <strong>R</strong> to add missed ones</li>
-          <li>Click <strong>{{ __('Split &amp; Annotate') }}</strong> → crops each row</li>
+          <li>Click <strong>{{ __('Split & Annotate') }}</strong> → crops each row</li>
           <li>Switches to Type A → annotate each row (year + place)</li>
         </ol>
         <hr class="my-1">

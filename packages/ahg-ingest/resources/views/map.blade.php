@@ -28,7 +28,7 @@
     $requiredFields = $requiredFields ?? [];
 @endphp
 
-<h1>{{ __('Map &amp; Enrich') }}</h1>
+<h1>{{ __('Map & Enrich') }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">

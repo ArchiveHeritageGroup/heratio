@@ -39,7 +39,7 @@
     }
 @endphp
 
-<h1>{{ __('Commit &amp; Report') }}</h1>
+<h1>{{ __('Commit & Report') }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">

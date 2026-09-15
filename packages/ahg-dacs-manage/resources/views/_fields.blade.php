@@ -73,7 +73,7 @@
     {{-- Dates / Creators --}}
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dates">{{ __('Dates &amp; creators') }}</button>
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dates">{{ __('Dates & creators') }}</button>
       </h2>
       <div id="dates" class="accordion-collapse collapse">
         <div class="accordion-body">
@@ -170,7 +170,7 @@
             <p class="text-muted">{{ $materialScripts->isNotEmpty() ? $materialScripts->implode(', ') : '-' }}</p>
           </div>
           <div class="mb-3">
-            <label class="form-label">{{ __('Language &amp; script notes') }}</label>
+            <label class="form-label">{{ __('Language & script notes') }}</label>
             <textarea name="languageNotes" class="form-control" rows="2">{{ old('languageNotes', $languageNotes) }}</textarea>
           </div>
           <div class="mb-3">

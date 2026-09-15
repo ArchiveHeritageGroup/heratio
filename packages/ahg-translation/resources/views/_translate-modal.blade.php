@@ -191,7 +191,7 @@
             <i class="fas fa-times me-1"></i>{{ __('Cancel') }}
           </button>
           <button type="button" class="btn btn-success ahg-approve-save">
-            <i class="fas fa-check me-1"></i>{{ __('Approve &amp; Save') }}
+            <i class="fas fa-check me-1"></i>{{ __('Approve & Save') }}
           </button>
         </div>
       </div>

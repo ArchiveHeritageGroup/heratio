@@ -143,7 +143,7 @@
         </div>
         <div class="list-group list-group-flush">
           <a href="{{ route('ahgmarketplace.seller-listing-edit', ['id' => $marketplaceListing->id]) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-edit me-1"></i> {{ __('Edit listing &amp; price') }}
+            <i class="fas fa-edit me-1"></i> {{ __('Edit listing & price') }}
           </a>
           <a href="{{ route('ahgmarketplace.seller-listing-images', ['id' => $marketplaceListing->id]) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-images me-1"></i> {{ __('Manage images') }}
@@ -157,7 +157,7 @@
       @else
         <div class="list-group list-group-flush">
           <a href="{{ route('ahgmarketplace.seller-listing-create', ['io' => $artwork->id]) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-tag me-1"></i> {{ __('Add to marketplace &amp; set price') }}
+            <i class="fas fa-tag me-1"></i> {{ __('Add to marketplace & set price') }}
           </a>
         </div>
       @endif

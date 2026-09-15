@@ -115,7 +115,7 @@
         </div>
 
         <div class="card mb-4">
-          <div class="card-header"><h5 class="mb-0">{{ __('Summary &amp; Outcomes') }}</h5></div>
+          <div class="card-header"><h5 class="mb-0">{{ __('Summary & Outcomes') }}</h5></div>
           <div class="card-body">
             <div class="mb-3">
               <label class="form-label">Summary <span class="text-danger">*</span></label>

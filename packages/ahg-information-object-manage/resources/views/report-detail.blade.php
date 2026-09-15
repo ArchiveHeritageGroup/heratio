@@ -54,7 +54,7 @@
                   <tr>
                     <th>{{ __('Identifier') }}</th>
                     <th>{{ __('Title') }}</th>
-                    <th>{{ __('Scope &amp; Content') }}</th>
+                    <th>{{ __('Scope & Content') }}</th>
                   </tr>
                 </thead>
                 <tbody>

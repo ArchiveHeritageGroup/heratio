@@ -213,7 +213,7 @@
       @if($ricProvenanceEntries->isNotEmpty())
         <div class="card mb-3">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <i class="fas fa-history me-1"></i> {{ __('Provenance &amp; Chain of Custody') }}
+            <i class="fas fa-history me-1"></i> {{ __('Provenance & Chain of Custody') }}
           </div>
           <div class="card-body px-3 py-2">
             @foreach($ricProvenanceEntries as $i => $entry)

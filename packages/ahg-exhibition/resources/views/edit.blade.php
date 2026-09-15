@@ -97,7 +97,7 @@
 
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0">{{ __('Venue &amp; Team') }}</h5>
+          <h5 class="mb-0">{{ __('Venue & Team') }}</h5>
         </div>
         <div class="card-body">
           <div class="mb-3">
@@ -120,7 +120,7 @@
 
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0">{{ __('Status &amp; Budget') }}</h5>
+          <h5 class="mb-0">{{ __('Status & Budget') }}</h5>
         </div>
         <div class="card-body">
           <div class="mb-3">

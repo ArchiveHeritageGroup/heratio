@@ -1696,7 +1696,7 @@
                   aria-expanded="false" aria-controls="collapse-physical-location"
                   style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
             Item Physical Location
-            <span class="cco-chapter">{{ __('Storage &amp; Access') }}</span>
+            <span class="cco-chapter">{{ __('Storage & Access') }}</span>
           </button>
         </h2>
         <div id="collapse-physical-location" class="accordion-collapse collapse" aria-labelledby="heading-physical-location">
@@ -1763,7 +1763,7 @@
               </div>
             </div>
 
-            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition &amp; Status') }}</h6>
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition & Status') }}</h6>
             <div class="row mb-3">
               <div class="col-md-3">
                 <label class="form-label">Condition <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

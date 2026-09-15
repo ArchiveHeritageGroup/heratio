@@ -32,7 +32,7 @@
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1>{{ __('Storylines &amp; Narratives') }}</h1>
+      <h1>{{ __('Storylines & Narratives') }}</h1>
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStorylineModal">
         <i class="fas fa-plus"></i> {{ __('Create Storyline') }}
       </button>

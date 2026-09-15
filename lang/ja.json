@@ -11880,5 +11880,8 @@
     "— select —": " - 選択 - ",
     "— unassigned —": " - 未割当 - ",
     "— then come back here to connect them.": " - その後、ここに戻ってきて接続してください。",
-    "…or paste ONIX XML": "…またはONIX XMLを貼り付け"
+    "…or paste ONIX XML": "…またはONIX XMLを貼り付け",
+    "Language & script notes": "言語 & スクリプトに関する注意事項",
+    "Condition & Risk": "条件 & リスク",
+    "Insurance & Fees": "保険 & 手数料"
 }
