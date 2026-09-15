@@ -129,7 +129,10 @@
         },
         "he": {
             "credit": "(empty in AtoM upstream — needs translator)",
-            "primary_source": "placeholder"
+            "primary_source": "placeholder",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 15376,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "hr": {
             "credit": "AtoM / Artefactual community",
