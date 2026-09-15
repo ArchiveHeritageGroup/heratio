@@ -651,5 +651,12 @@
     "Record the names and where useful the editions or publication dates of the conventions or rules applied.": "Record the names and where useful the editions or publication dates of the conventions or rules applied.",
     "Record the sources consulted in establishing the authority record.": "Record the sources consulted in establishing the authority record.",
     "Record the date the authority record was created and the dates of any revisions to the record.": "Record the date the authority record was created and the dates of any revisions to the record.",
-    "Link this donor to archival description records. Type at least 2 characters to search.": "Link this donor to archival description records. Type at least 2 characters to search."
+    "Link this donor to archival description records. Type at least 2 characters to search.": "Link this donor to archival description records. Type at least 2 characters to search.",
+    "Add %1%": "%1% இணை",
+    "Grant": "வழங்கு",
+    "Deny": "மறு",
+    "Inherit": "மரபுரிமம்?",
+    "Permissions for all %1%": "அனைத்து %1% அனுமதிகள்",
+    "Permissions by %1%": "%1% ஆல் அனுமதிகள்",
+    "Add permissions by %1%": "%1% ஆல் அனுமதிகளை இணை"
 }
