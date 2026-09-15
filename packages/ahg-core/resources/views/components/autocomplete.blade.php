@@ -33,13 +33,13 @@
 @php
     $acId            = 'ac-' . str_replace(['[', ']', '.'], '-', $name) . '-' . uniqid();
     $acName          = $name;
-    $acLabel         = $label ?? '';
+    $acLabel         = ($label ?? '') !== '' ? __($label) : '';
     $acRoute         = $route ?? '';
     $acValue         = $value ?? '';
     $acDisplayValue  = $displayValue ?? '';
-    $acPlaceholder   = $placeholder ?? 'Type to search...';
+    $acPlaceholder   = __($placeholder ?? 'Type to search...');
     $acRequired      = $required ?? false;
-    $acHelpText      = $helpText ?? '';
+    $acHelpText      = ($helpText ?? '') !== '' ? __($helpText) : '';
     $acMinChars      = $minChars ?? 2;
     $acQueryParam    = $queryParam ?? 'query';
     $acIdField       = $idField ?? 'id';

@@ -390,6 +390,11 @@
             "mt_batch_last_run": "2026-08-04",
             "mt_batch_count": 13155,
             "mt_engine": "nllb-200-distilled-600M"
+        },
+        "uk": {
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 18966,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         }
     }
 }
