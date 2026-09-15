@@ -104,7 +104,10 @@
         "fa": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 18408,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "fil": {
             "credit": "(empty in AtoM upstream — needs translator)",
@@ -261,7 +264,10 @@
         "ro": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 17994,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "ru": {
             "credit": "AtoM / Artefactual community",
