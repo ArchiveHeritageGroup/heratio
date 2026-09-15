@@ -1,6 +1,6 @@
 @extends('theme::layouts.2col')
 
-@section('title', 'CCO Cataloguing')
+@section('title', __('CCO Cataloguing'))
 @section('body-class', ($isNew ? 'create' : 'edit') . ' museum')
 
 @section('sidebar')
@@ -37,13 +37,13 @@
       </div>
       <span class="completeness-value" id="completeness-value">0%</span>
     </div>
-    <p class="help-text">Fill all required and recommended fields for complete cataloguing.</p>
+    <p class="help-text">{{ __('Fill all required and recommended fields for complete cataloguing.') }}</p>
   </section>
 
   <!-- CCO Reference -->
   <section id="cco-reference" class="sidebar-section">
     <h4>{{ __('CCO Reference') }}</h4>
-    <p class="small">This form follows the Cataloguing Cultural Objects (CCO) standard.</p>
+    <p class="small">{{ __('This form follows the Cataloguing Cultural Objects (CCO) standard.') }}</p>
     <a href="http://cco.vrafoundation.org/" target="_blank" class="btn btn-sm btn-cco-guide">
       <i class="fas fa-external-link-alt"></i> {{ __('CCO Guide') }}
     </a>
@@ -53,9 +53,9 @@
   <section id="field-legend" class="sidebar-section">
     <h4>{{ __('Field Legend') }}</h4>
     <ul class="legend-list">
-      <li><span class="badge badge-required">{{ __('Required') }}</span> Must be completed</li>
-      <li><span class="badge badge-recommended">{{ __('Recommended') }}</span> Should be completed</li>
-      <li><span class="badge badge-optional">{{ __('Optional') }}</span> Complete if applicable</li>
+      <li><span class="badge badge-required">{{ __('Required') }}</span> {{ __('Must be completed') }}</li>
+      <li><span class="badge badge-recommended">{{ __('Recommended') }}</span> {{ __('Should be completed') }}</li>
+      <li><span class="badge badge-optional">{{ __('Optional') }}</span> {{ __('Complete if applicable') }}</li>
     </ul>
   </section>
 
@@ -65,7 +65,7 @@
 @section('content')
 
   <h1 class="multiline">
-    CCO Cataloguing
+    {{ __('CCO Cataloguing') }}
     <span class="sub">{{ __('Museum Object') }}</span>
   </h1>
 
@@ -103,19 +103,19 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingIdentification">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIdentification" aria-expanded="true" aria-controls="collapseIdentification">
-            Object/Work
+            {{ __('Object/Work') }}
             <span class="cco-chapter">{{ __('CCO Chapter 2') }}</span>
           </button>
         </h2>
         <div id="collapseIdentification" class="accordion-collapse collapse show" aria-labelledby="headingIdentification" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Information that identifies the work, including type, components, and count.</p>
+            <p class="category-description">{{ __('Information that identifies the work, including type, components, and count.') }}</p>
 
             {{-- work_type: required, CCO 2.1, vocab AAT_OBJECT_TYPES --}}
             <div class="cco-field level-required" data-field="work_type">
               <div class="field-header">
                 <label for="work_type">
-                  Work type
+                  {{ __('Work type') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -132,7 +132,7 @@
               </div>
               <div class="field-help" id="help-work_type" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">The specific kind of object or work being described. Use controlled vocabulary (AAT preferred).</p>
+                  <p class="help-text">{{ __('The specific kind of object or work being described. Use controlled vocabulary (AAT preferred).') }}</p>
                 </div>
               </div>
             </div>
@@ -141,7 +141,7 @@
             <div class="cco-field level-required" data-field="object_number">
               <div class="field-header">
                 <label for="object_number">
-                  Object number
+                  {{ __('Object number') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -163,7 +163,7 @@
               </div>
               <div class="field-help" id="help-object_number" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Unique identifier assigned by the repository.</p>
+                  <p class="help-text">{{ __('Unique identifier assigned by the repository.') }}</p>
                 </div>
               </div>
             </div>
@@ -176,19 +176,19 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingTitle">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTitle" aria-expanded="false" aria-controls="collapseTitle">
-            Titles/Names
+            {{ __('Titles/Names') }}
             <span class="cco-chapter">{{ __('CCO Chapter 3') }}</span>
           </button>
         </h2>
         <div id="collapseTitle" class="accordion-collapse collapse" aria-labelledby="headingTitle" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Titles, names, or other identifying phrases for the work.</p>
+            <p class="category-description">{{ __('Titles, names, or other identifying phrases for the work.') }}</p>
 
             {{-- title: required, CCO 3.1 --}}
             <div class="cco-field level-required" data-field="title">
               <div class="field-header">
                 <label for="title">
-                  Title
+                  {{ __('Title') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -208,7 +208,7 @@
               </div>
               <div class="field-help" id="help-title" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">The primary title of the work.</p>
+                  <p class="help-text">{{ __('The primary title of the work.') }}</p>
                 </div>
               </div>
             </div>
@@ -217,7 +217,7 @@
             <div class="cco-field level-required" data-field="title_type">
               <div class="field-header">
                 <label for="title_type">
-                  Title type
+                  {{ __('Title type') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -231,19 +231,19 @@
               </div>
               <div class="field-input">
                 <select class="form-select" id="title_type" name="title_type">
-                  <option value="repository" @selected(old('title_type', $museum->title_type ?? 'repository') === 'repository')>Repository (assigned by institution)</option>
-                  <option value="creator" @selected(old('title_type', $museum->title_type ?? '') === 'creator')>Creator (given by artist)</option>
-                  <option value="inscribed" @selected(old('title_type', $museum->title_type ?? '') === 'inscribed')>Inscribed (found on work)</option>
-                  <option value="popular" @selected(old('title_type', $museum->title_type ?? '') === 'popular')>Popular (commonly known)</option>
-                  <option value="descriptive" @selected(old('title_type', $museum->title_type ?? '') === 'descriptive')>Descriptive (based on subject)</option>
-                  <option value="former" @selected(old('title_type', $museum->title_type ?? '') === 'former')>Former (previously used)</option>
-                  <option value="translated" @selected(old('title_type', $museum->title_type ?? '') === 'translated')>Translated</option>
-                  <option value="series" @selected(old('title_type', $museum->title_type ?? '') === 'series')>Series title</option>
+                  <option value="repository" @selected(old('title_type', $museum->title_type ?? 'repository') === 'repository')>{{ __('Repository (assigned by institution)') }}</option>
+                  <option value="creator" @selected(old('title_type', $museum->title_type ?? '') === 'creator')>{{ __('Creator (given by artist)') }}</option>
+                  <option value="inscribed" @selected(old('title_type', $museum->title_type ?? '') === 'inscribed')>{{ __('Inscribed (found on work)') }}</option>
+                  <option value="popular" @selected(old('title_type', $museum->title_type ?? '') === 'popular')>{{ __('Popular (commonly known)') }}</option>
+                  <option value="descriptive" @selected(old('title_type', $museum->title_type ?? '') === 'descriptive')>{{ __('Descriptive (based on subject)') }}</option>
+                  <option value="former" @selected(old('title_type', $museum->title_type ?? '') === 'former')>{{ __('Former (previously used)') }}</option>
+                  <option value="translated" @selected(old('title_type', $museum->title_type ?? '') === 'translated')>{{ __('Translated') }}</option>
+                  <option value="series" @selected(old('title_type', $museum->title_type ?? '') === 'series')>{{ __('Series title') }}</option>
                 </select>
               </div>
               <div class="field-help" id="help-title_type" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">The source or nature of the title.</p>
+                  <p class="help-text">{{ __('The source or nature of the title.') }}</p>
                 </div>
               </div>
             </div>
@@ -256,19 +256,19 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingCreation">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreation" aria-expanded="false" aria-controls="collapseCreation">
-            Creation
+            {{ __('Creation') }}
             <span class="cco-chapter">{{ __('CCO Chapter 4') }}</span>
           </button>
         </h2>
         <div id="collapseCreation" class="accordion-collapse collapse" aria-labelledby="headingCreation" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Information about who created the work, when, and where.</p>
+            <p class="category-description">{{ __('Information about who created the work, when, and where.') }}</p>
 
             {{-- creator_display: required, CCO 4.1 --}}
             <div class="cco-field level-required" data-field="creator_display">
               <div class="field-header">
                 <label for="creator_display">
-                  Creator (Display)
+                  {{ __('Creator (Display)') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -285,7 +285,7 @@
               </div>
               <div class="field-help" id="help-creator_display" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Creator name as it should appear in displays.</p>
+                  <p class="help-text">{{ __('Creator name as it should appear in displays.') }}</p>
                 </div>
               </div>
             </div>
@@ -294,7 +294,7 @@
             <div class="cco-field level-required" data-field="creator">
               <div class="field-header">
                 <label for="creator">
-                  Creator (Authority)
+                  {{ __('Creator (Authority)') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -308,7 +308,7 @@
               </div>
               <div class="field-input">
                 <select class="form-select" id="creator" name="creator">
-                  <option value="">-- Select --</option>
+                  <option value="">{{ __('-- Select --') }}</option>
                   @foreach($creators ?? [] as $c)
                     <option value="{{ $c->id ?? $c }}" @selected(old('creator', $museum->creator ?? '') == ($c->id ?? $c))>{{ $c->name ?? $c }}</option>
                   @endforeach
@@ -316,7 +316,7 @@
               </div>
               <div class="field-help" id="help-creator" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Link to authority record. Search ULAN or local authority file.</p>
+                  <p class="help-text">{{ __('Link to authority record. Search ULAN or local authority file.') }}</p>
                 </div>
               </div>
             </div>
@@ -325,7 +325,7 @@
             <div class="cco-field level-required" data-field="creator_role">
               <div class="field-header">
                 <label for="creator_role">
-                  Creator role
+                  {{ __('Creator role') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -343,7 +343,7 @@
               </div>
               <div class="field-help" id="help-creator_role" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">The role of the creator.</p>
+                  <p class="help-text">{{ __('The role of the creator.') }}</p>
                 </div>
               </div>
             </div>
@@ -363,21 +363,21 @@
               </div>
               <div class="field-input">
                 <select class="form-select" id="attribution_qualifier" name="attribution_qualifier">
-                  <option value="" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === '')>(No qualifier - certain attribution)</option>
-                  <option value="attributed_to" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'attributed_to')>Attributed to</option>
-                  <option value="workshop_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'workshop_of')>Workshop of</option>
-                  <option value="studio_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'studio_of')>Studio of</option>
-                  <option value="circle_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'circle_of')>Circle of</option>
-                  <option value="school_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'school_of')>School of</option>
-                  <option value="follower_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'follower_of')>Follower of</option>
-                  <option value="manner_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'manner_of')>Manner of</option>
-                  <option value="after" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'after')>After</option>
-                  <option value="copy_after" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'copy_after')>Copy after</option>
+                  <option value="" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === '')>{{ __('(No qualifier - certain attribution)') }}</option>
+                  <option value="attributed_to" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'attributed_to')>{{ __('Attributed to') }}</option>
+                  <option value="workshop_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'workshop_of')>{{ __('Workshop of') }}</option>
+                  <option value="studio_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'studio_of')>{{ __('Studio of') }}</option>
+                  <option value="circle_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'circle_of')>{{ __('Circle of') }}</option>
+                  <option value="school_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'school_of')>{{ __('School of') }}</option>
+                  <option value="follower_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'follower_of')>{{ __('Follower of') }}</option>
+                  <option value="manner_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'manner_of')>{{ __('Manner of') }}</option>
+                  <option value="after" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'after')>{{ __('After') }}</option>
+                  <option value="copy_after" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'copy_after')>{{ __('Copy after') }}</option>
                 </select>
               </div>
               <div class="field-help" id="help-attribution_qualifier" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Qualifies degree of certainty about attribution.</p>
+                  <p class="help-text">{{ __('Qualifies degree of certainty about attribution.') }}</p>
                 </div>
               </div>
             </div>
@@ -386,7 +386,7 @@
             <div class="cco-field level-required" data-field="creation_date_display">
               <div class="field-header">
                 <label for="creation_date_display">
-                  Creation date (display)
+                  {{ __('Creation date (display)') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -403,7 +403,7 @@
               </div>
               <div class="field-help" id="help-creation_date_display" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Date as it should appear in displays.</p>
+                  <p class="help-text">{{ __('Date as it should appear in displays.') }}</p>
                 </div>
               </div>
             </div>
@@ -428,7 +428,7 @@
                   </div>
                   <div class="field-help" id="help-creation_date_earliest" style="display: none;">
                     <div class="help-content">
-                      <p class="help-text">Earliest possible creation date.</p>
+                      <p class="help-text">{{ __('Earliest possible creation date.') }}</p>
                     </div>
                   </div>
                 </div>
@@ -451,7 +451,7 @@
                   </div>
                   <div class="field-help" id="help-creation_date_latest" style="display: none;">
                     <div class="help-content">
-                      <p class="help-text">Latest possible creation date.</p>
+                      <p class="help-text">{{ __('Latest possible creation date.') }}</p>
                     </div>
                   </div>
                 </div>
@@ -477,7 +477,7 @@
               </div>
               <div class="field-help" id="help-creation_place" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Geographic location where the object was created.</p>
+                  <p class="help-text">{{ __('Geographic location where the object was created.') }}</p>
                 </div>
               </div>
             </div>
@@ -501,7 +501,7 @@
               </div>
               <div class="field-help" id="help-culture" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Cultural, ethnic, or national group.</p>
+                  <p class="help-text">{{ __('Cultural, ethnic, or national group.') }}</p>
                 </div>
               </div>
             </div>
@@ -514,13 +514,13 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingStyles">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStyles" aria-expanded="false" aria-controls="collapseStyles">
-            Styles/Periods
+            {{ __('Styles/Periods') }}
             <span class="cco-chapter">{{ __('CCO Chapter 5') }}</span>
           </button>
         </h2>
         <div id="collapseStyles" class="accordion-collapse collapse" aria-labelledby="headingStyles" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Style, period, group, school, or movement.</p>
+            <p class="category-description">{{ __('Style, period, group, school, or movement.') }}</p>
 
             {{-- style: optional, CCO 5.1, vocab AAT_STYLES --}}
             <div class="cco-field level-recommended" data-field="style">
@@ -541,7 +541,7 @@
               </div>
               <div class="field-help" id="help-style" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Artistic style or movement.</p>
+                  <p class="help-text">{{ __('Artistic style or movement.') }}</p>
                 </div>
               </div>
             </div>
@@ -565,7 +565,7 @@
               </div>
               <div class="field-help" id="help-period" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Historical or stylistic period.</p>
+                  <p class="help-text">{{ __('Historical or stylistic period.') }}</p>
                 </div>
               </div>
             </div>
@@ -578,19 +578,19 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingMeasurements">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMeasurements" aria-expanded="false" aria-controls="collapseMeasurements">
-            Measurements
+            {{ __('Measurements') }}
             <span class="cco-chapter">{{ __('CCO Chapter 6') }}</span>
           </button>
         </h2>
         <div id="collapseMeasurements" class="accordion-collapse collapse" aria-labelledby="headingMeasurements" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Physical dimensions and other measurements.</p>
+            <p class="category-description">{{ __('Physical dimensions and other measurements.') }}</p>
 
             {{-- dimensions_display: required, CCO 6.1 --}}
             <div class="cco-field level-required" data-field="dimensions_display">
               <div class="field-header">
                 <label for="dimensions_display">
-                  Dimensions (Display)
+                  {{ __('Dimensions (Display)') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -607,7 +607,7 @@
               </div>
               <div class="field-help" id="help-dimensions_display" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Dimensions as displayed. Format: H &times; W &times; D (unit).</p>
+                  <p class="help-text">{{ __('Dimensions as displayed. Format: H × W × D (unit).') }}</p>
                 </div>
               </div>
             </div>
@@ -632,7 +632,7 @@
                   </div>
                   <div class="field-help" id="help-height_value" style="display: none;">
                     <div class="help-content">
-                      <p class="help-text">Height in centimeters.</p>
+                      <p class="help-text">{{ __('Height in centimeters.') }}</p>
                     </div>
                   </div>
                 </div>
@@ -655,7 +655,7 @@
                   </div>
                   <div class="field-help" id="help-width_value" style="display: none;">
                     <div class="help-content">
-                      <p class="help-text">Width in centimeters.</p>
+                      <p class="help-text">{{ __('Width in centimeters.') }}</p>
                     </div>
                   </div>
                 </div>
@@ -678,7 +678,7 @@
                   </div>
                   <div class="field-help" id="help-depth_value" style="display: none;">
                     <div class="help-content">
-                      <p class="help-text">Depth in centimeters.</p>
+                      <p class="help-text">{{ __('Depth in centimeters.') }}</p>
                     </div>
                   </div>
                 </div>
@@ -693,19 +693,19 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingMaterials">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMaterials" aria-expanded="false" aria-controls="collapseMaterials">
-            Materials/Techniques
+            {{ __('Materials/Techniques') }}
             <span class="cco-chapter">{{ __('CCO Chapter 7') }}</span>
           </button>
         </h2>
         <div id="collapseMaterials" class="accordion-collapse collapse" aria-labelledby="headingMaterials" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Physical materials and techniques used to create the work.</p>
+            <p class="category-description">{{ __('Physical materials and techniques used to create the work.') }}</p>
 
             {{-- materials_display: required, CCO 7.1 --}}
             <div class="cco-field level-required" data-field="materials_display">
               <div class="field-header">
                 <label for="materials_display">
-                  Medium (Display)
+                  {{ __('Medium (Display)') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -722,7 +722,7 @@
               </div>
               <div class="field-help" id="help-materials_display" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Materials/medium as displayed.</p>
+                  <p class="help-text">{{ __('Materials/medium as displayed.') }}</p>
                 </div>
               </div>
             </div>
@@ -745,7 +745,7 @@
               </div>
               <div class="field-help" id="help-materials" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Individual materials for indexing.</p>
+                  <p class="help-text">{{ __('Individual materials for indexing.') }}</p>
                 </div>
               </div>
             </div>
@@ -768,7 +768,7 @@
               </div>
               <div class="field-help" id="help-techniques" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Production techniques.</p>
+                  <p class="help-text">{{ __('Production techniques.') }}</p>
                 </div>
               </div>
             </div>
@@ -777,7 +777,7 @@
             <div class="cco-field level-required" data-field="support">
               <div class="field-header">
                 <label for="support">
-                  Support
+                  {{ __('Support') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -795,7 +795,7 @@
               </div>
               <div class="field-help" id="help-support" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">The base material on which the work is executed.</p>
+                  <p class="help-text">{{ __('The base material on which the work is executed.') }}</p>
                 </div>
               </div>
             </div>
@@ -808,13 +808,13 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingSubject">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubject" aria-expanded="false" aria-controls="collapseSubject">
-            Subject Matter
+            {{ __('Subject Matter') }}
             <span class="cco-chapter">{{ __('CCO Chapter 8') }}</span>
           </button>
         </h2>
         <div id="collapseSubject" class="accordion-collapse collapse" aria-labelledby="headingSubject" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">What the work represents or depicts.</p>
+            <p class="category-description">{{ __('What the work represents or depicts.') }}</p>
 
             {{-- subject_display: optional, CCO 8.1 --}}
             <div class="cco-field level-recommended" data-field="subject_display">
@@ -833,7 +833,7 @@
               </div>
               <div class="field-help" id="help-subject_display" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Brief description of what is depicted or represented.</p>
+                  <p class="help-text">{{ __('Brief description of what is depicted or represented.') }}</p>
                 </div>
               </div>
             </div>
@@ -857,7 +857,7 @@
               </div>
               <div class="field-help" id="help-subjects_depicted" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Subjects shown in the work.</p>
+                  <p class="help-text">{{ __('Subjects shown in the work.') }}</p>
                 </div>
               </div>
             </div>
@@ -870,13 +870,13 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingInscriptions">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInscriptions" aria-expanded="false" aria-controls="collapseInscriptions">
-            Inscriptions
+            {{ __('Inscriptions') }}
             <span class="cco-chapter">{{ __('CCO Chapter 9') }}</span>
           </button>
         </h2>
         <div id="collapseInscriptions" class="accordion-collapse collapse" aria-labelledby="headingInscriptions" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Marks, inscriptions, and signatures on the work.</p>
+            <p class="category-description">{{ __('Marks, inscriptions, and signatures on the work.') }}</p>
 
             {{-- inscriptions: optional, CCO 9.1 --}}
             <div class="cco-field level-optional" data-field="inscriptions">
@@ -895,7 +895,7 @@
               </div>
               <div class="field-help" id="help-inscriptions" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Any writing, marks, or labels on the work.</p>
+                  <p class="help-text">{{ __('Any writing, marks, or labels on the work.') }}</p>
                 </div>
               </div>
             </div>
@@ -917,7 +917,7 @@
               </div>
               <div class="field-help" id="help-signature" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Artist signature details.</p>
+                  <p class="help-text">{{ __('Artist signature details.') }}</p>
                 </div>
               </div>
             </div>
@@ -930,13 +930,13 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingDescription">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="false" aria-controls="collapseDescription">
-            Description
+            {{ __('Description') }}
             <span class="cco-chapter">{{ __('CCO Chapter 11') }}</span>
           </button>
         </h2>
         <div id="collapseDescription" class="accordion-collapse collapse" aria-labelledby="headingDescription" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Descriptive text about the work.</p>
+            <p class="category-description">{{ __('Descriptive text about the work.') }}</p>
 
             {{-- description: optional, CCO 11.1 --}}
             <div class="cco-field level-recommended" data-field="description">
@@ -955,7 +955,7 @@
               </div>
               <div class="field-help" id="help-description" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">A narrative description of the work.</p>
+                  <p class="help-text">{{ __('A narrative description of the work.') }}</p>
                 </div>
               </div>
             </div>
@@ -968,13 +968,13 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingCondition">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCondition" aria-expanded="false" aria-controls="collapseCondition">
-            Condition
+            {{ __('Condition') }}
             <span class="cco-chapter">{{ __('CCO Chapter 12') }}</span>
           </button>
         </h2>
         <div id="collapseCondition" class="accordion-collapse collapse" aria-labelledby="headingCondition" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Current physical condition.</p>
+            <p class="category-description">{{ __('Current physical condition.') }}</p>
 
             {{-- condition_summary: optional, CCO 12.1 --}}
             <div class="cco-field level-recommended" data-field="condition_summary">
@@ -990,15 +990,15 @@
               </div>
               <div class="field-input">
                 <select class="form-select" id="condition_summary" name="condition_summary">
-                  <option value="">-- Select --</option>
+                  <option value="">{{ __('-- Select --') }}</option>
                   @foreach(['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'needs conservation' => 'Needs conservation'] as $val => $label)
-                    <option value="{{ $val }}" @selected(old('condition_summary', $museum->condition_summary ?? '') == $val)>{{ $label }}</option>
+                    <option value="{{ $val }}" @selected(old('condition_summary', $museum->condition_summary ?? '') == $val)>{{ __($label) }}</option>
                   @endforeach
                 </select>
               </div>
               <div class="field-help" id="help-condition_summary" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Brief overall condition assessment.</p>
+                  <p class="help-text">{{ __('Brief overall condition assessment.') }}</p>
                 </div>
               </div>
             </div>
@@ -1011,19 +1011,19 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingProvenance">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProvenance" aria-expanded="false" aria-controls="collapseProvenance">
-            Current Location
+            {{ __('Current Location') }}
             <span class="cco-chapter">{{ __('CCO Chapter 13') }}</span>
           </button>
         </h2>
         <div id="collapseProvenance" class="accordion-collapse collapse" aria-labelledby="headingProvenance" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Where the work is currently held.</p>
+            <p class="category-description">{{ __('Where the work is currently held.') }}</p>
 
             {{-- repository: required, CCO 13.1 --}}
             <div class="cco-field level-required" data-field="repository">
               <div class="field-header">
                 <label for="repository">
-                  Repository
+                  {{ __('Repository') }}
                   <span class="required">*</span>
                 </label>
                 <span class="field-badges">
@@ -1036,7 +1036,7 @@
               </div>
               <div class="field-input">
                 <select class="form-select" id="repository" name="repository">
-                  <option value="">-- Select --</option>
+                  <option value="">{{ __('-- Select --') }}</option>
                   @foreach($repositories ?? [] as $repo)
                     <option value="{{ $repo->id }}" @selected(old('repository', $museum->repository_id ?? $museum->repository ?? '') == $repo->id)>{{ $repo->name }}</option>
                   @endforeach
@@ -1044,7 +1044,7 @@
               </div>
               <div class="field-help" id="help-repository" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">The institution that holds the work.</p>
+                  <p class="help-text">{{ __('The institution that holds the work.') }}</p>
                 </div>
               </div>
             </div>
@@ -1067,7 +1067,7 @@
               </div>
               <div class="field-help" id="help-location_within_repository" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Specific location within the repository.</p>
+                  <p class="help-text">{{ __('Specific location within the repository.') }}</p>
                 </div>
               </div>
             </div>
@@ -1090,7 +1090,7 @@
               </div>
               <div class="field-help" id="help-credit_line" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Standard credit text for publications and labels.</p>
+                  <p class="help-text">{{ __('Standard credit text for publications and labels.') }}</p>
                 </div>
               </div>
             </div>
@@ -1103,13 +1103,13 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingRelated">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRelated" aria-expanded="false" aria-controls="collapseRelated">
-            Related Works
+            {{ __('Related Works') }}
             <span class="cco-chapter">{{ __('CCO Chapter 14') }}</span>
           </button>
         </h2>
         <div id="collapseRelated" class="accordion-collapse collapse" aria-labelledby="headingRelated" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Relationships to other works.</p>
+            <p class="category-description">{{ __('Relationships to other works.') }}</p>
           </div>
         </div>
       </div>
@@ -1118,13 +1118,13 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingCataloging">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCataloging" aria-expanded="false" aria-controls="collapseCataloging">
-            Rights
+            {{ __('Rights') }}
             <span class="cco-chapter">{{ __('CCO Chapter 15') }}</span>
           </button>
         </h2>
         <div id="collapseCataloging" class="accordion-collapse collapse" aria-labelledby="headingCataloging" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
-            <p class="category-description">Rights and reproduction information.</p>
+            <p class="category-description">{{ __('Rights and reproduction information.') }}</p>
 
             {{-- rights_statement: optional, CCO 15.1 --}}
             <div class="cco-field level-recommended" data-field="rights_statement">
@@ -1143,7 +1143,7 @@
               </div>
               <div class="field-help" id="help-rights_statement" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Copyright status and usage rights.</p>
+                  <p class="help-text">{{ __('Copyright status and usage rights.') }}</p>
                 </div>
               </div>
             </div>
@@ -1189,7 +1189,7 @@
                   data-bs-toggle="collapse" data-bs-target="#collapse-physical-location"
                   aria-expanded="false" aria-controls="collapse-physical-location"
                   style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
-            Item Physical Location
+            {{ __('Item Physical Location') }}
             <span class="cco-chapter">{{ __('Storage & Access') }}</span>
           </button>
         </h2>
@@ -1200,7 +1200,7 @@
               <div class="col-md-6">
                 <label class="form-label">{{ __('Storage container') }}</label>
                 <select name="item_physical_object_id" class="form-select">
-                  <option value="">-- Select container --</option>
+                  <option value="">{{ __('-- Select container --') }}</option>
                   @foreach($physicalObjects ?? [] as $poId => $poName)
                     <option value="{{ $poId }}" @selected(old('item_physical_object_id', $itemLocation['physical_object_id'] ?? '') == $poId)>{{ $poName }}</option>
                   @endforeach
@@ -1249,9 +1249,9 @@
               <div class="col-md-3">
                 <label class="form-label">{{ __('Extent unit') }}</label>
                 <select name="item_extent_unit" class="form-select">
-                  <option value="">-- Select --</option>
+                  <option value="">{{ __('-- Select --') }}</option>
                   @foreach(['items' => 'Items', 'pages' => 'Pages', 'folders' => 'Folders', 'boxes' => 'Boxes', 'cm' => 'cm', 'm' => 'metres', 'cubic_m' => 'cubic metres'] as $val => $label)
-                    <option value="{{ $val }}" @selected(old('item_extent_unit', $itemLocation['extent_unit'] ?? '') == $val)>{{ $label }}</option>
+                    <option value="{{ $val }}" @selected(old('item_extent_unit', $itemLocation['extent_unit'] ?? '') == $val)>{{ __($label) }}</option>
                   @endforeach
                 </select>
               </div>
@@ -1262,9 +1262,9 @@
               <div class="col-md-3">
                 <label class="form-label">{{ __('Condition') }}</label>
                 <select name="item_condition_status" class="form-select">
-                  <option value="">-- Select --</option>
+                  <option value="">{{ __('-- Select --') }}</option>
                   @foreach(['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'critical' => 'Critical'] as $val => $label)
-                    <option value="{{ $val }}" @selected(old('item_condition_status', $itemLocation['condition_status'] ?? '') == $val)>{{ $label }}</option>
+                    <option value="{{ $val }}" @selected(old('item_condition_status', $itemLocation['condition_status'] ?? '') == $val)>{{ __($label) }}</option>
                   @endforeach
                 </select>
               </div>
@@ -1272,7 +1272,7 @@
                 <label class="form-label">{{ __('Access status') }}</label>
                 <select name="item_access_status" class="form-select">
                   @foreach(['available' => 'Available', 'in_use' => 'In Use', 'restricted' => 'Restricted', 'offsite' => 'Offsite', 'missing' => 'Missing'] as $val => $label)
-                    <option value="{{ $val }}" @selected(old('item_access_status', $itemLocation['access_status'] ?? 'available') == $val)>{{ $label }}</option>
+                    <option value="{{ $val }}" @selected(old('item_access_status', $itemLocation['access_status'] ?? 'available') == $val)>{{ __($label) }}</option>
                   @endforeach
                 </select>
               </div>
@@ -1302,7 +1302,7 @@
                   data-bs-toggle="collapse" data-bs-target="#collapse-watermark"
                   aria-expanded="false" aria-controls="collapse-watermark"
                   style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
-            Watermark Settings
+            {{ __('Watermark Settings') }}
             <span class="cco-chapter">{{ __('Digital Protection') }}</span>
           </button>
         </h2>
@@ -1362,7 +1362,7 @@
                   <label>{{ __('Upload NEW Custom Watermark') }}</label>
                   <span class="field-badges"><span class="badge badge-optional">{{ __('Optional') }}</span></span>
                 </div>
-                <p class="text-muted small">Leave empty to keep existing selection above</p>
+                <p class="text-muted small">{{ __('Leave empty to keep existing selection above') }}</p>
 
                 <div class="row g-3">
                   <div class="col-md-6">
@@ -1374,7 +1374,7 @@
                     <label for="new_watermark_file" class="form-label">{{ __('Watermark Image') }}</label>
                     <input type="file" class="form-control" id="new_watermark_file"
                            name="new_watermark_file" accept="image/png,image/gif">
-                    <div class="form-text">PNG or GIF with transparency recommended</div>
+                    <div class="form-text">{{ __('PNG or GIF with transparency recommended') }}</div>
                   </div>
                 </div>
 
@@ -1384,14 +1384,14 @@
                     @php $wmPosition = old('new_watermark_position', $watermarkSetting->position ?? 'center'); @endphp
                     <select name="new_watermark_position" id="new_watermark_position" class="form-select">
                       @foreach(['center' => 'Center', 'top left' => 'Top Left', 'top center' => 'Top Center', 'top right' => 'Top Right', 'left center' => 'Left Center', 'right center' => 'Right Center', 'bottom left' => 'Bottom Left', 'bottom center' => 'Bottom Center', 'bottom right' => 'Bottom Right', 'repeat' => 'Repeat/Tile'] as $val => $label)
-                        <option value="{{ $val }}" @selected($wmPosition == $val)>{{ $label }}</option>
+                        <option value="{{ $val }}" @selected($wmPosition == $val)>{{ __($label) }}</option>
                       @endforeach
                     </select>
                   </div>
                   <div class="col-md-6">
                     @php $wmOpacity = old('new_watermark_opacity', round(($watermarkSetting->opacity ?? 0.4) * 100)); @endphp
                     <label for="new_watermark_opacity" class="form-label">
-                      Opacity: <span id="opacity-value">{{ $wmOpacity }}%</span></label>
+                      {{ __('Opacity:') }} <span id="opacity-value">{{ $wmOpacity }}%</span></label>
                     <input type="range" class="form-range" id="new_watermark_opacity"
                            name="new_watermark_opacity" min="10" max="100" step="5"
                            value="{{ $wmOpacity }}">
@@ -1402,7 +1402,7 @@
                   <input class="form-check-input" type="checkbox" id="new_watermark_global"
                          name="new_watermark_global" value="1">
                   <label class="form-check-label" for="new_watermark_global">
-                    Make available globally (for all records)
+                    {{ __('Make available globally (for all records)') }}
                   </label>
                 </div>
               </div>
@@ -1414,7 +1414,7 @@
                   <label class="form-check-label" for="regenerate_watermark">
                     <strong>{{ __('Regenerate derivatives with new watermark') }}</strong>
                   </label>
-                  <div class="form-text">Check this to apply the new watermark to existing images. This may take a moment.</div>
+                  <div class="form-text">{{ __('Check this to apply the new watermark to existing images. This may take a moment.') }}</div>
                 </div>
               </div>
 
@@ -1468,7 +1468,7 @@
                     <input type="checkbox" class="form-check-input" id="displayStandardUpdateDescendants"
                            name="displayStandardUpdateDescendants" value="1">
                     <label class="form-check-label" for="displayStandardUpdateDescendants">
-                      Make this selection the new default for existing children
+                      {{ __('Make this selection the new default for existing children') }}
                     </label>
                   </div>
                 </div>
@@ -1482,9 +1482,9 @@
     <section class="actions">
       <ul>
         @if(!$isNew)
-          <li><a href="{{ route('museum.show', $museum->slug) }}" class="btn atom-btn-outline-light">Cancel</a></li>
+          <li><a href="{{ route('museum.show', $museum->slug) }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a></li>
         @else
-          <li><a href="{{ route('museum.browse') }}" class="btn atom-btn-outline-light">Cancel</a></li>
+          <li><a href="{{ route('museum.browse') }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a></li>
         @endif
         <li><input type="submit" class="btn atom-btn-outline-success" value="Save"></li>
       </ul>
