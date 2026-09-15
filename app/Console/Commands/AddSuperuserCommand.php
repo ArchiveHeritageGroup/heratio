@@ -50,9 +50,13 @@ class AddSuperuserCommand extends Command
             ]);
 
             // 2. Insert into actor table
+            // source_culture is NOT NULL with no default, and parent_id 6 is where
+            // every existing admin's actor row hangs; without both the insert fails.
             DB::table('actor')->insert([
                 'id' => $objectId,
                 'entity_type_id' => null,
+                'parent_id' => 6,
+                'source_culture' => 'en',
             ]);
 
             // 3. Insert into actor_i18n table

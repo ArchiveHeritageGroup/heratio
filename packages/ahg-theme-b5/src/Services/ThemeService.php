@@ -67,7 +67,7 @@ class ThemeService
             'enabledPlugins' => $enabledPlugins,
             'enabledPluginMap' => array_flip($enabledPlugins),
             'userGroups' => $user ? AclService::getUserGroups($user->id) : [],
-            'footerText' => AhgSettingsService::get('ahg_footer_text', ''),
+            'footerText' => AhgSettingsService::getLocalized('ahg_footer_text', ''),
             'showBranding' => AhgSettingsService::getBool('ahg_show_branding', true),
             'vendorJsBundle' => $this->findBundle('js', 'vendor.bundle.*.js'),
             'themeJsBundle' => $this->findBundle('js', 'ahgThemeB5Plugin.bundle.*.js'),
@@ -89,12 +89,15 @@ class ThemeService
                 return $default;
             }
 
-            $i18n = DB::table('setting_i18n')
+            // Current UI language first (site title/description are translated
+            // per culture in setting_i18n), then the English source.
+            $values = DB::table('setting_i18n')
                 ->where('id', $setting->id)
-                ->where('culture', 'en')
-                ->first();
+                ->whereIn('culture', array_unique([app()->getLocale(), 'en']))
+                ->pluck('value', 'culture');
+            $value = $values[app()->getLocale()] ?? null;
 
-            return $i18n?->value ?? $default;
+            return ($value !== null && $value !== '') ? $value : ($values['en'] ?? $default);
         } catch (\Exception $e) {
             return $default;
         }

@@ -57,6 +57,21 @@ class AhgSettingsService
     }
 
     /**
+     * Get a user-facing text setting in the current UI language.
+     *
+     * Reads "<key>_<locale>" (e.g. ahg_footer_disclaimer_ar) and falls back to
+     * the base key when that variant is absent or empty, so an untranslated
+     * locale shows the source text rather than nothing.
+     */
+    public static function getLocalized(string $key, $default = null, ?string $locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        $value = $locale && $locale !== 'en' ? self::get($key.'_'.$locale) : null;
+
+        return ($value !== null && $value !== '') ? $value : self::get($key, $default);
+    }
+
+    /**
      * Get a boolean setting.
      */
     public static function getBool(string $key, bool $default = false): bool

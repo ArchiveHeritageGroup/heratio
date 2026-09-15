@@ -1,12 +1,12 @@
 @php
   use AhgCore\Services\AhgSettingsService;
-  $ftDisclaimer = AhgSettingsService::get('ahg_footer_disclaimer', '');
-  $ftSystemName = AhgSettingsService::get('ahg_footer_system_name', '');
+  $ftDisclaimer = AhgSettingsService::getLocalized('ahg_footer_disclaimer', '');
+  $ftSystemName = AhgSettingsService::getLocalized('ahg_footer_system_name', '');
   $ftOrgName = AhgSettingsService::get('ahg_footer_org_name', config('app.name', 'Heratio'));
   $ftOrgUrl = AhgSettingsService::get('ahg_footer_org_url', '');
   $ftStandards = AhgSettingsService::get('ahg_footer_standards', '');
-  $ftLinks = AhgSettingsService::get('ahg_footer_links', '');
-  $ftUtilityLinks = AhgSettingsService::get('ahg_footer_utility_links', '');
+  $ftLinks = AhgSettingsService::getLocalized('ahg_footer_links', '');
+  $ftUtilityLinks = AhgSettingsService::getLocalized('ahg_footer_utility_links', '');
   $ftCopyrightStart = AhgSettingsService::get('ahg_footer_copyright', date('Y'));
   $ftCustomText = $themeData['footerText'] ?? '';
   $version = '';
@@ -67,7 +67,7 @@
       {{-- Right: Copyright & utility --}}
       <div class="col-md-4 text-md-end">
         <div class="small">
-          &copy; {{ $ftCopyrightStart }}{!! $ftCopyrightStart != date('Y') ? '-' . date('Y') : '' !!} {{ $ftOrgName }}. All rights reserved.
+          &copy; {{ $ftCopyrightStart }}{!! $ftCopyrightStart != date('Y') ? '-' . date('Y') : '' !!} {{ $ftOrgName }}. {{ __('All rights reserved.') }}
         </div>
 
         @if($ftUtilityLinks)
@@ -86,7 +86,7 @@
         @if($themeData['showBranding'] ?? true)
           <div class="mt-1 text-white-50">
             @if($ftCustomText){{ $ftCustomText }} &middot; @endif
-            Powered by <strong>Heratio</strong>{{ $version ? ' v' . $version : '' }}
+            {{ __('Powered by') }} <strong>Heratio</strong>{{ $version ? ' v' . $version : '' }}
           </div>
         @elseif($ftCustomText)
           <div class="mt-1 text-white-50">{{ $ftCustomText }}</div>
@@ -98,11 +98,11 @@
     <hr class="border-light my-2 opacity-25">
     <div class="text-center">
       <small class="text-white-50">
-        UI translations courtesy of
-        <a href="https://www.accesstomemory.org/" target="_blank" rel="noopener" class="footer-link">AtoM</a>,
-        <a href="https://www.artefactual.com/" target="_blank" rel="noopener" class="footer-link">Artefactual Systems</a>,
-        and the AtoM community.
-        South African languages by The AHG.
+        {!! __('UI translations courtesy of :atom, :artefactual, and the AtoM community.', [
+          'atom' => '<a href="https://www.accesstomemory.org/" target="_blank" rel="noopener" class="footer-link">AtoM</a>',
+          'artefactual' => '<a href="https://www.artefactual.com/" target="_blank" rel="noopener" class="footer-link">Artefactual Systems</a>',
+        ]) !!}
+        {{ __('South African languages by The AHG.') }}
       </small>
     </div>
 

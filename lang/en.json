@@ -19446,5 +19446,9 @@
     "— then come back here to connect them.": "— then come back here to connect them.",
     "— unassigned —": "— unassigned —",
     "…": "…",
-    "…or paste ONIX XML": "…or paste ONIX XML"
+    "…or paste ONIX XML": "…or paste ONIX XML",
+    "All rights reserved.": "All rights reserved.",
+    "UI translations courtesy of :atom, :artefactual, and the AtoM community.": "UI translations courtesy of :atom, :artefactual, and the AtoM community.",
+    "South African languages by The AHG.": "South African languages by The AHG.",
+    "Footer text below is saved for the current interface language (:locale). Switch the interface language to edit another translation; English is the fallback.": "Footer text below is saved for the current interface language (:locale). Switch the interface language to edit another translation; English is the fallback."
 }

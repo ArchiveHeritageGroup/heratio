@@ -256,6 +256,9 @@
             <input type="text" class="form-control" name="ahg_footer_copyright" value="{{ $settings['ahg_footer_copyright'] ?? date('Y') }}" placeholder="2019">
           </div>
         </div>
+        @if(!empty($settingsLocale))
+          <div class="alert alert-info py-2 small">{{ __('Footer text below is saved for the current interface language (:locale). Switch the interface language to edit another translation; English is the fallback.', ['locale' => $settingsLocale]) }}</div>
+        @endif
         <div class="mb-3">
           <label class="form-label">Disclaimer <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea class="form-control" name="ahg_footer_disclaimer" rows="2" placeholder="{{ __('Research use only...') }}">{{ $settings['ahg_footer_disclaimer'] ?? '' }}</textarea>

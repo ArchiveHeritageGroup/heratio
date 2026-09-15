@@ -19114,5 +19114,9 @@
     "— template applied to new agreements; existing buyer agreements keep the terms they were issued under": " - نموذج تطبيقه على العقود الجديدة؛ العقود الحالية للمشترين تبقى تحت نفس البنود التي تم إصدارها بها",
     "— that is a separate visibility layer.": " - هذا طبقة مرئية منفصلة.",
     "— unassigned —": " - غير مُعين - ",
-    "…or paste ONIX XML": "أو لصق XML ONIX"
+    "…or paste ONIX XML": "أو لصق XML ONIX",
+    "All rights reserved.": "جميع الحقوق محفوظة.",
+    "UI translations courtesy of :atom, :artefactual, and the AtoM community.": "ترجمات الواجهة بفضل :atom و:artefactual ومجتمع AtoM.",
+    "South African languages by The AHG.": "لغات جنوب أفريقيا من The AHG.",
+    "Footer text below is saved for the current interface language (:locale). Switch the interface language to edit another translation; English is the fallback.": "يُحفظ نص التذييل أدناه للغة الواجهة الحالية (:locale). غيّر لغة الواجهة لتحرير ترجمة أخرى؛ والإنجليزية هي اللغة الاحتياطية."
 }

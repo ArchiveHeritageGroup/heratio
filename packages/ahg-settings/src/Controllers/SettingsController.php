@@ -25,6 +25,7 @@
 
 namespace AhgSettings\Controllers;
 
+use AhgCore\Services\AhgSettingsService;
 use AhgSettings\Services\SettingsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -689,9 +690,19 @@ class SettingsController extends Controller
             'ahg_muted_color', 'ahg_border_color',
         ];
 
+        // User-facing footer text is kept per language: an admin working in a
+        // non-English UI reads and saves "<key>_<locale>", which the footer picks
+        // up through AhgSettingsService::getLocalized(). English stays the base key.
+        $localizedKeys = ['ahg_footer_disclaimer', 'ahg_footer_system_name', 'ahg_footer_links', 'ahg_footer_utility_links', 'ahg_footer_text'];
+        $locale = app()->getLocale();
+        $suffix = $locale && $locale !== 'en' ? '_'.$locale : '';
+
         if ($request->isMethod('post')) {
             foreach ($themeKeys as $key) {
                 $value = $request->input($key, '');
+                if ($suffix && in_array($key, $localizedKeys, true)) {
+                    $key .= $suffix;
+                }
                 // updateOrInsert, not update: a fresh install has no ahg_settings
                 // theme rows at all, so a plain UPDATE matched nothing and every
                 // theme save silently no-op'd (regenerateThemeCss then re-emitted
@@ -717,8 +728,15 @@ class SettingsController extends Controller
         $settings = DB::table('ahg_settings')
             ->whereIn('setting_key', $themeKeys)
             ->pluck('setting_value', 'setting_key');
+        if ($suffix) {
+            // Show this language's text where it exists, otherwise the English
+            // source to translate from.
+            foreach ($localizedKeys as $key) {
+                $settings[$key] = AhgSettingsService::getLocalized($key, $settings[$key] ?? '');
+            }
+        }
 
-        return view('ahg-settings::themes', ['settings' => $settings]);
+        return view('ahg-settings::themes', ['settings' => $settings, 'settingsLocale' => $suffix ? $locale : null]);
     }
 
     /**
