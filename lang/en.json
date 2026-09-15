@@ -19806,5 +19806,12 @@
     "Very good": "Very good",
     "The copyright notice text (e.g., © Year Name).": "The copyright notice text (e.g., © Year Name).",
     "Type to search repositories...": "Type to search repositories...",
-    "Creative Commons BY": "Creative Commons BY"
+    "Creative Commons BY": "Creative Commons BY",
+    "Add new archival description": "Add new archival description",
+    "Adding child record under:": "Adding child record under:",
+    "Item - :title": "Item - :title",
+    "Language(s) of material": "Language(s) of material",
+    "Name access points (subjects)": "Name access points (subjects)",
+    "Script(s) of description": "Script(s) of description",
+    "Script(s) of material": "Script(s) of material"
 }

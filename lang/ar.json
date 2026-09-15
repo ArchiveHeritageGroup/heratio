@@ -19457,5 +19457,13 @@
     "Variant of": "نسخة مختلفة من",
     "Very good": "جيد جداً",
     "The copyright notice text (e.g., © Year Name).": "نص إشعار حقوق النشر (مثلاً © السنة الاسم).",
-    "Type to search repositories...": "اكتب للبحث في المستودعات..."
+    "Type to search repositories...": "اكتب للبحث في المستودعات...",
+    "Add new archival description": "إضافة وصف أرشيفي جديد",
+    "Adding child record under:": "إضافة سجل فرعي تحت:",
+    "Item - :title": "مادة - :title",
+    "Language(s) of material": "لغة أو لغات المادة",
+    "Name access points (subjects)": "نقاط الإتاحة للأسماء (الموضوعات)",
+    "Script(s) of description": "خط أو خطوط الوصف",
+    "Script(s) of material": "خط أو خطوط المادة",
+    "Switching the standard reshapes the fields below to that standard's element set (ISAD(G), RiC-O, DACS, RAD, MODS or Dublin Core).": "يؤدي تغيير المعيار إلى إعادة تشكيل الحقول أدناه وفق مجموعة عناصر ذلك المعيار (ISAD(G) أو RiC-O أو DACS أو RAD أو MODS أو Dublin Core)."
 }
