@@ -214,8 +214,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-09-15",
-            "mt_batch_count": 11185,
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 19797,
             "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "ka": {
@@ -469,8 +469,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-09-15",
-            "mt_batch_count": 16790,
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 19846,
             "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "zu": {
