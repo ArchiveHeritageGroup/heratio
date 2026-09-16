@@ -25,17 +25,26 @@
         "bs": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 17049,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "ca": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 17338,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "ca@valencia": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 17877,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "cs": {
             "credit": "AtoM / Artefactual community",
@@ -48,7 +57,10 @@
         "cy": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 16015,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "de": {
             "credit": "AtoM / Artefactual community",
@@ -94,12 +106,18 @@
         },
         "et": {
             "credit": "(empty in AtoM upstream — needs translator)",
-            "primary_source": "placeholder"
+            "primary_source": "placeholder",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 18412,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "eu": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 17318,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "fa": {
             "credit": "AtoM / Artefactual community",
@@ -123,12 +141,18 @@
         },
         "ga": {
             "credit": "(empty in AtoM upstream — needs translator)",
-            "primary_source": "placeholder"
+            "primary_source": "placeholder",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 17541,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "gl": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 17795,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "he": {
             "credit": "(empty in AtoM upstream — needs translator)",
@@ -140,7 +164,10 @@
         "hr": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 17116,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "hu": {
             "credit": "AtoM / Artefactual community",
@@ -161,7 +188,10 @@
         "is": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 17337,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "it": {
             "credit": "AtoM / Artefactual community",
@@ -205,11 +235,17 @@
         "mk": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 17620,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "nb": {
             "credit": "(empty in AtoM upstream — needs translator)",
-            "primary_source": "placeholder"
+            "primary_source": "placeholder",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 18314,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "nd": {
             "credit": "The Archive and Heritage Group (Pty) Ltd. Northern Ndebele / Sindebele (Zimbabwe). Native-speaker review required before production.",
@@ -279,12 +315,18 @@
         },
         "sk": {
             "credit": "(empty in AtoM upstream — needs translator)",
-            "primary_source": "placeholder"
+            "primary_source": "placeholder",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 18297,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "sl": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 17851,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "sn": {
             "credit": "The Archive and Heritage Group (Pty) Ltd. chiShona (Zimbabwe). Native-speaker review required before production.",
@@ -293,12 +335,18 @@
         },
         "sq": {
             "credit": "(empty in AtoM upstream — needs translator)",
-            "primary_source": "placeholder"
+            "primary_source": "placeholder",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 18132,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "sr": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 11668,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "ss": {
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
@@ -332,7 +380,10 @@
         "th": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 17934,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "tn": {
             "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
@@ -365,7 +416,10 @@
         },
         "ur": {
             "credit": "(empty in AtoM upstream — needs translator)",
-            "primary_source": "placeholder"
+            "primary_source": "placeholder",
+            "mt_batch_last_run": "2026-09-15",
+            "mt_batch_count": 17755,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "uz": {
             "credit": "AtoM / Artefactual community",
