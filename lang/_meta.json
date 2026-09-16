@@ -73,7 +73,10 @@
         "de_AT": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
-            "primary_source": "atom-xliff"
+            "primary_source": "atom-xliff",
+            "mt_batch_last_run": "2026-09-16",
+            "mt_batch_count": 19070,
+            "mt_batch_model": "qwen3:8b via translate-adapter"
         },
         "de_CH": {
             "credit": "AtoM / Artefactual community",
