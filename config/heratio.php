@@ -33,6 +33,21 @@ return [
     // NAS_WATCHDOG_ENABLED=false where storage is intentionally local.
     'nas_watchdog_enabled' => (bool) env('NAS_WATCHDOG_ENABLED', true),
 
+    // How long the watchdog will wait for the mount to answer, in seconds, shared
+    // across its readable + canary checks. This is a real deadline: the checks run
+    // in a child process that is abandoned when it expires, because a stat blocked
+    // in the kernel cannot be cut short from inside PHP.
+    'nas_watchdog_timeout' => (float) env('NAS_WATCHDOG_TIMEOUT', 5),
+
+    // Above this probe time the NAS is reported 'degraded' rather than 'up'. It is
+    // answering, so it is not down; it is slow enough to be worth seeing.
+    'nas_watchdog_slow_ms' => (int) env('NAS_WATCHDOG_SLOW_MS', 2000),
+
+    // Consecutive degraded ticks before the state escalates to 'down' and rings the
+    // bell. At the scheduled five-minute interval the default is a quarter of an
+    // hour of a mount that will not answer. Set 0 to disable escalation.
+    'nas_watchdog_degraded_escalate' => (int) env('NAS_WATCHDOG_DEGRADED_ESCALATE', 3),
+
     // Uploads path — independently configurable for servers where the subdir
     // name differs (e.g. "archive" on the AHG NAS vs "uploads" on a fresh install).
     'uploads_path' => env('HERATIO_UPLOADS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads'))),
