@@ -41,7 +41,8 @@ use Illuminate\Console\Command;
 class ArchiveBinaryLogsCommand extends Command
 {
     protected $signature = 'backup:archive-binlogs
-                            {--dest= : Override the destination directory (default: <backups>/binlogs)}';
+                            {--dest= : Override the destination directory (default: <backups>/binlogs)}
+                            {--max-files= : Cap how many logs one run archives (default 50; 0 = no cap)}';
 
     protected $description = 'Rotate and archive MySQL binary logs for point-in-time recovery (#671 Phase 4).';
 
@@ -51,8 +52,12 @@ class ArchiveBinaryLogsCommand extends Command
 
         $this->info("Archiving rotated binary logs to: {$dest}");
 
+        $maxFiles = $this->option('max-files') !== null
+            ? (int) $this->option('max-files')
+            : 50;
+
         try {
-            $files = $archiver->archiveRotatedLogs($dest);
+            $files = $archiver->archiveRotatedLogs($dest, $maxFiles);
         } catch (\Throwable $e) {
             $this->error('Archive failed: '.$e->getMessage());
             return self::FAILURE;

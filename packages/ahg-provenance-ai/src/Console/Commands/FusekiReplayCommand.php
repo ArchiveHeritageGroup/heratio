@@ -230,11 +230,29 @@ class FusekiReplayCommand extends Command
         // exists (Phase 3a shipped the override-as-PROV-O reified shape).
         if (class_exists(\AhgProvenanceAi\Services\OverrideService::class)) {
             $svc = app(\AhgProvenanceAi\Services\OverrideService::class);
-            if (method_exists($svc, 'buildOverrideTurtle')) {
+            $inferenceUuid = $this->inferenceUuidFor($row);
+            if (method_exists($svc, 'buildOverrideTurtle') && $inferenceUuid !== null) {
                 $ref = new \ReflectionMethod($svc, 'buildOverrideTurtle');
-                $ref->setAccessible(true);
 
-                return (string) $ref->invoke($svc, $row);
+                // The service takes six scalars, NOT the row. This used to
+                // invoke it with $row, so every override replay threw
+                // "Argument #1 ($overrideUuid) must be of type string,
+                // stdClass given" - method_exists() checks the name, not the
+                // shape. Guard on the arity so a future signature change
+                // degrades to the fallback below instead of throwing.
+                if ($ref->getNumberOfParameters() === 6) {
+                    $ref->setAccessible(true);
+
+                    return (string) $ref->invoke(
+                        $svc,
+                        (string) $row->uuid,
+                        $inferenceUuid,
+                        (string) ($row->original_value ?? ''),
+                        (string) ($row->override_value ?? ''),
+                        (int) ($row->reviewer_user_id ?? 0),
+                        isset($row->reason) ? (string) $row->reason : null
+                    );
+                }
             }
         }
         // Conservative fallback - just enough provenance for the replay
@@ -250,5 +268,23 @@ class FusekiReplayCommand extends Command
              ."<urn:{$tenant}:provenance-ai:override:{$uuid}> a prov:Activity ;\n"
              .'    prov:atTime "'.addslashes((string) $reviewedAt)."\"^^xsd:dateTime ;\n"
              .'    ex:reviewed_by "'.addslashes((string) ($row->reviewer_id ?? ''))."\" .\n";
+    }
+
+    /**
+     * ahg_ai_override stores inference_id (the FK), but OverrideService wants
+     * the inference UUID. Returns null when it cannot be resolved, so the
+     * caller uses the conservative fallback rather than minting a graph that
+     * points at nothing.
+     */
+    private function inferenceUuidFor(object $row): ?string
+    {
+        $id = $row->inference_id ?? null;
+        if ($id === null) {
+            return null;
+        }
+
+        $uuid = DB::table('ahg_ai_inference')->where('id', $id)->value('uuid');
+
+        return $uuid !== null ? (string) $uuid : null;
     }
 }

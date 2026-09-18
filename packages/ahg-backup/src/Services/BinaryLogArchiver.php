@@ -118,7 +118,7 @@ class BinaryLogArchiver
      *
      * @param string|null $destDir  Override the destination directory.
      */
-    public function archiveRotatedLogs(?string $destDir = null): array
+    public function archiveRotatedLogs(?string $destDir = null, int $maxFiles = 0): array
     {
         if (!$this->fetchLogBinEnabled()) {
             Log::warning('[ahg-backup] binlog archive skipped - log_bin is OFF on this MySQL server.');
@@ -154,6 +154,8 @@ class BinaryLogArchiver
 
         $archived = [];
         $datadir = $this->fetchDatadir();
+        $viaRemote = 0;
+        $unreadable = 0;
         foreach ($files as $entry) {
             $filename = $entry['name'];
             $src = rtrim($datadir, '/').'/'.$filename;
@@ -163,12 +165,18 @@ class BinaryLogArchiver
                 // Already archived in a previous run. Idempotent.
                 continue;
             }
-            if (!is_readable($src)) {
-                Log::warning('[ahg-backup] binlog not readable - skipping', ['src' => $src]);
-                continue;
-            }
-            if (!@copy($src, $dst)) {
-                Log::warning('[ahg-backup] binlog copy failed', ['src' => $src, 'dst' => $dst]);
+
+            // Fast path: the datadir is readable by whoever runs this.
+            if (is_readable($src) && @copy($src, $dst)) {
+                // fetched
+            } elseif ($this->fetchBinlogRemote($filename, $destDir) && file_exists($dst)) {
+                // Fallback: pull it over the MySQL protocol instead. The datadir
+                // is 0700 mysql:mysql on a default install, so www-data cannot
+                // read it however many groups it belongs to - which silently
+                // archived NOTHING and left point-in-time recovery impossible.
+                $viaRemote++;
+            } else {
+                $unreadable++;
                 continue;
             }
 
@@ -199,9 +207,95 @@ class BinaryLogArchiver
             }
 
             $archived[] = $filename;
+
+            // Cap the catch-up. On a server where archiving has never worked
+            // the backlog is the whole retention window (1,171 logs / 79 GB
+            // here), and pulling it in one hourly tick would run for hours
+            // holding withoutOverlapping(). Successive runs drain the rest.
+            if ($maxFiles > 0 && count($archived) >= $maxFiles) {
+                Log::info('[ahg-backup] binlog archive hit the per-run cap; the remainder follows next run', [
+                    'cap' => $maxFiles,
+                ]);
+                break;
+            }
+        }
+
+        // One line per run, not one per file. The old per-file warning emitted
+        // ~1,170 identical lines an hour once the datadir became unreadable.
+        if ($viaRemote > 0) {
+            Log::info('[ahg-backup] binlogs archived over the MySQL protocol (datadir not readable)', [
+                'count' => $viaRemote,
+            ]);
+        }
+        if ($unreadable > 0) {
+            Log::error('[ahg-backup] binlogs could NOT be archived - point-in-time recovery is not possible for this window', [
+                'count' => $unreadable,
+                'datadir' => $datadir,
+                'hint' => 'mysqlbinlog must be installed and the DB user needs REPLICATION SLAVE',
+            ]);
         }
 
         return $archived;
+    }
+
+    /**
+     * Pull one binary log over the MySQL protocol, so archiving does not
+     * depend on filesystem access to the datadir (0700 mysql:mysql by
+     * default). Needs `mysqlbinlog` on PATH and REPLICATION SLAVE on the
+     * configured DB user.
+     *
+     * Credentials go in a 0600 defaults-file, never on the command line,
+     * because argv is world-readable via ps.
+     */
+    private function fetchBinlogRemote(string $filename, string $destDir): bool
+    {
+        $conn = (string) config('database.default', 'mysql');
+        $cfg  = (array) config("database.connections.{$conn}", []);
+
+        $cnf = @tempnam(sys_get_temp_dir(), 'blarc');
+        if ($cnf === false) {
+            return false;
+        }
+
+        try {
+            @chmod($cnf, 0600);
+            $written = @file_put_contents($cnf, sprintf(
+                "[client]\nhost=%s\nport=%d\nuser=%s\npassword=\"%s\"\n",
+                $cfg['host'] ?? '127.0.0.1',
+                (int) ($cfg['port'] ?? 3306),
+                $cfg['username'] ?? 'root',
+                str_replace('"', '\\"', (string) ($cfg['password'] ?? ''))
+            ));
+            if ($written === false) {
+                return false;
+            }
+
+            // --raw + a trailing slash on --result-file writes <destDir>/<filename>.
+            $cmd = sprintf(
+                'mysqlbinlog --defaults-extra-file=%s --read-from-remote-server --raw --result-file=%s %s 2>&1',
+                escapeshellarg($cnf),
+                escapeshellarg(rtrim($destDir, '/').'/'),
+                escapeshellarg($filename)
+            );
+
+            $output = [];
+            $exit = 0;
+            @exec($cmd, $output, $exit);
+
+            if ($exit !== 0) {
+                Log::warning('[ahg-backup] remote binlog fetch failed', [
+                    'file' => $filename,
+                    'exit' => $exit,
+                    'error' => substr(implode(' ', $output), 0, 300),
+                ]);
+
+                return false;
+            }
+
+            return true;
+        } finally {
+            @unlink($cnf);
+        }
     }
 
     /**
