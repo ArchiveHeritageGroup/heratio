@@ -253,7 +253,7 @@ class CrmGraphSyncService
      */
     public function buildReplaceGraphUpdate(string $graphUri, string $turtle): string
     {
-        [$prologue, $body] = $this->splitPrefixes($turtle);
+        [$prologue, $body] = SparqlUpdateService::splitPrefixes($turtle);
 
         $update = '';
         if ($prologue !== '') {
@@ -267,35 +267,8 @@ class CrmGraphSyncService
         return $update;
     }
 
-    /**
-     * Split a Turtle document into a SPARQL PREFIX prologue + the body
-     * with the '@prefix' directives removed.
-     *
-     * Turtle: '@prefix crm: <http://…> .'
-     * SPARQL: 'PREFIX crm: <http://…>'   (no leading @, no trailing dot)
-     *
-     * @return array{0:string,1:string} [prologue, body]
-     */
-    private function splitPrefixes(string $turtle): array
-    {
-        $prefixLines = [];
-        $bodyLines   = [];
-
-        foreach (preg_split('/\R/', $turtle) as $line) {
-            if (preg_match('/^\s*@prefix\s+([^:]*:)\s*(<[^>]*>)\s*\.\s*$/', $line, $m)) {
-                $prefixLines[] = 'PREFIX ' . trim($m[1]) . ' ' . trim($m[2]);
-                continue;
-            }
-            $bodyLines[] = $line;
-        }
-
-        $prologue = implode("\n", $prefixLines);
-        // Trim leading/trailing blank lines left behind after pulling the
-        // prefix block, but keep internal structure intact.
-        $body = trim(implode("\n", $bodyLines), "\r\n");
-
-        return [$prologue, $body];
-    }
+    // splitPrefixes() now lives on SparqlUpdateService so insertRdfStar()
+    // and buildReplaceGraphUpdate() share one implementation.
 
     /**
      * Convenience for the museum case: resolve the museum record class

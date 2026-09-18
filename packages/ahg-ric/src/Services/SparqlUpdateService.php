@@ -165,10 +165,64 @@ class SparqlUpdateService
     }
 
     /**
+     * Build the INSERT DATA statement for a turtle body, hoisting any
+     * Turtle '@prefix' directives out into a SPARQL PREFIX prologue.
+     *
+     * This is the ONE place the INSERT DATA / GRAPH wrapping is built.
+     * FusekiSyncService's queued path calls it rather than repeating the
+     * string - two copies of one construction is how they drift (#1487).
+     *
+     * @param string $graphUri Named graph URI to write into
+     * @param string $turtleBody Turtle / turtle-star body (one or many triples)
+     */
+    public function buildInsertUpdate(string $graphUri, string $turtleBody): string
+    {
+        [$prologue, $body] = self::splitPrefixes($turtleBody);
+
+        return ($prologue !== '' ? $prologue . "\n" : '')
+            . "INSERT DATA { GRAPH <{$graphUri}> {\n{$body}\n} }";
+    }
+
+    /**
+     * Split a Turtle document into a SPARQL PREFIX prologue + the body
+     * with the '@prefix' directives removed.
+     *
+     * Turtle: '@prefix crm: <http://…> .'
+     * SPARQL: 'PREFIX crm: <http://…>'   (no leading @, no trailing dot)
+     *
+     * Shared with CrmGraphSyncService::buildReplaceGraphUpdate().
+     *
+     * @return array{0:string,1:string} [prologue, body]
+     */
+    public static function splitPrefixes(string $turtle): array
+    {
+        $prefixLines = [];
+        $bodyLines   = [];
+
+        foreach (preg_split('/\R/', $turtle) as $line) {
+            if (preg_match('/^\s*@prefix\s+([^:]*:)\s*(<[^>]*>)\s*\.\s*$/', $line, $m)) {
+                $prefixLines[] = 'PREFIX ' . trim($m[1]) . ' ' . trim($m[2]);
+                continue;
+            }
+            $bodyLines[] = $line;
+        }
+
+        $prologue = implode("\n", $prefixLines);
+        // Trim leading/trailing blank lines left behind after pulling the
+        // prefix block, but keep internal structure intact.
+        $body = trim(implode("\n", $bodyLines), "\r\n");
+
+        return [$prologue, $body];
+    }
+
+    /**
      * Insert turtle-star data into the named graph.
      *
      * Build the turtle WITHOUT the wrapping INSERT DATA / GRAPH clauses;
      * this method handles the SPARQL UPDATE wrapping and the HTTP POST.
+     * Turtle '@prefix' directives in the body ARE tolerated - they are
+     * hoisted into a PREFIX prologue, because '@prefix' inside INSERT DATA
+     * is illegal SPARQL and Fuseki rejects the whole update with a 400.
      *
      * @param string $graphUri Named graph URI to write into
      * @param string $turtleBody Turtle / turtle-star body (one or many triples)
@@ -176,8 +230,7 @@ class SparqlUpdateService
      */
     public function insertRdfStar(string $graphUri, string $turtleBody): array
     {
-        $update = "INSERT DATA { GRAPH <{$graphUri}> {\n{$turtleBody}\n} }";
-        return $this->postUpdate($update);
+        return $this->postUpdate($this->buildInsertUpdate($graphUri, $turtleBody));
     }
 
     /**

@@ -2,9 +2,9 @@
 
 namespace AhgRic\Services;
 
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Dispatch;
 
 /**
  * FusekiSyncService
@@ -98,7 +98,12 @@ class FusekiSyncService
             return ['ok' => false, 'status' => 0, 'error' => 'fuseki_sync_disabled'];
         }
 
-        $update = "INSERT DATA { GRAPH <{$graphUri}> \n{$turtleBody}\n }";
+        // SparqlUpdateService owns the wrapping (prefix hoist + GRAPH braces).
+        // This used to build its own string, which was missing the braces
+        // around the body entirely - latent only because the enqueue below
+        // always threw on a non-existent facade and fell through to the
+        // synchronous path, which re-wrapped correctly.
+        $update = $this->upd->buildInsertUpdate($graphUri, $turtleBody);
 
         if ($this->queueEnabled()) {
             // Enqueue a job for asynchronous write. Collect endpoint/creds/timeout
@@ -115,7 +120,7 @@ class FusekiSyncService
                 $username       = $this->upd->username();
                 $password       = $this->upd->password();
                 $timeoutSeconds = $this->upd->timeoutSeconds();
-                Dispatch::dispatch(new \AhgRic\Jobs\FusekiSyncJob($updateEndpoint, $username, $password, $timeoutSeconds, $update));
+                Bus::dispatch(new \AhgRic\Jobs\FusekiSyncJob($updateEndpoint, $username, $password, $timeoutSeconds, $update));
                 return ['ok' => true, 'status' => 202, 'error' => null];
             } catch (\Throwable $e) {
                 Log::warning('[ahg-ric] failed to enqueue fuseki insert job: ' . $e->getMessage());
