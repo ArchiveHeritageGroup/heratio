@@ -639,7 +639,7 @@ class CronSchedulerService
      *
      * Distributed locking: ->onOneServer() is added conditionally,
      * gated on whether the active cache driver supports atomic locks.
-     * When it doesn't (file / array driver) we log once and skip the
+     * When it doesn't (a store with no LockProvider, e.g. null) we log and skip the
      * annotation rather than crashing schedule:run at boot.
      *
      * Called from AhgCoreServiceProvider::boot() inside an
@@ -774,7 +774,7 @@ class CronSchedulerService
 
             if ($supportsLocks) {
                 // ->onOneServer() requires ->name() (set above) + a
-                // lock-capable cache. Without those it throws at boot.
+                // lock-capable cache store.
                 $event->onOneServer();
             }
         }

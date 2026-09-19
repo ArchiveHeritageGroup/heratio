@@ -3,7 +3,8 @@
 /**
  * ahg:nas-watchdog
  *
- * Monitors the storage NAS mount (config('heratio.storage_path')) and raises
+ * Monitors the storage NAS mount (config('heratio.nas_watchdog_path'), else
+ * config('heratio.storage_path')) and raises
  * a notification when it goes down or comes back up. Does NOT attempt to
  * remount - operator preference is to leave the mount alone and surface the
  * outage instead, so a transient NFS blip doesn't get masked.
@@ -57,7 +58,7 @@ class NasWatchdogCommand extends Command
             return self::SUCCESS;
         }
 
-        $path = (string) (config('heratio.storage_path') ?: '/mnt/nas/heratio');
+        $path = (string) (config('heratio.nas_watchdog_path') ?: config('heratio.storage_path') ?: '/mnt/nas/heratio');
         $report = $this->probe($path);
 
         $previous = (string) (Cache::get(self::STATE_CACHE_KEY) ?: 'unknown');

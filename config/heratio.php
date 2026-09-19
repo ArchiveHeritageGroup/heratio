@@ -33,6 +33,13 @@ return [
     // NAS_WATCHDOG_ENABLED=false where storage is intentionally local.
     'nas_watchdog_enabled' => (bool) env('NAS_WATCHDOG_ENABLED', true),
 
+    // The mount the watchdog probes, when it is not storage_path itself. An
+    // install can keep storage_path local and reach the NAS another way - the
+    // dev instance layers an overlay over the NFS share, and overlayfs cannot
+    // put its upperdir on NFS, so storage_path there can never be a mountpoint.
+    // Point this at the real NFS mount (e.g. /mnt/nas/heratio) in that case.
+    'nas_watchdog_path' => env('NAS_WATCHDOG_PATH'),
+
     // How long the watchdog will wait for the mount to answer, in seconds, shared
     // across its readable + canary checks. This is a real deadline: the checks run
     // in a child process that is abandoned when it expires, because a stat blocked

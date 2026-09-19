@@ -18,9 +18,9 @@
  *   - markFinished($runId, $exitCode) closes the row and emits the metric.
  *   - markFailed($runId, $throwable) is the throwable-aware equivalent.
  *
- * Distributed-lock detection: supportsDistributedLocks() returns true only
- * when the configured cache driver implements atomic locks (redis,
- * database, dynamodb, memcached). CronSchedulerService gates
+ * Distributed-lock detection: supportsDistributedLocks() returns true when
+ * the configured cache store implements LockProvider (file, redis,
+ * database, dynamodb, memcached, array). CronSchedulerService gates
  * ->onOneServer() on this so a 'file' or 'array' driver doesn't blow up
  * at schedule registration time.
  *
@@ -47,19 +47,14 @@
 namespace AhgCore\Services;
 
 use Carbon\Carbon;
+use Illuminate\Contracts\Cache\LockProvider;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class CronRunTrackerService
 {
-    /**
-     * Cache drivers that ship atomic locks suitable for ->onOneServer().
-     * Source: Illuminate\Cache - the subset of stores that implement the
-     * LockProvider contract.
-     */
-    private const LOCK_CAPABLE_DRIVERS = ['redis', 'database', 'dynamodb', 'memcached'];
-
     private ?bool $tableExists = null;
 
     /**
@@ -169,9 +164,17 @@ class CronRunTrackerService
      */
     public function supportsDistributedLocks(): bool
     {
-        $driver = (string) config('cache.default', 'file');
-
-        return in_array($driver, self::LOCK_CAPABLE_DRIVERS, true);
+        // Ask the store, not a list of driver names. The old allowlist left
+        // out 'file', whose FileStore has implemented LockProvider since
+        // Laravel 8, so onOneServer() was skipped on every install and a
+        // warning logged on every schedule boot. A file lock is host-local:
+        // enough for the single-box installs Heratio ships, not for several
+        // app servers sharing one DB - those need redis or database.
+        try {
+            return Cache::store()->getStore() instanceof LockProvider;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -302,8 +305,14 @@ class CronRunTrackerService
             return null;
         }
 
-        if (strlen($trimmed) > 5000) {
-            return '... (truncated) ...'.substr($trimmed, -5000);
+        // Cut by character, not byte. substr() split multi-byte progress-bar
+        // glyphs (U+2591-2593 are 3 bytes each), leaving an orphan byte that
+        // utf8mb4 rejects with 1366 - so finished_at was never written and
+        // the missed-run detector raised a false miss. mb_scrub() also
+        // cleans any invalid bytes the command itself printed.
+        $trimmed = mb_scrub($trimmed, 'UTF-8');
+        if (mb_strlen($trimmed, 'UTF-8') > 5000) {
+            return '... (truncated) ...'.mb_substr($trimmed, -5000, null, 'UTF-8');
         }
 
         return $trimmed;
