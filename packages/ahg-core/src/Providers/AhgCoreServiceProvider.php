@@ -385,12 +385,11 @@ class AhgCoreServiceProvider extends ServiceProvider
                             return false;
                         }
                     });
-                // #755: RegenDerivativesCommand - regenerate thumbnails / reference
-                // copies from master files. Weekly Sunday 02:00 (same slot as the
-                // DB-driven cron_schedule entry so the two mechanisms stay in sync).
-                $schedule->command('ahg:regen-derivatives --type=all')
-                    ->weeklyOn(0, '02:00')
-                    ->withoutOverlapping(120);
+                // #755: RegenDerivativesCommand is NOT registered here. It has a
+                // cron_schedule row of its own, and ahg:cron-run dispatches that
+                // every minute, so registering the same command natively in the
+                // same Sunday 02:00 slot ran the derivative regeneration twice
+                // over (CH-000111). Manage its timing in /admin/settings/cron-jobs.
                 // NAS watchdog: every 5 minutes, detect storage mount transitions.
                 // Notifies on down -> up + up -> down only (state-transition gate),
                 // so a healthy NAS does not spam the bell. Does NOT auto-remount;

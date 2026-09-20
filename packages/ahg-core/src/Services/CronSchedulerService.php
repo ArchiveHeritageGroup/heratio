@@ -633,162 +633,43 @@ class CronSchedulerService
     // ─── #673 Phase 2 - Laravel Schedule Facade wiring ──────────────
 
     /**
-     * Wire every default schedule into Laravel's native Schedule facade,
-     * wrapped with before()/after()/onFailure() hooks that drive the
-     * ahg_cron_run tracking row + Prometheus metric emission.
+     * Register the cron-monitoring schedule that Laravel owns: the missed-run
+     * detector, every five minutes.
      *
-     * Distributed locking: ->onOneServer() is added conditionally,
-     * gated on whether the active cache driver supports atomic locks.
-     * When it doesn't (a store with no LockProvider, e.g. null) we log and skip the
-     * annotation rather than crashing schedule:run at boot.
+     * The managed cron_schedule entries are NOT registered here - they are
+     * dispatched by ahg:cron-run, scheduled every minute in routes/console.php.
+     * Registering them in both places ran every job twice (CH-000111).
      *
-     * Called from AhgCoreServiceProvider::boot() inside an
-     * afterResolving(Schedule::class) block so the host application
-     * doesn't have to know about every command.
+     * Called from AhgCoreServiceProvider::boot() inside an app booted()
+     * callback so the host application doesn't have to wire it by hand.
      */
-
-    /**
-     * The entries this scheduler should actually run.
-     *
-     * Reads the `cron_schedule` TABLE, honouring is_enabled - not the hardcoded
-     * defaults. Iterating getDefaultSchedules() here meant the Laravel scheduler
-     * ran every seeded entry regardless of what the cron admin said, so
-     * disabling a schedule had no effect on this path at all: only
-     * `ahg:cron-run` (via getDueSchedules) respected the flag. Three schedules
-     * disabled on 2026-08-16 carried on running and failing the following night
-     * because of it, and every enable/disable an operator has ever made in the
-     * admin UI was decorative here.
-     *
-     * Falls back to the defaults only when the table is missing or empty - a
-     * fresh install before seeding, where running the defaults is correct.
-     *
-     * @return array<int,array<string,mixed>>
-     */
-    private function schedulableEntries(): array
-    {
-        try {
-            if (! Schema::hasTable($this->table)) {
-                return $this->getDefaultSchedules();
-            }
-
-            $rows = DB::table($this->table)
-                ->where('is_enabled', 1)
-                ->whereNotNull('artisan_command')
-                ->where('artisan_command', '!=', '')
-                ->orderBy('sort_order')
-                ->get(['slug', 'artisan_command', 'cron_expression']);
-
-            if ($rows->isEmpty()) {
-                // An empty table means "not seeded yet", not "everything off".
-                // A table with rows, all disabled, correctly schedules nothing.
-                return DB::table($this->table)->count() === 0
-                    ? $this->getDefaultSchedules()
-                    : [];
-            }
-
-            return $rows->map(fn ($r) => [
-                'slug' => (string) $r->slug,
-                'artisan_command' => (string) $r->artisan_command,
-                'cron_expression' => (string) $r->cron_expression,
-            ])->all();
-        } catch (\Throwable $e) {
-            // Never let a scheduling read break boot.
-            return $this->getDefaultSchedules();
-        }
-    }
-
     public function registerWithLaravelSchedule(Schedule $schedule): void
     {
         $tracker = $this->tracker;
-        $supportsLocks = $tracker?->supportsDistributedLocks() ?? false;
 
-        if (! $supportsLocks) {
-            // One-shot warning at boot - operators see this in the
-            // Laravel log + scheduler output, prompting a switch to a
-            // lock-capable cache driver if they want HA cron.
-            static $warned = false;
-            if (! $warned) {
-                Log::warning(
-                    '[ahg-core] cron-monitoring: cache driver "'
-                    .(string) config('cache.default', 'file')
-                    .'" does not support atomic locks - ->onOneServer() skipped. '
-                    .'Switch to redis/database/memcached/dynamodb for HA cron.'
-                );
-                $warned = true;
-            }
-        }
-
-        // Use a single closure-per-command so $runId persists across the
-        // before/after/onFailure trio for the same invocation.
-        foreach ($this->schedulableEntries() as $entry) {
-            $command = (string) $entry['artisan_command'];
-            $cron = (string) $entry['cron_expression'];
-
-            // Hold the in-flight tracking row id in a closure-scoped var.
-            $runIdHolder = ['id' => null];
-
-            $event = $schedule->exec('true')
-                ->cron($cron)
-                ->name('ahg-cron:'.$entry['slug'])
-                // A managed entry could previously start while its own previous
-                // run was still going. refresh-facet-cache rebuilds ~558k rows
-                // hourly, so an overrun collided with itself and died on
-                // "Lock wait timeout exceeded" - five times in one day on
-                // heratio.org. Only the missed-run detector had this guard.
-                //
-                // The 120-minute expiry matters: the default lock never expires,
-                // so a worker killed mid-run would block the job for ever. Two
-                // hours is longer than any job here legitimately takes.
-                ->withoutOverlapping(120);
-
-            // Re-target: the exec('true') above is just a placeholder so
-            // we can attach hooks; the real work is dispatched in before().
-            // We can't ->command() here because we want every invocation
-            // - even success - to write to ahg_cron_run, and ->command()
-            // would launch the artisan process before before() fires on
-            // some Laravel versions.
-            $event->before(function () use ($command, $tracker, &$runIdHolder) {
-                $runIdHolder['id'] = $tracker?->markStarted($command);
-            });
-
-            $event->after(function () use ($command, $tracker, &$runIdHolder) {
-                // exec('true') always exits 0; the actual command runs
-                // here in-process via Artisan::call() so its real exit
-                // code lands in the tracking row.
-                try {
-                    $exitCode = Artisan::call($command);
-                    $output = Artisan::output();
-                    $tracker?->markFinished($runIdHolder['id'], $exitCode, $output);
-                } catch (\Throwable $e) {
-                    $tracker?->markFailed($runIdHolder['id'], $e);
-                }
-                $runIdHolder['id'] = null;
-            });
-
-            $event->onFailure(function () use ($tracker, &$runIdHolder) {
-                if ($runIdHolder['id'] !== null) {
-                    $tracker?->markFinished($runIdHolder['id'], 1, 'onFailure callback fired');
-                    $runIdHolder['id'] = null;
-                }
-            });
-
-            if ($supportsLocks) {
-                // ->onOneServer() requires ->name() (set above) + a
-                // lock-capable cache store.
-                $event->onOneServer();
-            }
-        }
-
-        // The detector itself runs every 5 minutes. Embedded here so
-        // operators don't have to wire a second schedule entry by hand.
+        // Only the missed-run detector is registered here.
+        //
+        // Every enabled cron_schedule row used to be registered as a native
+        // Schedule event as well, which meant two dispatch paths ran the same
+        // table: this one, and the ahg:cron-run runner that routes/console.php
+        // schedules every minute. Both called Artisan::call and both opened an
+        // ahg_cron_run row, so every managed job ran TWICE - on 2026-09-20 the
+        // */5 entries ran ~150 times against an expected 76, and the weekly
+        // qdrant indexes ran at 01:00 and again at 01:09 (CH-000111). The two
+        // paths are not interchangeable: only ahg:cron-run maintains
+        // cron_schedule.last_run_at / last_run_status / next_run_at, which the
+        // cron admin UI reads and which getDueSchedules() uses to reclaim a
+        // stale lock, so the native registration is the one that goes. Overlap
+        // is still guarded there by the 'running' status plus that reclaim, and
+        // by ->withoutOverlapping() on the ahg:cron-run entry itself.
         $detector = $schedule->command('cron:check-missed-runs')
             ->everyFiveMinutes()
             ->name('ahg-cron:check-missed-runs')
             ->withoutOverlapping();
 
-        if ($supportsLocks) {
-            // The detector itself also benefits from single-server
-            // execution when multiple app boxes share the DB.
+        // Single-server execution when several app boxes share the DB.
+        // A store with no atomic locks (null) simply skips the annotation.
+        if ($tracker?->supportsDistributedLocks() ?? false) {
             $detector->onOneServer();
         }
     }
