@@ -171,6 +171,9 @@ class QdrantIndexCommand extends Command
                 $vec = $this->embed($embeddingBase, $embeddingModel, $text, $embeddingKey);
                 if ($vec === null) {
                     $errors++;
+                    // Name the record, or a repeat of CH-000110 cannot be traced:
+                    // the count alone says nothing, and the http reason is debug-only.
+                    Log::warning('Qdrant index: embedding failed for record id=' . (int) $row->id);
                     $bar->advance();
                     continue;
                 }

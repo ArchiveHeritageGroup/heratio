@@ -215,6 +215,7 @@ class NotifySavedSearchesCommand extends Command
             ?: ('user-'.$row->user_id);
         $webLink = $row->search_url ?: '/search';
         $payload = [
+            'source' => 'heratio', // system that raised it; the workbench mirror files the CallHub ticket under this
             'username' => $username,
             'title' => "{$newMatches} new result(s): ".substr((string) $row->name, 0, 100),
             'message' => "Your saved search \"{$row->name}\" has {$newMatches} new match(es). Total now: {$currentCount}.",

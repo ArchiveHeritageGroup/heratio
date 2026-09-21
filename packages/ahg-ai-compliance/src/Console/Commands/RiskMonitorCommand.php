@@ -80,6 +80,7 @@ final class RiskMonitorCommand extends Command
         );
 
         $payload = json_encode([
+            'source'       => 'heratio', // system that raised it; the workbench mirror files the CallHub ticket under this
             'username'     => $user,
             'title'        => $title,
             'message'      => $body,

@@ -86,6 +86,7 @@ class SpectrumOverdueCommand extends Command
             $oldest = collect($rows)->min('created_at');
 
             $payload = [
+                'source' => 'heratio', // system that raised it; the workbench mirror files the CallHub ticket under this
                 'username' => $username,
                 'title' => sprintf('Spectrum overdue: %s (%d task%s)', $label, $count, $count === 1 ? '' : 's'),
                 'message' => sprintf(

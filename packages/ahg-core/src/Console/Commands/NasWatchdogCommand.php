@@ -271,6 +271,7 @@ class NasWatchdogCommand extends Command
             if (!is_dir($inbox) || !is_writable($inbox)) return;
 
             $payload = [
+                'source'     => 'heratio', // system that raised it; the workbench mirror files the CallHub ticket under this
                 'username'   => 'johan',
                 'title'      => $title,
                 'message'    => $body,
