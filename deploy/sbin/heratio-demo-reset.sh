@@ -13,6 +13,11 @@ BASE=/mnt/nas/heratio/demo-baseline/heratio-demo.sql.gz
 LOG=/var/log/heratio-demo-reset.log
 ART_DIR=/var/lib/heratio
 ART_TABLES="blog_post blog_attachment blog_comment blog_post_link"
+# Cron monitoring history. The restore used to roll ahg_cron_run back to the
+# baseline dump time, so cron:check-missed-runs then read a stale finished_at
+# and raised false "missed run" alerts for every high-priority command - 13 of
+# them between 09-12 and 09-17. The jobs had run; their records were rewound.
+CRON_TABLES="ahg_cron_run ahg_cron_missed_run cron_schedule"
 exec >>"$LOG" 2>&1
 echo "[$(date)] === demo reset start ==="
 [ -f "$BASE" ] || { echo "no baseline at $BASE - abort"; exit 1; }
@@ -60,6 +65,14 @@ if mysqldump --defaults-file=/dev/null -u root --single-transaction --no-tablesp
   mv "$ART_DUMP.tmp" "$ART_DUMP"; ART_OK=1; echo "articles snapshot OK ($(wc -l < "$ART_DUMP") lines)"
 else
   rm -f "$ART_DUMP.tmp"; echo "articles snapshot FAILED - keeping baseline articles this run"
+fi
+CRON_DUMP="$ART_DIR/cron-monitoring-live.sql"
+CRON_OK=0
+if mysqldump --defaults-file=/dev/null -u root --single-transaction --no-tablespaces "$DB" $CRON_TABLES > "$CRON_DUMP.tmp" 2>>"$LOG" \
+   && grep -q 'CREATE TABLE `ahg_cron_run`' "$CRON_DUMP.tmp"; then
+  mv "$CRON_DUMP.tmp" "$CRON_DUMP"; CRON_OK=1; echo "cron-monitoring snapshot OK ($(wc -l < "$CRON_DUMP") lines)"
+else
+  rm -f "$CRON_DUMP.tmp"; echo "cron-monitoring snapshot FAILED - expect false missed-run alerts after this reset"
 fi
 
 systemctl stop heratio-queue-worker@1.service 2>/dev/null || true
@@ -134,6 +147,9 @@ echo "app back online"
 # Re-apply the live Articles/blog section over the baseline (excludes it from the reset).
 if [ "$ART_OK" = "1" ] && [ -s "$ART_DUMP" ]; then
   if mysql --defaults-file=/dev/null -u root "$DB" < "$ART_DUMP"; then echo "articles preserved (active/growing)"; else echo "articles re-apply FAILED"; fi
+fi
+if [ "$CRON_OK" = "1" ] && [ -s "$CRON_DUMP" ]; then
+  if mysql --defaults-file=/dev/null -u root "$DB" < "$CRON_DUMP"; then echo "cron-monitoring history preserved"; else echo "cron-monitoring re-apply FAILED - expect false missed-run alerts"; fi
 fi
 
 systemctl start heratio-queue-worker@1.service 2>/dev/null || true
