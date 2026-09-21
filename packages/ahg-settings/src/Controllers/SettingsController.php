@@ -1080,7 +1080,10 @@ class SettingsController extends Controller
                 ->toArray();
             foreach ($allKeys as $key) {
                 if (in_array($key, $checkboxFields)) {
-                    $value = isset($postedSettings[$key]) ? '1' : '0';
+                    // The view posts a hidden "0" before every switch, so the key
+                    // is ALWAYS present - isset() saved '1' for an unticked switch,
+                    // and no toggle on these pages could be turned off (since v0.18.4).
+                    $value = in_array($postedSettings[$key] ?? '0', ['1', 'true', 'on', 'yes'], true) ? '1' : '0';
                 } else {
                     $value = $postedSettings[$key] ?? '';
                 }

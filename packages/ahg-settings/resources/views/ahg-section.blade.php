@@ -39,7 +39,9 @@
                 @php
                   $key = $setting->setting_key;
                   $val = $setting->setting_value ?? '';
-                  $isCheckbox = in_array($key, $checkboxFields);
+                  // A row typed 'boolean' is a switch even when the controller's
+                  // list predates it, so a new on/off setting needs no controller edit.
+                  $isCheckbox = in_array($key, $checkboxFields) || ($setting->setting_type ?? '') === 'boolean';
                   $isSelect = isset($selectFields[$key]);
                   $isColor = in_array($key, $colorFields);
                   $isPassword = in_array($key, $passwordFields);

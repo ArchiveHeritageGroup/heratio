@@ -282,4 +282,6 @@
       {!! $featuresPart !!}
     </div>
   @endif
+  {{-- WhatsApp chat bubble for visitors, logged in or not - Admin > AHG Settings > Features --}}
+  @includeIf('ahg-landing-page::_whatsapp-bubble')
 @endsection

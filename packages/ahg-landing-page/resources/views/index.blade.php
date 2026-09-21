@@ -141,3 +141,5 @@ $isPreview = $isPreview ?? false;
     @endif
   @endforeach
 </div>
+
+@include('ahg-landing-page::_whatsapp-bubble')
