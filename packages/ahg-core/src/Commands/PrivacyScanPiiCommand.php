@@ -12,9 +12,9 @@ class PrivacyScanPiiCommand extends Command
         {--connection= : Source DB connection; blank = this instance}
         {--limit=2000 : Max IOs to scan in this run}
         {--since= : Only scan IOs updated since DATE (Y-m-d)}
-        {--dry-run : Report matches without writing privacy_redaction_cache}';
+        {--dry-run : Report matches without writing ahg_pii_scan_report}';
 
-    protected $description = 'Scan information_object scope/history for PII patterns (SA ID, RSA passport, email, phone, IBAN); flags into privacy_redaction_cache';
+    protected $description = 'Scan information_object scope/history for PII patterns (SA ID, RSA passport, email, phone, IBAN); flags into ahg_pii_scan_report (counts per pattern, never the matched values)';
 
     public function handle(): int
     {
@@ -24,7 +24,7 @@ class PrivacyScanPiiCommand extends Command
         $dry = (bool) $this->option('dry-run');
 
         // Conservative regex set - false positives are tolerable since results land in
-        // privacy_redaction_cache for human review, not auto-redaction.
+        // ahg_pii_scan_report for human review, not auto-redaction.
         $patterns = [
             'sa_id' => '/\b\d{6}[ ]?\d{4}[ ]?\d{3}\b/',                     // SA 13-digit ID
             'rsa_pass' => '/\b[A-Z]\d{8}\b/',                                  // RSA passport letter+8digits
@@ -66,6 +66,7 @@ class PrivacyScanPiiCommand extends Command
         $flagged = 0;
         $byType = array_fill_keys(array_keys($patterns), 0);
         $writeRows = [];
+        $startedAt = now();
         foreach ($q->cursor() as $row) {
             $scanned++;
             $haystack = ($row->scope_and_content ?? '')."\n".($row->archival_history ?? '');
@@ -78,11 +79,21 @@ class PrivacyScanPiiCommand extends Command
             }
             if (! empty($hits)) {
                 $flagged++;
+                // Counts per pattern only - never the matched values. The old
+                // sample_hits column carried the phone numbers, passports and
+                // emails themselves, and a failed insert then echoed them into
+                // ahg_cron_run.output and cron_schedule.last_run_output (CH-000135).
                 $writeRows[] = [
                     'information_object_id' => $row->id,
-                    'patterns_matched' => json_encode(array_keys($hits)),
-                    'sample_hits' => json_encode($hits),
-                    'created_at' => now(),
+                    'scan_started_at' => $startedAt,
+                    'scan_finished_at' => now(),
+                    'hits_total' => array_sum(array_map('count', $hits)),
+                    'hits_by_type' => json_encode(array_map('count', $hits)),
+                    // ponytail: the pattern set above is SA-specific (sa_id, rsa_pass,
+                    // phone_za), so this labels what it actually detects. Upgrade path:
+                    // take patterns and jurisdiction from ahg-privacy's PiiScanService.
+                    'jurisdiction' => 'popia',
+                    'status' => 'pending',
                 ];
                 if ($flagged <= 10) {
                     $this->line(sprintf('  obj=%-7d patterns=[%s]', $row->id, implode(',', array_keys($hits))));
@@ -93,9 +104,13 @@ class PrivacyScanPiiCommand extends Command
             }
         }
 
-        if (! $dry && Schema::hasTable('privacy_redaction_cache') && ! empty($writeRows)) {
+        // ahg_pii_scan_report is the review queue ahg-privacy reads. This used to
+        // write privacy_redaction_cache, which is the redacted-file cache that
+        // RedactionRenderService serves from, with columns that do not exist
+        // there - so no scan ever stored a result (CH-000136).
+        if (! $dry && Schema::hasTable('ahg_pii_scan_report') && ! empty($writeRows)) {
             foreach (array_chunk($writeRows, 500) as $chunk) {
-                DB::table('privacy_redaction_cache')->insert($chunk);
+                DB::table('ahg_pii_scan_report')->insert($chunk);
             }
         }
 
