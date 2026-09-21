@@ -68,8 +68,14 @@ else
 fi
 CRON_DUMP="$ART_DIR/cron-monitoring-live.sql"
 CRON_OK=0
-if mysqldump --defaults-file=/dev/null -u root --single-transaction --no-tablespaces "$DB" $CRON_TABLES > "$CRON_DUMP.tmp" 2>>"$LOG" \
-   && grep -q 'CREATE TABLE `ahg_cron_run`' "$CRON_DUMP.tmp"; then
+# Data only, as INSERT IGNORE - no DROP/CREATE (CH-000139). A DROP-then-CREATE
+# re-apply left a moment with the table missing; a live scheduler tick's
+# CronRunTrackerService::ensureTable() re-created it in that gap and the CREATE
+# died on ERROR 1050, so no history was ever restored. The restored baseline
+# already has these tables, so the re-apply truncates and refills them in place.
+# 0600: ahg_cron_run.output can hold anything a job printed.
+if (umask 077; mysqldump --defaults-file=/dev/null -u root --single-transaction --no-tablespaces --no-create-info --insert-ignore "$DB" $CRON_TABLES > "$CRON_DUMP.tmp") 2>>"$LOG" \
+   && grep -q 'Dumping data for table `ahg_cron_run`' "$CRON_DUMP.tmp"; then
   mv "$CRON_DUMP.tmp" "$CRON_DUMP"; CRON_OK=1; echo "cron-monitoring snapshot OK ($(wc -l < "$CRON_DUMP") lines)"
 else
   rm -f "$CRON_DUMP.tmp"; echo "cron-monitoring snapshot FAILED - expect false missed-run alerts after this reset"
@@ -149,7 +155,13 @@ if [ "$ART_OK" = "1" ] && [ -s "$ART_DUMP" ]; then
   if mysql --defaults-file=/dev/null -u root "$DB" < "$ART_DUMP"; then echo "articles preserved (active/growing)"; else echo "articles re-apply FAILED"; fi
 fi
 if [ "$CRON_OK" = "1" ] && [ -s "$CRON_DUMP" ]; then
-  if mysql --defaults-file=/dev/null -u root "$DB" < "$CRON_DUMP"; then echo "cron-monitoring history preserved"; else echo "cron-monitoring re-apply FAILED - expect false missed-run alerts"; fi
+  # One session: truncate, then refill. INSERT IGNORE lets a row a racing tick
+  # wrote in between survive instead of aborting the load on a duplicate key.
+  # ponytail: a row a tick writes between the baseline restore and this line is
+  # lost to the TRUNCATE - at most one run record from inside the reset window.
+  # Upgrade path: take the scheduler lock reliably instead of after 120s.
+  if { for t in $CRON_TABLES; do echo "TRUNCATE TABLE \`$t\`;"; done; cat "$CRON_DUMP"; } | mysql --defaults-file=/dev/null -u root "$DB"; then echo "cron-monitoring history preserved"; else echo "cron-monitoring re-apply FAILED - expect false missed-run alerts"; fi
+  rm -f "$CRON_DUMP"   # a snapshot for the restore only; do not leave job output lying around
 fi
 
 systemctl start heratio-queue-worker@1.service 2>/dev/null || true
