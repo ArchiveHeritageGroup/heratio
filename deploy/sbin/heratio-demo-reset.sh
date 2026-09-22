@@ -102,6 +102,35 @@ _reset_release() {
   flock -u 9 2>/dev/null || true
 }
 trap _reset_release EXIT
+# Wait for detached artisan processes to finish (CH-000175). The scheduler lock only
+# covers schedule:run itself: a ->runInBackground() event runs as a detached
+# "(artisan cmd ; artisan schedule:finish)" that outlives the tick, and each of those
+# is a full app boot. ahg:optimize-models is hourly, so it fires at 00:00 UTC - the
+# same minute as this reset. On 22 Sep 2026 one such boot landed mid-restore, the
+# audit-trail provider found ahg_audit_log without its triggers and re-created them,
+# and the dump's own CREATE TRIGGER died on "ERROR 1359: Trigger already exists".
+# Matched by working directory (the scheduler's relative 'artisan') or by the absolute
+# path (cron.d entries), so heratio-dev and SASA processes do not count.
+_app_artisan_pids() {
+  local p
+  pgrep -f "$APP_DIR/artisan"
+  for p in $(pgrep -f artisan); do
+    [ "$(readlink "/proc/$p/cwd" 2>/dev/null)" = "$APP_DIR" ] && echo "$p"
+  done
+}
+_app_artisan_busy() { [ -n "$(_app_artisan_pids)" ]; }
+_waited=0
+while _app_artisan_busy; do
+  if [ "$_waited" -ge 600 ]; then
+    echo "ABORT: artisan processes for $APP_DIR still running after 600s - not restoring under them:"
+    for p in $(_app_artisan_pids | sort -u); do ps -o pid=,etime=,args= -p "$p"; done
+    systemctl start heratio-queue-worker@1.service 2>/dev/null || true
+    echo "[$(date)] === demo reset ABORTED (app busy, nothing restored) ==="
+    exit 1
+  fi
+  sleep 5; _waited=$((_waited + 5))
+done
+[ "$_waited" -gt 0 ] && echo "waited ${_waited}s for background artisan processes to finish"
 # Clear any triggers still attached before restoring. Trigger names are unique per
 # SCHEMA, not per table, so a single trigger surviving from a half-applied previous
 # run makes the dump's CREATE TRIGGER fail and takes the whole restore down with it.
