@@ -153,14 +153,17 @@ class SharePointPushService
 
         if (class_exists('\\AhgAuditTrail\\Services\\AuditService')) {
             try {
-                \AhgAuditTrail\Services\AuditService::log(
+                app(\AhgAuditTrail\Services\AuditService::class)->log(
                     'sharepoint.push',
-                    'ingest_session',
                     $sessionId,
+                    null,
                     [
-                        'job_id' => $jobId,
-                        'aad_oid' => $userClaims['oid'] ?? null,
-                        'aad_upn' => $userClaims['upn'] ?? null,
+                        'object_type' => 'ingest_session',
+                        'details' => [
+                            'job_id' => $jobId,
+                            'aad_oid' => $userClaims['oid'] ?? null,
+                            'aad_upn' => $userClaims['upn'] ?? null,
+                        ],
                     ],
                 );
             } catch (\Throwable $e) {

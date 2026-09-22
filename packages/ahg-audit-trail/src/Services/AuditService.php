@@ -23,7 +23,10 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Ahg\AuditTrail\Services;
+// Was `Ahg\AuditTrail\Services`, which PSR-4 (AhgAuditTrail\ => src/) never
+// resolves: every caller's class_exists() check came back false, so no call
+// through this service ever wrote an audit row (CH-000177).
+namespace AhgAuditTrail\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -133,23 +136,23 @@ class AuditService
     }
 
     /**
-     * Read an audit setting from ahg_settings.
+     * Read an audit setting from ahg_settings, fresh on every call. This was a
+     * function-level static, which lives as long as the PHP process - and the
+     * service is a singleton, so in a queue worker or scheduler run a changed
+     * toggle never applied. One indexed lookup per audit write is cheap.
      */
     private function getSetting(string $key, string $default): string
     {
-        static $cache = null;
-        if ($cache === null) {
-            try {
-                $cache = DB::table('ahg_settings')
-                    ->where('setting_group', 'audit')
-                    ->pluck('setting_value', 'setting_key')
-                    ->toArray();
-            } catch (\Exception $e) {
-                $cache = [];
-            }
+        try {
+            $value = DB::table('ahg_settings')
+                ->where('setting_group', 'audit')
+                ->where('setting_key', $key)
+                ->value('setting_value');
+        } catch (\Exception $e) {
+            $value = null;
         }
 
-        return $cache[$key] ?? $default;
+        return $value ?? $default;
     }
 
     /**

@@ -369,13 +369,16 @@ class OciMovementService
                     $data['information_object_id'] ?? null,
                     $data['created_by_user_id'] ?? null,
                     [
-                        'oci_movement_id'   => $id,
-                        'heritage_asset_id' => $data['heritage_asset_id'] ?? null,
-                        'movement_type'     => $data['movement_type'],
-                        'amount'            => $data['amount'],
-                        'currency'          => $data['currency'],
-                        'posted_to'         => $data['posted_to'],
-                        'valuer_id'         => $data['valuer_id'] ?? null,
+                        'object_type' => 'informationobject',
+                        'details' => [
+                            'oci_movement_id'   => $id,
+                            'heritage_asset_id' => $data['heritage_asset_id'] ?? null,
+                            'movement_type'     => $data['movement_type'],
+                            'amount'            => $data['amount'],
+                            'currency'          => $data['currency'],
+                            'posted_to'         => $data['posted_to'],
+                            'valuer_id'         => $data['valuer_id'] ?? null,
+                        ],
                     ]
                 );
             }

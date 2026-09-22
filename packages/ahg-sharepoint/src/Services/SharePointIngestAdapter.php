@@ -254,16 +254,19 @@ class SharePointIngestAdapter
             return;
         }
         try {
-            \AhgAuditTrail\Services\AuditService::log(
+            app(\AhgAuditTrail\Services\AuditService::class)->log(
                 'sharepoint.ingest',
-                'informationobject',
                 $ioId,
+                null,
                 [
-                    'source' => 'sharepoint_auto',
-                    'sp_drive_id' => (int) $drive->id,
-                    'sp_item_id' => $event->sp_item_id,
-                    'sp_etag' => $event->sp_etag,
-                    'event_id' => $eventId,
+                    'object_type' => 'informationobject',
+                    'details' => [
+                        'source' => 'sharepoint_auto',
+                        'sp_drive_id' => (int) $drive->id,
+                        'sp_item_id' => $event->sp_item_id,
+                        'sp_etag' => $event->sp_etag,
+                        'event_id' => $eventId,
+                    ],
                 ],
             );
         } catch (\Throwable $e) {
