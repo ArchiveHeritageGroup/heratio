@@ -254,6 +254,12 @@ class AuditLogger
                 $req = request();
                 if ($req) {
                     $ip = $req->ip();
+                    // Honour audit_ip_anonymize (default on), exactly as the AuditLog
+                    // middleware does for security_audit_log - this writer used to
+                    // store the full address whatever the operator had chosen.
+                    if ($ip && \AhgCore\Services\AhgSettingsService::get('audit_ip_anonymize', '1') === '1') {
+                        $ip = preg_replace('/\.\d+$/', '.0', $ip);
+                    }
                     $ua = substr((string) $req->userAgent(), 0, 500);
                     $reqMethod = $req->method();
                     $reqUri = substr((string) $req->fullUrl(), 0, 2000);
@@ -302,7 +308,15 @@ class AuditLogger
             $writer = $this->resolveWriter();
             return $writer->append($row);
         } catch (\Throwable $e) {
-            // Never let audit break the calling code path
+            // Never let audit break the calling code path - but never fail
+            // silently either. This used to return null with no trace at all,
+            // so a broken audit write was indistinguishable from no activity.
+            \Illuminate\Support\Facades\Log::warning('audit-trail: AuditLogger insert failed', [
+                'action' => $cols['action'] ?? null,
+                'entity_type' => $cols['entity_type'] ?? null,
+                'error' => $e->getMessage(),
+            ]);
+
             return null;
         }
     }
