@@ -498,6 +498,12 @@
     {{-- Clipboard toggle handled by AtoM theme bundle; this adds server sync --}}
     <script src="{{ asset('vendor/ahg-core/js/clipboard-sync.js') }}?v={{ time() }}"></script>
 
+    {{-- WhatsApp chat bubble. In the layout, so it is on every page rather than the
+         home and landing pages alone (it shipped in v1.154.778 included from the
+         landing view only, which is why it never appeared on /heritage and the rest).
+         The partial renders nothing unless it is switched on in Settings > Features. --}}
+    @include('theme::partials.whatsapp-bubble')
+
     {{-- Voice Commands (CSS + data partials only - JS class is in the theme bundle) --}}
     @include('theme::partials.voice-commands')
     <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/voiceCommands.css') }}">

@@ -59,7 +59,7 @@ class WhatsAppBubbleTest extends TestCase
         }
         AhgSettingsService::clearCache();
 
-        return view('ahg-landing-page::_whatsapp-bubble')->render();
+        return view('theme::partials.whatsapp-bubble')->render();
     }
 
     public function test_renders_a_wa_me_link_with_the_encoded_message(): void
@@ -107,6 +107,19 @@ class WhatsAppBubbleTest extends TestCase
 
         $this->assertGuest();
         $this->get('/landing/home')->assertOk()->assertSee('https://wa.me/27821234567', false);
+    }
+
+    /**
+     * Any page on the shared layout, not just home and landing. It shipped in
+     * v1.154.778 included from the landing view alone, so /heritage - reported
+     * by the owner on 23 Sep - and every other page went without it.
+     */
+    public function test_guest_sees_it_on_an_ordinary_page_using_the_shared_layout(): void
+    {
+        $this->render('1', '+27821234567');
+
+        $this->assertGuest();
+        $this->get('/heritage')->assertOk()->assertSee('https://wa.me/27821234567', false);
     }
 
     public function test_hidden_without_a_plausible_number(): void

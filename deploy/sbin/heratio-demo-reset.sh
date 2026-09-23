@@ -158,10 +158,28 @@ fi
 # achieve is worse than one that stops: it leaves a half-applied database looking
 # like a completed reset, and the next person to run heratio-demo-snapshot.sh would
 # freeze that state as the demo's permanent baseline.
-if zcat "$BASE" | mysql --defaults-file=/dev/null -u root "$DB"; then
+#
+# Every CREATE TRIGGER in the stream gets a DROP TRIGGER IF EXISTS in front of it
+# (CH-000175). The pre-restore sweep clears the triggers that exist when the restore
+# STARTS; it cannot help with one that appears while the dump is replaying, and on
+# 22 and 23 Sep 2026 one did - twice, at the same line 2543, with no artisan process
+# running either night, so the culprit is still unidentified. Dropping immediately
+# before each create makes the restore immune to it whoever the writer turns out to
+# be. The `;;` matches the DELIMITER mysqldump sets around trigger blocks, and the
+# ^ anchor keeps row data that merely contains the same text untouched.
+if zcat "$BASE" \
+   | sed -E 's|^(/\*!50003 CREATE\*/.* TRIGGER `([^`]+)` .*)$|DROP TRIGGER IF EXISTS `\2`;;\n\1|' \
+   | mysql --defaults-file=/dev/null -u root "$DB"; then
     echo "restore OK"
 else
     echo "restore FAILED - ABORTING the rest of the reset."
+    # Who wrote a trigger, and when? CREATED is the evidence the last two failures
+    # lacked. Deliberately NOT logging processlist INFO: query text carries row
+    # values, and audit/PII values in an operator log is CH-000135 all over again.
+    mysql --defaults-file=/dev/null -u root -t "$DB" -e \
+      "SELECT trigger_name, event_object_table, created FROM information_schema.triggers WHERE trigger_schema = '$DB';" 2>&1 || true
+    mysql --defaults-file=/dev/null -u root -t "$DB" -e \
+      "SELECT id, user, host, db, command, time, state FROM information_schema.processlist WHERE db = '$DB';" 2>&1 || true
     echo "       ${DB} may now be half-applied. Check it before trusting the demo,"
     echo "       and do NOT run heratio-demo-snapshot.sh until it is verified healthy."
     systemctl start heratio-queue-worker@1.service 2>/dev/null || true

@@ -78,6 +78,23 @@ class AuthAuditTest extends TestCase
         $this->assertStringNotContainsString('wrong-password', (string) $row->details);
     }
 
+    public function test_session_id_is_stored_as_a_keyed_hash_not_the_session_cookie(): void
+    {
+        $before = (int) DB::table('ahg_audit_log')->max('id');
+        $this->failLogin();
+
+        $row = DB::table('ahg_audit_log')->where('id', '>', $before)->where('action', 'login_failed')->first();
+        $this->assertNotNull($row);
+        $this->assertNotNull($row->session_id, 'no session id recorded at all');
+
+        // The raw id is the session cookie and the sessions-table key; anyone who
+        // can read the audit trail or its export must not come away with one.
+        $raw = session()->getId();
+        $this->assertNotSame($raw, $row->session_id);
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{64}$/', $row->session_id);
+        $this->assertSame(hash_hmac('sha256', $raw, (string) config('app.key')), $row->session_id);
+    }
+
     public function test_sign_in_attempt_is_also_appended_to_the_chained_log_with_the_ip_anonymised(): void
     {
         $before = (int) DB::table('ahg_audit_log')->max('id');

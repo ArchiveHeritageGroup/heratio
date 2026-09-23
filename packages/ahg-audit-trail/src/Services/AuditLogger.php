@@ -263,8 +263,19 @@ class AuditLogger
                     $ua = substr((string) $req->userAgent(), 0, 500);
                     $reqMethod = $req->method();
                     $reqUri = substr((string) $req->fullUrl(), 0, 2000);
-                    $sessionId = method_exists($req, 'session') && $req->hasSession()
+                    // Store a keyed HASH of the session id, never the id itself
+                    // (CH-000177). The raw value is the user's session cookie and,
+                    // under the database session driver, the sessions table key -
+                    // so anyone who could read the audit trail, its CSV export or
+                    // the audit:report output held a live credential. The hash is
+                    // deterministic, so events can still be grouped into a sitting
+                    // or spotted across two IPs; keying on APP_KEY also stops the
+                    // value being matched back against the sessions table.
+                    $rawSession = method_exists($req, 'session') && $req->hasSession()
                         ? $req->session()->getId() : null;
+                    $sessionId = $rawSession
+                        ? hash_hmac('sha256', $rawSession, (string) config('app.key'))
+                        : null;
                 }
             } catch (\Throwable $e) {
                 // No request context

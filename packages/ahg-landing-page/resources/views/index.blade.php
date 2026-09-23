@@ -142,4 +142,6 @@ $isPreview = $isPreview ?? false;
   @endforeach
 </div>
 
-@include('ahg-landing-page::_whatsapp-bubble')
+{{-- This view is a standalone fragment with no layout, so it includes the bubble
+     itself; every page that goes through theme::layouts.master gets it from there. --}}
+@include('theme::partials.whatsapp-bubble')
