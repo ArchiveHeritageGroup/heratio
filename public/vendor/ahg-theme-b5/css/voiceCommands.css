@@ -25,7 +25,10 @@
 /* -- Floating mic button -------------------------------------- */
 .voice-floating-btn {
   position: fixed;
-  bottom: 80px;
+  /* 92px, not 80px: the WhatsApp bubble occupies 20-76px, which left a 4px gap -
+     a mis-tap away from the text channel that deaf and hard-of-hearing visitors
+     rely on, while the mic is of no use to them. Now a 16px gap. */
+  bottom: 92px;
   right: 20px;
   width: 50px;
   height: 50px;
@@ -86,7 +89,8 @@
 /* -- Toast notifications -------------------------------------- */
 .voice-toast-container {
   position: fixed;
-  bottom: 140px;
+  /* Clears the mic button, which now ends at 142px (92 + 50). */
+  bottom: 152px;
   right: 20px;
   z-index: 1070;
   display: flex;
@@ -276,13 +280,16 @@
   .voice-floating-btn {
     width: 44px;
     height: 44px;
-    bottom: 70px;
+    /* Was 70px, which OVERLAPPED the WhatsApp bubble (20-76px) by 6px, mic on top.
+       92px keeps the same 16px gap as the desktop rule. */
+    bottom: 92px;
     right: 14px;
     font-size: 1.2rem;
   }
   .voice-toast-container {
     right: 14px;
-    bottom: 124px;
+    /* Clears the 44px mic, which now ends at 136px. */
+    bottom: 146px;
     max-width: 260px;
   }
   .voice-field-mic {

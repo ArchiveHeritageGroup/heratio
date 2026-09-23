@@ -67,6 +67,11 @@ class WhatsAppBubbleTest extends TestCase
         $html = $this->render('1', '+27 82 123-4567', 'Hello, a question & more');
 
         $this->assertStringContainsString('class="ahg-whatsapp-bubble"', $html);
+        // The mark is inline SVG. It used to be <i class="bi bi-whatsapp">, but the
+        // theme serves Font Awesome and no page loads the Bootstrap Icons stylesheet,
+        // so the bubble was an empty green circle.
+        $this->assertStringContainsString('<svg', $html);
+        $this->assertStringNotContainsString('bi-whatsapp', $html);
         // Digits only in the path; the message rawurlencoded, so & arrives as %26.
         $this->assertStringContainsString('href="https://wa.me/27821234567?text=Hello%2C%20a%20question%20%26%20more"', $html);
         $this->assertStringContainsString('rel="noopener noreferrer"', $html);
