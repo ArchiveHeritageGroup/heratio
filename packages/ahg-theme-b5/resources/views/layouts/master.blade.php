@@ -406,6 +406,13 @@
       <link href="{{ $themeData['themeCssBundle'] }}" rel="stylesheet">
     @endif
 
+    {{-- Bootstrap Icons. The views use 1002 bi-* icons across 180 files, but nothing
+         loaded this stylesheet, so every one of them rendered as blank space - the
+         voice mic and the WhatsApp bubble on 23 Sep were two of them. The theme's own
+         bundle is Font Awesome (fas/far/fab) and does not carry bi-*; the two are
+         used side by side, so both are loaded rather than one replacing the other. --}}
+    <link href="{{ asset('vendor/bootstrap-icons/1.11.3/bootstrap-icons.min.css') }}" rel="stylesheet">
+
     {{-- Theme CSS --}}
     <link href="{{ asset('vendor/ahg-theme-b5/css/ahg-theme.css') }}" rel="stylesheet">
     {{-- Dynamic theme CSS - only when "Theme Enabled" is checked at /admin/ahgSettings/themes.
