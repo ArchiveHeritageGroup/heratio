@@ -1,0 +1,3 @@
+{"engine": "fuseki", "insert_median_ms": 16.1, "insert_p95_ms": 21.6, "delete_median_ms": 15.4, "drop_graph_ms": 21.6, "triples_after_insert": 600, "expected_after_insert": 600, "triples_after_delete": 450, "expected_after_delete": 450, "dropped_graph_left": 0}
+{"engine": "qlever", "insert_median_ms": 3.5, "insert_p95_ms": 4.4, "delete_median_ms": 6.6, "drop_graph_ms": 41.8, "triples_after_insert": 600, "expected_after_insert": 600, "triples_after_delete": 450, "expected_after_delete": 450, "dropped_graph_left": 0}
+{"fuseki_after_restart": 450, "qlever_after_restart": 450, "expected": 450}
