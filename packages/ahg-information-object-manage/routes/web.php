@@ -104,6 +104,9 @@ Route::get('/informationobject/browse/hierarchyData', [HierarchyDataController::
 // file is never tiled to the public (GHSA-wpfv-ccw6-g9jg). Public on purpose:
 // the caller is the image server, not a signed-in user.
 Route::get('/privacy/iiif-check', [PrivacyController::class, 'iiifCheck'])->name('io.privacy.iiif-check');
+// nginx auth_request gate for /uploads/: the static original of a redacted
+// file is refused to anyone who cannot bypass redaction. See fileCheck().
+Route::get('/privacy/file-check', [PrivacyController::class, 'fileCheck'])->name('io.privacy.file-check');
 Route::get('/privacy/redacted-asset/{slug}/{do?}', [PrivacyController::class, 'redactedAsset'])->whereNumber('do')->name('io.privacy.redacted-asset');
 
 // IO CRUD routes require auth + ACL

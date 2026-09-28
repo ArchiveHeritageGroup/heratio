@@ -266,33 +266,35 @@ class RedactionRenderService
             return false;
         }
 
-        $row = DB::table('digital_object')
+        // Upload paths are content-addressed, so one file can back several
+        // records - redacted on one, not on another. The pixels are the same,
+        // so the file is refused when ANY record using it has it redacted.
+        $rows = DB::table('digital_object')
             ->where('name', $name)
             ->whereIn('path', ['/' . $dir . '/', $dir . '/', '/' . $dir, $dir])
-            ->first(['id', 'object_id', 'parent_id']);
-        if (!$row) {
-            return false;
-        }
+            ->get(['id', 'object_id', 'parent_id']);
 
-        $master = $row->parent_id
-            ? DB::table('digital_object')->where('id', $row->parent_id)->first(['id', 'object_id'])
-            : $row;
-        if (!$master) {
-            return false;
-        }
+        foreach ($rows as $row) {
+            $master = $row->parent_id
+                ? DB::table('digital_object')->where('id', $row->parent_id)->first(['id', 'object_id'])
+                : $row;
+            if (!$master) {
+                continue;
+            }
 
-        // The record: the primary's object_id, or the link table for an
-        // attached object (#1447), whose object_id is NULL.
-        $ioIds = $master->object_id
-            ? [(int) $master->object_id]
-            : (\AhgCore\Services\AttachedDigitalObjectService::available()
-                ? DB::table(\AhgCore\Services\AttachedDigitalObjectService::TABLE)
-                    ->where('digital_object_id', $master->id)->pluck('information_object_id')->map('intval')->all()
-                : []);
+            // The record: the primary's object_id, or the link table for an
+            // attached object (#1447), whose object_id is NULL.
+            $ioIds = $master->object_id
+                ? [(int) $master->object_id]
+                : (\AhgCore\Services\AttachedDigitalObjectService::available()
+                    ? DB::table(\AhgCore\Services\AttachedDigitalObjectService::TABLE)
+                        ->where('digital_object_id', $master->id)->pluck('information_object_id')->map('intval')->all()
+                    : []);
 
-        foreach ($ioIds as $ioId) {
-            if ($this->regionsQuery($ioId, (int) $master->id)->exists()) {
-                return true;
+            foreach ($ioIds as $ioId) {
+                if ($this->regionsQuery($ioId, (int) $master->id)->exists()) {
+                    return true;
+                }
             }
         }
 

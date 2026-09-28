@@ -152,6 +152,19 @@ class RedactionPerImageScopeTest extends TestCase
         $this->assertFalse($this->redactor->isRedactedIdentifier($id("missing-{$tag}.jpg")));
     }
 
+    public function test_a_file_shared_with_an_unredacted_record_is_still_refused(): void
+    {
+        $tag = uniqid('shared', false);
+        $plain = $this->objectRow('QubitInformationObject');
+        $redacted = $this->objectRow('QubitInformationObject');
+        // Same content-addressed file behind both records; the unredacted row first.
+        $this->master($plain, "s-{$tag}.pdf");
+        $this->master($redacted, "s-{$tag}.pdf");
+        $this->region($redacted, null);
+
+        $this->assertTrue($this->redactor->isRedactedIdentifier("uploads/r/test/s-{$tag}.pdf"));
+    }
+
     public function test_another_records_image_is_not_a_target(): void
     {
         $io = $this->objectRow('QubitInformationObject');

@@ -499,6 +499,30 @@ class PrivacyController extends Controller
         return response()->json(['allowed' => !$denied]);
     }
 
+    /**
+     * GET /privacy/file-check - nginx auth_request gate for /uploads/
+     * (GHSA-wpfv-ccw6-g9jg). nginx served every upload statically, so the
+     * original of a redacted file was one guessable URL away: the show page
+     * publishes the thumbnail's directory, and the master sits next to it.
+     *
+     * nginx sends the requested path in X-Original-URI plus the browser's own
+     * cookies, so unlike the Cantaloupe check an administrator is recognised
+     * and let through. 204 allows, 403 refuses; nginx turns anything else into
+     * a 500, which fails closed.
+     */
+    public function fileCheck(\Illuminate\Http\Request $request)
+    {
+        $uri = (string) $request->header('X-Original-URI', '');
+        $path = ltrim((string) parse_url($uri, PHP_URL_PATH), '/');
+
+        $refuse = $path !== ''
+            && !RedactionRenderService::viewerCanBypass()
+            && \Schema::hasTable('privacy_visual_redaction')
+            && app(RedactionRenderService::class)->isRedactedIdentifier($path);
+
+        return response('', $refuse ? 403 : 204);
+    }
+
     private function streamOriginal(object $master)
     {
         // Same resolver as RedactionRenderService - the web-facing path field
