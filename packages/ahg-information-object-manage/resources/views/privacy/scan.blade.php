@@ -19,7 +19,7 @@
         <i class="fas fa-user-shield me-2"></i>{{ __('PII Scan Results') }}
       </h4>
       <p class="text-muted mb-0">
-        Personally Identifiable Information detected in
+        {{ __('Personally Identifiable Information detected in') }}
         <strong>{{ $io->title ?? 'Untitled' }}</strong>
       </p>
     </div>
@@ -270,7 +270,7 @@
                 @endforeach
               </ul>
             @else
-              <p class="text-muted small mb-0">No field information available.</p>
+              <p class="text-muted small mb-0">{{ __('No field information available.') }}</p>
             @endif
           </div>
         </div>

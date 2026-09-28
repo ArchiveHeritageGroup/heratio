@@ -308,7 +308,7 @@
               <video src="{{ $turntableMp4 }}" autoplay muted loop playsinline
                      style="max-width:100%;max-height:380px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);margin-bottom:0.5rem;"
                      poster="">
-                Your browser does not support video playback.
+                {{ __('Your browser does not support video playback.') }}
               </video>
               <div class="small text-muted mb-2">
                 <i class="fas fa-video me-1"></i>{{ __('Auto-playing turntable preview') }} &middot;
@@ -428,7 +428,7 @@
               <br><small class="text-muted">File: {{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Unknown' }}</small>
             </div>
             <small class="text-muted mt-2">
-              <i class="fas fa-mouse me-1"></i>Drag to rotate | <i class="fas fa-search-plus me-1"></i>Scroll to zoom
+              <i class="fas fa-mouse me-1"></i>Drag to rotate | <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }}
             </small>
             <div class="mt-2 d-flex gap-2">
               <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
@@ -470,7 +470,7 @@
                 <small>
                   <i class="fas fa-mouse me-1"></i>Drag to rotate | 
                   <i class="fas fa-search-plus me-1"></i>Scroll to zoom | 
-                  <i class="fas fa-redo me-1"></i>Double-click to reset
+                  <i class="fas fa-redo me-1"></i>{{ __('Double-click to reset') }}
                 </small>
                 <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-light">
                   <i class="fas fa-download me-1"></i>{{ __('Download') }}
@@ -940,15 +940,15 @@
                 <div class="col-md-6">
                   <h6 class="text-muted mb-2">{{ __('Technical Details') }}</h6>
                   <table class="table table-bordered table-sm table-borderless">
-                    @if($mediaMetadata->duration)<tr><td class="text-muted">Duration:</td><td>{{ gmdate('H:i:s', (int) $mediaMetadata->duration) }}</td></tr>@endif
-                    @if($mediaMetadata->file_size)<tr><td class="text-muted">File Size:</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($mediaMetadata->file_size) }}</td></tr>@endif
-                    @if($mediaMetadata->bitrate)<tr><td class="text-muted">Bitrate:</td><td>{{ number_format($mediaMetadata->bitrate / 1000) }} kbps</td></tr>@endif
-                    @if($mediaMetadata->audio_codec ?? null)<tr><td class="text-muted">Audio Codec:</td><td>{{ $mediaMetadata->audio_codec }}</td></tr>@endif
-                    @if($mediaMetadata->audio_sample_rate ?? null)<tr><td class="text-muted">Sample Rate:</td><td>{{ number_format($mediaMetadata->audio_sample_rate) }} Hz</td></tr>@endif
-                    @if($mediaMetadata->audio_channels ?? null)<tr><td class="text-muted">Channels:</td><td>{{ $mediaMetadata->audio_channels == 1 ? 'Mono' : ($mediaMetadata->audio_channels == 2 ? 'Stereo' : $mediaMetadata->audio_channels . 'ch') }}</td></tr>@endif
-                    @if($mediaMetadata->video_codec ?? null)<tr><td class="text-muted">Video Codec:</td><td>{{ $mediaMetadata->video_codec }}</td></tr>@endif
-                    @if(($mediaMetadata->video_width ?? null) && ($mediaMetadata->video_height ?? null))<tr><td class="text-muted">Resolution:</td><td>{{ $mediaMetadata->video_width }} x {{ $mediaMetadata->video_height }}</td></tr>@endif
-                    @if($mediaMetadata->video_frame_rate ?? null)<tr><td class="text-muted">Frame Rate:</td><td>{{ round($mediaMetadata->video_frame_rate, 2) }} fps</td></tr>@endif
+                    @if($mediaMetadata->duration)<tr><td class="text-muted">{{ __('Duration:') }}</td><td>{{ gmdate('H:i:s', (int) $mediaMetadata->duration) }}</td></tr>@endif
+                    @if($mediaMetadata->file_size)<tr><td class="text-muted">{{ __('File Size:') }}</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($mediaMetadata->file_size) }}</td></tr>@endif
+                    @if($mediaMetadata->bitrate)<tr><td class="text-muted">{{ __('Bitrate:') }}</td><td>{{ number_format($mediaMetadata->bitrate / 1000) }} kbps</td></tr>@endif
+                    @if($mediaMetadata->audio_codec ?? null)<tr><td class="text-muted">{{ __('Audio Codec:') }}</td><td>{{ $mediaMetadata->audio_codec }}</td></tr>@endif
+                    @if($mediaMetadata->audio_sample_rate ?? null)<tr><td class="text-muted">{{ __('Sample Rate:') }}</td><td>{{ number_format($mediaMetadata->audio_sample_rate) }} Hz</td></tr>@endif
+                    @if($mediaMetadata->audio_channels ?? null)<tr><td class="text-muted">{{ __('Channels:') }}</td><td>{{ $mediaMetadata->audio_channels == 1 ? 'Mono' : ($mediaMetadata->audio_channels == 2 ? 'Stereo' : $mediaMetadata->audio_channels . 'ch') }}</td></tr>@endif
+                    @if($mediaMetadata->video_codec ?? null)<tr><td class="text-muted">{{ __('Video Codec:') }}</td><td>{{ $mediaMetadata->video_codec }}</td></tr>@endif
+                    @if(($mediaMetadata->video_width ?? null) && ($mediaMetadata->video_height ?? null))<tr><td class="text-muted">{{ __('Resolution:') }}</td><td>{{ $mediaMetadata->video_width }} x {{ $mediaMetadata->video_height }}</td></tr>@endif
+                    @if($mediaMetadata->video_frame_rate ?? null)<tr><td class="text-muted">{{ __('Frame Rate:') }}</td><td>{{ round($mediaMetadata->video_frame_rate, 2) }} fps</td></tr>@endif
                   </table>
                 </div>
                 <div class="col-md-6">
@@ -969,7 +969,7 @@
           <div class="card mb-3">
             <div class="card-body text-center py-4">
               <i class="fas fa-music fa-2x text-muted mb-3 d-block"></i>
-              <p class="text-muted mb-3">Media metadata has not been extracted yet.</p>
+              <p class="text-muted mb-3">{{ __('Media metadata has not been extracted yet.') }}</p>
               <button class="btn atom-btn-white" id="extract-btn-{{ $doId }}" data-action="extract" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-magic me-1"></i>{{ __('Extract Metadata') }}</button>
             </div>
           </div>

@@ -35,7 +35,7 @@
                 <td><a href="{{ route('preservation.tiffpdfmerge.view', $job->id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
               </tr>
               @empty
-              <tr><td colspan="7" class="text-center text-muted py-3">No merge jobs yet</td></tr>
+              <tr><td colspan="7" class="text-center text-muted py-3">{{ __('No merge jobs yet') }}</td></tr>
               @endforelse
             </tbody>
           </table>

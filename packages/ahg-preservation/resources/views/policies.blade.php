@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-clipboard-list"></i> {{ __('Preservation Policies') }}</h1>
         </div>
-        <p class="text-muted mb-3">Active and inactive preservation policies</p>
+        <p class="text-muted mb-3">{{ __('Active and inactive preservation policies') }}</p>
 
         <div class="card mb-4">
             <div class="card-body p-0">
@@ -49,7 +49,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="8" class="text-center text-muted py-3">No preservation policies defined</td></tr>
+                            <tr><td colspan="8" class="text-center text-muted py-3">{{ __('No preservation policies defined') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -63,7 +63,7 @@
                 <i class="fas fa-terminal me-2"></i>{{ __('CLI Commands') }}
             </div>
             <div class="card-body">
-                <p>Run fixity checks from command line:</p>
+                <p>{{ __('Run fixity checks from command line:') }}</p>
                 <pre class="bg-dark text-light p-3 rounded">
 # Check 100 objects not verified in 7+ days
 php artisan preservation:fixity
@@ -74,7 +74,7 @@ php artisan preservation:fixity --all --verbose
 # Custom limits
 php artisan preservation:fixity --limit=500 --min-age=30</pre>
 
-                <p class="mt-3">Add to crontab for scheduled runs:</p>
+                <p class="mt-3">{{ __('Add to crontab for scheduled runs:') }}</p>
                 <pre class="bg-dark text-light p-3 rounded">
 # Daily fixity check at 2am
 0 2 * * * cd /usr/share/nginx/heratio && php artisan preservation:fixity >> /var/log/heratio/fixity.log 2>&1</pre>

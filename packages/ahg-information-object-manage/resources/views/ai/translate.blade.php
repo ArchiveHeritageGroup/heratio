@@ -10,7 +10,7 @@
 
   @if(isset($io->scope_and_content) && $io->scope_and_content)
     <div class="card mb-3">
-      <div class="card-header fw-bold">Catalogue description</div>
+      <div class="card-header fw-bold">{{ __('Catalogue description') }}</div>
       <div class="card-body">
         <p>{{ $io->scope_and_content }}</p>
       </div>
@@ -33,7 +33,7 @@
   </div>
 
   <div class="card mb-3">
-    <div class="card-header fw-bold">Translation</div>
+    <div class="card-header fw-bold">{{ __('Translation') }}</div>
     <div class="card-body" id="translation-result">
       <p class="text-muted">Choose a language and click the button below to translate the document.</p>
     </div>

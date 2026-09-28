@@ -9,7 +9,7 @@
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}">{{ $io->title ?? 'Untitled' }}</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Preservation Packages</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ __('Preservation Packages') }}</li>
     </ol>
   </nav>
 
@@ -114,7 +114,7 @@
           <i class="fas fa-filter me-1"></i> {{ __('Type') }}
         </button>
         <ul class="dropdown-menu" aria-labelledby="typeFilterDropdown">
-          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-type="all">All Types</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-type="all">{{ __('All Types') }}</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="javascript:void(0)" data-filter-type="SIP">SIP</a></li>
           <li><a class="dropdown-item" href="javascript:void(0)" data-filter-type="AIP">AIP</a></li>
@@ -126,12 +126,12 @@
           <i class="fas fa-tasks me-1"></i> {{ __('Status') }}
         </button>
         <ul class="dropdown-menu" aria-labelledby="statusFilterDropdown">
-          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="all">All Statuses</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="all">{{ __('All Statuses') }}</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Pending">Pending</a></li>
-          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Processing">Processing</a></li>
-          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Stored">Stored</a></li>
-          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Failed">Failed</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Pending">{{ __('Pending') }}</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Processing">{{ __('Processing') }}</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Stored">{{ __('Stored') }}</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Failed">{{ __('Failed') }}</a></li>
         </ul>
       </div>
     </div>

@@ -2,12 +2,12 @@
 @section('title', 'HTR Model Training')
 @section('body-class', 'admin ai-services htr')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Training</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">{{ __('AI Services') }}</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">{{ __('Training') }}</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-graduation-cap me-2"></i>{{ __('HTR Model Training') }}</h1>
 
 <div class="card mb-4">
-  <div class="card-header" style="background: var(--ahg-primary); color: white;">Annotation Counts</div>
+  <div class="card-header" style="background: var(--ahg-primary); color: white;">{{ __('Annotation Counts') }}</div>
   <div class="card-body table-responsive">
     <table class="table table-striped mb-0">
       <thead><tr><th>{{ __('Document Type') }}</th><th>{{ __('Annotations') }}</th><th>{{ __('Minimum Required') }}</th><th>{{ __('Status') }}</th></tr></thead>
@@ -39,7 +39,7 @@
 
 <div id="training-status-panel">
 @if(isset($status['training_active']) && $status['training_active'])
-<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Training is in progress... <span id="training-progress">{{ $status['training_progress'] ?? '' }}</span></div>
+<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>{{ __('Training is in progress...') }} <span id="training-progress">{{ $status['training_progress'] ?? '' }}</span></div>
 @else
 <div class="alert alert-secondary"><i class="fas fa-circle me-2"></i>{{ __('No training running.') }}</div>
 @endif

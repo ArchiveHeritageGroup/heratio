@@ -8,17 +8,17 @@
   <div class="card-body">
     @if(isset($report))
     <div class="row"><div class="col-md-6"><dl>
-      @if($report->institution_name ?? null)<dt>Institution</dt><dd>{{ $report->institution_name }}</dd>@endif
-      @if($report->report_type ?? null)<dt>Type</dt><dd>{{ ucfirst($report->report_type) }}</dd>@endif
-      @if($report->completed_date ?? null)<dt>Date</dt><dd>{{ $report->completed_date }}</dd>@endif
+      @if($report->institution_name ?? null)<dt>{{ __('Institution') }}</dt><dd>{{ $report->institution_name }}</dd>@endif
+      @if($report->report_type ?? null)<dt>{{ __('Type') }}</dt><dd>{{ ucfirst($report->report_type) }}</dd>@endif
+      @if($report->completed_date ?? null)<dt>{{ __('Date') }}</dt><dd>{{ $report->completed_date }}</dd>@endif
     </dl></div><div class="col-md-6"><dl>
-      <dt>Fire Detection</dt><dd>{{ ($report->fire_detection ?? false) ? 'Yes' : 'No' }}</dd>
-      <dt>Climate Control</dt><dd>{{ ($report->climate_controlled ?? false) ? 'Yes' : 'No' }}</dd>
+      <dt>{{ __('Fire Detection') }}</dt><dd>{{ ($report->fire_detection ?? false) ? 'Yes' : 'No' }}</dd>
+      <dt>{{ __('Climate Control') }}</dt><dd>{{ ($report->climate_controlled ?? false) ? 'Yes' : 'No' }}</dd>
       <dt>24hr Security</dt><dd>{{ ($report->security_24hr ?? false) ? 'Yes' : 'No' }}</dd>
-      <dt>Trained Handlers</dt><dd>{{ ($report->trained_handlers ?? false) ? 'Yes' : 'No' }}</dd>
+      <dt>{{ __('Trained Handlers') }}</dt><dd>{{ ($report->trained_handlers ?? false) ? 'Yes' : 'No' }}</dd>
     </dl></div></div>
     @if($report->notes ?? null)<h6>{{ __('Notes') }}</h6><p>{{ $report->notes }}</p>@endif
-    @else<div class="alert alert-info">No facility report data available.</div>@endif
+    @else<div class="alert alert-info">{{ __('No facility report data available.') }}</div>@endif
   </div>
 </div>
 @endsection

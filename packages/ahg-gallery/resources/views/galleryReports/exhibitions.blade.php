@@ -21,7 +21,7 @@
       </select>
     </div>
     <button type="submit" class="btn btn-primary btn-sm w-100">{{ __('Apply Filters') }}</button>
-    <a href="{{ route('gallery-reports.exhibitions') }}" class="btn btn-outline-secondary btn-sm w-100 mt-2">Clear</a>
+    <a href="{{ route('gallery-reports.exhibitions') }}" class="btn btn-outline-secondary btn-sm w-100 mt-2">{{ __('Clear') }}</a>
   </form>
   <hr>
   <a href="{{ route('gallery-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
@@ -64,7 +64,7 @@
         <td class="text-end">{{ number_format($e->actual_visitors ?? 0) }}</td>
       </tr>
       @empty
-      <tr><td colspan="7" class="text-center text-muted py-4">No exhibitions found.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No exhibitions found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

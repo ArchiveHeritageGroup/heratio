@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-chart-bar"></i> {{ __('Preservation Reports') }}</h1>
         </div>
-        <p class="text-muted mb-3">Identify objects requiring preservation attention</p>
+        <p class="text-muted mb-3">{{ __('Identify objects requiring preservation attention') }}</p>
 
         {{-- Summary Stats --}}
         @php
@@ -28,7 +28,7 @@
                 <div class="card text-center">
                     <div class="card-body">
                         <h3 class="text-primary">{{ $checksumCoverage }}%</h3>
-                        <p class="mb-0">Checksum Coverage</p>
+                        <p class="mb-0">{{ __('Checksum Coverage') }}</p>
                     </div>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                     <div class="card-body">
                         @php $fixityFailures = \Illuminate\Support\Facades\DB::table('preservation_fixity_check')->where('status', 'fail')->count(); @endphp
                         <h3 class="{{ $fixityFailures > 0 ? 'text-danger' : 'text-success' }}">{{ number_format($fixityFailures) }}</h3>
-                        <p class="mb-0">Fixity Failures</p>
+                        <p class="mb-0">{{ __('Fixity Failures') }}</p>
                     </div>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                     <div class="card-body">
                         @php $atRiskCount = \Illuminate\Support\Facades\DB::table('preservation_format')->whereIn('risk_level', ['high','critical'])->count(); @endphp
                         <h3 class="{{ $atRiskCount > 0 ? 'text-warning' : 'text-success' }}">{{ number_format($atRiskCount) }}</h3>
-                        <p class="mb-0">At-Risk Formats</p>
+                        <p class="mb-0">{{ __('At-Risk Formats') }}</p>
                     </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
         {{-- Objects Without Checksums --}}
         <div class="card mb-4">
             <div class="card-header bg-danger bg-opacity-10">
-                <i class="fas fa-fingerprint text-danger"></i> Objects Without Checksums
+                <i class="fas fa-fingerprint text-danger"></i> {{ __('Objects Without Checksums') }}
                 <span class="badge bg-danger float-end">{{ count($noChecksums) }} found</span>
             </div>
             <div class="card-body p-0">
@@ -80,7 +80,7 @@
                                 <td><small>{{ ($obj->byte_size ?? null) ? number_format($obj->byte_size / 1024, 1) . ' KB' : '-' }}</small></td>
                             </tr>
                             @empty
-                            <tr><td colspan="5" class="text-center text-success py-3"><i class="fas fa-check-circle"></i> All objects have checksums</td></tr>
+                            <tr><td colspan="5" class="text-center text-success py-3"><i class="fas fa-check-circle"></i> {{ __('All objects have checksums') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -134,7 +134,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="7" class="text-center text-success py-3"><i class="fas fa-check-circle"></i> All fixity checks are current</td></tr>
+                            <tr><td colspan="7" class="text-center text-success py-3"><i class="fas fa-check-circle"></i> {{ __('All fixity checks are current') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -145,7 +145,7 @@
         {{-- High-Risk Formats --}}
         <div class="card mb-4">
             <div class="card-header bg-danger bg-opacity-10">
-                <i class="fas fa-exclamation-triangle text-danger"></i> High-Risk Format Objects
+                <i class="fas fa-exclamation-triangle text-danger"></i> {{ __('High-Risk Format Objects') }}
                 <span class="badge bg-danger float-end">{{ count($highRisk) }} found</span>
             </div>
             <div class="card-body p-0">
@@ -182,7 +182,7 @@
                                 <td class="text-nowrap"><small>{{ $item->identification_date ?? '-' }}</small></td>
                             </tr>
                             @empty
-                            <tr><td colspan="8" class="text-center text-success py-3"><i class="fas fa-check-circle"></i> No high-risk format objects found</td></tr>
+                            <tr><td colspan="8" class="text-center text-success py-3"><i class="fas fa-check-circle"></i> {{ __('No high-risk format objects found') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

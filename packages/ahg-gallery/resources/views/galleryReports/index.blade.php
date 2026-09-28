@@ -39,23 +39,23 @@
           <div class="row text-center">
             <div class="col-md-3">
               <h2 class="text-primary">{{ number_format($stats['exhibitions']['total'] ?? 0) }}</h2>
-              <p class="text-muted">Total</p>
+              <p class="text-muted">{{ __('Total') }}</p>
             </div>
             <div class="col-md-3">
               <h2 class="text-success">{{ number_format($stats['exhibitions']['open'] ?? 0) }}</h2>
-              <p class="text-muted">Currently Open</p>
+              <p class="text-muted">{{ __('Currently Open') }}</p>
             </div>
             <div class="col-md-3">
               <h2 class="text-warning">{{ number_format($stats['exhibitions']['planning'] ?? 0) }}</h2>
-              <p class="text-muted">In Planning</p>
+              <p class="text-muted">{{ __('In Planning') }}</p>
             </div>
             <div class="col-md-3">
               <h2 class="text-info">{{ number_format($stats['exhibitions']['upcoming'] ?? 0) }}</h2>
-              <p class="text-muted">Upcoming</p>
+              <p class="text-muted">{{ __('Upcoming') }}</p>
             </div>
           </div>
           <div class="text-end mt-2">
-            <a href="{{ route('gallery-reports.exhibitions') }}" class="btn btn-sm btn-outline-primary">View Report</a>
+            <a href="{{ route('gallery-reports.exhibitions') }}" class="btn btn-sm btn-outline-primary">{{ __('View Report') }}</a>
           </div>
         </div>
       </div>
@@ -117,7 +117,7 @@
           </div>
           @endif
           <div class="text-end mt-3">
-            <a href="{{ route('gallery-reports.loans') }}" class="btn btn-sm btn-outline-info">View Report</a>
+            <a href="{{ route('gallery-reports.loans') }}" class="btn btn-sm btn-outline-info">{{ __('View Report') }}</a>
           </div>
         </div>
       </div>
@@ -156,7 +156,7 @@
             </div>
           </div>
           <div class="text-end mt-2">
-            <a href="{{ route('gallery-reports.valuations') }}" class="btn btn-sm btn-outline-warning">View Report</a>
+            <a href="{{ route('gallery-reports.valuations') }}" class="btn btn-sm btn-outline-warning">{{ __('View Report') }}</a>
           </div>
         </div>
       </div>

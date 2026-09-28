@@ -100,20 +100,20 @@
       </thead>
       <tbody>
         <tr>
-          <td><i class="fas fa-search me-1 text-muted"></i>Search</td>
+          <td><i class="fas fa-search me-1 text-muted"></i>{{ __('Search') }}</td>
           <td>Filter physical storage records by the selected strong room and location</td>
         </tr>
         <tr>
-          <td><i class="fas fa-file-export me-1 text-muted"></i>Strongrooms Export</td>
-          <td>Export all strong room box labels as CSV</td>
+          <td><i class="fas fa-file-export me-1 text-muted"></i>{{ __('Strongrooms Export') }}</td>
+          <td>{{ __('Export all strong room box labels as CSV') }}</td>
         </tr>
         <tr>
-          <td><i class="fas fa-sign-out-alt me-1 text-muted"></i>Booked Out</td>
+          <td><i class="fas fa-sign-out-alt me-1 text-muted"></i>{{ __('Booked Out') }}</td>
           <td>Browse items that are currently booked out from physical storage</td>
         </tr>
         <tr>
-          <td><i class="fas fa-eye me-1 text-muted"></i>Publish</td>
-          <td>Manage publication status of archival descriptions</td>
+          <td><i class="fas fa-eye me-1 text-muted"></i>{{ __('Publish') }}</td>
+          <td>{{ __('Manage publication status of archival descriptions') }}</td>
         </tr>
       </tbody>
     </table>

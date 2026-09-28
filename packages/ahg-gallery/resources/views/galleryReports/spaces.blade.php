@@ -47,7 +47,7 @@
         <td class="text-end">{{ $s->max_weight_kg ?? $s->max_weight ?? '-' }}</td>
       </tr>
       @empty
-      <tr><td colspan="7" class="text-center text-muted py-4">No spaces found.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No spaces found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

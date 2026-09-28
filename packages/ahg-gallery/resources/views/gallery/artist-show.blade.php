@@ -25,8 +25,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('gallery.browse') }}">Gallery</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('gallery.artists') }}">Artists</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('gallery.browse') }}">{{ __('Gallery') }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('gallery.artists') }}">{{ __('Artists') }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ $artist->display_name }}</li>
     </ol>
   </nav>
@@ -40,49 +40,49 @@
         <div class="field-list">
           @if($artist->display_name)
             <div class="row mb-1">
-              <div class="col-sm-4 fw-bold">Display name</div>
+              <div class="col-sm-4 fw-bold">{{ __('Display name') }}</div>
               <div class="col-sm-8">{{ $artist->display_name }}</div>
             </div>
           @endif
           @if($artist->sort_name && $artist->sort_name !== $artist->display_name)
             <div class="row mb-1">
-              <div class="col-sm-4 fw-bold">Sort name</div>
+              <div class="col-sm-4 fw-bold">{{ __('Sort name') }}</div>
               <div class="col-sm-8">{{ $artist->sort_name }}</div>
             </div>
           @endif
           @if($artist->birth_date)
             <div class="row mb-1">
-              <div class="col-sm-4 fw-bold">Birth date</div>
+              <div class="col-sm-4 fw-bold">{{ __('Birth date') }}</div>
               <div class="col-sm-8">{{ $artist->birth_date }}</div>
             </div>
           @endif
           @if($artist->birth_place)
             <div class="row mb-1">
-              <div class="col-sm-4 fw-bold">Birth place</div>
+              <div class="col-sm-4 fw-bold">{{ __('Birth place') }}</div>
               <div class="col-sm-8">{{ $artist->birth_place }}</div>
             </div>
           @endif
           @if($artist->death_date)
             <div class="row mb-1">
-              <div class="col-sm-4 fw-bold">Death date</div>
+              <div class="col-sm-4 fw-bold">{{ __('Death date') }}</div>
               <div class="col-sm-8">{{ $artist->death_date }}</div>
             </div>
           @endif
           @if($artist->death_place)
             <div class="row mb-1">
-              <div class="col-sm-4 fw-bold">Death place</div>
+              <div class="col-sm-4 fw-bold">{{ __('Death place') }}</div>
               <div class="col-sm-8">{{ $artist->death_place }}</div>
             </div>
           @endif
           @if($artist->nationality)
             <div class="row mb-1">
-              <div class="col-sm-4 fw-bold">Nationality</div>
+              <div class="col-sm-4 fw-bold">{{ __('Nationality') }}</div>
               <div class="col-sm-8">{{ $artist->nationality }}</div>
             </div>
           @endif
           @if($artist->active_period)
             <div class="row mb-1">
-              <div class="col-sm-4 fw-bold">Active period</div>
+              <div class="col-sm-4 fw-bold">{{ __('Active period') }}</div>
               <div class="col-sm-8">{{ $artist->active_period }}</div>
             </div>
           @endif
@@ -96,19 +96,19 @@
           <div class="field-list">
             @if($artist->artist_type)
               <div class="row mb-1">
-                <div class="col-sm-4 fw-bold">Artist type</div>
+                <div class="col-sm-4 fw-bold">{{ __('Artist type') }}</div>
                 <div class="col-sm-8">{{ $artist->artist_type }}</div>
               </div>
             @endif
             @if($artist->medium_specialty)
               <div class="row mb-1">
-                <div class="col-sm-4 fw-bold">Medium / Specialty</div>
+                <div class="col-sm-4 fw-bold">{{ __('Medium / Specialty') }}</div>
                 <div class="col-sm-8">{{ $artist->medium_specialty }}</div>
               </div>
             @endif
             @if($artist->movement_style)
               <div class="row mb-1">
-                <div class="col-sm-4 fw-bold">Movement / Style</div>
+                <div class="col-sm-4 fw-bold">{{ __('Movement / Style') }}</div>
                 <div class="col-sm-8">{{ $artist->movement_style }}</div>
               </div>
             @endif
@@ -122,7 +122,7 @@
           <h2 class="fs-5 border-bottom pb-2">{{ __('Representation') }}</h2>
           <div class="field-list">
             <div class="row mb-1">
-              <div class="col-sm-4 fw-bold">Represented by</div>
+              <div class="col-sm-4 fw-bold">{{ __('Represented by') }}</div>
               <div class="col-sm-8">{{ $artist->represented }}</div>
             </div>
           </div>

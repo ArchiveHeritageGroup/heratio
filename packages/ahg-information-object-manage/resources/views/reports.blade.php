@@ -39,7 +39,7 @@
             <div class="accordion-body">
 
               @if(!empty($existingReports))
-                <p>Existing reports:</p>
+                <p>{{ __('Existing reports:') }}</p>
                 <ul class="job-report-list">
                   @foreach($existingReports as $report)
                     <li>
@@ -53,7 +53,7 @@
                 <form action="{{ route('informationobject.reports', $io->slug) }}" method="POST">
                   @csrf
                   <div class="mb-3">
-                    <label for="report" class="form-label">Select new report to generate: <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label for="report" class="form-label">{{ __('Select new report to generate:') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <select name="report" id="report" class="form-select">
                       @foreach($reportTypes as $key => $label)
                         <option value="{{ $key }}">{{ $label }}</option>
@@ -63,7 +63,7 @@
 
                   <ul class="actions mb-3 nav gap-2">
                     <li>
-                      <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a>
+                      <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a>
                     </li>
                     <li>
                       <input class="btn atom-btn-outline-success" type="submit" value="Continue">
@@ -71,10 +71,10 @@
                   </ul>
                 </form>
               @else
-                <p>There are no relevant reports for this item.</p>
+                <p>{{ __('There are no relevant reports for this item.') }}</p>
                 <ul class="actions mb-3 nav gap-2">
                   <li>
-                    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a>
+                    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a>
                   </li>
                 </ul>
               @endif

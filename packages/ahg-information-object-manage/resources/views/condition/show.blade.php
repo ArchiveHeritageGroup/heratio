@@ -27,7 +27,7 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? '' }}</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('io.condition', $io->slug) }}">Condition</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('io.condition', $io->slug) }}">{{ __('Condition') }}</a></li>
       <li class="breadcrumb-item active">Report #{{ $report->id }}</li>
     </ol>
   </nav>
@@ -244,7 +244,7 @@
       @else
         <div class="text-center py-5">
           <i class="fas fa-camera fa-4x text-muted mb-3"></i>
-          <p class="text-muted">No photos uploaded yet.</p>
+          <p class="text-muted">{{ __('No photos uploaded yet.') }}</p>
         </div>
       @endif
     </div>
@@ -284,7 +284,7 @@
       <div class="modal-body">
         <div class="text-center py-4" id="aiScanLoading">
           <i class="fas fa-spinner fa-spin fa-2x text-success mb-3 d-block"></i>
-          <p class="text-muted">Analyzing image for damage...</p>
+          <p class="text-muted">{{ __('Analyzing image for damage...') }}</p>
         </div>
         <div id="aiScanResult" style="display:none"></div>
       </div>

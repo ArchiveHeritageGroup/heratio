@@ -2,7 +2,7 @@
 @section('title', 'Extract Vital Record')
 @section('body-class', 'admin ai-services htr')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Extract</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">{{ __('AI Services') }}</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">{{ __('Extract') }}</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-file-import me-2"></i>{{ __('Extract Vital Record') }}</h1>
 
@@ -11,12 +11,12 @@
     <form method="POST" action="{{ route('admin.ai.htr.doExtract') }}" enctype="multipart/form-data">
       @csrf
       <div class="mb-3">
-        <label class="form-label">Document Image/PDF <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
+        <label class="form-label">{{ __('Document Image/PDF') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="file" name="file" class="form-control" accept="image/*,.pdf" required>
       </div>
       <div class="row">
         <div class="col-md-4 mb-3">
-          <label class="form-label">Document Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Document Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="doc_type" class="form-select">
             <option value="auto">{{ __('Auto-detect') }}</option>
             <option value="type_a">{{ __('Type A - Government Form (Death Certificate)') }}</option>
@@ -25,7 +25,7 @@
           </select>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label">Era Hint <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Era Hint') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="era_hint" class="form-select">
             <option value="auto">{{ __('Auto-detect') }}</option>
             <option value="voc">{{ __('VOC (pre-1806)') }}</option>
@@ -35,7 +35,7 @@
           </select>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label">Output Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Output Format') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="ilm" id="fmt-ilm" checked><label class="form-check-label" for="fmt-ilm"><strong>{{ __('ILM (FamilySearch)') }}</strong></label></div>
           <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="json" id="fmt-json" checked><label class="form-check-label" for="fmt-json">JSON</label></div>
           <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="csv" id="fmt-csv" checked><label class="form-check-label" for="fmt-csv">CSV</label></div>
@@ -43,7 +43,7 @@
         </div>
       </div>
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-magic me-1"></i>{{ __('Extract') }}</button>
-      <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white ms-2">Cancel</a>
+      <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white ms-2">{{ __('Cancel') }}</a>
     </form>
   </div>
 </div>

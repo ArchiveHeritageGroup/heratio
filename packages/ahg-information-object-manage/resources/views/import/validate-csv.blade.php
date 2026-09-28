@@ -29,7 +29,7 @@
         <div id="options-collapse" class="accordion-collapse collapse show" aria-labelledby="options-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label" for="object-type-select">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" name="objectType" id="object-type-select">
                 <option value="informationObject" {{ (isset($objectType) && $objectType === 'informationObject') ? 'selected' : '' }}>{{ config('app.ui_label_informationobject', 'Archival description') }}</option>
                 <option value="accession" {{ (isset($objectType) && $objectType === 'accession') ? 'selected' : '' }}>{{ __('Accession') }}</option>
@@ -51,7 +51,7 @@
         <div id="select-collapse" class="accordion-collapse collapse show" aria-labelledby="select-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="file-input" class="form-label">Select a CSV file to validate <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="file-input" class="form-label">{{ __('Select a CSV file to validate') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input class="form-control" type="file" id="file-input" name="file" accept=".csv">
             </div>
           </div>
@@ -69,7 +69,7 @@
     <div class="card mt-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">
-          <i class="fas fa-clipboard-check me-2"></i>Validation Results
+          <i class="fas fa-clipboard-check me-2"></i>{{ __('Validation Results') }}
           <small class="text-muted ms-2">{{ $fileName ?? '' }}</small>
         </h5>
       </div>

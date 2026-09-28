@@ -8,8 +8,8 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? $io->identifier ?? '' }}</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('io.condition', $io->slug) }}">Condition</a></li>
-      <li class="breadcrumb-item active">New Report</li>
+      <li class="breadcrumb-item"><a href="{{ route('io.condition', $io->slug) }}">{{ __('Condition') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('New Report') }}</li>
     </ol>
   </nav>
 
@@ -158,7 +158,7 @@
     </div>
 
     <div class="d-flex gap-2">
-      <a href="{{ route('io.condition', $io->slug) }}" class="btn atom-btn-white">Cancel</a>
+      <a href="{{ route('io.condition', $io->slug) }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save Condition Report') }}</button>
     </div>
 

@@ -182,11 +182,11 @@
         <div class="card-body">
           <p>We collect and process personal information for the following purposes:</p>
           <ul>
-            <li>Providing access to archival records and research services</li>
-            <li>Processing research requests and reading room bookings</li>
-            <li>Managing donor agreements and access restrictions</li>
-            <li>Compliance with legal and regulatory requirements</li>
-            <li>Improving our services and user experience</li>
+            <li>{{ __('Providing access to archival records and research services') }}</li>
+            <li>{{ __('Processing research requests and reading room bookings') }}</li>
+            <li>{{ __('Managing donor agreements and access restrictions') }}</li>
+            <li>{{ __('Compliance with legal and regulatory requirements') }}</li>
+            <li>{{ __('Improving our services and user experience') }}</li>
           </ul>
           <p class="mb-0">We process your data in accordance with applicable data protection laws including POPIA, NDPA, Kenya DPA, and GDPR where applicable.</p>
         </div>
@@ -208,10 +208,10 @@
       <div class="card mb-4">
         <div class="card-header"><h5 class="mb-0"><i class="fas fa-list me-2"></i>{{ __('Request Types') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item d-flex justify-content-between align-items-center">Access Request <span class="badge bg-primary rounded-pill">{{ __('DSAR') }}</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">Correction Request <span class="badge bg-info rounded-pill">{{ __('DSAR') }}</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">Deletion Request <span class="badge bg-danger rounded-pill">{{ __('DSAR') }}</span></li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">Privacy Complaint <span class="badge bg-warning text-dark rounded-pill">{{ __('Complaint') }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">{{ __('Access Request') }} <span class="badge bg-primary rounded-pill">{{ __('DSAR') }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">{{ __('Correction Request') }} <span class="badge bg-info rounded-pill">{{ __('DSAR') }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">{{ __('Deletion Request') }} <span class="badge bg-danger rounded-pill">{{ __('DSAR') }}</span></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">{{ __('Privacy Complaint') }} <span class="badge bg-warning text-dark rounded-pill">{{ __('Complaint') }}</span></li>
         </ul>
       </div>
 
@@ -221,7 +221,7 @@
         <ul class="list-group list-group-flush">
           <li class="list-group-item">POPIA (South Africa)</li>
           <li class="list-group-item">NDPA (Nigeria)</li>
-          <li class="list-group-item">Kenya DPA</li>
+          <li class="list-group-item">{{ __('Kenya DPA') }}</li>
           <li class="list-group-item">GDPR (European Union)</li>
           <li class="list-group-item">PIPEDA (Canada)</li>
           <li class="list-group-item">CCPA (California)</li>

@@ -15,7 +15,7 @@
                 <i class="fas fa-plus me-1"></i>{{ __('New Schedule') }}
             </a>
         </div>
-        <p class="text-muted mb-3">Scheduled preservation workflows and their run history</p>
+        <p class="text-muted mb-3">{{ __('Scheduled preservation workflows and their run history') }}</p>
 
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show">
@@ -161,7 +161,7 @@
                                     </tr>
                                     @endif
                                     @empty
-                                    <tr><td colspan="13" class="text-center text-muted py-3">No workflow schedules configured</td></tr>
+                                    <tr><td colspan="13" class="text-center text-muted py-3">{{ __('No workflow schedules configured') }}</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -177,7 +177,7 @@
                     <div class="card-body p-0">
                         @php $recentRuns = $recentRuns ?? collect(); @endphp
                         @if($recentRuns->isEmpty())
-                            <div class="p-4 text-center text-muted">No workflow runs yet.</div>
+                            <div class="p-4 text-center text-muted">{{ __('No workflow runs yet.') }}</div>
                         @else
                             <div class="table-responsive">
                                 <table class="table table-bordered table-sm table-striped mb-0">
@@ -200,7 +200,7 @@
                                                 @if($run->duration_ms ?? null)
                                                     <small>{{ number_format($run->duration_ms / 1000, 1) }}s</small>
                                                 @elseif(($run->status ?? '') === 'running')
-                                                    <small class="text-warning"><i class="fas fa-spinner fa-spin"></i> Running</small>
+                                                    <small class="text-warning"><i class="fas fa-spinner fa-spin"></i> {{ __('Running') }}</small>
                                                 @else
                                                     <small>-</small>
                                                 @endif
@@ -245,7 +245,7 @@
                             $upcoming = $schedules->filter(fn($s) => $s->is_enabled && $s->next_run_at)->sortBy('next_run_at')->take(5);
                         @endphp
                         @if($upcoming->isEmpty())
-                            <p class="text-muted mb-0">No upcoming scheduled runs.</p>
+                            <p class="text-muted mb-0">{{ __('No upcoming scheduled runs.') }}</p>
                         @else
                             <ul class="list-group list-group-flush">
                                 @foreach($upcoming as $up)
@@ -267,12 +267,12 @@
                         <h6 class="mb-0"><i class="fas fa-terminal me-1"></i> {{ __('CLI Command') }}</h6>
                     </div>
                     <div class="card-body">
-                        <p class="small text-muted">Run the scheduler via cron to execute due workflows:</p>
+                        <p class="small text-muted">{{ __('Run the scheduler via cron to execute due workflows:') }}</p>
                         <pre class="bg-dark text-light p-3 rounded small"><code># Run every minute (recommended)
 * * * * * cd /usr/share/nginx/heratio && \
   php artisan schedule:run >> \
   /var/log/heratio/scheduler.log 2>&1</code></pre>
-                        <p class="small text-muted mb-0">Or run individual workflows:</p>
+                        <p class="small text-muted mb-0">{{ __('Or run individual workflows:') }}</p>
                         <pre class="bg-dark text-light p-3 rounded small mb-0"><code>php artisan preservation:identify --limit=500
 php artisan preservation:fixity --limit=500
 php artisan preservation:virus-scan --limit=200</code></pre>

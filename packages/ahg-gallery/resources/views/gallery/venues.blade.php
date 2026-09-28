@@ -9,8 +9,8 @@
   <div class="card-body p-0">
     @if(isset($venues) && count($venues) > 0)
     <table class="table table-striped table-hover mb-0"><thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>{{ __('Name') }}</th><th>{{ __('City') }}</th><th>{{ __('Type') }}</th><th>{{ __('Actions') }}</th></tr></thead>
-    <tbody>@foreach($venues as $v)<tr><td>{{ $v->name ?? '' }}</td><td>{{ $v->city ?? '-' }}</td><td>{{ ucfirst($v->venue_type ?? '') }}</td><td><a href="{{ route('gallery.venues.show', $v->id) }}" class="btn btn-sm atom-btn-white">View</a></td></tr>@endforeach</tbody></table>
-    @else<div class="text-center py-4 text-muted">No venue records found.</div>@endif
+    <tbody>@foreach($venues as $v)<tr><td>{{ $v->name ?? '' }}</td><td>{{ $v->city ?? '-' }}</td><td>{{ ucfirst($v->venue_type ?? '') }}</td><td><a href="{{ route('gallery.venues.show', $v->id) }}" class="btn btn-sm atom-btn-white">{{ __('View') }}</a></td></tr>@endforeach</tbody></table>
+    @else<div class="text-center py-4 text-muted">{{ __('No venue records found.') }}</div>@endif
   </div>
 </div>
 @endsection

@@ -36,7 +36,7 @@
             <li>
               <a class="dropdown-item {{ !$selectedRepository ? 'active' : '' }}"
                  href="{{ route('gallery.browse', array_merge(request()->except('repository', 'page'), [])) }}">
-                All repositories
+                {{ __('All repositories') }}
               </a>
             </li>
             @foreach($repositories as $repo)

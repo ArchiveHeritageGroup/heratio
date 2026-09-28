@@ -26,7 +26,7 @@
 
 @section('title-block')
   <h1 class="h3 mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Manual Condition Assessment') }}</h1>
-  <p class="text-muted small mb-3">Record a manual condition assessment without AI</p>
+  <p class="text-muted small mb-3">{{ __('Record a manual condition assessment without AI') }}</p>
 @endsection
 
 @section('content')
@@ -45,7 +45,7 @@
 
       {{-- Condition Grade --}}
       <div class="mb-3">
-        <label class="form-label">Condition Grade <span class="text-danger">*</span></label>
+        <label class="form-label">{{ __('Condition Grade') }} <span class="text-danger">*</span></label>
         <select class="form-select form-select-sm" id="conditionGrade" name="condition_grade" required>
           <option value="">-- Select grade --</option>
           @foreach(['excellent', 'good', 'fair', 'poor', 'critical'] as $g)
@@ -56,7 +56,7 @@
 
       {{-- Overall Score --}}
       <div class="mb-3">
-        <label class="form-label">Overall Score: <span id="scoreValue">50</span>/100</label>
+        <label class="form-label">{{ __('Overall Score:') }} <span id="scoreValue">50</span>/100</label>
         <input type="range" class="form-range" id="overallScore" name="overall_score" min="0" max="100" value="50" step="1">
       </div>
 

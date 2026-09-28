@@ -9,7 +9,7 @@
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}">{{ $io->title ?? 'Untitled' }}</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Condition</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ __('Condition') }}</li>
     </ol>
   </nav>
 
@@ -166,7 +166,7 @@
       </div>
       <h4 class="text-muted">{{ __('No Condition Reports') }}</h4>
       <p class="text-muted mb-4">
-        No condition reports found for this object.
+        {{ __('No condition reports found for this object.') }}
       </p>
       @auth
         <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-outline-success btn-lg">

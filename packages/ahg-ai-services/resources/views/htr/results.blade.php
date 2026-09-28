@@ -2,7 +2,7 @@
 @section('title', 'HTR Extraction Results')
 @section('body-class', 'admin ai-services htr')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Results</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">{{ __('AI Services') }}</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">{{ __('Results') }}</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('Extraction Results') }}</h1>
 
@@ -22,7 +22,7 @@
         @if(!empty($results['image_name']))
           <canvas id="result-canvas"></canvas>
         @else
-          <div class="text-center text-muted py-5">No image available</div>
+          <div class="text-center text-muted py-5">{{ __('No image available') }}</div>
         @endif
       </div>
     </div>
@@ -84,7 +84,7 @@
             @endif
           </div>
         @empty
-          <div class="text-center text-muted py-3">No fields detected</div>
+          <div class="text-center text-muted py-3">{{ __('No fields detected') }}</div>
         @endforelse
       </div>
     </div>

@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="ms-auto">
-      <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-sm atom-btn-white text-wrap">Return to archival description</a>
+      <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-sm atom-btn-white text-wrap">{{ __('Return to archival description') }}</a>
     </div>
   </div>
 
@@ -38,13 +38,13 @@
         <thead>
           <tr class="text-nowrap">
             <th width="14%">
-              <a href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'sort' => 'identifier']) }}">Identifier</a>
+              <a href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'sort' => 'identifier']) }}">{{ __('Identifier') }}</a>
             </th>
             <th width="40%">
-              <a href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'sort' => 'title']) }}">Title</a>
+              <a href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'sort' => 'title']) }}">{{ __('Title') }}</a>
             </th>
             <th width="14%">
-              <a href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'sort' => 'level']) }}">Level of description</a>
+              <a href="{{ route('informationobject.inventory', ['slug' => $io->slug, 'sort' => 'level']) }}">{{ __('Level of description') }}</a>
             </th>
             <th width="24%">{{ __('Date') }}</th>
             <th width="8%">{{ __('Digital object') }}</th>
@@ -62,7 +62,7 @@
               <td>{{ $itemDates[$item->id] ?? '' }}</td>
               <td>
                 @if(isset($hasDigitalObject[$item->id]))
-                  <a href="{{ route('informationobject.show', $item->slug) }}" class="btn btn-sm atom-btn-white">View</a>
+                  <a href="{{ route('informationobject.show', $item->slug) }}" class="btn btn-sm atom-btn-white">{{ __('View') }}</a>
                 @endif
               </td>
               <td>
@@ -102,7 +102,7 @@
 
   @else
     <div class="p-3">
-      We couldn't find any results matching your search.
+      {{ __('We couldn\'t find any results matching your search.') }}
     </div>
   @endif
 

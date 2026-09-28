@@ -7,8 +7,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Trust Score</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Trust Score') }}</li>
     </ol>
 </nav>
 
@@ -89,7 +89,7 @@
                 {{-- Quality Metrics --}}
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
-                        <span><i class="fas fa-star me-1 text-warning"></i>Quality Metrics
+                        <span><i class="fas fa-star me-1 text-warning"></i>{{ __('Quality Metrics') }}
                             <small class="text-muted">({{ $qualityCount }} metrics)</small>
                         </span>
                         <span class="fw-bold">{{ $qualityScore }}/30</span>
@@ -99,7 +99,7 @@
                     </div>
                 </div>
                 @if(!$assessment)
-                    <div class="alert alert-info py-2 mb-0"><i class="fas fa-info-circle me-1"></i>No source assessment yet. <a href="{{ route('io.research.assessment', $io->slug) }}">Submit one</a> to get a meaningful score.</div>
+                    <div class="alert alert-info py-2 mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('No source assessment yet.') }} <a href="{{ route('io.research.assessment', $io->slug) }}">{{ __('Submit one') }}</a> to get a meaningful score.</div>
                 @endif
             </div>
         </div>

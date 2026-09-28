@@ -122,7 +122,7 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center" >
                         <span><i class="fas fa-fingerprint me-2"></i>{{ __('Recent Fixity Checks') }}</span>
-                        <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                        <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm btn-outline-secondary">{{ __('View All') }}</a>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -158,7 +158,7 @@
                                         <td><small class="text-muted">{{ $check->checked_at }}</small></td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="3" class="text-center text-muted py-3">No fixity checks yet</td></tr>
+                                    <tr><td colspan="3" class="text-center text-muted py-3">{{ __('No fixity checks yet') }}</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -172,7 +172,7 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center" >
                         <span><i class="fas fa-history me-2"></i>{{ __('Recent PREMIS Events') }}</span>
-                        <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                        <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-secondary">{{ __('View All') }}</a>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -204,7 +204,7 @@
                                         <td><small class="text-muted">{{ Str::limit($event->event_detail, 60) }}</small></td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="5" class="text-center text-muted py-3">No events recorded yet</td></tr>
+                                    <tr><td colspan="5" class="text-center text-muted py-3">{{ __('No events recorded yet') }}</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -217,8 +217,8 @@
         {{-- At-Risk Formats --}}
         <div class="card mb-4">
             <div class="card-header" >
-                <i class="fas fa-exclamation-triangle text-warning me-2"></i>At-Risk Formats
-                <a href="{{ route('preservation.formats') }}" class="btn btn-sm btn-outline-secondary float-end">View All Formats</a>
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i>{{ __('At-Risk Formats') }}
+                <a href="{{ route('preservation.formats') }}" class="btn btn-sm btn-outline-secondary float-end">{{ __('View All Formats') }}</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -250,7 +250,7 @@
                                 <td><span class="badge bg-primary">{{ $format->object_count }}</span></td>
                             </tr>
                             @empty
-                            <tr><td colspan="6" class="text-center text-muted py-3">No at-risk formats identified</td></tr>
+                            <tr><td colspan="6" class="text-center text-muted py-3">{{ __('No at-risk formats identified') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

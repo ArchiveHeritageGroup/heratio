@@ -23,15 +23,15 @@
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Date Start <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Date Start') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ request('dateStart') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Date End <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Date End') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ request('dateEnd') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Per Page <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Per Page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="limit" class="form-select form-select-sm">
               <option value="25" {{ request('limit',25)==25?'selected':'' }}>25</option>
               <option value="50" {{ request('limit')==50?'selected':'' }}>50</option>
@@ -83,7 +83,7 @@
                 <td><small class="text-muted">{{ Str::limit($item->db_query ?? '', 80) }}</small></td>
               </tr>
               @empty
-              <tr><td colspan="7" class="text-center text-muted py-3">No audit records found</td></tr>
+              <tr><td colspan="7" class="text-center text-muted py-3">{{ __('No audit records found') }}</td></tr>
               @endforelse
             </tbody>
           </table>

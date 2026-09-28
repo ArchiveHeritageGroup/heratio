@@ -11,15 +11,15 @@
       <div class="card-body">
         <form method="get" action="{{ route('reports.activity') }}">
           <div class="mb-3">
-            <label class="form-label">Date start <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Date start') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ $params['dateStart'] ?? '' }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Date end <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Date end') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ $params['dateEnd'] ?? '' }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">User <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('User') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="actionUser" class="form-select form-select-sm">
               <option value="">{{ __('All users') }}</option>
               @foreach($users as $u)
@@ -28,7 +28,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Action <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Action') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="userAction" class="form-select form-select-sm">
               <option value="">{{ __('All actions') }}</option>
               @foreach(['create', 'update', 'delete'] as $a)
@@ -37,7 +37,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Results per page <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Results per page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="limit" class="form-select form-select-sm">
               @foreach([10, 20, 50, 100] as $l)
                 <option value="{{ $l }}" {{ ($params['limit'] ?? 20) == $l ? 'selected' : '' }}>{{ $l }}</option>
@@ -55,7 +55,7 @@
       <span class="badge bg-primary fs-6">{{ number_format($total) }} results</span>
     </div>
     @if(!$auditTable)
-      <div class="alert alert-warning">No audit log table found.</div>
+      <div class="alert alert-warning">{{ __('No audit log table found.') }}</div>
     @else
       <div class="table-responsive">
         <table class="table table-bordered table-striped table-sm">
@@ -87,7 +87,7 @@
                 @endif
               </tr>
             @empty
-              <tr><td colspan="5" class="text-muted text-center">No results</td></tr>
+              <tr><td colspan="5" class="text-muted text-center">{{ __('No results') }}</td></tr>
             @endforelse
           </tbody>
         </table>

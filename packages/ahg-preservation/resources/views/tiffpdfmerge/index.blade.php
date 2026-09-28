@@ -21,22 +21,22 @@
       @csrf
       @if(!empty($ioId))<input type="hidden" name="io" value="{{ $ioId }}">@endif
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">Merge Configuration</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Merge Configuration') }}</div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Output Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Output Format') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="output_format" class="form-select">
                 <option value="pdf">PDF</option>
                 <option value="tiff">{{ __('Multi-page TIFF') }}</option>
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Output Filename <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Output Filename') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="output_filename" class="form-control" placeholder="{{ __('merged-output') }}">
             </div>
             <div class="col-12 mb-3">
-              <label class="form-label">Source Files <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label class="form-label">{{ __('Source Files') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="file" name="files[]" class="form-control" multiple required accept=".tif,.tiff,.pdf,.jpg,.jpeg,.png">
               <div class="form-text">Select TIFF, PDF, or image files to merge. Hold Ctrl/Cmd to select multiple.</div>
             </div>

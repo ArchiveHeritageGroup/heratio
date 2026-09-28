@@ -9,11 +9,11 @@
     <h1><i class="fas fa-clipboard-list me-2"></i>{{ __('Select Report Type') }}</h1>
 
     <div class="card mb-3">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">Report Type</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Report Type') }}</div>
       <div class="card-body">
         <form method="get" action="{{ route('reports.select') }}">
           <div class="mb-3">
-            <label class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="objectType" class="form-select">
               <option value="accession">{{ __('Accession') }}</option>
               <option value="informationObject">{{ __('Archival Description') }}</option>

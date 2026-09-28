@@ -9,7 +9,7 @@
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? '' }}</a></li>
-      <li class="breadcrumb-item active">Citation Generator</li>
+      <li class="breadcrumb-item active">{{ __('Citation Generator') }}</li>
     </ol>
   </nav>
 
@@ -114,7 +114,7 @@
       <div class="row">
         <div class="col-md-6">
           <h6><span class="badge bg-danger">{{ __('Harvard') }}</span></h6>
-          <p class="small text-muted">Standard Harvard referencing style used internationally.</p>
+          <p class="small text-muted">{{ __('Standard Harvard referencing style used internationally.') }}</p>
         </div>
         <div class="col-md-6">
           <h6><span class="badge bg-dark">{{ __('UNISA Harvard') }}</span></h6>

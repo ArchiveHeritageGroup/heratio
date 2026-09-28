@@ -26,7 +26,7 @@
           <div class="alert alert-warning mt-3 mb-0">
             Only {{ $previewSize ?? 10 }} descriptions were shown.
             <a href="{{ route('informationobject.browse', ['collection' => $io->id, 'topLod' => 0]) }}" class="alert-link">
-              View the full list of descendants.
+              {{ __('View the full list of descendants.') }}
             </a>
           </div>
         @endif
@@ -34,7 +34,7 @@
     @endif
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+      <li><a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-danger" type="submit" value="Delete"></li>
     </ul>
   </form>

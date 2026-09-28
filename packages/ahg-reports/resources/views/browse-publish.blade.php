@@ -38,7 +38,7 @@
                   <td>{{ $item->identifier ?? '-' }}</td>
                   <td>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="publish_{{ $loop->index }}" value="yes" {{ ($item->publish ?? '') === 'Yes' ? 'checked' : '' }}> Yes
+                      <input class="form-check-input" type="radio" name="publish_{{ $loop->index }}" value="yes" {{ ($item->publish ?? '') === 'Yes' ? 'checked' : '' }}> {{ __('Yes') }}
                     </div>
                     <div class="form-check form-check-inline">
                       <input class="form-check-input" type="radio" name="publish_{{ $loop->index }}" value="no" {{ ($item->publish ?? '') === 'No' ? 'checked' : '' }}> No
@@ -50,14 +50,14 @@
                   <td>{{ ($item->classification ?? 'Please Select') === 'Please Select' ? '-' : $item->classification }}</td>
                 </tr>
                 @empty
-                <tr><td colspan="7" class="text-center text-muted py-3">No items found</td></tr>
+                <tr><td colspan="7" class="text-center text-muted py-3">{{ __('No items found') }}</td></tr>
                 @endforelse
               </tbody>
             </table>
           </div>
           @if(!empty($items) && count($items) > 0)
           <div class="card-footer">
-            <a href="{{ route('informationobject.browse') }}" class="btn atom-btn-white">Return</a>
+            <a href="{{ route('informationobject.browse') }}" class="btn atom-btn-white">{{ __('Return') }}</a>
             <button type="submit" class="btn atom-btn-white ms-2">{{ __('Continue') }}</button>
           </div>
           @endif

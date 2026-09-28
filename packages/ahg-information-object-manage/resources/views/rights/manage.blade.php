@@ -21,7 +21,7 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/' . $io->slug) }}">{{ $io->title ?? $io->slug }}</a></li>
-    <li class="breadcrumb-item active">Manage Rights</li>
+    <li class="breadcrumb-item active">{{ __('Manage Rights') }}</li>
   </ol>
 </nav>
 
@@ -338,9 +338,9 @@
                   <div class="col-md-2 mb-2">
                     <label class="form-label">{{ __('Restriction') }}</label>
                     <select name="granted[{{ $idx }}][restriction]" class="form-select">
-                      <option value="0" @if($gr->restriction == 0) selected @endif>Allow</option>
-                      <option value="1" @if($gr->restriction == 1) selected @endif>Disallow</option>
-                      <option value="2" @if($gr->restriction == 2) selected @endif>Conditional</option>
+                      <option value="0" @if($gr->restriction == 0) selected @endif>{{ __('Allow') }}</option>
+                      <option value="1" @if($gr->restriction == 1) selected @endif>{{ __('Disallow') }}</option>
+                      <option value="2" @if($gr->restriction == 2) selected @endif>{{ __('Conditional') }}</option>
                     </select>
                   </div>
                   <div class="col-md-2 mb-2">
@@ -386,8 +386,8 @@
 
           @if($embargo)
             <div class="alert alert-warning mb-3">
-              <strong><i class="fas fa-exclamation-triangle me-1"></i> Active Embargo</strong><br>
-              Type: <strong>{{ ucfirst($embargo->embargo_type) }}</strong> |
+              <strong><i class="fas fa-exclamation-triangle me-1"></i> {{ __('Active Embargo') }}</strong><br>
+              {{ __('Type:') }} <strong>{{ ucfirst($embargo->embargo_type) }}</strong> |
               Since: <strong>{{ $embargo->start_date }}</strong>
               @if($embargo->end_date) | Until: <strong>{{ $embargo->end_date }}</strong> @endif
               @if($embargo->is_perpetual) | <span class="badge bg-dark">{{ __('Perpetual') }}</span> @endif
@@ -418,9 +418,9 @@
               <label for="embargo_type" class="form-label">{{ __('Embargo Type') }}</label>
               <select name="embargo_type" id="embargo_type" class="form-select">
                 <option value="">-- No embargo --</option>
-                <option value="full" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'full') selected @endif>Full</option>
-                <option value="partial" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'partial') selected @endif>Partial</option>
-                <option value="metadata_only" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'metadata_only') selected @endif>Metadata Only</option>
+                <option value="full" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'full') selected @endif>{{ __('Full') }}</option>
+                <option value="partial" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'partial') selected @endif>{{ __('Partial') }}</option>
+                <option value="metadata_only" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'metadata_only') selected @endif>{{ __('Metadata Only') }}</option>
               </select>
             </div>
             <div class="col-md-4 mb-3">
@@ -474,7 +474,7 @@
     <button type="submit" class="btn atom-btn-outline-success">
       <i class="fas fa-save me-1"></i> {{ __('Save') }}
     </button>
-    <a href="{{ url('/' . $io->slug) }}" class="btn atom-btn-white">Cancel</a>
+    <a href="{{ url('/' . $io->slug) }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
   </div>
 </form>
 

@@ -8,7 +8,7 @@
   <div class="col-md-9">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('preservation.index') }}">Preservation</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('preservation.index') }}">{{ __('Preservation') }}</a></li>
         <li class="breadcrumb-item active">{{ \AhgCore\Support\GlobalSettings::displayFilename($digitalObject->name) ?? 'Object' }}</li>
       </ol>
     </nav>
@@ -37,7 +37,7 @@
             <div class="alert {{ ($formatInfo->risk_level ?? '') === 'low' ? 'alert-success' : (in_array($formatInfo->risk_level ?? '', ['high','critical']) ? 'alert-danger' : 'alert-warning') }}">
               <h6><i class="fas fa-file-code me-1"></i>{{ __('Format Information') }}</h6>
               <p class="mb-1"><strong>{{ $formatInfo->format_name ?? '' }}</strong></p>
-              <p class="mb-1">Risk: <strong>{{ ucfirst($formatInfo->risk_level ?? 'unknown') }}</strong></p>
+              <p class="mb-1">{{ __('Risk:') }} <strong>{{ ucfirst($formatInfo->risk_level ?? 'unknown') }}</strong></p>
               @if($formatInfo->is_preservation_format ?? false) <span class="badge bg-success">{{ __('Preservation Format') }}</span> @endif
             </div>
             @endif
@@ -79,7 +79,7 @@
                 <td><small>{{ $cs->verified_at ?? '-' }}</small></td>
               </tr>
               @empty
-              <tr><td colspan="5" class="text-center text-muted py-3">No checksums generated</td></tr>
+              <tr><td colspan="5" class="text-center text-muted py-3">{{ __('No checksums generated') }}</td></tr>
               @endforelse
             </tbody>
           </table>
@@ -122,7 +122,7 @@
                         </tr>
                         @endif
                         @empty
-                        <tr><td colspan="7" class="text-center text-muted py-3">No fixity checks performed yet</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted py-3">{{ __('No fixity checks performed yet') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -158,7 +158,7 @@
               </tr>
               @endif
               @empty
-              <tr><td colspan="5" class="text-center text-muted py-3">No events recorded</td></tr>
+              <tr><td colspan="5" class="text-center text-muted py-3">{{ __('No events recorded') }}</td></tr>
               @endforelse
             </tbody>
           </table>

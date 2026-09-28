@@ -37,7 +37,7 @@
             @else
                 <div class="alert alert-danger mb-0">
                     <strong>{{ __('Siegfried is not installed.') }}</strong>
-                    <p class="mb-0 mt-2">Install with:</p>
+                    <p class="mb-0 mt-2">{{ __('Install with:') }}</p>
                     <code>curl -sL "https://github.com/richardlehane/siegfried/releases/download/v1.11.1/siegfried_1.11.1-1_amd64.deb" -o /tmp/sf.deb && sudo dpkg -i /tmp/sf.deb</code>
                 </div>
             @endif
@@ -196,7 +196,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="5" class="text-center text-muted py-3">No format identifications yet</td></tr>
+                        <tr><td colspan="5" class="text-center text-muted py-3">{{ __('No format identifications yet') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -249,7 +249,7 @@
                 <td><small class="text-muted">{{ $id->created_at ?? '' }}</small></td>
               </tr>
               @empty
-              <tr><td colspan="8" class="text-center text-muted py-3">No identifications performed yet</td></tr>
+              <tr><td colspan="8" class="text-center text-muted py-3">{{ __('No identifications performed yet') }}</td></tr>
               @endforelse
             </tbody>
           </table>

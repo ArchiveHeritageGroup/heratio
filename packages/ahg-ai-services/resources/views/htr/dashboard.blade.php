@@ -2,7 +2,7 @@
 @section('title', 'Vital Records HTR')
 @section('body-class', 'admin ai-services htr')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item active">Vital Records HTR</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">{{ __('AI Services') }}</a></li><li class="breadcrumb-item active">{{ __('Vital Records HTR') }}</li></ol></nav>
 @include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-file-alt me-2"></i>{{ __('Vital Records HTR') }}</h1>
 
@@ -26,14 +26,14 @@
   <div class="col-md-3 mb-4">
     <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-file-import me-2"></i>{{ __('Extract Single') }}</div>
-      <div class="card-body"><p>Upload a single vital record image or PDF for HTR extraction.</p></div>
+      <div class="card-body"><p>{{ __('Upload a single vital record image or PDF for HTR extraction.') }}</p></div>
       <div class="card-footer"><a href="{{ route('admin.ai.htr.extract') }}" class="btn atom-btn-white w-100"><i class="fas fa-upload me-1"></i>{{ __('Extract') }}</a></div>
     </div>
   </div>
   <div class="col-md-3 mb-4">
     <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-layer-group me-2"></i>{{ __('Batch Process') }}</div>
-      <div class="card-body"><p>Process multiple vital records at once for bulk extraction.</p></div>
+      <div class="card-body"><p>{{ __('Process multiple vital records at once for bulk extraction.') }}</p></div>
       <div class="card-footer"><a href="{{ route('admin.ai.htr.batch') }}" class="btn atom-btn-white w-100"><i class="fas fa-tasks me-1"></i>{{ __('Batch') }}</a></div>
     </div>
   </div>

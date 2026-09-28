@@ -11,8 +11,8 @@
 <h1>Edit Rights: {{ $io->title ?? 'Untitled' }}</h1>
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('io.rights.extended', $io->slug) }}">Extended Rights</a></li>
-    <li class="breadcrumb-item active">Edit</li>
+    <li class="breadcrumb-item"><a href="{{ route('io.rights.extended', $io->slug) }}">{{ __('Extended Rights') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Edit') }}</li>
   </ol>
 </nav>
 
@@ -31,7 +31,7 @@
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Rights Statement') }}</strong></div>
         <div class="card-body">
-          <label for="rights_statement_id" class="form-label">Rights Statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label for="rights_statement_id" class="form-label">{{ __('Rights Statement') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="rights_statement_id" id="rights_statement_id" class="form-select">
             <option value="">-- None --</option>
             @foreach($rightsStatements ?? [] as $rs)
@@ -48,7 +48,7 @@
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Creative Commons License') }}</strong></div>
         <div class="card-body">
-          <label for="cc_license_id" class="form-label">Creative Commons License <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label for="cc_license_id" class="form-label">{{ __('Creative Commons License') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="cc_license_id" id="cc_license_id" class="form-select">
             <option value="">-- None --</option>
             @foreach($ccLicenses ?? [] as $cc)
@@ -65,7 +65,7 @@
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('Rights Holder (Donor)') }}</strong></div>
         <div class="card-body">
-          <label for="rights_holder_id" class="form-label">Rights Holder <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label for="rights_holder_id" class="form-label">{{ __('Rights Holder') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="rights_holder_id" id="rights_holder_id" class="form-select" placeholder="{{ __('Type to search...') }}">
             <option value="">-- None --</option>
             @if(isset($donors) && count($donors) > 0)
@@ -93,17 +93,17 @@
           @endphp
 
           <div class="mb-3">
-            <label for="copyright_notice" class="form-label">Copyright Notice <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="copyright_notice" class="form-label">{{ __('Copyright Notice') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="copyright_notice" id="copyright_notice" class="form-control" rows="2">{{ old('copyright_notice', $primaryExtended->copyright_notice ?? '') }}</textarea>
           </div>
 
           <div class="mb-3">
-            <label for="usage_conditions" class="form-label">Usage Conditions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="usage_conditions" class="form-label">{{ __('Usage Conditions') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="usage_conditions" id="usage_conditions" class="form-control" rows="2">{{ old('usage_conditions', $primaryExtended->usage_conditions ?? '') }}</textarea>
           </div>
 
           <div class="mb-3">
-            <label for="rights_note" class="form-label">Rights Note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="rights_note" class="form-label">{{ __('Rights Note') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="rights_note" id="rights_note" class="form-control" rows="3">{{ old('rights_note', $primaryExtended->rights_note ?? '') }}</textarea>
           </div>
         </div>
@@ -115,7 +115,7 @@
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('TK Labels') }}</strong></div>
         <div class="card-body">
-          <label class="form-label">TK Labels <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('TK Labels') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           @php
             $selectedTkLabels = $currentRights->tk_labels ?? [];
             if (!is_array($selectedTkLabels)) {
@@ -142,7 +142,7 @@
       <i class="fas fa-save"></i> {{ __('Save Rights') }}
     </button>
     <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
-      Cancel
+      {{ __('Cancel') }}
     </a>
   </div>
 </form>

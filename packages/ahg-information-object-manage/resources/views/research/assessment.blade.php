@@ -7,8 +7,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Source Assessment</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Source Assessment') }}</li>
     </ol>
 </nav>
 
@@ -97,7 +97,7 @@
                     </tbody>
                 </table>
                 @else
-                <div class="card-body text-center text-muted py-3">No quality metrics recorded yet.</div>
+                <div class="card-body text-center text-muted py-3">{{ __('No quality metrics recorded yet.') }}</div>
                 @endif
             </div>
         </div>

@@ -22,7 +22,7 @@
 @section('title-block')
   <div class="d-flex flex-column">
     <div class="d-flex align-items-center gap-2 mb-1">
-      <span class="badge bg-secondary">RiC-O</span>
+      <span class="badge bg-secondary">{{ __('RiC-O') }}</span>
       <span class="text-muted small">{{ __('Described per Records in Contexts (RiC-O 1.0, International Council on Archives)') }}</span>
     </div>
     <h1 class="h3 mb-0">{{ $io->title ?? __('Untitled record') }}</h1>

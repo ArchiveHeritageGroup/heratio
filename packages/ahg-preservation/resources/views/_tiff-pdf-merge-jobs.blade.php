@@ -3,7 +3,7 @@
   <div class="card-header" style="background:var(--ahg-primary);color:#fff">
     <i class="fas fa-file-pdf me-2"></i>TIFF/PDF Merge Jobs
     @if(Route::has('preservation.tiffpdfmerge.browse'))
-    <a href="{{ route('preservation.tiffpdfmerge.browse') }}" class="btn btn-sm atom-btn-white float-end">View All</a>
+    <a href="{{ route('preservation.tiffpdfmerge.browse') }}" class="btn btn-sm atom-btn-white float-end">{{ __('View All') }}</a>
     @endif
   </div>
   <div class="card-body p-0">
@@ -29,7 +29,7 @@
             <td><small>{{ $job->created_at ?? '' }}</small></td>
           </tr>
           @empty
-          <tr><td colspan="5" class="text-center text-muted py-3">No merge jobs</td></tr>
+          <tr><td colspan="5" class="text-center text-muted py-3">{{ __('No merge jobs') }}</td></tr>
           @endforelse
         </tbody>
       </table>

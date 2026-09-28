@@ -12,7 +12,7 @@
   @if($filterObjectId ?? null)
     <div class="alert alert-info d-flex justify-content-between align-items-center">
       <div>
-        <i class="fas fa-filter me-2"></i>Filtered to: <strong>{{ e($filterIo->title ?? 'Object #' . $filterObjectId) }}</strong>
+        <i class="fas fa-filter me-2"></i>{{ __('Filtered to:') }} <strong>{{ e($filterIo->title ?? 'Object #' . $filterObjectId) }}</strong>
       </div>
       <a href="{{ route('io.ai.review') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times me-1"></i>{{ __('Clear Filter') }}</a>
     </div>
@@ -24,7 +24,7 @@
       <div class="card bg-warning text-dark">
         <div class="card-body text-center">
           <h2 class="display-4">{{ $pending->sum('pending_count') }}</h2>
-          <p class="mb-0">Entities Pending Review</p>
+          <p class="mb-0">{{ __('Entities Pending Review') }}</p>
         </div>
       </div>
     </div>
@@ -32,7 +32,7 @@
       <div class="card bg-info text-white">
         <div class="card-body text-center">
           <h2 class="display-4">{{ $pending->count() }}</h2>
-          <p class="mb-0">Objects to Review</p>
+          <p class="mb-0">{{ __('Objects to Review') }}</p>
         </div>
       </div>
     </div>
@@ -90,7 +90,7 @@
           @else
             <tr>
               <td colspan="4" class="text-center text-muted py-4">
-                No pending entities to review
+                {{ __('No pending entities to review') }}
               </td>
             </tr>
           @endif

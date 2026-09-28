@@ -48,7 +48,7 @@
         <div id="load-collapse" class="accordion-collapse collapse show" aria-labelledby="load-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="finding-aid-file" class="form-label">PDF file <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="finding-aid-file" class="form-label">{{ __('PDF file') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input class="form-control" type="file" id="finding-aid-file" name="file" accept=".pdf,.rtf" required>
             </div>
           </div>
@@ -57,7 +57,7 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+      <li><a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="Upload"></li>
     </ul>
 

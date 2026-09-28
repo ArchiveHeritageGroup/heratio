@@ -10,7 +10,7 @@
         <div class="col">
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('reports.dashboard') }}">Reports</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('reports.dashboard') }}">{{ __('Reports') }}</a></li>
                     <li class="breadcrumb-item active">Checksums &amp; Integrity</li>
                 </ol>
             </nav>
@@ -160,7 +160,7 @@
             @else
                 <div class="text-center py-4 text-muted">
                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                    <p class="mb-3">No PDF merge jobs yet.</p>
+                    <p class="mb-3">{{ __('No PDF merge jobs yet.') }}</p>
                     <a href="{{ url('/tiff-pdf-merge') }}" class="btn btn-primary">
                         <i class="fas fa-plus me-1"></i>{{ __('Create Your First PDF') }}
                     </a>

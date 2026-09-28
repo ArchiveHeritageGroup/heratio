@@ -8,8 +8,8 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? $io->slug }}</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('io.provenance', $io->slug) }}">Provenance</a></li>
-      <li class="breadcrumb-item active">Timeline</li>
+      <li class="breadcrumb-item"><a href="{{ route('io.provenance', $io->slug) }}">{{ __('Provenance') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Timeline') }}</li>
     </ol>
   </nav>
 
@@ -108,7 +108,7 @@
     <i class="bi bi-info-circle me-2"></i>
     No provenance events have been recorded.
     @auth
-    <a href="{{ route('io.provenance', $io->slug) }}" class="alert-link">Add events</a>
+    <a href="{{ route('io.provenance', $io->slug) }}" class="alert-link">{{ __('Add events') }}</a>
     @endauth
   </div>
   @endif

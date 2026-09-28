@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-file-code"></i> {{ __('Format Registry') }}</h1>
         </div>
-        <p class="text-muted mb-3">Known file formats, risk assessment, and preservation actions</p>
+        <p class="text-muted mb-3">{{ __('Known file formats, risk assessment, and preservation actions') }}</p>
 
         <div class="card">
             <div class="card-body p-0">
@@ -77,7 +77,7 @@
                             </tr>
                             @endif
                             @empty
-                            <tr><td colspan="10" class="text-center text-muted py-3">No formats registered</td></tr>
+                            <tr><td colspan="10" class="text-center text-muted py-3">{{ __('No formats registered') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

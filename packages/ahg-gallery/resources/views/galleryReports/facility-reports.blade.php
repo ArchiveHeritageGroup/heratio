@@ -61,7 +61,7 @@
         </td>
       </tr>
       @empty
-      <tr><td colspan="8" class="text-center text-muted py-4">No facility reports found.</td></tr>
+      <tr><td colspan="8" class="text-center text-muted py-4">{{ __('No facility reports found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

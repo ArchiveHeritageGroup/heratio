@@ -198,11 +198,11 @@
       </h4>
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb mb-0">
-          <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
           @if(isset($io->slug))
             <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? 'Record' }}</a></li>
           @endif
-          <li class="breadcrumb-item active">Visual Redaction</li>
+          <li class="breadcrumb-item active">{{ __('Visual Redaction') }}</li>
         </ol>
       </nav>
     </div>
@@ -273,7 +273,7 @@
     <div class="card-body py-3">
       <div class="row text-center">
         <div class="col-md-4">
-          <div class="label">Document Type</div>
+          <div class="label">{{ __('Document Type') }}</div>
           <div class="value">
             @if($isPdf)
               <i class="fas fa-file-pdf text-danger me-1"></i> PDF Document
@@ -283,11 +283,11 @@
           </div>
         </div>
         <div class="col-md-4">
-          <div class="label">Pages</div>
+          <div class="label">{{ __('Pages') }}</div>
           <div class="value">{{ $totalPages }}</div>
         </div>
         <div class="col-md-4">
-          <div class="label">Redactions</div>
+          <div class="label">{{ __('Redactions') }}</div>
           <div class="value">
             <span id="redaction-count">{{ $redactionCount }}</span>
           </div>
@@ -356,7 +356,7 @@
                 <i class="fas fa-chevron-left"></i>
               </button>
               <span class="text-white small">
-                Page <span id="current-page">1</span> of <span id="total-pages">{{ $totalPages }}</span>
+                {{ __('Page') }} <span id="current-page">1</span> of <span id="total-pages">{{ $totalPages }}</span>
               </span>
               <button class="btn btn-outline-light btn-sm" id="next-page" title="{{ __('Next page') }}">
                 <i class="fas fa-chevron-right"></i>
@@ -387,7 +387,7 @@
           @if($redactionCount === 0)
             <div class="text-center py-4" id="no-regions-msg">
               <i class="fas fa-vector-square text-muted" style="font-size: 2rem;"></i>
-              <p class="text-muted small mt-2 mb-0">No redaction regions yet.<br>Use the Draw tool to add regions.</p>
+              <p class="text-muted small mt-2 mb-0">{{ __('No redaction regions yet.') }}<br>{{ __('Use the Draw tool to add regions.') }}</p>
             </div>
           @endif
         </div>
@@ -405,11 +405,11 @@
         </div>
         <div class="card-body small">
           <ol class="ps-3 mb-0">
-            <li class="mb-2">Click <strong>{{ __('Draw') }}</strong> to activate the drawing tool.</li>
-            <li class="mb-2">Click and drag on the document to draw a redaction rectangle.</li>
-            <li class="mb-2">Use <strong>{{ __('Select') }}</strong> to move or resize existing redactions.</li>
-            <li class="mb-2">Click the <i class="fas fa-trash-alt text-danger"></i> icon on a region to remove it.</li>
-            <li class="mb-0">Click <strong>{{ __('Save') }}</strong> to store the redactions. Non-admin viewers will see the redacted version automatically; admins always see the original.</li>
+            <li class="mb-2">{{ __('Click') }} <strong>{{ __('Draw') }}</strong> to activate the drawing tool.</li>
+            <li class="mb-2">{{ __('Click and drag on the document to draw a redaction rectangle.') }}</li>
+            <li class="mb-2">{{ __('Use') }} <strong>{{ __('Select') }}</strong> to move or resize existing redactions.</li>
+            <li class="mb-2">{{ __('Click the') }} <i class="fas fa-trash-alt text-danger"></i> icon on a region to remove it.</li>
+            <li class="mb-0">{{ __('Click') }} <strong>{{ __('Save') }}</strong> to store the redactions. Non-admin viewers will see the redacted version automatically; admins always see the original.</li>
           </ol>
         </div>
       </div>

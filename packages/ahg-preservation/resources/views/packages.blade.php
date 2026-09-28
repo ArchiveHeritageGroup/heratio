@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-box"></i> {{ __('OAIS Packages') }}</h1>
         </div>
-        <p class="text-muted mb-3">Submission, Archival, and Dissemination Information Packages</p>
+        <p class="text-muted mb-3">{{ __('Submission, Archival, and Dissemination Information Packages') }}</p>
 
         {{-- Statistics Cards --}}
         @php
@@ -83,7 +83,7 @@
         {{-- Type Filter + Actions --}}
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="btn-group" role="group">
-                <a href="{{ route('preservation.packages') }}" class="btn btn-sm {{ !$type ? 'atom-btn-outline-success' : 'atom-btn-white' }}">All</a>
+                <a href="{{ route('preservation.packages') }}" class="btn btn-sm {{ !$type ? 'atom-btn-outline-success' : 'atom-btn-white' }}">{{ __('All') }}</a>
                 <a href="{{ route('preservation.packages', ['type' => 'SIP']) }}" class="btn btn-sm {{ $type === 'SIP' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">SIP</a>
                 <a href="{{ route('preservation.packages', ['type' => 'AIP']) }}" class="btn btn-sm {{ $type === 'AIP' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">AIP</a>
                 <a href="{{ route('preservation.packages', ['type' => 'DIP']) }}" class="btn btn-sm {{ $type === 'DIP' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">DIP</a>
@@ -177,7 +177,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="10" class="text-center text-muted py-3">No packages found</td></tr>
+                            <tr><td colspan="10" class="text-center text-muted py-3">{{ __('No packages found') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

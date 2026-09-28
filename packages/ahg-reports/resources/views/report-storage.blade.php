@@ -96,7 +96,7 @@
 
   @include('ahg-reports::_pagination')
 @else
-  <div class="alert alert-warning">No results found.</div>
+  <div class="alert alert-warning">{{ __('No results found.') }}</div>
 @endif
 
 <script>

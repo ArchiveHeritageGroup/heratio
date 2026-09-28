@@ -11,7 +11,7 @@
   {{-- Gallery navigation --}}
   <div class="card mb-3">
     <div class="card-header fw-bold">
-      <i class="fas fa-palette me-1"></i> Gallery
+      <i class="fas fa-palette me-1"></i> {{ __('Gallery') }}
     </div>
     <div class="list-group list-group-flush">
       <a href="{{ route('gallery.browse') }}" class="list-group-item list-group-item-action small">
@@ -33,7 +33,7 @@
   @if($galleryArtist)
     <div class="card mb-3">
       <div class="card-header fw-bold">
-        <i class="fas fa-user me-1"></i> Artist
+        <i class="fas fa-user me-1"></i> {{ __('Artist') }}
       </div>
       <div class="card-body p-2">
         <h6 class="mb-1">
@@ -63,7 +63,7 @@
     {{-- Management --}}
     <div class="card mb-3">
       <div class="card-header fw-bold">
-        <i class="fas fa-cog me-1"></i> Actions
+        <i class="fas fa-cog me-1"></i> {{ __('Actions') }}
       </div>
       <div class="list-group list-group-flush">
         @if($canUpdate)
@@ -136,7 +136,7 @@
               <strong>{{ $marketplaceListing->currency ?: 'ZAR' }} {{ number_format((float) $marketplaceListing->price, 2) }}</strong>
             </div>
           @else
-            <div class="text-muted fst-italic">Price not set</div>
+            <div class="text-muted fst-italic">{{ __('Price not set') }}</div>
           @endif
           <div><span class="text-muted">{{ __('Type:') }}</span> {{ str_replace('_', ' ', $marketplaceListing->listing_type) }}</div>
           <div><span class="text-muted">{{ __('Status:') }}</span> <span class="badge bg-secondary">{{ $marketplaceListing->status }}</span></div>
@@ -181,7 +181,7 @@
   @if(!empty($breadcrumbs))
     <nav aria-label="{{ __('Hierarchy') }}">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('gallery.browse') }}">Gallery</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('gallery.browse') }}">{{ __('Gallery') }}</a></li>
         @foreach($breadcrumbs as $crumb)
           <li class="breadcrumb-item">
             <a href="{{ route('gallery.show', $crumb->slug) }}">{{ $crumb->title ?: '[Untitled]' }}</a>
@@ -644,7 +644,7 @@
   @if($events->isNotEmpty())
     <div class="card mb-3">
       <div class="card-header fw-bold">
-        <i class="fas fa-calendar me-1"></i> Dates
+        <i class="fas fa-calendar me-1"></i> {{ __('Dates') }}
       </div>
       <div class="list-group list-group-flush">
         @foreach($events as $event)

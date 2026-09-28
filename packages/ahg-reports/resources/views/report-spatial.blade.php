@@ -19,8 +19,8 @@
   <div class="col-md-9">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('reports.index') }}">Reports</a></li>
-        <li class="breadcrumb-item active">Spatial Analysis Export</li>
+        <li class="breadcrumb-item"><a href="{{ route('reports.index') }}">{{ __('Reports') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Spatial Analysis Export') }}</li>
       </ol>
     </nav>
 
@@ -87,7 +87,7 @@
                         </option>
                       @endforeach
                     </select>
-                    <div class="form-text">Hold Ctrl/Cmd to select multiple. Leave empty for all places.</div>
+                    <div class="form-text">{{ __('Hold Ctrl/Cmd to select multiple. Leave empty for all places.') }}</div>
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -217,10 +217,10 @@ Khoi</textarea>
               <p><strong>{{ __('Use Case:') }}</strong> Overlay site locations onto geological maps to investigate relationships between surface geology and rock art traditions.</p>
               <p><strong>{{ __('Coordinate Sources:') }}</strong></p>
               <ul class="mb-2">
-                <li><strong>{{ __('Property Table:') }}</strong> Custom fields stored in the property table</li>
-                <li><strong>{{ __('NMMZ Site:') }}</strong> Archaeological site records with GPS</li>
-                <li><strong>{{ __('DAM Metadata:') }}</strong> GPS extracted from image EXIF</li>
-                <li><strong>{{ __('Contact Info:') }}</strong> Repository location coordinates</li>
+                <li><strong>{{ __('Property Table:') }}</strong> {{ __('Custom fields stored in the property table') }}</li>
+                <li><strong>{{ __('NMMZ Site:') }}</strong> {{ __('Archaeological site records with GPS') }}</li>
+                <li><strong>{{ __('DAM Metadata:') }}</strong> {{ __('GPS extracted from image EXIF') }}</li>
+                <li><strong>{{ __('Contact Info:') }}</strong> {{ __('Repository location coordinates') }}</li>
               </ul>
               <p class="mb-0"><strong>{{ __('Note:') }}</strong> Records can be both painted AND engraved if they have subjects matching both term lists.</p>
             </div>
@@ -273,7 +273,7 @@ Khoi</textarea>
         @else
         <div class="p-4 text-center text-muted">
           <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-          <p class="mb-0">No records match the current filter criteria.</p>
+          <p class="mb-0">{{ __('No records match the current filter criteria.') }}</p>
         </div>
         @endif
       </div>

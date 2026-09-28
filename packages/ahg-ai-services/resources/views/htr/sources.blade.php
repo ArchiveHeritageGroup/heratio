@@ -4,9 +4,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">Vital Records HTR</a></li>
-    <li class="breadcrumb-item active">Training Data Sources</li>
+    <li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">{{ __('AI Services') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">{{ __('Vital Records HTR') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Training Data Sources') }}</li>
   </ol>
 </nav>
 @include('ahg-ai-services::htr._nav')
@@ -202,7 +202,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="6" class="text-muted text-center">No jobs yet.</td></tr>
+          <tr><td colspan="6" class="text-muted text-center">{{ __('No jobs yet.') }}</td></tr>
         @endforelse
       </tbody>
     </table>

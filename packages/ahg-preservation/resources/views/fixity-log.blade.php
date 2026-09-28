@@ -12,14 +12,14 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-check-double"></i> {{ __('Fixity Log') }}</h1>
         </div>
-        <p class="text-muted mb-3">History of fixity verification checks</p>
+        <p class="text-muted mb-3">{{ __('History of fixity verification checks') }}</p>
 
         {{-- Status Filter --}}
         <div class="mb-3">
             <div class="btn-group" role="group">
-                <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm {{ !$status ? 'btn-primary' : 'btn-outline-secondary' }}">All</a>
-                <a href="{{ route('preservation.fixity-log', ['status' => 'pass']) }}" class="btn btn-sm {{ $status === 'pass' ? 'btn-primary' : 'btn-outline-secondary' }}">Pass</a>
-                <a href="{{ route('preservation.fixity-log', ['status' => 'fail']) }}" class="btn btn-sm {{ $status === 'fail' ? 'btn-danger' : 'btn-outline-secondary' }}">Fail</a>
+                <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm {{ !$status ? 'btn-primary' : 'btn-outline-secondary' }}">{{ __('All') }}</a>
+                <a href="{{ route('preservation.fixity-log', ['status' => 'pass']) }}" class="btn btn-sm {{ $status === 'pass' ? 'btn-primary' : 'btn-outline-secondary' }}">{{ __('Pass') }}</a>
+                <a href="{{ route('preservation.fixity-log', ['status' => 'fail']) }}" class="btn btn-sm {{ $status === 'fail' ? 'btn-danger' : 'btn-outline-secondary' }}">{{ __('Fail') }}</a>
             </div>
         </div>
 
@@ -67,7 +67,7 @@
                             </tr>
                             @endif
                             @empty
-                            <tr><td colspan="9" class="text-center text-muted py-3">No fixity checks recorded</td></tr>
+                            <tr><td colspan="9" class="text-center text-muted py-3">{{ __('No fixity checks recorded') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

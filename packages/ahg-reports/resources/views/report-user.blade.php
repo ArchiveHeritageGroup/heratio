@@ -24,7 +24,7 @@
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Culture <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Culture') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="culture" class="form-select form-select-sm">
               <option value="en" {{ request('culture','en')=='en'?'selected':'' }}>{{ __('English') }}</option>
               <option value="af" {{ request('culture')=='af'?'selected':'' }}>{{ __('Afrikaans') }}</option>
@@ -32,11 +32,11 @@
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Date Start <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Date Start') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ request('dateStart') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Date End <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Date End') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ request('dateEnd') }}">
           </div>
           <div class="col-md-3 d-flex align-items-end gap-2">
@@ -66,7 +66,7 @@
                 @endforeach
               </tr>
               @empty
-              <tr><td colspan="{{ count($columns ?? ['ID','Identifier','Title','Created','Updated']) }}" class="text-center text-muted py-3">No results found</td></tr>
+              <tr><td colspan="{{ count($columns ?? ['ID','Identifier','Title','Created','Updated']) }}" class="text-center text-muted py-3">{{ __('No results found') }}</td></tr>
               @endforelse
             </tbody>
           </table>

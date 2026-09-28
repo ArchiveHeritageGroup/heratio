@@ -29,31 +29,31 @@
         </div>
         <div class="card-body">
           <dl class="row mb-0 small">
-            <dt class="col-5">Provider</dt>
+            <dt class="col-5">{{ __('Provider') }}</dt>
             <dd class="col-7">{{ ucfirst($health['provider'] ?? 'unknown') }}</dd>
 
             @if(!empty($health['default_model']))
-            <dt class="col-5">Model</dt>
+            <dt class="col-5">{{ __('Model') }}</dt>
             <dd class="col-7"><code>{{ $health['default_model'] }}</code></dd>
             @endif
 
             @if(!empty($health['version']))
-            <dt class="col-5">Version</dt>
+            <dt class="col-5">{{ __('Version') }}</dt>
             <dd class="col-7">{{ $health['version'] }}</dd>
             @endif
 
             @if(!empty($health['endpoint']))
-            <dt class="col-5">Endpoint</dt>
+            <dt class="col-5">{{ __('Endpoint') }}</dt>
             <dd class="col-7 text-truncate" title="{{ $health['endpoint'] }}">{{ $health['endpoint'] }}</dd>
             @endif
 
             @if(!empty($health['models']) && is_array($health['models']))
-            <dt class="col-5">Models</dt>
+            <dt class="col-5">{{ __('Models') }}</dt>
             <dd class="col-7">{{ count($health['models']) }} available</dd>
             @endif
 
             @if(!empty($health['error']))
-            <dt class="col-5 text-danger">Error</dt>
+            <dt class="col-5 text-danger">{{ __('Error') }}</dt>
             <dd class="col-7 text-danger small">{{ $health['error'] }}</dd>
             @endif
           </dl>
@@ -64,8 +64,8 @@
     <div class="col-12">
       <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle"></i>
-        No active LLM configurations found.
-        <a href="{{ route('admin.ai.config') }}">Configure now</a>.
+        {{ __('No active LLM configurations found.') }}
+        <a href="{{ route('admin.ai.config') }}">{{ __('Configure now') }}</a>.
       </div>
     </div>
     @endforelse
@@ -98,24 +98,24 @@
     {{-- NER Stats --}}
     <div class="col-md-4">
       <div class="card shadow-sm">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-diagram-project"></i> NER Entities</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-diagram-project"></i> {{ __('NER Entities') }}</strong></div>
         <div class="card-body">
           <div class="row text-center small">
             <div class="col">
               <div class="fs-4 fw-bold text-primary">{{ $nerStats['total'] ?? 0 }}</div>
-              <div class="text-muted">Total</div>
+              <div class="text-muted">{{ __('Total') }}</div>
             </div>
             <div class="col">
               <div class="fs-4 fw-bold text-warning">{{ $nerStats['pending'] ?? 0 }}</div>
-              <div class="text-muted">Pending</div>
+              <div class="text-muted">{{ __('Pending') }}</div>
             </div>
             <div class="col">
               <div class="fs-4 fw-bold text-success">{{ $nerStats['linked'] ?? 0 }}</div>
-              <div class="text-muted">Linked</div>
+              <div class="text-muted">{{ __('Linked') }}</div>
             </div>
             <div class="col">
               <div class="fs-4 fw-bold text-danger">{{ $nerStats['rejected'] ?? 0 }}</div>
-              <div class="text-muted">Rejected</div>
+              <div class="text-muted">{{ __('Rejected') }}</div>
             </div>
           </div>
         </div>
@@ -125,25 +125,25 @@
     {{-- Usage Stats --}}
     <div class="col-md-4">
       <div class="card shadow-sm">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-chart-bar"></i> Usage</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-chart-bar"></i> {{ __('Usage') }}</strong></div>
         <div class="card-body">
           <div class="row text-center small">
             <div class="col">
               <div class="fs-4 fw-bold text-primary">{{ $usageStats['config_count'] ?? 0 }}</div>
-              <div class="text-muted">Configs</div>
+              <div class="text-muted">{{ __('Configs') }}</div>
             </div>
             <div class="col">
               <div class="fs-4 fw-bold text-success">{{ $usageStats['active_config_count'] ?? 0 }}</div>
-              <div class="text-muted">Active</div>
+              <div class="text-muted">{{ __('Active') }}</div>
             </div>
             @if($usageStats['suggestions'] ?? null)
             <div class="col">
               <div class="fs-4 fw-bold text-info">{{ $usageStats['suggestions']->total ?? 0 }}</div>
-              <div class="text-muted">Suggestions</div>
+              <div class="text-muted">{{ __('Suggestions') }}</div>
             </div>
             <div class="col">
               <div class="fs-4 fw-bold text-muted">{{ number_format($usageStats['suggestions']->total_tokens ?? 0) }}</div>
-              <div class="text-muted">Tokens</div>
+              <div class="text-muted">{{ __('Tokens') }}</div>
             </div>
             @endif
           </div>
@@ -200,7 +200,7 @@
     <div class="col-md-4">
       <div class="card shadow-sm h-100">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <strong><i class="fas fa-file-alt"></i> Vital Records HTR</strong>
+          <strong><i class="fas fa-file-alt"></i> {{ __('Vital Records HTR') }}</strong>
         </div>
         <div class="card-body">
           <p class="small">Handwritten Text Recognition for SA vital records - death certificates, church registers, narrative documents. Extract, batch process, annotate, and fine-tune models.</p>
@@ -228,11 +228,11 @@
   {{-- Quick Test Section --}}
   <div class="card shadow-sm mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <strong><i class="fas fa-flask"></i> Quick Test</strong>
+      <strong><i class="fas fa-flask"></i> {{ __('Quick Test') }}</strong>
     </div>
     <div class="card-body">
       <div class="mb-3">
-        <label for="aiTestInput" class="form-label">Input Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="aiTestInput" class="form-label">{{ __('Input Text') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea class="form-control" id="aiTestInput" rows="4" placeholder="{{ __('Enter text to test AI services...') }}">The National Archives of South Africa in Pretoria holds the records of Jan van Riebeeck from 1652. The Dutch East India Company (VOC) established a refreshment station at the Cape of Good Hope on 6 April 1652.</textarea>
       </div>
 
@@ -280,7 +280,7 @@
               <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">{{ __('Processing...') }}</span>
               </div>
-              <p class="text-muted mt-2">Processing request...</p>
+              <p class="text-muted mt-2">{{ __('Processing request...') }}</p>
             </div>
             <div id="aiResultContent"></div>
           </div>
@@ -292,7 +292,7 @@
   {{-- LLM Configurations Table --}}
   <div class="card shadow-sm">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <strong><i class="fas fa-cogs"></i> LLM Configurations</strong>
+      <strong><i class="fas fa-cogs"></i> {{ __('LLM Configurations') }}</strong>
       <a href="{{ route('admin.ai.config') }}" class="btn btn-sm atom-btn-white">
         <i class="fas fa-plus"></i> {{ __('Manage') }}
       </a>
@@ -333,7 +333,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="6" class="text-muted text-center py-3">No LLM configurations found.</td>
+            <td colspan="6" class="text-muted text-center py-3">{{ __('No LLM configurations found.') }}</td>
           </tr>
           @endforelse
         </tbody>

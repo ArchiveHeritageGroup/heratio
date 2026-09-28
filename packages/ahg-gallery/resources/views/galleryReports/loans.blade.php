@@ -47,7 +47,7 @@
         <td class="text-center">{{ $l->start_date && $l->end_date ? \Carbon\Carbon::parse($l->start_date)->diffInDays($l->end_date) : '-' }}</td>
       </tr>
       @empty
-      <tr><td colspan="8" class="text-center text-muted py-4">No loans found.</td></tr>
+      <tr><td colspan="8" class="text-center text-muted py-4">{{ __('No loans found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

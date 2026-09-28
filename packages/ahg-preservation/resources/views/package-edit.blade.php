@@ -26,17 +26,17 @@
               @if(isset($package)) @method('PUT') @endif
 
               <div class="card mb-3">
-                <div class="card-header" style="background:var(--ahg-primary);color:#fff">Package Details</div>
+                <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Package Details') }}</div>
                 <div class="card-body">
                   <div class="mb-3">
-                    <label class="form-label">Package Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                    <label class="form-label">{{ __('Package Name') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                     <input type="text" name="name" class="form-control" required
                            value="{{ old('name', $package->name ?? '') }}"
                            placeholder="{{ __('e.g., Annual Reports 2024 SIP') }}">
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <textarea name="description" class="form-control" rows="3"
                               placeholder="{{ __('Brief description of package contents') }}">{{ old('description', $package->description ?? '') }}</textarea>
                   </div>
@@ -44,17 +44,17 @@
                   @if(!($package ?? null))
                   <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Package Type <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                        <label class="form-label">{{ __('Package Type') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select name="package_type" class="form-select" required>
                             <option value="">{{ __('Select type...') }}</option>
                             <option value="SIP" {{ old('package_type') == 'SIP' ? 'selected' : '' }}>{{ __('SIP - Submission Information Package') }}</option>
                             <option value="AIP" {{ old('package_type') == 'AIP' ? 'selected' : '' }}>{{ __('AIP - Archival Information Package') }}</option>
                             <option value="DIP" {{ old('package_type') == 'DIP' ? 'selected' : '' }}>{{ __('DIP - Dissemination Information Package') }}</option>
                         </select>
-                        <div class="form-text">SIP for ingest, AIP for storage, DIP for access</div>
+                        <div class="form-text">{{ __('SIP for ingest, AIP for storage, DIP for access') }}</div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Package Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Package Format') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="package_format" class="form-select">
                             <option value="bagit" selected>{{ __('BagIt (Recommended)') }}</option>
                             <option value="zip">{{ __('ZIP Archive') }}</option>
@@ -64,7 +64,7 @@
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">Checksum Algorithm <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Checksum Algorithm') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <select name="manifest_algorithm" class="form-select">
                         <option value="sha256" selected>{{ __('SHA-256 (Recommended)') }}</option>
                         <option value="sha512">{{ __('SHA-512') }}</option>
@@ -75,11 +75,11 @@
                   @else
                   <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label">Package Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Package Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" class="form-control" disabled value="{{ strtoupper($package->package_type) }}">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" class="form-control" disabled value="{{ ucfirst($package->status) }}">
                     </div>
                   </div>
@@ -88,21 +88,21 @@
                   <hr>
 
                   <div class="mb-3">
-                    <label class="form-label">Originator <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Originator') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" name="originator" class="form-control"
                            value="{{ old('originator', $package->originator ?? '') }}"
                            placeholder="{{ __('Organization creating this package') }}">
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">Submission Agreement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Submission Agreement') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" name="submission_agreement" class="form-control"
                            value="{{ old('submission_agreement', $package->submission_agreement ?? '') }}"
                            placeholder="{{ __('Reference to submission agreement') }}">
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">Retention Period <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Retention Period') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" name="retention_period" class="form-control"
                            value="{{ old('retention_period', $package->retention_period ?? '') }}"
                            placeholder="{{ __('e.g., Permanent, 10 years, etc.') }}">
@@ -136,7 +136,7 @@
                                 <i class="fas fa-plus me-1"></i>{{ __('Add') }}
                             </button>
                         </div>
-                        <div class="form-text">Enter the ID of a digital object to add to this package</div>
+                        <div class="form-text">{{ __('Enter the ID of a digital object to add to this package') }}</div>
                     </div>
 
                     @if(!empty($package->objects) && count($package->objects) > 0)
@@ -196,16 +196,16 @@
                     <dl class="row mb-0">
                         <dt class="col-sm-4">UUID</dt>
                         <dd class="col-sm-8"><code class="small">{{ $package->uuid }}</code></dd>
-                        <dt class="col-sm-4">Format</dt>
+                        <dt class="col-sm-4">{{ __('Format') }}</dt>
                         <dd class="col-sm-8">{{ ucfirst($package->package_format ?? '') }}</dd>
-                        <dt class="col-sm-4">Algorithm</dt>
+                        <dt class="col-sm-4">{{ __('Algorithm') }}</dt>
                         <dd class="col-sm-8">{{ strtoupper($package->manifest_algorithm ?? '') }}</dd>
-                        <dt class="col-sm-4">Objects</dt>
+                        <dt class="col-sm-4">{{ __('Objects') }}</dt>
                         <dd class="col-sm-8">{{ number_format($package->object_count ?? 0) }}</dd>
-                        <dt class="col-sm-4">Size</dt>
+                        <dt class="col-sm-4">{{ __('Size') }}</dt>
                         <dd class="col-sm-8">{{ ($package->total_size ?? null) ? number_format($package->total_size / 1048576, 2) . ' MB' : '-' }}</dd>
                         @if($package->package_checksum ?? null)
-                        <dt class="col-sm-4">Checksum</dt>
+                        <dt class="col-sm-4">{{ __('Checksum') }}</dt>
                         <dd class="col-sm-8"><code class="small">{{ Str::limit($package->package_checksum, 16) }}...</code></dd>
                         @endif
                     </dl>

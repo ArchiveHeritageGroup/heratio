@@ -8,8 +8,8 @@
   <div class="col-md-9">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('preservation.index') }}">Preservation</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('preservation.tiffpdfmerge.browse') }}">Merge Jobs</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('preservation.index') }}">{{ __('Preservation') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('preservation.tiffpdfmerge.browse') }}">{{ __('Merge Jobs') }}</a></li>
         <li class="breadcrumb-item active">Job #{{ $job->id ?? '' }}</li>
       </ol>
     </nav>
@@ -23,7 +23,7 @@
     @endif
 
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">Job Details</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Job Details') }}</div>
       <div class="card-body">
         <table class="table table-sm">
           <tr><th width="150">{{ __('Status') }}</th><td>
@@ -71,7 +71,7 @@
                 <td>{{ $file->mime_type ?? '-' }}</td>
               </tr>
               @empty
-              <tr><td colspan="4" class="text-center text-muted py-3">No source files recorded</td></tr>
+              <tr><td colspan="4" class="text-center text-muted py-3">{{ __('No source files recorded') }}</td></tr>
               @endforelse
             </tbody>
           </table>

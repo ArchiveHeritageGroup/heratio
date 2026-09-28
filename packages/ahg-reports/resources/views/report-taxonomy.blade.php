@@ -10,7 +10,7 @@
       'action' => route('reports.taxonomy'),
       'extraFilters' => '
         <div class="mb-3">
-          <label class="form-label">Sort <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Sort') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="sort" class="form-select form-select-sm">
             <option value="nameUp"' . (($params['sort'] ?? 'nameUp') === 'nameUp' ? ' selected' : '') . '>{{ __('Name A-Z') }}</option>
             <option value="nameDown"' . (($params['sort'] ?? '') === 'nameDown' ? ' selected' : '') . '>{{ __('Name Z-A') }}</option>
@@ -43,7 +43,7 @@
               <td>{{ $row->updated_at ? \Carbon\Carbon::parse($row->updated_at)->format('Y-m-d') : '' }}</td>
             </tr>
           @empty
-            <tr><td colspan="6" class="text-muted text-center">No results</td></tr>
+            <tr><td colspan="6" class="text-muted text-center">{{ __('No results') }}</td></tr>
           @endforelse
         </tbody>
       </table>

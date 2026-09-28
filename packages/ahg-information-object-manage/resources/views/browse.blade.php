@@ -53,7 +53,7 @@
               $langParams = request()->except(['languages', 'page']);
             @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentLang === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ route('informationobject.browse', $langParams) }}" title="{{ __('All') }}">All</a>
+               href="{{ route('informationobject.browse', $langParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
             @foreach($languageFacets as $langCode => $facet)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLang == $langCode ? 'active text-decoration-underline' : '' }}"
                  href="{{ route('informationobject.browse', array_merge($langParams, ['languages' => $langCode])) }}"
@@ -86,7 +86,7 @@
               $collParams = request()->except(['collection', 'page']);
             @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentCollection === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ route('informationobject.browse', $collParams) }}" title="{{ __('All') }}">All</a>
+               href="{{ route('informationobject.browse', $collParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
             @foreach($collectionFacets as $coll)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentCollection == $coll->id ? 'active text-decoration-underline' : '' }}"
                  href="{{ route('informationobject.browse', array_merge($collParams, ['collection' => $coll->id])) }}"
@@ -120,7 +120,7 @@
                   $facetParams = request()->except([$facetName, 'page']);
                 @endphp
                 <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentVal === '' ? 'active text-decoration-underline' : '' }}"
-                   href="{{ route('informationobject.browse', $facetParams) }}" title="{{ __('All') }}">All</a>
+                   href="{{ route('informationobject.browse', $facetParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
                 @foreach($facetData['terms'] as $term)
                   @php
                     $termValue = $term['value'] ?? $term['id'] ?? '';
@@ -225,8 +225,8 @@
             Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
-            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">Ascending</a></li>
-            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}" class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">Descending</a></li>
+            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">{{ __('Ascending') }}</a></li>
+            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}" class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">{{ __('Descending') }}</a></li>
           </ul>
         </div>
       </div>

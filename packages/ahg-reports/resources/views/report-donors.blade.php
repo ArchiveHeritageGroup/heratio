@@ -79,7 +79,7 @@
 
   @include('ahg-reports::_pagination')
 @else
-  <div class="alert alert-warning">No results found. Use the filter options to search for donors.</div>
+  <div class="alert alert-warning">{{ __('No results found. Use the filter options to search for donors.') }}</div>
 @endif
 
 <script>

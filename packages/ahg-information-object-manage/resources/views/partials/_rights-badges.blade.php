@@ -2,7 +2,7 @@
 @if((isset($extendedRights) && $extendedRights->isNotEmpty()) || (isset($activeEmbargo) && $activeEmbargo))
   <section id="rightsVisualBadges" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#rights-badges-collapse">Rights and licenses</a>
+      <a class="text-decoration-none text-white" href="#rights-badges-collapse">{{ __('Rights and licenses') }}</a>
     </h2>
     <div id="rights-badges-collapse" class="p-3">
       <div class="d-flex flex-wrap gap-2 align-items-center">

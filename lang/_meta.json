@@ -19,7 +19,7 @@
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
             "mt_batch_last_run": "2026-09-28",
-            "mt_batch_count": 4028,
+            "mt_batch_count": 4263,
             "mt_batch_model": "qwen3.6:27b via gateway /ai/v1/ollama/api/chat (heratio#1512 admin labels)"
         },
         "bs": {

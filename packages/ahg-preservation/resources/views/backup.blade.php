@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-database"></i> {{ __('Backup & Replication') }}</h1>
         </div>
-        <p class="text-muted mb-3">Replication targets, sync logs, and backup verifications</p>
+        <p class="text-muted mb-3">{{ __('Replication targets, sync logs, and backup verifications') }}</p>
 
         {{-- Replication Targets --}}
         <div class="card mb-4">
@@ -65,7 +65,7 @@
                                 <td><small>{{ $target->last_sync_bytes ? number_format($target->last_sync_bytes / 1048576, 1) . ' MB' : '-' }}</small></td>
                             </tr>
                             @empty
-                            <tr><td colspan="10" class="text-center text-muted py-3">No replication targets configured</td></tr>
+                            <tr><td colspan="10" class="text-center text-muted py-3">{{ __('No replication targets configured') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -131,7 +131,7 @@
                             </tr>
                             @endif
                             @empty
-                            <tr><td colspan="10" class="text-center text-muted py-3">No replication logs</td></tr>
+                            <tr><td colspan="10" class="text-center text-muted py-3">{{ __('No replication logs') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -209,7 +209,7 @@
                             </tr>
                             @endif
                             @empty
-                            <tr><td colspan="13" class="text-center text-muted py-3">No backup verifications recorded</td></tr>
+                            <tr><td colspan="13" class="text-center text-muted py-3">{{ __('No backup verifications recorded') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

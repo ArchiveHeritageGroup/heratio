@@ -52,7 +52,7 @@
         <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/" placeholder="{{ __('/path/to/images') }}">
       </div>
       <div class="col-md-5">
-        <label class="form-label small fw-bold">Spreadsheet <span class="text-muted fw-normal">(optional)</span></label>
+        <label class="form-label small fw-bold">{{ __('Spreadsheet') }} <span class="text-muted fw-normal">(optional)</span></label>
         <select id="ba-spreadsheet" class="form-select form-select-sm">
           <option value="__none__">{{ __('No spreadsheet (images only)') }}</option>
         </select>
@@ -209,13 +209,13 @@
       </div>
       <div class="card-body p-2">
         <table class="table table-sm table-borderless mb-0" style="font-size:12px">
-          <tr><td class="text-muted" style="width:40%">Form Type</td><td id="ba-donut-form-type" style="font-family:monospace">-</td></tr>
-          <tr><td class="text-muted">Record Type</td><td id="ba-donut-type">-</td></tr>
-          <tr><td class="text-muted">Type ID</td><td id="ba-donut-type-id" style="font-family:monospace">-</td></tr>
-          <tr><td class="text-muted">Event Year</td><td id="ba-donut-year">-</td></tr>
-          <tr><td class="text-muted">Event Place</td><td id="ba-donut-place">-</td></tr>
-          <tr><td class="text-muted">Non-genealogical</td><td id="ba-donut-nongeo">-</td></tr>
-          <tr><td class="text-muted">Positions</td><td id="ba-donut-positions">-</td></tr>
+          <tr><td class="text-muted" style="width:40%">{{ __('Form Type') }}</td><td id="ba-donut-form-type" style="font-family:monospace">-</td></tr>
+          <tr><td class="text-muted">{{ __('Record Type') }}</td><td id="ba-donut-type">-</td></tr>
+          <tr><td class="text-muted">{{ __('Type ID') }}</td><td id="ba-donut-type-id" style="font-family:monospace">-</td></tr>
+          <tr><td class="text-muted">{{ __('Event Year') }}</td><td id="ba-donut-year">-</td></tr>
+          <tr><td class="text-muted">{{ __('Event Place') }}</td><td id="ba-donut-place">-</td></tr>
+          <tr><td class="text-muted">{{ __('Non-genealogical') }}</td><td id="ba-donut-nongeo">-</td></tr>
+          <tr><td class="text-muted">{{ __('Positions') }}</td><td id="ba-donut-positions">-</td></tr>
         </table>
       </div>
     </div>

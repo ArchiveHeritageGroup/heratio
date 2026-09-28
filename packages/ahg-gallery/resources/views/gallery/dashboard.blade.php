@@ -161,7 +161,7 @@
                   </td>
                 </tr>
               @empty
-                <tr><td colspan="6" class="text-center text-muted py-4">No gallery items yet. Add your first item to get started.</td></tr>
+                <tr><td colspan="6" class="text-center text-muted py-4">{{ __('No gallery items yet. Add your first item to get started.') }}</td></tr>
               @endforelse
             </tbody>
           </table>

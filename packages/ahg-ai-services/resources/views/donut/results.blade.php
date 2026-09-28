@@ -2,7 +2,7 @@
 @section('title', 'Donut - Extraction Results')
 @section('body-class', 'admin ai-services donut')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">Donut</a></li><li class="breadcrumb-item active">Results</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">{{ __('AI Services') }}</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.donut.dashboard') }}">{{ __('Donut') }}</a></li><li class="breadcrumb-item active">{{ __('Results') }}</li></ol></nav>
 <h1><i class="fas fa-check-circle me-2"></i>{{ __('Extraction Results') }}</h1>
 
 <div class="card mb-4">

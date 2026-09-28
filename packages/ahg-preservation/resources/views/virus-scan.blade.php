@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-shield-virus"></i> {{ __('Virus Scans') }}</h1>
         </div>
-        <p class="text-muted mb-3">Virus scanning results for digital objects</p>
+        <p class="text-muted mb-3">{{ __('Virus scanning results for digital objects') }}</p>
 
         {{-- ClamAV Status --}}
         @php
@@ -106,7 +106,7 @@
                 <i class="fas fa-terminal me-2"></i>{{ __('CLI Commands') }}
             </div>
             <div class="card-body">
-                <p class="mb-2">Run virus scans from the command line:</p>
+                <p class="mb-2">{{ __('Run virus scans from the command line:') }}</p>
                 <pre class="bg-dark text-light p-3 rounded mb-0"><code># Show ClamAV status
 php artisan preservation:virus-scan --status
 
@@ -187,7 +187,7 @@ php artisan preservation:virus-scan --limit=500</code></pre>
                             </tr>
                             @endif
                             @empty
-                            <tr><td colspan="10" class="text-center text-muted py-3">No virus scans recorded</td></tr>
+                            <tr><td colspan="10" class="text-center text-muted py-3">{{ __('No virus scans recorded') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

@@ -10,7 +10,7 @@
       'action' => route('reports.recent'),
       'extraFilters' => '
         <div class="mb-3">
-          <label class="form-label">Entity type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Entity type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="className" class="form-select form-select-sm">
             <option value="">{{ __('All types') }}</option>
             <option value="QubitInformationObject"' . (($params['className'] ?? '') === 'QubitInformationObject' ? ' selected' : '') . '>{{ __('Descriptions') }}</option>
@@ -44,7 +44,7 @@
               <td>{{ $row->updated_at ? \Carbon\Carbon::parse($row->updated_at)->format('Y-m-d H:i') : '' }}</td>
             </tr>
           @empty
-            <tr><td colspan="4" class="text-muted text-center">No results</td></tr>
+            <tr><td colspan="4" class="text-muted text-center">{{ __('No results') }}</td></tr>
           @endforelse
         </tbody>
       </table>

@@ -8,9 +8,9 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('gallery.browse') }}">Gallery</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('gallery.artists') }}">Artists</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Add new</li>
+      <li class="breadcrumb-item"><a href="{{ route('gallery.browse') }}">{{ __('Gallery') }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('gallery.artists') }}">{{ __('Artists') }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ __('Add new') }}</li>
     </ol>
   </nav>
 
@@ -33,10 +33,10 @@
 
     {{-- ===== Identity ===== --}}
     <fieldset class="mb-4">
-      <legend class="fs-5 border-bottom pb-2">Identity</legend>
+      <legend class="fs-5 border-bottom pb-2">{{ __('Identity') }}</legend>
 
       <div class="mb-3">
-        <label for="display_name" class="form-label">Display name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+        <label for="display_name" class="form-label">{{ __('Display name') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
         <input type="text" class="form-control @error('display_name') is-invalid @enderror" id="display_name" name="display_name" autocomplete="off"
                value="{{ old('display_name') }}" required>
         @error('display_name')
@@ -46,7 +46,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="sort_name" class="form-label">Sort name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="sort_name" class="form-label">{{ __('Sort name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control" id="sort_name" name="sort_name"
                value="{{ old('sort_name') }}">
         <div class="form-text text-muted small">The name used for alphabetical sorting, typically in inverted form (e.g. "Monet, Claude"). If left blank, the display name will be used.</div>
@@ -62,12 +62,12 @@
 
     {{-- ===== Biographical ===== --}}
     <fieldset class="mb-4">
-      <legend class="fs-5 border-bottom pb-2">Biographical information</legend>
+      <legend class="fs-5 border-bottom pb-2">{{ __('Biographical information') }}</legend>
 
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label for="birth_date" class="form-label">Birth date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="birth_date" class="form-label">{{ __('Birth date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="birth_date" name="birth_date"
                    value="{{ old('birth_date') }}">
             <div class="form-text text-muted small">The artist's date of birth. Use ISO format (YYYY-MM-DD) or free text (e.g. "1840", "ca. 1900").</div>
@@ -75,7 +75,7 @@
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label for="birth_place" class="form-label">Birth place <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="birth_place" class="form-label">{{ __('Birth place') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="birth_place" name="birth_place"
                    value="{{ old('birth_place') }}">
             <div class="form-text text-muted small">The place where the artist was born (e.g. "Paris, France").</div>
@@ -86,7 +86,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label for="death_date" class="form-label">Death date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="death_date" class="form-label">{{ __('Death date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="death_date" name="death_date"
                    value="{{ old('death_date') }}">
             <div class="form-text text-muted small">The artist's date of death. Leave blank if the artist is still living.</div>
@@ -94,23 +94,23 @@
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label for="death_place" class="form-label">Death place <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="death_place" class="form-label">{{ __('Death place') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="death_place" name="death_place"
                    value="{{ old('death_place') }}">
-            <div class="form-text text-muted small">The place where the artist died.</div>
+            <div class="form-text text-muted small">{{ __('The place where the artist died.') }}</div>
           </div>
         </div>
       </div>
 
       <div class="mb-3">
-        <label for="nationality" class="form-label">Nationality <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="nationality" class="form-label">{{ __('Nationality') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control" id="nationality" name="nationality"
                value="{{ old('nationality') }}">
         <div class="form-text text-muted small">The nationality or cultural affiliation of the artist (e.g. "French", "South African", "Japanese-American").</div>
       </div>
 
       <div class="mb-3">
-        <label for="active_period" class="form-label">Active period <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="active_period" class="form-label">{{ __('Active period') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control" id="active_period" name="active_period"
                value="{{ old('active_period') }}">
         <div class="form-text text-muted small">The period during which the artist was professionally active (e.g. "1960-1995", "1980s-present").</div>
@@ -119,10 +119,10 @@
 
     {{-- ===== Artistic Practice ===== --}}
     <fieldset class="mb-4">
-      <legend class="fs-5 border-bottom pb-2">Artistic practice</legend>
+      <legend class="fs-5 border-bottom pb-2">{{ __('Artistic practice') }}</legend>
 
       <div class="mb-3">
-        <label for="artist_type" class="form-label">Artist type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="artist_type" class="form-label">{{ __('Artist type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <select class="form-select" id="artist_type" name="artist_type">
           <option value="">-- Select --</option>
           @foreach($artistTypes as $at)
@@ -133,21 +133,21 @@
       </div>
 
       <div class="mb-3">
-        <label for="medium_specialty" class="form-label">Medium / Specialty <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="medium_specialty" class="form-label">{{ __('Medium / Specialty') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control" id="medium_specialty" name="medium_specialty"
                value="{{ old('medium_specialty') }}">
         <div class="form-text text-muted small">The primary medium or artistic specialty (e.g. "Oil painting", "Bronze sculpture", "Digital photography").</div>
       </div>
 
       <div class="mb-3">
-        <label for="movement_style" class="form-label">Movement / Style <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="movement_style" class="form-label">{{ __('Movement / Style') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control" id="movement_style" name="movement_style"
                value="{{ old('movement_style') }}">
         <div class="form-text text-muted small">The art movement or style associated with the artist (e.g. "Impressionism", "Abstract Expressionism", "Contemporary").</div>
       </div>
 
       <div class="mb-3">
-        <label for="represented" class="form-label">Represented by <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="represented" class="form-label">{{ __('Represented by') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control" id="represented" name="represented"
                value="{{ old('represented') }}">
         <div class="form-text text-muted small">The gallery, agent, or estate that represents the artist commercially.</div>
@@ -156,22 +156,22 @@
 
     {{-- ===== Biography / Statement / CV ===== --}}
     <fieldset class="mb-4">
-      <legend class="fs-5 border-bottom pb-2">Biography / Statement / CV</legend>
+      <legend class="fs-5 border-bottom pb-2">{{ __('Biography / Statement / CV') }}</legend>
 
       <div class="mb-3">
-        <label for="biography" class="form-label">Biography <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="biography" class="form-label">{{ __('Biography') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea class="form-control" id="biography" name="biography" rows="5">{{ old('biography') }}</textarea>
         <div class="form-text text-muted small">A narrative biography of the artist including education, career highlights, awards, and significant exhibitions.</div>
       </div>
 
       <div class="mb-3">
-        <label for="artist_statement" class="form-label">Artist statement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="artist_statement" class="form-label">{{ __('Artist statement') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea class="form-control" id="artist_statement" name="artist_statement" rows="4">{{ old('artist_statement') }}</textarea>
         <div class="form-text text-muted small">The artist's own statement about their work, practice, or creative philosophy.</div>
       </div>
 
       <div class="mb-3">
-        <label for="cv" class="form-label">Curriculum Vitae <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="cv" class="form-label">{{ __('Curriculum Vitae') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea class="form-control" id="cv" name="cv" rows="5">{{ old('cv') }}</textarea>
         <div class="form-text text-muted small">The artist's CV including education, exhibitions (solo and group), collections, publications, awards, and residencies.</div>
       </div>
@@ -179,53 +179,53 @@
 
     {{-- ===== Contact Information ===== --}}
     <fieldset class="mb-4">
-      <legend class="fs-5 border-bottom pb-2">Contact information</legend>
+      <legend class="fs-5 border-bottom pb-2">{{ __('Contact information') }}</legend>
 
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label for="email" class="form-label">Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="email" class="form-label">{{ __('Email') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email"
                    value="{{ old('email') }}">
             @error('email')
               <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-            <div class="form-text text-muted small">The artist's contact email address.</div>
+            <div class="form-text text-muted small">{{ __('The artist\'s contact email address.') }}</div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label for="phone" class="form-label">Phone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="phone" class="form-label">{{ __('Phone') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="phone" name="phone"
                    value="{{ old('phone') }}">
-            <div class="form-text text-muted small">The artist's contact phone number.</div>
+            <div class="form-text text-muted small">{{ __('The artist\'s contact phone number.') }}</div>
           </div>
         </div>
       </div>
 
       <div class="mb-3">
-        <label for="website" class="form-label">Website <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="website" class="form-label">{{ __('Website') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control" id="website" name="website"
                value="{{ old('website') }}">
         <div class="form-text text-muted small">The artist's personal website URL (e.g. "https://www.artistname.com").</div>
       </div>
 
       <div class="mb-3">
-        <label for="studio_address" class="form-label">Studio address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="studio_address" class="form-label">{{ __('Studio address') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control" id="studio_address" name="studio_address"
                value="{{ old('studio_address') }}">
-        <div class="form-text text-muted small">The physical address of the artist's studio or workspace.</div>
+        <div class="form-text text-muted small">{{ __('The physical address of the artist\'s studio or workspace.') }}</div>
       </div>
     </fieldset>
 
     {{-- ===== Social Media ===== --}}
     <fieldset class="mb-4">
-      <legend class="fs-5 border-bottom pb-2">Social media</legend>
+      <legend class="fs-5 border-bottom pb-2">{{ __('Social media') }}</legend>
 
       <div class="row">
         <div class="col-md-4">
           <div class="mb-3">
-            <label for="instagram" class="form-label">Instagram <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="instagram" class="form-label">{{ __('Instagram') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="instagram" name="instagram"
                    value="{{ old('instagram') }}" placeholder="{{ __('@handle') }}">
             <div class="form-text text-muted small">The artist's Instagram handle (e.g. "@artistname").</div>
@@ -233,18 +233,18 @@
         </div>
         <div class="col-md-4">
           <div class="mb-3">
-            <label for="twitter" class="form-label">Twitter / X <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="twitter" class="form-label">{{ __('Twitter / X') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="twitter" name="twitter"
                    value="{{ old('twitter') }}" placeholder="{{ __('@handle') }}">
-            <div class="form-text text-muted small">The artist's Twitter/X handle.</div>
+            <div class="form-text text-muted small">{{ __('The artist\'s Twitter/X handle.') }}</div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="mb-3">
-            <label for="facebook" class="form-label">Facebook <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="facebook" class="form-label">{{ __('Facebook') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="facebook" name="facebook"
                    value="{{ old('facebook') }}">
-            <div class="form-text text-muted small">The artist's Facebook page URL.</div>
+            <div class="form-text text-muted small">{{ __('The artist\'s Facebook page URL.') }}</div>
           </div>
         </div>
       </div>
@@ -252,10 +252,10 @@
 
     {{-- ===== Notes / Status ===== --}}
     <fieldset class="mb-4">
-      <legend class="fs-5 border-bottom pb-2">Notes / Status</legend>
+      <legend class="fs-5 border-bottom pb-2">{{ __('Notes / Status') }}</legend>
 
       <div class="mb-3">
-        <label for="notes" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="notes" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea class="form-control" id="notes" name="notes" rows="3">{{ old('notes') }}</textarea>
         <div class="form-text text-muted small">Internal notes about the artist for staff use. These notes are not displayed publicly.</div>
       </div>
@@ -264,7 +264,7 @@
         <input type="hidden" name="is_active" value="0">
         <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1"
                @checked(old('is_active', 1))>
-        <label class="form-check-label" for="is_active">Active <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label class="form-check-label" for="is_active">{{ __('Active') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <div class="form-text text-muted small">Uncheck to mark this artist as inactive. Inactive artists will not appear in public browse listings.</div>
       </div>
     </fieldset>
@@ -272,7 +272,7 @@
     {{-- ===== Form actions ===== --}}
     <section class="actions mb-3">
       <ul class="actions mb-1 nav gap-2">
-        <li><a href="{{ route('gallery.artists') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+        <li><a href="{{ route('gallery.artists') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
         <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
       </ul>
     </section>

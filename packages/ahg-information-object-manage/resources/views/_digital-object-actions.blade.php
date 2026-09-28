@@ -55,7 +55,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <!-- Settings Row -->
                 <div class="row mb-4">
                     <div class="col-md-4">
-                        <label for="tpmPdfStandard" class="form-label">PDF Standard <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label for="tpmPdfStandard" class="form-label">{{ __('PDF Standard') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select id="tpmPdfStandard" class="form-select form-select-sm">
                             <option value="pdfa-2b" selected>{{ __('PDF/A-2b (Recommended)') }}</option>
                             <option value="pdfa-1b">{{ __('PDF/A-1b') }}</option>
@@ -73,7 +73,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="tpmQuality" class="form-label">Quality <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label for="tpmQuality" class="form-label">{{ __('Quality') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select id="tpmQuality" class="form-select form-select-sm">
                             <option value="70">70% (Smaller file)</option>
                             <option value="85" selected>85% (Balanced)</option>
@@ -88,7 +88,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                     <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
                     <p class="mb-1"><strong>{{ __('Drag and drop images here') }}</strong></p>
                     <p class="text-muted small mb-2">or click to browse</p>
-                    <p class="text-muted small mb-0">Supported: TIFF, JPEG, PNG, BMP, GIF</p>
+                    <p class="text-muted small mb-0">{{ __('Supported: TIFF, JPEG, PNG, BMP, GIF') }}</p>
                     <input type="file" id="tpmFileInput" class="d-none" multiple
                            accept=".tif,.tiff,.jpg,.jpeg,.png,.bmp,.gif">
                 </div>
@@ -110,16 +110,16 @@ $resourceSlug = $resource->slug ?? null; @endphp
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h6 class="mb-0">
                             <i class="fas fa-list me-1"></i>
-                            Files to Merge
+                            {{ __('Files to Merge') }}
                             <span id="tpmFileCount" class="badge bg-secondary ms-1">0</span>
                         </h6>
                         <small class="text-muted">
                             <i class="fas fa-info-circle me-1"></i>
-                            Drag to reorder pages
+                            {{ __('Drag to reorder pages') }}
                         </small>
                     </div>
                     <div id="tpmFileList" class="border rounded" style="max-height: 300px; overflow-y: auto;">
-                        <div class="text-muted text-center py-4">No files uploaded yet</div>
+                        <div class="text-muted text-center py-4">{{ __('No files uploaded yet') }}</div>
                     </div>
                 </div>
 
@@ -127,7 +127,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="tpmAttachToRecord" checked>
                     <label class="form-check-label" for="tpmAttachToRecord">
-                        Attach PDF to this record as digital object <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                        {{ __('Attach PDF to this record as digital object') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                     </label>
                 </div>
             </div>

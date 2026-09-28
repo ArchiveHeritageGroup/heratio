@@ -21,7 +21,7 @@
         <div class="mb-3">
             <div class="btn-group flex-wrap" role="group" aria-label="{{ __('Event-type filter') }}">
                 <a href="{{ route('preservation.events') }}"
-                   class="btn btn-sm btn-{{ !($currentType ?? null) ? 'primary' : 'outline-primary' }}">All</a>
+                   class="btn btn-sm btn-{{ !($currentType ?? null) ? 'primary' : 'outline-primary' }}">{{ __('All') }}</a>
                 @foreach ($eventTypes as $type)
                     <a href="{{ route('preservation.events', ['type' => $type->event_type]) }}"
                        class="btn btn-sm btn-{{ ($currentType ?? null) === $type->event_type ? 'primary' : 'outline-primary' }}">
@@ -35,7 +35,7 @@
         @if($digitalObjectId)
             <div class="alert alert-info">
                 <i class="fas fa-filter"></i> Filtered to digital object #{{ $digitalObjectId }}
-                <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-secondary ms-2">Clear Filter</a>
+                <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-secondary ms-2">{{ __('Clear Filter') }}</a>
             </div>
         @endif
 
@@ -83,7 +83,7 @@
                             </tr>
                             @endif
                             @empty
-                            <tr><td colspan="7" class="text-center text-muted py-3">No PREMIS events recorded</td></tr>
+                            <tr><td colspan="7" class="text-center text-muted py-3">{{ __('No PREMIS events recorded') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

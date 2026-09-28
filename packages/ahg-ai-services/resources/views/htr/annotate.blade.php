@@ -4,9 +4,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">{{ __('AI Services') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li>
-    <li class="breadcrumb-item active">ILM Annotate</li>
+    <li class="breadcrumb-item active">{{ __('ILM Annotate') }}</li>
   </ol>
 </nav>
 @include('ahg-ai-services::htr._nav')
@@ -140,7 +140,7 @@
         <div id="placeholder" class="text-center text-muted py-5" style="min-height:500px; display:flex; align-items:center; justify-content:center;">
           <div>
             <i class="fas fa-image fa-3x mb-3 d-block"></i>
-            <p class="mb-1">Load a server folder or upload an image</p>
+            <p class="mb-1">{{ __('Load a server folder or upload an image') }}</p>
             <p class="small mb-0">Box 1 = <strong>{{ __('Event Year') }}</strong> | Box 2 = <strong>{{ __('Event Place') }}</strong> | Record Type = document level</p>
           </div>
         </div>
@@ -175,7 +175,7 @@
     {{-- Field annotations --}}
     <div class="card mb-3">
       <div class="card-header py-2" style="background: var(--ahg-primary); color: white;">
-        <i class="fas fa-list me-1"></i>Field Annotations <span class="badge bg-light text-dark ms-1" id="ann-badge">0</span>
+        <i class="fas fa-list me-1"></i>{{ __('Field Annotations') }} <span class="badge bg-light text-dark ms-1" id="ann-badge">0</span>
       </div>
       <div class="card-body p-0" id="ann-panel" style="max-height:40vh; overflow-y:auto;">
         <div class="text-center text-muted py-3" id="no-ann">
@@ -215,19 +215,19 @@
       <div class="card-body py-2 small">
         <div class="fw-bold mb-1">Type A - Single Form (Death Cert):</div>
         <ol class="mb-2 ps-3" style="line-height:1.7;">
-          <li>Select <strong>server folder</strong> → click <strong>{{ __('Load') }}</strong></li>
-          <li>Set <strong>{{ __('Record Type') }}</strong> (top-right)</li>
-          <li>Press <strong>R</strong> → draw box around <strong>event year</strong> → type year</li>
-          <li>Press <strong>R</strong> → draw box around <strong>event place</strong> → type place</li>
-          <li>Press <strong>{{ __('Enter') }}</strong> to save → auto-advances</li>
+          <li>{{ __('Select') }} <strong>server folder</strong> → click <strong>{{ __('Load') }}</strong></li>
+          <li>{{ __('Set') }} <strong>{{ __('Record Type') }}</strong> (top-right)</li>
+          <li>{{ __('Press') }} <strong>R</strong> → draw box around <strong>event year</strong> → type year</li>
+          <li>{{ __('Press') }} <strong>R</strong> → draw box around <strong>event place</strong> → type place</li>
+          <li>{{ __('Press') }} <strong>{{ __('Enter') }}</strong> to save → auto-advances</li>
         </ol>
         <div class="fw-bold mb-1">Type B - Register (Multiple Records):</div>
         <ol class="mb-2 ps-3" style="line-height:1.7;">
-          <li>Select <strong>{{ __('Type B - Register') }}</strong> from Doc Type</li>
+          <li>{{ __('Select') }} <strong>{{ __('Type B - Register') }}</strong> from Doc Type</li>
           <li>Load image → click <strong>{{ __('Auto Rows') }}</strong> (set row count first)</li>
-          <li>Use <strong>V</strong> to drag/resize row boxes to fit entries</li>
+          <li>{{ __('Use') }} <strong>V</strong> to drag/resize row boxes to fit entries</li>
           <li><strong>{{ __('Delete') }}</strong> empty rows, <strong>R</strong> to add missed ones</li>
-          <li>Click <strong>{{ __('Split & Annotate') }}</strong> → crops each row</li>
+          <li>{{ __('Click') }} <strong>{{ __('Split & Annotate') }}</strong> → crops each row</li>
           <li>Switches to Type A → annotate each row (year + place)</li>
         </ol>
         <hr class="my-1">

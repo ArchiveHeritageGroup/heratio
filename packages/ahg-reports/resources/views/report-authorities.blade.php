@@ -101,7 +101,7 @@
 
   @include('ahg-reports::_pagination')
 @else
-  <div class="alert alert-warning">No results found. Adjust your search criteria.</div>
+  <div class="alert alert-warning">{{ __('No results found. Adjust your search criteria.') }}</div>
 @endif
 
 <script>

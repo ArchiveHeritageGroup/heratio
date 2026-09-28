@@ -784,33 +784,33 @@
         @endif
 
         <dl class="row mb-0">
-          @if($extRsName)<dt class="col-sm-4">Rights statement</dt><dd class="col-sm-8">{{ $extRsName }}</dd>@endif
+          @if($extRsName)<dt class="col-sm-4">{{ __('Rights statement') }}</dt><dd class="col-sm-8">{{ $extRsName }}</dd>@endif
           @foreach($premisRights as $pr)
-            @if($pr->basis_name)<dt class="col-sm-4">Basis</dt><dd class="col-sm-8">{{ $pr->basis_name }}</dd>@endif
+            @if($pr->basis_name)<dt class="col-sm-4">{{ __('Basis') }}</dt><dd class="col-sm-8">{{ $pr->basis_name }}</dd>@endif
           @endforeach
           @if($holderDisplay)
-            <dt class="col-sm-4">Rights holder</dt>
+            <dt class="col-sm-4">{{ __('Rights holder') }}</dt>
             <dd class="col-sm-8">{{ $holderDisplay }}@if($holderUri) <a href="{{ $holderUri }}" target="_blank" class="ms-1"><i class="fas fa-external-link-alt small"></i></a>@endif</dd>
           @endif
           @php $startDate = $premisRights->pluck('start_date')->filter()->first() ?? ($extRightsData->rights_date ?? null); $endDate = $premisRights->pluck('end_date')->filter()->first() ?? ($extRightsData->expiry_date ?? null); @endphp
-          @if($startDate)<dt class="col-sm-4">Start date</dt><dd class="col-sm-8">{{ $startDate }}</dd>@endif
-          @if($endDate)<dt class="col-sm-4">End / Expiry date</dt><dd class="col-sm-8">{{ $endDate }}</dd>@endif
+          @if($startDate)<dt class="col-sm-4">{{ __('Start date') }}</dt><dd class="col-sm-8">{{ $startDate }}</dd>@endif
+          @if($endDate)<dt class="col-sm-4">{{ __('End / Expiry date') }}</dt><dd class="col-sm-8">{{ $endDate }}</dd>@endif
           @foreach($premisRights as $pr)
-            @if($pr->copyright_status_name)<dt class="col-sm-4">Copyright status</dt><dd class="col-sm-8">{{ $pr->copyright_status_name }}</dd>@endif
-            @if($pr->copyright_jurisdiction ?? null)<dt class="col-sm-4">Jurisdiction</dt><dd class="col-sm-8">{{ $pr->copyright_jurisdiction }}</dd>@endif
-            @if($pr->copyright_note)<dt class="col-sm-4">Copyright note</dt><dd class="col-sm-8">{{ $pr->copyright_note }}</dd>@endif
+            @if($pr->copyright_status_name)<dt class="col-sm-4">{{ __('Copyright status') }}</dt><dd class="col-sm-8">{{ $pr->copyright_status_name }}</dd>@endif
+            @if($pr->copyright_jurisdiction ?? null)<dt class="col-sm-4">{{ __('Jurisdiction') }}</dt><dd class="col-sm-8">{{ $pr->copyright_jurisdiction }}</dd>@endif
+            @if($pr->copyright_note)<dt class="col-sm-4">{{ __('Copyright note') }}</dt><dd class="col-sm-8">{{ $pr->copyright_note }}</dd>@endif
           @endforeach
-          @if($extCcName)<dt class="col-sm-4">Creative Commons</dt><dd class="col-sm-8">{{ $extCcName }}</dd>@endif
+          @if($extCcName)<dt class="col-sm-4">{{ __('Creative Commons') }}</dt><dd class="col-sm-8">{{ $extCcName }}</dd>@endif
           @foreach($premisRights as $pr)
-            @if($pr->license_terms ?? null)<dt class="col-sm-4">License terms</dt><dd class="col-sm-8">{{ $pr->license_terms }}</dd>@endif
-            @if($pr->license_note ?? null)<dt class="col-sm-4">License note</dt><dd class="col-sm-8">{{ $pr->license_note }}</dd>@endif
-            @if($pr->statute_note ?? null)<dt class="col-sm-4">Statute note</dt><dd class="col-sm-8">{{ $pr->statute_note }}</dd>@endif
+            @if($pr->license_terms ?? null)<dt class="col-sm-4">{{ __('License terms') }}</dt><dd class="col-sm-8">{{ $pr->license_terms }}</dd>@endif
+            @if($pr->license_note ?? null)<dt class="col-sm-4">{{ __('License note') }}</dt><dd class="col-sm-8">{{ $pr->license_note }}</dd>@endif
+            @if($pr->statute_note ?? null)<dt class="col-sm-4">{{ __('Statute note') }}</dt><dd class="col-sm-8">{{ $pr->statute_note }}</dd>@endif
           @endforeach
-          @if($extRightsData && ($extRightsData->usage_conditions ?? null))<dt class="col-sm-4">Usage conditions</dt><dd class="col-sm-8">{{ $extRightsData->usage_conditions }}</dd>@endif
-          @if($extRightsData && ($extRightsData->copyright_notice ?? null))<dt class="col-sm-4">Copyright notice</dt><dd class="col-sm-8">{{ $extRightsData->copyright_notice }}</dd>@endif
-          @if($allNotes->isNotEmpty())<dt class="col-sm-4">Notes</dt><dd class="col-sm-8">@foreach($allNotes as $note)<p class="mb-1">{{ $note }}</p>@endforeach</dd>@endif
+          @if($extRightsData && ($extRightsData->usage_conditions ?? null))<dt class="col-sm-4">{{ __('Usage conditions') }}</dt><dd class="col-sm-8">{{ $extRightsData->usage_conditions }}</dd>@endif
+          @if($extRightsData && ($extRightsData->copyright_notice ?? null))<dt class="col-sm-4">{{ __('Copyright notice') }}</dt><dd class="col-sm-8">{{ $extRightsData->copyright_notice }}</dd>@endif
+          @if($allNotes->isNotEmpty())<dt class="col-sm-4">{{ __('Notes') }}</dt><dd class="col-sm-8">@foreach($allNotes as $note)<p class="mb-1">{{ $note }}</p>@endforeach</dd>@endif
           @foreach($premisRights as $pr)
-            @if(($pr->identifier_type ?? null) || ($pr->identifier_value ?? null))<dt class="col-sm-4">Identifier</dt><dd class="col-sm-8">{{ $pr->identifier_type }}{{ ($pr->identifier_type && $pr->identifier_value) ? ': ' : '' }}{{ $pr->identifier_value }}</dd>@endif
+            @if(($pr->identifier_type ?? null) || ($pr->identifier_value ?? null))<dt class="col-sm-4">{{ __('Identifier') }}</dt><dd class="col-sm-8">{{ $pr->identifier_type }}{{ ($pr->identifier_type && $pr->identifier_value) ? ': ' : '' }}{{ $pr->identifier_value }}</dd>@endif
           @endforeach
         </dl>
 
@@ -1160,7 +1160,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted small mb-3">AI-powered visual description of <strong>{{ $io->title ?? 'this record' }}</strong>. Analyses the digital object and generates a detailed description.</p>
+        <p class="text-muted small mb-3">{{ __('AI-powered visual description of') }} <strong>{{ $io->title ?? 'this record' }}</strong>. Analyses the digital object and generates a detailed description.</p>
 
         <div class="text-center mb-3">
           <button type="button" class="btn btn-primary btn-lg" id="describeBtn">
@@ -1512,7 +1512,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header bg-secondary text-white">
-          <h5 class="modal-title"><i class="fas fa-language me-2"></i>Translate Record <span class="badge bg-light text-dark ms-2 translate-step-badge">{{ __('Step 1: Select Fields') }}</span></h5>
+          <h5 class="modal-title"><i class="fas fa-language me-2"></i>{{ __('Translate Record') }} <span class="badge bg-light text-dark ms-2 translate-step-badge">{{ __('Step 1: Select Fields') }}</span></h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body" style="max-height:75vh;overflow-y:auto;">

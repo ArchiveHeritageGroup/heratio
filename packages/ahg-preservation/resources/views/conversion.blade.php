@@ -15,7 +15,7 @@
             </span>
         </div>
     </div>
-    <p class="text-muted">Convert digital object formats for long-term preservation.</p>
+    <p class="text-muted">{{ __('Convert digital object formats for long-term preservation.') }}</p>
 
     {{-- Tool Status --}}
     <div class="row mb-4">
@@ -74,7 +74,7 @@
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-terminal me-2"></i>{{ __('CLI Commands') }}</div>
       <div class="card-body">
-        <p class="mb-2">Run format conversions from the command line:</p>
+        <p class="mb-2">{{ __('Run format conversions from the command line:') }}</p>
         <pre class="bg-dark text-light p-3 rounded mb-0"><code># Show available tools and statistics
 php artisan preservation:convert --status
 
@@ -114,7 +114,7 @@ php artisan preservation:convert --mime-type=image/jpeg --format=tiff --limit=50
                 <td><small class="text-muted">{{ $conv->created_at ?? '' }}</small></td>
               </tr>
               @empty
-              <tr><td colspan="6" class="text-center text-muted py-3">No conversions performed yet</td></tr>
+              <tr><td colspan="6" class="text-center text-muted py-3">{{ __('No conversions performed yet') }}</td></tr>
               @endforelse
             </tbody>
           </table>

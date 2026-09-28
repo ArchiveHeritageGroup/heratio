@@ -10,7 +10,7 @@
       <h1><i class="fas fa-th-large me-2"></i>{{ __('Report Widget') }}</h1>
       <a href="{{ route('reports.builder.index') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
     </div>
-    <p class="text-muted">Configure dashboard widgets for this report.</p>
+    <p class="text-muted">{{ __('Configure dashboard widgets for this report.') }}</p>
 
     @if(session('success'))
       <div class="alert alert-success">{{ session('success') }}</div>
@@ -36,7 +36,7 @@
             <tr><th>{{ __('Updated') }}</th><td>{{ $report->updated_at ?? '-' }}</td></tr>
           </table>
         @else
-          <p class="text-muted text-center py-4">No data available.</p>
+          <p class="text-muted text-center py-4">{{ __('No data available.') }}</p>
         @endif
       </div>
     </div>

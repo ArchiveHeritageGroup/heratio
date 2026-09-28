@@ -44,15 +44,15 @@
                 <div class="rename-form-field-toggle form-check mb-4">
                   <input class="form-check-input" type="checkbox" id="rename_enable_title" checked>
                   <label class="form-check-label" for="rename_enable_title">
-                    Update title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                    {{ __('Update title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                   </label>
                 </div>
                 <div class="mb-3">
-                  <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="title" class="form-label">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" id="title" name="title" value="{{ $io->title }}">
                   <div class="form-text">Editing the description title will automatically update the slug field if the "Update slug" checkbox is selected - you can still edit it after.</div>
                 </div>
-                <p>Original title: <em>{{ $io->title }}</em></p>
+                <p>{{ __('Original title:') }} <em>{{ $io->title }}</em></p>
                 <hr>
 
                 <div id="rename-slug-warning" class="alert alert-danger d-none" role="alert">
@@ -61,30 +61,30 @@
                 <div class="rename-form-field-toggle form-check mb-4">
                   <input class="form-check-input" type="checkbox" id="rename_enable_slug" checked>
                   <label class="form-check-label" for="rename_enable_slug">
-                    Update slug <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                    {{ __('Update slug') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                   </label>
                 </div>
                 <div class="mb-3">
-                  <label for="slug" class="form-label">Slug <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="slug" class="form-label">{{ __('Slug') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" id="slug" name="slug" value="{{ $io->slug }}">
                   <div class="form-text">Do not use any special characters or spaces in the slug - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the slug will not automatically update the other fields.</div>
                 </div>
-                <p>Original slug: <em>{{ $io->slug }}</em></p>
+                <p>{{ __('Original slug:') }} <em>{{ $io->slug }}</em></p>
 
                 @if(isset($digitalObject) && $digitalObject)
                   <hr>
                   <div class="rename-form-field-toggle form-check mb-4">
                     <input class="form-check-input" type="checkbox" id="rename_enable_filename" checked>
                     <label class="form-check-label" for="rename_enable_filename">
-                      Update filename <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                      {{ __('Update filename') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                     </label>
                   </div>
                   <div class="mb-3">
-                    <label for="filename" class="form-label">Filename <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label for="filename" class="form-label">{{ __('Filename') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" class="form-control" id="filename" name="filename" value="{{ $digitalObject->name }}">
                     <div class="form-text">Do not use any special characters or spaces in the filename - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the filename will not automatically update the other fields.</div>
                   </div>
-                  <p>Original filename: <em>{{ $digitalObject->name }}</em></p>
+                  <p>{{ __('Original filename:') }} <em>{{ $digitalObject->name }}</em></p>
                 @endif
               </div>
             </div>
@@ -93,7 +93,7 @@
 
         <ul class="actions mb-3 nav gap-2">
           <li>
-            <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a>
+            <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a>
           </li>
           <li>
             <input class="btn atom-btn-outline-success" id="rename-form-submit" type="submit" value="Update">

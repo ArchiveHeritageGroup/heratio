@@ -79,7 +79,7 @@
                     @else
                         <div class="py-5 text-muted">
                             <i class="fas {{ $mediaIcon }} fa-4x mb-3"></i>
-                            <p>No preview available</p>
+                            <p>{{ __('No preview available') }}</p>
                         </div>
                     @endif
                 </div>
@@ -140,7 +140,7 @@
                     <hr>
                     <label class="form-label">{{ __('Replace master file') }}</label>
                     <input type="file" class="form-control" name="replace_file">
-                    <div class="form-text">Select a new file to replace the existing master.</div>
+                    <div class="form-text">{{ __('Select a new file to replace the existing master.') }}</div>
                 </div>
             </div>
 
@@ -217,9 +217,9 @@
                 <div class="card-body">
                     <table class="table table-sm table-borderless mb-0">
                         <tr><td class="text-muted">ID</td><td><strong>{{ $do->id }}</strong></td></tr>
-                        <tr><td class="text-muted">Size</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($do->byte_size) }}</td></tr>
+                        <tr><td class="text-muted">{{ __('Size') }}</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($do->byte_size) }}</td></tr>
                         @if($do->checksum)
-                        <tr><td class="text-muted">Checksum</td><td><code class="small">{{ substr($do->checksum, 0, 12) }}...</code></td></tr>
+                        <tr><td class="text-muted">{{ __('Checksum') }}</td><td><code class="small">{{ substr($do->checksum, 0, 12) }}...</code></td></tr>
                         @endif
                         @if($do->mime_type)
                         <tr><td class="text-muted">MIME</td><td><code class="small">{{ $do->mime_type }}</code></td></tr>
@@ -231,8 +231,8 @@
             <div class="card mb-4">
                 <div class="card-header"><h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Derivatives') }}</h6></div>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between">Reference <span class="badge bg-{{ $referenceImage ? 'success' : 'secondary' }}"><i class="fas fa-{{ $referenceImage ? 'check' : 'minus' }}"></i></span></li>
-                    <li class="list-group-item d-flex justify-content-between">Thumbnail <span class="badge bg-{{ $thumbnailImage ? 'success' : 'secondary' }}"><i class="fas fa-{{ $thumbnailImage ? 'check' : 'minus' }}"></i></span></li>
+                    <li class="list-group-item d-flex justify-content-between">{{ __('Reference') }} <span class="badge bg-{{ $referenceImage ? 'success' : 'secondary' }}"><i class="fas fa-{{ $referenceImage ? 'check' : 'minus' }}"></i></span></li>
+                    <li class="list-group-item d-flex justify-content-between">{{ __('Thumbnail') }} <span class="badge bg-{{ $thumbnailImage ? 'success' : 'secondary' }}"><i class="fas fa-{{ $thumbnailImage ? 'check' : 'minus' }}"></i></span></li>
                 </ul>
             </div>
 
@@ -257,7 +257,7 @@
             </form>
         </li>
         @if($ioSlug)
-            <li><a href="{{ url('/' . $ioSlug) }}" class="btn atom-btn-outline-light">Cancel</a></li>
+            <li><a href="{{ url('/' . $ioSlug) }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a></li>
         @endif
         <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
     </ul>

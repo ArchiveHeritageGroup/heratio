@@ -72,7 +72,7 @@
     </div>
     @empty
     <div class="card"><div class="card-body text-center text-muted py-5">
-      <i class="fas fa-inbox fa-3x mb-3 d-block"></i>No custom reports yet.
+      <i class="fas fa-inbox fa-3x mb-3 d-block"></i>{{ __('No custom reports yet.') }}
       <br><a href="{{ route('reports.builder.create') }}" class="btn atom-btn-white mt-3"><i class="fas fa-plus me-1"></i>{{ __('Create Your First Report') }}</a>
     </div></div>
     @endforelse

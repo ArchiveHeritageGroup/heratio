@@ -116,7 +116,7 @@
                                         <td><span class="badge bg-secondary">{{ $obj->object_role ?? 'payload' }}</span></td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="8" class="text-center text-muted py-3">No objects in this package</td></tr>
+                                    <tr><td colspan="8" class="text-center text-muted py-3">{{ __('No objects in this package') }}</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -159,7 +159,7 @@
                                         <td><small>{{ $event->created_by ?? '-' }}</small></td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="6" class="text-center text-muted py-3">No package events recorded</td></tr>
+                                    <tr><td colspan="6" class="text-center text-muted py-3">{{ __('No package events recorded') }}</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -215,11 +215,11 @@
                     </div>
                     <div class="card-body">
                         @if($package->source_path ?? null)
-                        <dt>Source Path</dt>
+                        <dt>{{ __('Source Path') }}</dt>
                         <dd><code class="small">{{ $package->source_path }}</code></dd>
                         @endif
                         @if($package->export_path ?? null)
-                        <dt>Export Path</dt>
+                        <dt>{{ __('Export Path') }}</dt>
                         <dd><code class="small">{{ $package->export_path }}</code></dd>
                         @endif
                     </div>

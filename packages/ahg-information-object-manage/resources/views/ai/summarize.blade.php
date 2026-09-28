@@ -10,7 +10,7 @@
 
   @if(isset($io->scope_and_content) && $io->scope_and_content)
     <div class="card mb-3">
-      <div class="card-header fw-bold">Current description</div>
+      <div class="card-header fw-bold">{{ __('Current description') }}</div>
       <div class="card-body">
         <p>{{ $io->scope_and_content }}</p>
       </div>
@@ -18,7 +18,7 @@
   @endif
 
   <div class="card mb-3">
-    <div class="card-header fw-bold">Generated summary</div>
+    <div class="card-header fw-bold">{{ __('Generated summary') }}</div>
     <div class="card-body" id="summary-result">
       <p class="text-muted">Click the button below to generate a summary from the document.</p>
     </div>
