@@ -480,6 +480,25 @@ class PrivacyController extends Controller
         ]);
     }
 
+    /**
+     * GET /privacy/iiif-check?identifier=... - asked by the Cantaloupe delegate
+     * (authorize) before it serves an image. Cantaloupe tiles the ORIGINAL file,
+     * so a file covered by live redaction regions is refused outright
+     * (GHSA-wpfv-ccw6-g9jg). The delegate forwards no Heratio session, so the
+     * answer is the same for everyone, admins included: they read originals
+     * through the page, whose deep-zoom falls back to the plain image when
+     * Cantaloupe refuses.
+     */
+    public function iiifCheck(\Illuminate\Http\Request $request)
+    {
+        $identifier = (string) $request->query('identifier', '');
+        $denied = $identifier !== ''
+            && \Schema::hasTable('privacy_visual_redaction')
+            && app(RedactionRenderService::class)->isRedactedIdentifier($identifier);
+
+        return response()->json(['allowed' => !$denied]);
+    }
+
     private function streamOriginal(object $master)
     {
         // Same resolver as RedactionRenderService - the web-facing path field

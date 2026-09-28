@@ -80,11 +80,11 @@ $layout = $params['layout'] ?? 'card';
 
                     <!-- Sort -->
                     <select class="form-select form-select-sm" style="width: auto;" data-csp-go>
-                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => '_score'])) }}" {{ $params['sort'] === '_score' ? 'selected' : '' }}>Relevance</option>
-                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'title_asc'])) }}" {{ $params['sort'] === 'title_asc' ? 'selected' : '' }}>Title A-Z</option>
-                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'title_desc'])) }}" {{ $params['sort'] === 'title_desc' ? 'selected' : '' }}>Title Z-A</option>
-                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'date_desc'])) }}" {{ $params['sort'] === 'date_desc' ? 'selected' : '' }}>Date Newest</option>
-                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'date_asc'])) }}" {{ $params['sort'] === 'date_asc' ? 'selected' : '' }}>Date Oldest</option>
+                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => '_score'])) }}" {{ $params['sort'] === '_score' ? 'selected' : '' }}>{{ __('Relevance') }}</option>
+                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'title_asc'])) }}" {{ $params['sort'] === 'title_asc' ? 'selected' : '' }}>{{ __('Title A-Z') }}</option>
+                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'title_desc'])) }}" {{ $params['sort'] === 'title_desc' ? 'selected' : '' }}>{{ __('Title Z-A') }}</option>
+                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'date_desc'])) }}" {{ $params['sort'] === 'date_desc' ? 'selected' : '' }}>{{ __('Date Newest') }}</option>
+                        <option value="?{{ http_build_query(array_merge($requestParams, ['sort' => 'date_asc'])) }}" {{ $params['sort'] === 'date_asc' ? 'selected' : '' }}>{{ __('Date Oldest') }}</option>
                     </select>
                 </div>
             </div>

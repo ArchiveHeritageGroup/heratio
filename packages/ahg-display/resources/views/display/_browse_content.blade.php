@@ -124,49 +124,49 @@
 
     @if(!empty($creatorFilter))
       <a href="{{ glamBrowseUrl($fp, [], ['creator']) }}" class="badge bg-info text-decoration-none">
-        <i class="fas fa-user me-1"></i> Creator <i class="fas fa-times ms-1"></i>
+        <i class="fas fa-user me-1"></i> {{ __('Creator') }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
 
     @if(!empty($subjectFilter))
       <a href="{{ glamBrowseUrl($fp, [], ['subject']) }}" class="badge bg-primary text-decoration-none">
-        <i class="fas fa-tag me-1"></i> Subject <i class="fas fa-times ms-1"></i>
+        <i class="fas fa-tag me-1"></i> {{ __('Subject') }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
 
     @if(!empty($placeFilter))
       <a href="{{ glamBrowseUrl($fp, [], ['place']) }}" class="badge bg-secondary text-decoration-none">
-        <i class="fas fa-map-marker-alt me-1"></i> Place <i class="fas fa-times ms-1"></i>
+        <i class="fas fa-map-marker-alt me-1"></i> {{ __('Place') }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
 
     @if(!empty($genreFilter))
       <a href="{{ glamBrowseUrl($fp, [], ['genre']) }}" class="badge bg-warning text-dark text-decoration-none">
-        <i class="fas fa-theater-masks me-1"></i> Genre <i class="fas fa-times ms-1"></i>
+        <i class="fas fa-theater-masks me-1"></i> {{ __('Genre') }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
 
     @if(!empty($levelFilter))
       <a href="{{ glamBrowseUrl($fp, [], ['level']) }}" class="badge bg-secondary text-decoration-none">
-        <i class="fas fa-sitemap me-1"></i> Level <i class="fas fa-times ms-1"></i>
+        <i class="fas fa-sitemap me-1"></i> {{ __('Level') }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
 
     @if(!empty($mediaFilter))
       <a href="{{ glamBrowseUrl($fp, [], ['media']) }}" class="badge bg-danger text-decoration-none">
-        <i class="fas fa-photo-video me-1"></i> Media <i class="fas fa-times ms-1"></i>
+        <i class="fas fa-photo-video me-1"></i> {{ __('Media') }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
 
     @if(!empty($repoFilter))
       <a href="{{ glamBrowseUrl($fp, [], ['repo']) }}" class="badge bg-success text-decoration-none">
-        <i class="fas fa-building me-1"></i> Repository <i class="fas fa-times ms-1"></i>
+        <i class="fas fa-building me-1"></i> {{ __('Repository') }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
 
     @if(!empty($hasDigital))
       <a href="{{ glamBrowseUrl($fp, [], ['hasDigital']) }}" class="badge bg-purple text-decoration-none" style="background-color:#6f42c1;">
-        <i class="fas fa-image me-1"></i> Digital objects <i class="fas fa-times ms-1"></i>
+        <i class="fas fa-image me-1"></i> {{ __('Digital objects') }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
 
@@ -187,7 +187,7 @@
 @if(!empty($correctedQuery))
   <div class="alert alert-info alert-dismissible fade show mb-2" role="alert">
     <i class="fas fa-spell-check me-1"></i>
-    Showing results for <strong>"{{ e($correctedQuery) }}"</strong>.
+    {{ __('Showing results for') }} <strong>"{{ e($correctedQuery) }}"</strong>.
     @if(!empty($originalQuery))
       <a href="{{ glamBrowseUrl($fp, ['query' => $originalQuery, 'noCorrect' => 1]) }}" class="alert-link">
         Search instead for "{{ e($originalQuery) }}"
@@ -201,7 +201,7 @@
 @if(!empty($didYouMean))
   <div class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
     <i class="fas fa-lightbulb me-1"></i>
-    Did you mean:
+    {{ __('Did you mean:') }}
     <a href="{{ glamBrowseUrl($fp, ['query' => $didYouMean]) }}" class="alert-link fw-bold">
       "{{ e($didYouMean) }}"
     </a>?
@@ -213,7 +213,7 @@
 @if(!empty($esAssistedSearch))
   <div class="alert alert-secondary alert-dismissible fade show mb-2" role="alert">
     <i class="fas fa-info-circle me-1"></i>
-    Results enhanced by Elasticsearch full-text search.
+    {{ __('Results enhanced by Elasticsearch full-text search.') }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
   </div>
 @endif
@@ -250,7 +250,7 @@
         @if(!empty($discoveryExpanded))
           <div class="mt-1">
             <a class="small" data-bs-toggle="collapse" href="#discoveryDetails" role="button" aria-expanded="false">
-              Show details <i class="fas fa-caret-down"></i>
+              {{ __('Show details') }} <i class="fas fa-caret-down"></i>
             </a>
             <div class="collapse mt-1" id="discoveryDetails">
               <pre class="bg-light p-2 rounded small mb-0">{{ json_encode($discoveryExpanded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
@@ -398,23 +398,23 @@
               <div class="resize-handle"></div>
             </th>
             <th>
-              Title
+              {{ __('Title') }}
               <div class="resize-handle"></div>
             </th>
             <th class="col-identifier">
-              Identifier
+              {{ __('Identifier') }}
               <div class="resize-handle"></div>
             </th>
             <th class="col-level">
-              Level
+              {{ __('Level') }}
               <div class="resize-handle"></div>
             </th>
             <th>
-              Type
+              {{ __('Type') }}
               <div class="resize-handle"></div>
             </th>
             <th class="col-actions">
-              Actions
+              {{ __('Actions') }}
               <div class="resize-handle"></div>
             </th>
           </tr>
@@ -578,11 +578,11 @@
 
                 <dl class="row mb-0 small">
                   @if($objIdentifier)
-                    <dt class="col-sm-3 col-md-2">Identifier</dt>
+                    <dt class="col-sm-3 col-md-2">{{ __('Identifier') }}</dt>
                     <dd class="col-sm-9 col-md-10">{{ $objIdentifier }}</dd>
                   @endif
                   @if($objRefCode)
-                    <dt class="col-sm-3 col-md-2">Reference code</dt>
+                    <dt class="col-sm-3 col-md-2">{{ __('Reference code') }}</dt>
                     <dd class="col-sm-9 col-md-10">{{ $objRefCode }}</dd>
                   @endif
                   @if($objDates)
@@ -590,11 +590,11 @@
                     <dd class="col-sm-9 col-md-10">{{ $objDates }}</dd>
                   @endif
                   @if($objCreator)
-                    <dt class="col-sm-3 col-md-2">Creator</dt>
+                    <dt class="col-sm-3 col-md-2">{{ __('Creator') }}</dt>
                     <dd class="col-sm-9 col-md-10">{{ $objCreator }}</dd>
                   @endif
                   @if($objRepo)
-                    <dt class="col-sm-3 col-md-2">Repository</dt>
+                    <dt class="col-sm-3 col-md-2">{{ __('Repository') }}</dt>
                     <dd class="col-sm-9 col-md-10">{{ $objRepo }}</dd>
                   @endif
                   @if($objScope)
@@ -781,13 +781,13 @@
     <i class="fas fa-search fa-4x text-muted mb-3"></i>
     <h4 class="text-muted">{{ __('No results found') }}</h4>
     <p class="text-muted">
-      Try adjusting your filters or
+      {{ __('Try adjusting your filters or') }}
       <a href="{{ route('glam.browse') }}">clear all filters</a>
       to start over.
     </p>
     @if(!empty($queryFilter))
       <p class="text-muted">
-        Your search for <strong>"{{ e($queryFilter) }}"</strong> did not match any records.
+        {{ __('Your search for') }} <strong>"{{ e($queryFilter) }}"</strong> did not match any records.
       </p>
     @endif
   </div>

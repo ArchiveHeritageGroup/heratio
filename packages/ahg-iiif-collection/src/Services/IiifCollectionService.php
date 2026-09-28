@@ -1161,6 +1161,25 @@ class IiifCollectionService
             }
         }
 
+        // GHSA-wpfv-ccw6-g9jg: every canvas below carries a Cantaloupe service
+        // on the ORIGINAL file, so an image under live redaction regions is left
+        // out for anyone who cannot bypass redaction. The show page serves those
+        // images as burnt-in derivatives instead.
+        // ponytail: omitted, not substituted. Upgrade path is a canvas pointing
+        // at /privacy/redacted-asset/{slug}/{do} with no image service, in both
+        // the v2 and v3 builders.
+        if (class_exists(\AhgInformationObjectManage\Services\RedactionRenderService::class)
+            && ! \AhgInformationObjectManage\Services\RedactionRenderService::viewerCanBypass()
+            && \Illuminate\Support\Facades\Schema::hasTable('privacy_visual_redaction')) {
+            $redacted = app(\AhgInformationObjectManage\Services\RedactionRenderService::class)
+                ->redactedMasterIds((int) $object->id);
+            if ($redacted) {
+                $digitalObjects = $digitalObjects
+                    ->reject(fn ($do) => in_array((int) $do->id, $redacted, true))
+                    ->values();
+            }
+        }
+
         if ($digitalObjects->isEmpty()) {
             return null;
         }

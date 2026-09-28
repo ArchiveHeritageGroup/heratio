@@ -100,6 +100,10 @@ Route::get('/informationobject/browse/hierarchyData', [HierarchyDataController::
 // Redacted asset - public on purpose (non-admin viewers must reach this).
 // The controller does its own admin/non-admin gating: admins are served
 // the original, non-admins get the cached/rendered redacted file.
+// Cantaloupe's delegate asks this before serving an image, so a redacted
+// file is never tiled to the public (GHSA-wpfv-ccw6-g9jg). Public on purpose:
+// the caller is the image server, not a signed-in user.
+Route::get('/privacy/iiif-check', [PrivacyController::class, 'iiifCheck'])->name('io.privacy.iiif-check');
 Route::get('/privacy/redacted-asset/{slug}/{do?}', [PrivacyController::class, 'redactedAsset'])->whereNumber('do')->name('io.privacy.redacted-asset');
 
 // IO CRUD routes require auth + ACL

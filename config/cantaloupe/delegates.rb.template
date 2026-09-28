@@ -76,7 +76,11 @@ class CustomDelegate
     end
 
     begin
-      uri = URI.parse('http://127.0.0.1/iiif/auth/cantaloupe-check')
+      # /privacy/iiif-check, not /iiif/auth/...: nginx proxies all of /iiif/ to
+      # Cantaloupe, so a check under it never reaches Heratio, and this method
+      # fails open on any non-200. The endpoint refuses files under live
+      # redaction regions (GHSA-wpfv-ccw6-g9jg).
+      uri = URI.parse('http://127.0.0.1/privacy/iiif-check')
       uri.query = URI.encode_www_form(
         identifier: identifier,
         cookie: auth_cookie || '',
@@ -87,7 +91,11 @@ class CustomDelegate
       http.open_timeout = 2
       http.read_timeout = 2
 
-      response = http.request(Net::HTTP::Get.new(uri))
+      # Ask the site the image belongs to, not the default vhost.
+      request = Net::HTTP::Get.new(uri)
+      host = (headers['Host'] || headers['X-Forwarded-Host'] || '').to_s.split(',').first.to_s.strip
+      request['Host'] = host unless host.empty?
+      response = http.request(request)
 
       if response.code.to_i == 200
         data = JSON.parse(response.body)

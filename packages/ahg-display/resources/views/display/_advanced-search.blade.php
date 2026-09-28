@@ -93,7 +93,7 @@
 
           {{-- Sector Quick Filter Buttons --}}
           <div class="mb-4">
-            <label class="form-label fw-bold"><i class="fas fa-layer-group me-1"></i>Search in sector <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label fw-bold"><i class="fas fa-layer-group me-1"></i>{{ __('Search in sector') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="d-flex flex-wrap gap-2">
               <a href="{{ url('/glam/browse?showAdvanced=1') }}" class="btn {{ empty($currentType) ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-globe me-1"></i>{{ __('All') }}</a>
               <a href="{{ url('/glam/browse?type=archive&showAdvanced=1') }}" class="btn {{ $currentType === 'archive' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}"><i class="fas fa-archive me-1"></i>{{ __('Archive') }}</a>
@@ -117,40 +117,40 @@
             {{-- Basic Tab --}}
             <div class="tab-pane fade show active" id="adv-basic">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Any field <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="query" class="form-control" value="{{ $params['query'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="title" class="form-control" value="{{ $params['title'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="identifier" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" class="form-control" value="{{ $params['identifier'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Reference code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="referenceCode" class="form-control" value="{{ $params['referenceCode'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Any field') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="query" class="form-control" value="{{ $params['query'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="title" class="form-control" value="{{ $params['title'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Identifier') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="identifier" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" class="form-control" value="{{ $params['identifier'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Reference code') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="referenceCode" class="form-control" value="{{ $params['referenceCode'] ?? '' }}"></div>
               </div>
             </div>
 
             {{-- Content Tab --}}
             <div class="tab-pane fade" id="adv-content">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Scope and content <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="scopeAndContent" class="form-control" value="{{ $params['scopeAndContent'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Extent and medium <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="extentAndMedium" class="form-control" value="{{ $params['extentAndMedium'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Archival history <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="archivalHistory" class="form-control" value="{{ $params['archivalHistory'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Acquisition <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label><input type="text" name="acquisition" class="form-control" value="{{ $params['acquisition'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Scope and content') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="scopeAndContent" class="form-control" value="{{ $params['scopeAndContent'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Extent and medium') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="extentAndMedium" class="form-control" value="{{ $params['extentAndMedium'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Archival history') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="archivalHistory" class="form-control" value="{{ $params['archivalHistory'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Acquisition') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label><input type="text" name="acquisition" class="form-control" value="{{ $params['acquisition'] ?? '' }}"></div>
               </div>
             </div>
 
             {{-- Access Points Tab --}}
             <div class="tab-pane fade" id="adv-access">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Creator <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="creatorSearch" class="form-control" value="{{ $params['creatorSearch'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Subject <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="subjectSearch" class="form-control" value="{{ $params['subjectSearch'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Place <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="placeSearch" class="form-control" value="{{ $params['placeSearch'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Genre <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="genreSearch" class="form-control" value="{{ $params['genreSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Creator') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="creatorSearch" class="form-control" value="{{ $params['creatorSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Subject') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="subjectSearch" class="form-control" value="{{ $params['subjectSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Place') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="placeSearch" class="form-control" value="{{ $params['placeSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">{{ __('Genre') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="genreSearch" class="form-control" value="{{ $params['genreSearch'] ?? '' }}"></div>
               </div>
             </div>
 
             {{-- Dates Tab --}}
             <div class="tab-pane fade" id="adv-dates">
               <div class="row g-3">
-                <div class="col-md-4"><label class="form-label small fw-bold">Date from <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="startDate" class="form-control" value="{{ $params['startDate'] ?? '' }}"></div>
-                <div class="col-md-4"><label class="form-label small fw-bold">Date to <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="endDate" class="form-control" value="{{ $params['endDate'] ?? '' }}"></div>
+                <div class="col-md-4"><label class="form-label small fw-bold">{{ __('Date from') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="startDate" class="form-control" value="{{ $params['startDate'] ?? '' }}"></div>
+                <div class="col-md-4"><label class="form-label small fw-bold">{{ __('Date to') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="endDate" class="form-control" value="{{ $params['endDate'] ?? '' }}"></div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Date matching <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label small fw-bold">{{ __('Date matching') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="rangeType" class="form-select">
                     <option value="inclusive" {{ ($params['rangeType'] ?? '') === 'inclusive' ? 'selected' : '' }}>{{ __('Overlapping') }}</option>
                     <option value="exact" {{ ($params['rangeType'] ?? '') === 'exact' ? 'selected' : '' }}>{{ __('Exact') }}</option>
@@ -163,7 +163,7 @@
             <div class="tab-pane fade" id="adv-filters">
               {{-- Search specific field --}}
               <div class="mb-3 p-3 bg-light rounded">
-                <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>Search specific field <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>{{ __('Search specific field') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div id="field-search-rows">
                   <div class="input-group mb-2 field-search-row">
                     <select class="form-select field-select" style="max-width: 200px;" onchange="this.nextElementSibling.name = this.value">
@@ -182,7 +182,7 @@
 
               <div class="row g-3">
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Sector <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
+                  <label class="form-label small fw-bold">{{ __('Sector') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
                   <select name="type" class="form-select" id="sector-filter-select">
                     <option value="">{{ __('All sectors') }}</option>
                     <option value="archive" {{ $currentType === 'archive' ? 'selected' : '' }}>{{ __('Archive') }}</option>
@@ -193,7 +193,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Level of description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label small fw-bold">{{ __('Level of description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   @php
                     // If a sector is active and has levels configured in Settings > Levels, use those; otherwise show all
                     $activeLevels = ($currentType && !empty($levelsBySectorMap[$currentType]))
@@ -209,7 +209,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label small fw-bold">{{ __('Repository') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="repo" id="repo-select">
                     <option value="">{{ __('Any repository') }}</option>
                     @foreach($repositories as $repo)
@@ -218,7 +218,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Digital objects <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label small fw-bold">{{ __('Digital objects') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="hasDigital" class="form-select">
                     <option value="">{{ __('Any') }}</option>
                     <option value="1" {{ ($params['hasDigital'] ?? '') === '1' ? 'selected' : '' }}>{{ __('With digital objects') }}</option>
@@ -228,11 +228,11 @@
                 <div class="col-12">
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="topLevel" id="topLevel-all" value="0" {{ ($params['topLevel'] ?? '0') === '0' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="topLevel-all">All descriptions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="topLevel-all">{{ __('All descriptions') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="topLevel" id="topLevel-top" value="1" {{ ($params['topLevel'] ?? '') === '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="topLevel-top">Top-level only <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="topLevel-top">{{ __('Top-level only') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>
@@ -279,7 +279,7 @@
   <div class="d-flex flex-wrap gap-2 mb-3">
     @php $removeTop = request()->except(['topLevel']); @endphp
     <a href="{{ url('/glam/browse?' . http_build_query(array_merge($removeTop, ['topLevel' => '0']))) }}" class="badge bg-primary p-2 text-decoration-none text-white">
-      Only top-level descriptions <i class="fas fa-times ms-1"></i>
+      {{ __('Only top-level descriptions') }} <i class="fas fa-times ms-1"></i>
     </a>
   </div>
 @endif
@@ -308,7 +308,7 @@
         </div>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" id="glam-save-search-notify">
-          <label class="form-check-label" for="glam-save-search-notify">Notify me of new results <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-check-label" for="glam-save-search-notify">{{ __('Notify me of new results') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
       </div>
       <div class="modal-footer">

@@ -107,7 +107,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ !$typeFilter ? 'active' : '' }}">
               <a href="{{ buildEmbeddedUrl($fp, [], ['type']) }}" class="text-decoration-none small {{ !$typeFilter ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @foreach($types as $type)
@@ -139,7 +139,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ !$repoFilter ? 'active' : '' }}">
               <a href="{{ buildEmbeddedUrl($fp, [], ['repo']) }}" class="text-decoration-none small {{ !$repoFilter ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @foreach($repositories as $repo)
@@ -166,7 +166,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ !$subjectFilter ? 'active' : '' }}">
               <a href="{{ buildEmbeddedUrl($fp, [], ['subject']) }}" class="text-decoration-none small {{ !$subjectFilter ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @foreach($subjects as $subject)
@@ -193,7 +193,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ !$levelFilter ? 'active' : '' }}">
               <a href="{{ buildEmbeddedUrl($fp, [], ['level']) }}" class="text-decoration-none small {{ !$levelFilter ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @foreach($levels as $level)
@@ -220,7 +220,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ !$creatorFilter ? 'active' : '' }}">
               <a href="{{ buildEmbeddedUrl($fp, [], ['creator']) }}" class="text-decoration-none small {{ !$creatorFilter ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @foreach($creators as $creator)
@@ -247,7 +247,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ !$placeFilter ? 'active' : '' }}">
               <a href="{{ buildEmbeddedUrl($fp, [], ['place']) }}" class="text-decoration-none small {{ !$placeFilter ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @foreach($places as $place)
@@ -274,7 +274,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ !$mediaFilter ? 'active' : '' }}">
               <a href="{{ buildEmbeddedUrl($fp, [], ['media']) }}" class="text-decoration-none small {{ !$mediaFilter ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @foreach($mediaTypes as $media)
@@ -340,7 +340,7 @@
         @endif
         @if($hasDigital)
           <a href="{{ buildEmbeddedUrl($fp, [], ['hasDigital']) }}" class="badge bg-info p-2 text-decoration-none text-white">
-            With digital objects <i class="fas fa-times ms-1"></i>
+            {{ __('With digital objects') }} <i class="fas fa-times ms-1"></i>
           </a>
         @endif
       </div>
@@ -373,8 +373,8 @@
         <div class="dropdown">
           <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $sortDir === 'asc' ? 'Asc' : 'Desc' }}</button>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item {{ $sortDir === 'asc' ? 'active' : '' }}" href="{{ buildEmbeddedUrl($fp, ['dir' => 'asc']) }}">Ascending</a></li>
-            <li><a class="dropdown-item {{ $sortDir === 'desc' ? 'active' : '' }}" href="{{ buildEmbeddedUrl($fp, ['dir' => 'desc']) }}">Descending</a></li>
+            <li><a class="dropdown-item {{ $sortDir === 'asc' ? 'active' : '' }}" href="{{ buildEmbeddedUrl($fp, ['dir' => 'asc']) }}">{{ __('Ascending') }}</a></li>
+            <li><a class="dropdown-item {{ $sortDir === 'desc' ? 'active' : '' }}" href="{{ buildEmbeddedUrl($fp, ['dir' => 'desc']) }}">{{ __('Descending') }}</a></li>
           </ul>
         </div>
       </div>
@@ -427,7 +427,7 @@
             </thead>
             <tbody>
               @if(empty($objects))
-                <tr><td colspan="4" class="text-center text-muted py-5"><i class="fas fa-inbox fa-3x mb-3"></i><br>No results</td></tr>
+                <tr><td colspan="4" class="text-center text-muted py-5"><i class="fas fa-inbox fa-3x mb-3"></i><br>{{ __('No results') }}</td></tr>
               @else
                 @foreach($objects as $obj)
                   @php

@@ -100,7 +100,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($typeFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['type']) }}" class="text-decoration-none small {{ empty($typeFilter) ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @if(!empty($types))
@@ -133,7 +133,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($creatorFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['creator']) }}" class="text-decoration-none small {{ empty($creatorFilter) ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @if(!empty($creators))
@@ -160,7 +160,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($placeFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['place']) }}" class="text-decoration-none small {{ empty($placeFilter) ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @if(!empty($places))
@@ -187,7 +187,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($subjectFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['subject']) }}" class="text-decoration-none small {{ empty($subjectFilter) ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @if(!empty($subjects))
@@ -214,7 +214,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($genreFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['genre']) }}" class="text-decoration-none small {{ empty($genreFilter) ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @if(!empty($genres))
@@ -241,7 +241,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($levelFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['level']) }}" class="text-decoration-none small {{ empty($levelFilter) ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @if(!empty($levels))
@@ -273,7 +273,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($mediaFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['media']) }}" class="text-decoration-none small {{ empty($mediaFilter) ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @if(!empty($mediaTypes))
@@ -347,7 +347,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($repoFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['repo']) }}" class="text-decoration-none small {{ empty($repoFilter) ? 'text-white' : '' }}">
-                All
+                {{ __('All') }}
               </a>
             </li>
             @if(!empty($repositories))
@@ -410,7 +410,7 @@
         @endforeach
         <div class="modal-body">
           <div class="mb-3">
-            <label for="semantic-query" class="form-label fw-bold">Search query <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="semantic-query" class="form-label fw-bold">{{ __('Search query') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control form-control-lg" id="semantic-query" name="query"
                    value="{{ $queryFilter ?? '' }}" placeholder="{{ __('Enter your search terms...') }}"
                    autofocus>
@@ -420,7 +420,7 @@
               <input class="form-check-input" type="checkbox" role="switch" id="semantic-toggle" name="semantic" value="1"
                      {{ !empty($fp['semantic']) ? 'checked' : '' }}>
               <label class="form-check-label" for="semantic-toggle">
-                <i class="fas fa-brain me-1"></i> Enable AI-powered semantic expansion
+                <i class="fas fa-brain me-1"></i> {{ __('Enable AI-powered semantic expansion') }}
                <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <small class="text-muted d-block mt-1">
@@ -428,7 +428,7 @@
             </small>
           </div>
           <div id="semantic-expansion-preview" class="browse-hidden">
-            <label class="form-label fw-bold">Expansion preview <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label fw-bold">{{ __('Expansion preview') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="border rounded p-3 bg-light">
               <div id="semantic-preview-content">
                 <span class="text-muted">{{ __('Enter a query and enable semantic search to see expansion preview...') }}</span>

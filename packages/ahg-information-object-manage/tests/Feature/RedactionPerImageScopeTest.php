@@ -122,6 +122,36 @@ class RedactionPerImageScopeTest extends TestCase
         $this->assertSame(0, $this->redactor->regionsQuery($io, $extra)->count());
     }
 
+    /** A derivative row, as the viewers deep-zoom the reference copy. */
+    private function derivative(int $masterId, string $name): void
+    {
+        $id = $this->objectRow('QubitDigitalObject');
+        DB::table('digital_object')->insert([
+            'id' => $id, 'object_id' => null, 'parent_id' => $masterId, 'usage_id' => 141,
+            'name' => $name, 'path' => '/uploads/r/test/', 'mime_type' => 'image/jpeg',
+        ]);
+    }
+
+    public function test_cantaloupe_identifier_of_a_redacted_image_or_its_derivative_is_refused(): void
+    {
+        $io = $this->objectRow('QubitInformationObject');
+        $tag = uniqid('ghsa', false);
+        $primary = $this->master($io, "p-{$tag}.jpg");
+        $extra = $this->master(null, "x-{$tag}.jpg");
+        $this->attach($io, $extra);
+        $this->derivative($extra, "x-{$tag}_141.jpg");
+        $this->region($io, $extra);
+
+        $id = fn (string $n) => "uploads_SL_r_SL_test_SL_{$n}";
+
+        $this->assertTrue($this->redactor->isRedactedIdentifier($id("x-{$tag}.jpg")));
+        $this->assertTrue($this->redactor->isRedactedIdentifier($id("x-{$tag}_141.jpg")));
+        // Multi-page TIFF identifiers carry a ;page suffix.
+        $this->assertTrue($this->redactor->isRedactedIdentifier($id("x-{$tag}.jpg").';2'));
+        $this->assertFalse($this->redactor->isRedactedIdentifier($id("p-{$tag}.jpg")));
+        $this->assertFalse($this->redactor->isRedactedIdentifier($id("missing-{$tag}.jpg")));
+    }
+
     public function test_another_records_image_is_not_a_target(): void
     {
         $io = $this->objectRow('QubitInformationObject');

@@ -21236,5 +21236,15 @@
     "\"Record the sources consulted in establishing the description of the institution.\" (ISDIAH 5.6.8)": "\"Record the sources consulted in establishing the description of the institution.\" (ISDIAH 5.6.8)",
     "\"Record notes pertinent to the creation and maintenance of the description.\" (ISDIAH 5.6.9)": "\"Record notes pertinent to the creation and maintenance of the description.\" (ISDIAH 5.6.9)",
     "Hold Ctrl/Cmd to select multiple. (ISAAR 5.4.7)": "Hold Ctrl/Cmd to select multiple. (ISAAR 5.4.7)",
-    "Record the type of the institution. (ISDIAH 5.1.5) Select as many types as desired from the drop-down menu; these values are drawn from the Repository Types taxonomy.": "Record the type of the institution. (ISDIAH 5.1.5) Select as many types as desired from the drop-down menu; these values are drawn from the Repository Types taxonomy."
+    "Record the type of the institution. (ISDIAH 5.1.5) Select as many types as desired from the drop-down menu; these values are drawn from the Repository Types taxonomy.": "Record the type of the institution. (ISDIAH 5.1.5) Select as many types as desired from the drop-down menu; these values are drawn from the Repository Types taxonomy.",
+    "Date Newest": "Date Newest",
+    "Date Oldest": "Date Oldest",
+    "Did you mean:": "Did you mean:",
+    "Enable AI-powered semantic expansion": "Enable AI-powered semantic expansion",
+    "Expansion preview": "Expansion preview",
+    "Results enhanced by Elasticsearch full-text search.": "Results enhanced by Elasticsearch full-text search.",
+    "Show details": "Show details",
+    "Showing results for": "Showing results for",
+    "Try adjusting your filters or": "Try adjusting your filters or",
+    "Your search for": "Your search for"
 }

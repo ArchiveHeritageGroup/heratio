@@ -234,6 +234,71 @@ class RedactionRenderService
             });
     }
 
+    /**
+     * Whether the signed-in viewer sees originals rather than redactions.
+     * Administrators only, the same rule every redaction reader applies.
+     */
+    public static function viewerCanBypass(): bool
+    {
+        $u = auth()->check() ? auth()->user() : null;
+        if (!$u) {
+            return false;
+        }
+
+        return method_exists($u, 'isAdministrator') ? (bool) $u->isAdministrator() : (bool) ($u->is_admin ?? false);
+    }
+
+    /**
+     * Whether a Cantaloupe identifier names a file whose pixels are covered by
+     * live regions: a redacted master, or any derivative of one (the viewers
+     * deep-zoom the reference copy). Cantaloupe tiles the ORIGINAL, so these
+     * must not be served to anyone who cannot bypass redaction (GHSA-wpfv-ccw6-g9jg).
+     *
+     * An identifier that is not a digital object at all is not redacted.
+     */
+    public function isRedactedIdentifier(string $identifier): bool
+    {
+        // uploads_SL_r_SL_837_SL_x.jpg[;page] -> /uploads/r/837/ + x.jpg
+        $decoded = str_replace('_SL_', '/', preg_replace('/;\d+$/', '', rawurldecode($identifier)));
+        $name = basename($decoded);
+        $dir = trim(dirname($decoded), '/');
+        if ($name === '' || $dir === '' || $dir === '.') {
+            return false;
+        }
+
+        $row = DB::table('digital_object')
+            ->where('name', $name)
+            ->whereIn('path', ['/' . $dir . '/', $dir . '/', '/' . $dir, $dir])
+            ->first(['id', 'object_id', 'parent_id']);
+        if (!$row) {
+            return false;
+        }
+
+        $master = $row->parent_id
+            ? DB::table('digital_object')->where('id', $row->parent_id)->first(['id', 'object_id'])
+            : $row;
+        if (!$master) {
+            return false;
+        }
+
+        // The record: the primary's object_id, or the link table for an
+        // attached object (#1447), whose object_id is NULL.
+        $ioIds = $master->object_id
+            ? [(int) $master->object_id]
+            : (\AhgCore\Services\AttachedDigitalObjectService::available()
+                ? DB::table(\AhgCore\Services\AttachedDigitalObjectService::TABLE)
+                    ->where('digital_object_id', $master->id)->pluck('information_object_id')->map('intval')->all()
+                : []);
+
+        foreach ($ioIds as $ioId) {
+            if ($this->regionsQuery($ioId, (int) $master->id)->exists()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /** Ids of the record's images that carry live regions. */
     public function redactedMasterIds(int $ioId): array
     {

@@ -20784,5 +20784,15 @@
     "\"Record the sources consulted in establishing the description of the institution.\" (ISDIAH 5.6.8)": "\"سجّل المصادر التي تمت الاستعانة بها في إعداد وصف المؤسسة.\" (ISDIAH 5.6.8)",
     "\"Record notes pertinent to the creation and maintenance of the description.\" (ISDIAH 5.6.9)": "\"سجّل الملاحظات المتعلقة بإنشاء الوصف وصيانته.\" (ISDIAH 5.6.9)",
     "Hold Ctrl/Cmd to select multiple. (ISAAR 5.4.7)": "اضغط مع الاستمرار على Ctrl/Cmd لاختيار عدة عناصر. (ISAAR 5.4.7)",
-    "Record the type of the institution. (ISDIAH 5.1.5) Select as many types as desired from the drop-down menu; these values are drawn from the Repository Types taxonomy.": "سجّل نوع المؤسسة. (ISDIAH 5.1.5) اختر ما تشاء من الأنواع من القائمة المنسدلة؛ وهذه القيم مأخوذة من تصنيف أنواع المستودعات."
+    "Record the type of the institution. (ISDIAH 5.1.5) Select as many types as desired from the drop-down menu; these values are drawn from the Repository Types taxonomy.": "سجّل نوع المؤسسة. (ISDIAH 5.1.5) اختر ما تشاء من الأنواع من القائمة المنسدلة؛ وهذه القيم مأخوذة من تصنيف أنواع المستودعات.",
+    "Date Newest": "التاريخ (الأحدث أولاً)",
+    "Date Oldest": "التاريخ (الأقدم أولاً)",
+    "Did you mean:": "هل تقصد:",
+    "Enable AI-powered semantic expansion": "تفعيل التوسيع الدلالي المدعوم بالذكاء الاصطناعي",
+    "Expansion preview": "معاينة التوسيع",
+    "Results enhanced by Elasticsearch full-text search.": "نتائج محسّنة بالبحث في النص الكامل عبر Elasticsearch.",
+    "Show details": "إظهار التفاصيل",
+    "Showing results for": "عرض النتائج لـ",
+    "Try adjusting your filters or": "جرّب تعديل عوامل التصفية أو",
+    "Your search for": "بحثك عن"
 }
