@@ -97,6 +97,21 @@ exec 9>/run/lock/heratio-schedule.lock
 flock -w 120 9 || echo "scheduler lock not acquired in 120s - restore may race a running tick"
 sudo -u www-data /usr/bin/php8.3 "$APP_DIR/artisan" down --retry=60 >/dev/null 2>&1 \
   && echo "app in maintenance mode for the restore" || echo "artisan down FAILED - restore may race web requests"
+# Maintenance mode LEAKS for up to two minutes without this (CH-000175, proven on the
+# 25 Sep run). php-fpm caches stat() results for realpath_cache_ttl, 120s on this host,
+# so a long-lived worker keeps missing the maintenance file `artisan down` just created
+# and serves requests normally. That night nginx logged 427 x 503 alongside 31 x 200 in
+# the same seconds - /glam/browse served 23 times - and each of those 200s booted the
+# app, whose audit-trail provider re-created the ahg_audit_log triggers at 02:00:47.58
+# and 02:00:48.00, mid-restore, which is what the dump's CREATE TRIGGER then collided
+# with. A graceful reload recycles the workers so every one of them sees the file at
+# once; the short sleep lets requests already in flight finish before the dump starts.
+if systemctl reload php8.3-fpm 2>/dev/null; then
+    echo "php-fpm reloaded - all workers now see maintenance mode"
+else
+    echo "php-fpm reload FAILED - leaked requests may boot the app during the restore"
+fi
+sleep 5
 _reset_release() {
   sudo -u www-data /usr/bin/php8.3 "$APP_DIR/artisan" up >/dev/null 2>&1 || rm -f "$APP_DIR/storage/framework/down" "$APP_DIR/storage/framework/maintenance.php"
   flock -u 9 2>/dev/null || true

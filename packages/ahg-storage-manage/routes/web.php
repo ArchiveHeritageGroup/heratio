@@ -1,6 +1,7 @@
 <?php
 
 use AhgStorageManage\Controllers\StorageController;
+use AhgStorageManage\Controllers\StorageLocationController;
 use AhgStorageManage\Controllers\StrongroomController;
 use Illuminate\Support\Facades\Route;
 
@@ -62,3 +63,29 @@ Route::get('/strongroom/{slug}', [StrongroomController::class, 'show'])
     ->name('strongroom.show')
     ->middleware('auth')
     ->where('slug', '(?!browse|add)[a-z0-9][a-z0-9-]*');
+
+// ---------------------------------------------------------------------------
+// heratio#1514 / atom-ahg-plugins#193 - Hierarchical storage locations.
+// Port of the AtoM storageLocation module. Staff-only like the rest of the
+// storage surface (#1364): reads need auth, writes acl, delete admin.
+// ---------------------------------------------------------------------------
+Route::middleware('auth')->group(function () {
+    Route::get('/storagelocation/browse', [StorageLocationController::class, 'browse'])->name('storagelocation.browse');
+    Route::get('/storagelocation/add', [StorageLocationController::class, 'create'])->name('storagelocation.create');
+    Route::post('/storagelocation/add', [StorageLocationController::class, 'store'])->name('storagelocation.store')->middleware('acl:create');
+    Route::get('/storagelocation/api/locations', [StorageLocationController::class, 'apiLocations'])->name('storagelocation.api.locations');
+    Route::get('/storagelocation/api/tree', [StorageLocationController::class, 'apiTree'])->name('storagelocation.api.tree');
+    Route::get('/storagelocation/api/search', [StorageLocationController::class, 'apiSearch'])->name('storagelocation.api.search');
+    Route::get('/storagelocation/{slug}/edit', [StorageLocationController::class, 'edit'])->name('storagelocation.edit');
+    Route::post('/storagelocation/{slug}/edit', [StorageLocationController::class, 'update'])->name('storagelocation.update')->middleware('acl:update');
+});
+
+Route::middleware('admin')->group(function () {
+    Route::get('/storagelocation/{slug}/delete', [StorageLocationController::class, 'confirmDelete'])->name('storagelocation.confirmDelete');
+    Route::delete('/storagelocation/{slug}/delete', [StorageLocationController::class, 'destroy'])->name('storagelocation.destroy')->middleware('acl:delete');
+});
+
+Route::get('/storagelocation/{slug}', [StorageLocationController::class, 'show'])
+    ->name('storagelocation.show')
+    ->middleware('auth')
+    ->where('slug', '(?!browse|add|api)[a-z0-9][a-z0-9-]*');

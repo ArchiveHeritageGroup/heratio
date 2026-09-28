@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Schema;
  * inserts/updates/deletes the base row; this keeps the closure + the
  * ahg_node_sibling_order sidecar consistent with parent_id.
  *
- * Entity is one of information_object | term | menu. Methods no-op safely if the
+ * Entity is one of information_object | term | menu | ahg_storage_location. Methods no-op safely if the
  * closure infrastructure is not installed yet (mid-migration / fresh DB).
  */
 class ClosureMaintenanceService
@@ -29,6 +29,9 @@ class ClosureMaintenanceService
         'information_object' => 'information_object_closure',
         'term'               => 'term_closure',
         'menu'               => 'menu_closure',
+        // Storage locations (heratio#1514 / atom-ahg-plugins#193): same closure
+        // shape, keyed by the base table name as BuildClosureCommand is.
+        'ahg_storage_location' => 'ahg_storage_location_closure',
     ];
 
     /**

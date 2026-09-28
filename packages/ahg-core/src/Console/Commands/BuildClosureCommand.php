@@ -27,15 +27,16 @@ use Illuminate\Support\Facades\Schema;
  * Usage:
  *   php artisan ahg:build-closure                         # information_object
  *   php artisan ahg:build-closure --table=term
- *   php artisan ahg:build-closure --all                   # all three
+ *   php artisan ahg:build-closure --all                   # every closure table
+ *   php artisan ahg:build-closure --table=ahg_storage_location
  *   php artisan ahg:build-closure --verify                # parity check vs nested set, no writes
  *   php artisan ahg:build-closure --dry-run               # report intended counts only
  */
 class BuildClosureCommand extends Command
 {
     protected $signature = 'ahg:build-closure
-        {--table=information_object : Base table (information_object|term|menu)}
-        {--all : Build all three closure tables}
+        {--table=information_object : Base table (information_object|term|menu|ahg_storage_location)}
+        {--all : Build every closure table}
         {--verify : Verify closure vs the existing nested set; no writes}
         {--dry-run : Report what would be built without writing}';
 
@@ -46,6 +47,7 @@ class BuildClosureCommand extends Command
         'information_object' => 'information_object_closure',
         'term'               => 'term_closure',
         'menu'               => 'menu_closure',
+        'ahg_storage_location' => 'ahg_storage_location_closure',
     ];
 
     public function handle(): int
@@ -126,9 +128,11 @@ class BuildClosureCommand extends Command
             // Seed it from the current lft order within each parent group.
             if (Schema::hasTable('ahg_node_sibling_order')) {
                 DB::table('ahg_node_sibling_order')->where('entity', $base)->delete();
+                // Tables without a nested set (ahg_storage_location) order by id.
+                $order = Schema::hasColumn($base, 'lft') ? 'lft, id' : 'id';
                 DB::statement(
                     "INSERT INTO `ahg_node_sibling_order` (entity, node_id, parent_id, sibling_order)
-                     SELECT ?, id, parent_id, (ROW_NUMBER() OVER (PARTITION BY parent_id ORDER BY lft, id)) - 1
+                     SELECT ?, id, parent_id, (ROW_NUMBER() OVER (PARTITION BY parent_id ORDER BY {$order})) - 1
                      FROM `{$base}`",
                     [$base]
                 );
