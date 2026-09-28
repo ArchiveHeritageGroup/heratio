@@ -62,6 +62,37 @@ class AhgCoreServiceProvider extends ServiceProvider
         $this->app->bind(RelationRepository::class, MysqlRelationRepository::class);
         $this->app->bind(FunctionRepository::class, MysqlFunctionRepository::class);
         $this->app->bind(PlaceRepository::class, MysqlPlaceRepository::class);
+
+        // Package providers check their schema on every boot - about 500
+        // information_schema queries, roughly 0.75 s of every request. Answer
+        // "this table/column exists" from a per-release cache file instead;
+        // missing ones are still checked live. See SchemaExistenceCache.
+        // Off under unit tests so they keep seeing the live schema;
+        // AHG_SCHEMA_CACHE=false switches it off anywhere.
+        if (filter_var(env('AHG_SCHEMA_CACHE', true), FILTER_VALIDATE_BOOL) && ! $this->app->runningUnitTests()) {
+            \Illuminate\Database\Connection::resolverFor('mysql', fn ($pdo, $database, $prefix, $config) => new \AhgCore\Database\CachingMySqlConnection($pdo, $database, $prefix, $config));
+            // A config file (ahg-archivematica) queries the database while
+            // config loads, before this provider registers, so a stock
+            // connection may already exist. Drop it; the next query
+            // reconnects through the resolver above.
+            if ($this->app->resolved('db')) {
+                foreach (array_keys($this->app['db']->getConnections()) as $name) {
+                    if (config("database.connections.{$name}.driver") === 'mysql') {
+                        $this->app['db']->purge($name);
+                    }
+                }
+            }
+            \AhgCore\Database\SchemaExistenceCache::enable(self::schemaCachePath());
+        }
+    }
+
+    /** One cache file per release and database, so a deploy starts clean. */
+    public static function schemaCachePath(): string
+    {
+        $version = json_decode((string) @file_get_contents(base_path('version.json')), true)['version'] ?? 'dev';
+        $db = config('database.connections.mysql.host').'/'.config('database.connections.mysql.database');
+
+        return storage_path('framework/cache/ahg-schema-'.substr(md5($version.'|'.$db), 0, 12).'.php');
     }
 
     public function boot(): void
@@ -147,6 +178,7 @@ class AhgCoreServiceProvider extends ServiceProvider
         // Register artisan commands
         if ($this->app->runningInConsole()) {
             $this->commands([
+                \AhgCore\Console\Commands\SchemaCacheClearCommand::class,
                 \AhgCore\Console\Commands\NasWatchdogCommand::class,
                 \AhgCore\Console\Commands\BackfillEmbeddedMetadataCommand::class,
                 \AhgCore\Console\Commands\OptimizeModelsCommand::class,
