@@ -30,7 +30,7 @@
   @if($actorPager->lastPage() > 1)
     <nav class="card-body border-bottom p-2 small" aria-label="{{ __('Pagination') }}">
       <p class="text-center mb-1">
-        Results <span class="result-start">{{ ($actorPager->currentPage() - 1) * $actorPager->perPage() + 1 }}</span>
+        {{ __('Results') }} <span class="result-start">{{ ($actorPager->currentPage() - 1) * $actorPager->perPage() + 1 }}</span>
         to <span class="result-end">{{ min($actorPager->currentPage() * $actorPager->perPage(), $actorPager->total()) }}</span>
         of {{ $actorPager->total() }}
       </p>

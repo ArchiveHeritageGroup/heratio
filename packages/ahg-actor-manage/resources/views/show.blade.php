@@ -232,7 +232,7 @@
 
   {{-- Identity area --}}
   <section id="identityArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="text-primary text-decoration-none">Identity area</a><a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="ms-auto text-muted" title="{{ __('Edit Identity area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Identity area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Identity area') }}</a><a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="ms-auto text-muted" title="{{ __('Edit Identity area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Identity area @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Type of entity') }}</h3><div class="col-9 p-2">{{ $entityTypeName ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Authorized form of name') }}</h3><div class="col-9 p-2">{{ $actor->authorized_form_of_name ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Parallel form(s) of name') }}</h3><div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">@foreach(($otherNames ?? collect())->where('type_id', 148) as $n)<li>{{ $n->name }}</li>@endforeach</ul></div></div>
@@ -243,7 +243,7 @@
 
   {{-- Description area --}}
   <section id="descriptionArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="text-primary text-decoration-none">Description area</a><a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="ms-auto text-muted" title="{{ __('Edit Description area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Description area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="text-primary text-decoration-none">{{ __('Description area') }}</a><a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="ms-auto text-muted" title="{{ __('Edit Description area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Description area @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates of existence') }}</h3><div class="col-9 p-2">{{ $actor->dates_of_existence ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('History') }}</h3><div class="col-9 p-2">{!! ($actor->history ?? '') ? nl2br(e($actor->history)) : '' !!}@include('ahg-translation::components.badge', ['source' => $translationSources['history'] ?? null])</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Places') }}</h3><div class="col-9 p-2">{{ $actor->places ?? '' }}</div></div>
@@ -256,7 +256,7 @@
 
   {{-- Relationships area --}}
   <section id="relationshipsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="text-primary text-decoration-none">Relationships area</a><a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="ms-auto text-muted" title="{{ __('Edit Relationships area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Relationships area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="text-primary text-decoration-none">{{ __('Relationships area') }}</a><a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="ms-auto text-muted" title="{{ __('Edit Relationships area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Relationships area @endauth</div></h2>
     @foreach($relatedActors ?? [] as $related)
       <div class="field text-break row g-0">
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related entity') }}</h3>
@@ -332,7 +332,7 @@
 
   {{-- Contact information --}}
   <section id="contactArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#contact-collapse" class="text-primary text-decoration-none">Contact information</a>@else Contact information @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#contact-collapse" class="text-primary text-decoration-none">{{ __('Contact information') }}</a>@else Contact information @endauth</div></h2>
     @foreach($contacts ?? [] as $contact)
       @if(!$loop->first)
         <hr class="my-3">
@@ -356,7 +356,7 @@
 
   {{-- Access points area --}}
   <section id="accessPointsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#access-collapse" class="text-primary text-decoration-none">Access points area</a>@else Access points area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#access-collapse" class="text-primary text-decoration-none">{{ __('Access points area') }}</a>@else Access points area @endauth</div></h2>
     <div class="field row g-0">
       <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Subject access points') }}</h3>
       <div class="col-9 p-2">
@@ -488,7 +488,7 @@
 
   {{-- Control area --}}
   <section id="controlArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#control-collapse" class="text-primary text-decoration-none">Control area</a>@else Control area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#control-collapse" class="text-primary text-decoration-none">{{ __('Control area') }}</a>@else Control area @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Authority record identifier') }}</h3><div class="col-9 p-2">{{ $actor->description_identifier ?? '' }}</div></div>
     @if($maintainingRepository ?? null)
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Maintained by') }}</h3><div class="col-9 p-2"><a href="{{ route('repository.show', $maintainingRepository->slug) }}">{{ $maintainingRepository->name ?: '[Untitled]' }}</a></div></div>
@@ -656,13 +656,13 @@
   <section class="actions">
     <ul class="nav gap-2">
       @if($canUpdate)
-        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
+        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">{{ __('Edit') }}</a></li>
       @endif
       @if($canDelete)
-        <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
+        <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">{{ __('Delete') }}</a></li>
       @endif
       @if($canCreate)
-        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}">Add new</a></li>
+        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}">{{ __('Add new') }}</a></li>
       @endif
       @if($canUpdate)
         <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>{{ __('Rename') }}</a></li>

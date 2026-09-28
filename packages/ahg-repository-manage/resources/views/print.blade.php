@@ -14,14 +14,14 @@
 
   @if($repository->authorized_form_of_name)
     <div class="field-row">
-      <div class="field-label">Authorized form of name</div>
+      <div class="field-label">{{ __('Authorized form of name') }}</div>
       <div class="field-value">{{ $repository->authorized_form_of_name }}</div>
     </div>
   @endif
 
   @if($repository->identifier)
     <div class="field-row">
-      <div class="field-label">Identifier</div>
+      <div class="field-label">{{ __('Identifier') }}</div>
       <div class="field-value">{{ $repository->identifier }}</div>
     </div>
   @endif
@@ -54,7 +54,7 @@
 
   @if(($repositoryTypes ?? collect())->isNotEmpty())
     <div class="field-row">
-      <div class="field-label">Repository type</div>
+      <div class="field-label">{{ __('Repository type') }}</div>
       <div class="field-value">
         @foreach($repositoryTypes as $type)
           {{ $type->name }}@if(!$loop->last), @endif
@@ -108,14 +108,14 @@
 
     @if($repository->holdings)
       <div class="field-row">
-        <div class="field-label">Archival and other holdings</div>
+        <div class="field-label">{{ __('Archival and other holdings') }}</div>
         <div class="field-value">{!! nl2br(e($repository->holdings)) !!}</div>
       </div>
     @endif
 
     @if($repository->finding_aids)
       <div class="field-row">
-        <div class="field-label">Finding aids</div>
+        <div class="field-label">{{ __('Finding aids') }}</div>
         <div class="field-value">{!! nl2br(e($repository->finding_aids)) !!}</div>
       </div>
     @endif
@@ -174,14 +174,14 @@
 
   @if($descStatusName ?? null)
     <div class="field-row">
-      <div class="field-label">Status</div>
+      <div class="field-label">{{ __('Status') }}</div>
       <div class="field-value">{{ $descStatusName }}</div>
     </div>
   @endif
 
   @if($descDetailName ?? null)
     <div class="field-row">
-      <div class="field-label">Level of detail</div>
+      <div class="field-label">{{ __('Level of detail') }}</div>
       <div class="field-value">{{ $descDetailName }}</div>
     </div>
   @endif
@@ -202,21 +202,21 @@
 
   @if($maintenanceNotes ?? null)
     <div class="field-row">
-      <div class="field-label">Maintenance notes</div>
+      <div class="field-label">{{ __('Maintenance notes') }}</div>
       <div class="field-value">{!! nl2br(e($maintenanceNotes)) !!}</div>
     </div>
   @endif
 
   @if($holdingsCount > 0)
     <div class="field-row">
-      <div class="field-label">Holdings count</div>
+      <div class="field-label">{{ __('Holdings count') }}</div>
       <div class="field-value">{{ number_format($holdingsCount) }} description{{ $holdingsCount !== 1 ? 's' : '' }}</div>
     </div>
   @endif
 
   @if($repository->updated_at)
     <div class="field-row">
-      <div class="field-label">Last updated</div>
+      <div class="field-label">{{ __('Last updated') }}</div>
       <div class="field-value">{{ $repository->updated_at }}</div>
     </div>
   @endif

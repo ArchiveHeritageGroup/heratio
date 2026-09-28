@@ -5,12 +5,12 @@
       <div class="card-body py-2">
         <div class="row align-items-end">
           <div class="col-md-5 mb-2">
-            <label class="form-label small">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+            <label class="form-label small">{{ __('Name') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="text" name="other_names[{{ $index }}][name]" class="form-control form-control-sm"
                    value="{{ $name->name ?? '' }}">
           </div>
           <div class="col-md-4 mb-2">
-            <label class="form-label small">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label small">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="other_names[{{ $index }}][type_id]" class="form-select form-select-sm">
               <option value="">-- Select --</option>
               @foreach($nameTypes as $type)
@@ -19,7 +19,7 @@
             </select>
           </div>
           <div class="col-md-2 mb-2">
-            <label class="form-label small">Note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label small">{{ __('Note') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="other_names[{{ $index }}][note]" class="form-control form-control-sm"
                    value="{{ $name->note ?? '' }}">
           </div>
@@ -44,11 +44,11 @@
     <div class="card-body py-2">
       <div class="row align-items-end">
         <div class="col-md-5 mb-2">
-          <label class="form-label small">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+          <label class="form-label small">{{ __('Name') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" name="other_names[__INDEX__][name]" class="form-control form-control-sm">
         </div>
         <div class="col-md-4 mb-2">
-          <label class="form-label small">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label small">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="other_names[__INDEX__][type_id]" class="form-select form-select-sm">
             <option value="">-- Select --</option>
             @foreach($nameTypes as $type)
@@ -57,7 +57,7 @@
           </select>
         </div>
         <div class="col-md-2 mb-2">
-          <label class="form-label small">Note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label small">{{ __('Note') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" name="other_names[__INDEX__][note]" class="form-control form-control-sm">
         </div>
         <div class="col-md-1 mb-2 text-end">

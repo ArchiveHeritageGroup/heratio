@@ -23,7 +23,7 @@
     </button>
   </div>
   <div class="card-body small" id="ahg-find-similar-body">
-    <p class="text-muted mb-0">Click <em>Run</em> to fetch records semantically similar to this one (powered by Qdrant + sentence embeddings).</p>
+    <p class="text-muted mb-0">{{ __('Click') }} <em>{{ __('Run') }}</em> to fetch records semantically similar to this one (powered by Qdrant + sentence embeddings).</p>
   </div>
 </section>
 

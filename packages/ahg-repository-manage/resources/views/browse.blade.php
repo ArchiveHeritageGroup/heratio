@@ -29,7 +29,7 @@
                aria-labelledby="heading-languages">
             @php $currentLang = request('languages', ''); @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentLang === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['languages', 'page'])) }}">All</a>
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['languages', 'page'])) }}">{{ __('All') }}</a>
             @foreach($languageFacets as $langCode => $facet)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLang == $langCode ? 'active text-decoration-underline' : '' }}"
                  href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['languages', 'page']), ['languages' => $langCode])) }}">
@@ -57,7 +57,7 @@
                aria-labelledby="heading-archiveType">
             @php $currentArchiveType = request('types', ''); @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentArchiveType === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['types', 'page'])) }}">All</a>
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['types', 'page'])) }}">{{ __('All') }}</a>
             @foreach($archiveTypeFacets as $atId => $facet)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentArchiveType == $atId ? 'active text-decoration-underline' : '' }}"
                  href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['types', 'page']), ['types' => $atId])) }}">
@@ -85,7 +85,7 @@
                aria-labelledby="heading-region">
             @php $currentRegion = request('regions', ''); @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentRegion === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['regions', 'page'])) }}">All</a>
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['regions', 'page'])) }}">{{ __('All') }}</a>
             @foreach($regions as $r)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentRegion === $r->region ? 'active text-decoration-underline' : '' }}"
                  href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['regions', 'page']), ['regions' => $r->region])) }}">
@@ -113,7 +113,7 @@
                aria-labelledby="heading-subregion">
             @php $currentSubregion = request('geographicSubregions', ''); @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentSubregion === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['geographicSubregions', 'page'])) }}">All</a>
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['geographicSubregions', 'page'])) }}">{{ __('All') }}</a>
             @foreach($subregionFacets as $srId => $facet)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentSubregion == $srId ? 'active text-decoration-underline' : '' }}"
                  href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['geographicSubregions', 'page']), ['geographicSubregions' => $srId])) }}">
@@ -141,7 +141,7 @@
                aria-labelledby="heading-locality">
             @php $currentLocality = request('locality', ''); @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentLocality === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['locality', 'page'])) }}">All</a>
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['locality', 'page'])) }}">{{ __('All') }}</a>
             @foreach($localityFacets as $loc => $facet)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLocality === $loc ? 'active text-decoration-underline' : '' }}"
                  href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['locality', 'page']), ['locality' => $loc])) }}">
@@ -169,7 +169,7 @@
                aria-labelledby="heading-thematicArea">
             @php $currentThematic = request('thematicAreas', ''); @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentThematic === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['thematicAreas', 'page'])) }}">All</a>
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['thematicAreas', 'page'])) }}">{{ __('All') }}</a>
             @foreach($thematicAreaFacets as $taId => $facet)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentThematic == $taId ? 'active text-decoration-underline' : '' }}"
                  href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['thematicAreas', 'page']), ['thematicAreas' => $taId])) }}">
@@ -319,8 +319,8 @@
           Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
-          <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">Ascending</a></li>
-          <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}" class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">Descending</a></li>
+          <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">{{ __('Ascending') }}</a></li>
+          <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}" class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">{{ __('Descending') }}</a></li>
         </ul>
       </div>
     </div>
@@ -362,13 +362,13 @@
           <thead>
             <tr>
               <th class="sortable w-40">
-                <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'nameUp' ? 'nameDown' : 'nameUp'])) }}">Name</a>
+                <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'nameUp' ? 'nameDown' : 'nameUp'])) }}">{{ __('Name') }}</a>
               </th>
               <th class="sortable w-20">
-                <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'regionUp' ? 'regionDown' : 'regionUp'])) }}">Region</a>
+                <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'regionUp' ? 'regionDown' : 'regionUp'])) }}">{{ __('Region') }}</a>
               </th>
               <th class="sortable w-20">
-                <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'localityUp' ? 'localityDown' : 'localityUp'])) }}">Locality</a>
+                <a title="{{ __('Sort') }}" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'localityUp' ? 'localityDown' : 'localityUp'])) }}">{{ __('Locality') }}</a>
               </th>
               <th class="w-20">{{ __('Thematic area') }}</th>
               <th><span class="visually-hidden">{{ __('Clipboard') }}</span></th>

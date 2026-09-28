@@ -14,14 +14,14 @@
 
   @if($entityTypeName)
     <div class="field-row">
-      <div class="field-label">Type of entity</div>
+      <div class="field-label">{{ __('Type of entity') }}</div>
       <div class="field-value">{{ $entityTypeName }}</div>
     </div>
   @endif
 
   @if($actor->authorized_form_of_name)
     <div class="field-row">
-      <div class="field-label">Authorized form of name</div>
+      <div class="field-label">{{ __('Authorized form of name') }}</div>
       <div class="field-value">{{ $actor->authorized_form_of_name }}</div>
     </div>
   @endif
@@ -60,14 +60,14 @@
 
   @if($actor->corporate_body_identifiers)
     <div class="field-row">
-      <div class="field-label">Identifiers for corporate bodies</div>
+      <div class="field-label">{{ __('Identifiers for corporate bodies') }}</div>
       <div class="field-value">{{ $actor->corporate_body_identifiers }}</div>
     </div>
   @endif
 
   @if($actor->description_identifier)
     <div class="field-row">
-      <div class="field-label">Identifier</div>
+      <div class="field-label">{{ __('Identifier') }}</div>
       <div class="field-value">{{ $actor->description_identifier }}</div>
     </div>
   @endif
@@ -145,7 +145,7 @@
 
     @if($subjects->isNotEmpty())
       <div class="field-row">
-        <div class="field-label">Subject access points</div>
+        <div class="field-label">{{ __('Subject access points') }}</div>
         <div class="field-value">
           @foreach($subjects as $subject)
             {{ $subject->name }}@if(!$loop->last), @endif
@@ -156,7 +156,7 @@
 
     @if($places->isNotEmpty())
       <div class="field-row">
-        <div class="field-label">Place access points</div>
+        <div class="field-label">{{ __('Place access points') }}</div>
         <div class="field-value">
           @foreach($places as $place)
             {{ $place->name }}@if(!$loop->last), @endif
@@ -167,7 +167,7 @@
 
     @if($occupations->isNotEmpty())
       <div class="field-row">
-        <div class="field-label">Occupations</div>
+        <div class="field-label">{{ __('Occupations') }}</div>
         <div class="field-value">
           @foreach($occupations as $occ)
             {{ $occ->name }}@if(!$loop->last), @endif
@@ -229,49 +229,49 @@
 
   @if($actor->description_identifier)
     <div class="field-row">
-      <div class="field-label">Authority record identifier</div>
+      <div class="field-label">{{ __('Authority record identifier') }}</div>
       <div class="field-value">{{ $actor->description_identifier }}</div>
     </div>
   @endif
 
   @if($actor->institution_responsible_identifier)
     <div class="field-row">
-      <div class="field-label">Institution identifier</div>
+      <div class="field-label">{{ __('Institution identifier') }}</div>
       <div class="field-value">{{ $actor->institution_responsible_identifier }}</div>
     </div>
   @endif
 
   @if($actor->rules)
     <div class="field-row">
-      <div class="field-label">Rules and/or conventions</div>
+      <div class="field-label">{{ __('Rules and/or conventions') }}</div>
       <div class="field-value">{!! nl2br(e($actor->rules)) !!}</div>
     </div>
   @endif
 
   @if($descriptionStatusName)
     <div class="field-row">
-      <div class="field-label">Status</div>
+      <div class="field-label">{{ __('Status') }}</div>
       <div class="field-value">{{ $descriptionStatusName }}</div>
     </div>
   @endif
 
   @if($descriptionDetailName)
     <div class="field-row">
-      <div class="field-label">Level of detail</div>
+      <div class="field-label">{{ __('Level of detail') }}</div>
       <div class="field-value">{{ $descriptionDetailName }}</div>
     </div>
   @endif
 
   @if($actor->revision_history)
     <div class="field-row">
-      <div class="field-label">Dates of creation, revision and deletion</div>
+      <div class="field-label">{{ __('Dates of creation, revision and deletion') }}</div>
       <div class="field-value">{!! nl2br(e($actor->revision_history)) !!}</div>
     </div>
   @endif
 
   @if($actor->sources)
     <div class="field-row">
-      <div class="field-label">Sources</div>
+      <div class="field-label">{{ __('Sources') }}</div>
       <div class="field-value">{!! nl2br(e($actor->sources)) !!}</div>
     </div>
   @endif
@@ -292,21 +292,21 @@
 
   @if($maintenanceNotes)
     <div class="field-row">
-      <div class="field-label">Maintenance notes</div>
+      <div class="field-label">{{ __('Maintenance notes') }}</div>
       <div class="field-value">{!! nl2br(e($maintenanceNotes)) !!}</div>
     </div>
   @endif
 
   @if($maintainingRepository ?? null)
     <div class="field-row">
-      <div class="field-label">Maintained by</div>
+      <div class="field-label">{{ __('Maintained by') }}</div>
       <div class="field-value">{{ $maintainingRepository->name ?: '[Untitled]' }}</div>
     </div>
   @endif
 
   @if($actor->updated_at)
     <div class="field-row">
-      <div class="field-label">Last updated</div>
+      <div class="field-label">{{ __('Last updated') }}</div>
       <div class="field-value">{{ $actor->updated_at }}</div>
     </div>
   @endif

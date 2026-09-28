@@ -91,7 +91,7 @@
         </a>
       @endforeach
       <a href="{{ route('search', ['q' => $query]) }}" class="btn btn-sm atom-btn-outline-danger">
-        Clear all filters
+        {{ __('Clear all filters') }}
       </a>
     </div>
   @endif
@@ -354,7 +354,7 @@
           <i class="fas fa-info-circle" aria-hidden="true"></i>
           No results matched your search. Try different keywords or broaden your search terms.
           @if(!empty($activeFilters))
-            <a href="{{ route('search', ['q' => $query]) }}">Clear all filters</a> to see more results.
+            <a href="{{ route('search', ['q' => $query]) }}">{{ __('Clear all filters') }}</a> to see more results.
           @endif
         </div>
       @endif

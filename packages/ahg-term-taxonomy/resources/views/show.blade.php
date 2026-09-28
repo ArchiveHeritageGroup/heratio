@@ -20,9 +20,9 @@
     @if($canUpdate || $canDelete || $canCreate)
     <section class="actions mt-3">
       <ul class="nav gap-2">
-        @if($canUpdate)<li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>@endif
-        @if($canDelete)<li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>@endif
-        @if($canCreate)<li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>@endif
+        @if($canUpdate)<li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a></li>@endif
+        @if($canDelete)<li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">{{ __('Delete') }}</a></li>@endif
+        @if($canCreate)<li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a></li>@endif
       </ul>
     </section>
     @endif
@@ -342,7 +342,7 @@
           <section class="border-bottom mb-3" id="adminArea">
             <h2 class="h5 mb-0 atom-section-header">
               <div class="d-flex p-3 border-bottom text-primary">
-                Administration area
+                {{ __('Administration area') }}
               </div>
             </h2>
             <div>
@@ -368,9 +368,9 @@
       @if($isAdmin)
       <section class="actions mt-3 mb-3">
         <ul class="nav gap-2">
-          <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
-          <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
-          <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
+          <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a></li>
+          <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">{{ __('Delete') }}</a></li>
+          <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a></li>
         </ul>
       </section>
       @endif
@@ -452,7 +452,7 @@
           </ul></nav>
         @endif
       @else
-        <p class="text-muted">No related archival descriptions.</p>
+        <p class="text-muted">{{ __('No related archival descriptions.') }}</p>
       @endif
 
     </div>

@@ -53,10 +53,10 @@
         </div>
         <div class="d-flex gap-2 flex-wrap">
           @if($primaryContact->website)
-            <a class="btn atom-btn-white" href="{{ str_starts_with($primaryContact->website, 'http') ? $primaryContact->website : 'http://' . $primaryContact->website }}" target="_blank" rel="noopener">Website</a>
+            <a class="btn atom-btn-white" href="{{ str_starts_with($primaryContact->website, 'http') ? $primaryContact->website : 'http://' . $primaryContact->website }}" target="_blank" rel="noopener">{{ __('Website') }}</a>
           @endif
           @if($primaryContact->email)
-            <a class="btn atom-btn-white" href="mailto:{{ $primaryContact->email }}">Email</a>
+            <a class="btn atom-btn-white" href="mailto:{{ $primaryContact->email }}">{{ __('Email') }}</a>
           @endif
         </div>
       </section>
@@ -163,9 +163,9 @@
   <section id="identifyArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header">
       @if($editUrl)
-        <a href="{{ $editUrl }}#identity-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Identity area') }}">Identity area</a>
+        <a href="{{ $editUrl }}#identity-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Identity area') }}">{{ __('Identity area') }}</a>
       @else
-        <div class="d-flex p-3 border-bottom text-primary">Identity area</div>
+        <div class="d-flex p-3 border-bottom text-primary">{{ __('Identity area') }}</div>
       @endif
     </h2>
 
@@ -218,9 +218,9 @@
   <section id="contactArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header">
       @if($editUrl)
-        <a href="{{ $editUrl }}#contact-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Contact area') }}">Contact area</a>
+        <a href="{{ $editUrl }}#contact-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Contact area') }}">{{ __('Contact area') }}</a>
       @else
-        <div class="d-flex p-3 border-bottom text-primary">Contact area</div>
+        <div class="d-flex p-3 border-bottom text-primary">{{ __('Contact area') }}</div>
       @endif
     </h2>
 
@@ -325,9 +325,9 @@
   <section id="descriptionArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header">
       @if($editUrl)
-        <a href="{{ $editUrl }}#description-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Description area') }}">Description area</a>
+        <a href="{{ $editUrl }}#description-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Description area') }}">{{ __('Description area') }}</a>
       @else
-        <div class="d-flex p-3 border-bottom text-primary">Description area</div>
+        <div class="d-flex p-3 border-bottom text-primary">{{ __('Description area') }}</div>
       @endif
     </h2>
 
@@ -345,9 +345,9 @@
   <section id="accessArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header">
       @if($editUrl)
-        <a href="{{ $editUrl }}#access-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Access area') }}">Access area</a>
+        <a href="{{ $editUrl }}#access-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Access area') }}">{{ __('Access area') }}</a>
       @else
-        <div class="d-flex p-3 border-bottom text-primary">Access area</div>
+        <div class="d-flex p-3 border-bottom text-primary">{{ __('Access area') }}</div>
       @endif
     </h2>
 
@@ -360,9 +360,9 @@
   <section id="servicesArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header">
       @if($editUrl)
-        <a href="{{ $editUrl }}#services-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Services area') }}">Services area</a>
+        <a href="{{ $editUrl }}#services-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Services area') }}">{{ __('Services area') }}</a>
       @else
-        <div class="d-flex p-3 border-bottom text-primary">Services area</div>
+        <div class="d-flex p-3 border-bottom text-primary">{{ __('Services area') }}</div>
       @endif
     </h2>
 
@@ -375,9 +375,9 @@
   <section id="controlArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header">
       @if($editUrl)
-        <a href="{{ $editUrl }}#control-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Control area') }}">Control area</a>
+        <a href="{{ $editUrl }}#control-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Control area') }}">{{ __('Control area') }}</a>
       @else
-        <div class="d-flex p-3 border-bottom text-primary">Control area</div>
+        <div class="d-flex p-3 border-bottom text-primary">{{ __('Control area') }}</div>
       @endif
     </h2>
 
@@ -400,9 +400,9 @@
   <section id="accessPointsArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header">
       @if($editUrl)
-        <a href="{{ $editUrl }}#points-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Access points') }}">Access points</a>
+        <a href="{{ $editUrl }}#points-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="{{ __('Edit Access points') }}">{{ __('Access points') }}</a>
       @else
-        <div class="d-flex p-3 border-bottom text-primary">Access points</div>
+        <div class="d-flex p-3 border-bottom text-primary">{{ __('Access points') }}</div>
       @endif
     </h2>
 
@@ -438,17 +438,17 @@
   <section class="actions">
     <ul class="nav gap-2">
       @if($canUpdate)
-        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">Edit</a></li>
+        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">{{ __('Edit') }}</a></li>
       @endif
       @if($canDelete)
-        <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">Delete</a></li>
+        <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">{{ __('Delete') }}</a></li>
       @endif
       @if($canCreate)
-        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">Add new</a></li>
-        <li><a class="btn atom-btn-outline-light" href="{{ route('informationobject.create', ['repository' => $repository->id]) }}">Add description</a></li>
+        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">{{ __('Add new') }}</a></li>
+        <li><a class="btn atom-btn-outline-light" href="{{ route('informationobject.create', ['repository' => $repository->id]) }}">{{ __('Add description') }}</a></li>
       @endif
       @if($canUpdate)
-        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
+        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">{{ __('Edit theme') }}</a></li>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('ahgtranslation.translate')
           && \AhgCore\Services\AclService::check($repository, 'translate'))

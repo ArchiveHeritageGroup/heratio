@@ -18,7 +18,7 @@
 
         <div class="row">
           <div class="col-md-2 mb-3">
-            <label class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="contacts[{{ $index }}][title]" class="form-select">
               <option value="">{{ __('Select...') }}</option>
               @foreach($titles as $t)
@@ -27,12 +27,12 @@
             </select>
           </div>
           <div class="col-md-5 mb-3">
-            <label class="form-label">Contact person <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Contact person') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][contact_person]" class="form-control"
                    value="{{ $contact->contact_person ?? '' }}">
           </div>
           <div class="col-md-5 mb-3">
-            <label class="form-label">Role/Position <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Role/Position') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][role]" class="form-control"
                    value="{{ $contact->role ?? '' }}"
                    placeholder="{{ __('e.g., Director, Manager, Curator') }}">
@@ -41,12 +41,12 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Department <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Department') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][department]" class="form-control"
                    value="{{ $contact->department ?? '' }}">
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Contact type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Contact type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][contact_type]" class="form-control"
                    value="{{ $contact->contact_type ?? '' }}"
                    placeholder="{{ __('e.g., Primary, Business, Home') }}">
@@ -55,23 +55,23 @@
 
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">ID/Passport number <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('ID/Passport number') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][id_number]" class="form-control"
                    value="{{ $contact->id_number ?? '' }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Preferred contact method <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Preferred contact method') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="contacts[{{ $index }}][preferred_contact_method]" class="form-select">
               <option value="">{{ __('Select...') }}</option>
-              <option value="email" @selected(($contact->preferred_contact_method ?? '') === 'email')>Email</option>
-              <option value="phone" @selected(($contact->preferred_contact_method ?? '') === 'phone')>Phone</option>
-              <option value="cell" @selected(($contact->preferred_contact_method ?? '') === 'cell')>Cell/Mobile</option>
-              <option value="fax" @selected(($contact->preferred_contact_method ?? '') === 'fax')>Fax</option>
-              <option value="mail" @selected(($contact->preferred_contact_method ?? '') === 'mail')>Post/Mail</option>
+              <option value="email" @selected(($contact->preferred_contact_method ?? '') === 'email')>{{ __('Email') }}</option>
+              <option value="phone" @selected(($contact->preferred_contact_method ?? '') === 'phone')>{{ __('Phone') }}</option>
+              <option value="cell" @selected(($contact->preferred_contact_method ?? '') === 'cell')>{{ __('Cell/Mobile') }}</option>
+              <option value="fax" @selected(($contact->preferred_contact_method ?? '') === 'fax')>{{ __('Fax') }}</option>
+              <option value="mail" @selected(($contact->preferred_contact_method ?? '') === 'mail')>{{ __('Post/Mail') }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Language preference <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Language preference') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="contacts[{{ $index }}][language_preference]" class="form-select">
               <option value="">-- Select --</option>
               @foreach($formChoices['languages'] ?? ['en' => 'English', 'fr' => 'French', 'af' => 'Afrikaans', 'de' => 'German', 'nl' => 'Dutch', 'pt' => 'Portuguese', 'es' => 'Spanish', 'it' => 'Italian', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sotho'] as $code => $name)
@@ -85,17 +85,17 @@
 
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Telephone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Telephone') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="tel" name="contacts[{{ $index }}][telephone]" class="form-control"
                    value="{{ $contact->telephone ?? '' }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Cell/Mobile <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Cell/Mobile') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="tel" name="contacts[{{ $index }}][cell]" class="form-control"
                    value="{{ $contact->cell ?? '' }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Fax <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Fax') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="tel" name="contacts[{{ $index }}][fax]" class="form-control"
                    value="{{ $contact->fax ?? '' }}">
           </div>
@@ -103,12 +103,12 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Email') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="email" name="contacts[{{ $index }}][email]" class="form-control"
                    value="{{ $contact->email ?? '' }}">
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Alternative email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Alternative email') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="email" name="contacts[{{ $index }}][alternative_email]" class="form-control"
                    value="{{ $contact->alternative_email ?? '' }}">
           </div>
@@ -116,12 +116,12 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Website <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Website') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="url" name="contacts[{{ $index }}][website]" class="form-control"
                    value="{{ $contact->website ?? '' }}" placeholder="{{ __('https://') }}">
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Alternative phone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Alternative phone') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="tel" name="contacts[{{ $index }}][alternative_phone]" class="form-control"
                    value="{{ $contact->alternative_phone ?? '' }}">
           </div>
@@ -131,23 +131,23 @@
         <h6 class="text-muted mb-3"><i class="bi bi-geo-alt me-2"></i>{{ __('Physical location') }}</h6>
 
         <div class="mb-3">
-          <label class="form-label">Street address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Street address') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea name="contacts[{{ $index }}][street_address]" class="form-control" rows="2">{{ $contact->street_address ?? '' }}</textarea>
         </div>
 
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">City <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('City') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][city]" class="form-control"
                    value="{{ $contact->city ?? '' }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Region/Province <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Region/Province') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][region]" class="form-control"
                    value="{{ $contact->region ?? '' }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Postal code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Postal code') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][postal_code]" class="form-control"
                    value="{{ $contact->postal_code ?? '' }}">
           </div>
@@ -155,17 +155,17 @@
 
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Country <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Country') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][country_code]" class="form-control"
                    value="{{ $contact->country_code ?? '' }}" placeholder="{{ __('e.g. ZA, US, GB') }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Latitude <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Latitude') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][latitude]" class="form-control"
                    value="{{ $contact->latitude ?? '' }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Longitude <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Longitude') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[{{ $index }}][longitude]" class="form-control"
                    value="{{ $contact->longitude ?? '' }}">
           </div>
@@ -174,14 +174,14 @@
         <hr>
 
         <div class="mb-3">
-          <label class="form-label">Note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Note') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea name="contacts[{{ $index }}][note]" class="form-control" rows="2">{{ $contact->note ?? '' }}</textarea>
         </div>
 
         <div class="form-check">
           <input type="checkbox" name="contacts[{{ $index }}][primary_contact]" value="1" class="form-check-input primary-contact-check"
                  @checked(!empty($contact->primary_contact))>
-          <label class="form-check-label">Primary contact <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-check-label">{{ __('Primary contact') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
       </div>
     </div>
@@ -210,7 +210,7 @@
 
         <div class="row">
           <div class="col-md-2 mb-3">
-            <label class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="contacts[__INDEX__][title]" class="form-select">
               <option value="">{{ __('Select...') }}</option>
               @foreach($titles as $t)
@@ -219,11 +219,11 @@
             </select>
           </div>
           <div class="col-md-5 mb-3">
-            <label class="form-label">Contact person <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Contact person') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][contact_person]" class="form-control">
           </div>
           <div class="col-md-5 mb-3">
-            <label class="form-label">Role/Position <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Role/Position') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][role]" class="form-control"
                    placeholder="{{ __('e.g., Director, Manager, Curator') }}">
           </div>
@@ -231,11 +231,11 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Department <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Department') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][department]" class="form-control">
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Contact type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Contact type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][contact_type]" class="form-control"
                    placeholder="{{ __('e.g., Primary, Business, Home') }}">
           </div>
@@ -243,11 +243,11 @@
 
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">ID/Passport number <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('ID/Passport number') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][id_number]" class="form-control">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Preferred contact method <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Preferred contact method') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="contacts[__INDEX__][preferred_contact_method]" class="form-select">
               <option value="">{{ __('Select...') }}</option>
               <option value="email">{{ __('Email') }}</option>
@@ -258,7 +258,7 @@
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Language preference <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Language preference') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="contacts[__INDEX__][language_preference]" class="form-select">
               <option value="">-- Select --</option>
               @foreach($formChoices['languages'] ?? ['en' => 'English', 'fr' => 'French', 'af' => 'Afrikaans', 'de' => 'German', 'nl' => 'Dutch', 'pt' => 'Portuguese', 'es' => 'Spanish', 'it' => 'Italian', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sotho'] as $code => $name)
@@ -272,37 +272,37 @@
 
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Telephone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Telephone') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="tel" name="contacts[__INDEX__][telephone]" class="form-control">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Cell/Mobile <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Cell/Mobile') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="tel" name="contacts[__INDEX__][cell]" class="form-control">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Fax <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Fax') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="tel" name="contacts[__INDEX__][fax]" class="form-control">
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Email') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="email" name="contacts[__INDEX__][email]" class="form-control">
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Alternative email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Alternative email') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="email" name="contacts[__INDEX__][alternative_email]" class="form-control">
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Website <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Website') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="url" name="contacts[__INDEX__][website]" class="form-control" placeholder="{{ __('https://') }}">
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Alternative phone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Alternative phone') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="tel" name="contacts[__INDEX__][alternative_phone]" class="form-control">
           </div>
         </div>
@@ -311,36 +311,36 @@
         <h6 class="text-muted mb-3"><i class="bi bi-geo-alt me-2"></i>{{ __('Physical location') }}</h6>
 
         <div class="mb-3">
-          <label class="form-label">Street address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Street address') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea name="contacts[__INDEX__][street_address]" class="form-control" rows="2"></textarea>
         </div>
 
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">City <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('City') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][city]" class="form-control">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Region/Province <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Region/Province') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][region]" class="form-control">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Postal code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Postal code') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][postal_code]" class="form-control">
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Country <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Country') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][country_code]" class="form-control" placeholder="{{ __('e.g. ZA, US, GB') }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Latitude <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Latitude') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][latitude]" class="form-control">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Longitude <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Longitude') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="contacts[__INDEX__][longitude]" class="form-control">
           </div>
         </div>
@@ -348,13 +348,13 @@
         <hr>
 
         <div class="mb-3">
-          <label class="form-label">Note <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Note') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea name="contacts[__INDEX__][note]" class="form-control" rows="2"></textarea>
         </div>
 
         <div class="form-check">
           <input type="checkbox" name="contacts[__INDEX__][primary_contact]" value="1" class="form-check-input primary-contact-check">
-          <label class="form-check-label">Primary contact <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-check-label">{{ __('Primary contact') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
       </div>
     </div>

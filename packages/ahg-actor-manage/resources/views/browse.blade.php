@@ -32,7 +32,7 @@
             $langParams = request()->except(['languages', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentLang === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($langParams) }}" title="{{ __('All') }}">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($langParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
           @foreach($languageFacets as $langCode => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLang == $langCode ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($langParams, ['languages' => $langCode])) }}"
@@ -64,7 +64,7 @@
             $queryParams = request()->except(['entityType', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentEntityType === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($queryParams) }}" title="{{ __('All') }}">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($queryParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
           @foreach($entityTypeFacets as $typeId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentEntityType == $typeId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($queryParams, ['entityType' => $typeId])) }}"
@@ -96,7 +96,7 @@
             $mbParams = request()->except(['maintainedBy', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentMaintainedBy === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($mbParams) }}" title="{{ __('All') }}">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($mbParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
           @foreach($maintainedByFacets as $mbId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentMaintainedBy == $mbId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($mbParams, ['maintainedBy' => $mbId])) }}"
@@ -129,7 +129,7 @@
             $occParams = request()->except(['occupation', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentOccupation === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($occParams) }}" title="{{ __('All') }}">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($occParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
           @foreach($occupationFacets as $occId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentOccupation == $occId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($occParams, ['occupation' => $occId])) }}"
@@ -162,7 +162,7 @@
             $placeParams = request()->except(['place', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentPlace === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($placeParams) }}" title="{{ __('All') }}">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($placeParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
           @foreach($placeFacets as $placeId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentPlace == $placeId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($placeParams, ['place' => $placeId])) }}"
@@ -195,7 +195,7 @@
             $subParams = request()->except(['subject', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentSubject === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($subParams) }}" title="{{ __('All') }}">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($subParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
           @foreach($subjectFacets as $subId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentSubject == $subId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($subParams, ['subject' => $subId])) }}"
@@ -228,7 +228,7 @@
             $mtParams = request()->except(['mediaType', 'page']);
           @endphp
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentMediaType === '' ? 'active text-decoration-underline' : '' }}"
-             href="{{ url('/actor/browse') }}?{{ http_build_query($mtParams) }}" title="{{ __('All') }}">All</a>
+             href="{{ url('/actor/browse') }}?{{ http_build_query($mtParams) }}" title="{{ __('All') }}">{{ __('All') }}</a>
           @foreach($mediaTypeFacets as $mtId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentMediaType == $mtId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($mtParams, ['mediaType' => $mtId])) }}"
@@ -382,11 +382,11 @@
               </template>
 
               <div class="add-new-criteria mb-3">
-                <a id="add-criterion-dropdown-menu" class="btn atom-btn-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Add new criteria</a>
+                <a id="add-criterion-dropdown-menu" class="btn atom-btn-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ __('Add new criteria') }}</a>
                 <ul class="dropdown-menu mt-2" aria-labelledby="add-criterion-dropdown-menu">
-                  <li><a class="dropdown-item add-criterion" href="#" data-bool="and">And</a></li>
+                  <li><a class="dropdown-item add-criterion" href="#" data-bool="and">{{ __('And') }}</a></li>
                   <li><a class="dropdown-item add-criterion" href="#" data-bool="or">Or</a></li>
-                  <li><a class="dropdown-item add-criterion" href="#" data-bool="not">Not</a></li>
+                  <li><a class="dropdown-item add-criterion" href="#" data-bool="not">{{ __('Not') }}</a></li>
                 </ul>
               </div>
             </div>
@@ -521,8 +521,8 @@
             Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
-            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">Ascending</a></li>
-            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}" class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">Descending</a></li>
+            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">{{ __('Ascending') }}</a></li>
+            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}" class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">{{ __('Descending') }}</a></li>
           </ul>
         </div>
       </div>
