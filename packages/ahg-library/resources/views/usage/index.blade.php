@@ -26,7 +26,7 @@
             <div class="dropdown">
                 <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-download me-1"></i> Export
+                    <i class="fas fa-download me-1"></i> {{ __('Export') }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="{{ route('library.usage-export', ['type' => 'PR']) }}">PR (Platform)</a></li>
@@ -35,10 +35,10 @@
                 </ul>
             </div>
             <a href="{{ route('library.usage-harvest') }}" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-sync me-1"></i> Harvest
+                <i class="fas fa-sync me-1"></i> {{ __('Harvest') }}
             </a>
             <a href="{{ route('library.usage-subscriptions') }}" class="btn btn-outline-dark btn-sm">
-                <i class="fas fa-server me-1"></i> Partners
+                <i class="fas fa-server me-1"></i> {{ __('Partners') }}
             </a>
         </div>
     </div>
@@ -48,21 +48,21 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link @if($reportType === 'PR') active @endif" data-bs-toggle="tab"
                     data-bs-target="#tab-pr" type="button" role="tab">
-                PR - Platform
+                {{ __('PR - Platform') }}
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link @if($reportType === 'TR') active @endif"
                href="{{ route('library.usage.title-report', ['from' => $fromDate, 'to' => $toDate]) }}"
                role="tab">
-                TR - Title
+                {{ __('TR - Title') }}
             </a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link @if($reportType === 'DR') active @endif"
                href="{{ route('library.usage-dr', ['from' => $fromDate, 'to' => $toDate]) }}"
                role="tab">
-                DR - Database
+                {{ __('DR - Database') }}
             </a>
         </li>
     </ul>
@@ -100,8 +100,8 @@
             @if(empty($stats['periods']))
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
-                    No usage statistics recorded yet.
-                    <a href="{{ route('library.usage-harvest') }}">Run a SUSHI harvest</a>
+                    {{ __('No usage statistics recorded yet.') }}
+                    <a href="{{ route('library.usage-harvest') }}">{{ __('Run a SUSHI harvest') }}</a>
                     to collect data from your content providers.
                 </div>
             @else
@@ -158,7 +158,7 @@
                             </tbody>
                             <tfoot>
                                 <tr class="table-secondary fw-bold">
-                                    <td>Total</td>
+                                    <td>{{ __('Total') }}</td>
                                     @foreach($stats['totals'] as $total)
                                         <td class="text-end">{{ number_format($total) }}</td>
                                     @endforeach
@@ -181,7 +181,7 @@
                                         <code>{{ $sub['partner_code'] }}</code>
                                         - {{ $sub['base_url'] }}
                                     </span>
-                                    <span class="badge bg-success">Active</span>
+                                    <span class="badge bg-success">{{ __('Active') }}</span>
                                 </li>
                             @endforeach
                         </ul>

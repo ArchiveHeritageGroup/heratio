@@ -7,7 +7,7 @@
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
     <h1><i class="fas fa-exchange-alt me-2"></i>{{ __('Add Movement') }}</h1>
-    <p class="text-muted">Record an asset movement between locations.</p>
+    <p class="text-muted">{{ __('Record an asset movement between locations.') }}</p>
 
     @if($errors->any())
       <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
@@ -39,11 +39,11 @@
 
           @if(empty($fields))
           <div class="row">
-            <div class="col-md-6 mb-3"><label class="form-label">Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="name" class="form-control" value="{{ old('name', $asset->name ?? '') }}"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Reference <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="reference" class="form-control" value="{{ old('reference', $asset->reference ?? '') }}"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Amount <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" step="0.01" name="amount" class="form-control" value="{{ old('amount', $asset->amount ?? '') }}"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="date" class="form-control" value="{{ old('date', $asset->date ?? '') }}"></div>
-            <div class="col-12 mb-3"><label class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="notes" class="form-control" rows="3">{{ old('notes', $asset->notes ?? '') }}</textarea></div>
+            <div class="col-md-6 mb-3"><label class="form-label">{{ __('Name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="name" class="form-control" value="{{ old('name', $asset->name ?? '') }}"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">{{ __('Reference') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="reference" class="form-control" value="{{ old('reference', $asset->reference ?? '') }}"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">{{ __('Amount') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" step="0.01" name="amount" class="form-control" value="{{ old('amount', $asset->amount ?? '') }}"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">{{ __('Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="date" class="form-control" value="{{ old('date', $asset->date ?? '') }}"></div>
+            <div class="col-12 mb-3"><label class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="notes" class="form-control" rows="3">{{ old('notes', $asset->notes ?? '') }}</textarea></div>
           </div>
           @endif
         </div>
@@ -51,7 +51,7 @@
 
       <div class="d-flex gap-2">
         <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
-        <a href="{{ route('heritage.accounting.browse') }}" class="btn atom-btn-white">Cancel</a>
+        <a href="{{ route('heritage.accounting.browse') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
       </div>
     </form>
   </div>

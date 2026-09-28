@@ -14,10 +14,10 @@ $stats = $alertData['stats'] ?? [];
     <div class="mt-4">
       <h6 class="text-muted mb-3">{{ __('Filter by Severity') }}</h6>
       <div class="list-group">
-        <a href="?" class="list-group-item list-group-item-action {{ !request('severity')?'active':'' }}">All Alerts</a>
-        <a href="?severity=critical" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ request('severity')==='critical'?'active':'' }}">Critical <span class="badge bg-danger">{{ $stats['critical'] ?? 0 }}</span></a>
-        <a href="?severity=warning" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ request('severity')==='warning'?'active':'' }}">Warning <span class="badge bg-warning">{{ $stats['warning'] ?? 0 }}</span></a>
-        <a href="?severity=info" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ request('severity')==='info'?'active':'' }}">Info <span class="badge bg-info">{{ $stats['info'] ?? 0 }}</span></a>
+        <a href="?" class="list-group-item list-group-item-action {{ !request('severity')?'active':'' }}">{{ __('All Alerts') }}</a>
+        <a href="?severity=critical" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ request('severity')==='critical'?'active':'' }}">{{ __('Critical') }} <span class="badge bg-danger">{{ $stats['critical'] ?? 0 }}</span></a>
+        <a href="?severity=warning" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ request('severity')==='warning'?'active':'' }}">{{ __('Warning') }} <span class="badge bg-warning">{{ $stats['warning'] ?? 0 }}</span></a>
+        <a href="?severity=info" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ request('severity')==='info'?'active':'' }}">{{ __('Info') }} <span class="badge bg-info">{{ $stats['info'] ?? 0 }}</span></a>
       </div>
     </div>
     <div class="card border-0 shadow-sm mt-4">
@@ -52,7 +52,7 @@ $stats = $alertData['stats'] ?? [];
       </div>
       <div class="card-body p-0">
         @if(empty($alerts))
-        <div class="text-center text-muted py-5"><i class="fas fa-bell-slash fs-1 mb-3 d-block"></i><p>No alerts at this time.</p></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-bell-slash fs-1 mb-3 d-block"></i><p>{{ __('No alerts at this time.') }}</p></div>
         @else
         <div class="list-group list-group-flush">
           @foreach($alerts as $alert)

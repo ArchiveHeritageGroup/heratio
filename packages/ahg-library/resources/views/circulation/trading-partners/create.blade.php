@@ -3,7 +3,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h4">{{ __('New EDI Trading Partner') }}</h2>
-    <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+    <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('Back') }}</a>
   </div>
 
   <form method="POST" action="{{ route('library.trading-partners.store') }}" autocomplete="off">
@@ -58,7 +58,7 @@
       {{-- SFTP config --}}
       <div class="col-12" id="cfg_sftp">
         <div class="card bg-light">
-          <div class="card-header">SFTP Configuration</div>
+          <div class="card-header">{{ __('SFTP Configuration') }}</div>
           <div class="card-body">
             <div class="row g-2">
               <div class="col-md-4">
@@ -112,7 +112,7 @@
       {{-- HTTP config --}}
       <div class="col-12" id="cfg_http" style="display:none">
         <div class="card bg-light">
-          <div class="card-header">HTTP/HTTPS Configuration</div>
+          <div class="card-header">{{ __('HTTP/HTTPS Configuration') }}</div>
           <div class="card-body">
             <div class="row g-2">
               <div class="col-12">
@@ -127,7 +127,7 @@
       {{-- EMAIL config --}}
       <div class="col-12" id="cfg_email" style="display:none">
         <div class="card bg-light">
-          <div class="card-header">Email EDI Configuration</div>
+          <div class="card-header">{{ __('Email EDI Configuration') }}</div>
           <div class="card-body">
             <div class="row g-2">
               <div class="col-md-4">

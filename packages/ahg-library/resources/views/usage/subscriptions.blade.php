@@ -8,14 +8,14 @@
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <h1 class="h3 mb-1">
-                <i class="fas fa-server me-2"></i>SUSHI Partner Subscriptions
+                <i class="fas fa-server me-2"></i>{{ __('SUSHI Partner Subscriptions') }}
             </h1>
             <p class="text-muted small mb-0">
                 ISO 18626 SUSHI v5 - manage content provider endpoints and connection credentials.
             </p>
         </div>
         <a href="{{ route('library.usage') }}" class="btn btn-outline-dark btn-sm">
-            <i class="fas fa-arrow-left me-1"></i>Back to Usage
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Usage') }}
         </a>
     </div>
 
@@ -61,8 +61,8 @@
                 @if(empty($subscriptions))
                     <div class="card-body text-muted text-center py-5">
                         <i class="fas fa-server fa-2x mb-3"></i>
-                        <p class="mb-0">No SUSHI partners configured yet.</p>
-                        <p class="small">Add your first partner using the form.</p>
+                        <p class="mb-0">{{ __('No SUSHI partners configured yet.') }}</p>
+                        <p class="small">{{ __('Add your first partner using the form.') }}</p>
                     </div>
                 @else
                     <ul class="list-group list-group-flush">
@@ -87,7 +87,7 @@
                                         <a href="{{ route('library.usage-subscriptions-test', ['partner_code' => $sub['partner_code']]) }}"
                                            class="btn btn-outline-primary test-btn"
                                            data-code="{{ $sub['partner_code'] }}">
-                                            <i class="fas fa-plug me-1"></i>Test
+                                            <i class="fas fa-plug me-1"></i>{{ __('Test') }}
                                         </a>
                                         <a href="{{ route('library.usage-subscriptions', ['delete_id' => $sub['id']]) }}"
                                            class="btn btn-outline-danger"
@@ -108,7 +108,7 @@
             <div class="card">
                 <div class="card-header">
                     <h6 class="mb-0">
-                        <i class="fas fa-plus me-2"></i>Add / Update Partner
+                        <i class="fas fa-plus me-2"></i>{{ __('Add / Update Partner') }}
                     </h6>
                 </div>
                 <div class="card-body">
@@ -116,20 +116,20 @@
                         @csrf
 
                         <div class="mb-2">
-                            <label class="form-label small">Partner Code <span class="text-danger">*</span></label>
+                            <label class="form-label small">{{ __('Partner Code') }} <span class="text-danger">*</span></label>
                             <input type="text" name="partner_code"
                                    class="form-control form-control-sm @error('partner_code') is-invalid @enderror"
                                    value="{{ old('partner_code') }}"
                                    placeholder="{{ __('e.g. sabinet, naz, ebscohost') }}"
                                    pattern="[a-z0-9_]+" maxlength="50">
-                            <small class="text-muted">Lowercase letters, numbers and underscores only.</small>
+                            <small class="text-muted">{{ __('Lowercase letters, numbers and underscores only.') }}</small>
                             @error('partner_code')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-2">
-                            <label class="form-label small">Contact Email <span class="text-danger">*</span></label>
+                            <label class="form-label small">{{ __('Contact Email') }} <span class="text-danger">*</span></label>
                             <input type="email" name="contact_email"
                                    class="form-control form-control-sm @error('contact_email') is-invalid @endif"
                                    value="{{ old('contact_email') }}"
@@ -140,7 +140,7 @@
                         </div>
 
                         <div class="mb-2">
-                            <label class="form-label small">SUSHI Base URL <span class="text-danger">*</span></label>
+                            <label class="form-label small">{{ __('SUSHI Base URL') }} <span class="text-danger">*</span></label>
                             <input type="url" name="base_url"
                                    class="form-control form-control-sm @error('base_url') is-invalid @endif"
                                    value="{{ old('base_url') }}"
@@ -156,7 +156,7 @@
                             <input type="password" name="api_key"
                                    class="form-control form-control-sm"
                                    placeholder="{{ __('Bearer token') }}">
-                            <small class="text-muted">Stored encrypted at rest.</small>
+                            <small class="text-muted">{{ __('Stored encrypted at rest.') }}</small>
                         </div>
 
                         <div class="mb-3">
@@ -175,7 +175,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-sm w-100">
-                            <i class="fas fa-save me-1"></i>Save Partner
+                            <i class="fas fa-save me-1"></i>{{ __('Save Partner') }}
                         </button>
                     </form>
                 </div>

@@ -7,7 +7,7 @@
         <div class="col-12 d-flex align-items-center">
             <h2 class="mb-0">{{ __('Subject Authority Control') }}</h2>
             <a href="{{ route('library.marc-index') }}" class="btn btn-outline-secondary btn-sm ms-auto">
-                <i class="fas fa-arrow-left me-1"></i>MARC Editor
+                <i class="fas fa-arrow-left me-1"></i>{{ __('MARC Editor') }}
             </a>
         </div>
     </div>
@@ -45,7 +45,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                     <a href="{{ route('library.authority-create') }}" class="btn btn-success">
-                        <i class="fas fa-plus me-2"></i>New Authority
+                        <i class="fas fa-plus me-2"></i>{{ __('New Authority') }}
                     </a>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="text-center text-muted py-4">
-                                No authority records found. <a href="{{ route('library.authority-create') }}">Create one.</a>
+                                {{ __('No authority records found.') }} <a href="{{ route('library.authority-create') }}">{{ __('Create one.') }}</a>
                             </td>
                         </tr>
                     @endforelse
@@ -109,7 +109,7 @@
                     <ul class="pagination mb-0 justify-content-center">
                         @if($page > 1)
                             <li class="page-item">
-                                <a class="page-link" href="{{ route('library.authority-index', array_merge(request()->query(), ['page' => $page - 1])) }}">Prev</a>
+                                <a class="page-link" href="{{ route('library.authority-index', array_merge(request()->query(), ['page' => $page - 1])) }}">{{ __('Prev') }}</a>
                             </li>
                         @endif
                         @for($p = max(1, $page - 2); $p <= min($lastPage, $page + 2); $p++)

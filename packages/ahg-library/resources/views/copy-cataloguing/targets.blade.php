@@ -13,7 +13,7 @@
             <a href="{{ route('library.copy-cataloguing-targets') }}"
                class="btn btn-sm btn-success ms-auto"
                data-bs-toggle="modal" data-bs-target="#createModal">
-                <i class="fas fa-plus me-2"></i>New Target
+                <i class="fas fa-plus me-2"></i>{{ __('New Target') }}
             </a>
         </div>
     </div>
@@ -55,9 +55,9 @@
                             <td><small>{{ $t->syntax }}</small></td>
                             <td>
                                 @if($t->active)
-                                    <span class="badge bg-success">Active</span>
+                                    <span class="badge bg-success">{{ __('Active') }}</span>
                                 @else
-                                    <span class="badge bg-secondary">Inactive</span>
+                                    <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                 @endif
                             </td>
                             <td>
@@ -147,7 +147,7 @@
                                                        value="1" id="active{{ $t->id }}"
                                                        {{ $t->active ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="active{{ $t->id }}">
-                                                    Active
+                                                    {{ __('Active') }}
                                                 </label>
                                             </div>
                                         </div>
@@ -186,12 +186,12 @@
                     @csrf
                     <div class="modal-body">
                         <div class="mb-2">
-                            <label class="form-label">Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control"
                                    placeholder="{{ __('Library of Congress') }}" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Host <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Host') }} <span class="text-danger">*</span></label>
                             <input type="text" name="host" class="form-control"
                                    placeholder="{{ __('zcat.loc.gov') }}" required>
                         </div>
@@ -242,7 +242,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save me-2"></i>Save Target
+                            <i class="fas fa-save me-2"></i>{{ __('Save Target') }}
                         </button>
                         <button type="button" class="btn btn-outline-secondary"
                                 data-bs-dismiss="modal">{{ __('Cancel') }}</button>

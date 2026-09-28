@@ -22,7 +22,7 @@
         <div class="col-lg-8">
             <div class="card shadow-sm mb-3">
                 <div class="card-header">
-                    <i class="fas fa-table me-2"></i>Parsed MARC Fields
+                    <i class="fas fa-table me-2"></i>{{ __('Parsed MARC Fields') }}
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-sm table-striped mb-0">
@@ -66,7 +66,7 @@
             {{-- Import form with overrides --}}
             <div class="card shadow-sm">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <i class="fas fa-download me-2"></i>Commit Import
+                    <i class="fas fa-download me-2"></i>{{ __('Commit Import') }}
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('library.marc-copy-cataloguing.import') }}">
@@ -80,7 +80,7 @@
 
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <label for="title" class="form-label small fw-semibold">Title <span class="text-danger">*</span></label>
+                                <label for="title" class="form-label small fw-semibold">{{ __('Title') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="title" id="title" class="form-control"
                                        value="@if(!empty($parsed['data'])){{ $parsed['data'][0]['subfields']['a'] ?? '' }}@endif"
                                        maxlength="500" required>
@@ -105,11 +105,11 @@
 
                         <div class="mt-4">
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-download me-2"></i>Create Library Item
+                                <i class="fas fa-download me-2"></i>{{ __('Create Library Item') }}
                             </button>
                             <a href="{{ route('library.marc-copy-cataloguing.search') }}"
                                class="btn btn-outline-secondary ms-2">
-                                Cancel
+                                {{ __('Cancel') }}
                             </a>
                         </div>
                     </form>

@@ -9,7 +9,7 @@
         <div>
             <h2 class="mb-0">{{ __('Z39.50 Search Results') }}</h2>
             <p class="text-muted small mb-0">
-                Target: <strong>{{ $targetName }}</strong> -
+                {{ __('Target:') }} <strong>{{ $targetName }}</strong> -
                 Query: <em>"{{ $query }}"</em> -
                 {{ $count }} record(s) found
             </p>
@@ -18,14 +18,14 @@
 
     @if($count === 0)
         <div class="alert alert-warning">
-            <i class="fas fa-search me-2"></i>No records returned from
+            <i class="fas fa-search me-2"></i>{{ __('No records returned from') }}
             <strong>{{ $targetName }}</strong> for query <em>"{{ $query }}"</em>.
             Verify the query format and target connectivity.
         </div>
     @else
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-list me-2"></i>Records</span>
+                <span><i class="fas fa-list me-2"></i>{{ __('Records') }}</span>
                 <span class="badge bg-secondary">{{ count($records) }} shown</span>
             </div>
             <div class="card-body p-0">
@@ -58,9 +58,9 @@
                                     <dd class="col-md-9">{{ $rec['isbn'] ?: '-' }}</dd>
                                     <dt class="col-md-3 text-muted">ISSN</dt>
                                     <dd class="col-md-9">{{ $rec['issn'] ?: '-' }}</dd>
-                                    <dt class="col-md-3 text-muted">Publisher</dt>
+                                    <dt class="col-md-3 text-muted">{{ __('Publisher') }}</dt>
                                     <dd class="col-md-9">{{ $rec['publisher'] ?: '-' }}</dd>
-                                    <dt class="col-md-3 text-muted">Date</dt>
+                                    <dt class="col-md-3 text-muted">{{ __('Date') }}</dt>
                                     <dd class="col-md-9">{{ $rec['pub_date'] ?: '-' }}</dd>
                                 </dl>
                                 <div class="d-flex gap-2">

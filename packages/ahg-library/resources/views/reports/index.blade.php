@@ -40,7 +40,7 @@
       <div class="card text-center bg-primary text-white">
         <div class="card-body">
           <h2>{{ number_format($stats['items']['total'] ?? 0) }}</h2>
-          <p class="mb-0">Total Items</p>
+          <p class="mb-0">{{ __('Total Items') }}</p>
         </div>
       </div>
     </div>
@@ -48,7 +48,7 @@
       <div class="card text-center bg-success text-white">
         <div class="card-body">
           <h2>{{ number_format($stats['items']['available'] ?? 0) }}</h2>
-          <p class="mb-0">Available</p>
+          <p class="mb-0">{{ __('Available') }}</p>
         </div>
       </div>
     </div>
@@ -56,7 +56,7 @@
       <div class="card text-center bg-warning text-dark">
         <div class="card-body">
           <h2>{{ number_format($stats['items']['onLoan'] ?? 0) }}</h2>
-          <p class="mb-0">On Loan</p>
+          <p class="mb-0">{{ __('On Loan') }}</p>
         </div>
       </div>
     </div>
@@ -64,7 +64,7 @@
       <div class="card text-center bg-info text-white">
         <div class="card-body">
           <h2>{{ number_format($stats['items']['reference'] ?? 0) }}</h2>
-          <p class="mb-0">Reference</p>
+          <p class="mb-0">{{ __('Reference') }}</p>
         </div>
       </div>
     </div>
@@ -84,7 +84,7 @@
             <span class="badge bg-primary rounded-pill">{{ $type->count ?? 0 }}</span>
           </li>
           @empty
-          <li class="list-group-item text-muted">No items yet</li>
+          <li class="list-group-item text-muted">{{ __('No items yet') }}</li>
           @endforelse
         </ul>
       </div>
@@ -111,7 +111,7 @@
           </li>
         </ul>
         <div class="card-footer">
-          <a href="{{ route('library.report-catalogue') }}" class="btn btn-primary btn-sm w-100">View Full Catalogue</a>
+          <a href="{{ route('library.report-catalogue') }}" class="btn btn-primary btn-sm w-100">{{ __('View Full Catalogue') }}</a>
         </div>
       </div>
     </div>

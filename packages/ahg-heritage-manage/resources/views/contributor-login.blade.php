@@ -10,7 +10,7 @@
         <div class="text-center mb-4">
           <i class="fas fa-users display-4" style="color:var(--ahg-primary)"></i>
           <h2 class="h4 mt-3">{{ __('Welcome Back') }}</h2>
-          <p class="text-muted">Sign in to contribute to our heritage collection</p>
+          <p class="text-muted">{{ __('Sign in to contribute to our heritage collection') }}</p>
         </div>
 
         @if(!empty($error))
@@ -31,7 +31,7 @@
 
         <hr class="my-4">
         <div class="text-center">
-          <p class="mb-2">Don't have an account?</p>
+          <p class="mb-2">{{ __('Don\'t have an account?') }}</p>
           <a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-white"><i class="fas fa-user-plus me-2"></i>{{ __('Create Account') }}</a>
         </div>
       </div>

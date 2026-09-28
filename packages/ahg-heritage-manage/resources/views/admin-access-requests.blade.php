@@ -53,7 +53,7 @@ $pages = $requestData['pages'] ?? 1;
         @if(empty($requests))
         <div class="text-center text-muted py-5">
           <i class="fas fa-check-circle fs-1 mb-3 d-block"></i>
-          <p>No pending access requests.</p>
+          <p>{{ __('No pending access requests.') }}</p>
         </div>
         @else
         <div class="list-group list-group-flush">
@@ -63,7 +63,7 @@ $pages = $requestData['pages'] ?? 1;
               <div class="col-md-5">
                 <h6 class="mb-1">{{ $request->object_title ?? 'Untitled' }}</h6>
                 <small class="text-muted">
-                  Requested by <strong>{{ $request->username }}</strong>
+                  {{ __('Requested by') }} <strong>{{ $request->username }}</strong>
                   ({{ $request->email }})
                 </small>
               </div>
@@ -111,12 +111,12 @@ $pages = $requestData['pages'] ?? 1;
               <input type="hidden" name="request_id" id="approve_request_id">
               <input type="hidden" name="decision" value="approve">
               <div class="mb-3">
-                <label for="valid_until" class="form-label">Access Valid Until <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label for="valid_until" class="form-label">{{ __('Access Valid Until') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="date" class="form-control" name="valid_until" id="valid_until"
                        value="{{ date('Y-m-d', strtotime('+90 days')) }}">
               </div>
               <div class="mb-3">
-                <label for="approve_notes" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label for="approve_notes" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea class="form-control" name="notes" id="approve_notes" rows="2"></textarea>
               </div>
             </div>
@@ -143,7 +143,7 @@ $pages = $requestData['pages'] ?? 1;
               <input type="hidden" name="request_id" id="deny_request_id">
               <input type="hidden" name="decision" value="deny">
               <div class="mb-3">
-                <label for="deny_notes" class="form-label">Reason for Denial <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                <label for="deny_notes" class="form-label">{{ __('Reason for Denial') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <textarea class="form-control" name="notes" id="deny_notes" rows="3" required></textarea>
               </div>
             </div>

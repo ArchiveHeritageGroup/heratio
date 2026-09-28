@@ -423,7 +423,7 @@
                 @if(!empty($formData['subject_access']))
                     <section class="card mb-4">
                         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Authority Control</h5>
+                            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Authority Control') }}</h5>
                         </div>
                         <div class="card-body">
                             <p class="text-muted small mb-3">
@@ -443,12 +443,12 @@
                             @if($authorityId)
                                 <a href="/library-manage/authority/{{ $authorityId }}/link"
                                    class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-link me-1"></i>Manage Authority Links
+                                    <i class="fas fa-link me-1"></i>{{ __('Manage Authority Links') }}
                                 </a>
                             @else
                                 <a href="/library-manage/authority/create"
                                    class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-plus me-1"></i>Create Subject Authority
+                                    <i class="fas fa-plus me-1"></i>{{ __('Create Subject Authority') }}
                                 </a>
                             @endif
                         </div>
@@ -461,23 +461,23 @@
             <div class="col-lg-4">
                 <div class="card shadow-sm sticky-top" style="top:1rem;z-index:100">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h5 class="mb-0"><i class="fas fa-save me-2"></i>Actions</h5>
+                        <h5 class="mb-0"><i class="fas fa-save me-2"></i>{{ __('Actions') }}</h5>
                     </div>
                     <div class="card-body">
                         <button type="submit" class="btn btn-success w-100 mb-2">
-                            <i class="fas fa-save me-2"></i>Save MARC Edits
+                            <i class="fas fa-save me-2"></i>{{ __('Save MARC Edits') }}
                         </button>
                         <a href="{{ route('library.browse') }}" class="btn atom-btn-white w-100 mb-2">
-                            <i class="fas fa-list me-2"></i>Browse Catalogue
+                            <i class="fas fa-list me-2"></i>{{ __('Browse Catalogue') }}
                         </a>
                         <hr>
                         <a href="{{ route('library.marc-download', $formData['library_item_id'] ?? 0) }}"
                            class="btn atom-btn-white w-100 mb-2">
-                            <i class="fas fa-download me-2"></i>Download MARCXML
+                            <i class="fas fa-download me-2"></i>{{ __('Download MARCXML') }}
                         </a>
                         <a href="{{ route('library.marc-download-binary', $formData['library_item_id'] ?? 0) }}"
                            class="btn atom-btn-white w-100">
-                            <i class="fas fa-file me-2"></i>Download MARC Binary
+                            <i class="fas fa-file me-2"></i>{{ __('Download MARC Binary') }}
                         </a>
                     </div>
                     <div class="card-footer small text-muted">

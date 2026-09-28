@@ -179,7 +179,7 @@
                 </div>
                 @endforeach
               @else
-                <p class="text-muted mb-0">No trust level assignments yet.</p>
+                <p class="text-muted mb-0">{{ __('No trust level assignments yet.') }}</p>
               @endif
             </div>
           </div>
@@ -194,7 +194,7 @@
         <div class="card-body">
           <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
-              <td class="text-muted" style="width:200px;">Total Users</td>
+              <td class="text-muted" style="width:200px;">{{ __('Total Users') }}</td>
               <td>{{ number_format($totalUsers) }}</td>
             </tr>
             <tr>
@@ -202,7 +202,7 @@
               <td>{{ number_format($activeUsers) }}</td>
             </tr>
             <tr>
-              <td class="text-muted">New This Month</td>
+              <td class="text-muted">{{ __('New This Month') }}</td>
               <td>{{ number_format($newThisMonth) }}</td>
             </tr>
             <tr>

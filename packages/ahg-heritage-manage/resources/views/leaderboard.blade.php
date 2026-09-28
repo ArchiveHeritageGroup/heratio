@@ -40,14 +40,14 @@ $period = $period ?? '';
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">{{ __('Top Contributors') }}</h5>
         <div class="btn-group btn-group-sm">
-          <a href="{{ route('heritage.leaderboard') }}" class="btn btn-outline-light {{ empty($period)?'active':'' }}">All Time</a>
-          <a href="{{ route('heritage.leaderboard', ['period'=>'month']) }}" class="btn btn-outline-light {{ $period==='month'?'active':'' }}">This Month</a>
-          <a href="{{ route('heritage.leaderboard', ['period'=>'week']) }}" class="btn btn-outline-light {{ $period==='week'?'active':'' }}">This Week</a>
+          <a href="{{ route('heritage.leaderboard') }}" class="btn btn-outline-light {{ empty($period)?'active':'' }}">{{ __('All Time') }}</a>
+          <a href="{{ route('heritage.leaderboard', ['period'=>'month']) }}" class="btn btn-outline-light {{ $period==='month'?'active':'' }}">{{ __('This Month') }}</a>
+          <a href="{{ route('heritage.leaderboard', ['period'=>'week']) }}" class="btn btn-outline-light {{ $period==='week'?'active':'' }}">{{ __('This Week') }}</a>
         </div>
       </div>
       <div class="card-body p-0">
         @if(empty($leaderboard))
-        <div class="text-center text-muted py-5"><i class="fas fa-users display-1 mb-3 d-block"></i><p>No contributors yet. Be the first!</p><a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-secondary"><i class="fas fa-user-plus me-1"></i>{{ __('Join Now') }}</a></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-users display-1 mb-3 d-block"></i><p>{{ __('No contributors yet. Be the first!') }}</p><a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-secondary"><i class="fas fa-user-plus me-1"></i>{{ __('Join Now') }}</a></div>
         @else
         <div class="table-responsive">
           <table class="table table-hover mb-0">
@@ -71,7 +71,7 @@ $period = $period ?? '';
     </div>
 
     <div class="text-center mt-4">
-      <p class="text-muted mb-3">Help preserve our heritage and earn recognition!</p>
+      <p class="text-muted mb-3">{{ __('Help preserve our heritage and earn recognition!') }}</p>
       <a href="{{ route('heritage.search') }}" class="btn atom-btn-secondary btn-lg"><i class="fas fa-search me-2"></i>{{ __('Find Items to Contribute') }}</a>
     </div>
   </div>

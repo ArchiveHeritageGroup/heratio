@@ -42,7 +42,7 @@
         <td><small>{{ e($i->shelf_location ?? $i->classification_scheme ?? '-') }}</small></td>
       </tr>
       @empty
-      <tr><td colspan="4" class="text-muted text-center py-3">No items with call numbers.</td></tr>
+      <tr><td colspan="4" class="text-muted text-center py-3">{{ __('No items with call numbers.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

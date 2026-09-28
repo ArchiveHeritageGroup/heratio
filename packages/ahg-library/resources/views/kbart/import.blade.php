@@ -45,7 +45,7 @@
 
                 <div class="card mb-4">
                     <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-                        <h6 class="mb-0"><i class="fas fa-upload me-2"></i>Upload KBART File</h6>
+                        <h6 class="mb-0"><i class="fas fa-upload me-2"></i>{{ __('Upload KBART File') }}</h6>
                     </div>
                     <div class="card-body">
 
@@ -62,7 +62,7 @@
 
                             <div class="mb-3">
                                 <label for="kbart_file" class="form-label fw-semibold">
-                                    KBART file <span class="text-danger">*</span>
+                                    {{ __('KBART file') }} <span class="text-danger">*</span>
                                 </label>
                                 <input type="file"
                                        name="kbart_file"
@@ -93,7 +93,7 @@
                             </div>
 
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-eye me-1"></i>Preview Import
+                                <i class="fas fa-eye me-1"></i>{{ __('Preview Import') }}
                             </button>
                         </form>
 
@@ -103,10 +103,10 @@
                 <div class="card">
                     <div class="card-body text-center">
                         <p class="text-muted small mb-2">
-                            No KBART file? Download a blank template to fill in manually.
+                            {{ __('No KBART file? Download a blank template to fill in manually.') }}
                         </p>
                         <a href="{{ route('library.kbart-template') }}" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-file-download me-1"></i>Download KBART Template
+                            <i class="fas fa-file-download me-1"></i>{{ __('Download KBART Template') }}
                         </a>
                     </div>
                 </div>
@@ -121,7 +121,7 @@
                     <div class="card-body pb-0">
                         <ul class="small mb-0 text-muted" style="padding-left: 1.2em;">
                             <li>File must be tab-separated (.tsv)</li>
-                            <li>First row must be the NISO KBART header</li>
+                            <li>{{ __('First row must be the NISO KBART header') }}</li>
                             <li><code>publication_title</code> is required per row</li>
                             <li>At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id</li>
                             <li>Duplicates (same ISBN) are skipped automatically</li>
@@ -138,7 +138,7 @@
     @if($preview_data && !empty($preview_data))
         <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
             <i class="fas fa-info-circle me-2"></i>
-            Previewing <strong>{{ $record_count }}</strong> row(s).
+            {{ __('Previewing') }} <strong>{{ $record_count }}</strong> row(s).
             Review carefully before committing. Rows with errors will not be imported.
         </div>
 
@@ -147,7 +147,7 @@
                 <div class="card mb-4">
                     <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0"><i class="fas fa-list-check me-2"></i>Preview</h6>
+                            <h6 class="mb-0"><i class="fas fa-list-check me-2"></i>{{ __('Preview') }}</h6>
                             <span class="badge bg-light text-dark">{{ $record_count }} rows</span>
                         </div>
                     </div>
@@ -172,7 +172,7 @@
                                             @if($row['is_valid'])
                                                 <span class="badge bg-success"><i class="fas fa-check"></i> OK</span>
                                             @else
-                                                <span class="badge bg-danger"><i class="fas fa-times"></i> Error</span>
+                                                <span class="badge bg-danger"><i class="fas fa-times"></i> {{ __('Error') }}</span>
                                             @endif
                                         </td>
                                         <td>{{ e($row['publication_title']) }}</td>
@@ -222,7 +222,7 @@
                     @csrf
                     <input type="hidden" name="raw_tsv" value="{{ e($raw_tsv ?? '') }}">
                     <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-database me-1"></i>Commit Import
+                        <i class="fas fa-database me-1"></i>{{ __('Commit Import') }}
                     </button>
                 </form>
             </div>

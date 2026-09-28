@@ -26,7 +26,7 @@
       @forelse($creators as $c)
       <tr><td><strong>{{ e($c->name ?? '') }}</strong></td><td class="text-end"><span class="badge bg-primary">{{ $c->work_count ?? 0 }}</span></td></tr>
       @empty
-      <tr><td colspan="2" class="text-muted text-center py-3">No creators.</td></tr>
+      <tr><td colspan="2" class="text-muted text-center py-3">{{ __('No creators.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

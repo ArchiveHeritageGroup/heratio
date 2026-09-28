@@ -13,7 +13,7 @@
         </div>
       </div>
       @empty
-      <div class="col-12 text-center text-muted">No stories published yet</div>
+      <div class="col-12 text-center text-muted">{{ __('No stories published yet') }}</div>
       @endforelse
     </div>
   </div>

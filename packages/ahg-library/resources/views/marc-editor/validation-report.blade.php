@@ -28,7 +28,7 @@
     @if (! empty($report['parse_error']))
         <div class="alert alert-danger" role="alert">
             <i class="fas fa-times-circle me-2"></i>
-            <strong>Document error:</strong> {{ $report['parse_error'] }}
+            <strong>{{ __('Document error:') }}</strong> {{ $report['parse_error'] }}
         </div>
     @else
         <div class="alert {{ $isValid ? 'alert-success' : 'alert-danger' }} d-flex align-items-center" role="alert">
@@ -64,11 +64,11 @@
                 </div>
                 <div class="card-body">
                     @if (empty($errors) && empty($warnings))
-                        <p class="text-success mb-0"><i class="fas fa-check me-2"></i>No problems found.</p>
+                        <p class="text-success mb-0"><i class="fas fa-check me-2"></i>{{ __('No problems found.') }}</p>
                     @endif
 
                     @if (! empty($errors))
-                        <h6 class="text-danger"><i class="fas fa-times-circle me-1"></i>Errors</h6>
+                        <h6 class="text-danger"><i class="fas fa-times-circle me-1"></i>{{ __('Errors') }}</h6>
                         <ul class="mb-3">
                             @foreach ($errors as $err)
                                 <li class="text-danger">{{ $err }}</li>
@@ -77,7 +77,7 @@
                     @endif
 
                     @if (! empty($warnings))
-                        <h6 class="text-warning"><i class="fas fa-exclamation-circle me-1"></i>Warnings</h6>
+                        <h6 class="text-warning"><i class="fas fa-exclamation-circle me-1"></i>{{ __('Warnings') }}</h6>
                         <ul class="mb-0">
                             @foreach ($warnings as $warn)
                                 <li class="text-warning-emphasis">{{ $warn }}</li>
@@ -91,7 +91,7 @@
 
     @if (! empty($marcxml))
         <div class="card mt-4">
-            <div class="card-header">Submitted MARCXML</div>
+            <div class="card-header">{{ __('Submitted MARCXML') }}</div>
             <div class="card-body">
                 <pre class="mb-0 small" style="max-height: 400px; overflow: auto;">{{ $marcxml }}</pre>
             </div>

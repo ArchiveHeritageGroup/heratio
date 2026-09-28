@@ -34,7 +34,7 @@
                         Filter by date range or limit the row count.
                     </p>
                     <a href="{{ route('library.kbart-export') }}" class="btn btn-outline-success btn-sm mt-2">
-                        <i class="fas fa-download me-1"></i>Download TSV
+                        <i class="fas fa-download me-1"></i>{{ __('Download TSV') }}
                     </a>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                         titles and catalogue records. Preview before committing.
                     </p>
                     <a href="{{ route('library.kbart-import') }}" class="btn btn-outline-primary btn-sm mt-2">
-                        <i class="fas fa-upload me-1"></i>Import TSV
+                        <i class="fas fa-upload me-1"></i>{{ __('Import TSV') }}
                     </a>
                 </div>
             </div>
@@ -72,7 +72,7 @@
                         Fill it in manually or use it as a data-entry guide.
                     </p>
                     <a href="{{ route('library.kbart-template') }}" class="btn btn-outline-secondary btn-sm mt-2">
-                        <i class="fas fa-file-download me-1"></i>Get Template
+                        <i class="fas fa-file-download me-1"></i>{{ __('Get Template') }}
                     </a>
                 </div>
             </div>
@@ -82,7 +82,7 @@
     {{-- Format info --}}
     <div class="card">
         <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>NISO KBART Format Reference</h6>
+            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('NISO KBART Format Reference') }}</h6>
         </div>
         <div class="card-body p-0">
             <table class="table table-striped table-sm mb-0">
@@ -95,44 +95,44 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Publication title</td>
+                        <td>{{ __('Publication title') }}</td>
                         <td><code>publication_title</code></td>
-                        <td>Required</td>
+                        <td>{{ __('Required') }}</td>
                     </tr>
                     <tr>
                         <td>ISBN</td>
                         <td><code>isbn</code></td>
-                        <td>Monographs</td>
+                        <td>{{ __('Monographs') }}</td>
                     </tr>
                     <tr>
-                        <td>Print ISSN</td>
+                        <td>{{ __('Print ISSN') }}</td>
                         <td><code>print_issn</code></td>
-                        <td>Serials</td>
+                        <td>{{ __('Serials') }}</td>
                     </tr>
                     <tr>
-                        <td>Electronic ISSN</td>
+                        <td>{{ __('Electronic ISSN') }}</td>
                         <td><code>eissn</code></td>
-                        <td>Electronic serials</td>
+                        <td>{{ __('Electronic serials') }}</td>
                     </tr>
                     <tr>
-                        <td>Publisher</td>
+                        <td>{{ __('Publisher') }}</td>
                         <td><code>publisher</code></td>
-                        <td>Publisher name</td>
+                        <td>{{ __('Publisher name') }}</td>
                     </tr>
                     <tr>
-                        <td>Publication type</td>
+                        <td>{{ __('Publication type') }}</td>
                         <td><code>publication_type</code></td>
-                        <td>Book, Journal, Serial, etc.</td>
+                        <td>{{ __('Book, Journal, Serial, etc.') }}</td>
                     </tr>
                     <tr>
                         <td>DOI</td>
                         <td><code>doi</code></td>
-                        <td>Digital Object Identifier</td>
+                        <td>{{ __('Digital Object Identifier') }}</td>
                     </tr>
                     <tr>
-                        <td>Proprietary ID</td>
+                        <td>{{ __('Proprietary ID') }}</td>
                         <td><code>proprietary_id</code></td>
-                        <td>Barcode / system ID</td>
+                        <td>{{ __('Barcode / system ID') }}</td>
                     </tr>
                 </tbody>
             </table>

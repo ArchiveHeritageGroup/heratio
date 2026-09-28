@@ -33,7 +33,7 @@
                 <input type="number" name="default_due_days"
                        value="{{ old('default_due_days', $settings['ill_default_due_days'] ?? 28) }}"
                        class="form-control" min="1" max="365">
-                <div class="form-text">Standard lending period before escalation to overdue.</div>
+                <div class="form-text">{{ __('Standard lending period before escalation to overdue.') }}</div>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ __('Auto-Escalate Overdue After (days)') }}</label>
@@ -85,7 +85,7 @@
                 <input type="password" name="oclc_api_key"
                        value="{{ old('oclc_api_key', $settings['ill_oclc_api_key'] ?? '') }}"
                        class="form-control" maxlength="200" autocomplete="new-password">
-                <div class="form-text">Stored encrypted. Never shown after save.</div>
+                <div class="form-text">{{ __('Stored encrypted. Never shown after save.') }}</div>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ __('OCLC Principal ID') }}</label>
@@ -116,19 +116,19 @@
             <i class="fas fa-question-circle me-1"></i>{{ __('Tipasa / NAZ setup') }}
           </div>
           <div class="card-body small">
-            <p>To enable automated NAZ/SABINET ILL:</p>
+            <p>{{ __('To enable automated NAZ/SABINET ILL:') }}</p>
             <ol class="ps-3">
-              <li>Register with the National Library of Zimbabwe or SABINET.</li>
-              <li>Obtain your institution's TIPASA client credentials.</li>
+              <li>{{ __('Register with the National Library of Zimbabwe or SABINET.') }}</li>
+              <li>{{ __('Obtain your institution\'s TIPASA client credentials.') }}</li>
               <li>Configure <code>NAZ_INI</code> path in your environment.</li>
-              <li>Set the default partner here.</li>
+              <li>{{ __('Set the default partner here.') }}</li>
             </ol>
             <hr>
-            <p>For OCLC WorldShare ILL:</p>
+            <p>{{ __('For OCLC WorldShare ILL:') }}</p>
             <ol class="ps-3">
-              <li>Apply for an OCLC API key at oclc.org.</li>
+              <li>{{ __('Apply for an OCLC API key at oclc.org.') }}</li>
               <li>Enter your <code>Principal ID</code> (provided by OCLC).</li>
-              <li>Set the base URL for your region.</li>
+              <li>{{ __('Set the base URL for your region.') }}</li>
             </ol>
           </div>
         </div>

@@ -8,7 +8,7 @@
         </a>
         <div>
             <h2 class="mb-0">{{ __('Add Serial') }}</h2>
-            <span class="badge bg-primary mt-1">Serials</span>
+            <span class="badge bg-primary mt-1">{{ __('Serials') }}</span>
         </div>
     </div>
 
@@ -23,11 +23,11 @@
         @csrf
         <div class="card shadow-sm mb-4">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                <h5 class="mb-0"><i class="fas fa-newspaper me-2"></i>Serial Title</h5>
+                <h5 class="mb-0"><i class="fas fa-newspaper me-2"></i>{{ __('Serial Title') }}</h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label for="title" class="form-label required">Title <span class="badge bg-danger ms-1">Required</span></label>
+                    <label for="title" class="form-label required">{{ __('Title') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                     <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
                            autocomplete="off"
                            value="{{ old('title') }}" required>
@@ -40,7 +40,7 @@
                         <input type="text" name="issn" id="issn" class="form-control @error('issn') is-invalid @enderror"
                                value="{{ old('issn') }}" placeholder="1234-5678">
                         @error('issn') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        <div class="form-text">International Standard Serial Number</div>
+                        <div class="form-text">{{ __('International Standard Serial Number') }}</div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="frequency" class="form-label">{{ __('Frequency') }}</label>
@@ -77,10 +77,10 @@
 
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-success">
-                <i class="fas fa-save me-2"></i>Create Serial
+                <i class="fas fa-save me-2"></i>{{ __('Create Serial') }}
             </button>
             <a href="{{ route('library.serials') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-times me-2"></i>Cancel
+                <i class="fas fa-times me-2"></i>{{ __('Cancel') }}
             </a>
         </div>
     </form>

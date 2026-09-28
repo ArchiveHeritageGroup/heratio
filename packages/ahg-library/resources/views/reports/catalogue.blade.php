@@ -45,7 +45,7 @@
         <td><span class="badge bg-{{ ($i->status ?? '') === 'available' ? 'success' : (($i->status ?? '') === 'on_loan' ? 'warning' : 'secondary') }}">{{ ucfirst(str_replace('_', ' ', $i->status ?? '')) }}</span></td>
       </tr>
       @empty
-      <tr><td colspan="7" class="text-muted text-center py-3">No items.</td></tr>
+      <tr><td colspan="7" class="text-muted text-center py-3">{{ __('No items.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

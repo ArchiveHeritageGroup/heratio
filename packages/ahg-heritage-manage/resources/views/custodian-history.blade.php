@@ -14,7 +14,7 @@ $total = $historyData['total'] ?? 0;
     <div class="mt-4">
       <h6 class="text-muted mb-3">{{ __('Quick Filters') }}</h6>
       <div class="list-group">
-        <a href="?" class="list-group-item list-group-item-action {{ !request('action_type') ? 'active' : '' }}">All Actions</a>
+        <a href="?" class="list-group-item list-group-item-action {{ !request('action_type') ? 'active' : '' }}">{{ __('All Actions') }}</a>
         @foreach(['create','update','delete'] as $at)
         <a href="?action_type={{ $at }}" class="list-group-item list-group-item-action {{ request('action_type')===$at ? 'active' : '' }}">{{ ucfirst($at) }}s</a>
         @endforeach
@@ -27,9 +27,9 @@ $total = $historyData['total'] ?? 0;
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">
         <form method="get" class="row g-3">
-          <div class="col-md-4"><label class="form-label">Search <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="search" value="{{ request('search','') }}" placeholder="{{ __('User, object, or action...') }}"></div>
-          <div class="col-md-3"><label class="form-label">From Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="date_from" value="{{ request('date_from','') }}"></div>
-          <div class="col-md-3"><label class="form-label">To Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="date_to" value="{{ request('date_to','') }}"></div>
+          <div class="col-md-4"><label class="form-label">{{ __('Search') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="search" value="{{ request('search','') }}" placeholder="{{ __('User, object, or action...') }}"></div>
+          <div class="col-md-3"><label class="form-label">{{ __('From Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="date_from" value="{{ request('date_from','') }}"></div>
+          <div class="col-md-3"><label class="form-label">{{ __('To Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="date_to" value="{{ request('date_to','') }}"></div>
           <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn atom-btn-secondary w-100"><i class="fas fa-search me-1"></i>{{ __('Filter') }}</button></div>
         </form>
       </div>
@@ -41,7 +41,7 @@ $total = $historyData['total'] ?? 0;
       </div>
       <div class="card-body p-0">
         @if(empty($logs))
-        <div class="text-center text-muted py-5"><i class="fas fa-inbox fs-1 mb-3 d-block"></i><p>No audit log entries found.</p></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-inbox fs-1 mb-3 d-block"></i><p>{{ __('No audit log entries found.') }}</p></div>
         @else
         <div class="table-responsive">
           <table class="table table-hover mb-0">

@@ -61,7 +61,7 @@ $expiringEmbargoes = $expiringEmbargoes ?? [];
         @if(empty($embargoes))
         <div class="text-center text-muted py-5">
           <i class="fas fa-unlock fs-1 mb-3 d-block"></i>
-          <p>No active embargoes.</p>
+          <p>{{ __('No active embargoes.') }}</p>
         </div>
         @else
         <div class="table-responsive">

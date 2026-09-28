@@ -17,7 +17,7 @@
         @endif
       </div>
     </div>
-    <p class="text-muted">Browse all heritage assets.</p>
+    <p class="text-muted">{{ __('Browse all heritage assets.') }}</p>
 
     {{-- Stats --}}
     @if(!empty($stats))
@@ -78,7 +78,7 @@
                 <td id="hasset-date-{{ $item->id }}">{{ $item->recognition_date ? \Illuminate\Support\Carbon::parse($item->recognition_date)->format('Y-m-d') : '-' }}</td>
               </tr>
               @empty
-              <tr><td colspan="{{ count($columns ?? ['Asset','Class','Status','Carrying value','Recognised']) }}" class="text-center text-muted py-3">No records found</td></tr>
+              <tr><td colspan="{{ count($columns ?? ['Asset','Class','Status','Carrying value','Recognised']) }}" class="text-center text-muted py-3">{{ __('No records found') }}</td></tr>
               @endforelse
             </tbody>
           </table>

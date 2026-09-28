@@ -412,7 +412,7 @@
     </div>
     <div class="card-body">
       <dl class="row mb-0">
-        <dt class="col-sm-4">Title</dt>
+        <dt class="col-sm-4">{{ __('Title') }}</dt>
         <dd class="col-sm-8">
           {{ $item->title ?: '[Untitled]' }}
           {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b). --}}
@@ -420,32 +420,32 @@
         </dd>
 
         @if($item->subtitle)
-          <dt class="col-sm-4">Subtitle</dt>
+          <dt class="col-sm-4">{{ __('Subtitle') }}</dt>
           <dd class="col-sm-8">{{ $item->subtitle }}</dd>
         @endif
 
         @if($item->responsibility_statement)
-          <dt class="col-sm-4">Statement of responsibility</dt>
+          <dt class="col-sm-4">{{ __('Statement of responsibility') }}</dt>
           <dd class="col-sm-8">{{ $item->responsibility_statement }}</dd>
         @endif
 
         @if($item->identifier)
-          <dt class="col-sm-4">Identifier</dt>
+          <dt class="col-sm-4">{{ __('Identifier') }}</dt>
           <dd class="col-sm-8">{{ $item->identifier }}</dd>
         @endif
 
         @if($levelName)
-          <dt class="col-sm-4">Level of description</dt>
+          <dt class="col-sm-4">{{ __('Level of description') }}</dt>
           <dd class="col-sm-8">{{ $levelName }}</dd>
         @endif
 
         @if($item->material_type)
-          <dt class="col-sm-4">Material type</dt>
+          <dt class="col-sm-4">{{ __('Material type') }}</dt>
           <dd class="col-sm-8">{{ ucfirst($item->material_type) }}</dd>
         @endif
 
         @if($item->language)
-          <dt class="col-sm-4">Language</dt>
+          <dt class="col-sm-4">{{ __('Language') }}</dt>
           <dd class="col-sm-8">{{ $item->language }}</dd>
         @endif
       </dl>
@@ -514,12 +514,12 @@
           @endif
 
           @if($item->barcode)
-            <dt class="col-sm-4">Barcode</dt>
+            <dt class="col-sm-4">{{ __('Barcode') }}</dt>
             <dd class="col-sm-8"><code>{{ $item->barcode }}</code></dd>
           @endif
 
           @if($item->openlibrary_id)
-            <dt class="col-sm-4">Open Library</dt>
+            <dt class="col-sm-4">{{ __('Open Library') }}</dt>
             <dd class="col-sm-8">
               <a href="https://openlibrary.org/books/{{ $item->openlibrary_id }}" target="_blank">{{ $item->openlibrary_id }}</a>
             </dd>
@@ -538,42 +538,42 @@
       <div class="card-body">
         <dl class="row mb-0">
           @if($item->call_number)
-            <dt class="col-sm-4">Call number</dt>
+            <dt class="col-sm-4">{{ __('Call number') }}</dt>
             <dd class="col-sm-8"><code>{{ $item->call_number }}</code></dd>
           @endif
 
           @if($item->dewey_decimal)
-            <dt class="col-sm-4">Dewey Decimal</dt>
+            <dt class="col-sm-4">{{ __('Dewey Decimal') }}</dt>
             <dd class="col-sm-8"><code>{{ $item->dewey_decimal }}</code></dd>
           @endif
 
           @if($item->classification_scheme)
-            <dt class="col-sm-4">Classification scheme</dt>
+            <dt class="col-sm-4">{{ __('Classification scheme') }}</dt>
             <dd class="col-sm-8">{{ strtoupper($item->classification_scheme) }}</dd>
           @endif
 
           @if($item->classification_number)
-            <dt class="col-sm-4">Classification number</dt>
+            <dt class="col-sm-4">{{ __('Classification number') }}</dt>
             <dd class="col-sm-8">{{ $item->classification_number }}</dd>
           @endif
 
           @if($item->cutter_number)
-            <dt class="col-sm-4">Cutter number</dt>
+            <dt class="col-sm-4">{{ __('Cutter number') }}</dt>
             <dd class="col-sm-8">{{ $item->cutter_number }}</dd>
           @endif
 
           @if($item->shelf_location)
-            <dt class="col-sm-4">Shelf location</dt>
+            <dt class="col-sm-4">{{ __('Shelf location') }}</dt>
             <dd class="col-sm-8">{{ $item->shelf_location }}</dd>
           @endif
 
           @if($item->copy_number)
-            <dt class="col-sm-4">Copy</dt>
+            <dt class="col-sm-4">{{ __('Copy') }}</dt>
             <dd class="col-sm-8">{{ $item->copy_number }}</dd>
           @endif
 
           @if($item->volume_designation)
-            <dt class="col-sm-4">Volume</dt>
+            <dt class="col-sm-4">{{ __('Volume') }}</dt>
             <dd class="col-sm-8">{{ $item->volume_designation }}</dd>
           @endif
         </dl>
@@ -595,7 +595,7 @@
       <div class="card-body">
         <dl class="row mb-0">
           @if(!empty($iloc['physical_object_name']))
-            <dt class="col-sm-4">Storage container</dt>
+            <dt class="col-sm-4">{{ __('Storage container') }}</dt>
             <dd class="col-sm-8">
               {{ $iloc['physical_object_name'] }}
               @if(!empty($iloc['physical_object_location']))
@@ -604,7 +604,7 @@
             </dd>
           @endif
           @if(!empty($iloc['barcode']))
-            <dt class="col-sm-4">Item barcode</dt>
+            <dt class="col-sm-4">{{ __('Item barcode') }}</dt>
             <dd class="col-sm-8"><code>{{ $iloc['barcode'] }}</code></dd>
           @endif
           @php
@@ -618,27 +618,27 @@
             ]);
           @endphp
           @if(!empty($within))
-            <dt class="col-sm-4">Location within container</dt>
+            <dt class="col-sm-4">{{ __('Location within container') }}</dt>
             <dd class="col-sm-8">{{ implode(' > ', $within) }}</dd>
           @endif
           @if(!empty($iloc['extent_value']) || !empty($iloc['extent_unit']))
-            <dt class="col-sm-4">Extent</dt>
+            <dt class="col-sm-4">{{ __('Extent') }}</dt>
             <dd class="col-sm-8">{{ trim(($iloc['extent_value'] ?? '') . ' ' . ($iloc['extent_unit'] ?? '')) }}</dd>
           @endif
           @if(!empty($iloc['condition_status']))
-            <dt class="col-sm-4">Condition</dt>
+            <dt class="col-sm-4">{{ __('Condition') }}</dt>
             <dd class="col-sm-8"><span class="badge bg-secondary">{{ ucfirst($iloc['condition_status']) }}</span></dd>
           @endif
           @if(!empty($iloc['access_status']))
-            <dt class="col-sm-4">Access status</dt>
+            <dt class="col-sm-4">{{ __('Access status') }}</dt>
             <dd class="col-sm-8"><span class="badge bg-{{ $iloc['access_status'] === 'available' ? 'success' : 'warning' }}">{{ ucfirst($iloc['access_status']) }}</span></dd>
           @endif
           @if(!empty($iloc['condition_notes']))
-            <dt class="col-sm-4">Condition notes</dt>
+            <dt class="col-sm-4">{{ __('Condition notes') }}</dt>
             <dd class="col-sm-8">{!! nl2br(e($iloc['condition_notes'])) !!}</dd>
           @endif
           @if(!empty($iloc['notes']))
-            <dt class="col-sm-4">Location notes</dt>
+            <dt class="col-sm-4">{{ __('Location notes') }}</dt>
             <dd class="col-sm-8">{!! nl2br(e($iloc['notes'])) !!}</dd>
           @endif
         </dl>
@@ -655,32 +655,32 @@
       <div class="card-body">
         <dl class="row mb-0">
           @if($item->publisher)
-            <dt class="col-sm-4">Publisher</dt>
+            <dt class="col-sm-4">{{ __('Publisher') }}</dt>
             <dd class="col-sm-8">{{ $item->publisher }}</dd>
           @endif
 
           @if($item->publication_place)
-            <dt class="col-sm-4">Place</dt>
+            <dt class="col-sm-4">{{ __('Place') }}</dt>
             <dd class="col-sm-8">{{ $item->publication_place }}</dd>
           @endif
 
           @if($item->publication_date)
-            <dt class="col-sm-4">Date</dt>
+            <dt class="col-sm-4">{{ __('Date') }}</dt>
             <dd class="col-sm-8">{{ $item->publication_date }}</dd>
           @endif
 
           @if($item->edition)
-            <dt class="col-sm-4">Edition</dt>
+            <dt class="col-sm-4">{{ __('Edition') }}</dt>
             <dd class="col-sm-8">{{ $item->edition }}</dd>
           @endif
 
           @if($item->edition_statement)
-            <dt class="col-sm-4">Edition statement</dt>
+            <dt class="col-sm-4">{{ __('Edition statement') }}</dt>
             <dd class="col-sm-8">{{ $item->edition_statement }}</dd>
           @endif
 
           @if($item->series_title)
-            <dt class="col-sm-4">Series</dt>
+            <dt class="col-sm-4">{{ __('Series') }}</dt>
             <dd class="col-sm-8">
               {{ $item->series_title }}
               @if($item->series_number)
@@ -702,17 +702,17 @@
       <div class="card-body">
         <dl class="row mb-0">
           @if($item->pagination)
-            <dt class="col-sm-4">Extent</dt>
+            <dt class="col-sm-4">{{ __('Extent') }}</dt>
             <dd class="col-sm-8">{{ $item->pagination }}</dd>
           @endif
 
           @if($item->dimensions)
-            <dt class="col-sm-4">Dimensions</dt>
+            <dt class="col-sm-4">{{ __('Dimensions') }}</dt>
             <dd class="col-sm-8">{{ $item->dimensions }}</dd>
           @endif
 
           @if($item->physical_details)
-            <dt class="col-sm-4">Physical details</dt>
+            <dt class="col-sm-4">{{ __('Physical details') }}</dt>
             <dd class="col-sm-8">{{ $item->physical_details }}</dd>
           @endif
         </dl>
@@ -906,17 +906,17 @@
 
         {{-- Rights statement (extended only) --}}
         @if($extRsName)
-          <dt class="col-sm-4">Rights statement</dt><dd class="col-sm-8">{{ $extRsName }}</dd>
+          <dt class="col-sm-4">{{ __('Rights statement') }}</dt><dd class="col-sm-8">{{ $extRsName }}</dd>
         @endif
 
         {{-- Basis (PREMIS) --}}
         @foreach($premisRights as $pr)
-          @if($pr->basis_name)<dt class="col-sm-4">Basis</dt><dd class="col-sm-8">{{ $pr->basis_name }}</dd>@endif
+          @if($pr->basis_name)<dt class="col-sm-4">{{ __('Basis') }}</dt><dd class="col-sm-8">{{ $pr->basis_name }}</dd>@endif
         @endforeach
 
         {{-- Rights holder (PREMIS primary, extended fallback) --}}
         @if($holderDisplay)
-          <dt class="col-sm-4">Rights holder</dt>
+          <dt class="col-sm-4">{{ __('Rights holder') }}</dt>
           <dd class="col-sm-8">
             {{ $holderDisplay }}
             @if($holderUri) <a href="{{ $holderUri }}" target="_blank" class="ms-1"><i class="fas fa-external-link-alt small"></i></a> @endif
@@ -928,45 +928,45 @@
           $startDate = $premisRights->pluck('start_date')->filter()->first() ?? ($extRights->rights_date ?? null);
           $endDate = $premisRights->pluck('end_date')->filter()->first() ?? ($extRights->expiry_date ?? null);
         @endphp
-        @if($startDate)<dt class="col-sm-4">Start date</dt><dd class="col-sm-8">{{ $startDate }}</dd>@endif
-        @if($endDate)<dt class="col-sm-4">End / Expiry date</dt><dd class="col-sm-8">{{ $endDate }}</dd>@endif
+        @if($startDate)<dt class="col-sm-4">{{ __('Start date') }}</dt><dd class="col-sm-8">{{ $startDate }}</dd>@endif
+        @if($endDate)<dt class="col-sm-4">{{ __('End / Expiry date') }}</dt><dd class="col-sm-8">{{ $endDate }}</dd>@endif
 
         {{-- Copyright (PREMIS) --}}
         @foreach($premisRights as $pr)
-          @if($pr->copyright_status_name)<dt class="col-sm-4">Copyright status</dt><dd class="col-sm-8">{{ $pr->copyright_status_name }}</dd>@endif
-          @if($pr->copyright_jurisdiction)<dt class="col-sm-4">Jurisdiction</dt><dd class="col-sm-8">{{ $pr->copyright_jurisdiction }}</dd>@endif
-          @if($pr->copyright_note)<dt class="col-sm-4">Copyright note</dt><dd class="col-sm-8">{{ $pr->copyright_note }}</dd>@endif
+          @if($pr->copyright_status_name)<dt class="col-sm-4">{{ __('Copyright status') }}</dt><dd class="col-sm-8">{{ $pr->copyright_status_name }}</dd>@endif
+          @if($pr->copyright_jurisdiction)<dt class="col-sm-4">{{ __('Jurisdiction') }}</dt><dd class="col-sm-8">{{ $pr->copyright_jurisdiction }}</dd>@endif
+          @if($pr->copyright_note)<dt class="col-sm-4">{{ __('Copyright note') }}</dt><dd class="col-sm-8">{{ $pr->copyright_note }}</dd>@endif
         @endforeach
 
         {{-- CC License (extended only - no PREMIS equivalent) --}}
         @if($extCcName)
-          <dt class="col-sm-4">Creative Commons</dt><dd class="col-sm-8">{{ $extCcName }}</dd>
+          <dt class="col-sm-4">{{ __('Creative Commons') }}</dt><dd class="col-sm-8">{{ $extCcName }}</dd>
         @endif
 
         {{-- License (PREMIS) --}}
         @foreach($premisRights as $pr)
-          @if($pr->license_terms)<dt class="col-sm-4">License terms</dt><dd class="col-sm-8">{{ $pr->license_terms }}</dd>@endif
-          @if($pr->license_note)<dt class="col-sm-4">License note</dt><dd class="col-sm-8">{{ $pr->license_note }}</dd>@endif
+          @if($pr->license_terms)<dt class="col-sm-4">{{ __('License terms') }}</dt><dd class="col-sm-8">{{ $pr->license_terms }}</dd>@endif
+          @if($pr->license_note)<dt class="col-sm-4">{{ __('License note') }}</dt><dd class="col-sm-8">{{ $pr->license_note }}</dd>@endif
         @endforeach
 
         {{-- Statute (PREMIS) --}}
         @foreach($premisRights as $pr)
-          @if($pr->statute_note)<dt class="col-sm-4">Statute note</dt><dd class="col-sm-8">{{ $pr->statute_note }}</dd>@endif
+          @if($pr->statute_note)<dt class="col-sm-4">{{ __('Statute note') }}</dt><dd class="col-sm-8">{{ $pr->statute_note }}</dd>@endif
         @endforeach
 
         {{-- Usage conditions (extended only - no PREMIS equivalent) --}}
         @if($extRights && ($extRights->usage_conditions ?? null))
-          <dt class="col-sm-4">Usage conditions</dt><dd class="col-sm-8">{{ $extRights->usage_conditions }}</dd>
+          <dt class="col-sm-4">{{ __('Usage conditions') }}</dt><dd class="col-sm-8">{{ $extRights->usage_conditions }}</dd>
         @endif
 
         {{-- Copyright notice (extended only - no PREMIS equivalent) --}}
         @if($extRights && ($extRights->copyright_notice ?? null))
-          <dt class="col-sm-4">Copyright notice</dt><dd class="col-sm-8">{{ $extRights->copyright_notice }}</dd>
+          <dt class="col-sm-4">{{ __('Copyright notice') }}</dt><dd class="col-sm-8">{{ $extRights->copyright_notice }}</dd>
         @endif
 
         {{-- Notes (merged, deduplicated) --}}
         @if($allNotes->isNotEmpty())
-          <dt class="col-sm-4">Notes</dt>
+          <dt class="col-sm-4">{{ __('Notes') }}</dt>
           <dd class="col-sm-8">
             @foreach($allNotes as $note)
               <p class="mb-1">{{ $note }}</p>
@@ -977,7 +977,7 @@
         {{-- Identifier (PREMIS) --}}
         @foreach($premisRights as $pr)
           @if($pr->identifier_type || $pr->identifier_value)
-            <dt class="col-sm-4">Identifier</dt>
+            <dt class="col-sm-4">{{ __('Identifier') }}</dt>
             <dd class="col-sm-8">{{ $pr->identifier_type }}{{ $pr->identifier_type && $pr->identifier_value ? ': ' : '' }}{{ $pr->identifier_value }}</dd>
           @endif
         @endforeach
@@ -1018,7 +1018,7 @@
 
       {{-- No rights --}}
       @if(!$hasAnyRights)
-        <p class="text-muted mb-0">No rights records found.</p>
+        <p class="text-muted mb-0">{{ __('No rights records found.') }}</p>
       @endif
 
       {{-- Action links --}}
@@ -1187,7 +1187,7 @@
                 </model-viewer>
               </div>
               <small class="text-muted mt-2">
-                <i class="fas fa-mouse me-1"></i>Drag to rotate | <i class="fas fa-search-plus me-1"></i>Scroll to zoom
+                <i class="fas fa-mouse me-1"></i>Drag to rotate | <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }}
               </small>
               <div class="mt-2 d-flex gap-2">
                 <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
@@ -1444,7 +1444,7 @@
         </a>
       @endif
       @if(!($parentItem ?? null) && ($childCount ?? 0) === 0)
-        <p class="text-muted small mb-0">No related records found.</p>
+        <p class="text-muted small mb-0">{{ __('No related records found.') }}</p>
       @endif
     </div>
   </section>
@@ -1541,7 +1541,7 @@
                   </div>
                 @endif
                 @if(!empty($extData['climate_controlled']))
-                  <small class="text-info d-block mt-1"><i class="fas fa-thermometer-half me-1"></i>Climate controlled</small>
+                  <small class="text-info d-block mt-1"><i class="fas fa-thermometer-half me-1"></i>{{ __('Climate controlled') }}</small>
                 @endif
                 @if(!empty($extData['security_level']))
                   <small class="text-danger d-block"><i class="fas fa-lock me-1"></i>{{ ucfirst($extData['security_level']) }}</small>
@@ -1647,7 +1647,7 @@
             </ul>
           @endif
         @else
-          <p class="text-muted small mb-0">No provenance recorded yet.</p>
+          <p class="text-muted small mb-0">{{ __('No provenance recorded yet.') }}</p>
         @endif
         @auth
           <div class="mt-2">
@@ -1754,7 +1754,7 @@
 @section('after-content')
   @auth
   <section class="actions mb-3 nav gap-2 flex-wrap">
-    <li><a href="{{ route('library.edit', $item->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+    <li><a href="{{ route('library.edit', $item->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a></li>
     <li>
       <form action="{{ route('library.destroy', $item->slug) }}" method="POST" class="d-inline"
             onsubmit="return confirm('Are you sure you want to delete this library item?');">
@@ -1762,9 +1762,9 @@
         <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
       </form>
     </li>
-    <li><a href="{{ route('library.create', ['parent' => $item->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
-    <li><a href="{{ route('informationobject.move', $item->slug) }}" class="btn atom-btn-outline-light">Move</a></li>
-    <li><a href="{{ route('library.rename', $item->slug) }}" class="btn atom-btn-outline-light">Rename</a></li>
+    <li><a href="{{ route('library.create', ['parent' => $item->slug]) }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a></li>
+    <li><a href="{{ route('informationobject.move', $item->slug) }}" class="btn atom-btn-outline-light">{{ __('Move') }}</a></li>
+    <li><a href="{{ route('library.rename', $item->slug) }}" class="btn atom-btn-outline-light">{{ __('Rename') }}</a></li>
     @if($hasDigitalObject)
       @php $doRecord = \Illuminate\Support\Facades\DB::table('digital_object')->where('object_id', $item->id)->first(); @endphp
       <li><a href="{{ url('/digitalobject/' . ($doRecord->id ?? 0) . '/edit') }}" class="btn atom-btn-outline-light"><i class="fas fa-edit me-1"></i>{{ __('Edit digital object') }}</a></li>

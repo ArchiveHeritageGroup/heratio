@@ -31,7 +31,7 @@
               <label for="title" class="form-label">{{ __('Title') }}</label>
               <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $item->title ?? '') }}">
               <div class="form-text">Editing the title will automatically update the slug field if "Update slug" is selected - you can still edit it after.</div>
-              <p class="mt-1 mb-0"><small>Original title: <em>{{ $item->title ?? '' }}</em></small></p>
+              <p class="mt-1 mb-0"><small>{{ __('Original title:') }} <em>{{ $item->title ?? '' }}</em></small></p>
             </div>
             <hr>
 
@@ -47,7 +47,7 @@
               <label for="slug" class="form-label">{{ __('Slug') }}</label>
               <input type="text" name="slug" id="slug" class="form-control" value="{{ old('slug', $item->slug ?? '') }}">
               <div class="form-text">Do not use special characters or spaces - only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.</div>
-              <p class="mt-1 mb-0"><small>Original slug: <em>{{ $item->slug ?? '' }}</em></small></p>
+              <p class="mt-1 mb-0"><small>{{ __('Original slug:') }} <em>{{ $item->slug ?? '' }}</em></small></p>
             </div>
 
             {{-- Filename (only if digital object exists) --}}
@@ -61,7 +61,7 @@
                 <label for="filename" class="form-label">{{ __('Filename') }}</label>
                 <input type="text" name="filename" id="filename" class="form-control" value="{{ old('filename', $digitalObject->name ?? '') }}">
                 <div class="form-text">Do not use special characters or spaces - only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.</div>
-                <p class="mt-1 mb-0"><small>Original filename: <em>{{ $digitalObject->name ?? '' }}</em></small></p>
+                <p class="mt-1 mb-0"><small>{{ __('Original filename:') }} <em>{{ $digitalObject->name ?? '' }}</em></small></p>
               </div>
             @endif
           </div>
@@ -71,7 +71,7 @@
 
     <section class="actions mb-3 nav gap-2">
       <li>
-        <a href="{{ route('library.show', $item->slug ?? '') }}" class="btn atom-btn-outline-light">Cancel</a>
+        <a href="{{ route('library.show', $item->slug ?? '') }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
       </li>
       <li>
         <button type="submit" class="btn atom-btn-outline-success" id="rename-form-submit">{{ __('Update') }}</button>

@@ -43,7 +43,7 @@
       </div>
     </div>
     <div class="col-md-2"><button class="btn btn-secondary btn-sm w-100">{{ __('Filter') }}</button></div>
-    <div class="col-md-2"><a href="{{ route('library.ill-requests.index') }}" class="btn btn-outline-secondary btn-sm w-100">Clear</a></div>
+    <div class="col-md-2"><a href="{{ route('library.ill-requests.index') }}" class="btn btn-outline-secondary btn-sm w-100">{{ __('Clear') }}</a></div>
   </form>
 
   @if(session('success'))
@@ -106,7 +106,7 @@
               @if($r->edi_message_id)
                 <small class="text-success" title="{{ $r->edi_message_id }}"><i class="bi bi-check-circle"></i> EDI</small>
               @else
-                <small class="text-muted">Manual</small>
+                <small class="text-muted">{{ __('Manual') }}</small>
               @endif
             </td>
             <td>
@@ -116,7 +116,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="9" class="text-center text-muted py-3">No ILL requests found.</td></tr>
+          <tr><td colspan="9" class="text-center text-muted py-3">{{ __('No ILL requests found.') }}</td></tr>
         @endforelse
       </tbody>
     </table>

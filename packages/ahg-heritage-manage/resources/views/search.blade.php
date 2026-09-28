@@ -14,7 +14,7 @@
 @if (!empty($unmatchedTerms))
 <div class="alert alert-info mt-3 mb-0 py-2 small">
     <i class="fas fa-info-circle me-1"></i>
-    No results found for <strong>{{ implode(', ', $unmatchedTerms) }}</strong>.
+    {{ __('No results found for') }} <strong>{{ implode(', ', $unmatchedTerms) }}</strong>.
     @if (!empty($matchedTerms))
         Showing results matching: <strong>{{ implode(', ', $matchedTerms) }}</strong>
     @endif
@@ -84,7 +84,7 @@
 
             <div class="mt-2">
                 <a href="{{ url('/heritage/search') . '?' . http_build_query(['q' => $query]) }}" class="small text-muted">
-                    Clear all filters
+                    {{ __('Clear all filters') }}
                 </a>
             </div>
         </div>
@@ -178,7 +178,7 @@
 
         @if (!empty($suggestions))
         <div class="mt-4">
-            <p class="mb-2">Did you mean:</p>
+            <p class="mb-2">{{ __('Did you mean:') }}</p>
             @foreach ($suggestions as $suggestion)
             <a href="{{ url('/heritage/search') . '?' . http_build_query(['q' => $suggestion]) }}" class="btn atom-btn-white btn-sm me-2 mb-2">
                 {{ $suggestion }}
@@ -189,7 +189,7 @@
 
         <div class="mt-4">
             <a href="{{ url('/heritage/search') }}" class="btn atom-btn-white">
-                Browse all items
+                {{ __('Browse all items') }}
             </a>
         </div>
     </div>

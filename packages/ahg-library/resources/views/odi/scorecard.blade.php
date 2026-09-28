@@ -16,7 +16,7 @@
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <h1 class="h3 mb-1">
-                <i class="fas fa-clipboard-check me-2"></i>ODI Quality Scorecard
+                <i class="fas fa-clipboard-check me-2"></i>{{ __('ODI Quality Scorecard') }}
             </h1>
             <p class="text-muted small mb-0">
                 Open Discovery Initiative (ODI) conformance metrics for each library collection:
@@ -27,7 +27,7 @@
             <form method="POST" action="{{ route('library.odi-scorecard-refresh') }}" class="d-inline">
                 @csrf
                 <button type="submit" class="btn btn-primary btn-sm">
-                    <i class="fas fa-sync-alt me-1"></i>Recompute scores
+                    <i class="fas fa-sync-alt me-1"></i>{{ __('Recompute scores') }}
                 </button>
             </form>
         </div>
@@ -51,7 +51,7 @@
         <div class="card">
             <div class="card-body text-center text-muted py-5">
                 <i class="fas fa-clipboard-list fa-3x mb-3 opacity-25"></i>
-                <p class="mb-2">No scorecards computed yet.</p>
+                <p class="mb-2">{{ __('No scorecards computed yet.') }}</p>
                 <p class="small mb-3">
                     Run <code>php artisan ahg:library-odi-refresh</code> or use the
                     Recompute scores button above to generate the scorecard from the
@@ -87,7 +87,7 @@
                                 <td class="text-end">{{ number_format($card->item_count) }}</td>
                                 <td class="text-center">
                                     @if($card->link_resolver_present)
-                                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ __('Yes') }}</span>
                                     @else
                                         <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
                                     @endif

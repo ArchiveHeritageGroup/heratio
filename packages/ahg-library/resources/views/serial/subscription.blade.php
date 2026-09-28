@@ -23,7 +23,7 @@
         @csrf
         <div class="card shadow-sm">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Subscription Details</h5>
+                <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>{{ __('Subscription Details') }}</h5>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -58,7 +58,7 @@
                         <label for="notification_email" class="form-label">{{ __('Notification Email') }}</label>
                         <input type="email" name="notification_email" id="notification_email" class="form-control"
                                value="{{old('notification_email', $subscription->notification_email ?? '') }}">
-                        <div class="form-text">Receive overdue-issue alerts at this address.</div>
+                        <div class="form-text">{{ __('Receive overdue-issue alerts at this address.') }}</div>
                     </div>
                 </div>
 
@@ -69,10 +69,10 @@
             </div>
             <div class="card-footer">
                 <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save me-2"></i>Save Subscription
+                    <i class="fas fa-save me-2"></i>{{ __('Save Subscription') }}
                 </button>
                 <a href="{{ route('library.serial-view', $serial->id ?? '') }}" class="btn btn-outline-secondary ms-2">
-                    Back to Serial
+                    {{ __('Back to Serial') }}
                 </a>
             </div>
         </div>

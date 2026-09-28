@@ -14,7 +14,7 @@
     </div>
 
     <div class="alert alert-info">
-        Linking authority: <strong>{{ $authority->heading }}</strong>
+        {{ __('Linking authority:') }} <strong>{{ $authority->heading }}</strong>
         <span class="badge bg-light text-dark ms-2">{{ $authority->subject_type }}</span>
     </div>
 
@@ -27,7 +27,7 @@
 
     <div class="card shadow-sm" style="max-width:600px">
         <div class="card-header">
-            <i class="fas fa-link me-2"></i>Link to Library Item
+            <i class="fas fa-link me-2"></i>{{ __('Link to Library Item') }}
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('library.authority-store-link') }}">
@@ -37,7 +37,7 @@
 
                 <div class="mb-3">
                     <label for="library_item_id" class="form-label">
-                        Library Item <span class="text-danger">*</span>
+                        {{ __('Library Item') }} <span class="text-danger">*</span>
                     </label>
                     <select name="library_item_id" id="library_item_id" class="form-select" required>
                         <option value="">- select library item -</option>
@@ -82,16 +82,16 @@
                         <option value="610">610 - Corporate name subject</option>
                         <option value="611">611 - Meeting name subject</option>
                     </select>
-                    <div class="form-text">The MARC tag where this heading appears in the record.</div>
+                    <div class="form-text">{{ __('The MARC tag where this heading appears in the record.') }}</div>
                 </div>
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-link me-2"></i>Create Link
+                        <i class="fas fa-link me-2"></i>{{ __('Create Link') }}
                     </button>
                     <a href="{{ route('library.authority-view', $authority->id) }}"
                        class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </form>

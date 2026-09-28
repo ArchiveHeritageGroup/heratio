@@ -25,10 +25,10 @@
                     </div>
                     <h5 class="card-title">{{ __('Import MARCXML') }}</h5>
                     <p class="card-text text-muted small">
-                        Upload a MARCXML file to batch-import one or more records.
+                        {{ __('Upload a MARCXML file to batch-import one or more records.') }}
                     </p>
                     <a href="{{ route('library.marc-import') }}" class="btn btn-primary mt-2">
-                        <i class="fas fa-upload me-2"></i>Import MARCXML
+                        <i class="fas fa-upload me-2"></i>{{ __('Import MARCXML') }}
                     </a>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                         Upload a MARC21 binary file (ISO 2709 / .mrc) to import records.
                     </p>
                     <a href="{{ route('library.marc-binary') }}" class="btn btn-warning mt-2">
-                        <i class="fas fa-file me-2"></i>Import MARC Binary
+                        <i class="fas fa-file me-2"></i>{{ __('Import MARC Binary') }}
                     </a>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                     </div>
                     <h5 class="card-title text-center">{{ __('Edit Existing Records') }}</h5>
                     <p class="card-text text-muted small text-center mb-3">
-                        Open a library item and edit MARC fields in place.
+                        {{ __('Open a library item and edit MARC fields in place.') }}
                     </p>
 
                     <form method="GET" action="{{ route('library.marc-edit-redirect') }}" class="d-flex gap-2 align-items-end">
@@ -92,7 +92,7 @@
             <div class="alert alert-info d-flex align-items-center" role="alert">
                 <i class="fas fa-info-circle me-3 fa-lg"></i>
                 <div>
-                    <strong>Supported formats:</strong>
+                    <strong>{{ __('Supported formats:') }}</strong>
                     MARCXML (.xml, .marcxml) and MARC21 binary (.mrc).
                     Records are read from the archival description fields linked to each library item.
                 </div>

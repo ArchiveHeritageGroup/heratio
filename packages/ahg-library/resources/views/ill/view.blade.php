@@ -12,11 +12,11 @@
         <i class="fas fa-arrow-left"></i>
       </a>
       <h1 class="d-inline-block mb-0">
-        ILL Request:
+        {{ __('ILL Request:') }}
         <span class="font-monospace">{{ e($request->ill_number ?? $id) }}</span>
       </h1>
       @if($request->opac_suppress)
-        <span class="badge bg-dark ms-2" title="{{ __('Suppressed from OPAC') }}">Suppressed</span>
+        <span class="badge bg-dark ms-2" title="{{ __('Suppressed from OPAC') }}">{{ __('Suppressed') }}</span>
       @endif
     </div>
     <div>
@@ -165,7 +165,7 @@
         <div class="card-body">
           <p class="text-muted small mb-3">
             <i class="fas fa-info-circle me-1"></i>
-            Available transitions from <strong>{{ ucfirst($request->status ?? '') }}</strong>:
+            {{ __('Available transitions from') }} <strong>{{ ucfirst($request->status ?? '') }}</strong>:
           </p>
           <div class="d-flex flex-wrap gap-2">
             @foreach($available_transitions as $t)
@@ -315,15 +315,15 @@
         <div class="card-body small">
           <p class="text-muted mb-2">Borrow (we request):</p>
           <ol class="mb-2 ps-3 small">
-            <li>Pending</li>
-            <li>Requested</li>
-            <li>Shipped <span class="text-muted">→</span> Received <span class="text-muted">→</span> Returned</li>
+            <li>{{ __('Pending') }}</li>
+            <li>{{ __('Requested') }}</li>
+            <li>{{ __('Shipped') }} <span class="text-muted">→</span> {{ __('Received') }} <span class="text-muted">→</span> {{ __('Returned') }}</li>
             <li class="text-muted">Cancelled / Lost / Unfulfilled (terminal)</li>
           </ol>
           <p class="text-muted mb-2">Lend (they request from us):</p>
           <ol class="mb-0 ps-3 small">
-            <li>Pending</li>
-            <li>Shipped <span class="text-muted">→</span> Received (terminal)</li>
+            <li>{{ __('Pending') }}</li>
+            <li>{{ __('Shipped') }} <span class="text-muted">→</span> Received (terminal)</li>
             <li class="text-muted">Cancelled / Unfulfilled (terminal)</li>
           </ol>
         </div>

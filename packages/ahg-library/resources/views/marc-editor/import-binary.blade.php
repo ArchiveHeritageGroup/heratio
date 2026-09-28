@@ -45,16 +45,16 @@
                     <div class="form-text">MARC21 binary / ISO 2709 files. Max 20 MB.</div>
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-eye me-2"></i>Preview Import
+                    <i class="fas fa-eye me-2"></i>{{ __('Preview Import') }}
                 </button>
             </form>
 
             <hr>
-            <p class="mb-1 small fw-semibold text-muted">What happens next:</p>
+            <p class="mb-1 small fw-semibold text-muted">{{ __('What happens next:') }}</p>
             <ol class="small text-muted mb-0">
                 <li>The file is parsed as ISO 2709 binary MARC21.</li>
                 <li>A preview table shows extracted fields grouped by MARC section.</li>
-                <li>Click <strong>Commit Import</strong> to create a library item.</li>
+                <li>{{ __('Click') }} <strong>{{ __('Commit Import') }}</strong> to create a library item.</li>
             </ol>
         </div>
     </div>
@@ -63,7 +63,7 @@
     @if(isset($preview_data) && !empty($preview_data))
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-list-check me-2"></i>Preview: Decoded Record</span>
+                <span><i class="fas fa-list-check me-2"></i>{{ __('Preview: Decoded Record') }}</span>
                 <span class="badge bg-secondary">{{ count($preview_data) }} section(s)</span>
             </div>
             <div class="card-body p-0">
@@ -88,7 +88,7 @@
                                  data-bs-parent="#previewAccordion">
                                 <div class="accordion-body p-0">
                                     @if(empty($section['fields']))
-                                        <p class="text-muted small p-3 mb-0">No data in this section.</p>
+                                        <p class="text-muted small p-3 mb-0">{{ __('No data in this section.') }}</p>
                                     @else
                                         <table class="table table-striped table-sm mb-0">
                                             <thead class="table-light">
@@ -132,7 +132,7 @@
                                                                 <td><code>{{ $ind1 }}</code></td>
                                                                 <td><code>{{ $ind2 }}</code></td>
                                                                 <td>-</td>
-                                                                <td class="text-muted small">No subfields</td>
+                                                                <td class="text-muted small">{{ __('No subfields') }}</td>
                                                             </tr>
                                                         @endif
                                                     @endif
@@ -154,11 +154,11 @@
                     <input type="hidden" name="marc_file"
                            value="@if(isset($raw_marc)){{ base64_encode($raw_marc) }}@endif">
                     <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check me-2"></i>Commit Import
+                        <i class="fas fa-check me-2"></i>{{ __('Commit Import') }}
                     </button>
                 </form>
                 <a href="{{ route('library.marc-binary') }}" class="btn btn-outline-secondary ms-2">
-                    Upload Different File
+                    {{ __('Upload Different File') }}
                 </a>
             </div>
         </div>

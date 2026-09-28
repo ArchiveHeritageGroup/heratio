@@ -6,7 +6,7 @@
 <div class="heritage-timeline py-4">
   <div class="container">
     @if(!isset($currentPeriod))
-    <div class="row mb-4"><div class="col-12"><h1 class="display-5 fw-bold mb-3"><i class="fas fa-history me-2"></i>{{ __('Journey Through Time') }}</h1><p class="lead text-muted">Explore our collections by historical period</p></div></div>
+    <div class="row mb-4"><div class="col-12"><h1 class="display-5 fw-bold mb-3"><i class="fas fa-history me-2"></i>{{ __('Journey Through Time') }}</h1><p class="lead text-muted">{{ __('Explore our collections by historical period') }}</p></div></div>
 
     @if(!empty($periods ?? []))
     <div class="row g-4">
@@ -27,7 +27,7 @@
     @endif
 
     @else
-    <nav aria-label="{{ __('breadcrumb') }}" class="mb-4"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item"><a href="{{ route('heritage.timeline') }}">Timeline</a></li><li class="breadcrumb-item active">{{ $currentPeriod->name ?? '' }}</li></ol></nav>
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-4"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">{{ __('Heritage') }}</a></li><li class="breadcrumb-item"><a href="{{ route('heritage.timeline') }}">{{ __('Timeline') }}</a></li><li class="breadcrumb-item active">{{ $currentPeriod->name ?? '' }}</li></ol></nav>
 
     <div class="row mb-4"><div class="col-12">
       <h1 class="display-5 fw-bold mb-2">{{ $currentPeriod->name ?? '' }}</h1>

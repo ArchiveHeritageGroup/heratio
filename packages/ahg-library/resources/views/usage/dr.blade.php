@@ -20,10 +20,10 @@
         <div class="d-flex gap-2">
             <a href="{{ route('library.usage-export', ['type' => 'DR', 'from' => $fromDate, 'to' => $toDate]) }}"
                class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-download me-1"></i>Export TSV
+                <i class="fas fa-download me-1"></i>{{ __('Export TSV') }}
             </a>
             <a href="{{ route('library.usage') }}" class="btn btn-outline-dark btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Platform Report
+                <i class="fas fa-arrow-left me-1"></i>{{ __('Platform Report') }}
             </a>
         </div>
     </div>
@@ -46,8 +46,8 @@
     @if(empty($report['Items']))
         <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>
-            No database usage data available. Run a
-            <a href="{{ route('library.usage-harvest') }}">SUSHI harvest</a> first.
+            {{ __('No database usage data available. Run a') }}
+            <a href="{{ route('library.usage-harvest') }}">{{ __('SUSHI harvest') }}</a> first.
         </div>
     @else
         <div class="card">
@@ -82,7 +82,7 @@
                     </tbody>
                     <tfoot>
                         <tr class="table-secondary fw-bold">
-                            <td>Total</td>
+                            <td>{{ __('Total') }}</td>
                             <td class="text-end">{{ number_format($totalCount) }}</td>
                             <td>100%</td>
                         </tr>

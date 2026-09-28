@@ -11,10 +11,10 @@ $total = $requestData['total'] ?? 0;
 <div class="row">
   <div class="col-md-3">
     <div class="list-group mb-4">
-      <a href="?status=" class="list-group-item list-group-item-action {{ !request('status') ? 'active' : '' }}">All Requests</a>
-      <a href="?status=pending" class="list-group-item list-group-item-action {{ request('status')==='pending' ? 'active' : '' }}">Pending</a>
-      <a href="?status=approved" class="list-group-item list-group-item-action {{ request('status')==='approved' ? 'active' : '' }}">Approved</a>
-      <a href="?status=denied" class="list-group-item list-group-item-action {{ request('status')==='denied' ? 'active' : '' }}">Denied</a>
+      <a href="?status=" class="list-group-item list-group-item-action {{ !request('status') ? 'active' : '' }}">{{ __('All Requests') }}</a>
+      <a href="?status=pending" class="list-group-item list-group-item-action {{ request('status')==='pending' ? 'active' : '' }}">{{ __('Pending') }}</a>
+      <a href="?status=approved" class="list-group-item list-group-item-action {{ request('status')==='approved' ? 'active' : '' }}">{{ __('Approved') }}</a>
+      <a href="?status=denied" class="list-group-item list-group-item-action {{ request('status')==='denied' ? 'active' : '' }}">{{ __('Denied') }}</a>
     </div>
   </div>
   <div class="col-md-9">
@@ -24,7 +24,7 @@ $total = $requestData['total'] ?? 0;
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Your Access Requests') }}</h5></div>
       <div class="card-body p-0">
         @if(empty($requests))
-        <div class="text-center text-muted py-5"><i class="fas fa-inbox fs-1 mb-3 d-block"></i><p>No access requests found.</p></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-inbox fs-1 mb-3 d-block"></i><p>{{ __('No access requests found.') }}</p></div>
         @else
         <div class="list-group list-group-flush">
           @foreach($requests as $request)

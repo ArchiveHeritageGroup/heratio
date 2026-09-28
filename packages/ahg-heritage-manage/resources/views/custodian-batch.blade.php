@@ -14,10 +14,10 @@ $total = $jobData['total'] ?? 0;
     <div class="mt-4">
       <label class="form-label">{{ __('Filter by Status') }}</label>
       <div class="list-group">
-        <a href="?" class="list-group-item list-group-item-action {{ !request('status') ? 'active' : '' }}">All Jobs</a>
-        <a href="?status=processing" class="list-group-item list-group-item-action {{ request('status')==='processing' ? 'active' : '' }}">Processing</a>
-        <a href="?status=completed" class="list-group-item list-group-item-action {{ request('status')==='completed' ? 'active' : '' }}">Completed</a>
-        <a href="?status=failed" class="list-group-item list-group-item-action {{ request('status')==='failed' ? 'active' : '' }}">Failed</a>
+        <a href="?" class="list-group-item list-group-item-action {{ !request('status') ? 'active' : '' }}">{{ __('All Jobs') }}</a>
+        <a href="?status=processing" class="list-group-item list-group-item-action {{ request('status')==='processing' ? 'active' : '' }}">{{ __('Processing') }}</a>
+        <a href="?status=completed" class="list-group-item list-group-item-action {{ request('status')==='completed' ? 'active' : '' }}">{{ __('Completed') }}</a>
+        <a href="?status=failed" class="list-group-item list-group-item-action {{ request('status')==='failed' ? 'active' : '' }}">{{ __('Failed') }}</a>
       </div>
     </div>
   </div>
@@ -34,7 +34,7 @@ $total = $jobData['total'] ?? 0;
       </div>
       <div class="card-body p-0">
         @if(empty($jobs))
-        <div class="text-center text-muted py-5"><i class="fas fa-inbox fs-1 mb-3 d-block"></i><p>No batch jobs found.</p></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-inbox fs-1 mb-3 d-block"></i><p>{{ __('No batch jobs found.') }}</p></div>
         @else
         <div class="table-responsive">
           <table class="table table-hover mb-0">

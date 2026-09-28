@@ -6,7 +6,7 @@
     <div class="row mb-4">
         <div class="col-12 d-flex align-items-center">
             <a href="{{ route('library.marc-index') }}" class="btn btn-outline-secondary btn-sm me-3">
-                <i class="fas fa-arrow-left me-1"></i>MARC Editor
+                <i class="fas fa-arrow-left me-1"></i>{{ __('MARC Editor') }}
             </a>
             <div>
                 <h2 class="mb-0">{{ __('Copy Cataloguing') }}</h2>
@@ -37,14 +37,14 @@
                         <h5 class="mb-0">{{ __('Z39.50 Search') }}</h5>
                         <a href="{{ route('library.copy-cataloguing-targets') }}"
                            class="btn btn-sm btn-light">
-                            <i class="fas fa-server me-1"></i>Targets
+                            <i class="fas fa-server me-1"></i>{{ __('Targets') }}
                         </a>
                     </div>
                 </div>
                 <div class="card-body">
                     <form method="GET" action="{{ route('library.copy-cataloguing-search') }}">
                         <div class="mb-3">
-                            <label for="target_id" class="form-label">Target <span class="text-danger">*</span></label>
+                            <label for="target_id" class="form-label">{{ __('Target') }} <span class="text-danger">*</span></label>
                             <select name="target_id" id="target_id" class="form-select" required>
                                 <option value="">- select target -</option>
                                 @foreach($targets as $t)
@@ -57,7 +57,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="query" class="form-label">Query <span class="text-danger">*</span></label>
+                            <label for="query" class="form-label">{{ __('Query') }} <span class="text-danger">*</span></label>
                             <input type="text" name="query" id="query" class="form-control"
                                    value="{{ $query ?? '' }}"
                                    placeholder="{{ __('isbn=9780123456 or title=python programming') }}">
@@ -68,7 +68,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-search me-2"></i>Search
+                            <i class="fas fa-search me-2"></i>{{ __('Search') }}
                         </button>
                     </form>
                 </div>
@@ -82,7 +82,7 @@
                 <div class="card-body p-0">
                     @if($targets->isEmpty())
                         <p class="text-muted small p-3 mb-0">
-                            No active targets. <a href="{{ route('library.copy-cataloguing-targets') }}">Add one.</a>
+                            {{ __('No active targets.') }} <a href="{{ route('library.copy-cataloguing-targets') }}">{{ __('Add one.') }}</a>
                         </p>
                     @else
                         <table class="table table-sm mb-0">
@@ -109,7 +109,7 @@
                 <div class="card shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>
-                            <i class="fas fa-list me-2"></i>Search Results
+                            <i class="fas fa-list me-2"></i>{{ __('Search Results') }}
                         </span>
                         <span class="badge bg-secondary">{{ $recordCount ?? count($records) }} record(s)</span>
                     </div>
@@ -141,7 +141,7 @@
                                                 <input type="hidden" name="marc_content"
                                                        value="{{ $rec['marc_content'] }}">
                                                 <button type="submit" class="btn btn-sm btn-success">
-                                                    <i class="fas fa-file-import me-1"></i>Import
+                                                    <i class="fas fa-file-import me-1"></i>{{ __('Import') }}
                                                 </button>
                                             </form>
                                         </td>

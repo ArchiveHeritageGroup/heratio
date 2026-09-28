@@ -131,7 +131,7 @@
 
     @if (! empty($marcxml))
         <div class="card mt-4">
-            <div class="card-header">Incoming MARCXML</div>
+            <div class="card-header">{{ __('Incoming MARCXML') }}</div>
             <div class="card-body">
                 <pre class="mb-0 small" style="max-height: 400px; overflow: auto;">{{ $marcxml }}</pre>
             </div>

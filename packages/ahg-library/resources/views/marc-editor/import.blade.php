@@ -10,7 +10,7 @@
             </a>
             <div>
                 <h2 class="mb-0">{{ __('Import MARC Records') }}</h2>
-                <span class="badge bg-info text-dark mt-1">MARCXML Batch Import</span>
+                <span class="badge bg-info text-dark mt-1">{{ __('MARCXML Batch Import') }}</span>
             </div>
         </div>
     </div>
@@ -32,7 +32,7 @@
     {{-- File upload form --}}
     <div class="card shadow-sm mb-4">
         <div class="card-header">
-            <i class="fas fa-upload me-2"></i>Upload MARC File
+            <i class="fas fa-upload me-2"></i>{{ __('Upload MARC File') }}
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('library.marc-import-preview') }}" enctype="multipart/form-data">
@@ -59,17 +59,17 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-eye me-2"></i>Preview Import
+                    <i class="fas fa-eye me-2"></i>{{ __('Preview Import') }}
                 </button>
             </form>
 
             <hr>
 
-            <p class="mb-1 small fw-semibold text-muted">What happens next:</p>
+            <p class="mb-1 small fw-semibold text-muted">{{ __('What happens next:') }}</p>
             <ol class="small text-muted mb-0">
                 <li>The first record from the file is parsed and displayed for review.</li>
                 <li>Field sections (leader, control fields, title, author, publication, etc.) are shown.</li>
-                <li>Click <strong>Commit Import</strong> to create library items for all valid records.</li>
+                <li>{{ __('Click') }} <strong>{{ __('Commit Import') }}</strong> to create library items for all valid records.</li>
             </ol>
         </div>
     </div>
@@ -78,7 +78,7 @@
     @if(isset($preview_data) && !empty($preview_data))
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-list-check me-2"></i>Preview: First Record</span>
+                <span><i class="fas fa-list-check me-2"></i>{{ __('Preview: First Record') }}</span>
                 <span class="badge bg-secondary">{{ count($preview_data) }} section(s)</span>
             </div>
             <div class="card-body p-0">
@@ -101,7 +101,7 @@
                                  aria-labelledby="heading_{{ $sectionId }}" data-bs-parent="#previewAccordion">
                                 <div class="accordion-body p-0">
                                     @if(empty($section['fields']))
-                                        <p class="text-muted small p-3 mb-0">No data in this section.</p>
+                                        <p class="text-muted small p-3 mb-0">{{ __('No data in this section.') }}</p>
                                     @else
                                         <table class="table table-striped table-sm mb-0">
                                             <thead class="table-light">
@@ -147,7 +147,7 @@
                                                                 <td><code>{{ $ind1 }}</code></td>
                                                                 <td><code>{{ $ind2 }}</code></td>
                                                                 <td>-</td>
-                                                                <td class="text-muted small">No subfields</td>
+                                                                <td class="text-muted small">{{ __('No subfields') }}</td>
                                                             </tr>
                                                         @endif
                                                     @endif
@@ -169,11 +169,11 @@
                     @csrf
                     <input type="hidden" name="marc_file" value="@if(isset($raw_marcxml)){{ base64_encode($raw_marcxml) }}@endif">
                     <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check me-2"></i>Commit Import
+                        <i class="fas fa-check me-2"></i>{{ __('Commit Import') }}
                     </button>
                 </form>
                 <a href="{{ route('library.marc-import') }}" class="btn btn-outline-secondary ms-2">
-                    Upload Different File
+                    {{ __('Upload Different File') }}
                 </a>
             </div>
         </div>

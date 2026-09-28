@@ -17,7 +17,7 @@
         </div>
       </div>
       @empty
-      <div class="col-12 text-center text-muted">No recent additions</div>
+      <div class="col-12 text-center text-muted">{{ __('No recent additions') }}</div>
       @endforelse
     </div>
   </div>

@@ -56,7 +56,7 @@ $total = $flagData['total'] ?? 0;
       </div>
       <div class="card-body p-0">
         @if(empty($flags))
-        <div class="text-center text-muted py-5"><i class="fas fa-shield-alt fs-1 mb-3 d-block text-success"></i><p>No unresolved privacy flags.</p></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-shield-alt fs-1 mb-3 d-block text-success"></i><p>{{ __('No unresolved privacy flags.') }}</p></div>
         @else
         <div class="list-group list-group-flush">
           @foreach($flags as $flag)

@@ -18,7 +18,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h3 class="mb-1" id="next-date">{{ $next_expected ?? '-' }}</h3>
-                    <p class="text-muted mb-0 small">Next expected issue</p>
+                    <p class="text-muted mb-0 small">{{ __('Next expected issue') }}</p>
                 </div>
             </div>
         </div>
@@ -31,7 +31,7 @@
                     @if(($days_until_next ?? 0) < 0)
                         <p class="text-danger mb-0 small">Already overdue by {{ abs($days_until_next ?? 0) }} day(s)</p>
                     @else
-                        <p class="text-muted mb-0 small">Days until next issue</p>
+                        <p class="text-muted mb-0 small">{{ __('Days until next issue') }}</p>
                     @endif
                 </div>
             </div>
@@ -48,7 +48,7 @@
 
     <div class="card shadow-sm">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Upcoming Issues</h5>
+            <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>{{ __('Upcoming Issues') }}</h5>
         </div>
         <div class="card-body p-0">
             <table class="table table-striped table-hover mb-0">
@@ -94,7 +94,7 @@
 
     <div class="mt-3">
         <a href="{{ route('library.serial-view', $serial->id ?? '') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Serial
+            <i class="fas fa-arrow-left me-2"></i>{{ __('Back to Serial') }}
         </a>
     </div>
 </div>

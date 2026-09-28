@@ -6,7 +6,7 @@
 
     <div class="mb-3">
         <a href="{{ route('library.kbart-remote') }}" class="text-decoration-none small">
-            <i class="fas fa-arrow-left me-1"></i>Remote Feeds
+            <i class="fas fa-arrow-left me-1"></i>{{ __('Remote Feeds') }}
         </a>
     </div>
 
@@ -32,7 +32,7 @@
                         @endif
 
                         <div class="mb-3">
-                            <label for="name" class="form-label">Feed name <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label">{{ __('Feed name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="name" id="name"
                                    class="form-control @error('name') is-invalid @enderror"
                                    value="{{ old('name', $feed->name ?? '') }}"
@@ -45,7 +45,7 @@
 
                         <div class="mb-3">
                             <label for="url" class="form-label">
-                                Feed URL <span class="text-danger">*</span>
+                                {{ __('Feed URL') }} <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">
                                 <input type="url" name="url" id="url"
@@ -54,7 +54,7 @@
                                        maxlength="1000" required
                                        placeholder="{{ __('https://vendor.example.com/kbart/titles.tsv') }}">
                                 <button type="button" id="test-url-btn" class="btn btn-outline-secondary">
-                                    <i class="fas fa-plug me-1"></i>Test URL
+                                    <i class="fas fa-plug me-1"></i>{{ __('Test URL') }}
                                 </button>
                             </div>
                             <div class="form-text">
@@ -81,7 +81,7 @@
                                            value="1"
                                            {{ old('active', $feed->active ?? true) ? 'checked' : '' }}>
                                     <label for="active" class="form-check-label">
-                                        Active <span class="text-muted small">(include in scheduled runs)</span>
+                                        {{ __('Active') }} <span class="text-muted small">(include in scheduled runs)</span>
                                     </label>
                                 </div>
                             </div>
@@ -93,12 +93,12 @@
                                       class="form-control"
                                       maxlength="2000"
                                       placeholder="{{ __('Licence notes, feed quirks, contact info …') }}">{{ old('notes', $feed->notes ?? '') }}</textarea>
-                            <div class="form-text">Not shown to patrons.</div>
+                            <div class="form-text">{{ __('Not shown to patrons.') }}</div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ route('library.kbart-remote') }}"
-                               class="btn btn-outline-secondary">Cancel</a>
+                               class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                             <button type="submit" id="submit-btn"
                                     class="btn btn-primary">
                                 <i class="fas fa-save me-1"></i>

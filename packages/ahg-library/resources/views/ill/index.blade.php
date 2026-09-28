@@ -172,7 +172,7 @@
         @empty
           <tr>
             <td colspan="10" class="text-muted text-center py-4">
-              No ILL requests found.
+              {{ __('No ILL requests found.') }}
             </td>
           </tr>
         @endforelse

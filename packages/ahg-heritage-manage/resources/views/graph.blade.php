@@ -6,7 +6,7 @@
 <div class="heritage-graph-page py-4">
   <div class="container-xxl">
     <div class="row mb-4"><div class="col">
-      <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb mb-2"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item active">Knowledge Graph</li></ol></nav>
+      <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb mb-2"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">{{ __('Heritage') }}</a></li><li class="breadcrumb-item active">{{ __('Knowledge Graph') }}</li></ol></nav>
       <div class="d-flex justify-content-between align-items-center">
         <h1 class="h2 mb-0">{{ __('Entity Relationship Graph') }}</h1>
         <div class="btn-group"><a href="{{ route('heritage.search') }}" class="btn atom-btn-white"><i class="fas fa-search me-1"></i>{{ __('Search') }}</a><a href="{{ route('heritage.explore') }}" class="btn atom-btn-white"><i class="fas fa-compass me-1"></i>{{ __('Explore') }}</a></div>
@@ -47,7 +47,7 @@
           <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0" id="entity-panel-title">{{ __('Entity Details') }}</h5><button type="button" class="btn-close btn-close-white" id="close-entity-panel"></button></div>
           <div class="card-body"><div id="entity-panel-content"></div></div>
         </div>
-        <div id="entity-instructions" class="card shadow-sm"><div class="card-body text-center py-5"><i class="fas fa-project-diagram fs-1 text-muted mb-3 d-block"></i><p class="text-muted mb-0">Click on a node to see entity details and related records.</p></div></div>
+        <div id="entity-instructions" class="card shadow-sm"><div class="card-body text-center py-5"><i class="fas fa-project-diagram fs-1 text-muted mb-3 d-block"></i><p class="text-muted mb-0">{{ __('Click on a node to see entity details and related records.') }}</p></div></div>
       </div>
     </div>
   </div>

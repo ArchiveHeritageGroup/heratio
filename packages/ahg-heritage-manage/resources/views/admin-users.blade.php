@@ -59,7 +59,7 @@ $pages = $userData['pages'] ?? 1;
                 </td>
               </tr>
               @empty
-              <tr><td colspan="6" class="text-center text-muted py-4">No users found.</td></tr>
+              <tr><td colspan="6" class="text-center text-muted py-4">{{ __('No users found.') }}</td></tr>
               @endforelse
             </tbody>
           </table>
@@ -85,17 +85,17 @@ $pages = $userData['pages'] ?? 1;
         <form method="post" action="{{ route('heritage.admin-users') }}">@csrf
           <div class="modal-body">
             <input type="hidden" name="user_id" id="modal_user_id">
-            <p>Assigning trust level to: <strong id="modal_username"></strong></p>
+            <p>{{ __('Assigning trust level to:') }} <strong id="modal_username"></strong></p>
             <div class="mb-3">
-              <label for="trust_level_id" class="form-label">Trust Level <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="trust_level_id" class="form-label">{{ __('Trust Level') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select class="form-select" name="trust_level_id" id="trust_level_id" required>
                 @foreach($trustLevels ?? [] as $level)
                 <option value="{{ $level->id }}">{{ $level->name }} (Level {{ $level->level }})</option>
                 @endforeach
               </select>
             </div>
-            <div class="mb-3"><label for="expires_at" class="form-label">Expires At <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="expires_at" id="expires_at"></div>
-            <div class="mb-3"><label for="notes" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" name="notes" id="notes" rows="2"></textarea></div>
+            <div class="mb-3"><label for="expires_at" class="form-label">{{ __('Expires At') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="expires_at" id="expires_at"></div>
+            <div class="mb-3"><label for="notes" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" name="notes" id="notes" rows="2"></textarea></div>
           </div>
           <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-secondary">{{ __('Assign Trust Level') }}</button></div>
         </form>

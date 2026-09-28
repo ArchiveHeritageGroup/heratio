@@ -101,7 +101,7 @@
           </div>
           <hr>
           <a href="{{ route('heritage.analytics-search') }}" class="btn btn-outline-primary w-100">
-            View Search Insights
+            {{ __('View Search Insights') }}
           </a>
         </div>
       </div>
@@ -156,10 +156,10 @@
           <hr>
           <div class="d-flex gap-2">
             <a href="{{ route('heritage.admin-access-requests') }}" class="btn btn-outline-primary flex-fill">
-              Requests
+              {{ __('Requests') }}
             </a>
             <a href="{{ route('heritage.admin-popia') }}" class="btn btn-outline-primary flex-fill">
-              POPIA Flags
+              {{ __('POPIA Flags') }}
             </a>
           </div>
         </div>
@@ -206,7 +206,7 @@
           });
           </script>
           @else
-          <p class="text-muted text-center py-4">No trend data available for this period.</p>
+          <p class="text-muted text-center py-4">{{ __('No trend data available for this period.') }}</p>
           @endif
         </div>
       </div>

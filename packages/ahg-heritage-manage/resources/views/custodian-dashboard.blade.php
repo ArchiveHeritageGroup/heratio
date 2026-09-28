@@ -22,15 +22,15 @@
         <div class="card-body p-0">
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              Running
+              {{ __('Running') }}
               <span class="badge {{ $runningJobs > 0 ? 'bg-primary' : 'bg-secondary' }} rounded-pill">{{ $runningJobs }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              Completed Today
+              {{ __('Completed Today') }}
               <span class="badge bg-success rounded-pill">{{ $completedToday }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              Items This Month
+              {{ __('Items This Month') }}
               <span class="badge bg-info rounded-pill">{{ $itemsThisMonth }}</span>
             </li>
           </ul>
@@ -47,7 +47,7 @@
             <div class="card-body text-center py-4">
               <div class="mb-3"><i class="fas fa-layer-group fa-2x text-primary"></i></div>
               <h6 class="card-title">{{ __('Batch Operations') }}</h6>
-              <p class="card-text text-muted small">Run bulk updates, imports, and exports across collections</p>
+              <p class="card-text text-muted small">{{ __('Run bulk updates, imports, and exports across collections') }}</p>
               <a href="{{ route('heritage.custodian-batch') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-play me-1"></i> {{ __('Launch') }}
               </a>
@@ -59,7 +59,7 @@
             <div class="card-body text-center py-4">
               <div class="mb-3"><i class="fas fa-history fa-2x text-info"></i></div>
               <h6 class="card-title">{{ __('Audit Trail') }}</h6>
-              <p class="card-text text-muted small">Review detailed change logs and user actions</p>
+              <p class="card-text text-muted small">{{ __('Review detailed change logs and user actions') }}</p>
               <a href="{{ route('audit.browse') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-search me-1"></i> {{ __('View') }}
               </a>
@@ -71,7 +71,7 @@
             <div class="card-body text-center py-4">
               <div class="mb-3"><i class="fas fa-key fa-2x text-warning"></i></div>
               <h6 class="card-title">{{ __('Access Requests') }}</h6>
-              <p class="card-text text-muted small">Manage pending access and permission requests</p>
+              <p class="card-text text-muted small">{{ __('Manage pending access and permission requests') }}</p>
               <a href="{{ route('acl.access-requests') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-clipboard-list me-1"></i> {{ __('Review') }}
               </a>
@@ -176,7 +176,7 @@
       <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center" >
           <h5 class="mb-0"><i class="fas fa-stream"></i> {{ __('Recent Activity') }}</h5>
-          <a href="{{ route('heritage.custodian-history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+          <a href="{{ route('heritage.custodian-history') }}" class="btn btn-sm btn-outline-primary">{{ __('View All') }}</a>
         </div>
         <div class="card-body p-0">
           @if($recentActivity->isNotEmpty())
@@ -226,7 +226,7 @@
             </div>
           @else
             <div class="p-3">
-              <p class="text-muted mb-0">No recent activity recorded.</p>
+              <p class="text-muted mb-0">{{ __('No recent activity recorded.') }}</p>
             </div>
           @endif
         </div>

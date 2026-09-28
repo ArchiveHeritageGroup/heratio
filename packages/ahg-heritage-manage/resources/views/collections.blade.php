@@ -8,7 +8,7 @@
     <div class="row mb-4">
       <div class="col-12">
         <h1 class="display-5 fw-bold mb-3"><i class="fas fa-layer-group me-2"></i>{{ __('Featured Collections') }}</h1>
-        <p class="lead text-muted">Curated collections highlighting our most significant holdings</p>
+        <p class="lead text-muted">{{ __('Curated collections highlighting our most significant holdings') }}</p>
       </div>
     </div>
 
@@ -36,9 +36,9 @@
               @if(($collection['image_count'] ?? 0) > 0)<span class="badge bg-info">{{ number_format($collection['image_count']) }} images</span>@endif
             </div>
             @if(($collection['link_type'] ?? '') === 'search' && ($collection['link_reference'] ?? ''))
-            <a href="{{ route('heritage.search', ['q' => $collection['link_reference']]) }}" class="btn btn-outline-primary btn-sm">Explore <i class="fas fa-arrow-right"></i></a>
+            <a href="{{ route('heritage.search', ['q' => $collection['link_reference']]) }}" class="btn btn-outline-primary btn-sm">{{ __('Explore') }} <i class="fas fa-arrow-right"></i></a>
             @elseif(($collection['link_type'] ?? '') === 'collection' && ($collection['link_reference'] ?? ''))
-            <a href="{{ $collection['link_reference'] }}" class="btn btn-outline-primary btn-sm">View Collection <i class="fas fa-arrow-right"></i></a>
+            <a href="{{ $collection['link_reference'] }}" class="btn btn-outline-primary btn-sm">{{ __('View Collection') }} <i class="fas fa-arrow-right"></i></a>
             @endif
           </div>
         </div>

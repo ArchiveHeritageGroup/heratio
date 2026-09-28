@@ -7,7 +7,7 @@
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
     <h1><i class="fas fa-check-double me-2"></i>{{ __('Batch Compliance Check') }}</h1>
-    <p class="text-muted">Run compliance checks across all heritage assets.</p>
+    <p class="text-muted">{{ __('Run compliance checks across all heritage assets.') }}</p>
 
     @if(session('success'))
       <div class="alert alert-success">{{ session('success') }}</div>
@@ -46,7 +46,7 @@
           </table>
         </div>
         @else
-        <p class="text-muted text-center py-4">No records found.</p>
+        <p class="text-muted text-center py-4">{{ __('No records found.') }}</p>
         @endif
       </div>
     </div>

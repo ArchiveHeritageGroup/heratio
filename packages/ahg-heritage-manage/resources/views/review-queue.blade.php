@@ -16,7 +16,7 @@ $total = $queueData['total'] ?? 0;
     <div class="card border-0 shadow-sm mt-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-filter me-2"></i>{{ __('Filter by Type') }}</h6></div>
       <div class="list-group list-group-flush">
-        <a href="{{ route('heritage.review-queue') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ !request('type')?'active':'' }}">All Types <span class="badge bg-primary">{{ $total }}</span></a>
+        <a href="{{ route('heritage.review-queue') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ !request('type')?'active':'' }}">{{ __('All Types') }} <span class="badge bg-primary">{{ $total }}</span></a>
         @foreach($countsByType as $type)
         <a href="{{ route('heritage.review-queue', ['type'=>$type['code']]) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ request('type')===$type['code']?'active':'' }}"><span><i class="fas {{ $type['icon'] }} me-2"></i>{{ $type['name'] }}</span><span class="badge bg-warning">{{ $type['count'] }}</span></a>
         @endforeach
@@ -32,7 +32,7 @@ $total = $queueData['total'] ?? 0;
       </div>
       <div class="card-body p-0">
         @if(empty($contributions))
-        <div class="text-center text-muted py-5"><i class="fas fa-check-circle display-1 text-success mb-3 d-block"></i><p class="mb-0">All caught up! No pending contributions to review.</p></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-check-circle display-1 text-success mb-3 d-block"></i><p class="mb-0">{{ __('All caught up! No pending contributions to review.') }}</p></div>
         @else
         <div class="list-group list-group-flush">
           @foreach($contributions as $contrib)

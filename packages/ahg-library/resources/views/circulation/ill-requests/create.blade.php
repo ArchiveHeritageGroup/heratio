@@ -3,7 +3,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h4">{{ __('New ILL Request') }}</h2>
-    <a href="{{ route('library.ill-requests.index') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+    <a href="{{ route('library.ill-requests.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('Back') }}</a>
   </div>
 
   <form method="POST" action="{{ route('library.ill-requests.store') }}">
@@ -51,7 +51,7 @@
           @endforeach
         </select>
         @if($partners->isEmpty())
-          <small class="text-muted">No active trading partners. <a href="{{ route('library.trading-partners.create') }}">Add one first.</a></small>
+          <small class="text-muted">{{ __('No active trading partners.') }} <a href="{{ route('library.trading-partners.create') }}">{{ __('Add one first.') }}</a></small>
         @endif
       </div>
       <div class="col-md-4">

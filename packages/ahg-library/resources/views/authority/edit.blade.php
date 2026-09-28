@@ -24,7 +24,7 @@
             <div class="col-lg-8">
                 <div class="card shadow-sm mb-3">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h5 class="mb-0"><i class="fas fa-tag me-2"></i>Authority Labels</h5>
+                        <h5 class="mb-0"><i class="fas fa-tag me-2"></i>{{ __('Authority Labels') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -51,7 +51,7 @@
 
                 <div class="card shadow-sm mb-3">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Vocabulary / Classification</h5>
+                        <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>{{ __('Vocabulary / Classification') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -81,7 +81,7 @@
 
                 <div class="card shadow-sm mb-3">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h5 class="mb-0"><i class="fas fa-globe me-2"></i>URI / Source</h5>
+                        <h5 class="mb-0"><i class="fas fa-globe me-2"></i>{{ __('URI / Source') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -103,7 +103,7 @@
 
                 <div class="card shadow-sm mb-3">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+                        <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}</h5>
                     </div>
                     <div class="card-body">
                         <textarea name="notes" id="notes" class="form-control" rows="3"
@@ -116,15 +116,15 @@
             <div class="col-lg-4">
                 <div class="card shadow-sm sticky-top" style="top:1rem">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h5 class="mb-0"><i class="fas fa-save me-2"></i>Actions</h5>
+                        <h5 class="mb-0"><i class="fas fa-save me-2"></i>{{ __('Actions') }}</h5>
                     </div>
                     <div class="card-body">
                         <button type="submit" class="btn btn-success w-100 mb-2">
-                            <i class="fas fa-save me-2"></i>Save Changes
+                            <i class="fas fa-save me-2"></i>{{ __('Save Changes') }}
                         </button>
                         <a href="{{ route('library.marc-authority.show', $record->id ?? 0) }}"
                            class="btn btn-outline-secondary w-100">
-                            Cancel
+                            {{ __('Cancel') }}
                         </a>
                     </div>
                 </div>

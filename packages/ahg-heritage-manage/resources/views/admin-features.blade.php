@@ -57,7 +57,7 @@
               </tr>
               @empty
               <tr>
-                <td colspan="4" class="text-center text-muted py-4">No features configured.</td>
+                <td colspan="4" class="text-center text-muted py-4">{{ __('No features configured.') }}</td>
               </tr>
               @endforelse
             </tbody>

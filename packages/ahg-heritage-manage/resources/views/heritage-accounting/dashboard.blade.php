@@ -12,7 +12,7 @@
       <a href="{{ route('heritage.accounting.add') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('Add Asset') }}</a>
       @endif
     </div>
-    <p class="text-muted">Multi-standard heritage asset financial accounting.</p>
+    <p class="text-muted">{{ __('Multi-standard heritage asset financial accounting.') }}</p>
 
     {{-- Stats --}}
     @if(!empty($stats))
@@ -41,7 +41,7 @@
               @forelse($items ?? [] as $item)
               <tr>@foreach((array)$item as $val)<td>{{ Str::limit($val, 80) ?: '-' }}</td>@endforeach</tr>
               @empty
-              <tr><td colspan="{{ count($columns ?? ['ID','Name','Class','Status','Value','Date']) }}" class="text-center text-muted py-3">No records found</td></tr>
+              <tr><td colspan="{{ count($columns ?? ['ID','Name','Class','Status','Value','Date']) }}" class="text-center text-muted py-3">{{ __('No records found') }}</td></tr>
               @endforelse
             </tbody>
           </table>

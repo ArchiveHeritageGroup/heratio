@@ -31,7 +31,7 @@
                         <h5 class="mb-0">{{ __('Authority Detail') }}</h5>
                         <a href="{{ route('library.authority-edit', $authority->id) }}"
                            class="btn btn-sm btn-light">
-                            <i class="fas fa-pen me-1"></i>Edit
+                            <i class="fas fa-pen me-1"></i>{{ __('Edit') }}
                         </a>
                     </div>
                 </div>
@@ -40,13 +40,13 @@
                         <dt class="col-md-3 text-muted">ID</dt>
                         <dd class="col-md-9"><code>{{ $authority->id }}</code></dd>
 
-                        <dt class="col-md-3 text-muted">Heading</dt>
+                        <dt class="col-md-3 text-muted">{{ __('Heading') }}</dt>
                         <dd class="col-md-9">{{ $authority->heading }}</dd>
 
-                        <dt class="col-md-3 text-muted">Type</dt>
+                        <dt class="col-md-3 text-muted">{{ __('Type') }}</dt>
                         <dd class="col-md-9"><span class="badge bg-light text-dark">{{ $authority->subject_type }}</span></dd>
 
-                        <dt class="col-md-3 text-muted">Source</dt>
+                        <dt class="col-md-3 text-muted">{{ __('Source') }}</dt>
                         <dd class="col-md-9">{{ strtoupper($authority->source) }}</dd>
 
                         <dt class="col-md-3 text-muted">URI</dt>
@@ -60,15 +60,15 @@
                             @endif
                         </dd>
 
-                        <dt class="col-md-3 text-muted">Linked Items</dt>
+                        <dt class="col-md-3 text-muted">{{ __('Linked Items') }}</dt>
                         <dd class="col-md-9">
                             <span class="badge bg-secondary">{{ $authority->linked_count ?? 0 }}</span>
                         </dd>
 
-                        <dt class="col-md-3 text-muted">Created</dt>
+                        <dt class="col-md-3 text-muted">{{ __('Created') }}</dt>
                         <dd class="col-md-9"><small class="text-muted">{{ $authority->created_at }}</small></dd>
 
-                        <dt class="col-md-3 text-muted">Updated</dt>
+                        <dt class="col-md-3 text-muted">{{ __('Updated') }}</dt>
                         <dd class="col-md-9"><small class="text-muted">{{ $authority->updated_at }}</small></dd>
                     </dl>
                 </div>
@@ -81,13 +81,13 @@
                         <h5 class="mb-0">{{ __('Linked Library Items') }}</h5>
                         <a href="{{ route('library.authority-link', $authority->id) }}"
                            class="btn btn-sm btn-light">
-                            <i class="fas fa-link me-1"></i>Add Link
+                            <i class="fas fa-link me-1"></i>{{ __('Add Link') }}
                         </a>
                     </div>
                 </div>
                 <div class="card-body p-0">
                     @if(empty($linkedItems))
-                        <p class="text-muted small p-3 mb-0">No library items linked to this authority record.</p>
+                        <p class="text-muted small p-3 mb-0">{{ __('No library items linked to this authority record.') }}</p>
                     @else
                         <table class="table table-sm mb-0">
                             <thead class="table-light">
@@ -134,11 +134,11 @@
                 <div class="card-body">
                     <a href="{{ route('library.authority-link', $authority->id) }}"
                        class="btn btn-primary w-100 mb-2">
-                        <i class="fas fa-link me-2"></i>Link to Item
+                        <i class="fas fa-link me-2"></i>{{ __('Link to Item') }}
                     </a>
                     <a href="{{ route('library.authority-edit', $authority->id) }}"
                        class="btn btn-outline-secondary w-100 mb-2">
-                        <i class="fas fa-pen me-2"></i>Edit Authority
+                        <i class="fas fa-pen me-2"></i>{{ __('Edit Authority') }}
                     </a>
                     <form method="POST" action="{{ route('library.authority-destroy', $authority->id) }}"
                           class="d-inline w-100"
@@ -146,7 +146,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-outline-danger w-100">
-                            <i class="fas fa-trash me-2"></i>Delete
+                            <i class="fas fa-trash me-2"></i>{{ __('Delete') }}
                         </button>
                     </form>
                 </div>

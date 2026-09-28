@@ -67,7 +67,7 @@ $statsByType = $profile['stats_by_type'] ?? [];
     <div class="card border-0 shadow-sm">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Recent Contributions') }}</h5></div>
       @if(empty($recentContributions))
-      <div class="card-body text-center text-muted py-5"><i class="fas fa-inbox display-4 mb-3 d-block"></i><p>No approved contributions yet.</p></div>
+      <div class="card-body text-center text-muted py-5"><i class="fas fa-inbox display-4 mb-3 d-block"></i><p>{{ __('No approved contributions yet.') }}</p></div>
       @else
       <div class="list-group list-group-flush">
         @foreach($recentContributions as $contrib)

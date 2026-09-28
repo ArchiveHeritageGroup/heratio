@@ -4,7 +4,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h4">ILL: {{ $ill->ill_number }}</h2>
     <div>
-      <a href="{{ route('library.ill-requests.index') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+      <a href="{{ route('library.ill-requests.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('Back') }}</a>
       <form method="POST" action="{{ route('library.ill-requests.destroy', $ill->id) }}" class="d-inline"
         onsubmit="return confirm('Delete this ILL request?');">
         @csrf @method('DELETE')
@@ -20,7 +20,7 @@
     {{-- Status + transitions --}}
     <div class="col-md-4">
       <div class="card border-primary">
-        <div class="card-header">Status</div>
+        <div class="card-header">{{ __('Status') }}</div>
         <div class="card-body text-center">
           <span class="badge bg-{{ $ill->status === 'overdue' ? 'danger' : ($ill->status === 'received' ? 'success' : 'secondary') }}"
             style="font-size:1.1rem; padding: 0.5rem 1rem;">
@@ -56,7 +56,7 @@
 
       {{-- EDI send --}}
       <div class="card mt-3">
-        <div class="card-header">EDI Transmission</div>
+        <div class="card-header">{{ __('EDI Transmission') }}</div>
         <div class="card-body">
           @if($partner)
             <form method="POST" action="{{ route('library.ill-requests.send-edi', $ill->id) }}">
@@ -69,13 +69,13 @@
                 @endif
               </p>
               <button type="submit" class="btn btn-outline-primary btn-sm w-100">
-                <i class="bi bi-send"></i> Send EDI Message
+                <i class="bi bi-send"></i> {{ __('Send EDI Message') }}
               </button>
             </form>
           @else
-            <p class="small text-muted">No EDI partner linked to this request.</p>
+            <p class="small text-muted">{{ __('No EDI partner linked to this request.') }}</p>
             <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm w-100">
-              Manage Trading Partners
+              {{ __('Manage Trading Partners') }}
             </a>
           @endif
         </div>
@@ -122,7 +122,7 @@
 
       {{-- Update form --}}
       <div class="card mt-3">
-        <div class="card-header">Update Details</div>
+        <div class="card-header">{{ __('Update Details') }}</div>
         <div class="card-body">
           <form method="POST" action="{{ route('library.ill-requests.update', $ill->id) }}">
             @csrf @method('PATCH')

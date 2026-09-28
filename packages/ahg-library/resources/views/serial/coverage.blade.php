@@ -18,7 +18,7 @@
             <div class="card text-center border-primary">
                 <div class="card-body py-3">
                     <h4 class="mb-0 text-primary">{{ $stats['received_count'] ?? 0 }}</h4>
-                    <small class="text-muted">Received Issues</small>
+                    <small class="text-muted">{{ __('Received Issues') }}</small>
                 </div>
             </div>
         </div>
@@ -26,7 +26,7 @@
             <div class="card text-center border-success">
                 <div class="card-body py-3">
                     <h4 class="mb-0 text-success">{{ $stats['claimed_count'] ?? 0 }}</h4>
-                    <small class="text-muted">Claimed Issues</small>
+                    <small class="text-muted">{{ __('Claimed Issues') }}</small>
                 </div>
             </div>
         </div>
@@ -34,7 +34,7 @@
             <div class="card text-center border-danger">
                 <div class="card-body py-3">
                     <h4 class="mb-0 text-danger">{{ $stats['missing_count'] ?? 0 }}</h4>
-                    <small class="text-muted">Missing Issues</small>
+                    <small class="text-muted">{{ __('Missing Issues') }}</small>
                 </div>
             </div>
         </div>
@@ -42,7 +42,7 @@
             <div class="card text-center border-secondary">
                 <div class="card-body py-3">
                     <h4 class="mb-0">{{ $stats['total_count'] ?? 0 }}</h4>
-                    <small class="text-muted">Total Issues</small>
+                    <small class="text-muted">{{ __('Total Issues') }}</small>
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h3 class="mb-1">{{ $stats['active_years'] ?? 0 }}</h3>
-                    <p class="text-muted mb-0">Active Years</p>
+                    <p class="text-muted mb-0">{{ __('Active Years') }}</p>
                 </div>
             </div>
         </div>
@@ -61,7 +61,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h3 class="mb-1">{{ $stats['complete_pct'] ?? 0 }}%</h3>
-                    <p class="text-muted mb-0">Completeness</p>
+                    <p class="text-muted mb-0">{{ __('Completeness') }}</p>
                 </div>
             </div>
         </div>
@@ -69,7 +69,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h3 class="mb-1">{{ e($serial->frequency ?? '') }}</h3>
-                    <p class="text-muted mb-0">Frequency</p>
+                    <p class="text-muted mb-0">{{ __('Frequency') }}</p>
                 </div>
             </div>
         </div>
@@ -124,7 +124,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-muted text-center py-4">No issues recorded yet.</td>
+                            <td colspan="6" class="text-muted text-center py-4">{{ __('No issues recorded yet.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

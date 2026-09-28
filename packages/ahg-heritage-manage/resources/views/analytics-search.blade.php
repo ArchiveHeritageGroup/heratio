@@ -31,7 +31,7 @@ $patterns = (array)($patterns ?? []);
             <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Query') }}</th><th class="text-center">{{ __('Searches') }}</th><th class="text-center">{{ __('Clicks') }}</th></tr></thead><tbody>
               @foreach(array_slice($popularQueries,0,10) as $query)<tr><td>{{ $query->query_text ?? '' }}</td><td class="text-center">{{ number_format($query->search_count ?? 0) }}</td><td class="text-center">{{ number_format($query->total_clicks ?? 0) }}</td></tr>@endforeach
             </tbody></table></div>
-            @else<p class="text-muted text-center py-4">No data available.</p>@endif
+            @else<p class="text-muted text-center py-4">{{ __('No data available.') }}</p>@endif
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@ $patterns = (array)($patterns ?? []);
             <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Query') }}</th><th class="text-center">{{ __('Count') }}</th><th>{{ __('Last Searched') }}</th></tr></thead><tbody>
               @foreach(array_slice($zeroResultQueries,0,10) as $query)<tr><td>{{ $query->query_text ?? '' }}</td><td class="text-center">{{ number_format($query->search_count ?? 0) }}</td><td><small class="text-muted">{{ date('M d', strtotime($query->last_searched ?? 'now')) }}</small></td></tr>@endforeach
             </tbody></table></div>
-            @else<p class="text-muted text-center py-4">No zero-result queries.</p>@endif
+            @else<p class="text-muted text-center py-4">{{ __('No zero-result queries.') }}</p>@endif
           </div>
         </div>
       </div>
@@ -54,7 +54,7 @@ $patterns = (array)($patterns ?? []);
       <div class="card-body">
         @if(!empty($trendingQueries))
         <div class="row">@foreach($trendingQueries as $trend)<div class="col-md-6 col-lg-4 mb-3"><div class="d-flex justify-content-between align-items-center p-2 bg-light rounded"><span>{{ $trend['query'] ?? '' }}</span><span class="badge bg-success">+{{ $trend['growth_percent'] ?? 0 }}%</span></div></div>@endforeach</div>
-        @else<p class="text-muted text-center">No trending queries this week.</p>@endif
+        @else<p class="text-muted text-center">{{ __('No trending queries this week.') }}</p>@endif
       </div>
     </div>
 

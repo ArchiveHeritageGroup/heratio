@@ -12,7 +12,7 @@ $entityData = $entityData ?? (object)[];
 @section('content')
 <div class="heritage-entity-page py-4">
   <div class="container-xxl">
-    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">Heritage</a></li><li class="breadcrumb-item"><a href="{{ route('heritage.graph') }}">Knowledge Graph</a></li><li class="breadcrumb-item active">{{ $entityData->canonical_value ?? 'Entity' }}</li></ol></nav>
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('heritage.landing') }}">{{ __('Heritage') }}</a></li><li class="breadcrumb-item"><a href="{{ route('heritage.graph') }}">{{ __('Knowledge Graph') }}</a></li><li class="breadcrumb-item active">{{ $entityData->canonical_value ?? 'Entity' }}</li></ol></nav>
 
     <div class="row">
       <div class="col-lg-8">
@@ -33,7 +33,7 @@ $entityData = $entityData ?? (object)[];
         </div></div>
 
         <div class="card shadow-sm mb-4">
-          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff"><h4 class="mb-0">{{ __('Records containing this entity') }}</h4><a href="{{ route('heritage.search', ['ner_'.($entityData->entity_type ?? 'person') => $entityData->canonical_value ?? '']) }}" class="btn btn-sm atom-btn-white">View All <i class="fas fa-arrow-right ms-1"></i></a></div>
+          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff"><h4 class="mb-0">{{ __('Records containing this entity') }}</h4><a href="{{ route('heritage.search', ['ner_'.($entityData->entity_type ?? 'person') => $entityData->canonical_value ?? '']) }}" class="btn btn-sm atom-btn-white">{{ __('View All') }} <i class="fas fa-arrow-right ms-1"></i></a></div>
           <div class="card-body p-0">
             @if(!empty($objectsArray))
             <div class="list-group list-group-flush">
@@ -44,7 +44,7 @@ $entityData = $entityData ?? (object)[];
               </a>
               @endforeach
             </div>
-            @else<div class="text-center py-5 text-muted"><p class="mb-0">No records found.</p></div>@endif
+            @else<div class="text-center py-5 text-muted"><p class="mb-0">{{ __('No records found.') }}</p></div>@endif
           </div>
         </div>
 
@@ -71,9 +71,9 @@ $entityData = $entityData ?? (object)[];
         <div class="card shadow-sm mb-4">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Details') }}</h5></div>
           <div class="card-body"><dl class="row mb-0">
-            <dt class="col-5 text-muted">Type</dt><dd class="col-7">{{ ucfirst($entityData->entity_type ?? '') }}</dd>
-            <dt class="col-5 text-muted">Occurrences</dt><dd class="col-7">{{ number_format($entityData->occurrence_count ?? 0) }}</dd>
-            <dt class="col-5 text-muted">Avg. Confidence</dt><dd class="col-7">{{ round(($entityData->confidence_avg ?? 0) * 100) }}%</dd>
+            <dt class="col-5 text-muted">{{ __('Type') }}</dt><dd class="col-7">{{ ucfirst($entityData->entity_type ?? '') }}</dd>
+            <dt class="col-5 text-muted">{{ __('Occurrences') }}</dt><dd class="col-7">{{ number_format($entityData->occurrence_count ?? 0) }}</dd>
+            <dt class="col-5 text-muted">{{ __('Avg. Confidence') }}</dt><dd class="col-7">{{ round(($entityData->confidence_avg ?? 0) * 100) }}%</dd>
           </dl></div>
         </div>
       </div>

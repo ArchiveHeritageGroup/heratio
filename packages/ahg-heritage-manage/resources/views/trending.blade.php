@@ -8,7 +8,7 @@
     <div class="row mb-4">
       <div class="col-12">
         <h1 class="display-5 fw-bold mb-3"><i class="fas fa-chart-line me-2"></i>{{ __('Trending Now') }}</h1>
-        <p class="lead text-muted">Popular items being viewed this week</p>
+        <p class="lead text-muted">{{ __('Popular items being viewed this week') }}</p>
       </div>
     </div>
 

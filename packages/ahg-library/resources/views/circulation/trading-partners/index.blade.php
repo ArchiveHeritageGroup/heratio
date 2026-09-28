@@ -12,17 +12,17 @@
   <div class="row g-2 mb-3">
     <div class="col-md-3">
       <div class="card text-center border-primary">
-        <div class="card-body py-2"><strong>{{ $stats['total'] }}</strong><br><small>Total</small></div>
+        <div class="card-body py-2"><strong>{{ $stats['total'] }}</strong><br><small>{{ __('Total') }}</small></div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-center border-success">
-        <div class="card-body py-2"><strong>{{ $stats['active'] }}</strong><br><small>Active</small></div>
+        <div class="card-body py-2"><strong>{{ $stats['active'] }}</strong><br><small>{{ __('Active') }}</small></div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-center border-warning">
-        <div class="card-body py-2"><strong>{{ $stats['errors'] }}</strong><br><small>Errors</small></div>
+        <div class="card-body py-2"><strong>{{ $stats['errors'] }}</strong><br><small>{{ __('Errors') }}</small></div>
       </div>
     </div>
     <div class="col-md-3">
@@ -57,7 +57,7 @@
       <button class="btn btn-secondary btn-sm w-100">{{ __('Filter') }}</button>
     </div>
     <div class="col-md-2">
-      <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm w-100">Clear</a>
+      <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm w-100">{{ __('Clear') }}</a>
     </div>
   </form>
 
@@ -93,9 +93,9 @@
             <td><small>{{ $p->vendor?->name ?: '-' }}</small></td>
             <td>
               @if($p->is_active)
-                <span class="badge bg-success">Active</span>
+                <span class="badge bg-success">{{ __('Active') }}</span>
               @else
-                <span class="badge bg-secondary">Inactive</span>
+                <span class="badge bg-secondary">{{ __('Inactive') }}</span>
               @endif
               @if($p->test_mode)
                 <span class="badge bg-warning text-dark">TEST</span>
@@ -105,7 +105,7 @@
               @if($p->last_outbound_at)
                 <small>{{ $p->last_outbound_at->diffForHumans() }}</small>
               @else
-                <small class="text-muted">Never</small>
+                <small class="text-muted">{{ __('Never') }}</small>
               @endif
             </td>
             <td>
@@ -142,7 +142,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="9" class="text-center text-muted py-3">No trading partners found.</td></tr>
+          <tr><td colspan="9" class="text-center text-muted py-3">{{ __('No trading partners found.') }}</td></tr>
         @endforelse
       </tbody>
     </table>

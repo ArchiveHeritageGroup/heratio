@@ -2,7 +2,7 @@
 @section('title', 'Overdue Claims')
 @section('content')
 <div class="container py-4">
-    <h2 class="mb-1"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Overdue Claims</h2>
+    <h2 class="mb-1"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>{{ __('Overdue Claims') }}</h2>
     <p class="text-muted mb-4">Active serials with issues overdue past 1.5x the expected interval.</p>
 
     @if(session('serial_success'))
@@ -83,10 +83,10 @@
 
     <div class="d-flex gap-2">
         <a href="{{ route('library.serials') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-newspaper me-2"></i>Back to Serials
+            <i class="fas fa-newspaper me-2"></i>{{ __('Back to Serials') }}
         </a>
         <a href="{{ route('library.serial-create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Add New Serial
+            <i class="fas fa-plus me-2"></i>{{ __('Add New Serial') }}
         </a>
     </div>
 </div>

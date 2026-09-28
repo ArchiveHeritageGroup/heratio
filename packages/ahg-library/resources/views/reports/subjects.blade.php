@@ -26,7 +26,7 @@
       @forelse($subjects as $s)
       <tr><td><strong>{{ e($s->name ?? '') }}</strong></td><td class="text-end"><span class="badge bg-primary">{{ $s->item_count ?? 0 }}</span></td></tr>
       @empty
-      <tr><td colspan="2" class="text-muted text-center py-3">No subjects.</td></tr>
+      <tr><td colspan="2" class="text-muted text-center py-3">{{ __('No subjects.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

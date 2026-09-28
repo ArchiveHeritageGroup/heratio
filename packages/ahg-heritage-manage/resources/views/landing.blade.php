@@ -97,7 +97,7 @@
          Section 2: Explore By (Category Buttons)
          ================================================================ -->
     <section class="heritage-explore-by" id="heritage-explore">
-        <div class="heritage-section-label">Explore By</div>
+        <div class="heritage-section-label">{{ __('Explore By') }}</div>
         <div class="heritage-explore-buttons">
             @if(isset($exploreCategories) && $exploreCategories->count() > 0)
                 @foreach($exploreCategories as $cat)
@@ -183,7 +183,7 @@
         <div class="heritage-section-header">
             <h2 class="heritage-section-title">{{ __('Curated Collections') }}</h2>
             <a href="{{ route('informationobject.browse') }}" class="heritage-view-all">
-                View All <i class="fas fa-arrow-right"></i>
+                {{ __('View All') }} <i class="fas fa-arrow-right"></i>
             </a>
         </div>
 
@@ -248,7 +248,7 @@
         <div class="heritage-section-header">
             <h2 class="heritage-section-title">{{ __('Browse by Creator') }}</h2>
             <a href="{{ url('/heritage/creators') }}" class="heritage-view-all">
-                View All <i class="fas fa-arrow-right"></i>
+                {{ __('View All') }} <i class="fas fa-arrow-right"></i>
             </a>
         </div>
 
@@ -268,7 +268,7 @@
                 </a>
                 @endforeach
             @else
-                <p class="text-muted text-center w-100 py-4">No creators found</p>
+                <p class="text-muted text-center w-100 py-4">{{ __('No creators found') }}</p>
             @endif
         </div>
     </section>
@@ -280,7 +280,7 @@
         <div class="heritage-section-header">
             <h2 class="heritage-section-title">{{ __('Explore by Time') }}</h2>
             <a href="{{ url('/heritage/timeline') }}" class="heritage-view-all">
-                Full Timeline <i class="fas fa-arrow-right"></i>
+                {{ __('Full Timeline') }} <i class="fas fa-arrow-right"></i>
             </a>
         </div>
 
@@ -312,7 +312,7 @@
         <div class="heritage-section-header">
             <h2 class="heritage-section-title">{{ __('Recently Added') }}</h2>
             <a href="{{ url('/heritage/search') }}?sort=recent" class="heritage-view-all">
-                View All <i class="fas fa-arrow-right"></i>
+                {{ __('View All') }} <i class="fas fa-arrow-right"></i>
             </a>
         </div>
 
@@ -348,7 +348,7 @@
                 @endif
                 @endforeach
             @else
-                <p class="text-muted text-center w-100 py-4" style="column-span: all;">No recent items with images found</p>
+                <p class="text-muted text-center w-100 py-4" style="column-span: all;">{{ __('No recent items with images found') }}</p>
             @endif
         </div>
     </section>
@@ -368,21 +368,21 @@
                     <div class="heritage-cta-icon"><i class="fas fa-file-alt"></i></div>
                     <h3 class="heritage-cta-title">{{ __('Transcribe') }}</h3>
                     <p class="heritage-cta-description">Help make handwritten documents searchable by transcribing them.</p>
-                    <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">Start Transcribing</a>
+                    <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">{{ __('Start Transcribing') }}</a>
                 </div>
 
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-id-badge"></i></div>
                     <h3 class="heritage-cta-title">{{ __('Identify') }}</h3>
                     <p class="heritage-cta-description">Help identify people, places, and objects in historical photographs.</p>
-                    <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">Help Identify</a>
+                    <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">{{ __('Help Identify') }}</a>
                 </div>
 
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-book"></i></div>
                     <h3 class="heritage-cta-title">{{ __('Add Context') }}</h3>
                     <p class="heritage-cta-description">Share your knowledge about local history and personal memories.</p>
-                    <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">Share Stories</a>
+                    <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">{{ __('Share Stories') }}</a>
                 </div>
             </div>
 
@@ -404,7 +404,7 @@
                         </div>
                         @endforeach
                     @else
-                        <p style="opacity: 0.8; font-size: 0.875rem;">Be the first to contribute!</p>
+                        <p style="opacity: 0.8; font-size: 0.875rem;">{{ __('Be the first to contribute!') }}</p>
                     @endif
                 </div>
             </div>
@@ -417,10 +417,10 @@
     <footer class="heritage-footer">
         <div class="heritage-footer-inner">
             <div class="heritage-footer-links">
-                <a href="{{ url('/about') }}">About</a>
-                <a href="{{ url('/contact') }}">Contact</a>
-                <a href="{{ url('/privacy') }}">Privacy</a>
-                <a href="{{ url('/terms') }}">Terms</a>
+                <a href="{{ url('/about') }}">{{ __('About') }}</a>
+                <a href="{{ url('/contact') }}">{{ __('Contact') }}</a>
+                <a href="{{ url('/privacy') }}">{{ __('Privacy') }}</a>
+                <a href="{{ url('/terms') }}">{{ __('Terms') }}</a>
             </div>
             <div class="heritage-footer-copyright">
                 &copy; {{ date('Y') }} {{ $themeData['siteTitle'] ?? config('app.name', 'Heratio') }}. All rights reserved.

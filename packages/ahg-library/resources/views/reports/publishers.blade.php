@@ -26,7 +26,7 @@
       @forelse($publishers as $p)
       <tr><td><strong>{{ e($p->publisher ?? '') }}</strong></td><td>{{ e($p->publication_place ?? '') }}</td><td class="text-end"><span class="badge bg-primary">{{ $p->title_count ?? 0 }}</span></td></tr>
       @empty
-      <tr><td colspan="3" class="text-muted text-center py-3">No publishers.</td></tr>
+      <tr><td colspan="3" class="text-muted text-center py-3">{{ __('No publishers.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

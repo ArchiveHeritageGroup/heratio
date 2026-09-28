@@ -24,11 +24,11 @@
         @method('PUT')
         <div class="card shadow-sm mb-4">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                <h5 class="mb-0"><i class="fas fa-newspaper me-2"></i>Serial Title</h5>
+                <h5 class="mb-0"><i class="fas fa-newspaper me-2"></i>{{ __('Serial Title') }}</h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label for="title" class="form-label required">Title <span class="badge bg-danger ms-1">Required</span></label>
+                    <label for="title" class="form-label required">{{ __('Title') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                     <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
                            autocomplete="off"
                            value="{{ old('title', $serial->title ?? '') }}" required>
@@ -55,9 +55,9 @@
                     <div class="col-md-4 mb-3">
                         <label for="status" class="form-label">{{ __('Status') }}</label>
                         <select name="status" id="status" class="form-select">
-                            <option value="active" @selected(old('status', $serial->status ?? 'active') === 'active')>Active</option>
-                            <option value="ceased" @selected(old('status', $serial->status ?? '') === 'ceased')>Ceased</option>
-                            <option value="suspended" @selected(old('status', $serial->status ?? '') === 'suspended')>Suspended</option>
+                            <option value="active" @selected(old('status', $serial->status ?? 'active') === 'active')>{{ __('Active') }}</option>
+                            <option value="ceased" @selected(old('status', $serial->status ?? '') === 'ceased')>{{ __('Ceased') }}</option>
+                            <option value="suspended" @selected(old('status', $serial->status ?? '') === 'suspended')>{{ __('Suspended') }}</option>
                         </select>
                     </div>
                 </div>
@@ -77,10 +77,10 @@
 
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-success">
-                <i class="fas fa-save me-2"></i>Save Changes
+                <i class="fas fa-save me-2"></i>{{ __('Save Changes') }}
             </button>
             <a href="{{ route('library.serial-view', $serial->id ?? '') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-times me-2"></i>Cancel
+                <i class="fas fa-times me-2"></i>{{ __('Cancel') }}
             </a>
         </div>
     </form>
@@ -90,16 +90,16 @@
     {{-- Danger zone: delete --}}
     <div class="card border-danger">
         <div class="card-header bg-danger text-white">
-            <h5 class="mb-0"><i class="fas fa-trash-alt me-2"></i>Danger Zone</h5>
+            <h5 class="mb-0"><i class="fas fa-trash-alt me-2"></i>{{ __('Danger Zone') }}</h5>
         </div>
         <div class="card-body">
-            <p class="text-muted mb-2">Permanently delete this serial and all its issue records.</p>
+            <p class="text-muted mb-2">{{ __('Permanently delete this serial and all its issue records.') }}</p>
             <form method="POST" action="{{ route('library.serial-delete', $serial->id ?? 0) }}" class="d-inline"
                   onsubmit="return confirm('Delete serial "{{ e($serial->title ?? '') }}"? This cannot be undone.')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-danger btn-sm">
-                    <i class="fas fa-trash-alt me-1"></i>Delete Serial
+                    <i class="fas fa-trash-alt me-1"></i>{{ __('Delete Serial') }}
                 </button>
             </form>
         </div>

@@ -15,7 +15,7 @@
         @endif
       </div>
     </div>
-    <p class="text-muted">Heritage asset valuation summary report.</p>
+    <p class="text-muted">{{ __('Heritage asset valuation summary report.') }}</p>
 
     {{-- Filter --}}
     <div class="card mb-3">
@@ -23,15 +23,15 @@
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">From <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('From') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">To <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('To ') }}<span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Per Page <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Per Page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="limit" class="form-select form-select-sm">
               <option value="25" {{ request('limit',25)==25?'selected':'' }}>25</option>
               <option value="50" {{ request('limit')==50?'selected':'' }}>50</option>
@@ -59,7 +59,7 @@
               @forelse($items ?? [] as $item)
               <tr>@foreach((array)$item as $val)<td>{{ Str::limit($val, 80) ?: '-' }}</td>@endforeach</tr>
               @empty
-              <tr><td colspan="{{ count($columns ?? ['ID','Name','Class','Value','Status','Date']) }}" class="text-center text-muted py-3">No records found</td></tr>
+              <tr><td colspan="{{ count($columns ?? ['ID','Name','Class','Value','Status','Date']) }}" class="text-center text-muted py-3">{{ __('No records found') }}</td></tr>
               @endforelse
             </tbody>
           </table>

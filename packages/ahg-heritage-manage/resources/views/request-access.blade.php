@@ -18,16 +18,16 @@
     <h1><i class="fas fa-key me-2"></i>{{ __('Request Access') }}</h1>
 
     @if(!auth()->check())
-    <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>{{ __('Login Required') }}</strong><br>You must be logged in to request access. <a href="{{ route('user.login') }}" class="alert-link">Login here</a></div>
+    <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>{{ __('Login Required') }}</strong><br>{{ __('You must be logged in to request access.') }} <a href="{{ route('user.login') }}" class="alert-link">{{ __('Login here') }}</a></div>
     @else
     <form method="post">@csrf
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">{{ __('Access Request Details') }}</h5></div>
         <div class="card-body">
-          <div class="mb-3"><label for="purpose_id" class="form-label">Purpose of Access <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><select class="form-select" name="purpose_id" required><option value="">{{ __('Select a purpose...') }}</option>@foreach($purposes ?? [] as $purpose)<option value="{{ $purpose->id }}">{{ $purpose->name }}@if($purpose->requires_approval) (Requires Approval)@endif</option>@endforeach</select></div>
-          <div class="mb-3"><label for="institution_affiliation" class="form-label">Institution/Organization <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="institution_affiliation" placeholder="{{ __('e.g., University of Cape Town') }}"></div>
-          <div class="mb-3"><label for="research_description" class="form-label">Research Project/Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" name="research_description" rows="3" placeholder="{{ __('Briefly describe your research project...') }}"></textarea></div>
-          <div class="mb-3"><label for="justification" class="form-label">Justification <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea class="form-control" name="justification" rows="4" required placeholder="{{ __('Explain why you need access...') }}"></textarea><div class="form-text">Please provide sufficient detail to help us evaluate your request.</div></div>
+          <div class="mb-3"><label for="purpose_id" class="form-label">{{ __('Purpose of Access') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><select class="form-select" name="purpose_id" required><option value="">{{ __('Select a purpose...') }}</option>@foreach($purposes ?? [] as $purpose)<option value="{{ $purpose->id }}">{{ $purpose->name }}@if($purpose->requires_approval) (Requires Approval)@endif</option>@endforeach</select></div>
+          <div class="mb-3"><label for="institution_affiliation" class="form-label">{{ __('Institution/Organization') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="institution_affiliation" placeholder="{{ __('e.g., University of Cape Town') }}"></div>
+          <div class="mb-3"><label for="research_description" class="form-label">{{ __('Research Project/Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" name="research_description" rows="3" placeholder="{{ __('Briefly describe your research project...') }}"></textarea></div>
+          <div class="mb-3"><label for="justification" class="form-label">{{ __('Justification') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea class="form-control" name="justification" rows="4" required placeholder="{{ __('Explain why you need access...') }}"></textarea><div class="form-text">Please provide sufficient detail to help us evaluate your request.</div></div>
         </div>
       </div>
       <div class="card border-0 shadow-sm mb-4">

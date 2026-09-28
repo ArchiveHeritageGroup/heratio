@@ -16,7 +16,7 @@
         </div>
       </div>
       @empty
-      <div class="col-12 text-center text-muted">No recent activity</div>
+      <div class="col-12 text-center text-muted">{{ __('No recent activity') }}</div>
       @endforelse
     </div>
   </div>

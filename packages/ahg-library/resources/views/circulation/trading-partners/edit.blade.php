@@ -3,7 +3,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h4">Edit: {{ $partner->edi_partner_code }}</h2>
-    <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+    <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('Back') }}</a>
   </div>
 
   <form method="POST" action="{{ route('library.trading-partners.update', $partner->id) }}" autocomplete="off">
@@ -57,7 +57,7 @@
 
       <div class="col-12" id="cfg_sftp">
         <div class="card bg-light">
-          <div class="card-header">SFTP Configuration</div>
+          <div class="card-header">{{ __('SFTP Configuration') }}</div>
           <div class="card-body">
             <div class="row g-2">
               <div class="col-md-4"><label class="form-label">{{ __('Host') }}</label><input name="endpoint_config[host]" value="{{ old('endpoint_config.host', $cfg['host'] ?? '') }}" class="form-control"></div>
@@ -85,7 +85,7 @@
 
       <div class="col-12" id="cfg_http" style="display:none">
         <div class="card bg-light">
-          <div class="card-header">HTTP/HTTPS Configuration</div>
+          <div class="card-header">{{ __('HTTP/HTTPS Configuration') }}</div>
           <div class="card-body">
             <div class="row g-2">
               <div class="col-12"><label class="form-label">{{ __('Endpoint URL') }}</label><input name="endpoint_config[url]" value="{{ old('endpoint_config.url', $cfg['url'] ?? '') }}" class="form-control"></div>
@@ -96,7 +96,7 @@
 
       <div class="col-12" id="cfg_email" style="display:none">
         <div class="card bg-light">
-          <div class="card-header">Email EDI Configuration</div>
+          <div class="card-header">{{ __('Email EDI Configuration') }}</div>
           <div class="card-body">
             <div class="row g-2">
               <div class="col-md-4"><label class="form-label">{{ __('SMTP Host') }}</label><input name="endpoint_config[smtp_host]" value="{{ old('endpoint_config.smtp_host', $cfg['smtp_host'] ?? '') }}" class="form-control"></div>

@@ -37,13 +37,13 @@ $badges = $profile['badges'] ?? [];
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">{{ __('Contribution History') }}</h5>
         <div class="btn-group btn-group-sm">
-          <a href="{{ route('heritage.my-contributions') }}" class="btn btn-outline-light {{ !request('status')?'active':'' }}">All</a>
+          <a href="{{ route('heritage.my-contributions') }}" class="btn btn-outline-light {{ !request('status')?'active':'' }}">{{ __('All') }}</a>
           @foreach(['pending','approved','rejected'] as $s)<a href="{{ route('heritage.my-contributions', ['status'=>$s]) }}" class="btn btn-outline-light {{ request('status')===$s?'active':'' }}">{{ ucfirst($s) }}</a>@endforeach
         </div>
       </div>
       <div class="card-body p-0">
         @if(empty($contributions))
-        <div class="text-center text-muted py-5"><i class="fas fa-inbox display-1 mb-3 d-block"></i><p class="mb-3">No contributions yet.</p><a href="{{ route('heritage.search') }}" class="btn atom-btn-secondary"><i class="fas fa-search me-1"></i>{{ __('Browse Collection') }}</a></div>
+        <div class="text-center text-muted py-5"><i class="fas fa-inbox display-1 mb-3 d-block"></i><p class="mb-3">{{ __('No contributions yet.') }}</p><a href="{{ route('heritage.search') }}" class="btn atom-btn-secondary"><i class="fas fa-search me-1"></i>{{ __('Browse Collection') }}</a></div>
         @else
         <div class="list-group list-group-flush">
           @foreach($contributions as $contrib)

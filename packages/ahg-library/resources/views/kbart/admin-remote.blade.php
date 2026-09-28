@@ -8,10 +8,10 @@
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <a href="{{ route('library.kbart') }}" class="text-decoration-none small mb-2 d-inline-block">
-                <i class="fas fa-arrow-left me-1"></i>KBART Knowledge Base
+                <i class="fas fa-arrow-left me-1"></i>{{ __('KBART Knowledge Base') }}
             </a>
             <h1 class="h3 mb-1">
-                <i class="fas fa-globe me-2"></i>KBART Remote Feeds
+                <i class="fas fa-globe me-2"></i>{{ __('KBART Remote Feeds') }}
             </h1>
             <p class="text-muted small mb-0">
                 Automated scheduled import from remote KBART TSV endpoints.
@@ -23,7 +23,7 @@
                 Auto-import {{ $auto_import_enabled ? 'enabled' : 'disabled' }}
             </span>
             <a href="{{ route('library.kbart-remote-create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-1"></i>Add Feed
+                <i class="fas fa-plus me-1"></i>{{ __('Add Feed') }}
             </a>
         </div>
     </div>
@@ -40,9 +40,9 @@
         <div class="card">
             <div class="card-body text-center text-muted py-5">
                 <i class="fas fa-rss fa-3x mb-3 opacity-25"></i>
-                <p class="mb-2">No KBART feeds configured yet.</p>
+                <p class="mb-2">{{ __('No KBART feeds configured yet.') }}</p>
                 <a href="{{ route('library.kbart-remote-create') }}" class="btn btn-primary btn-sm">
-                    Add your first feed
+                    {{ __('Add your first feed') }}
                 </a>
             </div>
         </div>
@@ -81,16 +81,16 @@
                                 <td>{{ $feed->vendor ?: '-' }}</td>
                                 <td>
                                     @if($feed->active)
-                                        <span class="badge bg-success">Active</span>
+                                        <span class="badge bg-success">{{ __('Active') }}</span>
                                     @else
-                                        <span class="badge bg-secondary">Inactive</span>
+                                        <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                     @endif
                                 </td>
                                 <td class="small">
                                     @if($feed->last_fetch_at)
                                         {{ \Carbon\Carbon::parse($feed->last_fetch_at)->diffForHumans() }}
                                     @else
-                                        <span class="text-muted">Never</span>
+                                        <span class="text-muted">{{ __('Never') }}</span>
                                     @endif
                                 </td>
                                 <td class="text-end">
@@ -108,7 +108,7 @@
                                             </span>
                                         @elseif($feed->last_fetch_status === 'fail')
                                             <span class="badge bg-danger" title="{{ $feed->last_error }}">
-                                                <i class="fas fa-times me-1"></i>Fail
+                                                <i class="fas fa-times me-1"></i>{{ __('Fail') }}
                                             </span>
                                         @else
                                             <span class="badge bg-secondary">
@@ -177,9 +177,9 @@
         {{-- Schedule info --}}
         <div class="alert alert-info mt-3 mb-0 small">
             <i class="fas fa-clock me-1"></i>
-            Feeds run daily at <strong>01:00</strong> via <code>ahg:library-kbart-refresh</code>.
+            {{ __('Feeds run daily at') }} <strong>01:00</strong> via <code>ahg:library-kbart-refresh</code>.
             The master switch <strong>library_kbart_auto_import_enabled</strong> in
-            <a href="/admin/ahgSettings" class="alert-link">AHG Settings</a>
+            <a href="/admin/ahgSettings" class="alert-link">{{ __('AHG Settings') }}</a>
             disables all scheduled runs without deleting feed subscriptions.
         </div>
     @endif
