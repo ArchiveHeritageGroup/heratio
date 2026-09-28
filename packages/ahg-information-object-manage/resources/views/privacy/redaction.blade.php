@@ -213,6 +213,23 @@
     </div>
   </div>
 
+  {{-- heratio#1503: a record with more than one image is redacted one image
+       at a time. Each keeps its own regions; saving replaces only these. --}}
+  @if(isset($masters) && count($masters) > 1 && $digitalObject)
+    <form method="get" action="{{ route('io.privacy.redaction', $io->slug) }}" class="d-flex align-items-center gap-2 mb-3">
+      <label for="redaction-target" class="form-label mb-0 text-nowrap"><i class="fas fa-images me-1"></i>{{ __('Image') }}</label>
+      <select id="redaction-target" name="do" class="form-select form-select-sm" style="max-width:32rem">
+        @foreach($masters as $__m)
+          <option value="{{ $__m->id }}" @selected((int) $__m->id === (int) $digitalObject->id)>{{ $__m->label ?: $__m->name }}</option>
+        @endforeach
+      </select>
+      <noscript><button type="submit" class="btn btn-sm btn-outline-secondary">{{ __('Open') }}</button></noscript>
+    </form>
+    <script nonce="{{ csp_nonce() }}">
+      document.getElementById('redaction-target').addEventListener('change', function () { this.form.submit(); });
+    </script>
+  @endif
+
   @php
     $documentType = $documentType ?? null;
     $documentUrl = $documentUrl ?? null;
@@ -461,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
     totalPages: @json($totalPages),
     existingRedactions: @json($existingRedactions),
     csrfToken: @json(csrf_token()),
-    saveUrl: @json(route('io.privacy.redaction.save', ['slug' => $io->slug])),
+    saveUrl: @json(route('io.privacy.redaction.save', array_filter(['slug' => $io->slug, 'do' => $digitalObject->id ?? null]))),
     applyUrl: '#',
   };
 

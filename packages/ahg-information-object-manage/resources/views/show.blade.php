@@ -988,14 +988,16 @@
       $__doHasRedactions = false;
       try {
           if (\Illuminate\Support\Facades\Schema::hasTable('privacy_visual_redaction')) {
-              $__doHasRedactions = \Illuminate\Support\Facades\DB::table('privacy_visual_redaction')
-                  ->where('object_id', $io->id)
-                  ->whereIn('status', ['applied', 'reviewed', 'pending'])
-                  ->exists();
+              // Regions on the master this page shows - its URLs are the ones
+              // rerouted, so they are the regions that decide it (heratio#1503).
+              $__redactor = app(\AhgInformationObjectManage\Services\RedactionRenderService::class);
+              $__shownMaster = $__redactor->masterOrDefault((int) $io->id, isset($doMaster->id) ? (int) $doMaster->id : null);
+              $__doHasRedactions = $__shownMaster
+                  && $__redactor->regionsQuery((int) $io->id, (int) $__shownMaster->id)->exists();
           }
       } catch (\Throwable $e) { /* table missing - leave flag false */ }
       if ($__doHasRedactions && !$__doIsAdmin) {
-          $__redactedUrl = route('io.privacy.redacted-asset', $io->slug);
+          $__redactedUrl = route('io.privacy.redacted-asset', [$io->slug, $__shownMaster->id]);
           $doMasterUrl = $__redactedUrl;
           $doRefUrl    = $__redactedUrl;
       }

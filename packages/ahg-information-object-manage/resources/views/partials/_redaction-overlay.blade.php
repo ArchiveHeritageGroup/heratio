@@ -199,10 +199,10 @@
       // OpenSeadragon from an element rather than an id, so it never enters
       // OpenSeadragon's registry - but it does not need to be: the page hands
       // it the server-side burnt-in derivative instead, which also stops the
-      // underlying tiles being downloadable. Where that could not be arranged,
-      // which today is a record with more than one digital object, it is
-      // hidden rather than left open. OSD is only hidden if placing its
-      // overlays actually failed.
+      // underlying tiles being downloadable - on a multi-object record, one
+      // derivative per image that carries regions (heratio#1503). Where that
+      // could not be arranged it is hidden rather than left open. OSD is only
+      // hidden if placing its overlays actually failed.
       function hide(el, why) {
         if (!el || el.dataset.ahgRedactionHidden === '1') return;
         el.dataset.ahgRedactionHidden = '1';

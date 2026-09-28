@@ -50,10 +50,12 @@
       $__hasRedactions = false;
       try {
           if (\Illuminate\Support\Facades\Schema::hasTable('privacy_visual_redaction')) {
-              $__hasRedactions = \Illuminate\Support\Facades\DB::table('privacy_visual_redaction')
-                  ->where('object_id', $io->id)
-                  ->whereIn('status', ['applied', 'reviewed', 'pending'])
-                  ->exists();
+              // Regions on the master this page shows - its URLs are the ones
+              // rerouted, so they are the regions that decide it (heratio#1503).
+              $__redactor = app(\AhgInformationObjectManage\Services\RedactionRenderService::class);
+              $__shownMaster = $__redactor->masterOrDefault((int) $io->id, isset($masterObj->id) ? (int) $masterObj->id : null);
+              $__hasRedactions = $__shownMaster
+                  && $__redactor->regionsQuery((int) $io->id, (int) $__shownMaster->id)->exists();
           }
       } catch (\Throwable $e) { /* table missing - leave flag false */ }
       $__isAdminViewer = auth()->check() && auth()->user()
@@ -61,7 +63,7 @@
               ? auth()->user()->isAdministrator()
               : (bool) (auth()->user()->is_admin ?? false));
       if ($__hasRedactions && !$__isAdminViewer) {
-          $__redactedUrl = route('io.privacy.redacted-asset', $io->slug);
+          $__redactedUrl = route('io.privacy.redacted-asset', [$io->slug, $__shownMaster->id]);
           $masterUrl = $__redactedUrl;
           $refUrl    = $__redactedUrl;
           // Thumbnails stay on the original - they're typically too small to
@@ -735,9 +737,18 @@
               // Skip any object whose file is missing on disk (e.g. an orphan
               // attachment row whose file was removed) so the viewer never shows
               // a broken canvas.
-              $__addObj = function ($disp, $label) use (&$__viewerObjects) {
+              // heratio#1503: an image with redaction regions is handed to a
+              // non-admin as its own burnt-in derivative, flagged `redacted` so
+              // the viewer does not attach a Cantaloupe service - Cantaloupe
+              // tiles the ORIGINAL and would deep-zoom straight past the mask.
+              $__redactedIds = ($canBypassRedaction ?? false) ? [] : app(\AhgInformationObjectManage\Services\RedactionRenderService::class)->redactedMasterIds((int) $io->id);
+              $__addObj = function ($disp, $label, $masterId) use (&$__viewerObjects, $__redactedIds, $io) {
                   if (! $disp) { return; }
                   if (\AhgCore\Services\DigitalObjectService::resolveDiskPath($disp) === null) { return; }
+                  if (in_array((int) $masterId, $__redactedIds, true)) {
+                      $__viewerObjects[] = ['url' => route('io.privacy.redacted-asset', [$io->slug, (int) $masterId]), 'label' => $label, 'redacted' => true];
+                      return;
+                  }
                   $u = \AhgCore\Services\DigitalObjectService::getUrl($disp);
                   if ($u) { $__viewerObjects[] = ['url' => url($u), 'label' => $label]; }
               };
@@ -745,13 +756,13 @@
                       ->where('object_id', $io->id)->whereNull('parent_id')->orderBy('id')->get() as $__mo) {
                   $__derivs = \Illuminate\Support\Facades\DB::table('digital_object')->where('parent_id', $__mo->id)->get();
                   $__disp = $__derivs->firstWhere('usage_id', 141) ?: $__derivs->firstWhere('usage_id', 142) ?: $__mo;
-                  $__addObj($__disp, $__mo->name);
+                  $__addObj($__disp, $__mo->name, $__mo->id);
               }
               if (class_exists(\AhgCore\Services\AttachedDigitalObjectService::class)
                   && \AhgCore\Services\AttachedDigitalObjectService::available()) {
                   foreach (app(\AhgCore\Services\AttachedDigitalObjectService::class)->listFor((int) $io->id) as $__att) {
                       $__disp = $__att->reference ?: $__att->thumbnail ?: $__att->master;
-                      $__addObj($__disp, $__att->caption ?: ($__att->role ?: ($__att->master->name ?? 'Attachment')));
+                      $__addObj($__disp, $__att->caption ?: ($__att->role ?: ($__att->master->name ?? 'Attachment')), $__att->master->id ?? 0);
                   }
               }
           } catch (\Throwable $e) { $__viewerObjects = []; }
@@ -762,7 +773,7 @@
         document.addEventListener('DOMContentLoaded', function() {
           var __vid = '{{ $viewerId }}';
           var __imgUrl = '{{ url($imgSrc) }}';
-          @if(! ($canBypassRedaction ?? false) && ! empty($visualRedactions) && count($visualRedactions) && count($__viewerObjects) < 2)
+          @if(! ($canBypassRedaction ?? false) && ! empty($visualRedactions) && count($visualRedactions))
             // Mirador embeds its own OpenSeadragon, created with an element
             // rather than an id, so it is not in OpenSeadragon's registry and
             // the redaction shim cannot reach it to place overlays. Rather than
@@ -775,11 +786,12 @@
             // default mode and is then built during init, well before the
             // redaction partial further down the page runs.
             //
-            // Single-object records only. The multi-object manifest builds a
-            // canvas per digital object and this endpoint serves one master per
-            // record, so a multi-object record keeps the fail-closed hide.
+            // A multi-object record does not read this URL: its manifest gives
+            // every image with regions its own derivative (see $__viewerObjects,
+            // heratio#1503). It is still set, because it is also what tells the
+            // redaction partial that Mirador was handed redacted pixels.
             window.AHG_REDACTED_ASSET = window.AHG_REDACTED_ASSET || {};
-            window.AHG_REDACTED_ASSET[__vid] = {!! json_encode(route('io.privacy.redacted-asset', $io->slug)) !!};
+            window.AHG_REDACTED_ASSET[__vid] = {!! json_encode(route('io.privacy.redacted-asset', [$io->slug, $__shownMaster->id ?? null])) !!};
           @endif
           initIiifViewer(__vid, __imgUrl, {!! json_encode($io->title) !!}, '{{ $vType }}', {!! json_encode($__viewerObjects) !!});
 

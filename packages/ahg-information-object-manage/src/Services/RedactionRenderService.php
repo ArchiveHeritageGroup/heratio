@@ -2,6 +2,8 @@
 
 namespace AhgInformationObjectManage\Services;
 
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
@@ -23,15 +25,21 @@ class RedactionRenderService
 {
     private const PYTHON_DIR = __DIR__ . '/../../python';
 
+    /** Region statuses that are in force for viewers. */
+    public const LIVE_STATUSES = ['applied', 'reviewed', 'pending'];
+
     /**
      * Generate (or reuse) a redacted file for the given IO. Returns the
      * absolute path to the redacted file, or null when no master file
      * exists / no regions are on file. Idempotent: a second call with the
      * same regions returns the cached path without re-rendering.
+     *
+     * $doId picks one of the record's images (heratio#1503); null means the
+     * default master, which is what a single-image record always had.
      */
-    public function render(int $ioId): ?string
+    public function render(int $ioId, ?int $doId = null): ?string
     {
-        $master = $this->getMaster($ioId);
+        $master = $doId === null ? $this->defaultMaster($ioId) : $this->masterFor($ioId, $doId);
         if (!$master || empty($master->path) || empty($master->name)) {
             return null;
         }
@@ -72,7 +80,9 @@ class RedactionRenderService
             @mkdir($cacheDir, 0755, true);
         }
         $ext = self::derivativeExtension((string) $master->name, $fileType);
-        $outputPath = $cacheDir . '/' . substr($hash, 0, 16) . '.' . $ext;
+        // The master id is in the name because two images of one record can
+        // carry identical regions, and would otherwise share a file.
+        $outputPath = $cacheDir . '/' . $master->id . '-' . substr($hash, 0, 16) . '.' . $ext;
 
         $ok = $fileType === 'pdf'
             ? $this->renderPdf($sourcePath, $outputPath, $regions)
@@ -114,7 +124,11 @@ class RedactionRenderService
         DB::table('privacy_redaction_cache')->where('object_id', $ioId)->delete();
     }
 
-    private function getMaster(int $ioId): ?object
+    /**
+     * The master a region with no digital_object_id belongs to, and the one a
+     * single-image viewer shows.
+     */
+    public function defaultMaster(int $ioId): ?object
     {
         // An IO can have multiple parent_id IS NULL rows (e.g. a PDF master AND
         // a JPG preview that was uploaded as a separate "master"). The PDF that
@@ -132,12 +146,100 @@ class RedactionRenderService
             ->first();
         if ($referenced) return $referenced;
 
+        // Prefer a real master (usage 140) over an older parentless derivative
+        // row, which is what the editor always picked. The two used to disagree
+        // until a region was saved.
         return DB::table('digital_object')
             ->where('object_id', $ioId)
             ->whereNull('parent_id')
+            ->orderByRaw('usage_id = 140 DESC')
             ->orderBy('id')
             ->select('id', 'name', 'path', 'mime_type')
             ->first();
+    }
+
+    /**
+     * Every image of the record a region can be drawn on: its own parentless
+     * masters, then objects attached through information_object_digital_object
+     * (#1447), whose object_id is NULL. Each carries a `label` for pickers.
+     *
+     * @return Collection<int,object>
+     */
+    public function mastersFor(int $ioId): Collection
+    {
+        $own = DB::table('digital_object')
+            ->where('object_id', $ioId)
+            ->whereNull('parent_id')
+            ->orderBy('id')
+            ->get(['id', 'name', 'path', 'mime_type', 'name as label']);
+
+        $attached = collect();
+        if (\AhgCore\Services\AttachedDigitalObjectService::available()) {
+            $attached = DB::table(\AhgCore\Services\AttachedDigitalObjectService::TABLE . ' as l')
+                ->join('digital_object as d', 'd.id', '=', 'l.digital_object_id')
+                ->where('l.information_object_id', $ioId)
+                ->orderBy('l.sort_order')
+                ->orderBy('l.id')
+                ->get(['d.id', 'd.name', 'd.path', 'd.mime_type', DB::raw('COALESCE(l.caption, d.name) as label')]);
+        }
+
+        return $own->concat($attached)->unique('id')->values();
+    }
+
+    /** One image of the record, or null when $doId is not one of them. */
+    public function masterFor(int $ioId, int $doId): ?object
+    {
+        return $this->mastersFor($ioId)->firstWhere('id', $doId);
+    }
+
+    /**
+     * The image a page is displaying, as a redaction target: that image when it
+     * is one of the record's masters, otherwise the default master. The show
+     * page picks its master its own way (DigitalObjectService::getForObject),
+     * which can land on a row with a parent in legacy data.
+     */
+    public function masterOrDefault(int $ioId, ?int $doId): ?object
+    {
+        return ($doId ? $this->masterFor($ioId, $doId) : null) ?? $this->defaultMaster($ioId);
+    }
+
+    /**
+     * The regions drawn on one image of a record - the single definition every
+     * reader uses, so the editor, the renderer, the asset endpoint and the show
+     * page cannot disagree about which regions cover which file.
+     *
+     * A region belongs to the image in its digital_object_id. Rows with none
+     * predate per-image binding, when the editor only ever drew on a primary
+     * master, so they count against EVERY primary master of the record - never
+     * against an attached object. Where a record has two primaries that can
+     * over-redact the sibling, which is the safe direction: tying them to one
+     * guessed master would leak whenever a page shows the other. Saving in the
+     * editor binds them to the image on screen.
+     */
+    public function regionsQuery(int $ioId, int $masterId, bool $liveOnly = true): Builder
+    {
+        $isPrimary = DB::table('digital_object')
+            ->where('id', $masterId)
+            ->where('object_id', $ioId)
+            ->exists();
+
+        return DB::table('privacy_visual_redaction')
+            ->where('object_id', $ioId)
+            ->when($liveOnly, fn ($q) => $q->whereIn('status', self::LIVE_STATUSES))
+            ->where(function ($q) use ($masterId, $isPrimary) {
+                $q->where('digital_object_id', $masterId);
+                if ($isPrimary) {
+                    $q->orWhereNull('digital_object_id');
+                }
+            });
+    }
+
+    /** Ids of the record's images that carry live regions. */
+    public function redactedMasterIds(int $ioId): array
+    {
+        return $this->mastersFor($ioId)
+            ->filter(fn ($m) => $this->regionsQuery($ioId, (int) $m->id)->exists())
+            ->pluck('id')->map('intval')->values()->all();
     }
 
     private function resolveAbsolutePath(object $master): ?string
@@ -177,13 +279,12 @@ class RedactionRenderService
 
     private function loadRegions(int $ioId, int $masterId): array
     {
-        // Filter by object_id only - the show page's redaction banner / asset
-        // reroute also use object_id, so the renderer must agree with them.
-        // Filtering by digital_object_id used to silently drop the regions when
-        // getMaster() returned a different (sibling) master row.
-        $rows = DB::table('privacy_visual_redaction')
-            ->where('object_id', $ioId)
-            ->whereIn('status', ['applied', 'reviewed', 'pending'])
+        // Through regionsQuery(), the same scope the show page and the asset
+        // endpoint use. Filtering by digital_object_id alone once dropped every
+        // region when the master picked here was a sibling of the one they were
+        // bound to; resolving the master through defaultMaster(), which prefers
+        // the referenced one, is what keeps that from coming back.
+        $rows = $this->regionsQuery($ioId, $masterId)
             ->orderBy('page_number')
             ->orderBy('id')
             ->get();

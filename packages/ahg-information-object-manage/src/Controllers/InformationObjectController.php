@@ -861,9 +861,13 @@ class InformationObjectController extends Controller
                 : (auth()->user()->is_admin ?? false)));
         try {
             if (\Schema::hasTable('privacy_visual_redaction')) {
-                $visualRedactions = DB::table('privacy_visual_redaction')
-                    ->where('object_id', $io->id)
-                    ->whereIn('status', ['applied', 'pending', 'reviewed'])
+                // The displayed master's regions only: those are what the
+                // overlay paints on the primary image. An attached image's
+                // regions are burnt into its own derivative (heratio#1503).
+                $__redactor = app(\AhgInformationObjectManage\Services\RedactionRenderService::class);
+                $__default = $__redactor->masterOrDefault((int) $io->id, isset($digitalObjects['master']->id) ? (int) $digitalObjects['master']->id : null);
+                $visualRedactions = ! $__default ? collect() : $__redactor
+                    ->regionsQuery((int) $io->id, (int) $__default->id)
                     ->orderBy('page_number')
                     ->orderBy('id')
                     ->get();

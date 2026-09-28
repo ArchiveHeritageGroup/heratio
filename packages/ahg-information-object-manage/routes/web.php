@@ -100,7 +100,7 @@ Route::get('/informationobject/browse/hierarchyData', [HierarchyDataController::
 // Redacted asset - public on purpose (non-admin viewers must reach this).
 // The controller does its own admin/non-admin gating: admins are served
 // the original, non-admins get the cached/rendered redacted file.
-Route::get('/privacy/redacted-asset/{slug}', [PrivacyController::class, 'redactedAsset'])->name('io.privacy.redacted-asset');
+Route::get('/privacy/redacted-asset/{slug}/{do?}', [PrivacyController::class, 'redactedAsset'])->whereNumber('do')->name('io.privacy.redacted-asset');
 
 // IO CRUD routes require auth + ACL
 Route::middleware('auth')->group(function () {

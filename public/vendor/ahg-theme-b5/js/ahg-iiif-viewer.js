@@ -343,7 +343,7 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
             var probes = viewerObjects.map(function (o) {
                 return new Promise(function (resolve) {
                     var im = new Image();
-                    im.onload = function () { resolve({ url: o.url, label: o.label, w: im.naturalWidth || 1200, h: im.naturalHeight || 1200 }); };
+                    im.onload = function () { resolve({ url: o.url, label: o.label, redacted: !!o.redacted, w: im.naturalWidth || 1200, h: im.naturalHeight || 1200 }); };
                     im.onerror = function () { resolve(null); };
                     im.src = o.url;
                 });
@@ -358,7 +358,10 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
                     // attach an IIIF image service so this canvas deep-zooms
                     // (tiled pyramid) instead of loading a single flat image.
                     // Non-servable formats (webp/gif/...) keep the plain image.
-                    var svcId = cantaloupeServiceId(it.url);
+                    // A redacted image never gets one (heratio#1503): its url is
+                    // the burnt-in derivative, and Cantaloupe tiles the ORIGINAL,
+                    // so a service would deep-zoom straight past the redaction.
+                    var svcId = it.redacted ? null : cantaloupeServiceId(it.url);
                     var resource = svcId
                         ? {
                             '@id': svcId + '/full/max/0/default.jpg', '@type': 'dctypes:Image',

@@ -199,20 +199,17 @@ class PrivacyController extends Controller
             abort(404);
         }
 
-        // Get the master digital object (try 140=master first, then any)
-        $digitalObject = DB::table('digital_object')
-            ->where('object_id', $io->id)
-            ->where('usage_id', 140)
-            ->first();
-        if (!$digitalObject) {
-            $digitalObject = DB::table('digital_object')
-                ->where('object_id', $io->id)
-                ->orderBy('usage_id')
-                ->first();
-        }
+        // Which of the record's images is being redacted (heratio#1503).
+        // ?do= picks one; without it, the default master, as before.
+        $renderer = app(RedactionRenderService::class);
+        $masters = $renderer->mastersFor((int) $io->id);
+        $digitalObject = $this->redactionTarget($io, request()->query('do'));
 
-        // Get existing redactions for this object
-        $existingRedactions = $this->privacyService->getRedactions($io->id);
+        // Existing redactions on THIS image only
+        $existingRedactions = $digitalObject
+            ? $renderer->regionsQuery((int) $io->id, (int) $digitalObject->id, false)
+                ->orderBy('page_number')->orderBy('created_at')->get()
+            : collect();
 
         // Parse coordinates from JSON and build flat array for JS. Includes
         // the `normalized` flag so the editor's loader can scale 0-1 fractions
@@ -266,6 +263,7 @@ class PrivacyController extends Controller
         return view('ahg-io-manage::privacy.redaction', [
             'io'                 => $io,
             'digitalObject'      => $digitalObject,
+            'masters'            => $masters,
             'existingRedactions' => $redactionRegions,
             'documentUrl'        => $documentUrl,
             'documentType'       => $documentType,
@@ -274,10 +272,29 @@ class PrivacyController extends Controller
     }
 
     /**
-     * POST /privacy/redaction/{slug}/save - persist the regions drawn by
-     * the user. The client sends the FULL list (no per-region ids), so we
-     * treat it as a replace-all: delete the IO's existing redactions, then
-     * insert the new set. Returns JSON for the AJAX caller.
+     * The image a redaction request is about: the ?do= one when it belongs to
+     * the record, the default master when none is given. A ?do= naming some
+     * other record's file is a 404 - it must never select a file to redact or
+     * to serve by id alone.
+     */
+    private function redactionTarget(object $io, $doParam): ?object
+    {
+        $renderer = app(RedactionRenderService::class);
+        if ($doParam === null || $doParam === '') {
+            return $renderer->defaultMaster((int) $io->id);
+        }
+        if (!ctype_digit((string) $doParam)) {
+            abort(404);
+        }
+
+        return $renderer->masterFor((int) $io->id, (int) $doParam) ?? abort(404);
+    }
+
+    /**
+     * POST /privacy/redaction/{slug}/save?do={id} - persist the regions drawn
+     * on one image. The client sends the FULL list for that image (no
+     * per-region ids), so it is a replace-all of that image's regions only;
+     * the record's other images keep theirs. Returns JSON for the AJAX caller.
      */
     public function saveRedactions(\Illuminate\Http\Request $request, string $slug)
     {
@@ -290,18 +307,13 @@ class PrivacyController extends Controller
         $regions = $payload['regions'] ?? $request->input('regions', []);
         if (!is_array($regions)) $regions = [];
 
-        // Resolve the digital_object id (master if available) so the
-        // redactions are stored against the correct file.
-        $digitalObjectId = \DB::table('digital_object')
-            ->where('object_id', $io->id)
-            ->where('usage_id', 140)
-            ->value('id');
-        if (!$digitalObjectId) {
-            $digitalObjectId = \DB::table('digital_object')
-                ->where('object_id', $io->id)
-                ->orderBy('usage_id')
-                ->value('id');
+        // The image these regions are drawn on - the same resolver the editor
+        // used, so a save lands on the file that was on screen.
+        $target = $this->redactionTarget($io, $request->query('do'));
+        if (!$target) {
+            return response()->json(['success' => false, 'message' => 'This record has no digital object to redact'], 422);
         }
+        $digitalObjectId = (int) $target->id;
 
         // Snapshot the existing region set before the replace-all so the
         // audit row carries a real before/after diff (region writes don't go
@@ -310,9 +322,13 @@ class PrivacyController extends Controller
 
         try {
             \DB::transaction(function () use ($io, $digitalObjectId, $regions) {
-                // Replace-all: drop existing redactions for this IO, then insert
-                // the new set. Matches the client payload which has no ids.
-                \DB::table('privacy_visual_redaction')->where('object_id', $io->id)->delete();
+                // Replace-all for this image: drop its existing regions (and any
+                // unbound legacy rows, when it is the default master), then
+                // insert the new set bound to it. Matches the client payload,
+                // which has no ids.
+                app(RedactionRenderService::class)
+                    ->regionsQuery((int) $io->id, $digitalObjectId, false)
+                    ->delete();
 
                 foreach ($regions as $r) {
                     if (!is_array($r)) continue;
@@ -409,9 +425,10 @@ class PrivacyController extends Controller
      * redirected to the original. On cache miss, renders synchronously
      * via RedactionRenderService.
      *
-     * GET /privacy/redacted-asset/{slug}
+     * GET /privacy/redacted-asset/{slug}/{do?} - {do} picks one of the
+     * record's images (heratio#1503); without it, the default master.
      */
-    public function redactedAsset(string $slug)
+    public function redactedAsset(string $slug, ?string $do = null)
     {
         $io = $this->getIO($slug);
         if (!$io) abort(404);
@@ -421,25 +438,10 @@ class PrivacyController extends Controller
                 ? auth()->user()->isAdministrator()
                 : (bool) (auth()->user()->is_admin ?? false));
 
-        // Match RedactionRenderService::getMaster() so controller + renderer
-        // agree on which master to serve when an IO has multiple parent_id IS
-        // NULL rows. Prefer the master referenced by redactions; otherwise
-        // oldest by id so MySQL can't return a different sibling per request.
-        $master = DB::table('digital_object as d')
-            ->join('privacy_visual_redaction as r', 'r.digital_object_id', '=', 'd.id')
-            ->where('d.object_id', $io->id)
-            ->whereNull('d.parent_id')
-            ->whereIn('r.status', ['applied', 'reviewed', 'pending'])
-            ->select('d.*')
-            ->orderBy('d.id')
-            ->first();
-        if (!$master) {
-            $master = DB::table('digital_object')
-                ->where('object_id', $io->id)
-                ->whereNull('parent_id')
-                ->orderBy('id')
-                ->first();
-        }
+        // Same resolver as the renderer, so the two agree on which file this
+        // is. An id that is not one of this record's images is a 404.
+        $renderer = app(RedactionRenderService::class);
+        $master = $this->redactionTarget($io, $do);
         if (!$master) abort(404);
 
         // Admins bypass the redactor - return the original file.
@@ -447,8 +449,7 @@ class PrivacyController extends Controller
             return $this->streamOriginal($master);
         }
 
-        $renderer = app(RedactionRenderService::class);
-        $redactedPath = $renderer->render((int) $io->id);
+        $redactedPath = $renderer->render((int) $io->id, (int) $master->id);
         if (!$redactedPath || !file_exists($redactedPath)) {
             // render() returns null for BOTH "no regions on file" (safe to
             // serve the original) AND "regions exist but rendering failed"
@@ -456,10 +457,7 @@ class PrivacyController extends Controller
             // redact). Distinguish them so we fail CLOSED on a render failure
             // instead of silently leaking, and log accurately.
             $hasRegions = \Schema::hasTable('privacy_visual_redaction')
-                && DB::table('privacy_visual_redaction')
-                    ->where('object_id', $io->id)
-                    ->whereIn('status', ['applied', 'reviewed', 'pending'])
-                    ->exists();
+                && $renderer->regionsQuery((int) $io->id, (int) $master->id)->exists();
             if ($hasRegions) {
                 \Log::error('[redaction] render FAILED for an IO with regions on file - refusing to serve the original (fail-closed). Check the redaction-cache dir is www-data-writable.', ['io_id' => $io->id]);
                 abort(503, 'This record has redactions that could not be applied right now. Please try again later or contact the institution.');
