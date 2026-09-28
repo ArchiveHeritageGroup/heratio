@@ -10,6 +10,33 @@ abstract class TestCase extends BaseTestCase
     use CreatesApplication;
 
     /**
+     * Start every test with no cached identity (heratio#1515).
+     *
+     * AclService keeps the signed-in user and their ACL groups in statics,
+     * which outlive a test: one case's actingAs() admin was still the answer
+     * for every later case in the same process, so tests asserting what a
+     * GUEST may see were quietly run as an administrator.
+     * ActorVisibilityTest caught it - a guest seeing draft and embargoed
+     * authority records - but only when something signed an admin in first,
+     * which is why it passed alone and failed in the full suite.
+     *
+     * forgetUser() was written for exactly this and had no callers.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        \AhgCore\Services\AclService::forgetUser();
+    }
+
+    protected function tearDown(): void
+    {
+        \AhgCore\Services\AclService::forgetUser();
+
+        parent::tearDown();
+    }
+
+    /**
      * Assert an anonymous request was stopped by the admin gate before it
      * reached the controller.
      *
