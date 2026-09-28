@@ -154,6 +154,10 @@ class StorageLocationTest extends TestCase
         $this->actingAs($admin)->get("/storagelocation/{$slug}/edit")->assertOk();
         $this->actingAs($admin)->getJson('/storagelocation/api/tree')->assertOk()->assertJsonPath('success', true);
 
+        // The admin menu links the page (ahg-admin-menu, Storage section).
+        $this->actingAs($admin)->get('/strongroom/browse')->assertOk()
+            ->assertSee(route('storagelocation.browse'), false)->assertSee('Storage locations');
+
         $this->actingAs($admin)->post('/storagelocation/add', [
             'name' => 'ZZ Route Room', 'location_type' => 'room', 'parent_id' => $b,
         ])->assertRedirect();

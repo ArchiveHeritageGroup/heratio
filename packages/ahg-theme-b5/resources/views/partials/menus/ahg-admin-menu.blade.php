@@ -206,6 +206,10 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">{{ __('Storage') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('strongroom.browse') }}"><i class="fas fa-warehouse me-2"></i>{{ __('Strongrooms') }}</a></li>
+    {{-- heratio#1514 - hierarchical storage locations (same package; gated on its own table) --}}
+    @if(\Illuminate\Support\Facades\Schema::hasTable('ahg_storage_location'))
+    <li><a class="dropdown-item" href="{{ route('storagelocation.browse') }}"><i class="fas fa-sitemap me-2"></i>{{ __('Storage locations') }}</a></li>
+    @endif
     @endif
 
     {{-- heratio#146 - front-of-house exhibition spaces (gated by ahg_exhibition_space table) --}}
