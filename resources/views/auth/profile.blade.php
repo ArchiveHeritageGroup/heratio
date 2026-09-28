@@ -13,7 +13,7 @@
   @if(!$user->active)
     <div class="alert alert-warning" role="alert">
       <i class="fas fa-exclamation-triangle me-1"></i>
-      This user account is <strong>inactive</strong>. The user cannot log in.
+      {{ __('This user account is') }} <strong>inactive</strong>. The user cannot log in.
     </div>
   @endif
 
@@ -21,13 +21,13 @@
   <section class="mb-4">
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-id-card me-2"></i> User details</h5>
+        <h5 class="mb-0"><i class="fas fa-id-card me-2"></i> {{ __('User details') }}</h5>
       </div>
       <div class="card-body">
         <table class="table table-bordered mb-0">
           <tbody>
             <tr>
-              <th style="width: 200px;">Username</th>
+              <th style="width: 200px;">{{ __('Username') }}</th>
               <td>
                 {{ $user->username }}
                 @if(auth()->id() === $user->id)
@@ -36,19 +36,19 @@
               </td>
             </tr>
             <tr>
-              <th>Email</th>
+              <th>{{ __('Email') }}</th>
               <td>{{ $user->email }}</td>
             </tr>
             <tr>
-              <th>Password</th>
+              <th>{{ __('Password') }}</th>
               <td>
                 <a href="{{ route('user.password.edit') }}" class="text-decoration-none">
-                  <i class="fas fa-key me-1"></i> Reset password
+                  <i class="fas fa-key me-1"></i> {{ __('Reset password') }}
                 </a>
               </td>
             </tr>
             <tr>
-              <th>User groups</th>
+              <th>{{ __('User groups') }}</th>
               <td>
                 @if($groups->count() > 0)
                   <ul class="list-unstyled mb-0">
@@ -60,13 +60,13 @@
                     @endforeach
                   </ul>
                 @else
-                  <span class="text-muted">No groups assigned</span>
+                  <span class="text-muted">{{ __('No groups assigned') }}</span>
                 @endif
               </td>
             </tr>
             @if($repository)
               <tr>
-                <th>Repository affiliation</th>
+                <th>{{ __('Repository affiliation') }}</th>
                 <td>
                   @if($repository->slug)
                     <a href="{{ url('/' . $repository->slug) }}">
@@ -79,12 +79,12 @@
               </tr>
             @endif
             <tr>
-              <th>Account status</th>
+              <th>{{ __('Account status') }}</th>
               <td>
                 @if($user->active)
-                  <span class="badge bg-success"><i class="fas fa-check me-1"></i> Active</span>
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i> {{ __('Active') }}</span>
                 @else
-                  <span class="badge bg-danger"><i class="fas fa-times me-1"></i> Inactive</span>
+                  <span class="badge bg-danger"><i class="fas fa-times me-1"></i> {{ __('Inactive') }}</span>
                 @endif
               </td>
             </tr>
@@ -98,14 +98,14 @@
   <section class="mb-4">
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i> Security Clearance</h5>
+        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i> {{ __('Security Clearance') }}</h5>
       </div>
       <div class="card-body">
         @if($securityClearance)
           <table class="table table-bordered mb-0">
             <tbody>
               <tr>
-                <th style="width: 200px;">Classification</th>
+                <th style="width: 200px;">{{ __('Classification') }}</th>
                 <td>
                   <span class="badge bg-primary">
                     {{ $securityClearance->classification_name ?? 'Classification #' . $securityClearance->classification_id }}
@@ -113,23 +113,23 @@
                 </td>
               </tr>
               <tr>
-                <th>Granted</th>
+                <th>{{ __('Granted') }}</th>
                 <td>{{ $securityClearance->granted_at }}</td>
               </tr>
               @if($securityClearance->expires_at)
                 <tr>
-                  <th>Expires</th>
+                  <th>{{ __('Expires') }}</th>
                   <td>
                     {{ $securityClearance->expires_at }}
                     @if(\Carbon\Carbon::parse($securityClearance->expires_at)->isPast())
-                      <span class="badge bg-danger ms-1">Expired</span>
+                      <span class="badge bg-danger ms-1">{{ __('Expired') }}</span>
                     @endif
                   </td>
                 </tr>
               @endif
               @if($securityClearance->notes)
                 <tr>
-                  <th>Notes</th>
+                  <th>{{ __('Notes') }}</th>
                   <td>{{ $securityClearance->notes }}</td>
                 </tr>
               @endif
@@ -138,7 +138,7 @@
         @else
           <p class="text-muted mb-0">
             <i class="fas fa-info-circle me-1"></i>
-            No security clearance assigned.
+            {{ __('No security clearance assigned.') }}
           </p>
         @endif
       </div>
@@ -148,7 +148,7 @@
   {{-- Action buttons --}}
   <div class="d-flex flex-wrap gap-2">
     <a href="{{ route('user.profile.edit') }}" class="btn btn-primary">
-      <i class="fas fa-pencil-alt me-1"></i> Edit
+      <i class="fas fa-pencil-alt me-1"></i> {{ __('Edit') }}
     </a>
 
     @if(auth()->user()->isAdministrator() && auth()->id() !== $user->id)
@@ -157,17 +157,17 @@
         @csrf
         @method('DELETE')
         <button type="submit" class="btn btn-danger">
-          <i class="fas fa-trash me-1"></i> Delete
+          <i class="fas fa-trash me-1"></i> {{ __('Delete') }}
         </button>
       </form>
     @endif
 
     @if(auth()->user()->isAdministrator())
       <a href="{{ url('/user/add') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-plus me-1"></i> Add new
+        <i class="fas fa-plus me-1"></i> {{ __('Add new') }}
       </a>
       <a href="{{ url('/user/browse') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-list me-1"></i> Return to user list
+        <i class="fas fa-list me-1"></i> {{ __('Return to user list') }}
       </a>
     @endif
   </div>

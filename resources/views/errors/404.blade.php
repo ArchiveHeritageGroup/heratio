@@ -16,16 +16,16 @@
 
       @if(($themeData['isAdmin'] ?? false))
         <div class="alert alert-warning mt-3 text-start">
-          <h6 class="fw-bold mb-2"><i class="fas fa-shield-alt me-1"></i> Admin debug info</h6>
+          <h6 class="fw-bold mb-2"><i class="fas fa-shield-alt me-1"></i> {{ __('Admin debug info') }}</h6>
           <table class="table table-sm table-borderless mb-0 small">
             <tr><td class="fw-bold text-nowrap pe-3">URL</td><td><code>{{ request()->fullUrl() }}</code></td></tr>
-            <tr><td class="fw-bold text-nowrap pe-3">Method</td><td><code>{{ request()->method() }}</code></td></tr>
+            <tr><td class="fw-bold text-nowrap pe-3">{{ __('Method') }}</td><td><code>{{ request()->method() }}</code></td></tr>
             <tr><td class="fw-bold text-nowrap pe-3">IP</td><td>{{ request()->ip() }}</td></tr>
-            <tr><td class="fw-bold text-nowrap pe-3">Time</td><td>{{ now()->format('Y-m-d H:i:s') }}</td></tr>
+            <tr><td class="fw-bold text-nowrap pe-3">{{ __('Time') }}</td><td>{{ now()->format('Y-m-d H:i:s') }}</td></tr>
             @if($exception ?? null)
-              <tr><td class="fw-bold text-nowrap pe-3">Message</td><td>{{ $exception->getMessage() ?: 'No matching route found' }}</td></tr>
+              <tr><td class="fw-bold text-nowrap pe-3">{{ __('Message') }}</td><td>{{ $exception->getMessage() ?: 'No matching route found' }}</td></tr>
             @endif
-            <tr><td class="fw-bold text-nowrap pe-3">Slug lookup</td><td>
+            <tr><td class="fw-bold text-nowrap pe-3">{{ __('Slug lookup') }}</td><td>
               @php
                 $path = trim(request()->path(), '/');
                 $slugMatch = \Illuminate\Support\Facades\DB::table('slug')->where('slug', $path)->first();

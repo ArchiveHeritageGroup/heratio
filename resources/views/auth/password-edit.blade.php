@@ -30,14 +30,14 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingPassword">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePassword" aria-expanded="true" aria-controls="collapsePassword">
-            <i class="fas fa-lock me-2"></i> Reset password
+            <i class="fas fa-lock me-2"></i> {{ __('Reset password') }}
           </button>
         </h2>
         <div id="collapsePassword" class="accordion-collapse collapse show" aria-labelledby="headingPassword" data-bs-parent="#passwordAccordion">
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="current_password" class="form-label">Current password</label>
+              <label for="current_password" class="form-label">{{ __('Current password') }}</label>
               <input type="password" class="form-control @error('current_password') is-invalid @enderror"
                      id="current_password" name="current_password"
                      required autocomplete="current-password">
@@ -47,7 +47,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="password" class="form-label">New password</label>
+              <label for="password" class="form-label">{{ __('New password') }}</label>
               <input type="password" class="form-control @error('password') is-invalid @enderror"
                      id="password" name="password"
                      required autocomplete="new-password" minlength="8"
@@ -61,7 +61,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="password_confirmation" class="form-label">Confirm new password</label>
+              <label for="password_confirmation" class="form-label">{{ __('Confirm new password') }}</label>
               <input type="password" class="form-control"
                      id="password_confirmation" name="password_confirmation"
                      required autocomplete="new-password" minlength="8">
@@ -75,10 +75,10 @@
     {{-- Buttons --}}
     <div class="d-flex gap-2">
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i> Save
+        <i class="fas fa-save me-1"></i> {{ __('Save') }}
       </button>
       <a href="{{ route('user.profile') }}" class="btn btn-outline-secondary">
-        Cancel
+        {{ __('Cancel') }}
       </a>
     </div>
 

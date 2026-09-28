@@ -5,7 +5,7 @@
 
 @section('content')
 
-  <h1>Reset Password</h1>
+  <h1>{{ __('Reset Password') }}</h1>
 
   @if($errors->any())
     <div class="alert alert-danger">
@@ -22,7 +22,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="reset-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#reset-collapse" aria-expanded="true" aria-controls="reset-collapse">
-            Enter your email address
+            {{ __('Enter your email address') }}
           </button>
         </h2>
         <div id="reset-collapse" class="accordion-collapse collapse show" aria-labelledby="reset-heading">
@@ -30,7 +30,7 @@
             <p>Enter the email address associated with your account and we will send you instructions to reset your password.</p>
 
             <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
+              <label for="email" class="form-label">{{ __('Email') }}</label>
               <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email"
                      value="{{ old('email') }}" required autofocus autocomplete="email">
               @error('email')
@@ -43,7 +43,7 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('login') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+      <li><a href="{{ route('login') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="Send Reset Instructions"></li>
     </ul>
 

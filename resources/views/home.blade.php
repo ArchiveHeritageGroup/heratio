@@ -10,7 +10,7 @@
   {{-- Static pages menu (DB-driven from menu table, matching AtoM) --}}
   @if($staticPages->isNotEmpty())
     <section class="card mb-3">
-      <h2 class="h5 p-3 mb-0">Static pages</h2>
+      <h2 class="h5 p-3 mb-0">{{ __('Static pages') }}</h2>
       <div class="list-group list-group-flush">
         @foreach($staticPages as $sp)
           <a class="list-group-item list-group-item-action" href="{{ url('/' . $sp->slug) }}">
@@ -39,7 +39,7 @@
   {{-- Popular this week --}}
   @if($popularThisWeek->isNotEmpty())
     <section id="popular-this-week" class="card mb-3">
-      <h2 class="h5 p-3 mb-0">Popular this week</h2>
+      <h2 class="h5 p-3 mb-0">{{ __('Popular this week') }}</h2>
       <div class="list-group list-group-flush">
         @foreach($popularThisWeek as $item)
           <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break"
@@ -92,7 +92,7 @@
       <div class="col-md-7">
         <h2 class="h3 mb-2 d-flex align-items-center">
           <i class="fas fa-store me-2"></i>
-          Heratio Marketplace
+          {{ __('Heratio Marketplace') }}
         </h2>
         <p class="mb-0 lh-base">
           Buy and sell GLAM objects, artworks and collectibles &mdash; from gallery pieces to
@@ -107,7 +107,7 @@
           </a>
           <a href="{{ url('/marketplace/register') }}"
              class="btn btn-light btn-lg fw-semibold px-4 shadow-sm">
-            <i class="fas fa-tag me-2"></i>Sell or join
+            <i class="fas fa-tag me-2"></i>{{ __('Sell or join') }}
           </a>
         </div>
         <div class="text-end mt-2">
@@ -139,7 +139,7 @@
           {{ $collection->name }}
         </h2>
         <a href="{{ url('/manifest-collection/' . $collection->id . '/view') }}" class="btn btn-sm btn-primary">
-          View All <i class="fas fa-arrow-right ms-1"></i>
+          {{ __('View All') }} <i class="fas fa-arrow-right ms-1"></i>
         </a>
       </div>
       @if($collection->description)
@@ -173,7 +173,7 @@
                        style="max-width: 100%; max-height: 100%; object-fit: contain;"
                        alt="{{ $slide['title'] }}"
                        loading="{{ $idx < 3 ? 'eager' : 'lazy' }}"
-                       onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'text-white-50 text-center\'><i class=\'fas fa-image fa-3x mb-2\'></i><br>Image unavailable</div>';">
+                       onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'text-white-50 text-center\'><i class=\'fas fa-image fa-3x mb-2\'></i><br>{{ __('Image unavailable') }}</div>';">
                 </div>
               </a>
               @if($showCaptions)

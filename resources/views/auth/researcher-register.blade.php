@@ -5,13 +5,13 @@
 
 @section('content')
 
-<h1><i class="fas fa-user-plus text-primary me-2"></i>Researcher Registration</h1>
+<h1><i class="fas fa-user-plus text-primary me-2"></i>{{ __('Researcher Registration') }}</h1>
 
 <div class="row justify-content-center">
   <div class="col-lg-10">
     <div class="card">
       <div class="card-header bg-primary text-white">
-        <i class="fas fa-clipboard-list me-2"></i>Create Your Research Account
+        <i class="fas fa-clipboard-list me-2"></i>{{ __('Create Your Research Account') }}
       </div>
       <div class="card-body">
         <div class="alert alert-info">
@@ -34,10 +34,10 @@
           <div class="row">
             {{-- Account Information --}}
             <div class="col-md-6">
-              <h5 class="mb-3 border-bottom pb-2"><i class="fas fa-key me-2"></i>Account Information</h5>
+              <h5 class="mb-3 border-bottom pb-2"><i class="fas fa-key me-2"></i>{{ __('Account Information') }}</h5>
 
               <div class="mb-3">
-                <label class="form-label">Username <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Username') }} <span class="text-danger">*</span></label>
                 <input type="text" name="username" class="form-control @error('username') is-invalid @enderror"
                        value="{{ old('username') }}" required minlength="3" placeholder="Choose a username" autocomplete="username">
                 <small class="text-muted">At least 3 characters, letters and numbers only</small>
@@ -47,7 +47,7 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Email Address') }} <span class="text-danger">*</span></label>
                 <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
                        value="{{ old('email') }}" required placeholder="your.email@example.com" autocomplete="email">
                 @error('email')
@@ -56,7 +56,7 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Password <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Password') }} <span class="text-danger">*</span></label>
                 <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
                        required minlength="8" id="password" autocomplete="new-password">
                 <small class="text-muted">At least 8 characters</small>
@@ -66,25 +66,25 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Confirm Password') }} <span class="text-danger">*</span></label>
                 <input type="password" name="password_confirmation" class="form-control" required minlength="8" autocomplete="new-password">
               </div>
 
-              <h5 class="mb-3 mt-4 border-bottom pb-2"><i class="fas fa-id-card me-2"></i>Identification</h5>
+              <h5 class="mb-3 mt-4 border-bottom pb-2"><i class="fas fa-id-card me-2"></i>{{ __('Identification') }}</h5>
 
               <div class="row mb-3">
                 <div class="col-md-5">
-                  <label class="form-label">ID Type</label>
+                  <label class="form-label">{{ __('ID Type') }}</label>
                   <select name="id_type" class="form-select">
                     <option value="">--</option>
-                    <option value="passport" {{ old('id_type') == 'passport' ? 'selected' : '' }}>Passport</option>
-                    <option value="national_id" {{ old('id_type') == 'national_id' ? 'selected' : '' }}>National ID</option>
-                    <option value="drivers_license" {{ old('id_type') == 'drivers_license' ? 'selected' : '' }}>Driver's License</option>
-                    <option value="student_card" {{ old('id_type') == 'student_card' ? 'selected' : '' }}>Student Card</option>
+                    <option value="passport" {{ old('id_type') == 'passport' ? 'selected' : '' }}>{{ __('Passport') }}</option>
+                    <option value="national_id" {{ old('id_type') == 'national_id' ? 'selected' : '' }}>{{ __('National ID') }}</option>
+                    <option value="drivers_license" {{ old('id_type') == 'drivers_license' ? 'selected' : '' }}>{{ __('Driver\'s License') }}</option>
+                    <option value="student_card" {{ old('id_type') == 'student_card' ? 'selected' : '' }}>{{ __('Student Card') }}</option>
                   </select>
                 </div>
                 <div class="col-md-7">
-                  <label class="form-label">ID Number</label>
+                  <label class="form-label">{{ __('ID Number') }}</label>
                   <input type="text" name="id_number" class="form-control" value="{{ old('id_number') }}">
                 </div>
               </div>
@@ -92,22 +92,22 @@
 
             {{-- Personal Information --}}
             <div class="col-md-6">
-              <h5 class="mb-3 border-bottom pb-2"><i class="fas fa-user me-2"></i>Personal Information</h5>
+              <h5 class="mb-3 border-bottom pb-2"><i class="fas fa-user me-2"></i>{{ __('Personal Information') }}</h5>
 
               <div class="row mb-3">
                 <div class="col-md-3">
-                  <label class="form-label">Title</label>
+                  <label class="form-label">{{ __('Title') }}</label>
                   <select name="title" class="form-select">
                     <option value="">--</option>
                     <option value="Mr" {{ old('title') == 'Mr' ? 'selected' : '' }}>Mr</option>
-                    <option value="Mrs" {{ old('title') == 'Mrs' ? 'selected' : '' }}>Mrs</option>
+                    <option value="Mrs" {{ old('title') == 'Mrs' ? 'selected' : '' }}>{{ __('Mrs') }}</option>
                     <option value="Ms" {{ old('title') == 'Ms' ? 'selected' : '' }}>Ms</option>
                     <option value="Dr" {{ old('title') == 'Dr' ? 'selected' : '' }}>Dr</option>
-                    <option value="Prof" {{ old('title') == 'Prof' ? 'selected' : '' }}>Prof</option>
+                    <option value="Prof" {{ old('title') == 'Prof' ? 'selected' : '' }}>{{ __('Prof') }}</option>
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">First Name <span class="text-danger">*</span></label>
+                  <label class="form-label">{{ __('First Name') }} <span class="text-danger">*</span></label>
                   <input type="text" name="first_name" class="form-control @error('first_name') is-invalid @enderror"
                          value="{{ old('first_name') }}" required>
                   @error('first_name')
@@ -115,7 +115,7 @@
                   @enderror
                 </div>
                 <div class="col-md-5">
-                  <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                  <label class="form-label">{{ __('Last Name') }} <span class="text-danger">*</span></label>
                   <input type="text" name="last_name" class="form-control @error('last_name') is-invalid @enderror"
                          value="{{ old('last_name') }}" required>
                   @error('last_name')
@@ -125,37 +125,37 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Phone</label>
+                <label class="form-label">{{ __('Phone') }}</label>
                 <input type="tel" name="phone" class="form-control" value="{{ old('phone') }}">
               </div>
 
-              <h5 class="mb-3 mt-4 border-bottom pb-2"><i class="fas fa-university me-2"></i>Affiliation</h5>
+              <h5 class="mb-3 mt-4 border-bottom pb-2"><i class="fas fa-university me-2"></i>{{ __('Affiliation') }}</h5>
 
               <div class="mb-3">
-                <label class="form-label">Affiliation Type <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Affiliation Type') }} <span class="text-danger">*</span></label>
                 <select name="affiliation_type" class="form-select" required>
-                  <option value="independent" {{ old('affiliation_type', 'independent') == 'independent' ? 'selected' : '' }}>Independent Researcher</option>
-                  <option value="academic" {{ old('affiliation_type') == 'academic' ? 'selected' : '' }}>Academic Institution</option>
-                  <option value="government" {{ old('affiliation_type') == 'government' ? 'selected' : '' }}>Government</option>
-                  <option value="private" {{ old('affiliation_type') == 'private' ? 'selected' : '' }}>Private Organization</option>
-                  <option value="student" {{ old('affiliation_type') == 'student' ? 'selected' : '' }}>Student</option>
-                  <option value="other" {{ old('affiliation_type') == 'other' ? 'selected' : '' }}>Other</option>
+                  <option value="independent" {{ old('affiliation_type', 'independent') == 'independent' ? 'selected' : '' }}>{{ __('Independent Researcher') }}</option>
+                  <option value="academic" {{ old('affiliation_type') == 'academic' ? 'selected' : '' }}>{{ __('Academic Institution') }}</option>
+                  <option value="government" {{ old('affiliation_type') == 'government' ? 'selected' : '' }}>{{ __('Government') }}</option>
+                  <option value="private" {{ old('affiliation_type') == 'private' ? 'selected' : '' }}>{{ __('Private Organization') }}</option>
+                  <option value="student" {{ old('affiliation_type') == 'student' ? 'selected' : '' }}>{{ __('Student') }}</option>
+                  <option value="other" {{ old('affiliation_type') == 'other' ? 'selected' : '' }}>{{ __('Other') }}</option>
                 </select>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Institution</label>
+                <label class="form-label">{{ __('Institution') }}</label>
                 <input type="text" name="institution" class="form-control"
                        value="{{ old('institution') }}" placeholder="University, Organization, etc.">
               </div>
 
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <label class="form-label">Department</label>
+                  <label class="form-label">{{ __('Department') }}</label>
                   <input type="text" name="department" class="form-control" value="{{ old('department') }}">
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Position</label>
+                  <label class="form-label">{{ __('Position') }}</label>
                   <input type="text" name="position" class="form-control" value="{{ old('position') }}">
                 </div>
               </div>
@@ -171,18 +171,18 @@
           {{-- Research Information --}}
           <div class="row mt-3">
             <div class="col-12">
-              <h5 class="mb-3 border-bottom pb-2"><i class="fas fa-flask me-2"></i>Research Information</h5>
+              <h5 class="mb-3 border-bottom pb-2"><i class="fas fa-flask me-2"></i>{{ __('Research Information') }}</h5>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label">Research Interests</label>
+                <label class="form-label">{{ __('Research Interests') }}</label>
                 <textarea name="research_interests" class="form-control" rows="3"
                           placeholder="Describe your research interests...">{{ old('research_interests') }}</textarea>
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label">Current Project</label>
+                <label class="form-label">{{ __('Current Project') }}</label>
                 <textarea name="current_project" class="form-control" rows="3"
                           placeholder="Describe your current research project...">{{ old('current_project') }}</textarea>
               </div>
@@ -193,11 +193,11 @@
 
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <span class="text-muted">Already have an account?</span>
-              <a href="{{ route('login') }}">Login here</a>
+              <span class="text-muted">{{ __('Already have an account?') }}</span>
+              <a href="{{ route('login') }}">{{ __('Login here') }}</a>
             </div>
             <button type="submit" class="btn btn-primary btn-lg">
-              <i class="fas fa-paper-plane me-2"></i>Submit Registration
+              <i class="fas fa-paper-plane me-2"></i>{{ __('Submit Registration') }}
             </button>
           </div>
         </form>

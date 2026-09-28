@@ -5,7 +5,7 @@
 
 @section('content')
 
-  <h1>Reset Your Password</h1>
+  <h1>{{ __('Reset Your Password') }}</h1>
 
   @if($errors->any())
     <div class="alert alert-danger">
@@ -22,7 +22,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="newpw-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#newpw-collapse" aria-expanded="true" aria-controls="newpw-collapse">
-            Enter your new password
+            {{ __('Enter your new password') }}
           </button>
         </h2>
         <div id="newpw-collapse" class="accordion-collapse collapse show" aria-labelledby="newpw-heading">
@@ -46,7 +46,7 @@
                 ></div>
 
                 <div class="mb-3">
-                  <label for="password" class="form-label">New Password</label>
+                  <label for="password" class="form-label">{{ __('New Password') }}</label>
                   <input type="password" class="form-control password-strength @error('password') is-invalid @enderror"
                          id="password" name="password" required autocomplete="new-password">
                   @error('password')
@@ -55,14 +55,14 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="password_confirmation" class="form-label">Confirm Password</label>
+                  <label for="password_confirmation" class="form-label">{{ __('Confirm Password') }}</label>
                   <input type="password" class="form-control password-confirm"
                          id="password_confirmation" name="password_confirmation" required autocomplete="new-password">
                 </div>
               </div>
               <div class="col-md-6 template" hidden>
                 <div class="mb-3 bg-light p-3 rounded border-start border-4">
-                  <label class="form-label">Password strength:</label>
+                  <label class="form-label">{{ __('Password strength:') }}</label>
                   <div class="progress mb-3">
                     <div class="progress-bar w-0" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                   </div>
@@ -75,7 +75,7 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('login') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+      <li><a href="{{ route('login') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="Reset Password"></li>
     </ul>
 

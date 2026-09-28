@@ -5,7 +5,7 @@
 
 @section('content')
 
-  <h1>Register</h1>
+  <h1>{{ __('Register') }}</h1>
 
   @if($errors->any())
     <div class="alert alert-danger">
@@ -22,13 +22,13 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="basic-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#basic-collapse" aria-expanded="true" aria-controls="basic-collapse">
-            Basic info
+            {{ __('Basic info') }}
           </button>
         </h2>
         <div id="basic-collapse" class="accordion-collapse collapse show" aria-labelledby="basic-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="username" class="form-label">User name</label>
+              <label for="username" class="form-label">{{ __('User name') }}</label>
               <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username"
                      value="{{ old('username') }}" required autocomplete="username">
               @error('username')
@@ -37,7 +37,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
+              <label for="email" class="form-label">{{ __('Email') }}</label>
               <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email"
                      value="{{ old('email') }}" required autocomplete="email">
               @error('email')
@@ -64,7 +64,7 @@
                 ></div>
 
                 <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
+                  <label for="password" class="form-label">{{ __('Password') }}</label>
                   <input type="password" class="form-control password-strength @error('password') is-invalid @enderror"
                          id="password" name="password" required autocomplete="new-password">
                   @error('password')
@@ -73,13 +73,13 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="password_confirmation" class="form-label">Confirm password</label>
+                  <label for="password_confirmation" class="form-label">{{ __('Confirm password') }}</label>
                   <input type="password" class="form-control password-confirm" id="password_confirmation" name="password_confirmation" required autocomplete="new-password">
                 </div>
               </div>
               <div class="col-md-6 template" hidden>
                 <div class="mb-3 bg-light p-3 rounded border-start border-4">
-                  <label class="form-label">Password strength:</label>
+                  <label class="form-label">{{ __('Password strength:') }}</label>
                   <div class="progress mb-3">
                     <div class="progress-bar w-0" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                   </div>
@@ -92,7 +92,7 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('login') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+      <li><a href="{{ route('login') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
     </ul>
 

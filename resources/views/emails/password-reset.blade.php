@@ -11,14 +11,14 @@
 </head>
 <body>
     <div class="container">
-        <h2>Password Reset Request</h2>
+        <h2>{{ __('Password Reset Request') }}</h2>
 
         <p>Hello {{ $username }},</p>
 
         <p>You have requested to reset your password. Click the button below to set a new password:</p>
 
         <p style="text-align: center; margin: 30px 0;">
-            <a href="{{ $resetUrl }}" class="btn">Reset Password</a>
+            <a href="{{ $resetUrl }}" class="btn">{{ __('Reset Password') }}</a>
         </p>
 
         <p>If the button above does not work, copy and paste the following URL into your browser:</p>

@@ -30,14 +30,14 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingBasicInfo">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBasicInfo" aria-expanded="true" aria-controls="collapseBasicInfo">
-            <i class="fas fa-user me-2"></i> Basic info
+            <i class="fas fa-user me-2"></i> {{ __('Basic info') }}
           </button>
         </h2>
         <div id="collapseBasicInfo" class="accordion-collapse collapse show" aria-labelledby="headingBasicInfo" data-bs-parent="#basicInfoAccordion">
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="username" class="form-label">Username</label>
+              <label for="username" class="form-label">{{ __('Username') }}</label>
               <input type="text" class="form-control @error('username') is-invalid @enderror"
                      id="username" name="username"
                      value="{{ old('username', $user->username) }}" required>
@@ -47,7 +47,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
+              <label for="email" class="form-label">{{ __('Email') }}</label>
               <input type="email" class="form-control @error('email') is-invalid @enderror"
                      id="email" name="email"
                      value="{{ old('email', $user->email) }}" required>
@@ -58,7 +58,7 @@
 
             <div class="mb-3">
               <label for="password" class="form-label">
-                Password
+                {{ __('Password') }}
                 <span class="text-muted">(leave blank to keep current)</span>
               </label>
               <input type="password" class="form-control @error('password') is-invalid @enderror"
@@ -73,7 +73,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="password_confirmation" class="form-label">Confirm password</label>
+              <label for="password_confirmation" class="form-label">{{ __('Confirm password') }}</label>
               <input type="password" class="form-control"
                      id="password_confirmation" name="password_confirmation"
                      autocomplete="new-password" minlength="8">
@@ -84,9 +84,9 @@
                 <input class="form-check-input" type="checkbox" id="active" name="active" value="1"
                        {{ old('active', $user->active) ? 'checked' : '' }}>
                 <label class="form-check-label" for="active">
-                  Active
+                  {{ __('Active') }}
                 </label>
-                <div class="form-text">Inactive users cannot log in.</div>
+                <div class="form-text">{{ __('Inactive users cannot log in.') }}</div>
               </div>
             @endif
 
@@ -101,14 +101,14 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingAccessControl">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAccessControl" aria-expanded="true" aria-controls="collapseAccessControl">
-              <i class="fas fa-shield-alt me-2"></i> Access control
+              <i class="fas fa-shield-alt me-2"></i> {{ __('Access control') }}
             </button>
           </h2>
           <div id="collapseAccessControl" class="accordion-collapse collapse show" aria-labelledby="headingAccessControl" data-bs-parent="#accessControlAccordion">
             <div class="accordion-body">
 
               <div class="mb-3">
-                <label class="form-label">User groups</label>
+                <label class="form-label">{{ __('User groups') }}</label>
                 @foreach($allGroups as $group)
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox"
@@ -131,10 +131,10 @@
     {{-- Buttons --}}
     <div class="d-flex gap-2">
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i> Save
+        <i class="fas fa-save me-1"></i> {{ __('Save') }}
       </button>
       <a href="{{ route('user.profile') }}" class="btn btn-outline-secondary">
-        Cancel
+        {{ __('Cancel') }}
       </a>
     </div>
 
